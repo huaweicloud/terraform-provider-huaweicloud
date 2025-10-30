@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_users": {
+          "block": {
+            "attributes": {
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name of the user.",
+                "optional": true
+              },
+              "email": {
+                "type": "string",
+                "description": "Specifies the email of the user.",
+                "optional": true
+              },
+              "family_name": {
+                "type": "string",
+                "description": "Specifies the family name of the user.",
+                "optional": true
+              },
+              "given_name": {
+                "type": "string",
+                "description": "Specifies the given name of the user.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "description": "Specifies the ID of the identity store that associated with IAM Identity Center.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Specifies the name of the user.",
+                "optional": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "addresses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "country": "string",
+                            "formatted": "string",
+                            "locality": "string",
+                            "postal_code": "string",
+                            "region": "string",
+                            "street_address": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "created_by": "string",
+                      "display_name": "string",
+                      "email": "string",
+                      "email_verified": "bool",
+                      "enabled": "bool",
+                      "enterprise": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cost_center": "string",
+                            "department": "string",
+                            "division": "string",
+                            "employee_number": "string",
+                            "manager": "string",
+                            "organization": "string"
+                          }
+                        ]
+                      ],
+                      "family_name": "string",
+                      "given_name": "string",
+                      "id": "string",
+                      "phone_number": "string",
+                      "title": "string",
+                      "updated_at": "string",
+                      "updated_by": "string",
+                      "user_name": "string",
+                      "user_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of IdentityCenter user.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

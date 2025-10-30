@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cpcs_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "display_name": "string",
+                      "id": "string",
+                      "locales": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "region_id": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

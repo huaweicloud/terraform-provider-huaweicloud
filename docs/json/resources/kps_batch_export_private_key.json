@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kps_batch_export_private_key": {
+          "block": {
+            "attributes": {
+              "export_file_name": {
+                "type": "string",
+                "description": "Specifies the directory file for storing exported key pairs, and requires the file ending in .zip",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "keypairs": {
+                "block": {
+                  "attributes": {
+                    "fingerprint": {
+                      "type": "string",
+                      "description": "Specifies the fingerprint of the keypair.",
+                      "optional": true
+                    },
+                    "frozen_state": {
+                      "type": "string",
+                      "description": "Specifies the frozen state of the keypair.",
+                      "optional": true
+                    },
+                    "is_key_protection": {
+                      "type": "bool",
+                      "description": "Specifies whether the key is protected.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the SSH keypair name.",
+                      "optional": true
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Specifies the public key of the keypair.",
+                      "optional": true
+                    },
+                    "scope": {
+                      "type": "string",
+                      "description": "Specifies the scope of the keypair.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the SSH keypair type.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the list of keypairs to export."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

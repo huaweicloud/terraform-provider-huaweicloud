@@ -7,10 +7,12 @@
             "attributes": {
               "domain_id": {
                 "type": "string",
+                "description": "The ID of the domain.",
                 "optional": true
               },
               "domain_status": {
                 "type": "string",
+                "description": "The status of the domain.",
                 "optional": true
               },
               "domains": {
@@ -60,10 +62,12 @@
                     }
                   ]
                 ],
+                "description": "The list of domains that matched filter parameters.",
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the resource belongs.",
                 "optional": true
               },
               "id": {
@@ -72,14 +76,17 @@
               },
               "name": {
                 "type": "string",
+                "description": "The name of the domain.",
                 "optional": true
               },
               "service_area": {
                 "type": "string",
+                "description": "The accelerated coverage area for the domain.",
                 "optional": true
               },
               "type": {
                 "type": "string",
+                "description": "The business type of the domain.",
                 "optional": true
               }
             }

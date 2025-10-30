@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_asset_website_hosts": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "required": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "app_name": "string",
+                      "bind_addr": "string",
+                      "cert_expired_time": "string",
+                      "cert_issue_time": "string",
+                      "cert_issuer": "string",
+                      "cert_user": "string",
+                      "container_id": "string",
+                      "container_name": "string",
+                      "domain": "string",
+                      "gid": "number",
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "is_https": "bool",
+                      "mode": "string",
+                      "path": "string",
+                      "pid": "number",
+                      "port": "number",
+                      "proc_path": "string",
+                      "record_time": "number",
+                      "uid": "number",
+                      "url_path": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "domain": {
+                "type": "string",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "part_match": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,17 +7,17 @@
             "attributes": {
               "end_date": {
                 "type": "number",
-                "description": "Specifies the query end time.",
+                "description": "The query end time.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "description": "The ID of the enterprise project to which the resource belongs.",
                 "optional": true
               },
               "file_type": {
                 "type": "string",
-                "description": "Specifies the file type.",
+                "description": "The file type.",
                 "optional": true
               },
               "id": {
@@ -26,27 +26,27 @@
               },
               "order_field": {
                 "type": "string",
-                "description": "Specifies the field used for sorting.",
+                "description": "The field used for sorting.",
                 "optional": true
               },
               "order_type": {
                 "type": "string",
-                "description": "Specifies the sorting type.",
+                "description": "The sorting type.",
                 "optional": true
               },
               "start_date": {
                 "type": "number",
-                "description": "Specifies the query start time.",
+                "description": "The query start time.",
                 "optional": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the task status.",
+                "description": "The task status.",
                 "optional": true
               },
               "task_type": {
                 "type": "string",
-                "description": "Specifies the task type.",
+                "description": "The task type.",
                 "optional": true
               },
               "tasks": {
@@ -67,7 +67,7 @@
                     }
                   ]
                 ],
-                "description": "The history task list.",
+                "description": "The list of history tasks that matched filter parameters.",
                 "computed": true
               }
             }

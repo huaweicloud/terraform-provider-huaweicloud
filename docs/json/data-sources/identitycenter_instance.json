@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_instance": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "description": "Indicates the alias of the instance.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "description": "Indicates the ID of the identity store that associated with IAM Identity Center.",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the instance.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

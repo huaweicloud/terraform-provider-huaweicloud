@@ -56,14 +56,6 @@
                 "type": "string",
                 "computed": true
               },
-              "masters": {
-                "type": [
-                  "set",
-                  "string"
-                ],
-                "description": "The list of the masters of the DNS server.",
-                "computed": true
-              },
               "name": {
                 "type": "string",
                 "description": "The name of the zone.",

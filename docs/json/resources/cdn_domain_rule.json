@@ -11,7 +11,7 @@
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the domain name.",
+                "description": "The domain name.",
                 "required": true
               }
             },
@@ -21,12 +21,12 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "description": "Specifies the rule name. The valid length is limit from `1` to `50`.",
+                      "description": "The rule name. The valid length is limit from `1` to `50`.",
                       "required": true
                     },
                     "priority": {
                       "type": "number",
-                      "description": "Specifies the rule priority. The valid value is limit from 1 to 100.",
+                      "description": "The rule priority. The valid value is limit from 1 to 100.",
                       "required": true
                     },
                     "rule_id": {
@@ -35,7 +35,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "description": "Specifies the rule status. Valid values are **on** and **off**.",
+                      "description": "The rule status. Valid values are **on** and **off**.",
                       "required": true
                     }
                   },
@@ -277,7 +277,7 @@
                       "max_items": 1
                     }
                   },
-                  "description": "Specifies a list of rules."
+                  "description": "The list of rules."
                 },
                 "nesting_mode": "set",
                 "min_items": 1

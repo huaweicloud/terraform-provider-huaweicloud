@@ -7,14 +7,13 @@
             "attributes": {
               "created_at": {
                 "type": "string",
-                "description": "The creation time.",
+                "description": "The creation time, in RFC3339 format.",
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project ID.",
-                "optional": true,
-                "forcenew": true
+                "description": "The enterprise project ID to which the resource belongs.",
+                "optional": true
               },
               "failed": {
                 "type": "number",
@@ -50,15 +49,13 @@
                   "set",
                   "string"
                 ],
-                "description": "Specifies the URLs that need to be preheated.",
-                "required": true,
-                "forcenew": true
+                "description": "The URLs that need to be preheated.",
+                "required": true
               },
               "zh_url_encode": {
                 "type": "bool",
-                "description": "Specifies whether to encode Chinese characters in URLs before cache preheat.",
-                "optional": true,
-                "forcenew": true
+                "description": "Whether to encode Chinese characters in URLs before cache preheat.",
+                "optional": true
               }
             }
           },

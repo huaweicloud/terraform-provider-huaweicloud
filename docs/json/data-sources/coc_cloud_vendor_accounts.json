@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_cloud_vendor_accounts": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "description": "Specifies the account ID of a supplier.",
+                "optional": true
+              },
+              "account_name": {
+                "type": "string",
+                "description": "Specifies the account name.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "account_name": "string",
+                      "ak": "string",
+                      "create_time": "string",
+                      "domain_id": "string",
+                      "failure_msg": "string",
+                      "id": "string",
+                      "sync_date": "string",
+                      "sync_status": "string",
+                      "update_time": "string",
+                      "vendor": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of cloud vendor account.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "vendor": {
+                "type": "string",
+                "description": "Specifies the cloud vendor information.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_modify_webtamper_protection_policy": {
+          "block": {
+            "attributes": {
+              "enable_privileged_process": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_rasp_protect": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_timing_off": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "rasp_path": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "privileged_process_info": {
+                "block": {
+                  "attributes": {
+                    "privileged_child_status": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "privileged_process_path_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "protect_dir_info": {
+                "block": {
+                  "attributes": {
+                    "exclude_file_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "protect_mode": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "protect_dir_list": {
+                      "block": {
+                        "attributes": {
+                          "exclude_child_dir": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "exclude_file_path": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "local_backup_dir": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "protect_dir": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "timing_off_config_info": {
+                "block": {
+                  "attributes": {
+                    "week_off_list": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "timing_range_list": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "time_range": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

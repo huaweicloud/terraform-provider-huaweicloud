@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kps_batch_import_keypair": {
+          "block": {
+            "attributes": {
+              "failed_keypairs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "failed_reason": "string",
+                      "keypair_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of failed imported keypairs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "succeeded_keypairs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fingerprint": "string",
+                      "name": "string",
+                      "private_key": "string",
+                      "public_key": "string",
+                      "type": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of successfully imported keypairs.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "keypairs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the SSH keypair name.",
+                      "required": true
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Specifies the public key of the keypair.",
+                      "optional": true
+                    },
+                    "scope": {
+                      "type": "string",
+                      "description": "Specifies the scope of the keypair.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the SSH keypair type.",
+                      "optional": true
+                    },
+                    "user_id": {
+                      "type": "string",
+                      "description": "Specifies the user ID of the keypair.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "key_protection": {
+                      "block": {
+                        "attributes": {
+                          "private_key": {
+                            "type": "string",
+                            "description": "Specifies the private key of the keypair.",
+                            "optional": true,
+                            "sensitive": true
+                          }
+                        },
+                        "block_types": {
+                          "encryption": {
+                            "block": {
+                              "attributes": {
+                                "kms_key_id": {
+                                  "type": "string",
+                                  "description": "Specifies the KMS key ID.",
+                                  "optional": true
+                                },
+                                "kms_key_name": {
+                                  "type": "string",
+                                  "description": "Specifies the KMS key name.",
+                                  "optional": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "Specifies the encryption type.",
+                                  "required": true
+                                }
+                              },
+                              "description": "Specifies the encryption configuration."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Specifies the key protection configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the list of keypairs to import."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

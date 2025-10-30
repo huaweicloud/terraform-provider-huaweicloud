@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_account_assignment": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the Identity Center instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "permission_set_id": {
+                "type": "string",
+                "description": "Specifies the ID of the permission set.",
+                "required": true,
+                "forcenew": true
+              },
+              "principal_id": {
+                "type": "string",
+                "description": "Specifies the ID of the user or user group that belongs to IAM Identity Center.",
+                "required": true,
+                "forcenew": true
+              },
+              "principal_type": {
+                "type": "string",
+                "description": "Specifies the type of the user or user group.",
+                "required": true,
+                "forcenew": true
+              },
+              "target_id": {
+                "type": "string",
+                "description": "Specifies the ID of the target to be bound.",
+                "required": true,
+                "forcenew": true
+              },
+              "target_type": {
+                "type": "string",
+                "description": "Specifies the type of the target to be bound.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

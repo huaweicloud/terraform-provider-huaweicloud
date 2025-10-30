@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cpcs_resource_infos": {
+          "block": {
+            "attributes": {
+              "app": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "ccsp_service": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_num": "number",
+                      "instance_distribution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "colla_sign": "number",
+                            "db_encrypt": "number",
+                            "digit_seal": "number",
+                            "encrypt_decrypt": "number",
+                            "file_encrypt": "number",
+                            "kms": "number",
+                            "otp": "number",
+                            "sign_verify": "number",
+                            "ssl_vpn": "number",
+                            "timestamp": "number"
+                          }
+                        ]
+                      ],
+                      "instance_num": "number",
+                      "instance_quota": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cloud_service": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_distribution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "kms": "number"
+                          }
+                        ]
+                      ],
+                      "resource_num": "number",
+                      "service_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "result": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "aes_256": "number",
+                            "ec_p256": "number",
+                            "ec_p384": "number",
+                            "rsa_2048": "number",
+                            "rsa_3072": "number",
+                            "rsa_4096": "number",
+                            "sm2": "number",
+                            "sm4": "number"
+                          }
+                        ]
+                      ],
+                      "total_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vsm": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_num": "number",
+                      "cpcs_cluster_num": "number",
+                      "cpcs_instance_num": "number",
+                      "instance_num": "number",
+                      "instance_quota": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

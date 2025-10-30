@@ -7,27 +7,27 @@
             "attributes": {
               "action": {
                 "type": "string",
-                "description": "Specifies the action name. Possible values are **summary** and **detail**.",
+                "description": "The action name.",
                 "required": true
               },
               "domain_name": {
                 "type": "string",
-                "description": "Specifies the domain name list.",
+                "description": "The domain name list.",
                 "required": true
               },
               "end_time": {
                 "type": "number",
-                "description": "Specifies the end timestamp of the query.",
+                "description": "The end timestamp of the query.",
                 "required": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the ID of the enterprise project that the resource belongs to.",
+                "description": "The ID of the enterprise project that the resource belongs.",
                 "optional": true
               },
               "group_by": {
                 "type": "string",
-                "description": "Specifies the data grouping mode.",
+                "description": "The data grouping mode.",
                 "optional": true
               },
               "id": {
@@ -36,27 +36,27 @@
               },
               "interval": {
                 "type": "number",
-                "description": "Specifies the query interval, in seconds.",
+                "description": "The query interval.",
                 "optional": true
               },
               "result": {
                 "type": "string",
-                "description": "Indicated the data organized according to the specified grouping mode.",
+                "description": "The data organized according to the specified grouping mode.",
                 "computed": true
               },
               "service_area": {
                 "type": "string",
-                "description": "Specifies the service area.",
+                "description": "The service area.",
                 "optional": true
               },
               "start_time": {
                 "type": "number",
-                "description": "Specifies the start timestamp of the query.",
+                "description": "The start timestamp of the query.",
                 "required": true
               },
               "stat_type": {
                 "type": "string",
-                "description": "Specifies the network resource consumption statistics.",
+                "description": "The network resource consumption statistics.",
                 "required": true
               }
             }

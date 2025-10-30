@@ -7,12 +7,12 @@
             "attributes": {
               "end_time": {
                 "type": "number",
-                "description": "Specifies the end timestamp, in milliseconds.",
+                "description": "The end timestamp.",
                 "optional": true
               },
               "file_type": {
                 "type": "string",
-                "description": "Specifies the file type.",
+                "description": "The file type.",
                 "optional": true
               },
               "id": {
@@ -21,17 +21,17 @@
               },
               "start_time": {
                 "type": "number",
-                "description": "Specifies the start timestamp, in milliseconds.",
+                "description": "The start timestamp.",
                 "optional": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the URL status.",
+                "description": "The URL status.",
                 "optional": true
               },
               "task_type": {
                 "type": "string",
-                "description": "Specifies the task type.",
+                "description": "The task type.",
                 "optional": true
               },
               "tasks": {
@@ -57,7 +57,7 @@
               },
               "url": {
                 "type": "string",
-                "description": "Specifies the refresh or preheat URL.",
+                "description": "The refresh or preheat URL.",
                 "optional": true
               }
             }

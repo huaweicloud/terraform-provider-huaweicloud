@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_rsa_datakey_pair": {
+          "block": {
+            "attributes": {
+              "additional_authenticated_data": {
+                "type": "string",
+                "optional": true
+              },
+              "ciphertext_recipient": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "required": true
+              },
+              "key_spec": {
+                "type": "string",
+                "required": true
+              },
+              "private_key_cipher_text": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "private_key_plain_text": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "public_key": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "optional": true
+              },
+              "with_plain_text": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "wrapped_private_key": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

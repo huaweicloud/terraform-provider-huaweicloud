@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cpcs_cluster_access_keys": {
+          "block": {
+            "attributes": {
+              "access_keys": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_key": "string",
+                      "access_key_id": "string",
+                      "app_name": "string",
+                      "create_time": "number",
+                      "key_name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the access keys.",
+                "computed": true
+              },
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort attribute.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

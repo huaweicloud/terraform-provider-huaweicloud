@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_application_templates": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "required": true
+              },
+              "application_templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_type": "string",
+                      "description": "string",
+                      "display_name": "string",
+                      "response_config": "string",
+                      "response_schema_config": "string",
+                      "security_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ttl": "string"
+                          }
+                        ]
+                      ],
+                      "service_provider_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "audience": "string",
+                            "consumers": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "binding": "string",
+                                  "default_value": "bool",
+                                  "location": "string"
+                                }
+                              ]
+                            ],
+                            "require_request_signature": "bool",
+                            "start_url": "string"
+                          }
+                        ]
+                      ],
+                      "sso_protocol": "string",
+                      "template_id": "string",
+                      "template_version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

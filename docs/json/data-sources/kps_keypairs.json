@@ -20,10 +20,12 @@
                     "object",
                     {
                       "fingerprint": "string",
+                      "frozen_state": "string",
                       "is_managed": "bool",
                       "name": "string",
                       "public_key": "string",
-                      "scope": "string"
+                      "scope": "string",
+                      "type": "string"
                     }
                   ]
                 ],

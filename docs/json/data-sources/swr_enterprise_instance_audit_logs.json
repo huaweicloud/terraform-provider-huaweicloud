@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_audit_logs": {
+          "block": {
+            "attributes": {
+              "audit_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "number",
+                      "op_time": "string",
+                      "operation": "string",
+                      "resource": "string",
+                      "resource_type": "string",
+                      "username": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the audit logs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "operation": {
+                "type": "string",
+                "description": "Specifies the operation type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicates the total count.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

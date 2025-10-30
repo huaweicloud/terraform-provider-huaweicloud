@@ -15,6 +15,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project that the resource belongs.",
                 "optional": true
               },
               "id": {

@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_csms_function_templates": {
+          "block": {
+            "attributes": {
+              "engine": {
+                "type": "string",
+                "description": "Specifies the database type.",
+                "optional": true
+              },
+              "function_templates": {
+                "type": "string",
+                "description": "The secret rotation function templates.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "secret_sub_type": {
+                "type": "string",
+                "description": "Specifies the secret rotation account type.",
+                "required": true
+              },
+              "secret_type": {
+                "type": "string",
+                "description": "Specifies the secret type.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSMS",
+            "name": "Data Encryption Workshop CSMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-凭据管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -19,10 +19,6 @@
                 "description": "The zone name.",
                 "optional": true
               },
-              "region": {
-                "type": "string",
-                "computed": true
-              },
               "router_id": {
                 "type": "string",
                 "description": "The ID of the VPC associated with the private zone.",
@@ -74,10 +70,6 @@
                       "email": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
-                      "masters": [
-                        "list",
-                        "string"
-                      ],
                       "name": "string",
                       "pool_id": "string",
                       "proxy_pattern": "string",

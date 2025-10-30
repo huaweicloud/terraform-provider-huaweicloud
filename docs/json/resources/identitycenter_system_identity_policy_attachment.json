@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_system_identity_policy_attachment": {
+          "block": {
+            "attributes": {
+              "attached_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "permission_set_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "policy_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

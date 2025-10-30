@@ -45,8 +45,7 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "created_at": {
                 "type": "string",
@@ -113,6 +112,14 @@
                 "computed": true,
                 "forcenew": true
               },
+              "include_data_disks_on_update": {
+                "type": "bool",
+                "optional": true
+              },
+              "include_publicips_on_update": {
+                "type": "bool",
+                "optional": true
+              },
               "key_pair": {
                 "type": "string",
                 "optional": true
@@ -130,13 +137,11 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "power_action": {
                 "type": "string",
@@ -420,8 +425,7 @@
                   "attributes": {
                     "deh_id": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "group": {
                       "type": "string",
@@ -432,11 +436,11 @@
                     "tenancy": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "computed": true
                     }
                   }
                 },
-                "nesting_mode": "set"
+                "nesting_mode": "list"
               }
             }
           },

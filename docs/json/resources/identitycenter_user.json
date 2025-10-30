@@ -1,0 +1,185 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_user": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the user.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The creator of the user.",
+                "computed": true
+              },
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name of the user.",
+                "required": true
+              },
+              "email": {
+                "type": "string",
+                "description": "Specifies the email of the user.",
+                "required": true
+              },
+              "email_verified": {
+                "type": "bool",
+                "description": "Whether the email is verified.",
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Whether the user is enabled.",
+                "computed": true
+              },
+              "family_name": {
+                "type": "string",
+                "description": "Specifies the family name of the user.",
+                "required": true
+              },
+              "given_name": {
+                "type": "string",
+                "description": "Specifies the given name of the user.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "description": "Specifies the ID of the identity store",
+                "required": true,
+                "forcenew": true
+              },
+              "password_mode": {
+                "type": "string",
+                "description": "Specifies the initialize password mode.",
+                "required": true,
+                "forcenew": true
+              },
+              "phone_number": {
+                "type": "string",
+                "description": "Specifies the phone number of the user.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "title": {
+                "type": "string",
+                "description": "Specifies the title of the user.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time of the user.",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "description": "The updater of the user.",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Specifies the username of the user.",
+                "required": true,
+                "forcenew": true
+              },
+              "user_type": {
+                "type": "string",
+                "description": "Specifies the type of the user.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "addresses": {
+                "block": {
+                  "attributes": {
+                    "country": {
+                      "type": "string",
+                      "description": "Specifies the country of the user.",
+                      "optional": true
+                    },
+                    "formatted": {
+                      "type": "string",
+                      "description": "Specifies a string containing a formatted version of the address to be displayed.",
+                      "optional": true
+                    },
+                    "locality": {
+                      "type": "string",
+                      "description": "Specifies the locality of the user.",
+                      "optional": true
+                    },
+                    "postal_code": {
+                      "type": "string",
+                      "description": "Specifies the postal code of the user.",
+                      "optional": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "description": "Specifies the region of the user.",
+                      "optional": true
+                    },
+                    "street_address": {
+                      "type": "string",
+                      "description": "Specifies the street address of the user.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the addresses information of the user."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "enterprise": {
+                "block": {
+                  "attributes": {
+                    "cost_center": {
+                      "type": "string",
+                      "description": "Specifies the cost center of the enterprise.",
+                      "optional": true
+                    },
+                    "department": {
+                      "type": "string",
+                      "description": "Specifies the department of the enterprise.",
+                      "optional": true
+                    },
+                    "division": {
+                      "type": "string",
+                      "description": "Specifies the division of the enterprise.",
+                      "optional": true
+                    },
+                    "employee_number": {
+                      "type": "string",
+                      "description": "Specifies the employee number of the enterprise.",
+                      "optional": true
+                    },
+                    "manager": {
+                      "type": "string",
+                      "description": "Specifies the manager of the enterprise.",
+                      "optional": true
+                    },
+                    "organization": {
+                      "type": "string",
+                      "description": "Specifies the organization of the enterprise.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the enterprise information of the user."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

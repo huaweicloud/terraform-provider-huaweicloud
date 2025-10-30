@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_zone_nameservers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "nameservers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hostname": "string",
+                      "priority": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the name servers of the public zone.",
+                "computed": true
+              },
+              "zone_id": {
+                "type": "string",
+                "description": "The ID of the public zone to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

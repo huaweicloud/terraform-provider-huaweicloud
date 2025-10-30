@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cpcs_images": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "description": "Specifies the image name.",
+                "optional": true
+              },
+              "images": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch_type": "string",
+                      "ccsp_version_need": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "hw_image_version": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "service_type": "string",
+                      "specification_id": "string",
+                      "trust_domain": "string",
+                      "vendor_image_version": "string",
+                      "vendor_name": "string",
+                      "version_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the images.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "service_type": {
+                "type": "string",
+                "description": "Specifies the service type of the image.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort attribute.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

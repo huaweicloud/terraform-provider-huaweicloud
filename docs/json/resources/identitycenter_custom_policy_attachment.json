@@ -1,0 +1,35 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_custom_policy_attachment": {
+          "block": {
+            "attributes": {
+              "custom_policy": {
+                "type": "string",
+                "description": "Specifies the custom policy to attach to a permission set.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "permission_set_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center permission set.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

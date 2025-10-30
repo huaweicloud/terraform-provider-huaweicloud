@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_appendable_volume_quota": {
+          "block": {
+            "attributes": {
+              "free_blk": {
+                "type": "number",
+                "description": "Indicates the number of block disks that can be attached.",
+                "computed": true
+              },
+              "free_scsi": {
+                "type": "number",
+                "description": "Indicates the number of SCSI disks that can be attached.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quota_count": {
+                "type": "number",
+                "description": "Indicates the quantity.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the VM ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

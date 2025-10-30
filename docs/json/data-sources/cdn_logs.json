@@ -7,17 +7,17 @@
             "attributes": {
               "domain_name": {
                 "type": "string",
-                "description": "Specifies the domain name to which the logs belong.",
+                "description": "The domain name to which the logs belong.",
                 "required": true
               },
               "end_time": {
                 "type": "number",
-                "description": "Specifies the end time for querying logs (excluding the end time point).",
+                "description": "The end time for querying logs.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project ID to which the domain name belongs.",
+                "description": "The enterprise project ID to which the resource belongs.",
                 "optional": true
               },
               "id": {
@@ -39,12 +39,12 @@
                     }
                   ]
                 ],
-                "description": "The list of Logs.",
+                "description": "The list of logs that matched filter parameters.",
                 "computed": true
               },
               "start_time": {
                 "type": "number",
-                "description": "Specifies the start time for querying logs.",
+                "description": "The start time for querying logs.",
                 "optional": true
               }
             }

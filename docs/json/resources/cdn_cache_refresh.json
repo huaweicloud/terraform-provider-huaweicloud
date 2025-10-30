@@ -7,14 +7,13 @@
             "attributes": {
               "created_at": {
                 "type": "string",
-                "description": "The creation time.",
+                "description": "The creation time, in RFC3339 format.",
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project ID.",
-                "optional": true,
-                "forcenew": true
+                "description": "The enterprise project ID to which the resource belongs.",
+                "optional": true
               },
               "failed": {
                 "type": "number",
@@ -27,9 +26,8 @@
               },
               "mode": {
                 "type": "string",
-                "description": "Specifies the directory refresh mode.",
-                "optional": true,
-                "forcenew": true
+                "description": "The directory refresh mode.",
+                "optional": true
               },
               "processing": {
                 "type": "number",
@@ -53,25 +51,22 @@
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the refresh type.",
+                "description": "The refresh type.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "urls": {
                 "type": [
                   "set",
                   "string"
                 ],
-                "description": "Specifies the URLs that need to be refreshed.",
-                "required": true,
-                "forcenew": true
+                "description": "The URLs that need to be refreshed.",
+                "required": true
               },
               "zh_url_encode": {
                 "type": "bool",
-                "description": "Specifies whether to encode Chinese characters in URLs before cache refresh.",
-                "optional": true,
-                "forcenew": true
+                "description": "Whether to encode Chinese characters in URLs before cache refresh.",
+                "optional": true
               }
             }
           },

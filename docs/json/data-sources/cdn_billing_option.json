@@ -7,17 +7,17 @@
             "attributes": {
               "charge_mode": {
                 "type": "string",
-                "description": "Indicates the billing option.",
+                "description": "The billing option.",
                 "computed": true
               },
               "created_at": {
                 "type": "string",
-                "description": "The creation time.",
+                "description": "The creation time, in RFC3339 format.",
                 "computed": true
               },
               "effective_time": {
                 "type": "string",
-                "description": "Indicates the effective time of the option.",
+                "description": "The effective time, in RFC3339 format.",
                 "computed": true
               },
               "id": {
@@ -26,18 +26,18 @@
               },
               "product_type": {
                 "type": "string",
-                "description": "Specifies the product mode.",
+                "description": "The product mode.",
                 "required": true
               },
               "service_area": {
                 "type": "string",
-                "description": "Specifies the service area.",
+                "description": "The service area.",
                 "optional": true,
                 "computed": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the billing option status.",
+                "description": "The billing option status.",
                 "optional": true,
                 "computed": true
               }
