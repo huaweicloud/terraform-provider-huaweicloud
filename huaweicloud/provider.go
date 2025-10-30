@@ -926,11 +926,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_instances":             cse.DataSourceMicroserviceInstances(),
 			"huaweicloud_cse_nacos_namespaces":                   cse.DataSourceNacosNamespaces(),
 
-			"huaweicloud_cpcs_apps":               dew.DataSourceCpcsApps(),
-			"huaweicloud_cpcs_app_access_keys":    dew.DataSourceCpcsAppAccessKeys(),
-			"huaweicloud_cpcs_availability_zones": dew.DataSourceAvailabilityZones(),
-			"huaweicloud_cpcs_resource_infos":     dew.DataSourceResourceInfos(),
-			"huaweicloud_cpcs_images":             dew.DataSourceCpcsImages(),
+			"huaweicloud_cpcs_apps":                dew.DataSourceCpcsApps(),
+			"huaweicloud_cpcs_app_access_keys":     dew.DataSourceCpcsAppAccessKeys(),
+			"huaweicloud_cpcs_availability_zones":  dew.DataSourceAvailabilityZones(),
+			"huaweicloud_cpcs_cluster_access_keys": dew.DataSourceCpcsClusterAccessKeys(),
+			"huaweicloud_cpcs_resource_infos":      dew.DataSourceResourceInfos(),
+			"huaweicloud_cpcs_images":              dew.DataSourceCpcsImages(),
 
 			"huaweicloud_csms_agencies":                 dew.DataSourceAgencies(),
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
