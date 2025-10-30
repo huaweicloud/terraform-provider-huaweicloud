@@ -1380,6 +1380,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_antivirus_pay_per_scan_switch_status":       hss.DataSourceAntivirusPayPerScanSwitchStatus(),
 			"huaweicloud_hss_antivirus_pay_per_scan_free_quotas":         hss.DataSourceAntivirusPayPerScanFreeQuotas(),
 			"huaweicloud_hss_antivirus_virus_scan_tasks":                 hss.DataSourceAntivirusVirusScanTasks(),
+			"huaweicloud_hss_antivirus_pay_per_scan_hosts":               hss.DataSourceAntivirusPayPerScanHosts(),
 			"huaweicloud_hss_backup_policy":                              hss.DataSourceBackupPolicy(),
 			"huaweicloud_hss_cicd_configurations":                        hss.DataSourceCiCdConfigurations(),
 			"huaweicloud_hss_page_notices":                               hss.DataSourcePageNotices(),
