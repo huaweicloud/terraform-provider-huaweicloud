@@ -1,5 +1,5 @@
 ---
-subcategory: "Application Operations Management (AOM)"
+subcategory: "Application Operations Management (AOM 2.0)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_aom_alarm_silence_rule"
 description: ""
