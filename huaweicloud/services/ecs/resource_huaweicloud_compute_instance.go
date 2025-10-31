@@ -420,6 +420,12 @@ func ResourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"enable_jumbo_frame": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
+			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": {
@@ -659,6 +665,10 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		UserData:          []byte(d.Get("user_data").(string)),
 		AutoTerminateTime: d.Get("auto_terminate_time").(string),
 		EnclaveOptions:    buildInstanceEnclaveOptionsPRequest(d),
+	}
+
+	if v := d.Get("enable_jumbo_frame").(bool); v {
+		createOpts.EnableJumboFrame = &v
 	}
 
 	if tags, ok := d.GetOk("tags"); ok {
