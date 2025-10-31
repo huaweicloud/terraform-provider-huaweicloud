@@ -1,6 +1,7 @@
 package identitycenter
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -50,7 +51,7 @@ func getIdentityCenterBearerTokenResourceFunc(cfg *config.Config, state *terrafo
 
 	token := utils.PathSearch(fmt.Sprintf("bearer_tokens[?token_id =='%s']|[0]", tokenId), listRespBody, nil)
 	if token == nil {
-		return nil, fmt.Errorf("error get Identity Center bearer token")
+		return nil, errors.New("error get Identity Center bearer token")
 	}
 	return token, nil
 }

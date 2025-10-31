@@ -1,11 +1,12 @@
 package identitycenter
 
 import (
+	"errors"
 	"fmt"
-	"github.com/hashicorp/go-uuid"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -68,7 +69,7 @@ func getApplicationAssignmentResourceFunc(cfg *config.Config, state *terraform.R
 	if assignment != nil {
 		return assignment, nil
 	}
-	return nil, fmt.Errorf("error get Identity Center application assignment")
+	return nil, errors.New("error get Identity Center application assignment")
 }
 
 func buildGetApplicationAssignmentQueryParams(marker string) string {
@@ -142,8 +143,17 @@ resource "huaweicloud_identitycenter_application_instance" "test"{
   instance_id            = data.huaweicloud_identitycenter_instance.test.id
   display_name           = "create"
   description            = "create"
-  response_schema_config = "{\"properties\":{\"key1\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\",\"include\":\"YES\"},\"key2\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified\",\"include\":\"YES\"},\"key5\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\",\"include\":\"YES\"},\"key3\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:attrname-format:uri\",\"include\":\"YES\"},\"key4\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\",\"include\":\"YES\"}},\"subject\":{\"name_id_format\":\"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\",\"include\":\"REQUIRED\"},\"supported_name_id_formats\":[]}"
-  response_config        = "{\"properties\":{\"key1\":{\"source\":[\"$${user:email}\"]},\"key2\":{\"source\":[\"$${user:familyName}\"]},\"key5\":{\"source\":[\"$${user:preferredUsername}\"]},\"key3\":{\"source\":[\"$${user:givenName}\"]},\"key4\":{\"source\":[\"$${user:familyName}\"]}},\"subject\":{\"source\":[\"$${user:name}\"]},\"relay_state\":null,\"ttl\":\"PT1H\"}"
+  response_schema_config = "{\"properties\":{\"key1\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:`+
+		`attrname-format:basic\",\"include\":\"YES\"},\"key2\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0:`+
+		`attrname-format:unspecified\",\"include\":\"YES\"},\"key5\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:`+
+		`2.0:attrname-format:basic\",\"include\":\"YES\"},\"key3\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:`+
+		`2.0:attrname-format:uri\",\"include\":\"YES\"},\"key4\":{\"attr_name_format\":\"urn:oasis:names:tc:SAML:2.0`+
+		`:attrname-format:basic\",\"include\":\"YES\"}},\"subject\":{\"name_id_format\":\"urn:oasis:names:tc:SAML:1.1`+
+		`:nameid-format:emailAddress\",\"include\":\"REQUIRED\"},\"supported_name_id_formats\":[]}"
+  response_config        = "{\"properties\":{\"key1\":{\"source\":[\"$${user:email}\"]},\"key2\":{\"source\":`+
+		`[\"$${user:familyName}\"]},\"key5\":{\"source\":[\"$${user:preferredUsername}\"]},\"key3\":{\"source\":`+
+		`[\"$${user:givenName}\"]},\"key4\":{\"source\":[\"$${user:familyName}\"]}},\"subject\":{\"source\":`+
+		`[\"$${user:name}\"]},\"relay_state\":null,\"ttl\":\"PT1H\"}"
   security_config {
     ttl = "P9M"
   }

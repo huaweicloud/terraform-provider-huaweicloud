@@ -2,6 +2,7 @@ package identitycenter
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -242,7 +243,7 @@ func resourceIdentityCenterServiceProviderCertificateImport(_ context.Context, d
 	[]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <identity_store_id>/<certificate_id>")
+		return nil, errors.New("invalid id format, must be <identity_store_id>/<certificate_id>")
 	}
 	d.SetId(parts[1])
 	mErr := multierror.Append(nil,

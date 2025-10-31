@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRegisteredRegionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getRegisteredRegionResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	client, err := cfg.NewServiceClient("identitycenter", region)
 	if err != nil {
