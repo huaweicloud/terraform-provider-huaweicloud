@@ -15,7 +15,7 @@ import (
 
 var cloudVendorUserResourcesSyncNonUpdatableParams = []string{"vendor", "account_id"}
 
-// @API RDS POST /v1/multicloud-resources/sync
+// @API COC POST /v1/multicloud-resources/sync
 func ResourceCloudVendorUserResourcesSync() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCloudVendorUserResourcesSyncCreate,
