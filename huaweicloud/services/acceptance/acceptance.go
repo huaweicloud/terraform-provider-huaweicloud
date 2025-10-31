@@ -55,6 +55,7 @@ var (
 	HW_SUBNET_ID                     = os.Getenv("HW_SUBNET_ID")
 	HW_SECURITY_GROUP_ID             = os.Getenv("HW_SECURITY_GROUP_ID")
 	HW_ENTERPRISE_PROJECT_ID         = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
+	HW_ENTERPRISE_PROJECT_NAME       = os.Getenv("HW_ENTERPRISE_PROJECT_NAME")
 	HW_ADMIN                         = os.Getenv("HW_ADMIN")
 	HW_IAM_V5                        = os.Getenv("HW_IAM_V5")
 	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")

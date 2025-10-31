@@ -52,6 +52,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_roles.#", "1"),
 				),
 			},
 			{
@@ -64,6 +65,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_roles.#", "1"),
 				),
 			},
 			{
@@ -74,13 +76,14 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "project_role.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "all_resources_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_roles.#", "1"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"all_resources_roles"},
+				ImportStateVerifyIgnore: []string{"all_resources_roles", "enterprise_project_roles"},
 			},
 		},
 	})
@@ -104,8 +107,12 @@ resource "huaweicloud_identity_agency" "test" {
   all_resources_roles = [
     "VPC Administrator"
   ]
+  enterprise_project_roles {
+    enterprise_project = "%s"
+    roles              = ["CCE ReadOnlyAccess"]
+  }
 }
-`, rName, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
+`, rName, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME, acceptance.HW_ENTERPRISE_PROJECT_NAME)
 }
 
 func testAccIdentityAgency_domainUpdate(rName, duration string) string {
@@ -128,6 +135,10 @@ resource "huaweicloud_identity_agency" "test" {
   all_resources_roles = [
     "VPCEndpoint Administrator"
   ]
+  enterprise_project_roles {
+    enterprise_project = "%s"
+    roles              = ["RDS ReadOnlyAccess"]
+  }
 }
-`, rName, duration, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
+`, rName, duration, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME, acceptance.HW_ENTERPRISE_PROJECT_NAME)
 }
