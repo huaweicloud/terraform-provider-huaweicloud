@@ -10,10 +10,15 @@ description: |-
 
 Using this resource to request a sub-domain authorization request to the owner of the main-domain within HuaweiCloud.
 
--> This resource is used to request a sub-domain authorization when creating a sub-domain prompts this following error:
-   `domain conflicts with other tenants, you need to add TXT authorization verification`.
-   Deleting this resource will not clear the corresponding request record, but will only remove the resource information
-   from the tfstate file.
+-> This resource is a one-time action resource used to request a sub-domain authorization when creating a sub-domain
+   prompts this following error:
+   <br>`domain conflicts with other tenants, you need to add TXT authorization verification`.
+   <br>Deleting this resource will not clear the corresponding request record, but will only remove the resource
+   information from the tfstate file.
+
+-> After authorizing the sub-domain and receiving a **CREATED** status, you should use the `huaweicloud_dns_recordset`
+   resource to record the corresponding TXT record. Only then will the authorization be marked as **verified**.<br>
+   However, this one-time operation resource only returns the status at the time the request was sent.
 
 ## Example Usage
 
@@ -47,7 +52,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The authorization status.
   + **CREATED**: Authorization has been created.
-  + **VERIFIED**: Authorization has been verified.
 
 * `created_at` - The creation time of the authorization, in RFC3339 format.
 
