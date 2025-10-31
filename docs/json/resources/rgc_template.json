@@ -1,51 +1,53 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_rgc_template": {
           "block": {
             "attributes": {
-              "catalog": {
+              "create_time": {
                 "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "policy": {
+              "latest_version_id": {
                 "type": "string",
                 "computed": true
               },
-              "role_id": {
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_body": {
                 "type": "string",
                 "optional": true
               },
-              "type": {
+              "template_description": {
+                "type": "string",
+                "optional": true
+              },
+              "template_name": {
+                "type": "string",
+                "required": true
+              },
+              "template_type": {
+                "type": "string",
+                "required": true
+              },
+              "update_time": {
                 "type": "string",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
+            "short": "RGC",
+            "name": "Resource Governance Center",
             "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
+            "name_cn": "资源治理中心",
             "catalog_cn": "管理与监管"
           }
         }

@@ -2,45 +2,28 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_users": {
+        "huaweicloud_identity_services": {
           "block": {
             "attributes": {
-              "enabled": {
-                "type": "bool",
-                "description": "Specifies the status of the IAM user, the default value is **true**.",
-                "optional": true,
-                "default": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "service_id": {
                 "type": "string",
-                "description": "Specifies the IAM username.",
                 "optional": true
               },
-              "user_id": {
-                "type": "string",
-                "description": "Specifies the id of the IAM user. This parameter conflicts with `name` and `enabled`.",
-                "optional": true
-              },
-              "users": {
+              "services": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "description": "string",
                       "enabled": "bool",
-                      "groups": [
-                        "list",
-                        "string"
-                      ],
                       "id": "string",
+                      "link": "string",
                       "name": "string",
-                      "password_expires_at": "string",
-                      "password_status": "bool"
+                      "type": "string"
                     }
                   ]
                 ],

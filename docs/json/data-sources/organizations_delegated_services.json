@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_delegated_services": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "required": true
+              },
+              "delegated_services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "delegation_enabled_at": "string",
+                      "service_principal": "string"
+                    }
+                  ]
+                ],
+                "description": "List of the services for which the specified account is a delegated administrator.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

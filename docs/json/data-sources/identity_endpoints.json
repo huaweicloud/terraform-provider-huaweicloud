@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identity_endpoints": {
+          "block": {
+            "attributes": {
+              "endpoint_id": {
+                "type": "string",
+                "description": "The terminal node ID to be queried",
+                "optional": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enabled": "bool",
+                      "id": "string",
+                      "interface": "string",
+                      "link": "string",
+                      "region": "string",
+                      "region_id": "string",
+                      "service_id": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface": {
+                "type": "string",
+                "description": "Terminal node plane",
+                "optional": true
+              },
+              "service_id": {
+                "type": "string",
+                "description": "The ID of service",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

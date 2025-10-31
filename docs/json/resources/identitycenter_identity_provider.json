@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_identity_provider": {
+          "block": {
+            "attributes": {
+              "entity_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "idp_certificate": {
+                "type": "string",
+                "optional": true
+              },
+              "idp_certificate_ids": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "idp_saml_metadata": {
+                "type": "string",
+                "optional": true
+              },
+              "is_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "login_url": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "want_request_signed": {
+                "type": "bool",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

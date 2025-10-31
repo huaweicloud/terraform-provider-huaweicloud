@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_login_profile": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "password_expires_at": {
+                "type": "string",
+                "computed": true
+              },
+              "password_reset_required": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

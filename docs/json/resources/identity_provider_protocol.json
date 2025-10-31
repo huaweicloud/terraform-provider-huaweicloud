@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_provider_protocol": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "identity_provider": "string",
+                      "self": "string"
+                    }
+                  ]
+                ],
+                "description": "The links of protocol.",
+                "computed": true
+              },
+              "mapping_id": {
+                "type": "string",
+                "description": "When the identity provider type is `iam_user_sso`, there is no need to bind a mapping ID, and this field does not need to be passed; otherwise, this field is mandatory.",
+                "optional": true
+              },
+              "protocol_id": {
+                "type": "string",
+                "description": "The protocol ID to be registered. The content of this field is `saml` or `oidc`.",
+                "required": true
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "Name of an identity provider.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

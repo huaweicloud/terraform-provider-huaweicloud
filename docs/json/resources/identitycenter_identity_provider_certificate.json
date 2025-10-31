@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_identity_provider_certificate": {
+          "block": {
+            "attributes": {
+              "certificate_use": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "idp_id": {
+                "type": "string",
+                "required": true
+              },
+              "issuer_name": {
+                "type": "string",
+                "computed": true
+              },
+              "not_after": {
+                "type": "string",
+                "computed": true
+              },
+              "not_before": {
+                "type": "string",
+                "computed": true
+              },
+              "public_key": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "serial_number_string": {
+                "type": "string",
+                "computed": true
+              },
+              "signature_algorithm_name": {
+                "type": "string",
+                "computed": true
+              },
+              "subject_name": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "number",
+                "computed": true
+              },
+              "x509_certificate_in_pem": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

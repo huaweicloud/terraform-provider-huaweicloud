@@ -1,51 +1,53 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_rgc_organizational_unit": {
           "block": {
             "attributes": {
-              "catalog": {
-                "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "policy": {
+              "manage_account_id": {
                 "type": "string",
                 "computed": true
               },
-              "role_id": {
+              "organizational_unit_id": {
                 "type": "string",
-                "optional": true
+                "computed": true
               },
-              "type": {
+              "organizational_unit_name": {
+                "type": "string",
+                "required": true
+              },
+              "organizational_unit_status": {
+                "type": "string",
+                "computed": true
+              },
+              "organizational_unit_type": {
+                "type": "string",
+                "computed": true
+              },
+              "parent_organizational_unit_id": {
+                "type": "string",
+                "required": true
+              },
+              "parent_organizational_unit_name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
                 "type": "string",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
+            "short": "RGC",
+            "name": "Resource Governance Center",
             "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
+            "name_cn": "资源治理中心",
             "catalog_cn": "管理与监管"
           }
         }

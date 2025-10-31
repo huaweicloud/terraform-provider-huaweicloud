@@ -1,52 +1,48 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_application_certificate": {
           "block": {
             "attributes": {
-              "catalog": {
+              "algorithm": {
                 "type": "string",
                 "computed": true
               },
-              "description": {
+              "application_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "certificate": {
                 "type": "string",
                 "computed": true
               },
-              "display_name": {
+              "expiry_date": {
                 "type": "string",
-                "optional": true,
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "issue_date": {
+                "type": "string",
+                "computed": true
+              },
+              "key_size": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
                 "type": "string",
                 "optional": true,
                 "computed": true
-              },
-              "policy": {
-                "type": "string",
-                "computed": true
-              },
-              "role_id": {
-                "type": "string",
-                "optional": true
-              },
-              "type": {
-                "type": "string",
-                "computed": true
               }
             }
-          },
-          "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
-            "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
-            "catalog_cn": "管理与监管"
           }
         }
       }

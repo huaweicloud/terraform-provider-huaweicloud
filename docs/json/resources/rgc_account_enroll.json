@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rgc_account_enroll": {
+          "block": {
+            "attributes": {
+              "account_name": {
+                "type": "string",
+                "computed": true
+              },
+              "account_type": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "landing_zone_version": {
+                "type": "string",
+                "computed": true
+              },
+              "manage_account_id": {
+                "type": "string",
+                "computed": true
+              },
+              "managed_account_id": {
+                "type": "string",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "computed": true
+              },
+              "parent_organizational_unit_id": {
+                "type": "string",
+                "required": true
+              },
+              "parent_organizational_unit_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stage": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "blueprint": {
+                "block": {
+                  "attributes": {
+                    "blueprint_product_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "blueprint_product_version": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "is_blueprint_has_multi_account_resource": {
+                      "type": "bool",
+                      "optional": true,
+                      "default": false
+                    },
+                    "variables": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

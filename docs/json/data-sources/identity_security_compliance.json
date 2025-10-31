@@ -2,40 +2,23 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_role": {
+        "huaweicloud_identity_security_compliance": {
           "block": {
             "attributes": {
-              "catalog": {
-                "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "option": {
                 "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "policy": {
-                "type": "string",
-                "computed": true
-              },
-              "role_id": {
-                "type": "string",
+                "description": "Specifies the query type, which supports password_regex or password_regex_description.",
                 "optional": true
               },
-              "type": {
+              "password_regex": {
+                "type": "string",
+                "computed": true
+              },
+              "password_regex_description": {
                 "type": "string",
                 "computed": true
               }

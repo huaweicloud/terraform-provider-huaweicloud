@@ -2,42 +2,37 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_role": {
+        "huaweicloud_identity_access_key": {
           "block": {
             "attributes": {
-              "catalog": {
+              "access_key": {
                 "type": "string",
-                "computed": true
+                "optional": true
               },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
+              "credentials": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "last_use_time": "string",
+                      "status": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "policy": {
-                "type": "string",
-                "computed": true
-              },
-              "role_id": {
+              "user_id": {
                 "type": "string",
                 "optional": true
-              },
-              "type": {
-                "type": "string",
-                "computed": true
               }
             }
           },

@@ -1,0 +1,152 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_antivirus_result": {
+          "block": {
+            "attributes": {
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "event_type": "number",
+                      "file_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "file_attr": "string",
+                            "file_ctime": "number",
+                            "file_hash": "string",
+                            "file_mtime": "number",
+                            "file_owner": "string",
+                            "file_path": "string",
+                            "file_size": "number"
+                          }
+                        ]
+                      ],
+                      "handle_method": "string",
+                      "handle_status": "string",
+                      "isolate_tag": "string",
+                      "malware_name": "string",
+                      "malware_type": "string",
+                      "memo": "string",
+                      "occur_time": "number",
+                      "operate_accept_list": [
+                        "list",
+                        "string"
+                      ],
+                      "operate_detail_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "hash": "string",
+                            "keyword": "string"
+                          }
+                        ]
+                      ],
+                      "resource_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agent_id": "string",
+                            "agent_status": "string",
+                            "asset_value": "string",
+                            "host_id": "string",
+                            "host_name": "string",
+                            "host_status": "string",
+                            "os_name": "string",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "private_ip": "string",
+                            "protect_status": "string",
+                            "public_ip": "string"
+                          }
+                        ]
+                      ],
+                      "result_id": "string",
+                      "severity": "string",
+                      "task_id": "string",
+                      "task_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "file_hash": {
+                "type": "string",
+                "optional": true
+              },
+              "file_path": {
+                "type": "string",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "malware_name": {
+                "type": "string",
+                "optional": true
+              },
+              "manual_isolate": {
+                "type": "bool",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

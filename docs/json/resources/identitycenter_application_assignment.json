@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_application_assignment": {
+          "block": {
+            "attributes": {
+              "application_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "application_urn": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "principal_id": {
+                "type": "string",
+                "required": true
+              },
+              "principal_type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

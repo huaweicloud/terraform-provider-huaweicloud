@@ -2,22 +2,12 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_projects": {
+        "huaweicloud_identity_user_projects": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
-              },
-              "name": {
-                "type": "string",
-                "description": "Specifies the IAM project name to query",
-                "optional": true
-              },
-              "project_id": {
-                "type": "string",
-                "description": "Specifies the IAM project id to query. This parameter conflicts with `name`.",
-                "optional": true
               },
               "projects": {
                 "type": [
@@ -32,6 +22,11 @@
                   ]
                 ],
                 "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The IAM user id. The default value is the current user id.",
+                "optional": true
               }
             }
           },

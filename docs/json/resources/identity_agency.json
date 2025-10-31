@@ -52,6 +52,24 @@
               }
             },
             "block_types": {
+              "enterprise_project_roles": {
+                "block": {
+                  "attributes": {
+                    "enterprise_project": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "roles": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "project_role": {
                 "block": {
                   "attributes": {

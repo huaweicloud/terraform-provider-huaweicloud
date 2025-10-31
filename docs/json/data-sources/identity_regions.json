@@ -2,45 +2,32 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_users": {
+        "huaweicloud_identity_regions": {
           "block": {
             "attributes": {
-              "enabled": {
-                "type": "bool",
-                "description": "Specifies the status of the IAM user, the default value is **true**.",
-                "optional": true,
-                "default": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "region_id": {
                 "type": "string",
-                "description": "Specifies the IAM username.",
+                "description": "The id of the region to be queried.",
                 "optional": true
               },
-              "user_id": {
-                "type": "string",
-                "description": "Specifies the id of the IAM user. This parameter conflicts with `name` and `enabled`.",
-                "optional": true
-              },
-              "users": {
+              "regions": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
                       "description": "string",
-                      "enabled": "bool",
-                      "groups": [
-                        "list",
+                      "id": "string",
+                      "link": "string",
+                      "locales": [
+                        "map",
                         "string"
                       ],
-                      "id": "string",
-                      "name": "string",
-                      "password_expires_at": "string",
-                      "password_status": "bool"
+                      "type": "string"
                     }
                   ]
                 ],

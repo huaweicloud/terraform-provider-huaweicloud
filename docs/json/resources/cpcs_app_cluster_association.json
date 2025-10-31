@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpcs_app_cluster_association": {
+          "block": {
+            "attributes": {
+              "app_id": {
+                "type": "string",
+                "description": "Specifies the ID of the application.",
+                "required": true
+              },
+              "app_name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster.",
+                "required": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "The name of the cluster.",
+                "computed": true
+              },
+              "cluster_server_type": {
+                "type": "string",
+                "description": "The type of the cluster server.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time of the association, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subnet_name": {
+                "type": "string",
+                "description": "The name of the subnet.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "The update time of the association, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "description": "The name of the VPC.",
+                "computed": true
+              },
+              "vpcep_address": {
+                "type": "string",
+                "description": "The address of the VPC endpoint.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

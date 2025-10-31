@@ -2,32 +2,28 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_projects": {
+        "huaweicloud_identity_project_quota": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "description": "Specifies the IAM project name to query",
-                "optional": true
-              },
               "project_id": {
                 "type": "string",
-                "description": "Specifies the IAM project id to query. This parameter conflicts with `name`.",
-                "optional": true
+                "required": true
               },
-              "projects": {
+              "resources": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "enabled": "bool",
-                      "id": "string",
-                      "name": "string"
+                      "max": "number",
+                      "min": "number",
+                      "quota": "number",
+                      "type": "string",
+                      "used": "number"
                     }
                   ]
                 ],

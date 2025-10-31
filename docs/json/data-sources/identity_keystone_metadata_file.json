@@ -1,21 +1,22 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "resource_schemas": {
-        "huaweicloud_identity_provider_mapping": {
+      "data_source_schemas": {
+        "huaweicloud_identity_keystone_metadata_file": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "mapping_rules": {
+              "metadata_file": {
                 "type": "string",
-                "required": true
+                "computed": true
               },
-              "provider_id": {
-                "type": "string",
-                "required": true
+              "unsigned": {
+                "type": "bool",
+                "optional": true,
+                "default": false
               }
             }
           },

@@ -1,41 +1,48 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_identity_unscoped_token_with_id_token": {
           "block": {
             "attributes": {
-              "catalog": {
+              "expires_at": {
                 "type": "string",
                 "computed": true
               },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
+              "groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "id_token": {
                 "type": "string",
-                "optional": true,
+                "description": "ID Token of the OpenID Connect Identity Provider",
+                "required": true,
+                "forcenew": true
+              },
+              "idp_id": {
+                "type": "string",
+                "description": "Identity Provider Id",
+                "required": true,
+                "forcenew": true
+              },
+              "protocol_id": {
+                "type": "string",
+                "description": "Protocol Id",
+                "required": true,
+                "forcenew": true
+              },
+              "token": {
+                "type": "string",
                 "computed": true
               },
-              "policy": {
-                "type": "string",
-                "computed": true
-              },
-              "role_id": {
-                "type": "string",
-                "optional": true
-              },
-              "type": {
+              "username": {
                 "type": "string",
                 "computed": true
               }

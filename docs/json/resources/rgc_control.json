@@ -1,51 +1,45 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_rgc_control": {
           "block": {
             "attributes": {
-              "catalog": {
-                "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "identifier": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "required": true
               },
-              "policy": {
-                "type": "string",
-                "computed": true
-              },
-              "role_id": {
+              "parameters": {
                 "type": "string",
                 "optional": true
               },
-              "type": {
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "target_identifier": {
+                "type": "string",
+                "required": true
+              },
+              "version": {
                 "type": "string",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
+            "short": "RGC",
+            "name": "Resource Governance Center",
             "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
+            "name_cn": "资源治理中心",
             "catalog_cn": "管理与监管"
           }
         }

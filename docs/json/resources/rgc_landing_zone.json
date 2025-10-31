@@ -1,0 +1,188 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rgc_landing_zone": {
+          "block": {
+            "attributes": {
+              "baseline_version": {
+                "type": "string",
+                "optional": true
+              },
+              "cloud_trail_type": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "deny_ungoverned_regions": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "deployed_version": {
+                "type": "string",
+                "computed": true
+              },
+              "home_region": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_center_status": {
+                "type": "string",
+                "optional": true,
+                "default": "ENABLE"
+              },
+              "identity_store_email": {
+                "type": "string",
+                "optional": true
+              },
+              "kms_key_id": {
+                "type": "string",
+                "optional": true,
+                "default": ""
+              },
+              "landing_zone_status": {
+                "type": "string",
+                "computed": true
+              },
+              "organization_structure_type": {
+                "type": "string",
+                "optional": true,
+                "default": "STANDARD"
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "logging_configuration": {
+                "block": {
+                  "attributes": {
+                    "logging_bucket_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "access_logging_bucket": {
+                      "block": {
+                        "attributes": {
+                          "enable_multi_az": {
+                            "type": "bool",
+                            "optional": true,
+                            "default": false
+                          },
+                          "retention_days": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "logging_bucket": {
+                      "block": {
+                        "attributes": {
+                          "enable_multi_az": {
+                            "type": "bool",
+                            "optional": true,
+                            "default": false
+                          },
+                          "retention_days": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "organization_structure": {
+                "block": {
+                  "attributes": {
+                    "organizational_unit_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "organizational_unit_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "accounts": {
+                      "block": {
+                        "attributes": {
+                          "account_email": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "account_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "account_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "account_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "phone": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "region_configuration_list": {
+                "block": {
+                  "attributes": {
+                    "region": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "region_configuration_status": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

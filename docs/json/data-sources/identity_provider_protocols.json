@@ -2,36 +2,46 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_projects": {
+        "huaweicloud_identity_provider_protocols": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "protocol_id": {
                 "type": "string",
-                "description": "Specifies the IAM project name to query",
+                "description": "The protocol id.",
                 "optional": true
               },
-              "project_id": {
-                "type": "string",
-                "description": "Specifies the IAM project id to query. This parameter conflicts with `name`.",
-                "optional": true
-              },
-              "projects": {
+              "protocols": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "enabled": "bool",
                       "id": "string",
-                      "name": "string"
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "identity_provider": "string",
+                            "self": "string"
+                          }
+                        ]
+                      ],
+                      "mapping_id": "string"
                     }
                   ]
                 ],
+                "description": "Protocol Information List.",
                 "computed": true
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "Name of an identity provider.",
+                "required": true
               }
             }
           },

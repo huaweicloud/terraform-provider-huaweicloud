@@ -1,41 +1,52 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_identity_role": {
+      "resource_schemas": {
+        "huaweicloud_identity_token_with_id_token": {
           "block": {
             "attributes": {
-              "catalog": {
-                "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "computed": true
-              },
-              "display_name": {
+              "domain_name": {
                 "type": "string",
                 "optional": true,
+                "forcenew": true
+              },
+              "expires_at": {
+                "type": "string",
+                "computed": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "id_token": {
+                "type": "string",
+                "description": "ID Token of the OpenID Connect Identity Provider",
+                "required": true,
+                "forcenew": true
+              },
+              "idp_id": {
+                "type": "string",
+                "description": "Identity Provider Id",
+                "required": true,
+                "forcenew": true
+              },
+              "project_name": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "forcenew": true
               },
-              "policy": {
+              "token": {
                 "type": "string",
                 "computed": true
               },
-              "role_id": {
-                "type": "string",
-                "optional": true
-              },
-              "type": {
+              "username": {
                 "type": "string",
                 "computed": true
               }

@@ -1,0 +1,35 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_user_info": {
+          "block": {
+            "attributes": {
+              "email": {
+                "type": "string",
+                "description": "The email must conform to the email format and be no longer than 255 characters.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mobile": {
+                "type": "string",
+                "description": "The mobile format is `<country code>-<phone number>`, such as 0086-123456789.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

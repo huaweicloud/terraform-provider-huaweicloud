@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_account_assignments": {
+          "block": {
+            "attributes": {
+              "account_assignments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "permission_set_id": "string",
+                      "principal_id": "string",
+                      "principal_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of an IAM Identity Center instance.",
+                "required": true
+              },
+              "principal_id": {
+                "type": "string",
+                "required": true
+              },
+              "principal_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

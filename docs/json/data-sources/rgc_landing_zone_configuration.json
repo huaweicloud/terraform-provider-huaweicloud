@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rgc_landing_zone_configuration": {
+          "block": {
+            "attributes": {
+              "common_configuration": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_trail_type": "bool",
+                      "home_region": "string",
+                      "identity_center_status": "string",
+                      "organization_structure_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logging_configuration": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_logging_bucket": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable_multi_az": "bool",
+                            "retention_days": "number"
+                          }
+                        ]
+                      ],
+                      "logging_bucket": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable_multi_az": "bool",
+                            "retention_days": "number"
+                          }
+                        ]
+                      ],
+                      "logging_bucket_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "organization_structure": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accounts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account_id": "string",
+                            "account_type": "string"
+                          }
+                        ]
+                      ],
+                      "organizational_unit_name": "string",
+                      "organizational_unit_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "region": "string",
+                      "region_configuration_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

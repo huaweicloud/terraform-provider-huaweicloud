@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_service_provider_configuration": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sp_oidc_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "redirect_url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sp_saml_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "acs_url": "string",
+                      "issuer": "string",
+                      "metadata": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,22 +2,16 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_projects": {
+        "huaweicloud_identity_federation_projects": {
           "block": {
             "attributes": {
+              "federation_token": {
+                "type": "string",
+                "required": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
-              },
-              "name": {
-                "type": "string",
-                "description": "Specifies the IAM project name to query",
-                "optional": true
-              },
-              "project_id": {
-                "type": "string",
-                "description": "Specifies the IAM project id to query. This parameter conflicts with `name`.",
-                "optional": true
               },
               "projects": {
                 "type": [

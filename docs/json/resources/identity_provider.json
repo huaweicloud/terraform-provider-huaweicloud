@@ -102,12 +102,12 @@
                     "response_mode": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "default": "form_post"
                     },
                     "response_type": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "default": "id_token"
                     },
                     "scopes": {
                       "type": [

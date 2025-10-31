@@ -2,42 +2,32 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_identity_role": {
+        "huaweicloud_identity_check_agency_role_assignment": {
           "block": {
             "attributes": {
-              "catalog": {
+              "agency_id": {
                 "type": "string",
-                "computed": true
+                "required": true
               },
-              "description": {
+              "domain_id": {
                 "type": "string",
-                "computed": true
-              },
-              "display_name": {
-                "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "project_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
-              "policy": {
-                "type": "string",
+              "result": {
+                "type": "bool",
                 "computed": true
               },
               "role_id": {
                 "type": "string",
-                "optional": true
-              },
-              "type": {
-                "type": "string",
-                "computed": true
+                "required": true
               }
             }
           },
