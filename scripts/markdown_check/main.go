@@ -11,7 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var ignoreDeprecatedNames = []string{
+	"huaweicloud_identitycenter_bearer_token",
+}
 
 func main() {
 	provider := huaweicloud.Provider()
@@ -74,13 +79,13 @@ func checkMarkdown(resources map[string]*schema.Resource, parentDir, rType strin
 		}
 
 		mdStr := string(mdBytes)
-		totalCount += checkMarkdownSchemas(v, v, "", &mdStr)
+		totalCount += checkMarkdownSchemas(v, v, "", &mdStr, k)
 	}
 
 	return totalCount
 }
 
-func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdContent *string) int {
+func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdContent *string, rName string) int {
 	if len(res.Schema) == 0 {
 		return 0
 	}
@@ -93,8 +98,13 @@ func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdConten
 		isExist := checkArgumentExist(*mdContent, reg)
 
 		extentStr, deprecated := buildAttributeString(schemaObject)
+		deprecated = deprecated || isDeprecatedField(name)
+		if deprecated && utils.StrSliceContains(ignoreDeprecatedNames, rName) {
+			continue
+		}
+
 		// check deprecated field
-		if (deprecated || isDeprecatedField(name)) && !hasIdenticalSchemaField(rootRes, name) {
+		if deprecated && !hasIdenticalSchemaField(rootRes, name) {
 			if isExist {
 				count++
 				fmt.Printf("[ERROR] `%s` was deprecated, should be deleted in Markdown\n", fieldPath)
@@ -124,7 +134,7 @@ func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdConten
 		// check nested block
 		if schemaObject.Elem != nil {
 			if nestedRes, ok := schemaObject.Elem.(*schema.Resource); ok {
-				count += checkMarkdownSchemas(nestedRes, rootRes, fieldPath, mdContent)
+				count += checkMarkdownSchemas(nestedRes, rootRes, fieldPath, mdContent, rName)
 			}
 		}
 	}
