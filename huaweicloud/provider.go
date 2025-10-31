@@ -1521,6 +1521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_quotas":                              elb.DataSourceElbQuotas(),
 			"huaweicloud_elb_quota_details":                       elb.DataSourceElbQuotaDetails(),
 			"huaweicloud_elb_asynchronous_tasks":                  elb.DataSourceElbAsynchronousTasks(),
+			"huaweicloud_elb_loadbalancers_by_tags":               elb.DataSourceElbLoadbalancersByTags(),
 
 			"huaweicloud_nat_gateway":                  nat.DataSourcePublicGateway(),
 			"huaweicloud_nat_gateway_tags":             nat.DataSourceNatGatewayTags(),
