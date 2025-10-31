@@ -35,7 +35,6 @@ var (
 		"resource_huaweicloud_cbh_asset_agency_authorization":     true,
 		"resource_huaweicloud_cdn_billing_option":                 true,
 		"resource_huaweicloud_css_manual_log_backup":              true,
-		"resource_huaweicloud_dns_zone_authorization":             true,
 		"resource_huaweicloud_identity_acl":                       true,
 		"resource_huaweicloud_identity_password_policy":           true,
 		"resource_huaweicloud_identity_user_token":                true,

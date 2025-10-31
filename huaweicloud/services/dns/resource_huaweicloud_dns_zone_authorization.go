@@ -20,7 +20,6 @@ var ZoneAuthorizationNonUpdatableParams = []string{
 }
 
 // @API DNS POST /v2/authorize-txtrecord
-// @API DNS GET /v2/authorize-txtrecord
 func ResourceZoneAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceZoneAuthorizationCreate,
@@ -99,6 +98,19 @@ func buildZoneAuthorizationBodyParams(d *schema.ResourceData) map[string]interfa
 	}
 }
 
+func flattenZoneAuthorizeRecord(record map[string]interface{}) []map[string]interface{} {
+	if len(record) < 1 {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"host":  utils.PathSearch("host", record, nil),
+			"value": utils.PathSearch("value", record, nil),
+		},
+	}
+}
+
 func resourceZoneAuthorizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 
@@ -134,51 +146,6 @@ func resourceZoneAuthorizationCreate(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId(authorizationId)
 
-	return resourceZoneAuthorizationRead(ctx, d, meta)
-}
-
-func flattenZoneAuthorizeRecord(record map[string]interface{}) []map[string]interface{} {
-	if len(record) < 1 {
-		return nil
-	}
-
-	return []map[string]interface{}{
-		{
-			"host":  utils.PathSearch("host", record, nil),
-			"value": utils.PathSearch("value", record, nil),
-		},
-	}
-}
-
-func resourceZoneAuthorizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-
-	client, err := cfg.NewServiceClient("dns", "")
-	if err != nil {
-		return diag.Errorf("error creating DNS client: %s", err)
-	}
-
-	httpUrl := "v2/authorize-txtrecord?zone_name={zone_name}"
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{zone_name}", d.Get("zone_name").(string))
-
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-
-	resp, err := client.Request("GET", getPath, &opt)
-	if err != nil {
-		return diag.Errorf("error querying sub-domain authorization: %s", err)
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
 	mErr := multierror.Append(nil,
 		d.Set("zone_name", utils.PathSearch("zone_name", respBody, nil)),
 		d.Set("second_level_zone_name", utils.PathSearch("second_level_zone_name", respBody, nil)),
@@ -190,7 +157,15 @@ func resourceZoneAuthorizationRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("updated_at",
 			respBody, "").(string), "2006-01-02T15:04:05.000")/1000, false)),
 	)
-	return diag.FromErr(mErr.ErrorOrNil())
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return resourceZoneAuthorizationRead(ctx, d, meta)
+}
+
+func resourceZoneAuthorizationRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceZoneAuthorizationUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
@@ -198,8 +173,8 @@ func resourceZoneAuthorizationUpdate(_ context.Context, _ *schema.ResourceData, 
 }
 
 func resourceZoneAuthorizationDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is used to request a sub-domain authorization when creating a sub-domain prompts this
-following error:
+	errorMsg := `This resource is a one-time action resource used to request a sub-domain authorization when creating a
+sub-domain prompts this following error:
 'domain conflicts with other tenants, you need to add TXT authorization verification'.
 Deleting this resource will not clear the corresponding authorization record, but will only remove the resource
 information from the tfstate file.`
