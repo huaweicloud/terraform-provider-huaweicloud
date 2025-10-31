@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_vpc_network_interface_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v3/{project_id}/ports/tags:
+        GET:
+            tag: VPC

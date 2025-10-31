@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_identity_projects
+    title: data_source_huaweicloud_identity_user_projects
     description: ""
 schemes:
     - https
@@ -8,9 +8,6 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3/projects:
-        GET:
-            tag: IAM
-    /v3/projects/{project_id}:
+    /v3/users/{user_id}/projects:
         GET:
             tag: IAM

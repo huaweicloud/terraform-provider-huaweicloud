@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_service_provider_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/saml-certificates:
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/saml-certificates/{certificate_id}:
+        DELETE:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/saml-certificates/{certificate_id}/active:
+        POST:
+            tag: IdentityCenter

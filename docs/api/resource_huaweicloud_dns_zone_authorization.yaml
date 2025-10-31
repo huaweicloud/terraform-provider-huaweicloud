@@ -9,7 +9,5 @@ tags:
     - name: DNS
 paths:
     /v2/authorize-txtrecord:
-        GET:
-            tag: DNS
         POST:
             tag: DNS

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_tenant
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/provision-tenant:
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/tenant/{tenant_id}:
+        DELETE:
+            tag: IdentityCenter

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_bearer_token
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/tenant/{tenant_id}/bearer-token:
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/tenant/{tenant_id}/bearer-token/{token_id}:
+        DELETE:
+            tag: IdentityCenter

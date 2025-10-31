@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rgc_landing_zone_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/landing-zone/configuration:
+        GET:
+            tag: RGC

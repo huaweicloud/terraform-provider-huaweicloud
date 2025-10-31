@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rgc_best_practice
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/best-practice/detect:
+        POST:
+            tag: RGC
+    /v1/best-practice/detection-overview:
+        GET:
+            tag: RGC
+    /v1/best-practice/status:
+        GET:
+            tag: RGC

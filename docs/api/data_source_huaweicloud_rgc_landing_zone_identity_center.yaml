@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rgc_landing_zone_identity_center
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/landing-zone/identity-center:
+        GET:
+            tag: RGC

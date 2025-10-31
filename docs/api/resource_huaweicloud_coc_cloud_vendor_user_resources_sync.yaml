@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: RDS
+    - name: COC
 paths:
     /v1/multicloud-resources/sync:
         POST:
-            tag: RDS
+            tag: COC

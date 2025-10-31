@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rgc_organizational_unit_register
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/managed-organization/{operation_id}:
+        GET:
+            tag: RGC
+    /v1/managed-organization/managed-organizational-units/{managed_organizational_unit_id}:
+        GET:
+            tag: RGC
+    /v1/managed-organization/organizational-units/{organizational_unit_id}/de-register:
+        POST:
+            tag: RGC
+    /v1/managed-organization/organizational-units/{organizational_unit_id}/re-register:
+        POST:
+            tag: RGC
+    /v1/managed-organization/organizational-units/{organizational_unit_id}/register:
+        POST:
+            tag: RGC

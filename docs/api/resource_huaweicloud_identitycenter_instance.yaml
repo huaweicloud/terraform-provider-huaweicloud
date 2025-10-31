@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-center-service/status:
+        GET:
+            tag: IdentityCenter
+    /v1/instances:
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/alias:
+        POST:
+            tag: IdentityCenter
+    /v1/service/delete:
+        POST:
+            tag: IdentityCenter
+    /v1/service/start:
+        POST:
+            tag: IdentityCenter

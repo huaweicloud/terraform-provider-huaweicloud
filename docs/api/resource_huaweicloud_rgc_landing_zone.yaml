@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rgc_landing_zone
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/landing-zone/delete:
+        POST:
+            tag: RGC
+    /v1/landing-zone/setup:
+        POST:
+            tag: RGC
+    /v1/landing-zone/status:
+        GET:
+            tag: RGC

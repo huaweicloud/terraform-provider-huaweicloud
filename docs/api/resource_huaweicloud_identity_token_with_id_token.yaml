@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identity_token_with_id_token
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v3.0/OS-AUTH/id-token/tokens:
+        POST:
+            tag: IAM

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_identity_provider_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/external-idp/{idp_id}/certificate:
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/external-idp/{idp_id}/certificate/{certificate_id}:
+        DELETE:
+            tag: IdentityCenter

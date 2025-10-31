@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identity_unscoped_token_with_id_token
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth:
+        POST:
+            tag: IAM

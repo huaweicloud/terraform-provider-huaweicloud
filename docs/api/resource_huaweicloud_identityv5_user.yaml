@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identityv5_user
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v5/users:
+        POST:
+            tag: IAM
+    /v5/users/{user_id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v5/users/{user_id}/last-login:
+        GET:
+            tag: IAM

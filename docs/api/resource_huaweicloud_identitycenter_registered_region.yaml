@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_registered_region
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/register-regions:
+        POST:
+            tag: IdentityCenter
+    /v1/registered-regions:
+        GET:
+            tag: IdentityCenter

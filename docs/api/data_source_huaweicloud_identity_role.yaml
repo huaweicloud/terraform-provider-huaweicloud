@@ -11,3 +11,6 @@ paths:
     /v3/roles:
         GET:
             tag: IAM
+    /v3/roles/{role_id}:
+        GET:
+            tag: IAM

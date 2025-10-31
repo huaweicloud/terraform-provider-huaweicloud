@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_identity_check_agency_role_assignment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v3.0/OS-AGENCY/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}:
+        HEAD:
+            tag: IAM
+    /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles/{role_id}:
+        HEAD:
+            tag: IAM
+    /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}/inherited_to_projects:
+        HEAD:
+            tag: IAM

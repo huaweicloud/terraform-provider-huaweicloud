@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rgc_control
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/governance/controls/disable:
+        POST:
+            tag: RGC
+    /v1/governance/controls/enable:
+        POST:
+            tag: RGC
+    /v1/governance/operation-control-status/{operation_control_status_id}:
+        GET:
+            tag: RGC

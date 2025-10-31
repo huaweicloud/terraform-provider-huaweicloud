@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_identity_users
+    title: resource_huaweicloud_identityv5_login_profile
     description: ""
 schemes:
     - https
@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3/users:
+    /v5/users/{user_id}/login-profile:
+        DELETE:
+            tag: IAM
         GET:
             tag: IAM
-    /v3/users/{user_id}:
-        GET:
+        POST:
             tag: IAM
-    /v3/users/{user_id}/groups:
-        GET:
+        PUT:
             tag: IAM

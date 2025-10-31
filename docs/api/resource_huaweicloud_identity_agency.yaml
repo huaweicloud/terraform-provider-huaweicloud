@@ -26,10 +26,10 @@ paths:
             tag: IAM
         PUT:
             tag: IAM
-    /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles:
+    /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles:
         GET:
             tag: IAM
-    /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles/{role_id}:
+    /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles/{role_id}:
         DELETE:
             tag: IAM
         PUT:
@@ -41,6 +41,14 @@ paths:
             tag: IAM
     /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/inherited_to_projects:
         GET:
+            tag: IAM
+    /v3.0/OS-PERMISSION/role-assignments:
+        GET:
+            tag: IAM
+    /v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments:
+        DELETE:
+            tag: IAM
+        PUT:
             tag: IAM
     /v3/projects:
         GET:

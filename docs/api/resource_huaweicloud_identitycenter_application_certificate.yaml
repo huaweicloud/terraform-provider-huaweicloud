@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_application_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates:
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates/{certificate_id}:
+        DELETE:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter

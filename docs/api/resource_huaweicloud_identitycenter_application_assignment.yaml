@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_application_assignment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/applications/{application_instance_id}/assignments:
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/applications/{application_instance_id}/assignments/create:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/applications/{application_instance_id}/assignments/delete:
+        POST:
+            tag: IdentityCenter
