@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getControlResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getControlResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	// getControl: Query RGC control via rgc API
 	var (
 		region            = acceptance.HW_REGION_NAME

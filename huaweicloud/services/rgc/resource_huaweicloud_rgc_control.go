@@ -185,7 +185,7 @@ func resourceControlRead(_ context.Context, d *schema.ResourceData, meta interfa
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceControlUpdate(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceControlUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 

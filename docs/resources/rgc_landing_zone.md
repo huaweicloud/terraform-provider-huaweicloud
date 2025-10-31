@@ -111,7 +111,7 @@ The following arguments are supported:
 
 * `home_region` - (Required, String, NonUpdatable) Specifies the ID of home region.
 
-* `organization_structure_type` - (Required, String, NonUpdatable) Specifies the type of the organization structure.
+* `organization_structure_type` - (Optional, String, NonUpdatable) Specifies the type of the organization structure.
   If creating a core organizational unit, this field should be set to STANDARD;
   however, if not creating it, the field should be set to NON_STANDARD, with the default value being STANDARD.
 
@@ -125,7 +125,7 @@ The following arguments are supported:
 
 * `cloud_trail_type` - (Optional, Bool) Specifies the access of organizational aggregation.
 
-* `kms_key_id` - (Required, String, NonUpdatable) Specifies the ID of kms key.
+* `kms_key_id` - (Optional, String, NonUpdatable) Specifies the ID of kms key.
 
 * `baseline_version` - (Optional, String) Specifies the excepted landing zone version for updating landing zone.
 
@@ -160,7 +160,7 @@ The `organization_structure` block supports:
 <a name="accounts"></a>
 The `accounts` block supports:
 
-* `account_name` - (Optional, String) Specifies the name of created account or enrolled account.
+* `account_name` - (Required, String) Specifies the name of created account or enrolled account.
 
 * `account_type` - (Required, String) Specifies the name of created account or enrolled account,
   only support LOGGING or SECURITY.
@@ -179,31 +179,31 @@ The `accounts` block supports:
 <a name="logging_configuration"></a>
 The `logging_configuration` block supports:
 
-* `logging_bucket_name` -  (Optional, String) Specifies the name of logging bucket, set this field means
+* `logging_bucket_name` - (Optional, String) Specifies the name of logging bucket, set this field means
   using existed bucket, RGC will not create bucket in setup landing zone progress.
 
-* `logging_bucket` - (Optional, List) Specifies the logging bucket structure.
+* `logging_bucket` - (Required, List) Specifies the logging bucket structure.
 
   The [logging_bucket](#logging_bucket) structure is documented below.
 
-* `access_logging_bucket` - (Optional, List) Specifies the access logging bucket structure.
+* `access_logging_bucket` - (Required, List) Specifies the access logging bucket structure.
 
   The [access_logging_bucket](#access_logging_bucket) structure is documented below.
 
 <a name="logging_bucket"></a>
 The `logging_bucket` and  access_logging_bucket block supports:
 
-* `logging_bucket_retention_days` - (Required, Int) Specifies retention days of logging bucket.
+* `retention_days` - (Required, Int) Specifies retention days of logging bucket.
 
-* `logging_bucket_enable_multi_az` - (Optional, Bool) Specifies multi-az storage access of logging bucket,
+* `enable_multi_az` - (Optional, Bool) Specifies multi-az storage access of logging bucket,
   default value is false.
 
 <a name="access_logging_bucket"></a>
 The `access_logging_bucket` block supports:
 
-* `logging_bucket_retention_days` - (Required, Int) Specifies retention days of access logging bucket.
+* `retention_days` - (Required, Int) Specifies retention days of access logging bucket.
 
-* `logging_bucket_enable_multi_az` - (Optional, Bool) Specifies multi-az storage access of access logging bucket,
+* `enable_multi_az` - (Optional, Bool) Specifies multi-az storage access of access logging bucket,
   default value is false.
 
 ## Attribute Reference
@@ -214,7 +214,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `landing_zone_status` - Indicates the configuration status of landing zone.
 
-* `deployed_version` Indicates the configuration deployed version of landing zone.
+* `deployed_version` - Indicates the configuration deployed version of landing zone.
 
 ## Timeouts
 

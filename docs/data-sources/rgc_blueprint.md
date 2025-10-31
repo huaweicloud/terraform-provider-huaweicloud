@@ -27,7 +27,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `managed_account_id` - (Required) The ID of the managed account.
+* `managed_account_id` - (Required, String) The ID of the managed account.
 
 ## Attributes Reference
 

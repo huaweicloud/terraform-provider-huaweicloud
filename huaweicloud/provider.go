@@ -1670,7 +1670,15 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instant_tasks":                     rds.DataSourceRdsInstantTasks(),
 			"huaweicloud_rds_schedule_tasks":                    rds.DataSourceRdsScheduleTasks(),
 
-			"huaweicloud_rgc_home_region": rgc.DataSourceHomeRegion(),
+			"huaweicloud_rgc_home_region":                    rgc.DataSourceHomeRegion(),
+			"huaweicloud_rgc_pre_launch_check":               rgc.DataSourcePreLaunchCheck(),
+			"huaweicloud_rgc_landing_zone_available_updates": rgc.DataSourceLandingZoneAvailableUpdates(),
+			"huaweicloud_rgc_landing_zone_configuration":     rgc.DataSourceLandingZoneConfiguration(),
+			"huaweicloud_rgc_landing_zone_identity_center":   rgc.DataSourceLandingZoneIdentityCenter(),
+			"huaweicloud_rgc_blueprint":                      rgc.DataSourceBluePrint(),
+			"huaweicloud_rgc_operation":                      rgc.DataSourceOperation(),
+			"huaweicloud_rgc_organizational_unit_accounts":   rgc.DataSourceOrganizationalUnitAccounts(),
+			"huaweicloud_rgc_organizational_units":           rgc.DataSourceOrganizationalUnits(),
 
 			"huaweicloud_rms_policy_definitions":                           rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":                 rms.DataSourceTemplates(),
@@ -3247,7 +3255,14 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_wal_log_replay_switch":          rds.ResourceRdsWalLogReplaySwitch(),
 			"huaweicloud_rds_restore_read_replica_database":  rds.ResourceRdsRestoreReadReplicaDatabase(),
 
-			"huaweicloud_rgc_account": rgc.ResourceAccount(),
+			"huaweicloud_rgc_account":                      rgc.ResourceAccount(),
+			"huaweicloud_rgc_account_enroll":               rgc.ResourceAccountEnroll(),
+			"huaweicloud_rgc_organizational_unit":          rgc.ResourceOrganizationalUnit(),
+			"huaweicloud_rgc_organizational_unit_register": rgc.ResourceOrganizationalUnitRegister(),
+			"huaweicloud_rgc_landing_zone":                 rgc.ResourceLandingZone(),
+			"huaweicloud_rgc_control":                      rgc.ResourceControl(),
+			"huaweicloud_rgc_best_practice":                rgc.ResourceBestPractice(),
+			"huaweicloud_rgc_template":                     rgc.ResourceTemplate(),
 
 			"huaweicloud_rms_policy_assignment":                           rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_policy_assignment_evaluate":                  rms.ResourcePolicyAssignmentEvaluate(),

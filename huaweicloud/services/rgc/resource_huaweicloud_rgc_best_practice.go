@@ -2,7 +2,7 @@ package rgc
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -176,7 +176,7 @@ func bestPracticeStateRefreshFunc(client *golangsdk.ServiceClient) resource.Stat
 
 		status := utils.PathSearch("status", getBestPracticeStatusRespBody, "").(string)
 		if status == "" {
-			return nil, "", fmt.Errorf("error getting best practice status")
+			return nil, "", errors.New("error getting best practice status")
 		}
 
 		return getBestPracticeStatusRespBody, status, nil
