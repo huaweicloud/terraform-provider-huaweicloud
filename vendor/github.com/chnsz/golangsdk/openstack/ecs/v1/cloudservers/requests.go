@@ -56,6 +56,8 @@ type CreateOpts struct {
 	AutoTerminateTime string `json:"auto_terminate_time,omitempty"`
 
 	EnclaveOptions *EnclaveOptions `json:"enclave_options,omitempty"`
+
+	EnableJumboFrame *bool `json:"enable_jumbo_frame,omitempty"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the
