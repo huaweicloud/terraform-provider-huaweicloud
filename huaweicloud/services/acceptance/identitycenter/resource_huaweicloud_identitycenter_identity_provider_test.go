@@ -68,6 +68,7 @@ func TestAccIdentityProvider_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckCertificateBase(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -117,12 +118,12 @@ func testIdentityCenterIdentityProvider_create_without_metadata_basic() string {
 
 resource "huaweicloud_identitycenter_identity_provider" "test" {
   identity_store_id = data.huaweicloud_identitycenter_instance.test.identity_store_id
-  idp_certificate   = "-----BEGIN CERTIFICATE-----MIIDUTCCAjmgAwIBAgIQAP9wc90YPLxcirh7/qTyBTANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAliYWlkdS5jb20wHhcNMjUwOTAzMDI0NzAzWhcNMzUwOTAxMDI0NzAzWjAUMRIwEAYDVQQDDAliYWlkdS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDZGZlyBZTE6I3RCsCdOTNvdT0rn0dzhO3squ0owQjpO5APLEVtu3rOeImkOpGIKrsx1s0Y17F+/DP2eB+YTkIOtkn01+XK9SUerL2kcAJQFMbNBtyihOxGPvq5S55NneZGY7UaPab+C9ugurmqi9xzH1NYdiDgb5Aa58t7XL2G0mnd4OkRYd43fY4lpo9jhmGhOUKZBFequ1TgV6EQg3FPTNpDzUN2skucmoU0Rz0Btz1bKdKtQ7tCHffFIPEI63dR6Rmi7CQT5WEm8f9j5UPhxFWC7f65PuaLbcTomccBbUXVm0JxaDI3L06yZyQ4U9ZKnLOSGSaZGs5hgtmeZlCNAgMBAAGjgZ4wgZswHQYDVR0OBBYEFIpds0vTmKvtGLhem/BxatDeyC+7MA4GA1UdDwEB/wQEAwIEsDAMBgNVHRMBAf8EAjAAMDsGA1UdJQQ0MDIGCCsGAQUFBwMCBggrBgEFBQcDAQYIKwYBBQUHAwMGCCsGAQUFBwMEBggrBgEFBQcDCDAfBgNVHSMEGDAWgBSKXbNL05ir7Ri4XpvwcWrQ3sgvuzANBgkqhkiG9w0BAQsFAAOCAQEARbgGdia5b0QNDxQyitntXq+Gn5JAK5Lx/5JYL0/RsgJ7uT6kVveMN6ySyDclZW2/Pvf3weCJdiz0h8NIAY0TIKd9NNJ53YCAyGTzi/BNPXAwAFJztyEwGtTIBCSIHwNmHifYzfrEFBdy33LY6xBO+W98d9NyyOppstFbRtgz4WCEdGJxRDNQ2h4oZJcIloDj54WXFyEulibbieC4oIyVP58j2MXUZwXYrhfnlir/qtaQTudjcA43+YorkTP2CBDCONm9vjINy7mDF7dTdFDjuUMyWPqokuvqLVB7zHZpKu/QhfsOBNMKgxTiNfHgqQe+EFxwvhXnxXZnkmd7F1pXqw==-----END CERTIFICATE-----"
+  idp_certificate   = "%[2]s"
   entity_id         = "https://create.entity.com"
   login_url         = "https://create.login.com"
 
 }
-`, testAccDatasourceIdentityCenter_basic())
+`, testAccDatasourceIdentityCenter_basic(), acceptance.HW_CERTIFICATE_CONTENT)
 }
 
 func testIdentityCenterIdentityProvider_basic_update() string {
@@ -131,11 +132,11 @@ func testIdentityCenterIdentityProvider_basic_update() string {
 
 resource "huaweicloud_identitycenter_identity_provider" "test" {
   identity_store_id = data.huaweicloud_identitycenter_instance.test.identity_store_id
-  idp_certificate   = "-----BEGIN CERTIFICATE-----MIIDUTCCAjmgAwIBAgIQAP9wc90YPLxcirh7/qTyBTANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAliYWlkdS5jb20wHhcNMjUwOTAzMDI0NzAzWhcNMzUwOTAxMDI0NzAzWjAUMRIwEAYDVQQDDAliYWlkdS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDZGZlyBZTE6I3RCsCdOTNvdT0rn0dzhO3squ0owQjpO5APLEVtu3rOeImkOpGIKrsx1s0Y17F+/DP2eB+YTkIOtkn01+XK9SUerL2kcAJQFMbNBtyihOxGPvq5S55NneZGY7UaPab+C9ugurmqi9xzH1NYdiDgb5Aa58t7XL2G0mnd4OkRYd43fY4lpo9jhmGhOUKZBFequ1TgV6EQg3FPTNpDzUN2skucmoU0Rz0Btz1bKdKtQ7tCHffFIPEI63dR6Rmi7CQT5WEm8f9j5UPhxFWC7f65PuaLbcTomccBbUXVm0JxaDI3L06yZyQ4U9ZKnLOSGSaZGs5hgtmeZlCNAgMBAAGjgZ4wgZswHQYDVR0OBBYEFIpds0vTmKvtGLhem/BxatDeyC+7MA4GA1UdDwEB/wQEAwIEsDAMBgNVHRMBAf8EAjAAMDsGA1UdJQQ0MDIGCCsGAQUFBwMCBggrBgEFBQcDAQYIKwYBBQUHAwMGCCsGAQUFBwMEBggrBgEFBQcDCDAfBgNVHSMEGDAWgBSKXbNL05ir7Ri4XpvwcWrQ3sgvuzANBgkqhkiG9w0BAQsFAAOCAQEARbgGdia5b0QNDxQyitntXq+Gn5JAK5Lx/5JYL0/RsgJ7uT6kVveMN6ySyDclZW2/Pvf3weCJdiz0h8NIAY0TIKd9NNJ53YCAyGTzi/BNPXAwAFJztyEwGtTIBCSIHwNmHifYzfrEFBdy33LY6xBO+W98d9NyyOppstFbRtgz4WCEdGJxRDNQ2h4oZJcIloDj54WXFyEulibbieC4oIyVP58j2MXUZwXYrhfnlir/qtaQTudjcA43+YorkTP2CBDCONm9vjINy7mDF7dTdFDjuUMyWPqokuvqLVB7zHZpKu/QhfsOBNMKgxTiNfHgqQe+EFxwvhXnxXZnkmd7F1pXqw==-----END CERTIFICATE-----"
+  idp_certificate   = "%[2]s"
   entity_id         = "https://update.entity.com"
   login_url         = "https://update.login.com"
 }
-`, testAccDatasourceIdentityCenter_basic())
+`, testAccDatasourceIdentityCenter_basic(), acceptance.HW_CERTIFICATE_CONTENT)
 }
 
 func testIdentityCenterIdentityProviderImportState(name string) resource.ImportStateIdFunc {
