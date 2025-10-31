@@ -932,6 +932,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_availability_zones":  dew.DataSourceAvailabilityZones(),
 			"huaweicloud_cpcs_cluster_access_keys": dew.DataSourceCpcsClusterAccessKeys(),
 			"huaweicloud_cpcs_images":              dew.DataSourceCpcsImages(),
+			"huaweicloud_cpcs_instances":           dew.DataSourceInstances(),
 			"huaweicloud_cpcs_clusters":            dew.DataSourceCpcsClusters(),
 			"huaweicloud_cpcs_resource_infos":      dew.DataSourceResourceInfos(),
 
