@@ -23,6 +23,7 @@ func ResourceIdentityCenterRegisteredRegion() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityCenterRegisteredRegionCreate,
 		ReadContext:   resourceIdentityCenterRegisteredRegionRead,
+		UpdateContext: resourceIdentityCenterRegisteredRegionUpdate,
 		DeleteContext: resourceIdentityCenterRegisteredRegionDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -35,7 +36,6 @@ func ResourceIdentityCenterRegisteredRegion() *schema.Resource {
 			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -122,6 +122,10 @@ func resourceIdentityCenterRegisteredRegionRead(_ context.Context, d *schema.Res
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceIdentityCenterRegisteredRegionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceIdentityCenterRegisteredRegionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
