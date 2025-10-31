@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIpInformation_basic(t *testing.T) {
+func TestAccDataIpInformation_basic(t *testing.T) {
 	var (
 		rName = "data.huaweicloud_cdn_ip_information.test"
 		dc    = acceptance.InitDataSourceCheck(rName)
@@ -24,7 +24,7 @@ func TestAccDataSourceIpInformation_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIpInformation_basic(),
+				Config: testAccDataIpInformation_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(rName, "information.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -36,7 +36,7 @@ func TestAccDataSourceIpInformation_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceIpInformation_basic() string {
+func testAccDataIpInformation_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_cdn_ip_information" "test" {
   ips = "%[1]s"

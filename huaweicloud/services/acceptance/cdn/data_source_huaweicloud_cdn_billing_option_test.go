@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceBillingOption_basic(t *testing.T) {
+func TestAccDataBillingOption_basic(t *testing.T) {
 	var (
 		rName = "data.huaweicloud_cdn_billing_option.test"
 		dc    = acceptance.InitDataSourceCheck(rName)
@@ -25,7 +25,12 @@ func TestAccDataSourceBillingOption_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceBillingOption_basic,
+				Config: testAccDataBillingOption_expectError,
+				ExpectError: regexp.MustCompile("Your query returned no results. " +
+					"Please change your search criteria and try again."),
+			},
+			{
+				Config: testAccDataBillingOption_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "product_type"),
@@ -44,16 +49,22 @@ func TestAccDataSourceBillingOption_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(allFilterRName, "effective_time"),
 				),
 			},
-			{
-				Config: testDataSourceBillingOption_expectError,
-				ExpectError: regexp.MustCompile("Your query returned no results. " +
-					"Please change your search criteria and try again."),
-			},
 		},
 	})
 }
 
-const testDataSourceBillingOption_basic = `
+const testAccDataBillingOption_expectError = `
+data "huaweicloud_cdn_billing_option" "test" {
+  product_type = "base"
+}
+
+data "huaweicloud_cdn_billing_option" "expect_error" {
+  product_type = "base"
+  status       = data.huaweicloud_cdn_billing_option.test.status == "active" ? "upcoming" : "active"
+}
+`
+
+const testAccDataBillingOption_basic = `
 data "huaweicloud_cdn_billing_option" "test" {
   product_type = "base"
 }
@@ -62,16 +73,5 @@ data "huaweicloud_cdn_billing_option" "all_filter" {
   product_type = "base"
   status       = data.huaweicloud_cdn_billing_option.test.status
   service_area = data.huaweicloud_cdn_billing_option.test.service_area
-}
-`
-
-const testDataSourceBillingOption_expectError = `
-data "huaweicloud_cdn_billing_option" "test" {
-  product_type = "base"
-}
-
-data "huaweicloud_cdn_billing_option" "expect_error" {
-  product_type = "base"
-  status       = data.huaweicloud_cdn_billing_option.test.status == "active" ? "upcoming" : "active"
 }
 `

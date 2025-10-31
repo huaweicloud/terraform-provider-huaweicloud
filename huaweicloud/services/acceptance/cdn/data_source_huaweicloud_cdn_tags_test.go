@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceDomainTags_basic(t *testing.T) {
+func TestAccDataDomainTags_basic(t *testing.T) {
 	var (
 		domainName = generateDomainName()
 
@@ -25,7 +25,7 @@ func TestAccDatasourceDomainTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDomainTags_basic(domainName),
+				Config: testAccDataDomainTags_basic(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dcName, "tags.#", regexp.MustCompile("^[1-9]([0-9]+)?$")),
@@ -39,7 +39,7 @@ func TestAccDatasourceDomainTags_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDomainTags_base(domainName string) string {
+func testAccDataDomainTags_base(domainName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name         = "%[1]s"
@@ -77,11 +77,11 @@ resource "huaweicloud_cdn_domain" "test" {
 `, domainName)
 }
 
-func testAccDatasourceDomainTags_basic(domainName string) string {
+func testAccDataDomainTags_basic(domainName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_cdn_domain_tags" "test" {
   resource_id = huaweicloud_cdn_domain.test.id
-}`, testAccDatasourceDomainTags_base(domainName))
+}`, testAccDataDomainTags_base(domainName))
 }

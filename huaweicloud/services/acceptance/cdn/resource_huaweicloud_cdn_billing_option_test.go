@@ -43,7 +43,7 @@ func TestAccBillingOption_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testBillingOption_basic,
+				Config: testAccBillingOption_basic_step1,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "charge_mode", "flux"),
@@ -56,7 +56,7 @@ func TestAccBillingOption_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testBillingOption_basic_update,
+				Config: testAccBillingOption_basic_step2,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "charge_mode", "bw"),
@@ -72,7 +72,7 @@ func TestAccBillingOption_basic(t *testing.T) {
 	})
 }
 
-const testBillingOption_basic = `
+const testAccBillingOption_basic_step1 = `
 resource "huaweicloud_cdn_billing_option" "test" {
   charge_mode  = "flux"
   product_type = "base"
@@ -80,7 +80,7 @@ resource "huaweicloud_cdn_billing_option" "test" {
 }
 `
 
-const testBillingOption_basic_update = `
+const testAccBillingOption_basic_step2 = `
 resource "huaweicloud_cdn_billing_option" "test" {
   charge_mode  = "bw"
   product_type = "base"
