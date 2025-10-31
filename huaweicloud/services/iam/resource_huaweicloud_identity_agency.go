@@ -3,6 +3,7 @@ package iam
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -16,6 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/eps_permissions"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
@@ -26,6 +29,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// ResourceIAMAgencyV3
 // @API IAM POST /v3.0/OS-AGENCY/agencies
 // @API IAM GET /v3.0/OS-AGENCY/agencies/{agency_id}
 // @API IAM PUT /v3.0/OS-AGENCY/agencies/{agency_id}
@@ -36,9 +40,12 @@ import (
 // @API IAM GET /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/inherited_to_projects
 // @API IAM PUT /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}/inherited_to_projects
 // @API IAM DELETE /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}/inherited_to_projects
-// @API IAM GET /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles
-// @API IAM PUT /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles/{role_id}
-// @API IAM DELETE /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles/{role_id}
+// @API IAM GET /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles
+// @API IAM PUT /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles/{role_id}
+// @API IAM DELETE /v3.0/OS-AGENCY/projects/{project_id}/agencies/{agency_id}/roles/{role_id}
+// @API IAM GET /v3.0/OS-PERMISSION/role-assignments
+// @API IAM PUT /v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments
+// @API IAM DELETE /v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments
 // @API IAM GET /v3/projects
 // @API IAM GET /v3/roles
 func ResourceIAMAgencyV3() *schema.Resource {
@@ -83,7 +90,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"project_role": {
 				Type:         schema.TypeSet,
 				Optional:     true,
-				AtLeastOneOf: []string{"project_role", "domain_roles", "all_resources_roles"},
+				AtLeastOneOf: []string{"project_role", "domain_roles", "all_resources_roles", "enterprise_project_roles"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project": {
@@ -94,7 +101,6 @@ func ResourceIAMAgencyV3() *schema.Resource {
 							Type:     schema.TypeSet,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 					},
 				},
@@ -111,6 +117,23 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+			"enterprise_project_roles": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enterprise_project": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"roles": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 
 			"expire_time": {
@@ -176,6 +199,27 @@ func getProjectIDByName(client *golangsdk.ServiceClient, domainID, name string) 
 
 	item := all[0]
 	return item.ID, nil
+}
+
+func getEnterpriseProjectByName(client *golangsdk.ServiceClient, name string) (string, error) {
+	opts := enterpriseprojects.ListOpts{Name: name}
+	enterpriseProjects, err := enterpriseprojects.List(client, opts).Extract()
+	if err != nil {
+		return "", fmt.Errorf("error retrieving enterprise projects: %s", err)
+	}
+	if len(enterpriseProjects) < 1 {
+		return "", errors.New("your enterprise project doesn't exist")
+	}
+	if len(enterpriseProjects) > 1 {
+		for _, v := range enterpriseProjects {
+			if v.Name == name {
+				// Use name to find the target enterprise project.
+				return v.ID, nil
+			}
+		}
+		return "", errors.New("your enterprise project doesn't exist")
+	}
+	return enterpriseProjects[0].ID, nil
 }
 
 func getAllProjectsOfDomain(client *golangsdk.ServiceClient, domainID string) (map[string]string, error) {
@@ -287,6 +331,10 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating identity client: %s", err)
 	}
+	epsClient, err := cfg.EnterpriseProjectClient(region)
+	if err != nil {
+		return diag.Errorf("error creating EPS client: %s", err)
+	}
 
 	domainID := cfg.DomainID
 	if domainID == "" {
@@ -329,6 +377,12 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 
 	inheritedRoles := utils.ExpandToStringListBySet(d.Get("all_resources_roles").(*schema.Set))
 	if err := attachAllResourcesRoles(iamClient, allRoleIDs, inheritedRoles, domainID, agencyID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	epRawRoles := d.Get("enterprise_project_roles").(*schema.Set)
+	epRoles := buildEnterpriseProjectRoles(epRawRoles)
+	if err := attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, epRoles, agencyID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -463,6 +517,9 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 
 	// Unable to fetch all_resources_roles because the API response does not include `display_name` field
 	// https://support.huaweicloud.com/api-iam/iam_12_0014.html
+
+	// Unable to fetch enterprise_project_roles because the API response does not include `display_name` field
+	// https://support.huaweicloud.com/api-iam/iam_10_0014.html
 	return nil
 }
 
@@ -505,6 +562,51 @@ func diffChangeOfProjectRole(oldVal, newVal *schema.Set) (remove, add []string) 
 
 	for k := range newprs {
 		if _, ok := oldprs[k]; !ok {
+			add = append(add, k)
+		}
+	}
+	return
+}
+
+func buildEnterpriseProjectRoles(prs *schema.Set) []string {
+	addeprs := changeToEPRPair(prs)
+	epRoles := make([]string, 0, len(addeprs))
+	for key := range addeprs {
+		epRoles = append(epRoles, key)
+	}
+	return epRoles
+}
+
+func changeToEPRPair(eprs *schema.Set) map[string]bool {
+	r := make(map[string]bool)
+	for _, v := range eprs.List() {
+		epr := v.(map[string]interface{})
+
+		epn := epr["enterprise_project"].(string)
+		rs := epr["roles"].(*schema.Set)
+		for _, role := range rs.List() {
+			key := fmt.Sprintf("%s|%s", epn, role.(string))
+			r[key] = true
+		}
+	}
+	return r
+}
+
+func diffChangeOfEnterpriseProjectRole(oldVal, newVal *schema.Set) (remove, add []string) {
+	remove = make([]string, 0)
+	add = make([]string, 0)
+
+	oldeprs := changeToEPRPair(oldVal)
+	neweprs := changeToEPRPair(newVal)
+
+	for k := range oldeprs {
+		if _, ok := neweprs[k]; !ok {
+			remove = append(remove, k)
+		}
+	}
+
+	for k := range neweprs {
+		if _, ok := oldeprs[k]; !ok {
 			add = append(add, k)
 		}
 	}
@@ -664,6 +766,80 @@ func detachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[
 	return nil
 }
 
+func attachEnterpriseProjectRoles(iamClient, epsClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	epRoles []string, agencyID string) error {
+	if len(epRoles) > 0 {
+		log.Printf("[DEBUG] attaching roles %v in enterprise project scope to agency %s", epRoles, agencyID)
+	}
+
+	roleAssignments := make([]eps_permissions.RoleAssignment, 0, len(epRoles))
+	for _, v := range epRoles {
+		epr := strings.Split(v, "|")
+		if len(epr) != 2 {
+			return fmt.Errorf("error parsing enterprise project role from %s: invalid format", v)
+		}
+		epid, err := getEnterpriseProjectByName(epsClient, epr[0])
+		if err != nil {
+			return fmt.Errorf("the enterprise project(%s) is not exist", epr[0])
+		}
+		rid, ok := allRoleIDs[epr[1]]
+		if !ok {
+			return fmt.Errorf("the role(%s) to be attached is not exist", epr[1])
+		}
+		roleAssignments = append(roleAssignments, eps_permissions.RoleAssignment{
+			AgencyID:            agencyID,
+			EnterprisePorjectID: epid,
+			RoleID:              rid,
+		})
+	}
+	opt := eps_permissions.AgencyPermissionsOpts{RoleAssignments: roleAssignments}
+	err := eps_permissions.AgencyPermissionsCreate(iamClient, &opt).ExtractErr()
+	if err != nil {
+		return fmt.Errorf("error attaching role by enterprise project to agency(%s), "+
+			"roleAssignments[{agency_id, enterprise_project_id, role_id}]: %s, error: %s",
+			agencyID, roleAssignments, err)
+	}
+	return nil
+}
+
+func detachEnterpriseProjectRoles(iamClient, epsClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
+	epRoles []string, agencyID string) error {
+	if len(epRoles) > 0 {
+		log.Printf("[DEBUG] detaching roles %v in enterprise project scope from agency %s", epRoles, agencyID)
+	}
+
+	roleAssignments := make([]eps_permissions.RoleAssignment, 0, len(epRoles))
+	for _, v := range epRoles {
+		epr := strings.Split(v, "|")
+		if len(epr) != 2 {
+			return fmt.Errorf("error parsing enterprise project role from %s: invalid format", v)
+		}
+
+		epid, err := getEnterpriseProjectByName(epsClient, epr[0])
+		if err != nil {
+			return fmt.Errorf("the enterprise project(%s) is not exist", epr[0])
+		}
+		rid, ok := allRoleIDs[epr[1]]
+		if !ok {
+			log.Printf("[WARN] the role(%s) to be detached is not exist", epr[1])
+			continue
+		}
+		roleAssignments = append(roleAssignments, eps_permissions.RoleAssignment{
+			AgencyID:            agencyID,
+			EnterprisePorjectID: epid,
+			RoleID:              rid,
+		})
+	}
+	opt := eps_permissions.AgencyPermissionsOpts{RoleAssignments: roleAssignments}
+	err := eps_permissions.AgencyPermissionsDelete(iamClient, &opt).ExtractErr()
+	if err != nil {
+		return fmt.Errorf("error detaching role by enterprise project from agency(%s), "+
+			"roleAssignments[{agency_id, enterprise_project_id, role_id}]: %s, error: %s",
+			agencyID, roleAssignments, err)
+	}
+	return nil
+}
+
 func updateProjectRoles(d *schema.ResourceData, iamClient, identityClient *golangsdk.ServiceClient,
 	allRoleIDs map[string]string, domainID, agencyID string) error {
 	o, n := d.GetChange("project_role")
@@ -721,6 +897,20 @@ func updateAllResourcesRoles(d *schema.ResourceData, iamClient *golangsdk.Servic
 	return nil
 }
 
+func updateEnterpriseProjectRoles(d *schema.ResourceData, iamClient, epsClient *golangsdk.ServiceClient,
+	allRoleIDs map[string]string, agencyID string) error {
+	o, n := d.GetChange("enterprise_project_roles")
+	deleteeprs, addeprs := diffChangeOfEnterpriseProjectRole(o.(*schema.Set), n.(*schema.Set))
+	if err := detachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, deleteeprs, agencyID); err != nil {
+		return err
+	}
+	//nolint:revive
+	if err := attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, addeprs, agencyID); err != nil {
+		return err
+	}
+	return nil
+}
+
 func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -731,6 +921,10 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 	identityClient, err := cfg.IdentityV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating identity client: %s", err)
+	}
+	epsClient, err := cfg.EnterpriseProjectClient(region)
+	if err != nil {
+		return diag.Errorf("error creating EPS client: %s", err)
 	}
 
 	agencyID := d.Id()
@@ -783,6 +977,12 @@ func resourceIAMAgencyV3Update(ctx context.Context, d *schema.ResourceData, meta
 
 	if d.HasChange("all_resources_roles") {
 		if err = updateAllResourcesRoles(d, iamClient, allRoles, domainID, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_roles") {
+		if err = updateEnterpriseProjectRoles(d, iamClient, epsClient, allRoles, agencyID); err != nil {
 			return diag.FromErr(err)
 		}
 	}

@@ -694,6 +694,10 @@ func (c *Config) IAMV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("iam", region)
 }
 
+func (c *Config) IAMV3GlobalClient() (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("iam_global", "")
+}
+
 func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("identity", region)
 }

@@ -66,6 +66,10 @@ The following arguments are supported:
 * `enterprise` - (Optional, List) Specifies the enterprise information of the user.
   The [enterprise](#enterprise_struct) structure is documented below.
 
+* `enabled` - (Optional, Bool) Whether the user is enabled. Value options:
+  + **true**
+  + **false**
+
 <a name="addresses_struct"></a>
 The `addresses` block supports:
 
@@ -111,8 +115,6 @@ In addition to all arguments above, the following attributes are exported:
 * `updated_by` - The updater of the user.
 
 * `email_verified` - Whether the email is verified.
-
-* `enabled` - Whether the user is enabled.
 
 ## Import
 

@@ -127,12 +127,12 @@ func ResourceIdentityProvider() *schema.Resource {
 						"response_type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
+							Default:  "id_token",
 						},
 						"response_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Computed:     true,
+							Default:      "form_post",
 							ValidateFunc: validation.StringInSlice([]string{"fragment", "form_post"}, false),
 						},
 					},
@@ -243,18 +243,8 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 			scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
 			createAccessTypeOpts.Scope = strings.Join(scopes, scopeSpilt)
 			createAccessTypeOpts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
-
-			responseType := accessConfig["response_type"].(string)
-			if responseType == "" {
-				responseType = "id_token"
-			}
-			createAccessTypeOpts.ResponseType = responseType
-
-			responseMode := accessConfig["response_mode"].(string)
-			if responseMode == "" {
-				responseMode = "form_post"
-			}
-			createAccessTypeOpts.ResponseMode = responseMode
+			createAccessTypeOpts.ResponseType = accessConfig["response_type"].(string)
+			createAccessTypeOpts.ResponseMode = accessConfig["response_mode"].(string)
 		}
 
 		log.Printf("[DEBUG] Create access type of provider: %#v", opts)

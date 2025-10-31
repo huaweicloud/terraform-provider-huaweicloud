@@ -15,6 +15,7 @@ import (
 )
 
 // @API IAM GET /v3/roles
+// @API IAM GET /v3/roles/{role_id}
 func DataSourceIdentityRole() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityRoleRead,
@@ -24,13 +25,18 @@ func DataSourceIdentityRole() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"name", "display_name"},
+				AtLeastOneOf: []string{"name", "display_name", "role_id"},
 			},
 			"display_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"name", "display_name"},
+				AtLeastOneOf: []string{"name", "display_name", "role_id"},
+			},
+			"role_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"name", "display_name"},
 			},
 
 			"description": {
@@ -60,7 +66,15 @@ func dataSourceIdentityRoleRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
-
+	roleId := d.Get("role_id").(string)
+	if roleId != "" {
+		role, err := roles.Get(identityClient, roleId).Extract()
+		if err != nil {
+			return diag.Errorf("error fetching role details: %s", err)
+		}
+		d.SetId(role.ID)
+		return dataSourceIdentityRoleAttributes(d, role)
+	}
 	listOpts := roles.ListOpts{
 		Name:        d.Get("name").(string),
 		DisplayName: d.Get("display_name").(string),
@@ -101,6 +115,7 @@ func dataSourceIdentityRoleAttributes(d *schema.ResourceData, role *roles.Role) 
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("role_id", role.ID),
 		d.Set("name", role.Name),
 		d.Set("description", role.Description),
 		d.Set("display_name", role.DisplayName),
