@@ -24,7 +24,7 @@ resource "huaweicloud_identitycenter_registered_region" "test" {
 
 The following arguments are supported:
 
-* `region_id` - (Required, String, NonUpdatable) Specifies the ID of the region.
+* `region_id` - (Required, String, ForceNew) Specifies the ID of the region.
 
 ## Attribute Reference
 
