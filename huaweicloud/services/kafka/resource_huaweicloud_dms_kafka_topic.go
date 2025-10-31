@@ -37,6 +37,10 @@ func ResourceDmsKafkaTopic() *schema.Resource {
 			StateContext: resourceDmsKafkaTopicImport,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 			if d.HasChange("partitions") {
 				oldValue, newValue := d.GetChange("partitions")
@@ -164,7 +168,7 @@ func resourceDmsKafkaTopicCreate(ctx context.Context, d *schema.ResourceData, me
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      kafkaTopicCreateRefreshFunc(dmsV2Client, d),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
