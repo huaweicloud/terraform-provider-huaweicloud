@@ -1,5 +1,80 @@
 # CHANGELOG
 
+## 1.80.1 (October 31, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_cpcs_app_cluster_association` [GH-8181]
+  + `huaweicloud_identity_provider_protocol` [GH-8200]
+  + `huaweicloud_identity_token_with_id_token` [GH-8200]
+  + `huaweicloud_identity_unscoped_token_saml` [GH-8200]
+  + `huaweicloud_identity_unscoped_token_with_id_token` [GH-8200]
+  + `huaweicloud_identity_user_info` [GH-8200]
+  + `huaweicloud_identity_user_password` [GH-8200]
+  + `huaweicloud_identitycenter_application_assignment`
+  + `huaweicloud_identitycenter_application_certificate`
+  + `huaweicloud_identitycenter_bearer_token`
+  + `huaweicloud_identitycenter_identity_provider_certificate`
+  + `huaweicloud_identitycenter_identity_provider`
+  + `huaweicloud_identitycenter_instance` [GH-6047]
+  + `huaweicloud_identitycenter_registered_region`
+  + `huaweicloud_identitycenter_service_provider_certificate`
+  + `huaweicloud_identitycenter_tenant`
+  + `huaweicloud_identityv5_login_profile` [GH-8200]
+  + `huaweicloud_identityv5_user` [GH-8200]
+  + `huaweicloud_rgc_account_enroll` [GH-8208]
+  + `huaweicloud_rgc_best_practice` [GH-8208]
+  + `huaweicloud_rgc_control` [GH-8208]
+  + `huaweicloud_rgc_landing_zone` [GH-8208]
+  + `huaweicloud_rgc_organizational_unit_register` [GH-8208]
+  + `huaweicloud_rgc_organizational_unit` [GH-8208]
+  + `huaweicloud_rgc_template` [GH-8208]
+
+* **New Data Source:**
+  + `huaweicloud_elb_loadbalancers_by_tags` [GH-8196]
+  + `huaweicloud_hss_antivirus_result` [GH-8178]
+  + `huaweicloud_hss_rasp_statistics` [GH-8190]
+  + `huaweicloud_identity_access_key` [GH-8200]
+  + `huaweicloud_identity_auth_projects` [GH-8200]
+  + `huaweicloud_identity_catalog` [GH-8200]
+  + `huaweicloud_identity_check_agency_role_assignment` [GH-8200]
+  + `huaweicloud_identity_check_group_membership` [GH-8200]
+  + `huaweicloud_identity_check_group_role_assignment` [GH-8200]
+  + `huaweicloud_identity_domain_quota` [GH-8200]
+  + `huaweicloud_identity_endpoints` [GH-8200]
+  + `huaweicloud_identity_federation_domains` [GH-8200]
+  + `huaweicloud_identity_federation_projects` [GH-8200]
+  + `huaweicloud_identity_keystone_metadata_file` [GH-8200]
+  + `huaweicloud_identity_login_protects` [GH-8200]
+  + `huaweicloud_identity_project_quota` [GH-8200]
+  + `huaweicloud_identity_provider_protocols` [GH-8200]
+  + `huaweicloud_identity_regions` [GH-8200]
+  + `huaweicloud_identity_role_assignments` [GH-8200]
+  + `huaweicloud_identity_security_compliance` [GH-8200]
+  + `huaweicloud_identity_services` [GH-8200]
+  + `huaweicloud_identity_user_projects` [GH-8200]
+  + `huaweicloud_identity_user_token_info` [GH-8200]
+  + `huaweicloud_identitycenter_account_assignments`
+  + `huaweicloud_identitycenter_batch_query_groups`
+  + `huaweicloud_identitycenter_batch_query_users`
+  + `huaweicloud_identitycenter_service_provider_configuration`
+  + `huaweicloud_nat_gateway_specs` [GH-8201]
+  + `huaweicloud_nat_private_gateway_specs` [GH-8201]
+  + `huaweicloud_nat_private_transit_ips_by_tags` [GH-8201]
+  + `huaweicloud_organizations_delegated_services` [GH-8201]
+  + `huaweicloud_rgc_blueprint` [GH-8208]
+  + `huaweicloud_rgc_landing_zone_available_updates` [GH-8208]
+  + `huaweicloud_rgc_landing_zone_configuration` [GH-8208]
+  + `huaweicloud_rgc_landing_zone_identity_center` [GH-8208]
+  + `huaweicloud_rgc_operation` [GH-8208]
+  + `huaweicloud_rgc_organizational_unit_accounts` [GH-8208]
+  + `huaweicloud_rgc_organizational_units` [GH-8208]
+  + `huaweicloud_rgc_pre_launch_check` [GH-8208]
+  + `huaweicloud_tms_resource_tags`
+  + `huaweicloud_vpc_network_interface_tags`
+  + `huaweicloud_vpc_network_interfaces_by_tags`
+  + `huaweicloud_vpc_subnet_tags`
+  + `huaweicloud_vpcep_resources_by_tags`
+
 ## 1.80.0 (October 30, 2025)
 
 * **New Resource Source:**
