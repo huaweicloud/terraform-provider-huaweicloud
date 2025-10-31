@@ -30,9 +30,9 @@ data "huaweicloud_rgc_operation" "test_account" {
 * `region` - (Optional, String) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* account_id - (Optional) The ID of the account associated with the RGC operation.
+* `account_id` - (Optional, String) The ID of the account associated with the RGC operation.
 
-* organizational_unit_id - (Optional) The ID of the organizational unit associated with the RGC operation.
+* `organizational_unit_id` - (Optional, String) The ID of the organizational unit associated with the RGC operation.
 
 ## Attributes Reference
 

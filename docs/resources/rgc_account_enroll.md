@@ -65,6 +65,8 @@ The `blueprint` block supports:
 
 * `blueprint_product_version` - (Optional, String) Specifies the version of the blueprint.
 
+* `parent_organizational_unit_name` - (Optional, String) Name of a registered parent OU.
+
 * `variables` - (Optional, String) Specifies the variables of the blueprint.
 
 * `is_blueprint_has_multi_account_resource` - (Optional, Bool) Specifies whether the blueprint has multi-account resources.
@@ -76,6 +78,20 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `stage` - Indicates the state of enrolled account.
+
+* `account_type` - The account enrolled type.
+
+* `account_name` - The account enrolled name.
+
+* `landing_zone_version` - Landing zone version of an enrolled account.
+
+* `manage_account_id` - Management account ID.
+
+* `owner` -  The account owner.
+
+* `created_at` - The creation time.
+
+* `updated_at` - The last update time.
 
 ## Timeouts
 

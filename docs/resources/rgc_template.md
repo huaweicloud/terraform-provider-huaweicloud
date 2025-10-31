@@ -57,6 +57,18 @@ The following arguments are supported:
 * `template_body` - (Optional, String, NonUpdatable) Specifies the content of customized template,
   it is a zip-type compressed file that has been encoded using base64.
 
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
+
+* `latest_version_id` - The lastest version ID.
+
+* `create_time` - The creation time.
+
+* `update_time` - The last update time.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

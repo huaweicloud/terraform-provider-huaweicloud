@@ -2,6 +2,7 @@ package rgc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -128,7 +129,7 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceOrganizationalUnitUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationalUnitUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
@@ -178,7 +179,7 @@ func createOrganizationalUnit(d *schema.ResourceData, meta interface{}) (string,
 
 	unitId := utils.PathSearch("organizational_unit_id", createOrganizationalUnitRespBody, "").(string)
 	if unitId == "" {
-		return "", fmt.Errorf("unable to find the organizational unit ID from the API response")
+		return "", errors.New("unable to find the organizational unit ID from the API response")
 	}
 
 	return unitId, nil
