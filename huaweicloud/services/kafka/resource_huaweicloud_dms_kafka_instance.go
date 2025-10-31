@@ -519,6 +519,7 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"manager_user": {
 				Type:       schema.TypeString,
 				Optional:   true,
+				Computed:   true,
 				ForceNew:   true,
 				Deprecated: "Deprecated",
 			},
