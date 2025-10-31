@@ -253,7 +253,7 @@ func accountStateRefreshFunc(client *golangsdk.ServiceClient, operationId string
 		}
 
 		status := utils.PathSearch("status", getAccountStatusRespBody, nil)
-		if err != nil {
+		if status == nil {
 			message := utils.PathSearch("message", getAccountStatusRespBody, nil)
 			return nil, "", fmt.Errorf("status: %s; message: %s", status, message)
 		}
