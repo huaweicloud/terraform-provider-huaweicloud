@@ -506,12 +506,14 @@ var (
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
 
-	// The CMDB sub-application ID of AOM service
-	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
+	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
 	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
+	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID") // The CMDB sub-application ID of AOM service
+	HW_AOM_TARGET_MACHINE_ACCOUNT                = os.Getenv("HW_AOM_TARGET_MACHINE_ACCOUNT")
+	HW_AOM_TARGET_MACHINE_PASSWORD               = os.Getenv("HW_AOM_TARGET_MACHINE_PASSWORD")
+	HW_AOM_UNIAGENT_VERSION                      = os.Getenv("HW_AOM_UNIAGENT_VERSION")
 
-	// the ID of ECS instance which has installed uniagent
-	HW_COC_INSTANCE_ID           = os.Getenv("HW_COC_INSTANCE_ID")
+	HW_COC_INSTANCE_ID           = os.Getenv("HW_COC_INSTANCE_ID") // the ID of ECS instance which has installed uniagent
 	HW_COC_ROLE_ID               = os.Getenv("HW_COC_ROLE_ID")
 	HW_COC_SCENE_ID              = os.Getenv("HW_COC_SCENE_ID")
 	HW_COC_INTEGRATION_KEY       = os.Getenv("HW_COC_INTEGRATION_KEY")
@@ -3072,6 +3074,34 @@ func TestAccPreCheckLTSLogConvergeMappingConfig(t *testing.T) {
 func TestAccPreCheckLTSMemberAccountId(t *testing.T) {
 	if HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID == "" {
 		t.Skip("HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomInstallerAgentId(t *testing.T) {
+	if HW_AOM_INSTALLER_AGENT_ID == "" {
+		t.Skip("HW_AOM_INSTALLER_AGENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomTargetMachineAccount(t *testing.T) {
+	if HW_AOM_TARGET_MACHINE_ACCOUNT == "" {
+		t.Skip("HW_AOM_TARGET_MACHINE_ACCOUNT must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomTargetMachinePassword(t *testing.T) {
+	if HW_AOM_TARGET_MACHINE_PASSWORD == "" {
+		t.Skip("HW_AOM_TARGET_MACHINE_PASSWORD must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomUniAgentVersion(t *testing.T) {
+	if HW_AOM_UNIAGENT_VERSION == "" {
+		t.Skip("HW_AOM_UNIAGENT_VERSION must be set for the acceptance test")
 	}
 }
 
