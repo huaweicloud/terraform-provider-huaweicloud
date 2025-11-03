@@ -509,6 +509,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_access_analyzer_archive_rules": accessanalyzer.DataSourceAccessAnalyzerArchiveRules(),
 
 			"huaweicloud_aad_instances":                   aad.DataSourceAADInstances(),
+			"huaweicloud_aadv2_instances":                 aad.DataSourceV2Instances(),
 			"huaweicloud_aad_unblock_quota_statistics":    aad.DataSourceUnblockQuotaStatistics(),
 			"huaweicloud_aad_black_white_lists":           aad.DataSourceAadBlackWhiteLists(),
 			"huaweicloud_aad_web_protection_policies":     aad.DataSourceAadWebProtectionPolicies(),
