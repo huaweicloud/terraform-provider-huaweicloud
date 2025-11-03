@@ -1,0 +1,6 @@
+vpc_name                = "tf_test_ecs_instace"
+subnet_name             = "tf_test_ecs_instace"
+security_group_name     = "tf_test_ecs_instace"
+instance_name           = "tf_test_ecs_instace"
+instance_admin_password = "YourPassword!"
+volume_name             = "tf_test_volume"
