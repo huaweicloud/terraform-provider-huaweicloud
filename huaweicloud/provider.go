@@ -530,6 +530,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_ddos_attack_protection_info": aad.DataSourceDdosAttackProtectionInfo(),
 			"huaweicloud_aad_attack_events":               aad.DataSourceAttackEvents(),
 			"huaweicloud_aad_connection_numbers":          aad.DataSourceConnectionNumbers(),
+			"huaweicloud_aad_user_quotas":                 aad.DataSourceUserQuotas(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
