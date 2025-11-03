@@ -19,8 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/binding-apps
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/binding-apps
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bindable-apps
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bound-apps
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bound-apps/{app_id}
 func ResourceApplicationQuotaAssociate() *schema.Resource {

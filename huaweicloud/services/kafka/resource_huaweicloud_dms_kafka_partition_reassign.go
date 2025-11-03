@@ -18,6 +18,8 @@ import (
 
 // @API Kafka POST /v2/kafka/{project_id}/instances/{instance_id}/reassign
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks/{task_id}
+// Corresponding OpenAPI reference of the POST method is as follows:
+// @API Kafka POST /v2/{engine}/{project_id}/instances/{instance_id}/reassign
 func ResourceDmsKafkaPartitionReassign() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaPartitionReassignCreate,

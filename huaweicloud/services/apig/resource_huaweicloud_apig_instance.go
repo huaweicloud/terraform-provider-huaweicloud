@@ -31,7 +31,7 @@ import (
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
-// @API APIG POST /v2/{project_id}/apigw/instances{instance_id}/ingress-eip
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports
