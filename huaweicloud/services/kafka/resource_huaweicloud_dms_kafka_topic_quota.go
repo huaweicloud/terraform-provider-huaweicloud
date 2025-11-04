@@ -22,6 +22,7 @@ var topicQuotaNonUpdatableParams = []string{"instance_id", "topic"}
 
 // @API Kafka POST /v2/kafka/{project_id}/instances/{instance_id}/kafka-topic-quota
 // @API Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-topic-quota
+// @API Kafka PUT /v2/kafka/{project_id}/instances/{instance_id}/kafka-topic-quota
 // @API Kafka DELETE /v2/kafka/{project_id}/instances/{instance_id}/kafka-topic-quota
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks/{task_id}
 func ResourceTopicQuota() *schema.Resource {

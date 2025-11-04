@@ -22,6 +22,7 @@ import (
 
 // ResourceSignatureAssociate is a provider resource of the API signature.
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/sign-bindings
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/sign-bindings/unbinded-apis
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/sign-bindings/binded-apis
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/sign-bindings/{sign_bindings_id}
 func ResourceSignatureAssociate() *schema.Resource {
