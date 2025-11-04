@@ -22,10 +22,15 @@ func DataSourceNameservers() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the nameservers are located.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -87,6 +92,7 @@ func DataSourceNameservers() *schema.Resource {
 type NameserversDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
+	region string
 }
 
 func newNameserversDSWrapper(d *schema.ResourceData, meta interface{}) *NameserversDSWrapper {
@@ -119,14 +125,19 @@ func dataSourceNameserversRead(_ context.Context, d *schema.ResourceData, meta i
 
 // @API DNS GET /v2/nameservers
 func (w *NameserversDSWrapper) ListNameServers() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	if v, ok := w.GetOk("region"); ok {
+		w.region = v.(string)
+		w.Config.RegionClient = true
+	}
+	client, err := w.Config.NewServiceClient("dns", w.region)
 	if err != nil {
 		return nil, err
 	}
 
 	uri := "/v2/nameservers"
 	params := map[string]any{
-		"type":   w.Get("type"),
+		"type": w.Get("type"),
+		// GET https://dns.{{region}}.myhuaweicloud.com/v2/nameservers?region={{server_region}}
 		"region": w.Get("server_region"),
 	}
 	params = utils.RemoveNil(params)
@@ -141,7 +152,7 @@ func (w *NameserversDSWrapper) ListNameServers() (*gjson.Result, error) {
 func (w *NameserversDSWrapper) listNameServersToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
+		d.Set("region", w.region),
 		d.Set("nameservers", schemas.SliceToList(body.Get("nameservers"),
 			func(nameserver gjson.Result) any {
 				return map[string]any{

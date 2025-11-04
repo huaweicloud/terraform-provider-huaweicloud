@@ -22,10 +22,15 @@ func DataSourceCustomLines() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the custom lines are located.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"line_id": {
 				Type:        schema.TypeString,
@@ -99,6 +104,7 @@ func DataSourceCustomLines() *schema.Resource {
 type CustomLinesDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
+	region string
 }
 
 func newCustomLinesDSWrapper(d *schema.ResourceData, meta interface{}) *CustomLinesDSWrapper {
@@ -131,7 +137,11 @@ func dataSourceCustomLinesRead(_ context.Context, d *schema.ResourceData, meta i
 
 // @API DNS GET /v2.1/customlines
 func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	if v, ok := w.GetOk("region"); ok {
+		w.region = v.(string)
+		w.Config.RegionClient = true
+	}
+	client, err := w.Config.NewServiceClient("dns", w.region)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +166,7 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 func (w *CustomLinesDSWrapper) listCustomLineToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
+		d.Set("region", w.region),
 		d.Set("lines", schemas.SliceToList(body.Get("lines"),
 			func(lines gjson.Result) any {
 				return map[string]any{

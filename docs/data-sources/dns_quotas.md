@@ -24,9 +24,6 @@ data "huaweicloud_dns_quotas" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `domain_id` - (Required, String) Specifies the account ID of IAM user.
 
 * `type` - (Optional, String) Specifies the resource type.  
