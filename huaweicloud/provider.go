@@ -939,6 +939,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_instances":           dew.DataSourceInstances(),
 			"huaweicloud_cpcs_clusters":            dew.DataSourceCpcsClusters(),
 			"huaweicloud_cpcs_resource_infos":      dew.DataSourceResourceInfos(),
+			"huaweicloud_cpcs_vm_monitor":          dew.DataSourceVmMonitor(),
 
 			"huaweicloud_csms_agencies":             dew.DataSourceAgencies(),
 			"huaweicloud_csms_events":               dew.DataSourceDewCsmsEvents(),
