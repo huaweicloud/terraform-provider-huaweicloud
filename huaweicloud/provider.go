@@ -3036,6 +3036,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_key_material":              dew.ResourceKmsKeyMaterial(),
 			"huaweicloud_kms_key_update_primary_region": dew.ResourceKeyUpdatePrimaryRegion(),
 			"huaweicloud_kms_key":                       dew.ResourceKmsKey(),
+			"huaweicloud_kms_retire_grant":              dew.ResourceRetireGrant(),
 			"huaweicloud_kms_rsa_datakey_pair":          dew.ResourceRsaDatakeyPair(),
 			"huaweicloud_kms_sign":                      dew.ResourceKmsSign(),
 			"huaweicloud_kms_verify_mac":                dew.ResourceVerifyMac(),
