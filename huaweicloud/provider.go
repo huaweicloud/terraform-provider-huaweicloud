@@ -857,6 +857,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_auto_launch_groups":          ecs.DataSourceCmsComputeAutoLaunchGroups(),
 			"huaweicloud_compute_auto_launch_group_instances": ecs.DataSourceCmsComputeAutoLaunchGroupInstances(),
 			"huaweicloud_compute_appendable_volume_quota":     ecs.DataSourceEcsComputeAppendableVolumeQuota(),
+			"huaweicloud_compute_attachable_nics":             ecs.DataSourceEcsComputeAttachableNics(),
 
 			// CodeArts
 			"huaweicloud_codearts_deploy_groups":                         codeartsdeploy.DataSourceCodeartsDeployGroups(),
