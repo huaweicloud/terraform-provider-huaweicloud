@@ -318,20 +318,22 @@ var (
 	HW_FGS_FUNCTION_NAME       = os.Getenv("HW_FGS_FUNCTION_NAME")
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
 
-	HW_KMS_ENVIRONMENT         = os.Getenv("HW_KMS_ENVIRONMENT")
-	HW_KMS_HSM_CLUSTER_ID      = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
-	HW_KMS_KEY_ID              = os.Getenv("HW_KMS_KEY_ID")
-	HW_KMS_ALIAS               = os.Getenv("HW_KMS_ALIAS")
-	HW_KMS_IMPORT_TOKEN        = os.Getenv("HW_KMS_IMPORT_TOKEN")
-	HW_KMS_KEY_MATERIAL        = os.Getenv("HW_KMS_KEY_MATERIAL")
-	HW_KMS_KEY_PRIVATE_KEY     = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
-	HW_KMS_KEY_PLAINTEXT       = os.Getenv("HW_KMS_KEY_PLAINTEXT")
-	HW_KMS_KEY_PLAINTEXT_LEN   = os.Getenv("HW_KMS_KEY_PLAINTEXT_LEN")
-	HW_KMS_KEY_CIPHER_TEXT     = os.Getenv("HW_KMS_KEY_CIPHER_TEXT")
-	HW_KMS_KEY_CIPHER_TEXT_LEN = os.Getenv("HW_KMS_KEY_CIPHER_TEXT_LEN")
-	HW_KMS_KEY_MESSAGE         = os.Getenv("HW_KMS_KEY_MESSAGE")
-	HW_KMS_KEY_PRIMARY_REGION  = os.Getenv("HW_KMS_KEY_PRIMARY_REGION")
-	HW_KMS_GRANT_ID            = os.Getenv("HW_KMS_GRANT_ID")
+	HW_KMS_ENVIRONMENT              = os.Getenv("HW_KMS_ENVIRONMENT")
+	HW_KMS_HSM_CLUSTER_ID           = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
+	HW_KMS_KEY_ID                   = os.Getenv("HW_KMS_KEY_ID")
+	HW_KMS_ALIAS                    = os.Getenv("HW_KMS_ALIAS")
+	HW_KMS_IMPORT_TOKEN             = os.Getenv("HW_KMS_IMPORT_TOKEN")
+	HW_KMS_KEY_MATERIAL             = os.Getenv("HW_KMS_KEY_MATERIAL")
+	HW_KMS_KEY_PRIVATE_KEY          = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
+	HW_KMS_KEY_PLAINTEXT            = os.Getenv("HW_KMS_KEY_PLAINTEXT")
+	HW_KMS_KEY_PLAINTEXT_LEN        = os.Getenv("HW_KMS_KEY_PLAINTEXT_LEN")
+	HW_KMS_KEY_CIPHER_TEXT          = os.Getenv("HW_KMS_KEY_CIPHER_TEXT")
+	HW_KMS_KEY_CIPHER_TEXT_LEN      = os.Getenv("HW_KMS_KEY_CIPHER_TEXT_LEN")
+	HW_KMS_KEY_MESSAGE              = os.Getenv("HW_KMS_KEY_MESSAGE")
+	HW_KMS_KEY_PRIMARY_REGION       = os.Getenv("HW_KMS_KEY_PRIMARY_REGION")
+	HW_KMS_GRANT_ID                 = os.Getenv("HW_KMS_GRANT_ID")
+	HW_KMS_KEY_REPLICATE_REGION     = os.Getenv("HW_KMS_KEY_REPLICATE_REGION")
+	HW_KMS_KEY_REPLICATE_PROJECT_ID = os.Getenv("HW_KMS_KEY_REPLICATE_PROJECT_ID")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
@@ -2087,6 +2089,20 @@ func TestAccPreCheckKmsImportToken(t *testing.T) {
 func TestAccPreCheckKmsKeyID(t *testing.T) {
 	if HW_KMS_KEY_ID == "" {
 		t.Skip("HW_KMS_KEY_ID must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyReplicateRegion(t *testing.T) {
+	if HW_KMS_KEY_REPLICATE_REGION == "" {
+		t.Skip("HW_KMS_KEY_REPLICATE_REGION must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyReplicateProjectId(t *testing.T) {
+	if HW_KMS_KEY_REPLICATE_PROJECT_ID == "" {
+		t.Skip("HW_KMS_KEY_REPLICATE_PROJECT_ID must be set for KMS key material acceptance tests.")
 	}
 }
 
