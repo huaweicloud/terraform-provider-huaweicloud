@@ -29,6 +29,17 @@ func TestAccDataAppPublishableApplications_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				Config: testDataAppPublishableApplications_notFound(),
+				Check: resource.ComposeTestCheckFunc(
+					dcNotFound.CheckResourceExists(),
+					resource.TestCheckResourceAttr(notFound, "group_images.#", "0"),
+					// Deprecated attribute `apps` is still supported, so do not remove it.
+					resource.TestCheckResourceAttr(notFound, "apps.#", "0"),
+					// The instead of the deprecated attribute `apps`, we should use the new attribute `applications`.
+					resource.TestCheckResourceAttr(notFound, "applications.#", "0"),
+				),
+			},
+			{
 				Config: testDataAppPublishableApplications_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dcAll.CheckResourceExists(),
@@ -53,18 +64,6 @@ func TestAccDataAppPublishableApplications_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(all, "applications.0.icon_path"),
 					resource.TestCheckResourceAttrSet(all, "applications.0.icon_index"),
 					// The `description`, `work_path` and `command_param` may be empty, so do not assert them.
-				),
-			},
-			// If the incorrect test step is executed first, it will cause subsequent test steps failed.
-			{
-				Config: testDataAppPublishableApplications_notFound(),
-				Check: resource.ComposeTestCheckFunc(
-					dcNotFound.CheckResourceExists(),
-					resource.TestCheckResourceAttr(notFound, "group_images.#", "0"),
-					// Deprecated attribute `apps` is still supported, so do not remove it.
-					resource.TestCheckResourceAttr(notFound, "apps.#", "0"),
-					// The instead of the deprecated attribute `apps`, we should use the new attribute `applications`.
-					resource.TestCheckResourceAttr(notFound, "applications.#", "0"),
 				),
 			},
 		},
