@@ -2396,9 +2396,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster_certificate_rotatecredentials": cce.ResourceRotatecredentials(),
 			"huaweicloud_cce_nodes_remove":                          cce.ResourceNodesRemove(),
 
-			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
-			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
-			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
+			"huaweicloud_cts_tracker":       cts.ResourceCTSTracker(),
+			"huaweicloud_cts_configuration": cts.ResourceConfiguration(),
+			"huaweicloud_cts_data_tracker":  cts.ResourceCTSDataTracker(),
+			"huaweicloud_cts_notification":  cts.ResourceCTSNotification(),
 
 			"huaweicloud_cci_namespace":                 cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":                   cci.ResourceCciNetworkV1(),
