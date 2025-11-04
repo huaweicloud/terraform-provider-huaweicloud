@@ -840,6 +840,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_quotas":                      ecs.DataSourceEcsComputeQuotas(),
 			"huaweicloud_compute_availability_zones":          ecs.DataSourceEcsComputeAvailabilityZones(),
 			"huaweicloud_compute_flavors":                     ecs.DataSourceEcsFlavors(),
+			"huaweicloud_compute_flavor_capacity":             ecs.DataSourceEcsComputeFlavorCapacity(),
 			"huaweicloud_compute_resize_flavors":              ecs.DataSourceEcsComputeResizeFlavors(),
 			"huaweicloud_compute_flavor_sales_policies":       ecs.DataSourceEcsComputeFlavorSalesPolicies(),
 			"huaweicloud_compute_instance":                    ecs.DataSourceComputeInstance(),
