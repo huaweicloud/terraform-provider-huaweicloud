@@ -44,6 +44,12 @@ func ResourceCustomLine() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The region where the custom line is located`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -73,8 +79,14 @@ func ResourceCustomLine() *schema.Resource {
 }
 
 func resourceCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var region string
 	cfg := meta.(*config.Config)
-	createCustomLineClient, err := cfg.NewServiceClient("dns", cfg.GetRegion(d))
+	if v, ok := d.GetOk("region"); ok {
+		region = v.(string)
+		cfg.RegionClient = true
+	}
+
+	createCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
@@ -171,8 +183,12 @@ func GetCustomLineById(client *golangsdk.ServiceClient, customLineId string) (in
 }
 
 func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var region string
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	if v, ok := d.GetOk("region"); ok {
+		region = v.(string)
+		cfg.RegionClient = true
+	}
 
 	getCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
@@ -196,8 +212,12 @@ func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var region string
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	if v, ok := d.GetOk("region"); ok {
+		region = v.(string)
+		cfg.RegionClient = true
+	}
 	updateCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
@@ -235,8 +255,14 @@ func resourceCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta 
 		cfg                     = meta.(*config.Config)
 		deleteCustomLineHttpUrl = "v2.1/customlines/{line_id}"
 		customLineId            = d.Id()
+		region                  = ""
 	)
-	deleteCustomLineClient, err := cfg.NewServiceClient("dns", cfg.GetRegion(d))
+	if v, ok := d.GetOk("region"); ok {
+		region = v.(string)
+		cfg.RegionClient = true
+	}
+
+	deleteCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}

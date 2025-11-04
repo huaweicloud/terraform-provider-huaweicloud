@@ -24,9 +24,6 @@ data "huaweicloud_dns_public_zone_lines" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `zone_id` - (Required, String) Specifies the zone ID.
 
 ## Attribute Reference

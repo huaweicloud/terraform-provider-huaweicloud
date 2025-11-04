@@ -23,10 +23,15 @@ func DataSourceQuotas() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region in which to query the quotas.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"domain_id": {
 				Type:        schema.TypeString,
@@ -74,6 +79,7 @@ func DataSourceQuotas() *schema.Resource {
 type QuotasDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
+	region string
 }
 
 func newQuotasDSWrapper(d *schema.ResourceData, meta interface{}) *QuotasDSWrapper {
@@ -106,7 +112,11 @@ func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interf
 
 // @API DNS GET /v2/quotamg/dns/quotas
 func (w *QuotasDSWrapper) ShowDomainQuota() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	if v, ok := w.GetOk("region"); ok {
+		w.region = v.(string)
+		w.Config.RegionClient = true
+	}
+	client, err := w.Config.NewServiceClient("dns", w.region)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +141,7 @@ func (w *QuotasDSWrapper) ShowDomainQuota() (*gjson.Result, error) {
 func (w *QuotasDSWrapper) showDomainQuotaToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
+		d.Set("region", w.region),
 		d.Set("quotas", schemas.SliceToList(body.Get("quotas"),
 			func(quotas gjson.Result) any {
 				return map[string]any{

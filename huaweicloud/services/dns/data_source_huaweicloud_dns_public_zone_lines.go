@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceDNSPublicZoneLines() *schema.Resource {
@@ -22,10 +23,15 @@ func DataSourceDNSPublicZoneLines() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the public zone lines are located.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"zone_id": {
 				Type:        schema.TypeString,
@@ -63,6 +69,7 @@ func DataSourceDNSPublicZoneLines() *schema.Resource {
 type PublicZoneLinesDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
+	region string
 }
 
 func newPublicZoneLinesDSWrapper(d *schema.ResourceData, meta interface{}) *PublicZoneLinesDSWrapper {
@@ -94,7 +101,11 @@ func dataSourceDNSPublicZoneLinesRead(_ context.Context, d *schema.ResourceData,
 
 // @API DNS GET /v2.1/zones/{zone_id}/lines
 func (w *PublicZoneLinesDSWrapper) ListPublicZoneLines() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	if v, ok := w.GetOk("region"); ok {
+		w.region = v.(string)
+		w.Config.RegionClient = true
+	}
+	client, err := w.Config.NewServiceClient("dns", w.region)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +123,7 @@ func (w *PublicZoneLinesDSWrapper) ListPublicZoneLines() (*gjson.Result, error) 
 func (w *PublicZoneLinesDSWrapper) listPublicZoneLinesToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
+		d.Set("region", w.region),
 		d.Set("lines", schemas.SliceToList(body.Get("lines"),
 			func(lines gjson.Result) any {
 				return map[string]any{

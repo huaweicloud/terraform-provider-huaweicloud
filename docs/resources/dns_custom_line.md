@@ -30,9 +30,6 @@ resource "huaweicloud_dns_custom_line" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
-
 * `name` - (Required, String) Specifies the custom line name.  
   The value consists of `1` to `80` characters including Chinese characters, English letters, digits, hyphens (-),
   underscores (_) and dots (.). The name of each resolution line set by one account must be unique.
