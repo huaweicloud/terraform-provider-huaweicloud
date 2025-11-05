@@ -1,12 +1,12 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_app_publishable_apps"
+page_title: "HuaweiCloud: huaweicloud_workspace_app_publishable_applications"
 description: |-
   Use this data source to get the list of the publishable applications under specified APP group within HuaweiCloud.
 ---
 
-# huaweicloud_workspace_app_publishable_apps
+# huaweicloud_workspace_app_publishable_applications
 
 Use this data source to get the list of the publishable applications under specified APP group within HuaweiCloud.
 
@@ -37,12 +37,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `group_images` - The list of image IDs under the server group.
 
-* `apps` - The list of the publishable applications.
+* `applications` - The list of the publishable applications.
 
-  The [apps](#apps_struct) structure is documented below.
+  The [applications](#app_publishable_applications_attr) structure is documented below.
 
-<a name="apps_struct"></a>
-The `apps` block supports:
+<a name="app_publishable_applications_attr"></a>
+The `applications` block supports:
 
 * `name` - The name of the the application.
 

@@ -2090,7 +2090,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_image_servers":                   workspace.DataSourceWorkspaceAppImageServers(),
 			"huaweicloud_workspace_app_latest_attached_applications":    workspace.DataSourceLatestAttachedApplications(),
 			"huaweicloud_workspace_app_nas_storages":                    workspace.DataSourceAppNasStorages(),
-			"huaweicloud_workspace_app_publishable_apps":                workspace.DataSourceWorkspaceAppPublishableApps(),
+			"huaweicloud_workspace_app_publishable_applications":        workspace.DataSourceAppPublishableApplications(),
 			"huaweicloud_workspace_app_schedule_tasks":                  workspace.DataSourceAppScheduleTasks(),
 			"huaweicloud_workspace_app_schedule_task_executions":        workspace.DataSourceAppScheduleTaskExecutions(),
 			"huaweicloud_workspace_app_schedule_task_execute_details":   workspace.DataSourceAppScheduleTaskExecuteDetails(),
@@ -2187,6 +2187,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpc_subnet_v1":             vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
+
+			"huaweicloud_workspace_app_publishable_apps": workspace.DataSourceAppPublishableApplications(),
 
 			// Deprecated
 			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
