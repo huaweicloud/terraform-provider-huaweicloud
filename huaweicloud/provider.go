@@ -1211,6 +1211,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_async_invoke_configurations": fgs.DataSourceAsyncInvokeConfigurations(),
 			"huaweicloud_fgs_dependencies":                fgs.DataSourceDependencies(),
 			"huaweicloud_fgs_dependency_versions":         fgs.DataSourceDependencieVersions(),
+			"huaweicloud_fgs_feature":                     fgs.DataSourceFeature(),
 			"huaweicloud_fgs_function_events":             fgs.DataSourceFunctionEvents(),
 			"huaweicloud_fgs_function_tags":               fgs.DataSourceFunctionTags(),
 			"huaweicloud_fgs_function_triggers":           fgs.DataSourceFunctionTriggers(),
