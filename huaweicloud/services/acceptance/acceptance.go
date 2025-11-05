@@ -152,6 +152,7 @@ var (
 	HW_CPCS_CLUSTER_ID    = os.Getenv("HW_CPCS_CLUSTER_ID")
 	HW_CPCS_APP_ID        = os.Getenv("HW_CPCS_APP_ID")
 	HW_CPCS_ACCESS_KEY_ID = os.Getenv("HW_CPCS_ACCESS_KEY_ID")
+	HW_CPCS_INSTANCE_ID   = os.Getenv("HW_CPCS_INSTANCE_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -4220,6 +4221,13 @@ func TestAccPrecheckCpcsClusterId(t *testing.T) {
 func TestAccPrecheckCpcsAccessKeyId(t *testing.T) {
 	if HW_CPCS_ACCESS_KEY_ID == "" {
 		t.Skip("HW_CPCS_ACCESS_KEY_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCpcsInstanceId(t *testing.T) {
+	if HW_CPCS_INSTANCE_ID == "" {
+		t.Skip("HW_CPCS_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 
