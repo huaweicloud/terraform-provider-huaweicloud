@@ -1867,6 +1867,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_feature_gates":                      swrenterprise.DataSourceSwrEnterpriseFeatureGates(),
 			"huaweicloud_swr_enterprise_instance_audit_logs":                swrenterprise.DataSourceSwrEnterpriseInstanceAuditLogs(),
 			"huaweicloud_swr_enterprise_instances":                          swrenterprise.DataSourceSwrEnterpriseInstances(),
+			"huaweicloud_swr_enterprise_instance_registries":                swrenterprise.DataSourceSwrEnterpriseInstanceRegistries(),
 			"huaweicloud_swr_enterprise_namespace_repositories":             swrenterprise.DataSourceSwrEnterpriseNamespaceRepositories(),
 			"huaweicloud_swr_enterprise_namespaces":                         swrenterprise.DataSourceSwrEnterpriseNamespaces(),
 			"huaweicloud_swr_enterprise_repositories":                       swrenterprise.DataSourceSwrEnterpriseRepositories(),
