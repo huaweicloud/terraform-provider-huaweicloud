@@ -2550,6 +2550,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_app_access_key":               dew.ResourceCpcsAppAccessKey(),
 			"huaweicloud_cpcs_app_cluster_association":      dew.ResourceCpcsAppClusterAssociation(),
 			"huaweicloud_cpcs_app":                          dew.ResourceCpcsApp(),
+			"huaweicloud_cpcs_app_download_access_key":      dew.ResourceCpcsAppDownloadAccessKey(),
 			"huaweicloud_cpcs_cluster_authorize_access_key": dew.ResourceClusterAuthorizeAccessKey(),
 
 			"huaweicloud_csms_agency":                       dew.ResourceAgency(),
