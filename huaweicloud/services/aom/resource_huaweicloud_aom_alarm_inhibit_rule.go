@@ -187,7 +187,7 @@ func resourceAlarmInhibitRuleCreate(ctx context.Context, d *schema.ResourceData,
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildAlarmInhibitRuleBodyParams(d)),
 		OkCodes:          []int{204},
 	}
@@ -209,7 +209,7 @@ func GetAlarmInhibitRuleByName(client *golangsdk.ServiceClient, epsId, name stri
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildMoreHeaders(epsId),
+		MoreHeaders:      buildRequestMoreHeaders(epsId),
 	}
 
 	resp, err := client.Request("GET", path, &getOpt)
@@ -334,7 +334,7 @@ func resourceAlarmInhibitRuleUpdate(ctx context.Context, d *schema.ResourceData,
 
 		opt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			OkCodes:          []int{204},
 			JSONBody:         utils.RemoveNil(buildUpdateAlarmInhibitRuleBodyParams(d)),
 		}
@@ -363,7 +363,7 @@ func resourceAlarmInhibitRuleDelete(_ context.Context, d *schema.ResourceData, m
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         []string{ruleName},
 	}
 

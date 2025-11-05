@@ -507,7 +507,7 @@ func resourceAlarmRuleV4Create(ctx context.Context, d *schema.ResourceData, meta
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildAlarmRuleBodyParams(d)),
 	}
 
@@ -708,7 +708,7 @@ func getAlarmRule(cfg *config.Config, client *golangsdk.ServiceClient, d *schema
 	getPath = strings.ReplaceAll(getPath, "{name}", d.Id())
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
@@ -939,7 +939,7 @@ func resourceAlarmRuleV4Update(ctx context.Context, d *schema.ResourceData, meta
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(cfg, d),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			JSONBody:         utils.RemoveNil(buildAlarmRuleBodyParams(d)),
 		}
 
@@ -971,7 +971,7 @@ func resourceAlarmRuleV4Delete(_ context.Context, d *schema.ResourceData, meta i
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody: map[string]interface{}{
 			"alarm_rules": []string{d.Id()},
 		},

@@ -92,7 +92,7 @@ func resourceDashboardCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildCreateDashboardBodyParams(d)),
 	}
 
@@ -201,7 +201,7 @@ func getDashboard(cfg *config.Config, client *golangsdk.ServiceClient, d *schema
 	getPath = strings.ReplaceAll(getPath, "{dashboard_id}", d.Id())
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
@@ -268,7 +268,7 @@ func resourceDashboardUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(cfg, d),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			JSONBody:         buildUpdateDashboardBodyParams(d),
 		}
 
@@ -318,7 +318,7 @@ func resourceDashboardDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

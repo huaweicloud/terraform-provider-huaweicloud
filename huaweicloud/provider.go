@@ -2261,6 +2261,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_dashboard":                      aom.ResourceDashboard(),
 			"huaweicloud_aom_dashboards_folder":              aom.ResourceDashboardsFolder(),
 			"huaweicloud_aom_event_alarm_rule":               aom.ResourceEventAlarmRule(),
+			"huaweicloud_aom_event_report":                   aom.ResourceEventReport(),
 			"huaweicloud_aom_message_template":               aom.ResourceMessageTemplate(),
 			"huaweicloud_aom_multi_account_aggregation_rule": aom.ResourceMultiAccountAggregationRule(),
 			"huaweicloud_aom_prom_instance":                  aom.ResourcePromInstance(),

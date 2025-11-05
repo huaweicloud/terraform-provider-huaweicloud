@@ -79,7 +79,7 @@ func resourceCloudServiceAccessCreate(ctx context.Context, d *schema.ResourceDat
 	createPath = strings.ReplaceAll(createPath, "{prom_instance_id}", instanceID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(cfg, client, d, "")),
 	}
 
@@ -207,7 +207,7 @@ func resourceCloudServiceAccessUpdate(ctx context.Context, d *schema.ResourceDat
 		updatePath = strings.ReplaceAll(updatePath, "{provider}", d.Get("service").(string))
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(cfg, d),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(cfg, client, d, id)),
 		}
 
@@ -245,7 +245,7 @@ func resourceCloudServiceAccessDelete(_ context.Context, d *schema.ResourceData,
 	deletePath = strings.ReplaceAll(deletePath, "{provider}", service)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
