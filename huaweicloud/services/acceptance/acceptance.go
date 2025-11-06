@@ -138,6 +138,7 @@ var (
 
 	HW_DEW_ENABLE_FLAG           = os.Getenv("HW_DEW_ENABLE_FLAG")
 	HW_KPS_KEY_FILE_PATH         = os.Getenv("HW_KPS_KEY_FILE_PATH")
+	HW_KPS_KEYPAIR_NAME          = os.Getenv("HW_KPS_KEYPAIR_NAME")
 	HW_KPS_KEYPAIR_NAME_1        = os.Getenv("HW_KPS_KEYPAIR_NAME_1")
 	HW_KPS_KEYPAIR_NAME_2        = os.Getenv("HW_KPS_KEYPAIR_NAME_2")
 	HW_KPS_KEYPAIR_KEY_1         = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
@@ -4248,6 +4249,13 @@ func TestAccPreCheckCsmsSecretID(t *testing.T) {
 func TestAccPreCheckKPSKeyFilePath(t *testing.T) {
 	if HW_KPS_KEY_FILE_PATH == "" {
 		t.Skip("HW_KPS_KEY_FILE_PATH must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKPSKeyPairName(t *testing.T) {
+	if HW_KPS_KEYPAIR_NAME == "" {
+		t.Skip("HW_KPS_KEYPAIR_NAME must be set for the acceptance test")
 	}
 }
 
