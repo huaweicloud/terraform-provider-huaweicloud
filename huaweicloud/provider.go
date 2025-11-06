@@ -3061,6 +3061,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kps_failed_tasks_delete":      dew.ResourceKpsFailedTasksDelete(),
 			"huaweicloud_kps_batch_export_private_key": dew.ResourceKpsBatchExportPrivateKey(),
 			"huaweicloud_kps_batch_import_keypair":     dew.ResourceKpsBatchImportKeypair(),
+			"huaweicloud_kps_export_private_key":       dew.ResourceKpsExportPrivateKey(),
 			"huaweicloud_kps_failed_task_delete":       dew.ResourceKpsFailedTaskDelete(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
