@@ -14,6 +14,9 @@ Downloads a CPCS application access key resource within HuaweiCloud.
  Please keep your key information safe.
  Currently, this resource is valid only in cn-north-9 region.
 
+-> This resource is only a one-time action resource to download a CPCS application access key. Deleting this resource
+will not clear the corresponding access key, but will only remove the resource information from the tfstate file.
+
 ## Example Usage
 
 ```hcl
