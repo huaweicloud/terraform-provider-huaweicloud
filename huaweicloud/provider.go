@@ -2221,6 +2221,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_aom_alarm_action_rule":              aom.ResourceAlarmActionRule(),
 			"huaweicloud_aom_alarm_group_rule":               aom.ResourceAlarmGroupRule(),
+			"huaweicloud_aom_alarm_notified_history":         aom.DataSourceAlarmNotifiedHistory(),
 			"huaweicloud_aom_alarm_rule":                     aom.ResourceAlarmRule(),
 			"huaweicloud_aom_alarm_rules_template":           aom.ResourceAlarmRulesTemplate(),
 			"huaweicloud_aom_alarm_silence_rule":             aom.ResourceAlarmSilenceRule(),
