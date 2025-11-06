@@ -1,5 +1,5 @@
 ---
-subcategory: "Function Graph Service (FGS)"
+subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_async_invoke_configurations"
 description: |-
@@ -13,8 +13,10 @@ Use this data source to get the list of async invoke configurations within Huawe
 ## Example Usage
 
 ```hcl
-data "huaweicloud_fgs_async_invoke_configurations" "all" {
-  function_urn = huaweicloud_fgs_function.test.urn
+variable "function_urn" {}
+
+data "huaweicloud_fgs_async_invoke_configurations" "test" {
+  function_urn = var.function_urn
 }
 ```
 
