@@ -3056,6 +3056,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_data_encrypt_decrypt":      dew.ResourceKmsDataEncryptDecrypt(),
 			"huaweicloud_kms_datakey_without_plaintext": dew.ResourceKmsDatakeyWithoutPlaintext(),
 			"huaweicloud_kms_decrypt_datakey":           dew.ResourceKmsDecryptDatakey(),
+			"huaweicloud_kms_dedicated_keystore_action": dew.ResourceKmsDedicatedKeystoreAction(),
 			"huaweicloud_kms_dedicated_keystore":        dew.ResourceKmsDedicatedKeystore(),
 			"huaweicloud_kms_ec_datakey_pair":           dew.ResourceEcDatakeyPair(),
 			"huaweicloud_kms_encrypt_datakey":           dew.ResourceKmsEncryptDatakey(),
