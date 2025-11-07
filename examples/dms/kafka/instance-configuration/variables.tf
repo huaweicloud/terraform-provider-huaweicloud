@@ -21,6 +21,7 @@ variable "availability_zones" {
   description = "The availability zones to which the Kafka instance belongs"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "vpc_name" {
@@ -43,12 +44,14 @@ variable "subnet_cidr" {
   description = "The CIDR block of the subnet"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "subnet_gateway_ip" {
   description = "The gateway IP of the subnet"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "security_group_name" {
@@ -60,6 +63,7 @@ variable "instance_flavor_id" {
   description = "The flavor ID of the Kafka instance"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "instance_flavor_type" {
