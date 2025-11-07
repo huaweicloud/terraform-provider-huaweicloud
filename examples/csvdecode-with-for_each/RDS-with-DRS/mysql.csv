@@ -1,3 +1,0 @@
-name,flavor,size,ha,az,name1,sip,suser,spass
-RDS-ha,rds.mysql.n1.large.2.ha,100,semisync,"cn-east-3a,cn-east-3c",drs-1234,10.5.8.32,root,123456
-RDS-single,rds.mysql.n1.large.2,100,,"cn-east-3a",drs-5678,10.5.8.54,root,123456
