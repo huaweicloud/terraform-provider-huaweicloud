@@ -16,6 +16,7 @@ import (
 )
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
+// @API APIG GET /v2/{project_id}/apigw/instance-tags
 func DataSourceInstanceTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceInstanceTagsRead,
@@ -29,7 +30,7 @@ func DataSourceInstanceTags() *schema.Resource {
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: `The ID of the dedicated instance to which the tags belong.`,
 			},
 			"tags": {
@@ -55,12 +56,12 @@ func DataSourceInstanceTags() *schema.Resource {
 	}
 }
 
-func getInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func getInstanceTagsByInstanceId(client *golangsdk.ServiceClient, instanceId string) ([]interface{}, error) {
 	var httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/instance-tags"
 
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -70,6 +71,31 @@ func getInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) ([
 	}
 
 	requestResp, err := client.Request("GET", getPath, &opt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("tags", respBody, make([]interface{}, 0)).([]interface{}), nil
+}
+
+func listInstanceTags(client *golangsdk.ServiceClient) ([]interface{}, error) {
+	httpUrl := "v2/{project_id}/apigw/instance-tags"
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	requestResp, err := client.Request("GET", listPath, &opt)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +132,18 @@ func dataSourceInstanceTagsRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	tags, err := getInstanceTags(client, d)
-	if err != nil {
-		return diag.Errorf("error getting instance tags: %s", err)
+	var tagsResp []interface{}
+	instanceId := d.Get("instance_id").(string)
+	if instanceId != "" {
+		tagsResp, err = getInstanceTagsByInstanceId(client, instanceId)
+		if err != nil {
+			return diag.Errorf("error getting instance tags by instance ID (%s): %s", instanceId, err)
+		}
+	} else {
+		tagsResp, err = listInstanceTags(client)
+		if err != nil {
+			return diag.Errorf("error listing instance tags: %s", err)
+		}
 	}
 
 	randomUUID, err := uuid.GenerateUUID()
@@ -119,7 +154,7 @@ func dataSourceInstanceTagsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("tags", flattenInstanceTags(tags)),
+		d.Set("tags", flattenInstanceTags(tagsResp)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

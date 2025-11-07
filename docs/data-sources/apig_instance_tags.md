@@ -27,7 +27,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the instance tags.  
   If omitted, the provider-level region will be used.
 
-* `instance_id` - (Required, String) Specifies the ID of the dedicated instance to which the tags belong.
+* `instance_id` - (Optional, String) Specifies the ID of the dedicated instance to which the tags belong.
 
 ## Attribute Reference
 
