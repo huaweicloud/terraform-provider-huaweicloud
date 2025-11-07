@@ -326,8 +326,7 @@ The `db` block supports:
   **SQLServer** and **MariaDB**. Changing this parameter will create a new resource.
 
 * `version` - (Required, String, ForceNew) Specifies the database version. Changing this parameter will create a new
-  resource. Available values detailed in
-  [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
+  resource.
 
 * `password` - (Optional, String) Specifies the database password. The value should contain 8 to 32 characters,
   including uppercase and lowercase letters, digits, and the following special characters: ~!@#%^*-_=+? You are advised

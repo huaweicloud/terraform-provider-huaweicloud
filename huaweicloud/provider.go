@@ -2860,6 +2860,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_endpoint":       ga.ResourceEndpoint(),
 			"huaweicloud_ga_health_check":   ga.ResourceHealthCheck(),
 
+			"huaweicloud_geminidb_instance": geminidb.ResourceGeminiDbInstance(),
+
 			"huaweicloud_gaussdb_cassandra_instance":  geminidb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_redis_instance":      geminidb.ResourceGaussRedisInstanceV3(),
 			"huaweicloud_gaussdb_redis_eip_associate": geminidb.ResourceGaussRedisEipAssociate(),
