@@ -2567,6 +2567,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_instance_status_action":       dew.ResourceCpcsInstanceStatusAction(),
 
 			"huaweicloud_csms_agency":                       dew.ResourceAgency(),
+			"huaweicloud_csms_download_secret_backup":       dew.ResourceDownloadSecretBackup(),
 			"huaweicloud_csms_event":                        dew.ResourceCsmsEvent(),
 			"huaweicloud_csms_secret":                       dew.ResourceSecret(),
 			"huaweicloud_csms_secret_version_state":         dew.ResourceSecretVersionState(),

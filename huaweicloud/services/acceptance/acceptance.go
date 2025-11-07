@@ -148,6 +148,7 @@ var (
 	HW_KPS_PRIVATE_KEY_FILE_PATH = os.Getenv("HW_KPS_PRIVATE_KEY_FILE_PATH")
 	HW_KPS_FAILED_TASK_ID        = os.Getenv("HW_KPS_FAILED_TASK_ID")
 	HW_CSMS_TASK_ID              = os.Getenv("HW_CSMS_TASK_ID")
+	HW_CSMS_SECRET_NAME          = os.Getenv("HW_CSMS_SECRET_NAME")
 	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
 	HW_CSMS_SECRET_NAME          = os.Getenv("HW_CSMS_SECRET_NAME")
 
