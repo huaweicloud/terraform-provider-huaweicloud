@@ -150,7 +150,6 @@ var (
 	HW_CSMS_TASK_ID              = os.Getenv("HW_CSMS_TASK_ID")
 	HW_CSMS_SECRET_NAME          = os.Getenv("HW_CSMS_SECRET_NAME")
 	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
-	HW_CSMS_SECRET_NAME          = os.Getenv("HW_CSMS_SECRET_NAME")
 
 	HW_CPCS_CLUSTER_ID    = os.Getenv("HW_CPCS_CLUSTER_ID")
 	HW_CPCS_APP_ID        = os.Getenv("HW_CPCS_APP_ID")
