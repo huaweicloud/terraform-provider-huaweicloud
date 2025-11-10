@@ -2574,6 +2574,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_event":                        dew.ResourceCsmsEvent(),
 			"huaweicloud_csms_secret":                       dew.ResourceSecret(),
 			"huaweicloud_csms_secret_version_state":         dew.ResourceSecretVersionState(),
+			"huaweicloud_csms_restore_secret":               dew.ResourceRestoreSecret(),
 			"huaweicloud_csms_scheduled_delete_secret_task": dew.ResourceCsmsScheduledDeleteSecretTask(),
 			"huaweicloud_csms_secret_rotate":                dew.ResourceSecretRotate(),
 
