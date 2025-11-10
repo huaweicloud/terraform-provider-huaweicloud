@@ -1343,6 +1343,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_cluster_protect_overview":                   hss.DataSourceClusterProtectOverview(),
 			"huaweicloud_hss_cluster_protect_default_policies":           hss.DataSourceClusterProtectDefaultPolicies(),
 			"huaweicloud_hss_cluster_protect_protection_items":           hss.DataSourceClusterProtectProtectionItems(),
+			"huaweicloud_hss_cluster_protect_alarm_events":               hss.DataSourceClusterProtectAlarmEvents(),
 			"huaweicloud_hss_image_asset_statistics":                     hss.DataSourceImageAssetStatistics(),
 			"huaweicloud_hss_common_task_statistics":                     hss.DataSourceCommonTaskStatistics(),
 			"huaweicloud_hss_common_tasks":                               hss.DataSourceCommonTasks(),
