@@ -551,6 +551,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_aggregation_metrics":             aom.DataSourceAggregationMetrics(),
 			"huaweicloud_aom_alarm_action_rules":              aom.DataSourceAomAlarmActionRules(),
 			"huaweicloud_aom_alarm_group_rules":               aom.DataSourceAlarmGroupRules(),
+			"huaweicloud_aom_alarm_notified_histories":        aom.DataSourceAlarmNotifiedHistories(),
 			"huaweicloud_aom_alarm_rules":                     aom.DataSourceAlarmRules(),
 			"huaweicloud_aom_alarm_rules_templates":           aom.DataSourceAlarmRulesTemplates(),
 			"huaweicloud_aom_alarm_silence_rules":             aom.DataSourceAlarmSilenceRules(),
