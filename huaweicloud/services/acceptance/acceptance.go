@@ -136,20 +136,21 @@ var (
 
 	HW_DBSS_INSATNCE_ID = os.Getenv("HW_DBSS_INSATNCE_ID")
 
-	HW_DEW_ENABLE_FLAG           = os.Getenv("HW_DEW_ENABLE_FLAG")
-	HW_KPS_KEY_FILE_PATH         = os.Getenv("HW_KPS_KEY_FILE_PATH")
-	HW_KPS_KEYPAIR_NAME          = os.Getenv("HW_KPS_KEYPAIR_NAME")
-	HW_KPS_KEYPAIR_NAME_1        = os.Getenv("HW_KPS_KEYPAIR_NAME_1")
-	HW_KPS_KEYPAIR_NAME_2        = os.Getenv("HW_KPS_KEYPAIR_NAME_2")
-	HW_KPS_KEYPAIR_KEY_1         = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
-	HW_KPS_KEYPAIR_SSH_PORT      = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
-	HW_KPS_ENABLE_FLAG           = os.Getenv("HW_KPS_ENABLE_FLAG")
-	HW_KPS_PUBLIC_KEY_FILE_PATH  = os.Getenv("HW_KPS_PUBLIC_KEY_FILE_PATH")
-	HW_KPS_PRIVATE_KEY_FILE_PATH = os.Getenv("HW_KPS_PRIVATE_KEY_FILE_PATH")
-	HW_KPS_FAILED_TASK_ID        = os.Getenv("HW_KPS_FAILED_TASK_ID")
-	HW_CSMS_TASK_ID              = os.Getenv("HW_CSMS_TASK_ID")
-	HW_CSMS_SECRET_NAME          = os.Getenv("HW_CSMS_SECRET_NAME")
-	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
+	HW_DEW_ENABLE_FLAG              = os.Getenv("HW_DEW_ENABLE_FLAG")
+	HW_KPS_KEY_FILE_PATH            = os.Getenv("HW_KPS_KEY_FILE_PATH")
+	HW_KPS_KEYPAIR_NAME             = os.Getenv("HW_KPS_KEYPAIR_NAME")
+	HW_KPS_KEYPAIR_NAME_1           = os.Getenv("HW_KPS_KEYPAIR_NAME_1")
+	HW_KPS_KEYPAIR_NAME_2           = os.Getenv("HW_KPS_KEYPAIR_NAME_2")
+	HW_KPS_KEYPAIR_KEY_1            = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
+	HW_KPS_KEYPAIR_SSH_PORT         = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
+	HW_KPS_ENABLE_FLAG              = os.Getenv("HW_KPS_ENABLE_FLAG")
+	HW_KPS_PUBLIC_KEY_FILE_PATH     = os.Getenv("HW_KPS_PUBLIC_KEY_FILE_PATH")
+	HW_KPS_PRIVATE_KEY_FILE_PATH    = os.Getenv("HW_KPS_PRIVATE_KEY_FILE_PATH")
+	HW_KPS_FAILED_TASK_ID           = os.Getenv("HW_KPS_FAILED_TASK_ID")
+	HW_CSMS_TASK_ID                 = os.Getenv("HW_CSMS_TASK_ID")
+	HW_CSMS_SECRET_NAME             = os.Getenv("HW_CSMS_SECRET_NAME")
+	HW_CSMS_SECRET_BACKUP_FILE_PATH = os.Getenv("HW_CSMS_SECRET_BACKUP_FILE_PATH")
+	HW_CSMS_SECRET_ID               = os.Getenv("HW_CSMS_SECRET_ID")
 
 	HW_CPCS_CLUSTER_ID    = os.Getenv("HW_CPCS_CLUSTER_ID")
 	HW_CPCS_APP_ID        = os.Getenv("HW_CPCS_APP_ID")
@@ -4258,6 +4259,13 @@ func TestAccPreCheckCsmsSecretID(t *testing.T) {
 func TestAccPreCheckCsmsSecretName(t *testing.T) {
 	if HW_CSMS_SECRET_NAME == "" {
 		t.Skip("HW_CSMS_SECRET_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCsmsSecretBackupFilePath(t *testing.T) {
+	if HW_CSMS_SECRET_BACKUP_FILE_PATH == "" {
+		t.Skip("HW_CSMS_SECRET_BACKUP_FILE_PATH must be set for the acceptance test")
 	}
 }
 
