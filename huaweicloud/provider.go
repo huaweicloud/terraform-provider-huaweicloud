@@ -1631,6 +1631,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_engine_versions":                   rds.DataSourceRdsEngineVersionsV3(),
 			"huaweicloud_rds_instances":                         rds.DataSourceRdsInstances(),
 			"huaweicloud_rds_instance_parameters_histories":     rds.DataSourceRdsInstanceParameterHistories(),
+			"huaweicloud_rds_instance_no_index_tables":          rds.DataSourceRdsInstanceNoIndexTables(),
 			"huaweicloud_rds_backups":                           rds.DataSourceRdsBackups(),
 			"huaweicloud_rds_backup_files":                      rds.DataSourceRdsBackupFiles(),
 			"huaweicloud_rds_storage_types":                     rds.DataSourceStoragetype(),
