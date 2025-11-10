@@ -1,5 +1,52 @@
 # CHANGELOG
 
+## 1.80.2 (November 10, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_aom_alarm_inhibit_rule` [GH-8232]
+  + `huaweicloud_cciv2_observability_configuration` [GH-8261]
+  + `huaweicloud_cpcs_app_download_access_key` [GH-8231]
+  + `huaweicloud_cpcs_cluster_authorize_access_key` [GH-8214]
+  + `huaweicloud_cpcs_instance_status_action` [GH-8239]
+  + `huaweicloud_csms_download_secret_backup` [GH-8256]
+  + `huaweicloud_csms_restore_secret` [GH-8265]
+  + `huaweicloud_csms_secret_rotate` [GH-8251]
+  + `huaweicloud_cts_configuration` [GH-8223]
+  + `huaweicloud_geminidb_instance` [GH-8253]
+  + `huaweicloud_hss_cluster_protect_switch_mode` [GH-8257]
+  + `huaweicloud_kms_dedicated_keystore_action` [GH-8260]
+  + `huaweicloud_kms_key_replicate` [GH-8224]
+  + `huaweicloud_kms_retire_grant` [GH-8220]
+  + `huaweicloud_kps_export_private_key` [GH-8243]
+  + `huaweicloud_swr_enterprise_instance_registry` [GH-8221]
+
+* **New Data Source:**
+  + `huaweicloud_aad_user_quotas` [GH-8211]
+  + `huaweicloud_aadv2_instances` [GH-8210]
+  + `huaweicloud_compute_attachable_nics` [GH-8222]
+  + `huaweicloud_compute_flavor_capacity` [GH-8219]
+  + `huaweicloud_cpcs_cluster_ports` [GH-8236]
+  + `huaweicloud_cpcs_cluster_url` [GH-8236]
+  + `huaweicloud_cpcs_instances` [GH-8198]
+  + `huaweicloud_cpcs_vm_monitor` [GH-8226]
+  + `huaweicloud_csms_notification_records` [GH-8213]
+  + `huaweicloud_fgs_runtime_types` [GH-8234]
+  + `huaweicloud_fgs_trigger_types` [GH-8218]
+  + `huaweicloud_hss_asset_web_app_service_statistics` [GH-8249]
+  + `huaweicloud_hss_asset_website_statistics` [GH-8254]
+  + `huaweicloud_hss_cluster_protect_default_policies` [GH-8233]
+  + `huaweicloud_hss_cluster_protect_info` [GH-8225]
+  + `huaweicloud_hss_cluster_protect_overview` [GH-8228]
+  + `huaweicloud_hss_cluster_protect_protection_items` [GH-8248]
+  + `huaweicloud_hss_image_asset_statistics` [GH-8269]
+  + `huaweicloud_hss_rasp_events` [GH-8263]
+  + `huaweicloud_kms_dedicated_keystores` [GH-8230]
+  + `huaweicloud_kms_retirable_grants` [GH-8216]
+  + `huaweicloud_rds_instance_no_index_tables` [GH-8268]
+  + `huaweicloud_rms_policy_states_statistics` [GH-8227]
+  + `huaweicloud_swr_enterprise_instance_registries` [GH-8235]
+  + `huaweicloud_workspace_app_publishable_applications` [GH-8229]
+
 ## 1.80.1 (October 31, 2025)
 
 * **New Resource Source:**
