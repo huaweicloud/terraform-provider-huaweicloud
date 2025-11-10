@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cciv2_observability_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /v1/observabilityconfiguration:
+        GET:
+            tag: CCI
+        PUT:
+            tag: CCI

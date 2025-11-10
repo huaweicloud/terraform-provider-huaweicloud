@@ -34,6 +34,8 @@ paths:
     /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip:
         DELETE:
             tag: APIG
+        POST:
+            tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/instance-tags:
         GET:
             tag: APIG
@@ -43,7 +45,4 @@ paths:
         POST:
             tag: APIG
         PUT:
-            tag: APIG
-    /v2/{project_id}/apigw/instances{instance_id}/ingress-eip:
-        POST:
             tag: APIG

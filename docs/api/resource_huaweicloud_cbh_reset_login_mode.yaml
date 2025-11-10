@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbh_reset_login_mode
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBH
+paths:
+    /v2/{project_id}/cbs/instance/login-method:
+        PUT:
+            tag: CBH

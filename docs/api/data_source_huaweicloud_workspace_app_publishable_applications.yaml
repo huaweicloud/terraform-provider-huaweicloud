@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_workspace_app_publishable_apps
+    title: data_source_huaweicloud_workspace_app_publishable_applications
     description: ""
 schemes:
     - https

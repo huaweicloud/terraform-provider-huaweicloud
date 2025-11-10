@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_alarm_inhibit_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v2/{project_id}/alert/inhibit-rules:
+        DELETE:
+            tag: AOM
+        GET:
+            tag: AOM
+        POST:
+            tag: AOM
+        PUT:
+            tag: AOM

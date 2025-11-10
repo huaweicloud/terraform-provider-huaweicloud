@@ -18,3 +18,5 @@ paths:
             tag: Kafka
         POST:
             tag: Kafka
+        PUT:
+            tag: Kafka

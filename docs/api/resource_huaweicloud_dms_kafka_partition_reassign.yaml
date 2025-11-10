@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: Kafka
 paths:
+    /v2/{engine}/{project_id}/instances/{instance_id}/reassign:
+        POST:
+            tag: Kafka
     /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
         GET:
             tag: Kafka

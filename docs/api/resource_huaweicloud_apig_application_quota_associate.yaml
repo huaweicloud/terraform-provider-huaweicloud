@@ -8,9 +8,10 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/binding-apps:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bindable-apps:
         GET:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/binding-apps:
         POST:
             tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bound-apps:

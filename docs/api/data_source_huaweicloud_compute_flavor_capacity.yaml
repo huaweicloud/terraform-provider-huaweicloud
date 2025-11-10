@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_compute_flavor_capacity
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/cloudservers/flavors/{flavor_id}/resources:
+        GET:
+            tag: ECS
