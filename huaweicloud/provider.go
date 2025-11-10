@@ -1693,6 +1693,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_marketplace_engine_products":       rds.DataSourceRdsMarketplaceEngineProducts(),
 			"huaweicloud_rds_instant_tasks":                     rds.DataSourceRdsInstantTasks(),
 			"huaweicloud_rds_schedule_tasks":                    rds.DataSourceRdsScheduleTasks(),
+			"huaweicloud_rds_distributor_instances":             rds.DataSourceRdsDistributorInstances(),
 
 			"huaweicloud_rgc_home_region":                    rgc.DataSourceHomeRegion(),
 			"huaweicloud_rgc_pre_launch_check":               rgc.DataSourcePreLaunchCheck(),
