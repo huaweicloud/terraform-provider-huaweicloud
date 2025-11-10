@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_workspace_app_publishable_apps": {
+        "huaweicloud_workspace_app_publishable_applications": {
           "block": {
             "attributes": {
               "app_group_id": {

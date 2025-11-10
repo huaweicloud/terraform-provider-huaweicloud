@@ -1,0 +1,291 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_geminidb_instance": {
+          "block": {
+            "attributes": {
+              "actions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "configuration_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "dedicated_resource_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "delete_node_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "dual_active_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "destination_instance_id": "string",
+                      "destination_region": "string",
+                      "role": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "id": "string",
+                            "name": "string",
+                            "private_ip": "string",
+                            "public_ip": "string",
+                            "role": "string",
+                            "spec_code": "string",
+                            "status": "string",
+                            "subnet_id": "string",
+                            "support_reduce": "bool"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "size": "string",
+                            "used": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lb_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "lb_port": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "port": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "product_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "ssl_option": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "availability_zone_detail": {
+                "block": {
+                  "attributes": {
+                    "primary_availability_zone": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "secondary_availability_zone": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "backup_strategy": {
+                "block": {
+                  "attributes": {
+                    "keep_days": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "datastore": {
+                "block": {
+                  "attributes": {
+                    "patch_available": {
+                      "type": "bool",
+                      "computed": true
+                    },
+                    "storage_engine": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "whole_version": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "flavor": {
+                "block": {
+                  "attributes": {
+                    "num": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "spec_code": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "storage": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

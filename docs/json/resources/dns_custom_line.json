@@ -27,10 +27,6 @@
                 "description": "The custom line name.",
                 "required": true
               },
-              "region": {
-                "type": "string",
-                "computed": true
-              },
               "status": {
                 "type": "string",
                 "description": "The resource status.",

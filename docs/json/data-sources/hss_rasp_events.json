@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_rasp_events": {
+          "block": {
+            "attributes": {
+              "app_type": {
+                "type": "string",
+                "optional": true
+              },
+              "attack_tag": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_stack": "string",
+                      "attack_input_name": "string",
+                      "attack_input_value": "string",
+                      "attack_tag": "string",
+                      "chk_probe": "string",
+                      "chk_rule": "string",
+                      "chk_rule_desc": "string",
+                      "event_name": "string",
+                      "exist_bug": "string",
+                      "host_name": "number",
+                      "private_ip": "string",
+                      "query_string": "string",
+                      "req_headers": "string",
+                      "req_method": "string",
+                      "req_params": "string",
+                      "req_path": "string",
+                      "req_protocol": "string",
+                      "req_src_ip": "string",
+                      "req_url": "string",
+                      "severity": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protect_status": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

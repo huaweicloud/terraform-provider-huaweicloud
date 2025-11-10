@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpcs_app_download_access_key": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              },
+              "access_key_id": {
+                "type": "string",
+                "required": true
+              },
+              "app_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_imported": {
+                "type": "bool",
+                "computed": true
+              },
+              "key_name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "computed": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

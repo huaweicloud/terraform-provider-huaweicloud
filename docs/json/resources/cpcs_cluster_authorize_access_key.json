@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpcs_cluster_authorize_access_key": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "description": "The access key.",
+                "computed": true,
+                "sensitive": true
+              },
+              "access_key_id": {
+                "type": "string",
+                "description": "Specifies the ID of the access key.",
+                "required": true
+              },
+              "app_id": {
+                "type": "string",
+                "description": "Specifies the ID of the application.",
+                "required": true
+              },
+              "app_name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster.",
+                "required": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time of the access key, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_name": {
+                "type": "string",
+                "description": "The name of the access key.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the access key.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

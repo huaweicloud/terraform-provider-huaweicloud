@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_instance_registry": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the registry description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "insecure": {
+                "type": "bool",
+                "description": "Specifies whether the registry is insecure.",
+                "required": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the registry name.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID of the target registry.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID of the target registry.",
+                "optional": true
+              },
+              "registry_id": {
+                "type": "number",
+                "description": "Indicates the registry ID.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the registry status.",
+                "computed": true
+              },
+              "target_instance_id": {
+                "type": "string",
+                "description": "Specifies the target enterprise instance ID.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the registry type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the registry url.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "credential": {
+                "block": {
+                  "attributes": {
+                    "access_key": {
+                      "type": "string",
+                      "description": "Specifies the access key.",
+                      "required": true
+                    },
+                    "access_secret": {
+                      "type": "string",
+                      "description": "Specifies the access secret.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the credential type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the credential infos."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "dns_conf": {
+                "block": {
+                  "attributes": {
+                    "hosts": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Specifies the hosts map.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the DNS configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the tags belong.",
-                "required": true
+                "optional": true
               },
               "region": {
                 "type": "string",

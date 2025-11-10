@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_csms_notification_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "number",
+                      "event_name": "string",
+                      "notification_content": "string",
+                      "notification_status": "string",
+                      "notification_target_id": "string",
+                      "notification_target_name": "string",
+                      "secret_name": "string",
+                      "secret_type": "string",
+                      "trigger_event_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSMS",
+            "name": "Data Encryption Workshop CSMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-凭据管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

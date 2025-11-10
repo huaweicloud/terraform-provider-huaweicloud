@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_alarm_inhibit_rule": {
+          "block": {
+            "attributes": {
+              "binding_group_rule": {
+                "type": "string",
+                "description": "The rule name associated with the alarm inhibit rule.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the alarm inhibit rule.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the alarm inhibit rule belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "match_v3": {
+                "type": "string",
+                "description": "The orchestrated alarm inhibit rule definition, in JSON format.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the alarm inhibit rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the alarm inhibit rule is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "source_matches": {
+                "block": {
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key of the alarm.",
+                            "required": true
+                          },
+                          "operate": {
+                            "type": "string",
+                            "description": "The match operator for the alarm key.",
+                            "required": true
+                          },
+                          "values": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The value list corresponding to the key of the alarm.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The serial conditions within a parallel condition group."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The parallel match conditions for root alerts that suppress other alerts."
+                },
+                "nesting_mode": "list"
+              },
+              "target_matches": {
+                "block": {
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key of the alarm.",
+                            "required": true
+                          },
+                          "operate": {
+                            "type": "string",
+                            "description": "The match operator for the alarm key.",
+                            "required": true
+                          },
+                          "values": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The value list corresponding to the key of the alarm.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The serial conditions within a parallel condition group."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The parallel match conditions for target alerts that will be suppressed."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

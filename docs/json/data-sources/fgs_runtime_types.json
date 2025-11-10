@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_runtime_types": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the runtime types are located.",
+                "computed": true
+              },
+              "types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "display_name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the runtime types.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

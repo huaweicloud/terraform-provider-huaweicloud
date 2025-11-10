@@ -34,11 +34,6 @@
                 "description": "All name servers that match the filter parameters.",
                 "computed": true
               },
-              "region": {
-                "type": "string",
-                "description": "The region in which to query the resource. If omitted, the provider-level region will be used.",
-                "computed": true
-              },
               "server_region": {
                 "type": "string",
                 "description": "The region to which the name server belongs.",

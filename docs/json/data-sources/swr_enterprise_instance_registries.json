@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_registries": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name.",
+                "optional": true
+              },
+              "order_column": {
+                "type": "string",
+                "description": "Specifies the order column.",
+                "optional": true
+              },
+              "order_type": {
+                "type": "string",
+                "description": "Specifies the order type. Values can be **desc** or **asc**.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "registries": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "credential": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "access_key": "string",
+                            "access_secret": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "id": "number",
+                      "insecure": "bool",
+                      "instance_id": "string",
+                      "name": "string",
+                      "region_id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the repositories.",
+                "computed": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicates the total number of the repositories.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the repository type",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

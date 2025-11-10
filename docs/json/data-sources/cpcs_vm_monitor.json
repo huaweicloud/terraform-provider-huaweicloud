@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cpcs_vm_monitor": {
+          "block": {
+            "attributes": {
+              "average": {
+                "type": "number",
+                "computed": true
+              },
+              "datapoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "average": "number",
+                      "max": "number",
+                      "min": "number",
+                      "sum": "number",
+                      "timestamp": "number",
+                      "unit": "string",
+                      "variance": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "filter": {
+                "type": "string",
+                "optional": true
+              },
+              "from": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "max": {
+                "type": "number",
+                "computed": true
+              },
+              "metric_name": {
+                "type": "string",
+                "required": true
+              },
+              "metric_name_output": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "to": {
+                "type": "number",
+                "optional": true
+              },
+              "vsm_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

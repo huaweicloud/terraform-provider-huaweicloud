@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kms_retirable_grants": {
+          "block": {
+            "attributes": {
+              "grants": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "creation_date": "string",
+                      "grant_id": "string",
+                      "grantee_principal": "string",
+                      "grantee_principal_type": "string",
+                      "issuing_principal": "string",
+                      "key_id": "string",
+                      "name": "string",
+                      "operations": [
+                        "list",
+                        "string"
+                      ],
+                      "retiring_principal": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

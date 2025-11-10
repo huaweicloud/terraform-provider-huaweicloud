@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_cluster_protect_default_policies": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "content": "string",
+                      "create_time": "number",
+                      "deploy_content": "string",
+                      "description": "string",
+                      "image_num": "number",
+                      "labels_num": "number",
+                      "parameters": "string",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cluster_id": "string",
+                            "cluster_name": "string",
+                            "images": "string",
+                            "labels": "string",
+                            "namespace": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "template_id": "string",
+                      "template_name": "string",
+                      "template_type": "string",
+                      "update_time": "number",
+                      "white_images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cluster_id": "string",
+                            "image_name": "string",
+                            "image_version": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "general_policy_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "malicious_image_policy_num": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_policy_num": {
+                "type": "number",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

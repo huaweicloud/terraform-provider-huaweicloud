@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_user_quotas": {
+          "block": {
+            "attributes": {
+              "cc_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "custom": {
+                "type": "number",
+                "computed": true
+              },
+              "domain": {
+                "type": "number",
+                "computed": true
+              },
+              "domain_port_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "geo_ip": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance": {
+                "type": "number",
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true
+              },
+              "overseas_type": {
+                "type": "string",
+                "optional": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "white_ip": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aadv2_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_access_type": {
+                "type": "string",
+                "optional": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enterprise_project_id": "string",
+                      "instance_access_type": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "overseas_type": "number",
+                      "pp_enable": "number",
+                      "pp_support": "number",
+                      "vips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip": "string",
+                            "isp": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

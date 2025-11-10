@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_attachable_nics": {
+          "block": {
+            "attributes": {
+              "attachable_quantity": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "free_blk": "number",
+                      "free_disk": "number",
+                      "free_efi_nic": "number",
+                      "free_nic": "number",
+                      "free_scsi": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the number of NICs that can be attached to an ECS.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface_attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "delete_on_termination": "bool",
+                      "driver_mode": "string",
+                      "fixed_ips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_address": "string",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "mac_addr": "string",
+                      "min_rate": "number",
+                      "multiqueue_num": "number",
+                      "net_id": "string",
+                      "pci_address": "string",
+                      "port_id": "string",
+                      "port_state": "string",
+                      "preserve_on_delete": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the NIC information list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the ECS ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

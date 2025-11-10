@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cts_configuration": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_support_read_only": {
+                "type": "bool",
+                "description": "Whether to enable the reporting of read-only audit logs for all cloud services.",
+                "required": true
+              },
+              "is_sync_global_trace": {
+                "type": "bool",
+                "description": "Whether to synchronize global service logs from the central region.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to manage the CTS configuration.",
+                "computed": true
+              },
+              "support_read_only_services": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Cloud services that enable read-only audit logs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

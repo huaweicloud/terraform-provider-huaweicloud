@@ -30,11 +30,6 @@
                 "description": "All quotas that match the filter parameters.",
                 "computed": true
               },
-              "region": {
-                "type": "string",
-                "description": "The region in which to query the resource. If omitted, the provider-level region will be used.",
-                "computed": true
-              },
               "type": {
                 "type": "string",
                 "description": "The resource type.",
