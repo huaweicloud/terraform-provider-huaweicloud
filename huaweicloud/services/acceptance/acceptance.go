@@ -166,6 +166,7 @@ var (
 	HW_SWR_USER             = os.Getenv("HW_SWR_USER")
 
 	HW_CBH_INSTANCE_ID = os.Getenv("HW_CBH_INSTANCE_ID")
+	HW_CBH_SERVER_ID   = os.Getenv("HW_CBH_SERVER_ID")
 
 	HW_RAM_SHARE_ACCOUNT_ID          = os.Getenv("HW_RAM_SHARE_ACCOUNT_ID")
 	HW_RAM_SHARE_RESOURCE_URN        = os.Getenv("HW_RAM_SHARE_RESOURCE_URN")
@@ -1368,6 +1369,13 @@ func TestAccPreCheckElbLoadbalancerID(t *testing.T) {
 func TestAccPreCheckCbhInstanceID(t *testing.T) {
 	if HW_CBH_INSTANCE_ID == "" {
 		t.Skip("HW_CBH_INSTANCE_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCbhServerID(t *testing.T) {
+	if HW_CBH_SERVER_ID == "" {
+		t.Skip("HW_CBH_SERVER_ID must be set for this acceptance test")
 	}
 }
 
