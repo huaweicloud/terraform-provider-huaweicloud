@@ -37,6 +37,9 @@ func TestAccDataFunctionTriggers_basic(t *testing.T) {
 		dcByStartTime = acceptance.InitDataSourceCheck(byStartTime)
 		byEndTime     = "data.huaweicloud_fgs_function_triggers.filter_by_end_time"
 		dcByEndTime   = acceptance.InitDataSourceCheck(byEndTime)
+
+		byTypeWithoutFunctionUrn   = "data.huaweicloud_fgs_function_triggers.filter_by_type_without_function_urn"
+		dcByTypeWithoutFunctionUrn = acceptance.InitDataSourceCheck(byTypeWithoutFunctionUrn)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -81,6 +84,10 @@ func TestAccDataFunctionTriggers_basic(t *testing.T) {
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestMatchResourceAttr(byTriggerId, "triggers.0.updated_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					// Check the consistency of trigger type between the resource and the data source.
+					dcByTypeWithoutFunctionUrn.CheckResourceExists(),
+					resource.TestCheckOutput("trigger_type_consistency_check_pass", "true"),
+					resource.TestCheckResourceAttrSet(byTypeWithoutFunctionUrn, "triggers.0.function_urn"),
 				),
 			},
 		},
@@ -104,25 +111,26 @@ EOT
 }
 
 resource "huaweicloud_fgs_function" "test" {
-  name         = "%[1]s"
-  memory_size  = 128
-  runtime      = "Python2.7"
-  timeout      = 3
-  handler      = "index.handler"
-  app          = "default"
-  description  = "fuction test"
-  code_type    = "inline"
-  func_code    = base64encode(var.function_code_content)
+  name        = "%[1]s"
+  memory_size = 128
+  runtime     = "Python2.7"
+  timeout     = 3
+  handler     = "index.handler"
+  app         = "default"
+  description = "fuction test"
+  code_type   = "inline"
+  func_code   = base64encode(var.function_code_content)
 }
 
 resource "huaweicloud_fgs_function_trigger" "test" {
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "TIMER"
   event_data   = jsonencode({
-    "name": "%[1]s_rate",
-    "schedule_type": "Rate",
-    "user_event": "Created by acc test",
-    "schedule": "3m"
+    name           = "%[1]s_rate",
+    schedule_type  = "Rate",
+    sync_execution = false,
+    user_event     = "Created by terraform script",
+    schedule       = "3m"
   })
 }
 
@@ -276,6 +284,22 @@ locals {
 
 output "is_end_time_filter_useful" {
   value = length(local.end_time_filter_result) > 0 && alltrue(local.end_time_filter_result)
+}
+
+# Specifies the trigger type, query using two modes, and assert that the types of the two data source query results
+# are consistent and both match the expected type.
+data "huaweicloud_fgs_function_triggers" "filter_by_type_without_function_urn" {
+  type = local.trigger_type
+
+  depends_on = [huaweicloud_fgs_function_trigger.test]
+}
+
+output "trigger_type_consistency_check_pass" {
+  value = alltrue([for v in data.huaweicloud_fgs_function_triggers.filter_by_type.triggers :
+    alltrue([for item in data.huaweicloud_fgs_function_triggers.filter_by_type_without_function_urn.triggers :
+      item.type == v.type && item.type == local.trigger_type
+    ])
+  ])
 }
 `, name, randUUID)
 }
