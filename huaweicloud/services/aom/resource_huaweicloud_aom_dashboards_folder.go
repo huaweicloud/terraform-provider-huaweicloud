@@ -70,16 +70,6 @@ func ResourceDashboardsFolder() *schema.Resource {
 	}
 }
 
-func buildHeaders(cfg *config.Config, d *schema.ResourceData) map[string]string {
-	moreHeaders := map[string]string{
-		"Content-Type": "application/json",
-	}
-	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
-		moreHeaders["Enterprise-Project-Id"] = epsID
-	}
-	return moreHeaders
-}
-
 func resourceDashboardsFolderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -93,7 +83,7 @@ func resourceDashboardsFolderCreate(ctx context.Context, d *schema.ResourceData,
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildCreateDashboardsFolderBodyParams(d)),
 	}
 
@@ -195,7 +185,7 @@ func resourceDashboardsFolderUpdate(ctx context.Context, d *schema.ResourceData,
 		updatePath = strings.ReplaceAll(updatePath, "{folder_id}", d.Id())
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(cfg, d),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			JSONBody:         buildUpdateDashboardsFolderBodyParams(d),
 		}
 
@@ -240,7 +230,7 @@ func resourceDashboardsFolderDelete(_ context.Context, d *schema.ResourceData, m
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

@@ -274,7 +274,7 @@ func updatePrometheusInstance(cfg *config.Config, client *golangsdk.ServiceClien
 
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildUpdatePrometheusInstanceBodyParams(d)),
 	}
 
@@ -314,7 +314,7 @@ func resourcePromInstanceDelete(_ context.Context, d *schema.ResourceData, meta 
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

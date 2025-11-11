@@ -417,7 +417,7 @@ func resourceAlarmRulesTemplateCreate(ctx context.Context, d *schema.ResourceDat
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         utils.RemoveNil(buildCreateAlarmRulesTemplateBodyParams(d)),
 	}
 
@@ -849,7 +849,7 @@ func resourceAlarmRulesTemplateUpdate(ctx context.Context, d *schema.ResourceDat
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(cfg, d),
+			MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 			JSONBody:         utils.RemoveNil(buildUpdateAlarmRulesTemplateBodyParams(d)),
 		}
 
@@ -888,7 +888,7 @@ func resourceAlarmRulesTemplateDelete(_ context.Context, d *schema.ResourceData,
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody: map[string]interface{}{
 			"alarm_rule_templates": []string{d.Id()},
 		},

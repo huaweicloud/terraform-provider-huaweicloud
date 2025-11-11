@@ -112,11 +112,9 @@ func resourceMessageTemplateCreate(ctx context.Context, d *schema.ResourceData, 
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-		MoreHeaders: buildHeaders(cfg, d),
-		JSONBody:    utils.RemoveNil(buildCreateMessageTemplateBodyParams(d)),
+		OkCodes:          []int{204},
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateMessageTemplateBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -255,7 +253,7 @@ func resourceMessageTemplateUpdate(ctx context.Context, d *schema.ResourceData, 
 		OkCodes: []int{
 			204,
 		},
-		MoreHeaders: buildHeaders(cfg, d),
+		MoreHeaders: buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:    buildCreateMessageTemplateBodyParams(d),
 	}
 
@@ -280,7 +278,7 @@ func resourceMessageTemplateDelete(_ context.Context, d *schema.ResourceData, me
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody: map[string]interface{}{
 			"names": []string{d.Id()},
 		},

@@ -129,11 +129,9 @@ func resourceAlarmGroupRuleCreate(ctx context.Context, d *schema.ResourceData, m
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-		MoreHeaders: buildHeaders(cfg, d),
-		JSONBody:    utils.RemoveNil(buildCreateAlarmGroupRuleBodyParams(d)),
+		OkCodes:          []int{204},
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateAlarmGroupRuleBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -302,11 +300,9 @@ func resourceAlarmGroupRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-		MoreHeaders: buildHeaders(cfg, d),
-		JSONBody:    buildCreateAlarmGroupRuleBodyParams(d),
+		OkCodes:          []int{204},
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         buildCreateAlarmGroupRuleBodyParams(d),
 	}
 
 	_, err = client.Request("PUT", updatePath, &updateOpt)
@@ -330,7 +326,7 @@ func resourceAlarmGroupRuleDelete(_ context.Context, d *schema.ResourceData, met
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
 		JSONBody:         []interface{}{d.Id()},
 	}
 
