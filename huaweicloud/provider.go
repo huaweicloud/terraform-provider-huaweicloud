@@ -2724,6 +2724,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_user":                              kafka.ResourceDmsKafkaUser(),
 			"huaweicloud_dms_kafka_user_client_quota":                 kafka.ResourceDmsKafkaUserClientQuota(),
 			"huaweicloud_dms_kafka_user_password_reset":               kafka.ResourceUserPasswordReset(),
+			"huaweicloud_dms_kafka_volume_auto_expand_configuration":  kafka.ResourceVolumeAutoExpandConfiguration(),
 
 			"huaweicloud_dms_rabbitmq_background_task_delete": rabbitmq.ResourceDmsRabbitMQBackgroundTaskDelete(),
 			"huaweicloud_dms_rabbitmq_instance":               rabbitmq.ResourceDmsRabbitmqInstance(),
