@@ -1336,6 +1336,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_auto_launch_statistics":                     hss.DataSourceAutoLaunchStatistics(),
 			"huaweicloud_hss_auto_launchs":                               hss.DataSourceAutoLaunchs(),
 			"huaweicloud_hss_baseline_check_rule_hab":                    hss.DataSourceBaselineCheckRuleHAB(),
+			"huaweicloud_hss_baseline_scan_status":                       hss.DataSourceBaselineScanStatus(),
 			"huaweicloud_hss_baseline_white_lists":                       hss.DataSourceBaselineWhiteLists(),
 			"huaweicloud_hss_cluster_asset_statistics":                   hss.DataSourceClusterAssetStatistics(),
 			"huaweicloud_hss_cluster_protect_info":                       hss.DataSourceClusterProtectInfo(),
