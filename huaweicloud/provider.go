@@ -3447,6 +3447,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_private_network_access_control": swrenterprise.ResourceSwrEnterprisePrivateNetworkAccessControl(),
 			"huaweicloud_swr_enterprise_retention_policy":               swrenterprise.ResourceSwrEnterpriseRetentionPolicy(),
 			"huaweicloud_swr_enterprise_retention_policy_execute":       swrenterprise.ResourceSwrEnterpriseRetentionPolicyExecute(),
+			"huaweicloud_swr_enterprise_replication_policy":             swrenterprise.ResourceSwrEnterpriseReplicationPolicy(),
 			"huaweicloud_swr_enterprise_instance_registry":              swrenterprise.ResourceSwrEnterpriseInstanceRegistry(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
