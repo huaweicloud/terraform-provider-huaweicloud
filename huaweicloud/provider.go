@@ -2715,7 +2715,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_instance_rebalance_log":            kafka.ResourceInstanceRebalanceLog(),
 			"huaweicloud_dms_kafka_instance_restart":                  kafka.ResourceDmsKafkaInstanceRestart(),
 			"huaweicloud_dms_kafka_message_diagnosis_task":            kafka.ResourceDmsKafkaMessageDiagnosisTask(),
-			"huaweicloud_dms_kafka_message_offset_reset":              kafka.ResourceDmsKafkaMessageOffsetReset(),
+			"huaweicloud_dms_kafka_message_offset_reset":              kafka.ResourceMessageOffsetReset(),
 			"huaweicloud_dms_kafka_message_produce":                   kafka.ResourceDmsKafkaMessageProduce(),
 			"huaweicloud_dms_kafka_partition_reassign":                kafka.ResourceDmsKafkaPartitionReassign(),
 			"huaweicloud_dms_kafka_permissions":                       kafka.ResourceDmsKafkaPermissions(),

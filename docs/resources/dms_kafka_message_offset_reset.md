@@ -3,12 +3,17 @@ subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dms_kafka_message_offset_reset"
 description: |-
-  Manage DMS kafka message offset reset resource within HuaweiCloud.
+  Use this resource to reset the message offset under the specified consumer group within HuaweiCloud.
 ---
 
 # huaweicloud_dms_kafka_message_offset_reset
 
-Manage DMS kafka message offset reset resource within HuaweiCloud.
+Use this resource to reset the message offset under the specified consumer group within HuaweiCloud.
+
+-> 1. Before using this resource to reset the consumption progress, you must stop the client of the reset consumer group.
+   <br>2. This resource is only a one-time action resource for resetting the consumption progress of the consumer group.
+   Deleting this resource will not clear the corresponding request record, but will only remove the resource information
+   from the tfstate file.
 
 ## Example Usage
 
@@ -16,14 +21,13 @@ Manage DMS kafka message offset reset resource within HuaweiCloud.
 
 ```hcl
 variable "instance_id" {}
-variable "group" {}
+variable "consumer_group_name" {}
 
 resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
   instance_id = var.instance_id
-  group       = var.group
-  topic       = ""
+  group       = var.consumer_group_name
   partition   = -1
-  timestamp   = 0
+  timestamp   = "0"
 }
 ```
 
@@ -31,15 +35,15 @@ resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
 
 ```hcl
 variable "instance_id" {}
-variable "group" {}
-variable "topic" {}
+variable "consumer_group_name" {}
+variable "topic_name" {}
 
 resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
   instance_id = var.instance_id
-  group       = var.group
-  topic       = var.topic
+  group       = var.consumer_group_name
+  topic       = var.topic_name
   partition   = -1
-  timestamp   = 0
+  timestamp   = "0"
 }
 ```
 
@@ -47,15 +51,15 @@ resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
 
 ```hcl
 variable "instance_id" {}
-variable "group" {}
-variable "topic" {}
+variable "consumer_group_name" {}
+variable "topic_name" {}
 
 resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
   instance_id    = var.instance_id
-  group          = var.group
-  topic          = var.topic
-  partition      = -1
-  message_offset = 0
+  group          = var.consumer_group_name
+  topic          = var.topic_name
+  partition      = 0
+  message_offset = "0"
 }
 ```
 
@@ -63,30 +67,28 @@ resource "huaweicloud_dms_kafka_message_offset_reset" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
+* `region` - (Optional, String, ForceNew) Specifies the region where the consumption progress is to be reset is located.
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the instance ID.
+* `instance_id` - (Required, String, ForceNew) Specifies the ID of the Kafka instance.  
   Changing this creates a new resource.
 
-* `group` - (Required, String, ForceNew) Specifies the group name.
+* `group` - (Required, String, ForceNew) Specifies the name of the consumer group.  
   Changing this creates a new resource.
 
 * `partition` - (Required, Int, ForceNew) Specifies the partiton number.
-  + If value is **-1**, reset all partitions. When `topic` is empty, only support reset all partitions.
-  + If value is specific number, reset that partiton only.
+  
+  -> If value is `-1`, it means to reset offset of all partitions.
 
+* `topic` - (Optional, String, ForceNew) Specifies name of the topic.  
   Changing this creates a new resource.
 
-* `topic` - (Optional, String, ForceNew) Specifies the topic name. If it is empty, reset all topic.
-  Changing this creates a new resource.
+  -> When `topic` is not specified, it means to reset offset of all topics.
 
-* `message_offset` - (Optional, String, ForceNew) Specifies the message offset.
+* `message_offset` - (Optional, String, ForceNew) Specifies the offset to reset the consumption progress.
   + If this offset is earlier than the current earliest offset, the offset will be reset to the earliest offset.
   + If this offset is later than the current largest offset, the offset will be reset to the latest offset.
-
-  Changing this creates a new resource.
 
 * `timestamp` - (Optional, String, ForceNew) Specifies the time that the offset is to be reset to.
   The value is a Unix timestamp, in millisecond.
