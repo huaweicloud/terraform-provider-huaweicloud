@@ -1335,6 +1335,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_users":                                hss.DataSourceAssetUsers(),
 			"huaweicloud_hss_asset_web_app_service_hosts":                hss.DataSourceAssetWebAppServiceHosts(),
 			"huaweicloud_hss_asset_web_app_service_statistics":           hss.DataSourceAssetWebAppServiceStatistics(),
+			"huaweicloud_hss_asset_web_framework_hosts":                  hss.DataSourceAssetWebFrameworkHosts(),
 			"huaweicloud_hss_asset_web_framework_statistics":             hss.DataSourceAssetWebFrameworkStatistics(),
 			"huaweicloud_hss_asset_website_hosts":                        hss.DataSourceAssetWebsiteHosts(),
 			"huaweicloud_hss_asset_website_statistics":                   hss.DataSourceAssetWebsiteStatistics(),
