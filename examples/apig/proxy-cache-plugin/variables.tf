@@ -24,9 +24,33 @@ variable "availability_zones" {
   nullable    = false
 }
 
+variable "availability_zones_count" {
+  description = "The number of availability zones to which the instance belongs"
+  type        = number
+  default     = 1
+}
+
+variable "vpc_id" {
+  description = "The ID of the VPC"
+  type        = string
+  default     = ""
+}
+
+variable "subnet_id" {
+  description = "The ID of the subnet"
+  type        = string
+  default     = ""
+}
+
 variable "vpc_name" {
   description = "The name of the VPC"
   type        = string
+  default     = ""
+
+  validation {
+    condition     = var.vpc_id != "" || var.vpc_name != ""
+    error_message = "vpc_name must be provided if vpc_id is not provided."
+  }
 }
 
 variable "vpc_cidr" {
@@ -38,6 +62,12 @@ variable "vpc_cidr" {
 variable "subnet_name" {
   description = "The name of the subnet"
   type        = string
+  default     = ""
+
+  validation {
+    condition     = var.subnet_id == "" || var.subnet_name == ""
+    error_message = "subnet_name must be provided if subnet_id is not provided."
+  }
 }
 
 variable "subnet_cidr" {
@@ -66,12 +96,6 @@ variable "instance_edition" {
   description = "The edition of the APIG instance"
   type        = string
   default     = "BASIC"
-}
-
-variable "availability_zones_count" {
-  description = "The number of availability zones to which the instance belongs"
-  type        = number
-  default     = 1
 }
 
 variable "enterprise_project_id" {
