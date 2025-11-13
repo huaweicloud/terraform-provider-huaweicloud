@@ -25,6 +25,7 @@ import (
 // @API APIG POST /v2/{project_id}/apigw/instances
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/postpaid-resize
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
@@ -581,7 +582,7 @@ func updateInstanceBasicConfiguration(ctx context.Context, client *golangsdk.Ser
 	return nil
 }
 
-func updateInstanceEdition(ctx context.Context, client *golangsdk.ServiceClient, instanceId, newSpec string,
+func updatePostPaidInstanceEdition(ctx context.Context, client *golangsdk.ServiceClient, instanceId, newSpec string,
 	timeout time.Duration) error {
 	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/postpaid-resize"
 	resizePath := client.Endpoint + httpUrl
@@ -856,7 +857,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	// Update specification
 	if d.HasChange("edition") {
-		if err = updateInstanceEdition(ctx, client, instanceId, d.Get("edition").(string),
+		if err = updatePostPaidInstanceEdition(ctx, client, instanceId, d.Get("edition").(string),
 			d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return diag.FromErr(err)
 		}
