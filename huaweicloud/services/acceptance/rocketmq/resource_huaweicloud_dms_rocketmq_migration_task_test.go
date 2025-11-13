@@ -67,7 +67,10 @@ func TestAccRockemqMigrationTask_rocketmq(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -75,7 +78,7 @@ func TestAccRockemqMigrationTask_rocketmq(t *testing.T) {
 				Config: testAccRockemqMigrationTask_rocketmq(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_dms_rocketmq_instance.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_DMS_ROCKETMQ_INSTANCE_ID),
 					resource.TestCheckResourceAttr(resourceName, "overwrite", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "rocketmq"),
@@ -124,7 +127,10 @@ func TestAccRockemqMigrationTask_rabbitToRocket(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -132,7 +138,7 @@ func TestAccRockemqMigrationTask_rabbitToRocket(t *testing.T) {
 				Config: testAccRockemqMigrationTask_rabbitToRocket(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_dms_rocketmq_instance.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_DMS_ROCKETMQ_INSTANCE_ID),
 					resource.TestCheckResourceAttr(resourceName, "overwrite", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "rabbitToRocket"),
@@ -168,10 +174,8 @@ func TestAccRockemqMigrationTask_rabbitToRocket(t *testing.T) {
 
 func testAccRockemqMigrationTask_rocketmq(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_dms_rocketmq_migration_task" "test" {
-  instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  instance_id = "%[1]s"
   overwrite   = "true"
   name        = "%[2]s"
   type        = "rocketmq"
@@ -197,15 +201,13 @@ resource "huaweicloud_dms_rocketmq_migration_task" "test" {
     which_broker_when_consume_slow    = 1        
   }
 }
-`, testDmsRocketMQInstance_basic(name), name)
+`, acceptance.HW_DMS_ROCKETMQ_INSTANCE_ID, name)
 }
 
 func testAccRockemqMigrationTask_rabbitToRocket(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_dms_rocketmq_migration_task" "test" {
-  instance_id = huaweicloud_dms_rocketmq_instance.test.id
+  instance_id = "%[1]s"
   overwrite   = "true"
   name        = "%[2]s"
   type        = "rabbitToRocket"
@@ -235,7 +237,7 @@ resource "huaweicloud_dms_rocketmq_migration_task" "test" {
     routing_key      = "%[2]s-queue"
   }
 }
-`, testDmsRocketMQInstance_basic(name), name)
+`, acceptance.HW_DMS_ROCKETMQ_INSTANCE_ID, name)
 }
 
 // testRocketmqMigrationTaskImportState is used to return an import id with format <instance_id>/<id>

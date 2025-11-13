@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -394,14 +393,7 @@ func resourceRocketmqMigrationTaskCreate(ctx context.Context, d *schema.Resource
 
 	createRocketmqMigrationTaskOpt.JSONBody = utils.RemoveNil(buildCreateMigrationTaskBodyParams(d))
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATING", "EXTENDING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqMigrationTaskClient, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceStatusCompleted(ctx, createRocketmqMigrationTaskClient, instanceID, []string{"RUNNING"}, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the status of the RocketMQ instance (%s) to be RUNNING: %s", instanceID, err)
 	}
@@ -607,14 +599,14 @@ func resourceRocketmqMigrationTaskDelete(ctx context.Context, d *schema.Resource
 	deleteRocketmqMigrationTaskOpt := golangsdk.RequestOpts{KeepResponseBody: true}
 	deleteRocketmqMigrationTaskOpt.JSONBody = map[string]interface{}{"task_ids": []string{d.Id()}}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATING", "EXTENDING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      rocketmqInstanceStateRefreshFunc(deleteRocketmqMigrationTaskClient, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	// DELETED means the RocketMQ instance does not exist.
+	err = waitForInstanceStatusCompleted(
+		ctx,
+		deleteRocketmqMigrationTaskClient,
+		instanceID,
+		[]string{"RUNNING", "DELETED"},
+		d.Timeout(schema.TimeoutDelete),
+	)
 	if err != nil {
 		return diag.Errorf("error waiting for the status of the RocketMQ instance (%s) to be RUNNING: %s", instanceID, err)
 	}
