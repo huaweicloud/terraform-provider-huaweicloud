@@ -511,6 +511,8 @@ var (
 	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID") // The CMDB sub-application ID of AOM service
 	HW_AOM_TARGET_MACHINE_ACCOUNT                = os.Getenv("HW_AOM_TARGET_MACHINE_ACCOUNT")
 	HW_AOM_TARGET_MACHINE_PASSWORD               = os.Getenv("HW_AOM_TARGET_MACHINE_PASSWORD")
+	HW_AOM_UNIAGENT_AGENT_ID                     = os.Getenv("HW_AOM_UNIAGENT_AGENT_ID")
+	HW_AOM_UNIAGENT_INNER_IP                     = os.Getenv("HW_AOM_UNIAGENT_INNER_IP")
 	HW_AOM_UNIAGENT_VERSION                      = os.Getenv("HW_AOM_UNIAGENT_VERSION")
 
 	HW_COC_INSTANCE_ID           = os.Getenv("HW_COC_INSTANCE_ID") // the ID of ECS instance which has installed uniagent
@@ -3117,6 +3119,20 @@ func TestAccPreCheckAomSubApplicationId(t *testing.T) {
 func TestAccPreCheckMultiAccountAggregationRuleEnable(t *testing.T) {
 	if HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE == "" {
 		t.Skip("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckUniAgentId(t *testing.T) {
+	if HW_AOM_UNIAGENT_AGENT_ID == "" {
+		t.Skip("HW_AOM_UNIAGENT_AGENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckUniAgentInnerIp(t *testing.T) {
+	if HW_AOM_UNIAGENT_INNER_IP == "" {
+		t.Skip("HW_AOM_UNIAGENT_INNER_IP must be set for the acceptance test")
 	}
 }
 
