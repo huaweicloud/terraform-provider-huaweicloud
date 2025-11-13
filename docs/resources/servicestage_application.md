@@ -16,7 +16,6 @@ Manages an application resource within HuaweiCloud ServiceStage.
 ```hcl
 variable "env_id" {}
 variable "app_name" {}
-variable "vpc_id" {}
 
 resource "huaweicloud_servicestage_application" "test" {
   name = var.app_name
