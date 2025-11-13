@@ -2,12 +2,13 @@
 subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dms_kafka_instances"
-description: ""
+description: |-
+  Use this data source to query Kafka instance list within HuaweiCloud.
 ---
 
 # huaweicloud_dms_kafka_instances
 
-Use this data source to query the available instances within HuaweiCloud DMS service.
+Use this data source to query Kafka instance list within HuaweiCloud.
 
 ## Example Usage
 
@@ -45,7 +46,9 @@ data "huaweicloud_dms_kafka_instances" "test" {
   match (`flase`).
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which all instances of the list
-  belong.
+  belong.  
+  This field is only valid for enterprise users. For enterprise users, if omitted, all instances under the enterprise
+  project will be queried.
 
 * `status` - (Optional, String) Specifies the kafka instance status for data-source queries.
 
@@ -57,8 +60,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `instances` - The result of the query's list of kafka instances. The structure is documented below.
+* `instances` - The list of instances that match the filter parameters.  
+  The [instances](#kafka_instances_attr) structure is documented below.
 
+<a name="kafka_instances_attr"></a>
 The `instances` block supports:
 
 * `id` - The instance ID.
@@ -134,8 +139,10 @@ The `instances` block supports:
 
 * `tags` - The key/value pairs to associate with the instance.
 
-* `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
+* `cross_vpc_accesses` - Indicates the Access information of cross-VPC.  
+  The [cross_vpc_accesses](#kafka_instance_cross_vpc_accesses_attr) structure is documented below.
 
+<a name="kafka_instance_cross_vpc_accesses_attr"></a>
 The `cross_vpc_accesses` block supports:
 
 * `listener_ip` - The listener IP address.
