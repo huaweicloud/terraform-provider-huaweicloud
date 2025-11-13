@@ -59,18 +59,17 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `license_id` - (Optional, Int, ForceNew) The license ID for public repository. The valid values are as follows:
-  + **1**: Apache License v2.0
-  + **2**: MIT License
-  + **3**: BSD 2-clause
-  + **4**: BSD 3-clause
-  + **5**: Eclipse Public License v1.0
-  + **6**: GNU General Public License v2.0
-  + **7**: GNU General Public License v3.0
-  + **8**: GNU Afferent General Public License v3.0
-  + **9**: GNU Lesser General Public License v2.1
-  + **10**: GNU Lesser General Public License v3.0
-  + **11**: Mozilla Public License v2.0
-  + **12**: The Unlicense
+  + **1**: Apache_License_v2.0
+  + **2**: MIT_License,,BSD_3Clause
+  + **3**: Eclipse_Public_License_v1.0
+  + **4**: BSD_2Clause
+  + **5**: GNU_General_Public_License_v2.0
+  + **6**: GNU_General_Public_License_v3.0
+  + **7**: GNU_Affero_General_Public_License_v3.0
+  + **8**: GNU_Lesser_General_Public_License_v2.1
+  + **9**: GNU_Lesser_General_Public_License_v3.0
+  + **10**: Mozilla_Public_License_v2.0
+  + **11**: The_Unlicense
 
   Defaults to `1`. Changing this parameter will create a new resource.
 
