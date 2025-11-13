@@ -1712,6 +1712,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_publications":                       rds.DataSourceRdsPublications(),
 			"huaweicloud_rds_configurable_distributor_instances": rds.DataSourceRdsConfigurableDistributorInstances(),
 			"huaweicloud_rds_configurable_subscriber_instances":  rds.DataSourceRdsConfigurableSubscriberInstances(),
+			"huaweicloud_rds_top_sqls":                           rds.DataSourceRdsTopSqls(),
 
 			"huaweicloud_rgc_home_region":                    rgc.DataSourceHomeRegion(),
 			"huaweicloud_rgc_pre_launch_check":               rgc.DataSourcePreLaunchCheck(),
