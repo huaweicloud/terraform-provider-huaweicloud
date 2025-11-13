@@ -122,10 +122,30 @@ func DataSourceInstances() *schema.Resource {
 							Computed:    true,
 							Description: `The message storage capacity, in GB unit.`,
 						},
+						"storage_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The storage type of the instance.`,
+						},
+						"storage_resource_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The storage resource ID of the instance.`,
+						},
 						"vpc_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The VPC ID to which the instance belongs.`,
+						},
+						"vpc_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The VPC name to which the instance belongs.`,
+						},
+						"vpc_client_plain": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the intra-VPC plaintext access is enabled.`,
 						},
 						"network_id": {
 							Type:        schema.TypeString,
@@ -136,6 +156,11 @@ func DataSourceInstances() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The security group ID associated with the instance.`,
+						},
+						"security_group_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The security group name associated with the instance.`,
 						},
 						"manager_user": {
 							Type:        schema.TypeString,
@@ -182,6 +207,16 @@ func DataSourceInstances() *schema.Resource {
 							Type:        schema.TypeBool,
 							Computed:    true,
 							Description: `Whether to dumping is enabled.`,
+						},
+						"connector_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the dump task.`,
+						},
+						"connector_node_num": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The number of dump nodes.`,
 						},
 						"enable_auto_topic": {
 							Type:        schema.TypeBool,
@@ -233,6 +268,11 @@ func DataSourceInstances() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The resource specifications identifier.`,
+						},
+						"specification": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The specification of the instance.`,
 						},
 						"user_id": {
 							Type:        schema.TypeString,
@@ -291,6 +331,201 @@ func DataSourceInstances() *schema.Resource {
 								},
 							},
 						},
+						"broker_num": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The broker numbers of the instance.`,
+						},
+						"ces_version": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The CES version corresponding to the instance.`,
+						},
+						"charging_mode": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The charging mode of the instance.`,
+						},
+						"enable_log_collection": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether log collection is enabled.`,
+						},
+						"extend_times": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The number of times the instance has been extended.`,
+						},
+						"ipv6_enable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether IPv6 is enabled.`,
+						},
+						"ipv6_connect_addresses": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The IPv6 connect addresses of the instance.`,
+						},
+						"is_logical_volume": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `whether the expansion is new instance.`,
+						},
+						"message_query_inst_enable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether message query is enabled.`,
+						},
+						"new_auth_cert": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the new auth cert is enabled.`,
+						},
+						"new_spec_billing_enable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `whether the new billing specification is enabled.`,
+						},
+						"node_num": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The number of nodes of the instance.`,
+						},
+						"order_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The order ID of the instance.`,
+						},
+						"pod_connect_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The connection address on the tenant side.`,
+						},
+						"port_protocol": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"private_plain_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether private plaintext access is enabled.`,
+									},
+									"private_sasl_ssl_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether private SASL SSL access is enabled.`,
+									},
+									"private_sasl_plaintext_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether private SASL plaintext access is enabled.`,
+									},
+									"public_plain_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether public plaintext access is enabled.`,
+									},
+									"public_sasl_ssl_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether public SASL SSL access is enabled.`,
+									},
+									"public_sasl_plaintext_enable": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether public SASL plaintext access is enabled.`,
+									},
+									"private_plain_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the private plaintext access.`,
+									},
+									"private_plain_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the private plaintext access.`,
+									},
+									"private_sasl_ssl_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the private SASL SSL access.`,
+									},
+									"private_sasl_ssl_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the private SASL SSL access.`,
+									},
+									"private_sasl_plaintext_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the private SASL plaintext access.`,
+									},
+									"private_sasl_plaintext_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the private SASL plaintext access.`,
+									},
+									"public_plain_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the public plaintext access.`,
+									},
+									"public_plain_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the public plaintext access.`,
+									},
+									"public_sasl_ssl_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the public SASL SSL access.`,
+									},
+									"public_sasl_ssl_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the public SASL SSL access.`,
+									},
+									"public_sasl_plaintext_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The address of the public SASL plaintext access.`,
+									},
+									"public_sasl_plaintext_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The domain name of the public SASL plaintext access.`,
+									},
+								},
+							},
+							Description: `The port protocol information of the Kafka instance.`,
+						},
+						"support_features": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The support features of the instance.`,
+						},
+						"ssl_two_way_enable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the two-way authentication is enabled.`,
+						},
+						"public_bandwidth": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The public bandwidth of the instance.`,
+						},
+						"public_boundwidth": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The public boundwidth of the instance.`,
+						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the instance, in RFC3339 format.`,
+						},
 						// Deprecated attributes.
 						// Typo, it is only kept in the code, will not be shown in the docs.
 						"manegement_connect_address": {
@@ -323,6 +558,11 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 			return nil, err
 		}
 
+		createdAt, err := strconv.Atoi(utils.PathSearch("created_at", val, "").(string))
+		if err != nil {
+			log.Printf("[ERROR] error converting created_at to int: %v", err)
+		}
+
 		instance := map[string]interface{}{
 			"id":                         utils.PathSearch("instance_id", val, nil),
 			"type":                       utils.PathSearch("type", val, nil),
@@ -334,15 +574,22 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 			"engine_version":             utils.PathSearch("engine_version", val, nil),
 			"storage_spec_code":          utils.PathSearch("storage_spec_code", val, nil),
 			"storage_space":              utils.PathSearch("total_storage_space", val, nil),
+			"storage_type":               utils.PathSearch("storage_type", val, nil),
+			"storage_resource_id":        utils.PathSearch("storage_resource_id", val, nil),
 			"vpc_id":                     utils.PathSearch("vpc_id", val, nil),
+			"vpc_name":                   utils.PathSearch("vpc_name", val, nil),
+			"vpc_client_plain":           utils.PathSearch("vpc_client_plain", val, nil),
 			"network_id":                 utils.PathSearch("subnet_id", val, nil),
 			"security_group_id":          utils.PathSearch("security_group_id", val, nil),
+			"security_group_name":        utils.PathSearch("security_group_name", val, nil),
 			"manager_user":               utils.PathSearch("kafka_manager_user", val, nil),
 			"access_user":                utils.PathSearch("access_user", val, nil),
 			"maintain_begin":             utils.PathSearch("maintain_begin", val, nil),
 			"maintain_end":               utils.PathSearch("maintain_end", val, nil),
 			"retention_policy":           utils.PathSearch("retention_policy", val, nil),
 			"dumping":                    utils.PathSearch("connector_enable", val, nil),
+			"connector_id":               utils.PathSearch("connector_id", val, nil),
+			"connector_node_num":         utils.PathSearch("connector_node_num", val, nil),
 			"enable_auto_topic":          utils.PathSearch("enable_auto_topic", val, nil),
 			"partition_num":              partitionNum,
 			"ssl_enable":                 utils.PathSearch("ssl_enable", val, nil),
@@ -353,11 +600,33 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 			"port":                       utils.PathSearch("port", val, nil),
 			"status":                     utils.PathSearch("status", val, nil),
 			"resource_spec_code":         utils.PathSearch("resource_spec_code", val, nil),
+			"specification":              utils.PathSearch("specification", val, nil),
 			"user_id":                    utils.PathSearch("user_id", val, nil),
 			"user_name":                  utils.PathSearch("user_name", val, nil),
 			"management_connect_address": utils.PathSearch("management_connect_address", val, nil),
-			"manegement_connect_address": utils.PathSearch("management_connect_address", val, nil),
 			"tags":                       utils.FlattenTagsToMap(utils.PathSearch("tags", val, nil)),
+			"broker_num":                 utils.PathSearch("broker_num", val, nil),
+			"ces_version":                utils.PathSearch("ces_version", val, nil),
+			"charging_mode":              convertChargingMode(int(utils.PathSearch("charging_mode", val, float64(0)).(float64))),
+			"enable_log_collection":      utils.PathSearch("enable_log_collection", val, nil),
+			"extend_times":               utils.PathSearch("extend_times", val, nil),
+			"ipv6_enable":                utils.PathSearch("ipv6_enable", val, nil),
+			"ipv6_connect_addresses":     utils.PathSearch("ipv6_connect_addresses", val, nil),
+			"is_logical_volume":          utils.PathSearch("is_logical_volume", val, nil),
+			"message_query_inst_enable":  utils.PathSearch("message_query_inst_enable", val, nil),
+			"new_auth_cert":              utils.PathSearch("new_auth_cert", val, nil),
+			"new_spec_billing_enable":    utils.PathSearch("new_spec_billing_enable", val, nil),
+			"node_num":                   utils.PathSearch("node_num", val, nil),
+			"order_id":                   utils.PathSearch("order_id", val, nil),
+			"pod_connect_address":        utils.PathSearch("pod_connect_address", val, nil),
+			"port_protocol":              flattenInstancesPortProtocol(utils.PathSearch("port_protocols", val, nil)),
+			"support_features":           utils.PathSearch("support_features", val, nil),
+			"ssl_two_way_enable":         utils.PathSearch("ssl_two_way_enable", val, nil),
+			"public_bandwidth":           utils.PathSearch("public_bandwidth", val, nil),
+			"public_boundwidth":          utils.PathSearch("public_boundwidth", val, nil),
+			"created_at":                 utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false),
+			// Deprecated attributes.
+			"manegement_connect_address": utils.PathSearch("management_connect_address", val, nil),
 		}
 
 		if enablePublicIP := utils.PathSearch("enable_publicip", val, false).(bool); enablePublicIP {
@@ -389,6 +658,41 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 	}
 
 	return result, nil
+}
+
+func convertChargingMode(chargingMode int) interface{} {
+	switch chargingMode {
+	case 0:
+		return "prePaid"
+	case 1:
+		return "postPaid"
+	}
+	return chargingMode
+}
+
+func flattenInstancesPortProtocol(portProtocol interface{}) interface{} {
+	return []map[string]interface{}{
+		{
+			"private_plain_enable":               utils.PathSearch("private_plain_enable", portProtocol, nil),
+			"private_plain_address":              utils.PathSearch("private_plain_address", portProtocol, nil),
+			"private_plain_domain_name":          utils.PathSearch("private_plain_domain_name", portProtocol, nil),
+			"private_sasl_ssl_enable":            utils.PathSearch("private_sasl_ssl_enable", portProtocol, nil),
+			"private_sasl_ssl_address":           utils.PathSearch("private_sasl_ssl_address", portProtocol, nil),
+			"private_sasl_ssl_domain_name":       utils.PathSearch("private_sasl_ssl_domain_name", portProtocol, nil),
+			"private_sasl_plaintext_enable":      utils.PathSearch("private_sasl_plaintext_enable", portProtocol, nil),
+			"private_sasl_plaintext_address":     utils.PathSearch("private_sasl_plaintext_address", portProtocol, nil),
+			"private_sasl_plaintext_domain_name": utils.PathSearch("private_sasl_plaintext_domain_name", portProtocol, nil),
+			"public_plain_enable":                utils.PathSearch("public_plain_enable", portProtocol, nil),
+			"public_plain_address":               utils.PathSearch("public_plain_address", portProtocol, nil),
+			"public_plain_domain_name":           utils.PathSearch("public_plain_domain_name", portProtocol, nil),
+			"public_sasl_ssl_enable":             utils.PathSearch("public_sasl_ssl_enable", portProtocol, nil),
+			"public_sasl_ssl_address":            utils.PathSearch("public_sasl_ssl_address", portProtocol, nil),
+			"public_sasl_ssl_domain_name":        utils.PathSearch("public_sasl_ssl_domain_name", portProtocol, nil),
+			"public_sasl_plaintext_enable":       utils.PathSearch("public_sasl_plaintext_enable", portProtocol, nil),
+			"public_sasl_plaintext_address":      utils.PathSearch("public_sasl_plaintext_address", portProtocol, nil),
+			"public_sasl_plaintext_domain_name":  utils.PathSearch("public_sasl_plaintext_domain_name", portProtocol, nil),
+		},
+	}
 }
 
 func listInstances(client *golangsdk.ServiceClient, d *schema.ResourceData, epsId string) ([]interface{}, error) {
