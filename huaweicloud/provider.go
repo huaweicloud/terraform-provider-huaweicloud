@@ -2387,6 +2387,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbh_instance":                   cbh.ResourceCBHInstance(),
 			"huaweicloud_cbh_reset_login_mode":           cbh.ResourceResetLoginMode(),
 			"huaweicloud_cbh_rollback_instance":          cbh.ResourceRollbackInstance(),
+			"huaweicloud_cbh_upgrade_instance":           cbh.ResourceUpgradeInstance(),
 			"huaweicloud_cbh_delete_fault_instance":      cbh.ResourceDeleteFaultInstance(),
 			"huaweicloud_cbh_ha_instance":                cbh.ResourceCBHHAInstance(),
 			"huaweicloud_cbh_asset_agency_authorization": cbh.ResourceAssetAgencyAuthorization(),
