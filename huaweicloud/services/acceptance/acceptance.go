@@ -506,9 +506,10 @@ var (
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
 
+	HW_AOM_ALARM_EVENT_SN                        = os.Getenv("HW_AOM_ALARM_EVENT_SN")
 	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
-	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
 	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID") // The CMDB sub-application ID of AOM service
+	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
 	HW_AOM_TARGET_MACHINE_ACCOUNT                = os.Getenv("HW_AOM_TARGET_MACHINE_ACCOUNT")
 	HW_AOM_TARGET_MACHINE_PASSWORD               = os.Getenv("HW_AOM_TARGET_MACHINE_PASSWORD")
 	HW_AOM_UNIAGENT_AGENT_ID                     = os.Getenv("HW_AOM_UNIAGENT_AGENT_ID")
@@ -3077,6 +3078,13 @@ func TestAccPreCheckLTSLogConvergeMappingConfig(t *testing.T) {
 func TestAccPreCheckLTSMemberAccountId(t *testing.T) {
 	if HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID == "" {
 		t.Skip("HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomAlarmEventSn(t *testing.T) {
+	if HW_AOM_ALARM_EVENT_SN == "" {
+		t.Skip("HW_AOM_ALARM_EVENT_SN must be set for the acceptance test")
 	}
 }
 
