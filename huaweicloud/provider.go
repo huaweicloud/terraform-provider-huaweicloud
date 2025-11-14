@@ -2116,6 +2116,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_hour_packages":          workspace.DataSourceHourPackages(),
 			"huaweicloud_workspace_flavors":                workspace.DataSourceWorkspaceFlavors(),
 			"huaweicloud_workspace_policy_groups":          workspace.DataSourcePolicyGroups(),
+			"huaweicloud_workspace_scheduled_tasks":        workspace.DataSourceScheduledTasks(),
 			"huaweicloud_workspace_service":                workspace.DataSourceService(),
 			"huaweicloud_workspace_tags":                   workspace.DataSourceTags(),
 			"huaweicloud_workspace_users":                  workspace.DataSourceUsers(),
