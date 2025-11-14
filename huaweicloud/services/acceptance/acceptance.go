@@ -316,6 +316,7 @@ var (
 	HW_WORKSPACE_APP_FILE_NAME                     = os.Getenv("HW_WORKSPACE_APP_FILE_NAME")
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID             = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
+	HW_WORKSPACE_SCHEDULED_TASK_ID                 = os.Getenv("HW_WORKSPACE_SCHEDULED_TASK_ID")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_APP_AGENCY_NAME     = os.Getenv("HW_FGS_APP_AGENCY_NAME")
@@ -2291,6 +2292,13 @@ func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID must be set for Workspace APP acceptance tests.")
 	}
 	TestAccPreCheckWorkspaceAppServerImageInfo(t)
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceScheduledTaskId(t *testing.T) {
+	if HW_WORKSPACE_SCHEDULED_TASK_ID == "" {
+		t.Skip("HW_WORKSPACE_SCHEDULED_TASK_ID must be set for Workspace acceptance tests.")
+	}
 }
 
 // lintignore:AT003
