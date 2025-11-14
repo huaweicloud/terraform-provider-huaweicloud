@@ -2298,6 +2298,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_prom_instance":                  aom.ResourcePromInstance(),
 			"huaweicloud_aom_service_discovery_rule":         aom.ResourceServiceDiscoveryRule(),
 			"huaweicloud_aom_uniagent_batch_install":         aom.ResourceUniAgentBatchInstall(),
+			"huaweicloud_aom_uniagent_batch_upgrade":         aom.ResourceUniAgentBatchUpgrade(),
 			// V4 AOM resources.
 			"huaweicloud_aomv4_alarm_rule": aom.ResourceAlarmRuleV4(),
 
