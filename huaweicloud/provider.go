@@ -502,6 +502,12 @@ func Provider() *schema.Provider {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: descriptions["default_tags"],
 			},
+			"ignore_tags": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: descriptions["ignore_tags"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -3956,6 +3962,8 @@ func init() {
 		"skip_check_upgrade": "Whether to skip upgrade check",
 
 		"default_tags": "The default tags of resources managed by this provider",
+
+		"ignore_tags": "The ignored tag keys of resources managed by this provider.",
 	}
 }
 
@@ -3990,6 +3998,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		EnableForceNew:      d.Get("enable_force_new").(bool),
 		SigningAlgorithm:    d.Get("signing_algorithm").(string),
 		DefaultTags:         d.Get("default_tags").(map[string]interface{}),
+		IgnoreTags:          d.Get("ignore_tags").([]interface{}),
 	}
 
 	// get assume role

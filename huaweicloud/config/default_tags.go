@@ -15,12 +15,18 @@ func MergeDefaultTags() schema.CustomizeDiffFunc {
 			mergedTags   = make(map[string]interface{})
 		)
 
+		// Merge default tags and resource tags
 		for k, v := range cfg.DefaultTags {
 			mergedTags[k] = v
 		}
 
 		for k, v := range resourceTags {
 			mergedTags[k] = v
+		}
+
+		// Remove ignored tags
+		for _, k := range cfg.IgnoreTags {
+			delete(mergedTags, k.(string))
 		}
 
 		err := d.SetNew("tags", mergedTags)

@@ -114,6 +114,7 @@ type Config struct {
 	// SigningAlgorithm is used to select encryption algorithm
 	SigningAlgorithm string
 	DefaultTags      map[string]interface{}
+	IgnoreTags       []interface{}
 }
 
 type AssumeRole struct {
