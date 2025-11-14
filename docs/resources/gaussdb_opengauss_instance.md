@@ -154,20 +154,17 @@ The following arguments are supported:
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone.
   Changing this parameter will create a new resource.
 
-* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
-  Changing this parameter will create a new resource.
+* `disk_encryption_id` - (Optional, String) Specifies the key ID for disk encryption.
 
-* `enable_force_switch` - (Optional, Bool, ForceNew) Specifies whether to forcibly promote a standby node to primary.
-  Defaults to **false**. Changing this parameter will create a new resource.
+* `enable_force_switch` - (Optional, Bool) Specifies whether to forcibly promote a standby node to primary.
+  Defaults to **false**.
 
-* `enable_single_float_ip` - (Optional, Bool, ForceNew) Specifies whether to enable single floating IP address policy,
-  which is only suitable for primary/standby instances. Value options:
+* `enable_single_float_ip` - (Optional, Bool) Specifies whether to enable single floating IP address policy, which is only
+  suitable for primary/standby instances. Value options:
   + **true**: This function is enabled. Only one floating IP address is bound to the primary node of a DB instance. If a
     primary/standby fail over occurs, the floating IP address does not change.
   + **false (default value)**: The function is disabled. Each node is bound to a floating IP address. If a primary/standby
     fail over occurs, the floating IP addresses change.
-
-  Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB OpenGauss instance.
 
