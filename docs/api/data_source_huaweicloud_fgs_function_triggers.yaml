@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: FunctionGraph
 paths:
+    /v2/{project_id}/fgs/triggers:
+        GET:
+            tag: FunctionGraph
     /v2/{project_id}/fgs/triggers/{function_urn}:
         GET:
             tag: FunctionGraph

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_event_report
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v2/{project_id}/push/events:
+        PUT:
+            tag: AOM

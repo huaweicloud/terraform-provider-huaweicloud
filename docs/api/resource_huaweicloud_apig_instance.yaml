@@ -46,3 +46,6 @@ paths:
             tag: APIG
         PUT:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/postpaid-resize:
+        POST:
+            tag: APIG

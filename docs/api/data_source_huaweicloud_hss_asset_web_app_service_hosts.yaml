@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_hss_asset_web_app_service_hosts
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/asset/web-app-and-services:
+        GET:
+            tag: HSS

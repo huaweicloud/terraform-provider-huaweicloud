@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_uniagent_batch_install
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v1/{project_id}/uniagent-console/mainview/batch-import:
+        POST:
+            tag: AOM

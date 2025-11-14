@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_asset_assign_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/asset/assign-task:
+        POST:
+            tag: HSS

@@ -12,5 +12,5 @@ paths:
         GET:
             tag: Kafka
     /v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset:
-        POST:
+        PUT:
             tag: Kafka

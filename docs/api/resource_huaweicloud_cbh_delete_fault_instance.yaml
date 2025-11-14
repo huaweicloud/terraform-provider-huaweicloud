@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbh_delete_fault_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBH
+paths:
+    /v2/{project_id}/cbs/instance:
+        DELETE:
+            tag: CBH

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_topic_message_batch_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/{project_id}/kafka/instances/{instance_id}/topics/{topic}/messages:
+        DELETE:
+            tag: Kafka

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_hss_container_clusters_policy_templates
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/container/clusters/protection-policy-templates:
+        GET:
+            tag: HSS

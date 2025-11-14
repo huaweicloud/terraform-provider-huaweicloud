@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_instance_ingress_port
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports/{ingress_port_id}:
+        DELETE:
+            tag: APIG
