@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -28,6 +29,12 @@ const (
 	haModeDistributed = "enterprise"
 	haModeCentralized = "centralization_standard"
 )
+
+var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id", "subnet_id", "vpc_id", "ha", "ha.*.mode",
+	"ha.*.replication_mode", "ha.*.consistency", "ha.*.instance_mode", "volume.*.type", "replica_num", "security_group_id",
+	"port", "disk_encryption_id", "enable_force_switch", "enable_single_float_ip", "time_zone", "datastore",
+	"datastore.*.engine", "datastore.*.version", "charging_mode", "period_unit", "period",
+}
 
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB POST /v3/{project_id}/instances
@@ -74,6 +81,7 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				return nil
 			},
 			config.MergeDefaultTags(),
+			config.FlexibleForceNew(openGaussInstanceNonUpdatableParams),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -94,7 +102,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -104,35 +111,29 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"ha": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mode": {
 							Type:             schema.TypeString,
 							Required:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 						},
 						"replication_mode": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"consistency": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							Computed:         true,
 							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 						},
@@ -140,7 +141,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -154,7 +154,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"size": {
 							Type:     schema.TypeInt,
@@ -177,12 +176,10 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"configuration_id": {
@@ -193,7 +190,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -216,26 +212,22 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"datastore": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"engine": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"version": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -302,10 +294,35 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 
 			// Attributes
 			"status": {

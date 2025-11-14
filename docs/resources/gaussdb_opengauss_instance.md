@@ -99,30 +99,25 @@ The following arguments are supported:
   including uppercase and lowercase letters, digits, and special characters, such as **~!@#%^*-_=+?**. You are advised
   to enter a strong password to improve security, preventing security risks such as brute force cracking.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone information, can be three same or
-  different az like **cn-north-4a,cn-north-4a,cn-north-4a**. Changing this parameter will create a new resource.
+* `availability_zone` - (Required, String, NonUpdatable) Specifies the availability zone information, can be three same
+  or different az like **cn-north-4a,cn-north-4a,cn-north-4a**.
 
-* `ha` - (Required, List, ForceNew) Specifies the HA information.
+* `ha` - (Required, List, NonUpdatable) Specifies the HA information.
   The [object](#opengauss_ha) structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `volume` - (Required, List) Specifies the volume storage information.
   The [object](#opengauss_volume) structure is documented below.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID to which the subnet belongs.
-  Changing this parameter will create a new resource.
+* `vpc_id` - (Required, String, NonUpdatable) Specifies the VPC ID to which the subnet belongs.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the network ID of VPC subnet to which the instance belongs.
-  Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String, NonUpdatable) Specifies the network ID of VPC subnet to which the instance belongs.
 
-* `security_group_id` - (Optional, String, ForceNew) Specifies the security group ID to which the instance belongs.
+* `security_group_id` - (Optional, String, NonUpdatable) Specifies the security group ID to which the instance belongs.
   If the `port` parameter is specified, please ensure that the TCP ports in the inbound rule of security group
   includes the `100` ports starting with the database port.
   (For example, if the database port is `8,000`, the TCP port must include the range from `8,000` to `8,100`.)
 
-  Changing this parameter will create a new resource.
-
-* `port` - (Optional, String, ForceNew) Specifies the port information. Defaults to `8,000`.
+* `port` - (Optional, String, NonUpdatable) Specifies the port information. Defaults to `8,000`.
   The valid values are as follows:
   + `2,378` to `2,380`
   + `4999` to `5,000`
@@ -132,8 +127,6 @@ The following arguments are supported:
   + `20,049` to `20,050`
   + `21,731` to `21,732`
   + `32,122` to `32,124`
-
-  Changing this parameter will create a new resource.
 
 * `configuration_id` - (Optional, String) Specifies the parameter template ID.
   Changing this parameter will create a new resource.
@@ -145,36 +138,31 @@ The following arguments are supported:
   The valid value is range form `1` to `9`.
   The value must not be greater than twice value of `sharding_num`.
 
-* `replica_num` - (Optional, Int, ForceNew) The replica number. The valid values are `2` and `3`.
+* `replica_num` - (Optional, Int, NonUpdatable) The replica number. The valid values are `2` and `3`.
   Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
-  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
-* `time_zone` - (Optional, String, ForceNew) Specifies the time zone.
-  Changing this parameter will create a new resource.
+* `time_zone` - (Optional, String, NonUpdatable) Specifies the time zone.
 
-* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
-  Changing this parameter will create a new resource.
+* `disk_encryption_id` - (Optional, String, NonUpdatable) Specifies the key ID for disk encryption.
 
-* `enable_force_switch` - (Optional, Bool, ForceNew) Specifies whether to forcibly promote a standby node to primary.
-  Defaults to **false**. Changing this parameter will create a new resource.
+* `enable_force_switch` - (Optional, Bool, NonUpdatable) Specifies whether to forcibly promote a standby node to primary.
+  Defaults to **false**.
 
-* `enable_single_float_ip` - (Optional, Bool, ForceNew) Specifies whether to enable single floating IP address policy,
+* `enable_single_float_ip` - (Optional, Bool, NonUpdatable) Specifies whether to enable single floating IP address policy,
   which is only suitable for primary/standby instances. Value options:
   + **true**: This function is enabled. Only one floating IP address is bound to the primary node of a DB instance. If a
     primary/standby fail over occurs, the floating IP address does not change.
   + **false (default value)**: The function is disabled. Each node is bound to a floating IP address. If a primary/standby
     fail over occurs, the floating IP addresses change.
 
-  Changing this parameter will create a new resource.
-
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB OpenGauss instance.
 
 * `force_import` - (Optional, Bool) Specifies whether to import the instance with the given configuration instead of
   creation. If specified, try to import the instance instead of creation if the instance already existed.
 
-* `datastore` - (Optional, List, ForceNew) Specifies the datastore information.
+* `datastore` - (Optional, List, NonUpdatable) Specifies the datastore information.
   The [datastore](#opengauss_datastore) structure is documented below.
   Changing this parameter will create a new resource.
 
@@ -196,22 +184,20 @@ The following arguments are supported:
 * `advance_features` - (Optional, List) Specifies the advanced features.
   The [advance_features](#advance_features_struct) structure is documented below.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
+* `charging_mode` - (Optional, String, NonUpdatable) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.
   + **postPaid**: the pay-per-use billing mode.
 
-  Defaults to **postPaid**. Changing this parameter will create a new resource.
+  Defaults to **postPaid**.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of opengauss instance.
+* `period_unit` - (Optional, String, NonUpdatable) Specifies the charging period unit of opengauss instance.
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this parameter will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of opengauss instance.
+* `period` - (Optional, Int, NonUpdatable) Specifies the charging period of opengauss instance.
   If `period_unit` is set to **month**, the value ranges from 1 to 9.
   If `period_unit` is set to **year**, the value ranges from 1 to 5.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this parameter will create a new resource.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
@@ -219,40 +205,35 @@ The following arguments are supported:
 <a name="opengauss_ha"></a>
 The `ha` block supports:
 
-* `mode` - (Required, String, ForceNew) Specifies the deployment model.
+* `mode` - (Required, String, NonUpdatable) Specifies the deployment model.
   The valid values are **enterprise** and **centralization_standard**.
-  Changing this parameter will create a new resource.
 
-* `replication_mode` - (Required, String, ForceNew) Specifies the database replication mode.
-  Only **sync** is supported now. Changing this parameter will create a new resource.
+* `replication_mode` - (Required, String, NonUpdatable) Specifies the database replication mode.
+  Only **sync** is supported now.
 
-* `consistency` - (Optional, String, ForceNew) Specifies the database consistency mode.
+* `consistency` - (Optional, String, NonUpdatable) Specifies the database consistency mode.
   The valid values are **strong** and **eventual**, not case-sensitive.
-  Changing this parameter will create a new resource.
 
-* `instance_mode` - (Optional, String, ForceNew) Specifies the product type of the instance. Value options:
+* `instance_mode` - (Optional, String, NonUpdatable) Specifies the product type of the instance. Value options:
   + **enterprise**: The instance of the enterprise edition will be created.
   + **basic**: The instance of the basic edition will be created.
   + **ecology**: The instance of the ecosystem edition will be created.
 
-  Changing this parameter will create a new resource.
-
 <a name="opengauss_volume"></a>
 The `volume` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the volume type. Only **ULTRAHIGH** is supported now.
-  Changing this parameter will create a new resource.
+* `type` - (Required, String, NonUpdatable) Specifies the volume type. Only **ULTRAHIGH** is supported now.
 
 * `size` - (Required, Int) Specifies the volume size (in gigabytes). The valid value is range form `40` to `4,000`.
 
 <a name="opengauss_datastore"></a>
 The `datastore` block supports:
 
-* `engine` - (Required, String, ForceNew) Specifies the database engine. Only **GaussDB(for openGauss)** is supported
-  now. Changing this parameter will create a new resource.
+* `engine` - (Required, String, NonUpdatable) Specifies the database engine. Only **GaussDB(for openGauss)** is supported
+  now.
 
-* `version` - (Optional, String, ForceNew) Specifies the database version. Defaults to the latest version. Please
-  reference to the API docs for valid options. Changing this parameter will create a new resource.
+* `version` - (Optional, String, NonUpdatable) Specifies the database version. Defaults to the latest version. Please
+  reference to the API docs for valid options.
 
 <a name="opengauss_backup_strategy"></a>
 The `backup_strategy` block supports:
