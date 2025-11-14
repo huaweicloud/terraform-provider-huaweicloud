@@ -2,6 +2,7 @@ package rocketmq
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -19,7 +20,7 @@ import (
 
 // @API RocketMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis
 // @API RocketMQ GET /v2/{engine}/{project_id}/diagnosis/{report_id}
-// @API RocketMQ DELETE /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis
+// @API RocketMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis/batch-delete
 func ResourceInstanceDiagnosis() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceDiagnosisCreate,
@@ -292,7 +293,7 @@ func resourceInstanceDiagnosisDelete(_ context.Context, d *schema.ResourceData, 
 	instanceId := d.Get("instance_id").(string)
 	reportId := d.Id()
 
-	httpUrl := "v2/{engine}/{project_id}/instances/{instance_id}/diagnosis"
+	httpUrl := "v2/{engine}/{project_id}/instances/{instance_id}/diagnosis/batch-delete"
 	httpUrl = strings.ReplaceAll(httpUrl, "{engine}", "rocketmq")
 	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
 	httpUrl = strings.ReplaceAll(httpUrl, "{instance_id}", instanceId)
@@ -309,9 +310,9 @@ func resourceInstanceDiagnosisDelete(_ context.Context, d *schema.ResourceData, 
 		},
 	}
 
-	_, err = client.Request("DELETE", deletePath, &opt)
+	_, err = client.Request("POST", deletePath, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting RocketMQ diagnosis report: %s", err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting RocketMQ diagnosis report (%s)", reportId))
 	}
 
 	return nil
