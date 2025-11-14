@@ -1388,6 +1388,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_kubernetes_pod_detail":                      hss.DataSourceKubernetesPodDetail(),
 			"huaweicloud_hss_kubernetes_cronjobs":                        hss.DataSourceKubernetesCronJobs(),
+			"huaweicloud_hss_kubernetes_daemonsets":                      hss.DataSourceKubernetesDaemonsets(),
 			"huaweicloud_hss_policy_groups":                              hss.DataSourcePolicyGroups(),
 			"huaweicloud_hss_product_infos":                              hss.DataSourceProductInfos(),
 			"huaweicloud_hss_quotas":                                     hss.DataSourceQuotas(),
