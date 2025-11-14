@@ -24,10 +24,10 @@ data "huaweicloud_fgs_function_triggers" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the triggers are located.
   If omitted, the provider-level region will be used.
 
-* `function_urn` - (Required, String) Specifies the function URN to which the trigger belongs.
+* `function_urn` - (Optional, String) Specifies the URN of the function URN to which the triggers belong.
 
 * `trigger_id` - (Optional, String) Specifies the ID of the function trigger.
 
@@ -70,7 +70,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `triggers` - All triggers that match the filter parameters.
+* `triggers` - All triggers that match the filter parameters.  
   The [triggers](#function_triggers) structure is documented below.
 
 <a name="function_triggers"></a>
@@ -80,7 +80,10 @@ The `triggers` block supports:
 
 * `type` - The type of the function trigger.
 
-* `event_data` - The detailed configuration of the function trigger.
+* `event_data` - The detailed configuration of the function trigger, in JSON format.
+
+* `function_urn` - The URN of the function URN to which the triggers belong.  
+  This field is not empty only when the `function_urn` parameter is not specified.
 
 * `status` - The current status of the function trigger.
 

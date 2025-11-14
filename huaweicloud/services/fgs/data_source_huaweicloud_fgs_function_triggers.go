@@ -3,6 +3,7 @@ package fgs
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -17,45 +18,47 @@ import (
 )
 
 // @API FunctionGraph GET /v2/{project_id}/fgs/triggers/{function_urn}
+// @API FunctionGraph GET /v2/{project_id}/fgs/triggers
 func DataSourceFunctionTriggers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceFunctionTriggersRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the triggers are located.`,
 			},
 			"function_urn": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Specifies the function URN to which the trigger belongs.",
+				Optional:    true,
+				Description: `The URN of the function URN to which the triggers belong.`,
 			},
 			"trigger_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the ID of the function trigger.",
+				Description: `The ID of the function trigger.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies type of the function trigger.",
+				Description: `The type of the function trigger.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies status of the function trigger.",
+				Description: `The status of the function trigger.`,
 			},
 			"start_time": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies start time of creation time of the function trigger.",
+				Description: `The start time of creation time of the function trigger.`,
 			},
 			"end_time": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies end time of creation time of the function trigger.",
+				Description: `The end time of creation time of the function trigger.`,
 			},
 			"triggers": {
 				Type:     schema.TypeList,
@@ -65,22 +68,27 @@ func DataSourceFunctionTriggers() *schema.Resource {
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The ID of the function trigger.",
+							Description: `The ID of the function trigger.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The type of the function trigger.",
+							Description: `The type of the function trigger.`,
 						},
 						"event_data": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The detailed configuration of the function trigger.`,
+							Description: `The detailed configuration of the function trigger, in JSON format.`,
 						},
 						"status": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The current status of the function trigger.`,
+						},
+						"function_urn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The URN of the function URN to which the triggers belong.`,
 						},
 						"created_at": {
 							Type:        schema.TypeString,
@@ -94,16 +102,89 @@ func DataSourceFunctionTriggers() *schema.Resource {
 						},
 					},
 				},
+				Description: `All triggers that match the filter parameters.`,
 			},
 		},
 	}
+}
+
+func listTriggersWithFunctionUrn(client *golangsdk.ServiceClient, functionUrn string) ([]interface{}, error) {
+	httpUrl := "v2/{project_id}/fgs/triggers/{function_urn}"
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{function_urn}", functionUrn)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+	resp, err := client.Request("GET", listPath, &opt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	return utils.PathSearch("[]", respBody, make([]interface{}, 0)).([]interface{}), nil
+}
+
+func listTriggers(client *golangsdk.ServiceClient) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/fgs/triggers"
+		marker  = ""
+		limit   = 500
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = fmt.Sprintf("%s?maxitems=%v", listPath, limit)
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker = fmt.Sprintf("%s&marker=%s", listPath, marker)
+		}
+
+		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+
+		triggers := utils.PathSearch("triggers", respBody, make([]interface{}, 0)).([]interface{})
+		if len(triggers) < 1 {
+			break
+		}
+
+		result = append(result, triggers...)
+		if len(triggers) < limit {
+			break
+		}
+		marker = strconv.Itoa(int(utils.PathSearch("next_marker", respBody, float64(0)).(float64)))
+	}
+
+	return result, nil
 }
 
 func dataSourceFunctionTriggersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
 		region      = cfg.GetRegion(d)
-		httpUrl     = "v2/{project_id}/fgs/triggers/{function_urn}"
 		functionUrn = d.Get("function_urn").(string)
 	)
 	client, err := cfg.NewServiceClient("fgs", region)
@@ -111,20 +192,17 @@ func dataSourceFunctionTriggersRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{function_urn}", functionUrn)
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	resp, err := client.Request("GET", listPath, &opt)
-	if err != nil {
-		return diag.Errorf("error retrieving triggers under specified function (%s): %s", functionUrn, err)
-	}
-
-	triggers, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
+	var triggers []interface{}
+	if functionUrn != "" {
+		triggers, err = listTriggersWithFunctionUrn(client, functionUrn)
+		if err != nil {
+			return diag.Errorf("error retrieving triggers under specified function (%s): %s", functionUrn, err)
+		}
+	} else {
+		triggers, err = listTriggers(client)
+		if err != nil {
+			return diag.Errorf("error querying triggers: %s", err)
+		}
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -135,7 +213,7 @@ func dataSourceFunctionTriggersRead(_ context.Context, d *schema.ResourceData, m
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("triggers", filterTriggers(flattenTriggers(triggers.([]interface{})), d)),
+		d.Set("triggers", filterTriggers(flattenTriggers(triggers), d)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -189,12 +267,13 @@ func flattenTriggers(triggers []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(triggers))
 	for _, trigger := range triggers {
 		result = append(result, map[string]interface{}{
-			"id":         utils.PathSearch("trigger_id", trigger, nil),
-			"type":       utils.PathSearch("trigger_type_code", trigger, nil),
-			"status":     utils.PathSearch("trigger_status", trigger, nil),
-			"event_data": utils.JsonToString(utils.PathSearch("event_data", trigger, nil)),
-			"created_at": convertTimeToRFC339(utils.PathSearch("created_time", trigger, "").(string)),
-			"updated_at": convertTimeToRFC339(utils.PathSearch("last_updated_time", trigger, "").(string)),
+			"id":           utils.PathSearch("trigger_id", trigger, nil),
+			"type":         utils.PathSearch("trigger_type_code", trigger, nil),
+			"status":       utils.PathSearch("trigger_status", trigger, nil),
+			"event_data":   utils.JsonToString(utils.PathSearch("event_data", trigger, nil)),
+			"function_urn": utils.PathSearch("func_urn", trigger, nil),
+			"created_at":   convertTimeToRFC339(utils.PathSearch("created_time", trigger, "").(string)),
+			"updated_at":   convertTimeToRFC339(utils.PathSearch("last_updated_time", trigger, "").(string)),
 		})
 	}
 	return result
