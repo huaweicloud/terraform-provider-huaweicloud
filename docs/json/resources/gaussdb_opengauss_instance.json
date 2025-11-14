@@ -11,8 +11,7 @@
               },
               "availability_zone": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "balance_status": {
                 "type": "bool",
@@ -21,8 +20,7 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "configuration_id": {
                 "type": "string",
@@ -115,19 +113,16 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "port": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "private_ips": {
                 "type": [
@@ -150,14 +145,12 @@
               "replica_num": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "security_group_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "sharding_num": {
                 "type": "number",
@@ -170,8 +163,7 @@
               },
               "subnet_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "switch_strategy": {
                 "type": "string",
@@ -188,8 +180,7 @@
               "time_zone": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -197,8 +188,7 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             },
             "block_types": {
@@ -238,19 +228,16 @@
                   "attributes": {
                     "engine": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "version": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "ha": {
@@ -259,29 +246,24 @@
                     "consistency": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "instance_mode": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "mode": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "replication_mode": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               },
@@ -309,8 +291,7 @@
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },

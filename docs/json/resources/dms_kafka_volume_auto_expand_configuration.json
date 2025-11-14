@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_volume_auto_expand_configuration": {
+          "block": {
+            "attributes": {
+              "auto_volume_expand_enable": {
+                "type": "bool",
+                "description": "Whether to enable disk auto-expansion.",
+                "optional": true
+              },
+              "expand_increment": {
+                "type": "number",
+                "description": "The percentage of storage space to be expanded out of the total instance storage space, in percentage (%).",
+                "optional": true
+              },
+              "expand_threshold": {
+                "type": "number",
+                "description": "The threshold for triggering disk auto-expansion, in percentage (%).",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the Kafka instance.",
+                "required": true
+              },
+              "max_volume_size": {
+                "type": "number",
+                "description": "The maximum volume size for disk auto-expansion, in GB.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the Kafka instance is located to be configured volume auto-expansion.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

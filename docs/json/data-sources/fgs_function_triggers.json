@@ -7,13 +7,13 @@
             "attributes": {
               "end_time": {
                 "type": "string",
-                "description": "Specifies end time of creation time of the function trigger.",
+                "description": "The end time of creation time of the function trigger.",
                 "optional": true
               },
               "function_urn": {
                 "type": "string",
-                "description": "Specifies the function URN to which the trigger belongs.",
-                "required": true
+                "description": "The URN of the function URN to which the triggers belong.",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -21,21 +21,22 @@
               },
               "region": {
                 "type": "string",
+                "description": "The region where the triggers are located.",
                 "computed": true
               },
               "start_time": {
                 "type": "string",
-                "description": "Specifies start time of creation time of the function trigger.",
+                "description": "The start time of creation time of the function trigger.",
                 "optional": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies status of the function trigger.",
+                "description": "The status of the function trigger.",
                 "optional": true
               },
               "trigger_id": {
                 "type": "string",
-                "description": "Specifies the ID of the function trigger.",
+                "description": "The ID of the function trigger.",
                 "optional": true
               },
               "triggers": {
@@ -46,6 +47,7 @@
                     {
                       "created_at": "string",
                       "event_data": "string",
+                      "function_urn": "string",
                       "id": "string",
                       "status": "string",
                       "type": "string",
@@ -53,11 +55,12 @@
                     }
                   ]
                 ],
+                "description": "All triggers that match the filter parameters.",
                 "computed": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies type of the function trigger.",
+                "description": "The type of the function trigger.",
                 "optional": true
               }
             }

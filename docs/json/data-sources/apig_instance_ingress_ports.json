@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_ingress_ports": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ingress_ports": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "port": "number",
+                      "protocol": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the ingress ports that matched filter parameters.",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the ingress ports belong.",
+                "required": true
+              },
+              "port": {
+                "type": "number",
+                "description": "The port number of the ingress port to be queried.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The protocol of the ingress port to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ingress ports are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

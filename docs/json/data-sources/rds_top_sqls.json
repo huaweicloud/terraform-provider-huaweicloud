@@ -1,0 +1,218 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_top_sqls": {
+          "block": {
+            "attributes": {
+              "avg_cpu_time_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of average CPU time.",
+                "computed": true
+              },
+              "avg_duration_time_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of total logical reads.",
+                "computed": true
+              },
+              "avg_logical_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of average logical.",
+                "computed": true
+              },
+              "avg_rows_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of average rows.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS instance.",
+                "required": true
+              },
+              "limit": {
+                "type": "number",
+                "description": "Specifies the limit of the top SQL. The max value is **15**.",
+                "optional": true
+              },
+              "list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "avg_cpu_time": "string",
+                      "avg_cpu_time_percent": "string",
+                      "avg_duration_time": "string",
+                      "avg_duration_time_percent": "string",
+                      "avg_logical_reads": "string",
+                      "avg_logical_reads_percent": "string",
+                      "avg_logical_write": "string",
+                      "avg_logical_write_percent": "string",
+                      "avg_physical_reads": "string",
+                      "avg_physical_reads_percent": "string",
+                      "avg_rows": "string",
+                      "avg_rows_percent": "string",
+                      "db_name": "string",
+                      "execution_count": "string",
+                      "execution_count_percent": "string",
+                      "id": "string",
+                      "last_execution_time": "string",
+                      "query": "string",
+                      "statement": "string",
+                      "total_cpu_time": "string",
+                      "total_cpu_time_percent": "string",
+                      "total_duration_time": "string",
+                      "total_duration_time_percent": "string",
+                      "total_logical_reads": "string",
+                      "total_logical_reads_percent": "string",
+                      "total_logical_write": "string",
+                      "total_logical_write_percent": "string",
+                      "total_physical_reads": "string",
+                      "total_physical_reads_percent": "string",
+                      "total_rows": "string",
+                      "total_rows_percent": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort key.",
+                "optional": true
+              },
+              "statement": {
+                "type": "string",
+                "description": "Specifies the statement.",
+                "optional": true
+              },
+              "total_cpu_time_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of total CPU time.",
+                "computed": true
+              },
+              "total_duration_time_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of total duration time.",
+                "computed": true
+              },
+              "total_logical_reads_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of total logical reads.",
+                "computed": true
+              },
+              "total_rows_top_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_type": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the top SQL list of total rows.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

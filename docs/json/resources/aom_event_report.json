@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_event_report": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The action type of the request.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the resource belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event source are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "events": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": "string",
+                      "description": "The additional fields of the event or alarm, in JSON format.",
+                      "optional": true
+                    },
+                    "ends_at": {
+                      "type": "number",
+                      "description": "The time when the event or alarm was cleared, in UTC milliseconds timestamp.",
+                      "optional": true
+                    },
+                    "metadata": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The detail of the event or alarm.",
+                      "required": true
+                    },
+                    "starts_at": {
+                      "type": "number",
+                      "description": "The time when the event or alarm occurred, in UTC milliseconds timestamp.",
+                      "optional": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "The automatic clearing time for expired alarms, in milliseconds.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of events or alarms to be reported."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

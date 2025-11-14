@@ -1,0 +1,186 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_publications": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "publication_db_name": {
+                "type": "string",
+                "optional": true
+              },
+              "publication_name": {
+                "type": "string",
+                "optional": true
+              },
+              "publications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extend_tables": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "is_select_all_table": "bool",
+                      "job_schedule": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "daily_frequency": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "active_end_time": "string",
+                                  "active_start_time": "string",
+                                  "freq_interval_unit": "string",
+                                  "freq_subday_interval": "number",
+                                  "freq_subday_type": "string"
+                                }
+                              ]
+                            ],
+                            "duration": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "active_end_date": "string",
+                                  "active_start_date": "string"
+                                }
+                              ]
+                            ],
+                            "frequency": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "freq_interval": "number",
+                                  "freq_interval_day_monthly": "number",
+                                  "freq_interval_monthly": "string",
+                                  "freq_interval_weekly": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "freq_relative_interval_monthly": "string",
+                                  "freq_type": "string"
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "job_schedule_type": "string",
+                            "one_time_occurrence": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "active_start_date": "string",
+                                  "active_start_time": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "publication_database": "string",
+                      "publication_name": "string",
+                      "status": "string",
+                      "subscription_count": "number",
+                      "subscription_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "allow_initialize_from_backup": "bool",
+                            "independent_agent": "bool",
+                            "replicate_ddl": "bool",
+                            "snapshot_always_available": "bool"
+                          }
+                        ]
+                      ],
+                      "tables": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "article_properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "delete_delivery_format": "string",
+                                  "delete_stored_procedure": "string",
+                                  "destination_object_name": "string",
+                                  "destination_object_owner": "string",
+                                  "insert_delivery_format": "string",
+                                  "insert_stored_procedure": "string",
+                                  "update_delivery_format": "string",
+                                  "update_stored_procedure": "string"
+                                }
+                              ]
+                            ],
+                            "columns": [
+                              "list",
+                              "string"
+                            ],
+                            "filter": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "column": "string",
+                                  "condition": "string",
+                                  "filters": "string",
+                                  "relation": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "filter_statement": "string",
+                            "primary_key": [
+                              "list",
+                              "string"
+                            ],
+                            "schema": "string",
+                            "table_name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subscriber_instance_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

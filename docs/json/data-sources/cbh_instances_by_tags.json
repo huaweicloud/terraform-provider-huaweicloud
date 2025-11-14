@@ -1,0 +1,288 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instances_by_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alter_permit": "bool",
+                            "az_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "availability_zone_display": "string",
+                                  "region": "string",
+                                  "slave_zone": "string",
+                                  "slave_zone_display": "string",
+                                  "zone": "string"
+                                }
+                              ]
+                            ],
+                            "bastion_version": "string",
+                            "created_time": "string",
+                            "end_time": "string",
+                            "enterprise_project_id": "string",
+                            "ha_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ha_id": "string",
+                                  "instance_type": "string"
+                                }
+                              ]
+                            ],
+                            "instance_id": "string",
+                            "name": "string",
+                            "network": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "private_ip": "string",
+                                  "public_id": "string",
+                                  "public_ip": "string",
+                                  "security_group_id": "string",
+                                  "subnet_id": "string",
+                                  "vip": "string",
+                                  "vpc_id": "string",
+                                  "web_port": "string"
+                                }
+                              ]
+                            ],
+                            "period_num": "string",
+                            "resource_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "data_disk_size": "number",
+                                  "disk_resource_id": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "order_id": "string",
+                                  "resource_id": "string",
+                                  "specification": "string"
+                                }
+                              ]
+                            ],
+                            "server_id": "string",
+                            "start_time": "string",
+                            "status_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "create_instance_status": "string",
+                                  "fail_reason": "string",
+                                  "instance_description": "string",
+                                  "instance_status": "string",
+                                  "status": "string",
+                                  "task_status": "string"
+                                }
+                              ]
+                            ],
+                            "update": "string",
+                            "upgrade_time": "number"
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "sys_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of CBH instance.",
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "description": "The total number of records.",
+                "computed": true
+              },
+              "without_any_tag": {
+                "type": "bool",
+                "description": "Specifies whether to query all resources without tags.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the value of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the search fields, key is the field to be matched."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the value list of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags that are not included in the query."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the value list of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags that are not included in the query."
+                },
+                "nesting_mode": "list"
+              },
+              "sys_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the value list of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the system tags to be included in the query."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the value list of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to be included in the query."
+                },
+                "nesting_mode": "list"
+              },
+              "tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the key of the tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the value list of the tag.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to be included in the query."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

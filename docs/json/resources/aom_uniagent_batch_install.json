@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_uniagent_batch_install": {
+          "block": {
+            "attributes": {
+              "icagent_install_flag": {
+                "type": "bool",
+                "description": "Whether to install ICAgent plugin.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "installer_agent_id": {
+                "type": "string",
+                "description": "The agent ID of the installation machine.",
+                "required": true
+              },
+              "proxy_region_id": {
+                "type": "number",
+                "description": "The proxy region ID.",
+                "required": true
+              },
+              "public_net_flag": {
+                "type": "bool",
+                "description": "Whether to use public network access.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the target machines to be operated are located.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version number of UniAgent to be installed.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "agent_import_param_list": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The SSH account of the target machine.",
+                      "required": true
+                    },
+                    "agent_id": {
+                      "type": "string",
+                      "description": "The unique value of the agent.",
+                      "optional": true
+                    },
+                    "coc_cmdb_id": {
+                      "type": "string",
+                      "description": "The external unique identifier for COC usage.",
+                      "optional": true
+                    },
+                    "inner_ip": {
+                      "type": "string",
+                      "description": "The IP address of the target machine.",
+                      "required": true
+                    },
+                    "os_type": {
+                      "type": "string",
+                      "description": "The operating system type of the target machine.",
+                      "required": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "description": "The login password of the target machine.",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The login port of the target machine.",
+                      "required": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "description": "The VPC ID of the target machine.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of machine parameters for installing UniAgent."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "plugin_install_base_param": {
+                "block": {
+                  "attributes": {
+                    "install_version": {
+                      "type": "string",
+                      "description": "The specified ICAgent version to install.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The basic information for plugin installation."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

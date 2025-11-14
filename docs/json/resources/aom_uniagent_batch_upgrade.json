@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_uniagent_batch_upgrade": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the target machines to be operated are located.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version number of UniAgent to be upgraded.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "agent_list": {
+                "block": {
+                  "attributes": {
+                    "agent_id": {
+                      "type": "string",
+                      "description": "The unique agent ID.",
+                      "required": true
+                    },
+                    "inner_ip": {
+                      "type": "string",
+                      "description": "The host IP address.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of host information for upgrading UniAgent."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

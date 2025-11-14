@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_service_trusted_agencies": {
+          "block": {
+            "attributes": {
+              "agencies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expire_time": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of service trusted agencies.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the service trusted agencies are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

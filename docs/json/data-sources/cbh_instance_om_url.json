@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instance_om_url": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description when failed to get the OM URL.",
+                "computed": true
+              },
+              "host_account_name": {
+                "type": "string",
+                "description": "Specifies the account name of the managed host.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address of the managed host.",
+                "required": true
+              },
+              "login_url": {
+                "type": "string",
+                "description": "The OM login URL.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CBH instance.",
+                "required": true
+              },
+              "state": {
+                "type": "string",
+                "description": "The state of getting the OM URL.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

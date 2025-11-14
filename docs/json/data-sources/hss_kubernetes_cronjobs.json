@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_kubernetes_cronjobs": {
+          "block": {
+            "attributes": {
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "cronjob_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_name": "string",
+                      "create_time": "number",
+                      "execute_time": "number",
+                      "image_name": "string",
+                      "match_labels": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "val": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "namespace_name": "string",
+                      "running_jobs_num": "number",
+                      "schedule": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cronjob_name": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

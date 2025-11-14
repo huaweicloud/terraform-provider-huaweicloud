@@ -1,15 +1,14 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "resource_schemas": {
-        "huaweicloud_dms_kafka_message_offset_reset": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_consumer_group_message_offsets": {
           "block": {
             "attributes": {
               "group": {
                 "type": "string",
                 "description": "The name of the consumer group.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -18,37 +17,36 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the Kafka instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
-              "message_offset": {
-                "type": "string",
-                "description": "The offset to reset the consumption progress.",
-                "optional": true,
-                "forcenew": true
-              },
-              "partition": {
-                "type": "number",
-                "description": "The partition number.",
-                "required": true,
-                "forcenew": true
+              "message_offsets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_id": "string",
+                      "consumer_id": "string",
+                      "host": "string",
+                      "message_current_offset": "number",
+                      "message_log_end_offset": "number",
+                      "message_log_start_offset": "number",
+                      "partition": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of consumer group message offsets.",
+                "computed": true
               },
               "region": {
                 "type": "string",
-                "description": "The region where the consumption progress is to be reset is located.",
+                "description": "The region where the consumer group message offsets are located.",
                 "computed": true
-              },
-              "timestamp": {
-                "type": "string",
-                "description": "The time to reset the consumption progress. The value is a Unix timestamp, in millisecond",
-                "optional": true,
-                "forcenew": true
               },
               "topic": {
                 "type": "string",
                 "description": "The name of the topic.",
-                "optional": true,
-                "forcenew": true
+                "required": true
               }
             }
           },
