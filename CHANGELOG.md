@@ -1,5 +1,50 @@
 # CHANGELOG
 
+## 1.80.3 (November 14, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_aom_event_report` [GH-8237]
+  + `huaweicloud_aom_uniagent_batch_install` [GH-8212]
+  + `huaweicloud_aom_uniagent_batch_upgrade` [GH-8300]
+  + `huaweicloud_apig_instance_ingress_port` [GH-8292]
+  + `huaweicloud_cbh_delete_fault_instance` [GH-8301]
+  + `huaweicloud_cbh_rollback_instance` [GH-8295]
+  + `huaweicloud_cbh_upgrade_instance` [GH-8304]
+  + `huaweicloud_dms_kafka_topic_message_batch_delete` [GH-8055]
+  + `huaweicloud_dms_kafka_volume_auto_expand_configuration` [GH-8282]
+  + `huaweicloud_hss_asset_assign_task` [GH-8071]
+  + `huaweicloud_rds_notify_replace_node` [GH-8312]
+  + `huaweicloud_swr_enterprise_replication_policy_execute` [GH-8315]
+  + `huaweicloud_swr_enterprise_replication_policy_execution_stop` [GH-8315]
+  + `huaweicloud_swr_enterprise_replication_policy` [GH-8315]
+
+* **New Data Source:**
+  + `huaweicloud_apig_instance_ingress_ports` [GH-8292]
+  + `huaweicloud_cbh_instance_om_url` [GH-8307]
+  + `huaweicloud_cbh_instances_by_tags` [GH-8287]
+  + `huaweicloud_dms_kafka_consumer_group_message_offsets` [GH-8044]
+  + `huaweicloud_dms_kafka_volume_auto_expand_configuration` [GH-8282]
+  + `huaweicloud_fgs_feature` [GH-8285]
+  + `huaweicloud_fgs_service_trusted_agencies` [GH-8255]
+  + `huaweicloud_hss_antivirus_handle_history` [GH-8305]
+  + `huaweicloud_hss_asset_web_app_service_hosts` [GH-8278]
+  + `huaweicloud_hss_asset_web_framework_hosts` [GH-8290]
+  + `huaweicloud_hss_asset_web_framework_statistics` [GH-8267]
+  + `huaweicloud_hss_baseline_scan_status` [GH-8286]
+  + `huaweicloud_hss_container_clusters_policy_template` [GH-8280]
+  + `huaweicloud_hss_container_clusters_policy_templates` [GH-8280]
+  + `huaweicloud_hss_container_kubernetes_clusters_risks` [GH-8296]
+  + `huaweicloud_hss_container_network_cluster` [GH-8303]
+  + `huaweicloud_hss_kubernetes_cronjobs` [GH-8306]
+  + `huaweicloud_hss_kubernetes_daemonsets` [GH-8317]
+  + `huaweicloud_hss_kubernetes_jobs` [GH-8319]
+  + `huaweicloud_rds_configurable_distributor_instances` [GH-8274]
+  + `huaweicloud_rds_configurable_subscriber_instances` [GH-8283]
+  + `huaweicloud_rds_distribution` [GH-8274]
+  + `huaweicloud_rds_publications` [GH-8291]
+  + `huaweicloud_rds_top_sqls` [GH-8302]
+  + `huaweicloud_swr_enterprise_replication_policies` [GH-8289]
+
 ## 1.80.2 (November 10, 2025)
 
 * **New Resource Source:**
