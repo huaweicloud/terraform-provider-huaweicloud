@@ -1940,6 +1940,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_image_signature_policy_execution_record_sub_tasks": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecordSubTasks(),
 			// nolint:revive
 			"huaweicloud_swr_enterprise_replication_policy_execution_records": swrenterprise.DataSourceSwrEnterpriseReplicationPolicyExecutionRecords(),
+			// nolint:revive
+			"huaweicloud_swr_enterprise_replication_policy_execution_record_tasks": swrenterprise.DataSourceSwrEnterpriseReplicationPolicyExecutionRecordTasks(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
