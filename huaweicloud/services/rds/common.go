@@ -110,7 +110,8 @@ func handleMultiOperationsError(err error) (bool, error) {
 		}
 
 		// if the error code is RDS.0005, it indicates that the SSL is changed, and the db is rebooted
-		if errorCode.(string) == "RDS.0005" {
+		// if the error code is DBS.280036, the instance is not ready, should wait a moment
+		if errorCode.(string) == "RDS.0005" || errorCode.(string) == "DBS.280036" {
 			return true, err
 		}
 	}
