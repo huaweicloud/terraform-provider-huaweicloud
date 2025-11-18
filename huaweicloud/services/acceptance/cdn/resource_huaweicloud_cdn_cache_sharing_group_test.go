@@ -14,26 +14,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 )
 
-func getShareCacheGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getCacheSharingGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
 
-	return cdn.GetShareCacheGroupById(client, state.Primary.ID)
+	return cdn.GetCacheSharingGroupById(client, state.Primary.ID)
 }
 
-func TestAccShareCacheGroup_basic(t *testing.T) {
+func TestAccCacheSharingGroup_basic(t *testing.T) {
 	var (
 		obj   interface{}
-		rName = "huaweicloud_cdn_share_cache_group.test"
+		rName = "huaweicloud_cdn_cache_sharing_group.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getShareCacheGroupResourceFunc,
+		getCacheSharingGroupResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,7 +45,7 @@ func TestAccShareCacheGroup_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccShareCacheGroup_basic_step1(name),
+				Config: testAccCacheSharingGroup_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -56,7 +56,7 @@ func TestAccShareCacheGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccShareCacheGroup_basic_step2(name),
+				Config: testAccCacheSharingGroup_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -73,13 +73,13 @@ func TestAccShareCacheGroup_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testShareCacheGroupImportStateWithName(rName),
+				ImportStateIdFunc: testCacheSharingGroupImportStateWithName(rName),
 			},
 		},
 	})
 }
 
-func testShareCacheGroupImportStateWithName(name string) resource.ImportStateIdFunc {
+func testCacheSharingGroupImportStateWithName(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -94,9 +94,9 @@ func testShareCacheGroupImportStateWithName(name string) resource.ImportStateIdF
 	}
 }
 
-func testAccShareCacheGroup_basic_step1(name string) string {
+func testAccCacheSharingGroup_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_cdn_share_cache_group" "test" {
+resource "huaweicloud_cdn_cache_sharing_group" "test" {
   name           = "%[1]s"
   primary_domain = try(element(split(",", "%[2]s"), 0), "")
 
@@ -111,9 +111,9 @@ resource "huaweicloud_cdn_share_cache_group" "test" {
 `, name, acceptance.HW_CDN_DOMAIN_NAMES)
 }
 
-func testAccShareCacheGroup_basic_step2(name string) string {
+func testAccCacheSharingGroup_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_cdn_share_cache_group" "test" {
+resource "huaweicloud_cdn_cache_sharing_group" "test" {
   name           = "%[1]s"
   primary_domain = try(element(split(",", "%[2]s"), 0), "")
 
