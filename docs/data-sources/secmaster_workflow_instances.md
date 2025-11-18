@@ -81,7 +81,7 @@ In addition to all arguments above, the following attributes are exported:
   The [instance](#instances_struct) structure is documented below.
 
 <a name="instances_struct"></a>
-The `instances` block supports:
+The `instance` block supports:
 
 * `id` - The workflow instance ID.
 
@@ -118,7 +118,7 @@ The `workflow` block supports:
 
 * `id` - The workflow ID.
 
-* `name` - The workflow name.
+* `name` - The workflow Chinese name.
 
 * `name_en` - The workflow English name.
 
@@ -129,7 +129,7 @@ The `dataclass` block supports:
 
 * `id` - The data class ID.
 
-* `name` - The data class name.
+* `name` - The data class Chinese name.
 
 * `en_name` - The data class English name.
 
@@ -138,6 +138,6 @@ The `playbook` block supports:
 
 * `id` - The playbook ID.
 
-* `name` - The playbook name.
+* `name` - The playbook Chinese name.
 
 * `en_name` - The playbook English name.
