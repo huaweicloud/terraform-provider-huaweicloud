@@ -192,6 +192,9 @@ The following arguments are supported:
   + **0** (default value): Not take effect.
   + **1**: Take effect when all member offline.
 
+* `az_affinity` - (Optional, List) Specifies how AZ affinity is configured for the backend server group.
+  The [az_affinity](#az_affinity_struct) structure is documented below.
+
 <a name="persistence"></a>
 The `persistence` block supports:
 
@@ -213,6 +216,53 @@ The `persistence` block supports:
     defaults to `1`.
   + When the protocol of the backend server group is **HTTP** or **HTTPS**, the value ranges from `1` to `1,440`,
     and defaults to `1,440`.
+
+<a name="az_affinity_struct"></a>
+The `az_affinity` block supports:
+
+* `enable` - (Optional, String) Specifies whether to enable AZ affinity for the backend server group. If this parameter
+  is set to **true**, ELB forwards traffic across the backend servers in the same AZ as the load balancer.
+  + AZ affinity cannot be enabled for a backend server group that has IP as backend servers whose availability_zone is
+    not specified.
+  + AZ affinity cannot be enabled if the backend server is bound to a TLS listener.
+  + This parameter is available for backend server groups that are associated with **IP**, **UDP**, and **TCP** listeners.
+  + If the parameter is set to **true**, parameter `minimum_healthy_member_count` will be ignored.
+  
+  Value options: **true**, **false**.
+
+* `az_minimum_healthy_member_percentage` - (Optional, String) Specifies a percentage that is used to determine the health
+  of an AZ. If the percentage of healthy servers in the AZ of the load balancer falls below the specified value,
+  `az_unhealthy_fallback_strategy` is triggered. `az_minimum_healthy_member_percentage` shows the percentage of backend
+  servers that are healthy in a backend server group of an AZ. The number of healthy servers is rounded up. An integer
+  ranging from **-1** to **100**. An integer from **0** to **100** indicates the percentage of healthy servers in the AZ
+  of the load balancer. **-1** indicates that `az_minimum_healthy_member_count` takes effect.
+  + If `enable` is set to **true**, `az_minimum_healthy_member_percentage` and `az_minimum_healthy_member_count` cannot
+    be set to **-1** at the same time.
+  + If `enable` is set to **true**, either `az_minimum_healthy_member_percentage` or `az_minimum_healthy_member_count`
+    must be set to -1.
+
+* `az_minimum_healthy_member_count` - (Optional, String) Specifies a number that is used to determine the health of an AZ.
+  If the number of healthy servers in the AZ of the load balancer falls below the specified value,
+  `az_unhealthy_fallback_strategy` is triggered. `az_minimum_healthy_member_count` shows the number of healthy servers in
+  a backend server group of an AZ. An integer ranging from **-1** to **10000**. An integer from **0** to **10000**
+  indicates the number of healthy servers in the AZ of the load balancer. **-1** indicates that
+  `az_minimum_healthy_member_percentage` takes effect.
+  + If `enable` is set to **true**, `az_minimum_healthy_member_percentage` and `az_minimum_healthy_member_count` cannot
+    be set to **-1** at the same time.
+  + If `enable` is set to **true**, either `az_minimum_healthy_member_percentage` or `az_minimum_healthy_member_count`
+    must be set to **-1**.
+
+* `az_unhealthy_fallback_strategy` - (Optional, String) Specifies how traffic will be distributed across backend servers
+  in an AZ if the percentage or number of healthy servers in the AZ of the load balancer falls below the specified value.
+  Value options:
+  + **forward_to_all_member_of_local_az**: forwards requests across all backend servers in the same AZ as the load
+    balancer, even if some servers are unhealthy.
+  + **forward_to_healthy_member_of_remote_az**: forwards requests across healthy backend servers in different AZs from
+    the load balancer.
+  + **forward_to_all_healthy_member**: forwards requests across healthy backend servers in all AZs.
+  + **forward_to_all_member**: forwards requests across all backend servers in all AZs, even if some servers are unhealthy.
+
+  Defaults to **forward_to_all_member_of_local_az**.
 
 ## Attribute Reference
 

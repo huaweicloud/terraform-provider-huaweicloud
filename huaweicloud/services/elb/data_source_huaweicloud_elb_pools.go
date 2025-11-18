@@ -146,6 +146,10 @@ func DataSourcePools() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the protection status for update.`,
 			},
+			"az_affinity": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"pools": {
 				Type:        schema.TypeList,
 				Elem:        poolsPoolsSchema(),
@@ -279,6 +283,11 @@ func poolsPoolsSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Whether connections in the same session will be processed by the same pool member or not.`,
 			},
+			"az_affinity": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     poolsAzAffinitySchema(),
+			},
 			"quic_cid_hash_strategy": {
 				Type:     schema.TypeList,
 				Elem:     poolsPoolQuicCidHashStrategySchema(),
@@ -353,6 +362,30 @@ func poolsPoolPersistenceSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: `The stickiness duration, in minutes.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func poolsAzAffinitySchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"az_minimum_healthy_member_percentage": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"az_minimum_healthy_member_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"az_unhealthy_fallback_strategy": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -468,6 +501,7 @@ func flattenListPoolsBodyPools(resp interface{}) []interface{} {
 			"loadbalancers":                     flattenPoolLoadBalancers(v),
 			"members":                           flattenPoolMembers(v),
 			"persistence":                       flattenPersistence(v),
+			"az_affinity":                       flattenAzAffinity(v),
 			"quic_cid_hash_strategy":            flattenPoolQuicCidHashStrategy(v),
 			"created_at":                        utils.PathSearch("created_at", v, nil),
 			"updated_at":                        utils.PathSearch("updated_at", v, nil),
@@ -541,6 +575,23 @@ func flattenPersistence(resp interface{}) []map[string]interface{} {
 			"cookie_name": utils.PathSearch("cookie_name", persistence, nil),
 			"type":        utils.PathSearch("type", persistence, nil),
 			"timeout":     utils.PathSearch("persistence_timeout", persistence, nil),
+		},
+	}
+	return rst
+}
+
+func flattenAzAffinity(resp interface{}) []map[string]interface{} {
+	azAffinity := utils.PathSearch("az_affinity", resp, nil)
+	if azAffinity == nil {
+		return nil
+	}
+
+	rst := []map[string]interface{}{
+		{
+			"enable":                               utils.PathSearch("enable", azAffinity, nil),
+			"az_minimum_healthy_member_percentage": utils.PathSearch("az_minimum_healthy_member_percentage", azAffinity, nil),
+			"az_minimum_healthy_member_count":      utils.PathSearch("az_minimum_healthy_member_count", azAffinity, nil),
+			"az_unhealthy_fallback_strategy":       utils.PathSearch("az_unhealthy_fallback_strategy", azAffinity, nil),
 		},
 	}
 	return rst
@@ -637,6 +688,9 @@ func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("protection_status"); ok {
 		res = fmt.Sprintf("%s&protection_status=%v", res, v)
+	}
+	if v, ok := d.GetOk("az_affinity"); ok {
+		res = fmt.Sprintf("%s&az_affinity=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]

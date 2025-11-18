@@ -108,6 +108,32 @@ func TestAccDatasourcePools_quic(t *testing.T) {
 	})
 }
 
+func TestAccDatasourcePools_tcp(t *testing.T) {
+	dataSource := "data.huaweicloud_elb_pools.test"
+	rName := acceptance.RandomAccResourceName()
+	dc := acceptance.InitDataSourceCheck(dataSource)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatasourcePools_tcp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "pools.0.az_affinity.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "pools.0.az_affinity.0.enable"),
+					resource.TestCheckResourceAttrSet(dataSource, "pools.0.az_affinity.0.az_minimum_healthy_member_percentage"),
+					resource.TestCheckResourceAttrSet(dataSource, "pools.0.az_affinity.0.az_minimum_healthy_member_count"),
+					resource.TestCheckResourceAttrSet(dataSource, "pools.0.az_affinity.0.az_unhealthy_fallback_strategy"),
+
+					resource.TestCheckOutput("az_affinity_filter_is_useful", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDatasourcePools_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -603,7 +629,7 @@ resource "huaweicloud_elb_pool" "test" {
 }
 
 data "huaweicloud_elb_pools" "test" {
-  depends_on = [huaweicloud_elb_pool.test]
+  pool_id = huaweicloud_elb_pool.test.id
 }
 
 locals {
@@ -611,11 +637,9 @@ locals {
 }
 
 data "huaweicloud_elb_pools" "quic_cid_len_filter" {
-  depends_on = [
-    huaweicloud_elb_pool.test,
-    data.huaweicloud_elb_pools.test
-  ]
+  depends_on = [data.huaweicloud_elb_pools.test]
 
+  pool_id      = huaweicloud_elb_pool.test.id
   quic_cid_len = data.huaweicloud_elb_pools.test.pools[0].quic_cid_hash_strategy[0].len
 }
 
@@ -641,6 +665,46 @@ data "huaweicloud_elb_pools" "quic_cid_offset_filter" {
 output "quic_cid_offset_filter_is_useful" {
   value = length(data.huaweicloud_elb_pools.quic_cid_offset_filter.pools) > 0 && alltrue(
   [for v in data.huaweicloud_elb_pools.quic_cid_offset_filter.pools[*].quic_cid_hash_strategy.0.offset : v == local.quic_cid_offset]
+  )
+}
+`, common.TestVpc(name), name)
+}
+
+func testAccDatasourcePools_tcp(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "test"
+  protocol        = "TCP"
+  lb_method       = "ROUND_ROBIN"
+  type            = "instance"
+  vpc_id          = huaweicloud_vpc.test.id
+  description     = "test description update"
+  any_port_enable = true
+
+  az_affinity {
+    enable                               = true
+    az_minimum_healthy_member_percentage = 20
+    az_minimum_healthy_member_count      = -1
+    az_unhealthy_fallback_strategy       = "forward_to_all_healthy_member"
+  }
+}
+
+data "huaweicloud_elb_pools" "test" {
+  depends_on = [huaweicloud_elb_pool.test]
+}
+
+data "huaweicloud_elb_pools" "az_affinity_filter" {
+  depends_on = [huaweicloud_elb_pool.test]
+
+  az_affinity = "enable=true"
+}
+
+output "az_affinity_filter_is_useful" {
+  value = length(data.huaweicloud_elb_pools.az_affinity_filter.pools) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_pools.az_affinity_filter.pools[*].az_affinity.0.enable : v == true]
   )
 }
 `, common.TestVpc(name), name)

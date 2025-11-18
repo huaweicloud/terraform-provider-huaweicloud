@@ -3,6 +3,7 @@ package elb
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -167,6 +168,13 @@ func ResourcePoolV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"az_affinity": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     poolAzAffinitySchema(),
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -191,6 +199,49 @@ func ResourcePoolV3() *schema.Resource {
 			},
 		},
 	}
+}
+
+func poolAzAffinitySchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+			},
+			"az_minimum_healthy_member_percentage": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: func(v interface{}, k string) ([]string, []error) {
+					r := v.(string)
+					if _, err := strconv.Atoi(r); err != nil {
+						return nil, []error{fmt.Errorf("invalid value for %s (%s)", k, v)}
+					}
+					return nil, nil
+				},
+			},
+			"az_minimum_healthy_member_count": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: func(v interface{}, k string) ([]string, []error) {
+					r := v.(string)
+					if _, err := strconv.Atoi(r); err != nil {
+						return nil, []error{fmt.Errorf("invalid value for %s (%s)", k, v)}
+					}
+					return nil, nil
+				},
+			},
+			"az_unhealthy_fallback_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -254,6 +305,7 @@ func buildCreatePoolBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"member_deletion_protection_enable": utils.ValueIgnoreEmpty(d.Get("deletion_protection_enable")),
 		"public_border_group":               utils.ValueIgnoreEmpty(d.Get("public_border_group")),
 		"session_persistence":               buildPersistence(d),
+		"az_affinity":                       buildAzAffinity(d),
 	}
 	if _, ok := d.GetOk("slow_start_enabled"); ok {
 		bodyParams["slow_start"] = buildSlowStart(d)
@@ -309,6 +361,35 @@ func buildPersistence(d *schema.ResourceData) map[string]interface{} {
 	}
 	if persistence["cookie_name"].(string) != "" {
 		bodyParams["cookie_name"] = persistence["cookie_name"]
+	}
+	return bodyParams
+}
+
+func buildAzAffinity(d *schema.ResourceData) map[string]interface{} {
+	rawAzAffinity, ok := d.GetOk("az_affinity")
+	if !ok {
+		return nil
+	}
+
+	azAffinity, ok := rawAzAffinity.([]interface{})[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"az_unhealthy_fallback_strategy": utils.ValueIgnoreEmpty(azAffinity["az_unhealthy_fallback_strategy"]),
+	}
+	if v := azAffinity["enable"]; v != "" {
+		r, _ := strconv.ParseBool(v.(string))
+		bodyParams["enable"] = r
+	}
+	if v := azAffinity["az_minimum_healthy_member_percentage"]; v != "" {
+		r, _ := strconv.Atoi(v.(string))
+		bodyParams["az_minimum_healthy_member_percentage"] = r
+	}
+	if v := azAffinity["az_minimum_healthy_member_count"]; v != "" {
+		r, _ := strconv.Atoi(v.(string))
+		bodyParams["az_minimum_healthy_member_count"] = r
 	}
 	return bodyParams
 }
@@ -371,6 +452,7 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("loadbalancer_id", utils.PathSearch("pool.loadbalancers[0].id", getRespBody, nil)),
 		d.Set("listener_id", utils.PathSearch("pool.listeners[0].id", getRespBody, nil)),
 		d.Set("persistence", flattenPoolPersistence(getRespBody)),
+		d.Set("az_affinity", flattenPoolAzAffinity(getRespBody)),
 		d.Set("monitor_id", utils.PathSearch("pool.healthmonitor_id", getRespBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("pool.enterprise_project_id", getRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("pool.created_at", getRespBody, nil)),
@@ -391,6 +473,26 @@ func flattenPoolPersistence(resp interface{}) []map[string]interface{} {
 			"cookie_name": utils.PathSearch("cookie_name", persistence, nil),
 			"type":        utils.PathSearch("type", persistence, nil),
 			"timeout":     utils.PathSearch("persistence_timeout", persistence, nil),
+		},
+	}
+	return rst
+}
+
+func flattenPoolAzAffinity(resp interface{}) []map[string]interface{} {
+	azAffinity := utils.PathSearch("pool.az_affinity", resp, nil)
+	if azAffinity == nil {
+		return nil
+	}
+
+	enable := utils.PathSearch("enable", azAffinity, false).(bool)
+	per := utils.PathSearch("az_minimum_healthy_member_percentage", azAffinity, float64(-1)).(float64)
+	count := utils.PathSearch("az_minimum_healthy_member_count", azAffinity, float64(-1)).(float64)
+	rst := []map[string]interface{}{
+		{
+			"enable":                               strconv.FormatBool(enable),
+			"az_minimum_healthy_member_percentage": strconv.Itoa(int(per)),
+			"az_minimum_healthy_member_count":      strconv.Itoa(int(count)),
+			"az_unhealthy_fallback_strategy":       utils.PathSearch("az_unhealthy_fallback_strategy", azAffinity, nil),
 		},
 	}
 	return rst
@@ -436,6 +538,7 @@ func buildUpdatePoolBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"name":                              d.Get("name"),
 		"description":                       d.Get("description"),
 		"session_persistence":               buildPersistence(d),
+		"az_affinity":                       buildAzAffinity(d),
 		"protection_status":                 d.Get("protection_status"),
 		"protection_reason":                 d.Get("protection_reason"),
 		"member_deletion_protection_enable": d.Get("deletion_protection_enable"),
