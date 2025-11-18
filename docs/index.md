@@ -305,7 +305,12 @@ provider "huaweicloud" {
   The `default_tags` only works in resources that support the `tags` argument.
   The `default_tags` can be overridden if `tags` in the resource has new values for matching keys.
 
-* `default_tags` - (Optional) The ignored tag keys of resources managed by this provider.
+~> If you use a known only after apply value as the tag value in `default_tags`, e.g. `timestamp`,
+  you can not see the tags in the output of `terraform plan`, but the tags will still be created
+  when you run `terraform apply`.
+
+* `ignore_tags` - (Optional) The ignored tag keys of resources managed by this provider.
+  If a tag key is contained in `ignore_tags`, the changes of the tag value will be ignored.
 
 The `assume_role` block supports:
 
