@@ -76,6 +76,13 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "1"),
 					resource.TestCheckResourceAttr(resourceName, "public_border_group", "center"),
+					resource.TestCheckResourceAttr(resourceName, "az_affinity.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_percentage", "20"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_count", "-1"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_unhealthy_fallback_strategy", "forward_to_all_healthy_member"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -98,6 +105,13 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "0"),
+					resource.TestCheckResourceAttr(resourceName, "az_affinity.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_percentage", "-1"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_count", "200"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_unhealthy_fallback_strategy", "forward_to_healthy_member_of_remote_az"),
 				),
 			},
 			{
@@ -298,6 +312,13 @@ func TestAccElbV3Pool_basic_with_protocol_tcp(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "ip"),
 					resource.TestCheckResourceAttr(resourceName, "ip_version", "dualstack"),
 					resource.TestCheckResourceAttr(resourceName, "any_port_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "az_affinity.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_percentage", "20"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_count", "-1"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_unhealthy_fallback_strategy", "forward_to_all_healthy_member"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -315,6 +336,13 @@ func TestAccElbV3Pool_basic_with_protocol_tcp(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "deletion_protection_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "SOURCE_IP"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.timeout", "10"),
+					resource.TestCheckResourceAttr(resourceName, "az_affinity.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_percentage", "-1"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_minimum_healthy_member_count", "200"),
+					resource.TestCheckResourceAttr(resourceName,
+						"az_affinity.0.az_unhealthy_fallback_strategy", "forward_to_healthy_member_of_remote_az"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -504,6 +532,47 @@ resource "huaweicloud_elb_pool" "test" {
 `, testAccElbV3LoadBalancerConfig_basic(rName), rNameUpdate)
 }
 
+func testAccElbV3PoolConfig_basic_with_listener_base(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%[1]s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+
+resource "huaweicloud_elb_listener" "test" {
+  name            = "%[1]s"
+  description     = "test description"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+
+  idle_timeout     = 62
+  request_timeout  = 63
+  response_timeout = 64
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, rName)
+}
+
 func testAccElbV3PoolConfig_basic_with_listener(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -514,7 +583,7 @@ resource "huaweicloud_elb_pool" "test" {
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_elb_listener.test.id
 }
-`, testAccElbV3ListenerConfig_basic(rName), rName)
+`, testAccElbV3PoolConfig_basic_with_listener_base(rName), rName)
 }
 
 func testAccElbV3PoolConfig_update_with_listener(rName, rNameUpdate string) string {
@@ -533,7 +602,7 @@ resource "huaweicloud_elb_pool" "test" {
   protection_status = "consoleProtection"
   protection_reason = "test protection reason"
 }
-`, testAccElbV3ListenerConfig_basic(rName), rNameUpdate)
+`, testAccElbV3PoolConfig_basic_with_listener_base(rName), rNameUpdate)
 }
 
 func testAccElbV3PoolConfig_basic_with_type_ip(rName string) string {
@@ -573,6 +642,13 @@ resource "huaweicloud_elb_pool" "test" {
   type            = "ip"
   ip_version      = "dualstack"
   any_port_enable = true
+
+  az_affinity {
+    enable                               = true
+    az_minimum_healthy_member_percentage = 20
+    az_minimum_healthy_member_count      = -1
+    az_unhealthy_fallback_strategy       = "forward_to_all_healthy_member"
+  }
 }
 `, rName)
 }
@@ -591,6 +667,13 @@ resource "huaweicloud_elb_pool" "test" {
   persistence {
     type    = "SOURCE_IP"
     timeout = 10
+  }
+
+  az_affinity {
+    enable                               = true
+    az_minimum_healthy_member_percentage = -1
+    az_minimum_healthy_member_count      = 200
+    az_unhealthy_fallback_strategy       = "forward_to_healthy_member_of_remote_az"
   }
 }
 `, rName)

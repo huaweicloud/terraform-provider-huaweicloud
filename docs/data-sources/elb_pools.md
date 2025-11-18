@@ -85,6 +85,9 @@ The following arguments are supported:
 * `protection_status` - (Optional, String) Specifies the protection status for update.
   Value options: **nonProtection**, **consoleProtection**.
 
+* `az_affinity` - (Optional, String) Specifies whether AZ affinity of a backend server group is enabled.
+  Value options: **enable=true**, **enable=false**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -146,6 +149,9 @@ The `pools` block supports:
 * `persistence` - Indicates whether connections in the same session will be processed by the same pool member or not.
   The [object](#persistence_object) structure is documented below.
 
+* `az_affinity` - Indicates how AZ affinity is configured for the backend server group.
+  The [az_affinity](#az_affinity_struct) structure is documented below.
+
 * `quic_cid_hash_strategy` - The multi-path forwarding policy based on destination connection IDs.
   The [quic_cid_hash_strategy](#quic_cid_hash_strategy_struct) structure is documented below.
 
@@ -166,6 +172,18 @@ The `persistence` block supports:
 * `cookie_name` - The name of the cookie if persistence mode is set appropriately.
 
 * `timeout` - The stickiness duration, in minutes.
+
+<a name="az_affinity_struct"></a>
+The `az_affinity` block supports:
+
+* `enable` - Whether to enable AZ affinity for the backend server group.
+
+* `az_minimum_healthy_member_percentage` - The percentage that is used to determine the health of an AZ.
+
+* `az_minimum_healthy_member_count` - The number that is used to determine the health of an AZ.
+
+* `az_unhealthy_fallback_strategy` - How traffic will be distributed across backend servers in an AZ if the percentage
+  or number of healthy servers in the AZ of the load balancer falls below the specified value.
 
 <a name="quic_cid_hash_strategy_struct"></a>
 The `quic_cid_hash_strategy` block supports:
