@@ -118,17 +118,66 @@ The following arguments are supported:
  The default value is `false`.
   
 * `resume_checkpoint` - (Optional, Bool) Specifies whether the abnormal restart is recovered from the checkpoint.
+  Defaults to `false`.
   
 * `resume_max_num` - (Optional, Int) Specifies maximum number of retry times upon exceptions. The unit is
  `times/hour`. Value range: `-1` or greater than `0`. The default value is `-1`, indicating that the number of times is
  unlimited.
 
 * `checkpoint_path` - (Optional, String) Specifies storage address of the checkpoint in the JAR file of the user.
- The path must be unique.
+  The path must be unique.
+  This parameter is **required** only when `resume_checkpoint` is set to `true` and `checkpoint_enabled` is set to `false`.
 
 * `runtime_config` - (Optional, Map) Specifies customizes optimization parameters when a Flink job is running.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the resource.
+
+* `checkpoint_enabled` - (Optional, Bool) Specifies whether to enable the automatic job snapshot function.  
+  Defaults to `false`.
+
+* `checkpoint_mode` - (Optional, Int) Specifies the mode of the snapshot.  
+  The default value is `1`.
+  + **1**: ExactlyOnce, indicates that data is processed only once.
+  + **2**: AtLeastOnce, indicates that data is processed at least once.
+
+* `checkpoint_interval` - (Optional, Int) Specifies the interval of the snapshot, in seconds.
+  Defaults to `30`.
+
+* `execution_agency_urn` - (Optional, String) Specifies the name of the delegation authorized to DLI.  
+  This parameter is supported only when the Flink version is `1.15`.
+  
+* `resource_config_version` - (Optional, String) Specifies the version of the resource configuration.  
+  The default value is `v1`, it is recommended to use the `v2` version of the parameter settings.  
+  The valid values are as follows:
+  + **v1**: The v1 version is supported by Flink `1.12`, Flink `1.13`, and Flink `1.15`.
+  + **v2**: The v2 version is not supported to set the CU number, and supports setting Job Manager Memory and
+  Task Manager Memory. The v2 version is supported by Flink `1.13`, Flink `1.15`, and Flink `1.17`.
+
+* `resource_config` - (Optional, List) Specifies the resource configuration of the Flink job.  
+  This parameter is valid only when the `resource_config_version` is set to `v2`.
+  The [object](#flinkjar_job_resource_config) structure is documented below.
+
+<a name="flinkjar_job_resource_config"></a>
+The `resource_config` block supports:
+
+* `max_slot` - (Optional, Int) Specifies the maximum number of slots in the JobManager.
+
+* `parallel_number` - (Optional, Int) Specifies the number of parallel for the Flink job.
+
+* `job_manager_resource_spec` - (Optional, List) Specifies the resource configuration of the JobManager.  
+  The [object](#flinkjar_job_resource_config_manager_resource_spec) structure is documented below.
+
+* `task_manager_resource_spec` - (Optional, List) Specifies the resource configuration of the TaskManager.  
+  The [object](#flinkjar_job_resource_config_manager_resource_spec) structure is documented below.
+
+<a name="flinkjar_job_resource_config_manager_resource_spec"></a>
+The `job_manager_resource_spec` and `task_manager_resource_spec` block supports:
+
+* `cpu` - (Optional, Float) Specifies the cores of the CPU.  
+  The default value is `1.0`. The minimum value cannot be less than `0.5`.
+
+* `memory` - (Optional, String) Specifies the memory size, in MB or GB (default).  
+  The default value is `4GB`. The minimum value cannot be less than `2GB`.
 
 ## Attribute Reference
 
