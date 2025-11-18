@@ -24,7 +24,7 @@ var twoFactorLoginConfigNonUpdatableParams = []string{
 	"topic_urn",
 	"enterprise_project_id"}
 
-// @API HSS POST /v5/{project_id}/setting/two-factor-login/config
+// @API HSS PUT /v5/{project_id}/setting/two-factor-login/config
 func ResourceSettingTwoFactorLoginConfig() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSettingTwoFactorLoginConfigCreate,
