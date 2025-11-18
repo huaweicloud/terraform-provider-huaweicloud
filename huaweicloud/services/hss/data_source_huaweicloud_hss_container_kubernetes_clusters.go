@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API HSS GET /v5/{project_id}/container/kubernetes
+// @API HSS GET /v5/{project_id}/kubernetes/clusters
 func DataSourceContainerKubernetesClusters() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceContainerKubernetesClustersRead,
