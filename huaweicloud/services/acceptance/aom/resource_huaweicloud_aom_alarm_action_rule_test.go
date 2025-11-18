@@ -63,6 +63,7 @@ func TestAccAlarmActionRule_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUserName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -71,26 +72,30 @@ func TestAccAlarmActionRule_basic(t *testing.T) {
 				Config: testAlarmActionRule_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "user_name", acceptance.HW_USER_NAME),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(rName, "type", "1"),
 					resource.TestCheckResourceAttr(rName, "notification_template", "aom.built-in.template.zh"),
+					resource.TestCheckResourceAttr(rName, "smn_topics.#", "1"),
 					resource.TestCheckResourceAttrPair(rName, "smn_topics.0.topic_urn",
-						"huaweicloud_smn_topic.topic_1", "topic_urn"),
+						"huaweicloud_smn_topic.test.0", "topic_urn"),
 				),
 			},
 			{
 				Config: testAlarmActionRule_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "user_name", acceptance.HW_USER_NAME),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "terraform test update"),
+					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(rName, "type", "1"),
 					resource.TestCheckResourceAttr(rName, "notification_template", "aom.built-in.template.en"),
+					resource.TestCheckResourceAttr(rName, "smn_topics.#", "2"),
 					resource.TestCheckResourceAttrPair(rName, "smn_topics.0.topic_urn",
-						"huaweicloud_smn_topic.topic_1", "topic_urn"),
+						"huaweicloud_smn_topic.test.0", "topic_urn"),
 					resource.TestCheckResourceAttrPair(rName, "smn_topics.1.topic_urn",
-						"huaweicloud_smn_topic.topic_2", "topic_urn"),
+						"huaweicloud_smn_topic.test.1", "topic_urn"),
 				),
 			},
 			{
@@ -104,46 +109,52 @@ func TestAccAlarmActionRule_basic(t *testing.T) {
 
 func testAlarmActionRule_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_smn_topic" "topic_1" {
-  name = "%[1]s_1"
+resource "huaweicloud_smn_topic" "test" {
+  count = 1
+
+  name = "%[1]s_${count.index}"
 }
 
 resource "huaweicloud_aom_alarm_action_rule" "test" {
+  user_name             = "%[2]s"
   name                  = "%[1]s"
-  description           = "terraform test"
+  description           = "Created by terraform script"
   type                  = "1"
   notification_template = "aom.built-in.template.zh"
 
-  smn_topics {
-    topic_urn = huaweicloud_smn_topic.topic_1.topic_urn
+  dynamic "smn_topics" {
+    for_each = huaweicloud_smn_topic.test[*].topic_urn
+
+    content {
+      topic_urn = smn_topics.value
+    }
   }
 }
-`, name)
+`, name, acceptance.HW_USER_NAME)
 }
 
 func testAlarmActionRule_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_smn_topic" "topic_1" {
-  name = "%[1]s_1"
-}
+resource "huaweicloud_smn_topic" "test" {
+  count = 2
 
-resource "huaweicloud_smn_topic" "topic_2" {
-  name = "%[1]s_2"
+  name = "%[1]s_${count.index}"
 }
 
 resource "huaweicloud_aom_alarm_action_rule" "test" {
+  user_name             = "%[2]s"
   name                  = "%[1]s"
-  description           = "terraform test update"
+  description           = "Updated by terraform script"
   type                  = "1"
   notification_template = "aom.built-in.template.en"
 
-  smn_topics {
-    topic_urn = huaweicloud_smn_topic.topic_1.topic_urn
-  }
+  dynamic "smn_topics" {
+    for_each = huaweicloud_smn_topic.test[*].topic_urn
 
-  smn_topics {
-    topic_urn = huaweicloud_smn_topic.topic_2.topic_urn
+    content {
+      topic_urn = smn_topics.value
+    }
   }
 }
-`, name)
+`, name, acceptance.HW_USER_NAME)
 }

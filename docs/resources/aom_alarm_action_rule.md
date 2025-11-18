@@ -12,16 +12,25 @@ Manages an AOM alarm action rule resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable "topic_urn" {}
+variable "request_iam_user_name" {}
+variable "action_rule_name"
+variable "topic_urns_to_notify" {
+  type = list(string)
+}
 
 resource "huaweicloud_aom_alarm_action_rule" "test" {
-  name                  = "test_rule"
+  user_name             = var.request_iam_user_name
+  name                  = var.action_rule_name
   description           = "terraform test"
   type                  = "1"
   notification_template = "aom.built-in.template.zh"
 
-  smn_topics {
-    topic_urn = var.topic_urn
+  dynamic "smn_topics" {
+    for_each = var.topic_urns_to_notify
+
+    content {
+      topic_urn = smn_topics.value
+    }
   }
 }
 ```
@@ -32,6 +41,13 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+
+* `user_name` - (Required, String, ForceNew) Specifies the IAM user name to which the action rule belongs.  
+  Changing this parameter will create a new resource.
+
+  !> Currently, this parameter is required in some regions and more regions will be applied this behavior in the future.
+     <br>To avoid deployment errors caused by the validation behavior of this parameter in the OpenAPI in the future, it
+     is recommended to use a provider version of at least `1.80.4` and configure this parameter.
 
 * `name` - (Required, String, ForceNew) Specifies the action rule name. The value can be a string of 1 to 100
   characters that can consist of letters, digits, underscores (_), hyphens (-) and Chinese characters,
