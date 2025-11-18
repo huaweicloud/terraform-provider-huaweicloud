@@ -212,9 +212,10 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 
+	// Currently, the authorization bucket API will return an error if the bucket is not authorized.
 	aErr := authorizeObsBucket(client, d)
 	if aErr != nil {
-		return aErr
+		log.Printf("[ERROR] error authorizing OBS bucket: %v", aErr)
 	}
 
 	opts := flinkjob.CreateJarJobOpts{
@@ -394,9 +395,10 @@ func resourceFlinkJarJobUpdate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
 		}
 
+		// Currently, the authorization bucket API will return an error if the bucket is not authorized.
 		diagErr := authorizeObsBucket(client, d)
 		if diagErr != nil {
-			return diagErr
+			log.Printf("[ERROR] error authorizing OBS bucket: %v", diagErr)
 		}
 
 		diagErr = updateFlinkJarJobInRunning(client, jobId, d)
