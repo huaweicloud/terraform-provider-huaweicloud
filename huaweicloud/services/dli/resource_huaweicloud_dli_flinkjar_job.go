@@ -125,7 +125,7 @@ func ResourceFlinkJarJob() *schema.Resource {
 			"parallel_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1,
+				Computed: true,
 			},
 
 			"obs_bucket": {
@@ -155,13 +155,13 @@ func ResourceFlinkJarJob() *schema.Resource {
 			"manager_cu_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1,
+				Computed: true,
 			},
 
 			"tm_cu_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1,
+				Computed: true,
 			},
 
 			"tm_slot_num": {
@@ -186,6 +186,7 @@ func ResourceFlinkJarJob() *schema.Resource {
 			"checkpoint_path": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"tags": common.TagsSchema(),
@@ -227,13 +228,13 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		FlinkVersion:         d.Get("flink_version").(string),
 		Image:                d.Get("image").(string),
 		CuNumber:             golangsdk.IntToPointer(d.Get("cu_num").(int)),
-		ParallelNumber:       golangsdk.IntToPointer(d.Get("parallel_num").(int)),
+		ParallelNumber:       d.Get("parallel_num").(int),
 		ObsBucket:            d.Get("obs_bucket").(string),
 		LogEnabled:           utils.Bool(d.Get("log_enabled").(bool)),
 		SmnTopic:             d.Get("smn_topic").(string),
 		RestartWhenException: utils.Bool(d.Get("restart_when_exception").(bool)),
-		ManagerCuNumber:      golangsdk.IntToPointer(d.Get("manager_cu_num").(int)),
-		TmCus:                golangsdk.IntToPointer(d.Get("tm_cu_num").(int)),
+		ManagerCuNumber:      d.Get("manager_cu_num").(int),
+		TmCus:                d.Get("tm_cu_num").(int),
 		TmSlotNum:            golangsdk.IntToPointer(d.Get("tm_slot_num").(int)),
 		ResumeCheckpoint:     utils.Bool(d.Get("resume_checkpoint").(bool)),
 		ResumeMaxNum:         golangsdk.IntToPointer(d.Get("resume_max_num").(int)),
@@ -476,10 +477,10 @@ func updateFlinkJarJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 			FlinkVersion:    d.Get("flink_version").(string),
 			Image:           d.Get("image").(string),
 			CuNumber:        golangsdk.IntToPointer(d.Get("cu_num").(int)),
-			ParallelNumber:  golangsdk.IntToPointer(d.Get("parallel_num").(int)),
+			ParallelNumber:  d.Get("parallel_num").(int),
 			LogEnabled:      utils.Bool(d.Get("log_enabled").(bool)),
-			ManagerCuNumber: golangsdk.IntToPointer(d.Get("manager_cu_num").(int)),
-			TmCus:           golangsdk.IntToPointer(d.Get("tm_cu_num").(int)),
+			ManagerCuNumber: d.Get("manager_cu_num").(int),
+			TmCus:           d.Get("tm_cu_num").(int),
 			TmSlotNum:       golangsdk.IntToPointer(d.Get("tm_slot_num").(int)),
 		}
 
