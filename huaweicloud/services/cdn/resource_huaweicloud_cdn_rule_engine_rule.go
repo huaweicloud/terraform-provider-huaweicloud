@@ -814,21 +814,24 @@ func flattenRuleEngineRuleActionsFlexibleOrigin(items, originItems []interface{}
 
 	result := make([]interface{}, 0, len(items))
 	for i, item := range items {
-		result = append(result, map[string]interface{}{
+		elem := map[string]interface{}{
 			"priority":          utils.PathSearch("priority", item, nil),
 			"weight":            utils.PathSearch("weight", item, nil),
 			"sources_type":      utils.PathSearch("sources_type", item, nil),
 			"ip_or_domain":      utils.PathSearch("ip_or_domain", item, nil),
 			"obs_bucket_type":   utils.PathSearch("obs_bucket_type", item, nil),
 			"bucket_access_key": utils.PathSearch("bucket_access_key", item, nil),
-			"bucket_secret_key": utils.PathSearch(fmt.Sprintf("[%d].bucket_secret_key", i), originItems, nil),
 			"bucket_region":     utils.PathSearch("bucket_region", item, nil),
 			"bucket_name":       utils.PathSearch("bucket_name", item, nil),
 			"host_name":         utils.PathSearch("host_name", item, nil),
 			"origin_protocol":   utils.PathSearch("origin_protocol", item, nil),
 			"http_port":         utils.PathSearch("http_port", item, nil),
 			"https_port":        utils.PathSearch("https_port", item, nil),
-		})
+		}
+		if bucketSecretKey := utils.PathSearch(fmt.Sprintf("[%d].bucket_secret_key", i), originItems, nil); bucketSecretKey != nil {
+			elem["bucket_secret_key"] = bucketSecretKey
+		}
+		result = append(result, elem)
 	}
 
 	return result
