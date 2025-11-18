@@ -2583,14 +2583,15 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_job":            cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":           cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":                        cdn.ResourceDomain(),
-			"huaweicloud_cdn_domain_rule":                   cdn.ResourceDomainRule(),
 			"huaweicloud_cdn_billing_option":                cdn.ResourceBillingOption(),
 			"huaweicloud_cdn_cache_preheat":                 cdn.ResourceCachePreheat(),
 			"huaweicloud_cdn_cache_refresh":                 cdn.ResourceCacheRefresh(),
 			"huaweicloud_cdn_certificate_associate_domains": cdn.ResourceCertificateAssociateDomains(),
+			"huaweicloud_cdn_domain":                        cdn.ResourceDomain(),
 			"huaweicloud_cdn_domain_batch_copy":             cdn.ResourceDomainBatchCopy(),
 			"huaweicloud_cdn_domain_owner_verify":           cdn.ResourceDomainOwnerVerify(),
+			"huaweicloud_cdn_domain_rule":                   cdn.ResourceDomainRule(),
+			"huaweicloud_cdn_rule_engine_rule":              cdn.ResourceRuleEngineRule(),
 
 			"huaweicloud_ces_alarmrule":                                     ces.ResourceAlarmRule(),
 			"huaweicloud_ces_alarm_template":                                ces.ResourceCesAlarmTemplate(),
