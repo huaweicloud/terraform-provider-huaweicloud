@@ -13,7 +13,7 @@ Use this data source to get the list of network interface project tags.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_network_interface_tags" "test" {}
+data "huaweicloud_vpc_network_interface_tags" "test" {}
 ```
 
 ## Argument Reference
