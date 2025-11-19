@@ -2,6 +2,7 @@ package obs
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -199,7 +200,7 @@ func findCurrentOwnerGrant(obsClient *obs.ObsClient, d *schema.ResourceData, cfg
 			return &grant, nil
 		}
 	}
-	return nil, getObsError("Cannot find owner grant from current grants", bucket, err)
+	return nil, fmt.Errorf("%s: cannot find owner grant from current grants", bucket)
 }
 
 func buildObsBucketAclGrantsParam(obsClient *obs.ObsClient, d *schema.ResourceData,
