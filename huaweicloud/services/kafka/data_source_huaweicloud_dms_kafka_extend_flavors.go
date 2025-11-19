@@ -249,14 +249,14 @@ func dataSourceDmsKafkaExtendFlavorsRead(_ context.Context, d *schema.ResourceDa
 	return nil
 }
 
-// @API Kafka GET /v2/{engine}/{project_id}/instances/{instance_id}/extend
+// @API Kafka GET /v2/{project_id}/kafka/instances/{instance_id}/extend
 func (w *KafkaExtendFlavorsDSWrapper) ShowEngineInstanceExtendProductInfo() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "dmsv2")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v2/kafka/{project_id}/instances/{instance_id}/extend"
+	uri := "/v2/{project_id}/kafka/instances/{instance_id}/extend"
 	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
 
 	filterResult := filters.New().From("products").
