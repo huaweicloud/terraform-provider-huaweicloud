@@ -207,19 +207,13 @@ func getEnterpriseProjectByName(client *golangsdk.ServiceClient, name string) (s
 	if err != nil {
 		return "", fmt.Errorf("error retrieving enterprise projects: %s", err)
 	}
-	if len(enterpriseProjects) < 1 {
-		return "", errors.New("your enterprise project doesn't exist")
-	}
-	if len(enterpriseProjects) > 1 {
-		for _, v := range enterpriseProjects {
-			if v.Name == name {
-				// Use name to find the target enterprise project.
-				return v.ID, nil
-			}
+	for _, v := range enterpriseProjects {
+		if v.Name == name {
+			// Use name to find the target enterprise project.
+			return v.ID, nil
 		}
-		return "", errors.New("your enterprise project doesn't exist")
 	}
-	return enterpriseProjects[0].ID, nil
+	return "", errors.New("your enterprise project doesn't exist")
 }
 
 func getAllProjectsOfDomain(client *golangsdk.ServiceClient, domainID string) (map[string]string, error) {
@@ -382,7 +376,7 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 
 	epRawRoles := d.Get("enterprise_project_roles").(*schema.Set)
 	epRoles := buildEnterpriseProjectRoles(epRawRoles)
-	if err := attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, epRoles, agencyID); err != nil {
+	if err = attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, epRoles, agencyID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -768,8 +762,8 @@ func detachAllResourcesRoles(iamClient *golangsdk.ServiceClient, allRoleIDs map[
 
 func attachEnterpriseProjectRoles(iamClient, epsClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	epRoles []string, agencyID string) error {
-	if len(epRoles) > 0 {
-		log.Printf("[DEBUG] attaching roles %v in enterprise project scope to agency %s", epRoles, agencyID)
+	if len(epRoles) == 0 {
+		return nil
 	}
 
 	roleAssignments := make([]eps_permissions.RoleAssignment, 0, len(epRoles))
@@ -804,8 +798,8 @@ func attachEnterpriseProjectRoles(iamClient, epsClient *golangsdk.ServiceClient,
 
 func detachEnterpriseProjectRoles(iamClient, epsClient *golangsdk.ServiceClient, allRoleIDs map[string]string,
 	epRoles []string, agencyID string) error {
-	if len(epRoles) > 0 {
-		log.Printf("[DEBUG] detaching roles %v in enterprise project scope from agency %s", epRoles, agencyID)
+	if len(epRoles) == 0 {
+		return nil
 	}
 
 	roleAssignments := make([]eps_permissions.RoleAssignment, 0, len(epRoles))
