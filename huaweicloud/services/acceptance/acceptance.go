@@ -722,6 +722,7 @@ var (
 	HW_HSS_POLICY_ID   = os.Getenv("HW_HSS_POLICY_ID")
 	HW_HSS_DOMAIN      = os.Getenv("HW_HSS_DOMAIN")
 	HW_HSS_IAC_FILE_ID = os.Getenv("HW_HSS_IAC_FILE_ID")
+	HW_HSS_TASK_ID     = os.Getenv("HW_HSS_TASK_ID")
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
@@ -3782,6 +3783,13 @@ func TestAccPreCheckHSSDomain(t *testing.T) {
 func TestAccPreCheckHSSIACFileId(t *testing.T) {
 	if HW_HSS_IAC_FILE_ID == "" {
 		t.Skip("HW_HSS_IAC_FILE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSTaskId(t *testing.T) {
+	if HW_HSS_TASK_ID == "" {
+		t.Skip("HW_HSS_TASK_ID must be set for the acceptance test")
 	}
 }
 
