@@ -41,6 +41,18 @@ func ResourceAlarmActionRule() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"user_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The IAM user name to which the action rule belongs.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -138,6 +150,7 @@ func resourceAlarmActionRuleCreate(ctx context.Context, d *schema.ResourceData, 
 
 func buildAlarmActionRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
+		"user_name":             utils.ValueIgnoreEmpty(d.Get("user_name")),
 		"rule_name":             utils.ValueIgnoreEmpty(d.Get("name")),
 		"desc":                  utils.ValueIgnoreEmpty(d.Get("description")),
 		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
@@ -216,6 +229,7 @@ func resourceAlarmActionRuleRead(_ context.Context, d *schema.ResourceData, meta
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
+		d.Set("user_name", utils.PathSearch("user_name", getAlarmActionRuleRespBody, nil)),
 		d.Set("name", utils.PathSearch("rule_name", getAlarmActionRuleRespBody, nil)),
 		d.Set("description", utils.PathSearch("desc", getAlarmActionRuleRespBody, nil)),
 		d.Set("type", utils.PathSearch("type", getAlarmActionRuleRespBody, nil)),

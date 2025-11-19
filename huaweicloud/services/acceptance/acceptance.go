@@ -1124,6 +1124,13 @@ func TestAccPreCheckUserId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckUserName(t *testing.T) {
+	if HW_USER_NAME == "" {
+		t.Skip("HW_USER_NAME must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckApigSubResourcesRelatedInfo(t *testing.T) {
 	if HW_APIG_DEDICATED_INSTANCE_ID == "" {
 		t.Skip("Before running APIG acceptance tests, please ensure the env 'HW_APIG_DEDICATED_INSTANCE_ID' has been configured")
