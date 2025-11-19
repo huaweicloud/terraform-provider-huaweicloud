@@ -27,6 +27,7 @@ import (
 // @API IdentityCenter POST /v1/instances/{instance_id}/account-assignments/create
 // @API IdentityCenter GET /v1/instances/{instance_id}/account-assignments/creation-status/{request_id}
 // @API IdentityCenter POST /v1/instances/{instance_id}/account-assignments/delete
+// @API IdentityCenter GET /v1/instances/{instance_id}/account-assignments/deletion-status/{request_id}
 func ResourceIdentityCenterAccountAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountAssignmentCreate,

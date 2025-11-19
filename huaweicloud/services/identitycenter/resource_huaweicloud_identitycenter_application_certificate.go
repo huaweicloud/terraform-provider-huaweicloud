@@ -21,7 +21,7 @@ import (
 var identityCenterApplicationCertificateNonUpdateParams = []string{"instance_id", "application_instance_id"}
 
 // @API IdentityCenter POST /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates
-// @API IdentityCenter POST /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates/{certificate_id}
+// @API IdentityCenter PUT /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates/{certificate_id}
 // @API IdentityCenter GET /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates
 // @API IdentityCenter DELETE /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates/{certificate_id}
 func ResourceIdentityCenterApplicationCertificate() *schema.Resource {

@@ -99,7 +99,7 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "created_by"),
 					resource.TestCheckResourceAttrSet(rName, "updated_by"),
 					resource.TestCheckResourceAttrSet(rName, "email_verified"),
-					resource.TestCheckResourceAttrSet(rName, "enabled"),
+					resource.TestCheckResourceAttr(rName, "enabled", "false"),
 				),
 			},
 			{
@@ -137,7 +137,7 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "created_by"),
 					resource.TestCheckResourceAttrSet(rName, "updated_by"),
 					resource.TestCheckResourceAttrSet(rName, "email_verified"),
-					resource.TestCheckResourceAttrSet(rName, "enabled"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 				),
 			},
 			{
@@ -145,7 +145,7 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdFunc:       testIdentityCenterUserImportState(rName),
-				ImportStateVerifyIgnore: []string{"password_mode"},
+				ImportStateVerifyIgnore: []string{"password_mode", "user_status"},
 			},
 		},
 	})
@@ -166,6 +166,7 @@ resource "huaweicloud_identitycenter_user" "test" {
   phone_number      = "13600000000"
   user_type         = "test_user_type"
   title             = "test_title"
+  enabled           = "false"
 
   addresses {
     country        = "test_country"
@@ -204,6 +205,7 @@ resource "huaweicloud_identitycenter_user" "test" {
   phone_number      = "13600000001"
   user_type         = "test_user_type_update"
   title             = "test_title_update"
+  enabled           = "true"
 
   addresses {
     country        = "test_country_update"
