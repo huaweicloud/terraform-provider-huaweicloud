@@ -1921,6 +1921,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_instances":                          swrenterprise.DataSourceSwrEnterpriseInstances(),
 			"huaweicloud_swr_enterprise_instance_registries":                swrenterprise.DataSourceSwrEnterpriseInstanceRegistries(),
 			"huaweicloud_swr_enterprise_instance_artifacts":                 swrenterprise.DataSourceSwrEnterpriseInstanceArtifacts(),
+			"huaweicloud_swr_enterprise_instance_artifact_accessories":      swrenterprise.DataSourceSwrEnterpriseInstanceArtifactAccessories(),
 			"huaweicloud_swr_enterprise_namespace_repositories":             swrenterprise.DataSourceSwrEnterpriseNamespaceRepositories(),
 			"huaweicloud_swr_enterprise_namespaces":                         swrenterprise.DataSourceSwrEnterpriseNamespaces(),
 			"huaweicloud_swr_enterprise_repositories":                       swrenterprise.DataSourceSwrEnterpriseRepositories(),
