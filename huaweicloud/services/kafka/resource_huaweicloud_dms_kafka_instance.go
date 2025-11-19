@@ -36,11 +36,11 @@ const engineKafka = "kafka"
 
 // @API Kafka GET /v2/available-zones
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
-// @API Kafka POST /v2/{project_id}/instances/{instance_id}/extend
+// @API Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/extend
 // @API Kafka DELETE /v2/{project_id}/instances/{instance_id}
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}
 // @API Kafka PUT /v2/{project_id}/instances/{instance_id}
-// @API Kafka POST /v2/{engine}/{project_id}/instances
+// @API Kafka POST /v2/{project_id}/kafka/instances
 // @API Kafka GET /v2/{project_id}/kafka/{instance_id}/tags
 // @API Kafka POST /v2/{project_id}/kafka/{instance_id}/tags/action
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/autotopic
@@ -919,7 +919,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
+	kafkaInstance, err := instances.CreateInstance(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating Kafka instance: %s", err)
 	}
@@ -1063,7 +1063,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
+	kafkaInstance, err := instances.CreateInstance(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
@@ -1752,7 +1752,7 @@ func resizeKafkaInstanceStorage(ctx context.Context, d *schema.ResourceData, cli
 
 func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
 	retryFunc := func() (interface{}, bool, error) {
-		_, err := instances.Resize(client, d.Id(), opts)
+		_, err := instances.ExtendInstance(client, d.Id(), opts)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
