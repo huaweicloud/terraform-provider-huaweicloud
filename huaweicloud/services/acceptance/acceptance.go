@@ -510,6 +510,7 @@ var (
 	HW_AOM_ALARM_EVENT_SN                        = os.Getenv("HW_AOM_ALARM_EVENT_SN")
 	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
 	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
+	HW_AOM_PROMETHEUS_INSTANCE_ID                = os.Getenv("HW_AOM_PROMETHEUS_INSTANCE_ID")
 	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID") // The CMDB sub-application ID of AOM service
 	HW_AOM_TARGET_MACHINE_ACCOUNT                = os.Getenv("HW_AOM_TARGET_MACHINE_ACCOUNT")
 	HW_AOM_TARGET_MACHINE_PASSWORD               = os.Getenv("HW_AOM_TARGET_MACHINE_PASSWORD")
@@ -3108,6 +3109,13 @@ func TestAccPreCheckAomAlarmEventSn(t *testing.T) {
 func TestAccPreCheckAomInstallerAgentId(t *testing.T) {
 	if HW_AOM_INSTALLER_AGENT_ID == "" {
 		t.Skip("HW_AOM_INSTALLER_AGENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomPrometheusInstanceId(t *testing.T) {
+	if HW_AOM_PROMETHEUS_INSTANCE_ID == "" {
+		t.Skip("HW_AOM_PROMETHEUS_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 
