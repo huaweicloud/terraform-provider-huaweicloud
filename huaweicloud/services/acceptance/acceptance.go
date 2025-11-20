@@ -115,6 +115,7 @@ var (
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
 	HW_WAF_ENABLE_FLAG                          = os.Getenv("HW_WAF_ENABLE_FLAG")
+	HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID      = os.Getenv("HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID")
 	HW_WAF_PRECHECK_GEO_IP_POLICY_RULES         = os.Getenv("HW_WAF_PRECHECK_GEO_IP_POLICY_RULES")
 	HW_WAF_PRECHECK_IP_REPUTATION_POLICY_RULES  = os.Getenv("HW_WAF_PRECHECK_IP_REPUTATION_POLICY_RULES")
 	HW_WAF_CERTIFICATE_ID                       = os.Getenv("HW_WAF_CERTIFICATE_ID")
@@ -1263,6 +1264,13 @@ func RandomPassword(customChars ...string) string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Skip the WAF acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckWafSecurityReportSubscription(t *testing.T) {
+	if HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID == "" {
+		t.Skip("HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID must be set for WAF security report subscription acceptance tests.")
 	}
 }
 
