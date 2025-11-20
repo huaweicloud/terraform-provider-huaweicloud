@@ -3611,6 +3611,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_application_rule":                     workspace.ResourceApplicationRule(),
 			"huaweicloud_workspace_application_rule_restriction":         workspace.ResourceApplicationRuleRestriction(),
 			"huaweicloud_workspace_application_rule_restriction_setting": workspace.ResourceApplicationRuleRestrictionSetting(),
+			"huaweicloud_workspace_application_visibility_batch_action":  workspace.ResourceApplicationVisibilityBatchAction(),
 			"huaweicloud_workspace_desktop_name_rule":                    workspace.ResourceDesktopNameRule(),
 			"huaweicloud_workspace_desktop":                              workspace.ResourceDesktop(),
 			"huaweicloud_workspace_desktop_notification":                 workspace.ResourceDesktopNotification(),
