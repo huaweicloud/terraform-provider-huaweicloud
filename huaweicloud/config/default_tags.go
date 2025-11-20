@@ -24,9 +24,24 @@ func MergeDefaultTags() schema.CustomizeDiffFunc {
 			mergedTags[k] = v
 		}
 
-		// Remove ignored tags
+		// ignore_tags only works when updating tags
+		if d.Id() == "" {
+			err := d.SetNew("tags", mergedTags)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+
+		// Use old value in ignored tags
+		oldValue, _ := d.GetChange("tags")
+		oldTags := oldValue.(map[string]interface{})
+
 		for _, k := range cfg.IgnoreTags {
-			delete(mergedTags, k.(string))
+			tagKey := k.(string)
+			if _, exists := oldTags[tagKey]; exists {
+				mergedTags[tagKey] = oldTags[tagKey]
+			}
 		}
 
 		err := d.SetNew("tags", mergedTags)
