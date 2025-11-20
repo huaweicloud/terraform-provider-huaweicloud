@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IdentityCenter GET /v1/identity-stores/{identity_store_id}/users/batch-query
+// @API IdentityCenter POST /v1/identity-stores/{identity_store_id}/users/batch-query
 func DataSourceIdentityCenterBatchQueryUsers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceIdentityCenterBatchQueryUsersRead,
