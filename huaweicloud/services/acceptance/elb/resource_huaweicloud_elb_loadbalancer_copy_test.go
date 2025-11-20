@@ -146,6 +146,7 @@ func TestAccElbLoadBalancerCopy_basic(t *testing.T) {
 		},
 	})
 }
+
 func testAccElbLoadBalancerCopyConfig_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -195,6 +196,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   backend_subnets = [
     huaweicloud_vpc_subnet.test[0].id
   ]
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestSecGroup(rName), rName)
 }

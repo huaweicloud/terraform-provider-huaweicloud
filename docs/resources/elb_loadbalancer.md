@@ -138,7 +138,7 @@ The following arguments are supported:
   -> **NOTE:** Removing an AZ may disconnect existing connections. Exercise caution when performing this
   operation.
 
-* `loadbalancer_type` - (Optional, String, ForceNew) Specifies the type of the load balancer. Value options:
+* `loadbalancer_type` - (Optional, String, NonUpdatable) Specifies the type of the load balancer. Value options:
   + **gateway**: indicates a gateway load balancer.
   + Keep empty(default) indicates other types of load balancers.
 
@@ -151,8 +151,7 @@ The following arguments are supported:
 * `cross_vpc_backend` - (Optional, Bool) Enable this if you want to associate the IP addresses of backend servers with
   your load balancer. Can only be true when updating. Defaults to **false**.
 
-* `vpc_id` - (Optional, String, ForceNew) The vpc on which to create the load balancer. Changing this creates a new
-  load balancer.
+* `vpc_id` - (Optional, String, NonUpdatable) The vpc on which to create the load balancer.
 
 * `ipv4_subnet_id` - (Optional, String) The **IPv4 subnet ID** of the subnet on which to allocate the load balancer
   ipv4 address.
@@ -165,32 +164,30 @@ The following arguments are supported:
 
 * `ipv6_address` - (Optional, String) The ipv6 address of the Load Balancer.
 
-* `ipv4_eip_id` - (Optional, String, ForceNew) The ID of the EIP. Changing this parameter will create a new resource.
+* `ipv4_eip_id` - (Optional, String, NonUpdatable) The ID of the EIP.
 
   -> **NOTE:** If the ipv4_eip_id parameter is configured, you do not need to configure the bandwidth parameters:
   `iptype`, `bandwidth_charge_mode`, `bandwidth_size`, `share_type` and `bandwidth_id`.
 
-* `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this parameter will create a new resource.
+* `iptype` - (Optional, String, NonUpdatable) Elastic IP type.
 
-* `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Value options:
+* `bandwidth_charge_mode` - (Optional, String, NonUpdatable) Bandwidth billing type. Value options:
   + **bandwidth**: Billed by bandwidth.
   + **traffic**: Billed by traffic.
   
   It is mandatory when `iptype` is set and `bandwidth_id` is empty.
-  Changing this parameter will create a new resource.
 
-* `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Value options:
+* `sharetype` - (Optional, String, NonUpdatable) Bandwidth sharing type. Value options:
   + **PER**: Dedicated bandwidth.
   + **WHOLE**: Shared bandwidth.
   
   It is mandatory when `iptype` is set and `bandwidth_id` is empty.
-  Changing this parameter will create a new resource.
 
-* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. It is mandatory when `iptype` is set and `bandwidth_id`
-  is empty. Changing this parameter will create a new resource.
+* `bandwidth_size` - (Optional, Int, NonUpdatable) Bandwidth size. It is mandatory when `iptype` is set and `bandwidth_id`
+  is empty.
 
-* `bandwidth_id` - (Optional, String, ForceNew) Bandwidth ID of the shared bandwidth. It is mandatory when `sharetype`
-  is **WHOLE**. Changing this parameter will create a new resource.
+* `bandwidth_id` - (Optional, String, NonUpdatable) Bandwidth ID of the shared bandwidth. It is mandatory when `sharetype`
+  is **WHOLE**.
 
   -> **NOTE:** If the `bandwidth_id` parameter is configured, you can not configure the parameters:
   `bandwidth_charge_mode`, `bandwidth_size`.

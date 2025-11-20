@@ -137,12 +137,10 @@ func ResourceLoadBalancerCopy() *schema.Resource {
 			"l4_flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"l7_flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -196,7 +194,7 @@ func ResourceLoadBalancerCopy() *schema.Resource {
 				Optional: true,
 			},
 			"tags": common.TagsSchema(),
-			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
+			// charge info: charging_mode, period_unit, period, auto_renew
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -488,6 +486,16 @@ func resourceLoadBalancerCopyUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
 
+	if d.HasChange("charging_mode") {
+		if err = updateChargingMode(ctx, client, bssClient, d, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the load-balancer (%s): %s", d.Id(), err)
+		}
+	}
+
 	updateLoadBalancerChanges := []string{
 		"name",
 		"description",
@@ -505,7 +513,8 @@ func resourceLoadBalancerCopyUpdate(ctx context.Context, d *schema.ResourceData,
 		"deletion_protection_enable",
 	}
 	if d.HasChanges(updateLoadBalancerChanges...) {
-		if err = updateLoadBalancerParams(ctx, client, bssClient, d); err != nil {
+		params := buildUpdateLoadBalancerCopyParamsBodyParams(d)
+		if err = updateLoadBalancerParams(ctx, client, bssClient, d, params); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -517,6 +526,7 @@ func resourceLoadBalancerCopyUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// backend_subnets and cross_vpc_backend can not be updated at the same time, otherwise, an error will occur
 	if d.HasChange("backend_subnets") {
 		if err = updateLoadBalancerBackendSubnets(ctx, client, d); err != nil {
 			return diag.FromErr(err)
@@ -536,7 +546,7 @@ func resourceLoadBalancerCopyUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// update availability zone
 	if d.HasChange("availability_zone") {
-		if err = updateAvailabilityZone(ctx, cfg, client, d); err != nil {
+		if err = updateAvailabilityZone(ctx, client, bssClient, d); err != nil {
 			return diag.Errorf("error updating availability zone of LoadBalancer:%s, err:%s", d.Id(), err)
 		}
 	}
@@ -549,12 +559,6 @@ func resourceLoadBalancerCopyUpdate(ctx context.Context, d *schema.ResourceData,
 			ProjectId:    cfg.GetProjectID(region),
 		}
 		if err = cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	if d.HasChange("charging_mode") {
-		if err = updateChargingMode(ctx, client, bssClient, d, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -625,8 +629,8 @@ func buildUpdateLoadBalancerBackendSubnetsBodyParams(d *schema.ResourceData) map
 	return bodyParams
 }
 
-func updateLoadBalancerParams(ctx context.Context, client, bssClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	params := buildUpdateLoadBalancerParamsBodyParams(d)
+func updateLoadBalancerParams(ctx context.Context, client, bssClient *golangsdk.ServiceClient, d *schema.ResourceData,
+	params map[string]interface{}) error {
 	updateResp, err := updateElbLoadBalancerParams(client, d, utils.RemoveNil(params))
 	if err != nil {
 		return err
@@ -643,12 +647,12 @@ func updateLoadBalancerParams(ctx context.Context, client, bssClient *golangsdk.
 	return waitForLoadBalancer(ctx, client, d.Id(), "ACTIVE", d.Timeout(schema.TimeoutUpdate))
 }
 
-func buildUpdateLoadBalancerParamsBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateLoadBalancerCopyParamsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           d.Get("description"),
-		"l4_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l4_flavor_id")),
-		"l7_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l7_flavor_id")),
+		"l4_flavor_id":          d.Get("l4_flavor_id"),
+		"l7_flavor_id":          d.Get("l7_flavor_id"),
 		"protection_status":     utils.ValueIgnoreEmpty(d.Get("protection_status")),
 		"protection_reason":     d.Get("protection_reason"),
 		"waf_failure_action":    utils.ValueIgnoreEmpty(d.Get("waf_failure_action")),
@@ -671,13 +675,23 @@ func buildUpdateLoadBalancerParamsBodyParams(d *schema.ResourceData) map[string]
 	if d.Get("loadbalancer_type") != "gateway" || d.HasChange("ipv4_subnet_id") {
 		params["vip_subnet_cidr_id"] = utils.ValueIgnoreEmpty(d.Get("ipv4_subnet_id"))
 	}
+	if d.Get("charging_mode") == "prePaid" {
+		prepaidPaidParams := map[string]interface{}{
+			"change_mode": "immediate",
+			"period_type": d.Get("period_unit").(string),
+			"period_num":  d.Get("period").(int),
+			"auto_pay":    true,
+		}
+		params["prepaid_options"] = prepaidPaidParams
+	}
 	bodyParams := map[string]interface{}{
 		"loadbalancer": params,
 	}
 	return bodyParams
 }
 
-func updateElbLoadBalancerParams(client *golangsdk.ServiceClient, d *schema.ResourceData, params map[string]interface{}) (interface{}, error) {
+func updateElbLoadBalancerParams(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	params map[string]interface{}) (interface{}, error) {
 	var (
 		httpUrl = "v3/{project_id}/elb/loadbalancers/{loadbalancer_id}"
 	)
