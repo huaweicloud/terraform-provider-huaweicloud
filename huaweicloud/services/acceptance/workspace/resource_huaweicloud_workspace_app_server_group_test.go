@@ -230,3 +230,143 @@ resource "huaweicloud_workspace_app_server_group" "test" {
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
 }
+
+func TestAccResourceAppServerGroup_singleSession(t *testing.T) {
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+
+		obj          interface{}
+		resourceName = "huaweicloud_workspace_app_server_group.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getResourceAppServerGroupFunc)
+	)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceAppServerGroup_singleSession_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "os_type", "Windows"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"data.huaweicloud_workspace_service.test", "vpc_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"data.huaweicloud_workspace_service.test", "network_ids.0"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_type", "SAS"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "90"),
+					resource.TestCheckResourceAttr(resourceName, "image_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID),
+					resource.TestCheckResourceAttr(resourceName, "image_type", "gold"),
+					resource.TestCheckResourceAttr(resourceName, "image_product_id",
+						acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID),
+					resource.TestCheckResourceAttr(resourceName, "is_vdi", "true"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
+					resource.TestCheckResourceAttr(resourceName, "app_type", "SESSION_DESKTOP_APP"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "storage_mount_policy", "USER"),
+				),
+			},
+			{
+				Config: testAccResourceAppServerGroup_singleSession_step2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_type", "SAS"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "80"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_type", "SESSION_DESKTOP_APP"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "storage_mount_policy", "SHARE"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"vpc_id", "image_type", "image_product_id", "availability_zone",
+				},
+			},
+		},
+	})
+}
+
+func testAccResourceAppServerGroup_singleSession_step1(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_workspace_service" "test" {}
+
+resource "huaweicloud_workspace_app_server_group" "test" {
+  name                  = "%[1]s"
+  os_type               = "Windows"
+  flavor_id             = "%[2]s"
+  vpc_id                = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id             = data.huaweicloud_workspace_service.test.network_ids[0]
+  system_disk_type      = "SAS"
+  system_disk_size      = 90
+  app_type              = "SESSION_DESKTOP_APP"
+  is_vdi                = true
+  image_id              = "%[3]s"
+  image_type            = "gold"
+  image_product_id      = "%[4]s"
+  description           = "Created by script"
+  storage_mount_policy  = "USER"
+  enterprise_project_id = "%[5]s"
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, name,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
+		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
+	)
+}
+
+func testAccResourceAppServerGroup_singleSession_step2(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_workspace_service" "test" {}
+
+resource "huaweicloud_workspace_app_server_group" "test" {
+  name                  = "%[1]s"
+  os_type               = "Windows"
+  flavor_id             = "%[2]s"
+  vpc_id                = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id             = data.huaweicloud_workspace_service.test.network_ids[0]
+  system_disk_type      = "SAS"
+  system_disk_size      = 80
+  app_type              = "SESSION_DESKTOP_APP"
+  is_vdi                = true
+  image_id              = "%[3]s"
+  image_type            = "gold"
+  image_product_id      = "%[4]s"
+  storage_mount_policy  = "SHARE"
+  enabled               = false
+  enterprise_project_id = "%[5]s"
+
+  tags = {
+    foo   = "bar_update"
+    owner = "terraform"
+  }
+}
+`, name,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
+		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
+	)
+}
