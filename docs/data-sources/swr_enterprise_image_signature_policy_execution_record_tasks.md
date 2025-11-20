@@ -3,12 +3,12 @@ subcategory: "Software Repository for Container (SWR)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_swr_enterprise_image_signature_policy_execution_record_tasks"
 description: |-
-  Use this data source to get the list of SWR enterprise retention policy execution record tasks.
+  Use this data source to get the list of SWR enterprise image signature policy execution record tasks.
 ---
 
 # huaweicloud_swr_enterprise_image_signature_policy_execution_record_tasks
 
-Use this data source to get the list of SWR enterprise retention policy execution record tasks.
+Use this data source to get the list of SWR enterprise image signature policy execution record tasks.
 
 ## Example Usage
 
@@ -18,7 +18,7 @@ variable "namespace_name" {}
 variable "policy_id" {}
 variable "execution_id" {}
 
-data "huaweicloud_swr_enterprise_retention_policy_execution_record_tasks" "test" {
+data "huaweicloud_swr_enterprise_image_signature_policy_execution_record_tasks" "test" {
   instance_id    = var.instance_id
   namespace_name = var.namespace_name
   policy_id      = var.policy_id
