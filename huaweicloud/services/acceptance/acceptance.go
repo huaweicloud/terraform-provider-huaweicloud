@@ -362,6 +362,8 @@ var (
 	HW_RGC_MANAGE_ACCOUNT_EMAIL      = os.Getenv("HW_RGC_MANAGE_ACCOUNT_EMAIL")
 	HW_RGC_CONTROL_IDENTIFIER        = os.Getenv("HW_RGC_CONTROL_IDENTIFIER")
 	HW_RGC_TEMPLATE_BODY             = os.Getenv("HW_RGC_TEMPLATE_BODY")
+	HW_RGC_CONTROL_ID                = os.Getenv("HW_RGC_CONTROL_ID")
+	HW_RGC_CORE_ACCOUNT_TYPE         = os.Getenv("HW_RGC_CORE_ACCOUNT_TYPE")
 
 	HW_SDRS_PROTECTION_INSTANCE_ID = os.Getenv("HW_SDRS_PROTECTION_INSTANCE_ID")
 	HW_SDRS_NIC_ID                 = os.Getenv("HW_SDRS_NIC_ID")
@@ -984,6 +986,42 @@ func TestAccPreCheckRGCOperation(t *testing.T) {
 func TestAccPreCheckRGCOrganizationID(t *testing.T) {
 	if HW_RGC_ORGANIZATIONAL_UNIT_ID == "" {
 		t.Skip("HW_RGC_ORGANIZATIONAL_UNIT_ID must be set for acceptance tests")
+
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAccountEnabledControl(t *testing.T) {
+	if HW_RGC_ACCOUNT_ID == "" || HW_RGC_CONTROL_ID == "" {
+		t.Skip("HW_RGC_ACCOUNT_ID and HW_RGC_CONTROL_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRGCCoreAccountType(t *testing.T) {
+	if HW_RGC_CORE_ACCOUNT_TYPE == "" {
+		t.Skip("HW_RGC_CORE_ACCOUNT_TYPE must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRGCControlViolations(t *testing.T) {
+	if HW_RGC_ORGANIZATIONAL_UNIT_ID == "" || HW_RGC_ACCOUNT_ID == "" {
+		t.Skip("HW_RGC_ORGANIZATIONAL_UNIT_ID and HW_RGC_ACCOUNT_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRGCControlID(t *testing.T) {
+	if HW_RGC_CONTROL_ID == "" {
+		t.Skip("HW_RGC_CONTROL_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizationalUnitEnabledControl(t *testing.T) {
+	if HW_RGC_CONTROL_ID == "" || HW_RGC_ORGANIZATIONAL_UNIT_ID == "" {
+		t.Skip("HW_RGC_CONTROL_ID and HW_RGC_ORGANIZATIONAL_UNIT_ID must be set for acceptance tests")
 	}
 }
 
