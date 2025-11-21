@@ -221,8 +221,12 @@ var (
 	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
 	HW_SMS_TASK_ID       = os.Getenv("HW_SMS_TASK_ID")
 
-	HW_DLI_AUTHORIZED_USER_NAME         = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
-	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+	HW_DLI_AUTHORIZED_USER_NAME      = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
+	HW_DLI_FLINK_JAR_OBS_PATH        = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
+	HW_DLI_FLINK_JAR_OBS_BUCKET_NAME = os.Getenv("HW_DLI_FLINK_JAR_OBS_BUCKET_NAME")
+	// The list of DLI Flink Jar agency names. Using commas (,) to separate multiple names.
+	HW_DLI_FLINK_JAR_AGENCY_NAMES = os.Getenv("HW_DLI_FLINK_JAR_AGENCY_NAMES")
+
 	HW_DLI_DS_AUTH_CSS_OBS_PATH         = os.Getenv("HW_DLI_DS_AUTH_CSS_OBS_PATH")
 	HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH = os.Getenv("HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH")
 	HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH   = os.Getenv("HW_DLI_DS_AUTH_KAFKA_KEY_OBS_PATH")
@@ -1862,6 +1866,21 @@ func TestAccPreCheckDliAuthorizedUserConfigured(t *testing.T) {
 func TestAccPreCheckDliJarPath(t *testing.T) {
 	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
 		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkJarObsBucketName(t *testing.T) {
+	if HW_DLI_FLINK_JAR_OBS_BUCKET_NAME == "" {
+		t.Skip("HW_DLI_FLINK_JAR_OBS_BUCKET_NAME must be set for DLI Flink Jar job acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkJarAgencyNames(t *testing.T, min int) {
+	if HW_DLI_FLINK_JAR_AGENCY_NAMES == "" || len(strings.Split(HW_DLI_FLINK_JAR_AGENCY_NAMES, ",")) < min {
+		t.Skipf(`At least %d agency name(s) must be supported during the HW_DLI_FLINK_JAR_AGENCY_NAMES, separated by 
+		commas (,).`, min)
 	}
 }
 

@@ -180,6 +180,30 @@ type JobConfBase struct {
 	OperatorConfig string `json:"operator_config"`
 	// The traffic or hit rate configuration of each operator.
 	StaticEstimatorConfig string `json:"static_estimator_config"`
+	// The name of the delegation authorized to DLI.
+	ExecutionAgencyUrn string `json:"execution_agency_urn"`
+	// The version of the resource configuration.
+	ResourceConfigVersion string `json:"resource_config_version"`
+	// The resource configuration of the Flink job.
+	ResourceConfig ResourceConfig `json:"resource_config"`
+}
+
+type ResourceConfig struct {
+	// The number of slots in the JobManager.
+	MaxSlot int `json:"max_slot"`
+	// The parallel number of the job.
+	ParallelNumber int `json:"parallel_number"`
+	// The resource specification of the JobManager.
+	JobManagerResourceSpec ManagerResourceSpec `json:"jobmanager_resource_spec"`
+	// The resource specification of the TaskManager.
+	TaskManagerResourceSpec ManagerResourceSpec `json:"taskmanager_resource_spec"`
+}
+
+type ManagerResourceSpec struct {
+	// The number of CPU cores that the JobManager or TaskManager can use.
+	CPU float64 `json:"cpu"`
+	// The memory size that the JobManager or TaskManager can use, in MB or GB (default).
+	Memory string `json:"memory"`
 }
 
 type ListResp struct {

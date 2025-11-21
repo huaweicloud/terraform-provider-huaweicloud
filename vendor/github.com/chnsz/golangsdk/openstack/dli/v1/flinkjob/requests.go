@@ -215,9 +215,9 @@ type CreateJarJobOpts struct {
 	CuNumber *int `json:"cu_number,omitempty"`
 	// Number of CUs on the management node selected by the user for a job,
 	// which corresponds to the number of Flink job managers. The default value is 1.
-	ManagerCuNumber *int `json:"manager_cu_number,omitempty"`
+	ManagerCuNumber int `json:"manager_cu_number,omitempty"`
 	// Number of parallel operations selected for a job.
-	ParallelNumber *int `json:"parallel_number,omitempty"`
+	ParallelNumber int `json:"parallel_number,omitempty"`
 	// Whether to enable the job log function.
 	// true: indicates to enable the job log function.
 	// false: indicates to disable the job log function.
@@ -249,7 +249,7 @@ type CreateJarJobOpts struct {
 	// ClassName.class.getClassLoader().getResource("userData/fileName")
 	DependencyFiles []string `json:"dependency_files,omitempty"`
 	// Number of CUs for each TaskManager. The default value is 1.
-	TmCus *int `json:"tm_cus,omitempty"`
+	TmCus int `json:"tm_cus,omitempty"`
 	// Number of slots in each TaskManager. The default value is (parallel_number*tm_cus)/(cu_number-manager_cu_number).
 	TmSlotNum *int `json:"tm_slot_num,omitempty"`
 	// Job feature. Type of the Flink image used by a job.
@@ -274,6 +274,60 @@ type CreateJarJobOpts struct {
 	Tags []tags.ResourceTag `json:"tags"`
 	// Customizes optimization parameters when a Flink job is running.
 	RuntimeConfig string `json:"runtime_config,omitempty"`
+	// Whether to enable the automatic job snapshot function，default value is **false**.
+	// + true: indicates to enable the automatic job snapshot function.
+	// + false: indicates to disable the automatic job snapshot function.
+	CheckpointEnabled *bool `json:"checkpoint_enabled,omitempty"`
+	// The mode of the snapshot.
+	// +1: ExactlyOnce, indicates that data is processed only once.
+	// +2: AtLeastOnce, indicates that data is processed at least once.
+	// The default value is `1`.
+	CheckpointMode int `json:"checkpoint_mode,omitempty"`
+	// The interval of the snapshot. The unit is second. The default value is **10**.
+	CheckpointInterval int `json:"checkpoint_interval,omitempty"`
+	// The name of the delegation authorized to DLI. This parameter is supported only when the Flink version is 1.15.
+	ExecutionAgencyUrn string `json:"execution_agency_urn,omitempty"`
+	// The version of the resource configuration.
+	// + v1 (default)
+	// + v2
+	// The v2 version is not supported to set the CU number, and supports setting Job Manager Memory and Task Manager Memory directly.
+	// The v1 version is supported by Flink 1.12, Flink 1.13, and Flink 1.15.
+	// The v2 version is supported by Flink 1.13, Flink 1.15, and Flink 1.17.
+	// It is recommended to use the v2 version of the parameter settings.
+	ResourceConfigVersion string `json:"resource_config_version,omitempty"`
+	// The resource configuration of the Flink job.
+	// This parameter is valid only when the resource_config_version is set to "v2".
+	ResourceConfig *ResourceConfigOpts `json:"resource_config,omitempty"`
+}
+
+type ResourceConfigOpts struct {
+	// The parameter is used to set the number of parallel tasks that a single TaskManager can provide.
+	// Each Task Slot can execute a task in parallel. Increasing Task Slots can improve the parallel processing
+	// capability of TaskManager, but also increase resource consumption.
+	// The number of Task Slots is related to the CPU number of TaskManager, because each CPU can provide a Task Slot.
+	// The default value is 1. The minimum parallel number cannot be less than 1.
+	MaxSlot int `json:"max_slot,omitempty"`
+	// The parallel number of the job, which is the number of sub-tasks executed in parallel by each operator in the job.
+	// The number of sub-tasks of an operator is the parallel degree of the operator. The default value is "1".
+	ParallelNumber int `json:"parallel_number,omitempty"`
+	// The resource specification of the JobManager.
+	JobManagerResourceSpec *JobOrTaskManagerResourceSpecOpts `json:"jobmanager_resource_spec,omitempty"`
+	// The resource specification of the TaskManager.
+	TaskManagerResourceSpec *JobOrTaskManagerResourceSpecOpts `json:"taskmanager_resource_spec,omitempty"`
+}
+
+type JobOrTaskManagerResourceSpecOpts struct {
+	// The number of CPU cores that the JobManager or TaskManager can use.
+	// The default value is 1.0. The minimum value cannot be less than 0.5.
+	CPU float64 `json:"cpu,omitempty"`
+	// The memory size that the JobManager or TaskManager can use, in MB or GB (default).
+	// The default value is 4GB. The minimum value cannot be less than 2GB.
+	Memory string `json:"memory,omitempty"`
+}
+
+type TaskManagerResourceSpecOpts struct {
+	// The resource specification of the TaskManager.
+	ResourceSpec *int `json:"resource_spec,omitempty"`
 }
 
 type UpdateJarJobOpts struct {
@@ -287,9 +341,9 @@ type UpdateJarJobOpts struct {
 	CuNumber *int `json:"cu_number,omitempty"`
 	// Number of CUs on the management node selected by the user for a job, which corresponds to the number of Flink
 	// job managers. The default value is 1.
-	ManagerCuNumber *int `json:"manager_cu_number,omitempty"`
+	ManagerCuNumber int `json:"manager_cu_number,omitempty"`
 	// Number of parallel operations selected for a job. The default value is 1.
-	ParallelNumber *int `json:"parallel_number,omitempty"`
+	ParallelNumber int `json:"parallel_number,omitempty"`
 	// Whether to enable the job log function.
 	// true: indicates to enable the job log function.
 	// false: indicates to disable the job log function.
@@ -317,7 +371,7 @@ type UpdateJarJobOpts struct {
 	// Example: myGroup/test.cvs,myGroup/test1.csv.
 	DependencyFiles []string `json:"dependency_files,omitempty"`
 	// Number of CUs for each TaskManager. The default value is 1.
-	TmCus *int `json:"tm_cus,omitempty"`
+	TmCus int `json:"tm_cus,omitempty"`
 	// Number of slots in each TaskManager. The default value is (parallel_number*tm_cus)/(cu_number-manager_cu_number).
 	TmSlotNum *int `json:"tm_slot_num,omitempty"`
 	// Job feature. Type of the Flink image used by a job.
@@ -340,6 +394,30 @@ type UpdateJarJobOpts struct {
 	CheckpointPath string `json:"checkpoint_path,omitempty"`
 	// Customizes optimization parameters when a Flink job is running.
 	RuntimeConfig string `json:"runtime_config,omitempty"`
+	// Whether to enable the automatic job snapshot function，default value is **false**.
+	// + true: indicates to enable the automatic job snapshot function.
+	// + false: indicates to disable the automatic job snapshot function.
+	CheckpointEnabled *bool `json:"checkpoint_enabled,omitempty"`
+	// The mode of the snapshot.
+	// +1: ExactlyOnce, indicates that data is processed only once.
+	// +2: AtLeastOnce, indicates that data is processed at least once.
+	// The default value is `1`.
+	CheckpointMode int `json:"checkpoint_mode,omitempty"`
+	// The interval of the snapshot. The unit is second. The default value is **10**.
+	CheckpointInterval int `json:"checkpoint_interval,omitempty"`
+	// The name of the delegation authorized to DLI. This parameter is supported only when the Flink version is 1.15.
+	ExecutionAgencyUrn string `json:"execution_agency_urn,omitempty"`
+	// The version of the resource configuration.
+	// + v1 (default)
+	// + v2
+	// The v2 version is not supported to set the CU number, and supports setting Job Manager Memory and Task Manager Memory directly.
+	// The v1 version is supported by Flink 1.12, Flink 1.13, and Flink 1.15.
+	// The v2 version is supported by Flink 1.13, Flink 1.15, and Flink 1.17.
+	// It is recommended to use the v2 version of the parameter settings.
+	ResourceConfigVersion string `json:"resource_config_version,omitempty"`
+	// The resource configuration of the Flink job.
+	// This parameter is valid only when the resource_config_version is set to "v2".
+	ResourceConfig *ResourceConfigOpts `json:"resource_config,omitempty"`
 }
 
 type StopFlinkJobInBatch struct {
