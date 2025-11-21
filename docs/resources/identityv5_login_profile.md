@@ -34,7 +34,7 @@ resource "huaweicloud_identityv5_login_profile" "login_profile" {
 
 The following arguments are supported:
 
-* `user_id` - (Required, String， NonUpdatable) Specifies the ID of the user.
+* `user_id` - (Required, String, NonUpdatable) Specifies the ID of the user.
 
 * `password` - (Optional, String) Specifies the password of the user login.
 

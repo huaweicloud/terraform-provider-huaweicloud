@@ -1484,6 +1484,17 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_role_assignments":             iam.DataSourceIdentityRoleAssignments(),
 			"huaweicloud_identity_services":                     iam.DataSourceIdentityServices(),
 
+			"huaweicloud_identityv5_virtual_mfa_devices":     iam.DataSourceIdentityV5VirtualMfaDevices(),
+			"huaweicloud_identityv5_registered_services":     iam.DataSourceIdentityV5RegisteredServices(),
+			"huaweicloud_identityv5_users":                   iam.DataSourceIdentityV5Users(),
+			"huaweicloud_identityv5_service_principals":      iam.DataSourceIdentityV5ServicePrincipals(),
+			"huaweicloud_identityv5_groups":                  iam.DataSourceIdentityV5Groups(),
+			"huaweicloud_identityv5_account_summary":         iam.DataSourceIamIdentityV5AccountSummary(),
+			"huaweicloud_identityv5_account_feature_status":  iam.DataSourceIdentityV5AccountFeatureStatus(),
+			"huaweicloud_identityv5_policies":                iam.DataSourceIdentityV5Policies(),
+			"huaweicloud_identityv5_group_attached_policies": iam.DataSourceIdentityV5GroupAttachedPolicies(),
+			"huaweicloud_identityv5_authorization_schema":    iam.DataSourceIdentityV5AuthorizationSchema(),
+
 			"huaweicloud_identitycenter_batch_query_users":                       identitycenter.DataSourceIdentityCenterBatchQueryUsers(),
 			"huaweicloud_identitycenter_instance":                                identitycenter.DataSourceIdentityCenter(),
 			"huaweicloud_identitycenter_groups":                                  identitycenter.DataSourceIdentityCenterGroups(),
@@ -3067,8 +3078,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_policy_agency_attach":         iam.ResourceIdentityPolicyAgencyAttach(),
 			"huaweicloud_identity_provider_conversion":          iam.ResourceIAMProviderConversion(),
 
-			"huaweicloud_identityv5_user":          iam.ResourceIdentityV5User(),
-			"huaweicloud_identityv5_login_profile": iam.ResourceIdentityV5LoginProfile(),
+			"huaweicloud_identityv5_user":               iam.ResourceIdentityV5User(),
+			"huaweicloud_identityv5_login_profile":      iam.ResourceIdentityV5LoginProfile(),
+			"huaweicloud_identityv5_virtual_mfa_device": iam.ResourceIdentityV5VirtualMFADevice(),
+			"huaweicloud_identityv5_group":              iam.ResourceIdentityV5Group(),
+			"huaweicloud_identityv5_group_membership":   iam.ResourceIdentityV5GroupMembership(),
+			"huaweicloud_identityv5_access_key":         iam.ResourceIdentityAccessKey(),
 
 			"huaweicloud_identitycenter_instance":                               identitycenter.ResourceIdentityCenterInstance(),
 			"huaweicloud_identitycenter_registered_region":                      identitycenter.ResourceIdentityCenterRegisteredRegion(),
