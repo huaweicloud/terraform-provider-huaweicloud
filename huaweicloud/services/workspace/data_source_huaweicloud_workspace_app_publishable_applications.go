@@ -163,7 +163,7 @@ func dataSourceAppPublishableApplicationsRead(_ context.Context, d *schema.Resou
 	return nil
 }
 
-// @API WORKSPACEAPP GET /v1/{project_id}/app-groups/{app_group_id}/publishable-app
+// @API Workspace GET /v1/{project_id}/app-groups/{app_group_id}/publishable-app
 func (w *AppPublishableApplicationsDSWrapper) ShowPublishableApplications() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {

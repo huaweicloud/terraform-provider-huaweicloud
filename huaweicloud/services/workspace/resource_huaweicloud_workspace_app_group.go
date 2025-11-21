@@ -129,7 +129,7 @@ func resourceWorkspaceAppGroupDelete(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-// @API WORKSPACEAPP DELETE /v1/{project_id}/app-groups/{app_group_id}
+// @API Workspace DELETE /v1/{project_id}/app-groups/{app_group_id}
 func (w *AppGroupRSWrapper) DeleteAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {
@@ -144,7 +144,7 @@ func (w *AppGroupRSWrapper) DeleteAppGroup() (*gjson.Result, error) {
 		Send()
 }
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups
+// @API Workspace POST /v1/{project_id}/app-groups
 func (w *AppGroupRSWrapper) CreateAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {
@@ -167,7 +167,7 @@ func (w *AppGroupRSWrapper) CreateAppGroup() (*gjson.Result, error) {
 		Result()
 }
 
-// @API WORKSPACEAPP GET /v1/{project_id}/app-groups/{app_group_id}
+// @API Workspace GET /v1/{project_id}/app-groups/{app_group_id}
 func (w *AppGroupRSWrapper) GetAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {
@@ -183,7 +183,7 @@ func (w *AppGroupRSWrapper) GetAppGroup() (*gjson.Result, error) {
 		Result()
 }
 
-// @API WORKSPACEAPP PATCH /v1/{project_id}/app-groups/{app_group_id}
+// @API Workspace PATCH /v1/{project_id}/app-groups/{app_group_id}
 func (w *AppGroupRSWrapper) UpdateAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {

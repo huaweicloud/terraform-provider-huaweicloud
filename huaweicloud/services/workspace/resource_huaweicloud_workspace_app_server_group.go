@@ -16,10 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-server-groups
-// @API WORKSPACEAPP GET /v1/{project_id}/app-server-group
-// @API WORKSPACEAPP PATCH /v1/{project_id}/app-server-groups/{server_group_id}
-// @API WORKSPACEAPP POST /v1/{project_id}/app-server-groups/{server_group_id}
+// @API Workspace POST /v1/{project_id}/app-server-groups
+// @API Workspace GET /v1/{project_id}/app-server-group
+// @API Workspace PATCH /v1/{project_id}/app-server-groups/{server_group_id}
+// @API Workspace POST /v1/{project_id}/app-server-groups/{server_group_id}
 func ResourceAppServerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerGroupCreate,

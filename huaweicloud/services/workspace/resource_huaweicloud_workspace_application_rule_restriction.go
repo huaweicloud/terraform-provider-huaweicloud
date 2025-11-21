@@ -18,9 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACE POST /v1/{project_id}/app-center/app-restricted-rules
-// @API WORKSPACE POST /v1/{project_id}/app-center/app-restricted-rules/actions/batch-delete
-// @API WORKSPACE GET /v1/{project_id}/app-center/app-restricted-rules
+// @API Workspace POST /v1/{project_id}/app-center/app-restricted-rules
+// @API Workspace POST /v1/{project_id}/app-center/app-restricted-rules/actions/batch-delete
+// @API Workspace GET /v1/{project_id}/app-center/app-restricted-rules
 func ResourceApplicationRuleRestriction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApplicationRuleRestrictionCreate,

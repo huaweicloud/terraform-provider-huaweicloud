@@ -16,10 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups/{app_group_id}/apps
-// @API WORKSPACEAPP GET /v1/{project_id}/app-groups/{app_group_id}/apps
-// @API WORKSPACEAPP PATCH /v1/{project_id}/app-groups/{app_group_id}/apps/{app_id}
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups/{app_group_id}/apps/batch-unpublish
+// @API Workspace POST /v1/{project_id}/app-groups/{app_group_id}/apps
+// @API Workspace GET /v1/{project_id}/app-groups/{app_group_id}/apps
+// @API Workspace PATCH /v1/{project_id}/app-groups/{app_group_id}/apps/{app_id}
+// @API Workspace POST /v1/{project_id}/app-groups/{app_group_id}/apps/batch-unpublish
 func ResourceAppPublishment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppPublishmentCreate,

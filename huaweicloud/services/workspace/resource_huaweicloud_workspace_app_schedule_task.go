@@ -16,10 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP POST /v1/{project_id}/schedule-task
-// @API WORKSPACEAPP GET /v1/{project_id}/schedule-task/{task_id}
-// @API WORKSPACEAPP PATCH /v1/{project_id}/schedule-task/{task_id}
-// @API WORKSPACEAPP DELETE /v1/{project_id}/schedule-task/{task_id}
+// @API Workspace POST /v1/{project_id}/schedule-task
+// @API Workspace GET /v1/{project_id}/schedule-task/{task_id}
+// @API Workspace PATCH /v1/{project_id}/schedule-task/{task_id}
+// @API Workspace DELETE /v1/{project_id}/schedule-task/{task_id}
 func ResourceAppScheduleTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppScheduleTaskCreate,
