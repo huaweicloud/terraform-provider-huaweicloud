@@ -1630,6 +1630,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_private_gateway_specs":       nat.DataSourceNatPrivateGatewaySpecs(),
 			"huaweicloud_nat_gateways_by_tags":            nat.DataSourceNatGatewaysByTags(),
 			"huaweicloud_nat_private_gateways_by_tags":    nat.DataSourceNatPrivateGatewaysByTags(),
+			"huaweicloud_nat_private_transit_subnets":     nat.DataSourceNatPrivateTransitSubnets(),
 			"huaweicloud_nat_private_transit_ips_by_tags": nat.DataSourceNatPrivateTransitIpsByTags(),
 
 			"huaweicloud_networking_port":              vpc.DataSourceNetworkingPortV2(),
@@ -3307,10 +3308,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_snat_rule": nat.ResourcePublicSnatRule(),
 			"huaweicloud_natv3_gateway": nat.ResourcePublicGatewayV3(),
 
-			"huaweicloud_nat_private_dnat_rule":  nat.ResourcePrivateDnatRule(),
-			"huaweicloud_nat_private_gateway":    nat.ResourcePrivateGateway(),
-			"huaweicloud_nat_private_snat_rule":  nat.ResourcePrivateSnatRule(),
-			"huaweicloud_nat_private_transit_ip": nat.ResourcePrivateTransitIp(),
+			"huaweicloud_nat_private_dnat_rule":      nat.ResourcePrivateDnatRule(),
+			"huaweicloud_nat_private_gateway":        nat.ResourcePrivateGateway(),
+			"huaweicloud_nat_private_snat_rule":      nat.ResourcePrivateSnatRule(),
+			"huaweicloud_nat_private_transit_ip":     nat.ResourcePrivateTransitIp(),
+			"huaweicloud_nat_private_transit_subnet": nat.ResourcePrivateTransitSubnet(),
 
 			"huaweicloud_networking_secgroup":      vpc.ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule": vpc.ResourceNetworkingSecGroupRule(),
