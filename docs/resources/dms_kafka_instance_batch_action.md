@@ -24,8 +24,8 @@ variable "instance_ids" {
 }
 
 resource "huaweicloud_dms_kafka_instance_batch_action" "test" {
-  instance_ids = var.instance_ids
-  action       = "restart"
+  instances = var.instance_ids
+  action    = "restart"
 }
 ```
 
@@ -37,8 +37,8 @@ variable "instance_ids" {
 }
 
 resource "huaweicloud_dms_kafka_instance_batch_action" "test" {
-  instance_ids = var.instance_ids
-  action       = "delete"
+  instances = var.instance_ids
+  action    = "delete"
 }
 ```
 
@@ -69,3 +69,9 @@ The following arguments are supported:
 
 * `force_delete` - (Optional, Bool, NonUpdatable) Specifies whether to force delete instances.  
   Defaults to **false**. Force delete instances do not enter the recycle bin.
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
