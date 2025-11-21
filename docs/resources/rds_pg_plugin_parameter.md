@@ -47,8 +47,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The SQL limit can be imported using the `instance_id` and `name`, separated by a slash, e.g.
+The plugin parameter can be imported using the `instance_id` and `name`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_rds_pg_sql_limit.test <instance_id>/<name>
+$ terraform import huaweicloud_rds_pg_plugin_parameter.test <instance_id>/<name>
 ```
