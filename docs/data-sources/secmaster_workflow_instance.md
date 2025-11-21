@@ -3,12 +3,12 @@ subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_workflow_instance"
 description: |-
-  Use this data source to query a specfice workflow instance detail.
+  Use this data source to query a specific workflow instance detail.
 ---
 
 # huaweicloud_secmaster_workflow_instances
 
-Use this data source to query a specfice workflow instance detail.
+Use this data source to query a specific workflow instance detail.
 
 ## Example Usage
 
@@ -18,7 +18,7 @@ variable "instance_id" {}
 
 data "huaweicloud_secmaster_workflow_instance" "test" {
   workspace_id = var.workspace_id
-  instacne_id  = var.instance_id
+  instance_id  = var.instance_id
 }
 ```
 
@@ -74,7 +74,7 @@ The `workflow` block supports:
 
 * `id` - The workflow ID.
 
-* `name` - The workflow name.
+* `name` - The workflow Chinese name.
 
 * `name_en` - The workflow English name.
 
@@ -85,7 +85,7 @@ The `dataclass` block supports:
 
 * `id` - The data class ID.
 
-* `name` - The data class name.
+* `name` - The data class Chinese name.
 
 * `en_name` - The data class English name.
 
