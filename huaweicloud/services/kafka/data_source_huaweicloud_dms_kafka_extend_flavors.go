@@ -249,25 +249,40 @@ func dataSourceDmsKafkaExtendFlavorsRead(_ context.Context, d *schema.ResourceDa
 	return nil
 }
 
-// @API Kafka GET /v2/{engine}/{project_id}/instances/{instance_id}/extend
+// @API Kafka GET /v2/{project_id}/kafka/instances/{instance_id}/extend
 func (w *KafkaExtendFlavorsDSWrapper) ShowEngineInstanceExtendProductInfo() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "dmsv2")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v2/kafka/{project_id}/instances/{instance_id}/extend"
+	uri := "/v2/{project_id}/kafka/instances/{instance_id}/extend"
 	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
+
+	filterResult := filters.New().From("products").
+		Where("type", "=", w.Get("type")).
+		Where("charging_mode", "has", parseChargingModeToTime(w.Get("charging_mode"))).
+		Where("arch_types", "has", w.Get("arch_type"))
+
+	if storageSpecCode := w.Get("storage_spec_code"); storageSpecCode != nil {
+		filterResult = filterResult.Filter(func(item gjson.Result) bool {
+			ios := item.Get("ios")
+			if !ios.Exists() || !ios.IsArray() {
+				return false
+			}
+			for _, io := range ios.Array() {
+				if io.Get("io_spec").String() == storageSpecCode.(string) {
+					return true
+				}
+			}
+			return false
+		})
+	}
+
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
-		Filter(
-			filters.New().From("products").
-				Where("type", "=", w.Get("type")).
-				Where("ios.io_spec", "=", w.Get("storage_spec_code")).
-				Where("charging_mode", "has", parseChargingModeToTime(w.Get("charging_mode"))).
-				Where("arch_types", "has", w.Get("arch_type")),
-		).
+		Filter(filterResult).
 		Request().
 		Result()
 }
