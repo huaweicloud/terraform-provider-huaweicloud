@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACE POST /v1/{project_id}/app-center/app-rules
-// @API WORKSPACE GET /v1/{project_id}/app-center/app-rules
-// @API WORKSPACE PATCH /v1/{project_id}/app-center/app-rules/{rule_id}
-// @API WORKSPACE DELETE /v1/{project_id}/app-center/app-rules/{rule_id}
+// @API Workspace POST /v1/{project_id}/app-center/app-rules
+// @API Workspace GET /v1/{project_id}/app-center/app-rules
+// @API Workspace PATCH /v1/{project_id}/app-center/app-rules/{rule_id}
+// @API Workspace DELETE /v1/{project_id}/app-center/app-rules/{rule_id}
 func ResourceApplicationRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApplicationRuleCreate,

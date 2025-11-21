@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups/authorizations
-// @API WORKSPACEAPP GET /v1/{project_id}/app-groups/actions/list-authorizations
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups/actions/batch-delete-authorization
+// @API Workspace POST /v1/{project_id}/app-groups/authorizations
+// @API Workspace GET /v1/{project_id}/app-groups/actions/list-authorizations
+// @API Workspace POST /v1/{project_id}/app-groups/actions/batch-delete-authorization
 func ResourceAppGroupAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppGroupAuthorizationCreate,

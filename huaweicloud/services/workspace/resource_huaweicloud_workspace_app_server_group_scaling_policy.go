@@ -19,9 +19,9 @@ import (
 
 var appServerGroupScalingPolicyNonUpdatableParams = []string{"server_group_id"}
 
-// @API WorkspaceApp PUT /v1/{project_id}/scaling-policy
-// @API WorkspaceApp GET /v1/{project_id}/scaling-policy
-// @API WorkspaceApp DELETE /v1/{project_id}/scaling-policy
+// @API Workspace PUT /v1/{project_id}/scaling-policy
+// @API Workspace GET /v1/{project_id}/scaling-policy
+// @API Workspace DELETE /v1/{project_id}/scaling-policy
 func ResourceAppServerGroupScalingPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerGroupScalingPolicyCreate,

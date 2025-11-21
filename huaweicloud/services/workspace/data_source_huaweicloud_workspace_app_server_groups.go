@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP GET /v1/{project_id}/app-server-groups
+// @API Workspace GET /v1/{project_id}/app-server-groups
 func DataSourceAppServerGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAppServerGroupsRead,
