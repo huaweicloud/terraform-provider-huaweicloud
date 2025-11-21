@@ -1176,9 +1176,13 @@ func Provider() *schema.Provider {
 			// Professional EventRouter
 			"huaweicloud_eg_eventrouter_availability_zones": eg.DataSourceEventRouterAvailabilityZones(),
 
-			"huaweicloud_enterprise_project":        eps.DataSourceEnterpriseProject(),
-			"huaweicloud_enterprise_projects":       eps.DataSourceEnterpriseProjects(),
-			"huaweicloud_enterprise_project_quotas": eps.DataSourceQuotas(),
+			"huaweicloud_enterprise_project":                      eps.DataSourceEnterpriseProject(),
+			"huaweicloud_enterprise_projects":                     eps.DataSourceEnterpriseProjects(),
+			"huaweicloud_enterprise_project_quotas":               eps.DataSourceQuotas(),
+			"huaweicloud_enterprise_project_configs":              eps.DataSourceConfigs(),
+			"huaweicloud_enterprise_project_migrate_record":       eps.DataSourceMigrateRecord(),
+			"huaweicloud_enterprise_project_resources_mapping":    eps.DataSourceResourcesMapping(),
+			"huaweicloud_enterprise_project_associated_resources": eps.DataSourceAssociatedResources(),
 
 			"huaweicloud_er_associations":       er.DataSourceAssociations(),
 			"huaweicloud_er_attachments":        er.DataSourceAttachments(),

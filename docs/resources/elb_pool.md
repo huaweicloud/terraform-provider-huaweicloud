@@ -136,6 +136,11 @@ The following arguments are supported:
 
   -> **NOTE:** At least one of `loadbalancer_id`, `listener_id`, `type` must be specified.
 
+* `cascade_delete` - (Optional, Bool) Specifies whether to delete its associated resources, including backend servers and
+  health checks. Defaults to **false**.
+  
+  -> **NOTE:** The backend server group cannot be associated with a forwarding policy.
+
 * `ip_version` - (Optional, String, NonUpdatable) Specifies the IP address version supported by the backend server group.
   The value can be **dualstack**, **v6**, or **v4**. If the protocol of the backend server group is HTTP, the value is **v4**.
 
