@@ -3706,6 +3706,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_user_group":                           workspace.ResourceUserGroup(),
 			"huaweicloud_workspace_access_policy":                        workspace.ResourceAccessPolicy(),
 			"huaweicloud_workspace_application":                          workspace.ResourceApplication(),
+			"huaweicloud_workspace_application_batch_authorize":          workspace.ResourceApplicationBatchAuthorize(),
 			"huaweicloud_workspace_application_rule":                     workspace.ResourceApplicationRule(),
 			"huaweicloud_workspace_application_rule_restriction":         workspace.ResourceApplicationRuleRestriction(),
 			"huaweicloud_workspace_application_rule_restriction_setting": workspace.ResourceApplicationRuleRestrictionSetting(),
