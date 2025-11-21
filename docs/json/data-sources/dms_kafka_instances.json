@@ -7,10 +7,12 @@
             "attributes": {
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the instance belongs.",
                 "optional": true
               },
               "fuzzy_match": {
                 "type": "bool",
+                "description": "Whether to perform fuzzy matching query by the name of the instance.",
                 "optional": true
               },
               "id": {
@@ -19,10 +21,12 @@
               },
               "include_failure": {
                 "type": "bool",
+                "description": "Whether the query results contain instances that failed to create.",
                 "optional": true
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the instance to be queried.",
                 "optional": true
               },
               "instances": {
@@ -36,7 +40,13 @@
                         "list",
                         "string"
                       ],
+                      "broker_num": "number",
+                      "ces_version": "string",
+                      "charging_mode": "string",
                       "connect_address": "string",
+                      "connector_id": "string",
+                      "connector_node_num": "number",
+                      "created_at": "string",
                       "cross_vpc_accesses": [
                         "list",
                         [
@@ -52,6 +62,7 @@
                       "description": "string",
                       "dumping": "bool",
                       "enable_auto_topic": "bool",
+                      "enable_log_collection": "bool",
                       "enable_public_ip": "bool",
                       "enabled_mechanisms": [
                         "set",
@@ -59,16 +70,57 @@
                       ],
                       "engine_version": "string",
                       "enterprise_project_id": "string",
+                      "extend_times": "number",
                       "id": "string",
+                      "ipv6_connect_addresses": [
+                        "list",
+                        "string"
+                      ],
+                      "ipv6_enable": "bool",
+                      "is_logical_volume": "bool",
                       "maintain_begin": "string",
                       "maintain_end": "string",
                       "management_connect_address": "string",
                       "manager_user": "string",
+                      "message_query_inst_enable": "bool",
                       "name": "string",
                       "network_id": "string",
+                      "new_auth_cert": "bool",
+                      "new_spec_billing_enable": "bool",
+                      "node_num": "number",
+                      "order_id": "string",
                       "partition_num": "number",
+                      "pod_connect_address": "string",
                       "port": "number",
+                      "port_protocol": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "private_plain_address": "string",
+                            "private_plain_domain_name": "string",
+                            "private_plain_enable": "bool",
+                            "private_sasl_plaintext_address": "string",
+                            "private_sasl_plaintext_domain_name": "string",
+                            "private_sasl_plaintext_enable": "bool",
+                            "private_sasl_ssl_address": "string",
+                            "private_sasl_ssl_domain_name": "string",
+                            "private_sasl_ssl_enable": "bool",
+                            "public_plain_address": "string",
+                            "public_plain_domain_name": "string",
+                            "public_plain_enable": "bool",
+                            "public_sasl_plaintext_address": "string",
+                            "public_sasl_plaintext_domain_name": "string",
+                            "public_sasl_plaintext_enable": "bool",
+                            "public_sasl_ssl_address": "string",
+                            "public_sasl_ssl_domain_name": "string",
+                            "public_sasl_ssl_enable": "bool"
+                          }
+                        ]
+                      ],
                       "product_id": "string",
+                      "public_bandwidth": "number",
+                      "public_boundwidth": "number",
                       "public_conn_addresses": "string",
                       "public_ip_ids": [
                         "list",
@@ -77,11 +129,17 @@
                       "resource_spec_code": "string",
                       "retention_policy": "string",
                       "security_group_id": "string",
+                      "security_group_name": "string",
                       "security_protocol": "string",
+                      "specification": "string",
                       "ssl_enable": "bool",
+                      "ssl_two_way_enable": "bool",
                       "status": "string",
+                      "storage_resource_id": "string",
                       "storage_space": "number",
                       "storage_spec_code": "string",
+                      "storage_type": "string",
+                      "support_features": "string",
                       "tags": [
                         "map",
                         "string"
@@ -90,21 +148,28 @@
                       "used_storage_space": "number",
                       "user_id": "string",
                       "user_name": "string",
-                      "vpc_id": "string"
+                      "vpc_client_plain": "bool",
+                      "vpc_id": "string",
+                      "vpc_name": "string"
                     }
                   ]
                 ],
+                "description": "The list of instances that match the filter parameters.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the instance to be queried.",
                 "optional": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "description": "The region where the instances are located.",
+                "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the instance to be queried.",
                 "optional": true
               }
             }

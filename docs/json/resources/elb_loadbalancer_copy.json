@@ -107,13 +107,11 @@
               },
               "l4_flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "l7_flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "loadbalancer_id": {
                 "type": "string",

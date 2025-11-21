@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_sso_configuration": {
+          "block": {
+            "attributes": {
+              "allowed_mfa_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "configuration_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "max_authentication_age": {
+                "type": "string",
+                "required": true
+              },
+              "mfa_mode": {
+                "type": "string",
+                "required": true
+              },
+              "no_mfa_signin_behavior": {
+                "type": "string",
+                "required": true
+              },
+              "no_password_signin_behavior": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

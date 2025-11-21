@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_enterprise_project_associated_resources": {
+          "block": {
+            "attributes": {
+              "associated_resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "eip": "string",
+                      "id": "string",
+                      "name": "string",
+                      "resource_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "errors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "project_id": "string",
+                      "resource_id": "string",
+                      "resource_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "required": true
+              },
+              "region_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EPS",
+            "name": "Enterprise Project Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "企业项目管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

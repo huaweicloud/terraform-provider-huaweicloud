@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_group_memberships": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_memberships": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "group_id": "string",
+                      "identity_store_id": "string",
+                      "member_id": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string"
+                          }
+                        ]
+                      ],
+                      "membership_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

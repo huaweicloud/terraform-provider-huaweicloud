@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_user_sessions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "session_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "creation_time": "string",
+                      "ip_address": "string",
+                      "session_id": "string",
+                      "session_not_valid_after": "string",
+                      "user_agent": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

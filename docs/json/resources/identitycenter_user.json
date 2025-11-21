@@ -33,6 +33,7 @@
               "enabled": {
                 "type": "bool",
                 "description": "Whether the user is enabled.",
+                "optional": true,
                 "computed": true
               },
               "family_name": {

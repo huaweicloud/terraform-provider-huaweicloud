@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_protectable_resources": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain_id": "string",
+                      "eips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "eip_address": "string",
+                            "eip_id": "string",
+                            "ip_version": "number"
+                          }
+                        ]
+                      ],
+                      "listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "protocol": "string",
+                            "protocol_port": "number"
+                          }
+                        ]
+                      ],
+                      "loadbalancer_id": "string",
+                      "loadbalancer_name": "string",
+                      "project_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The detailed information on protectable resources.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of protection resource to query.",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the VPC ID where the load balancer is located.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

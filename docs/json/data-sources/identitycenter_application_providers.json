@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_application_providers": {
+          "block": {
+            "attributes": {
+              "application_providers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_provider_id": "string",
+                      "application_provider_urn": "string",
+                      "display_data": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "display_name": "string",
+                            "icon_url": "string"
+                          }
+                        ]
+                      ],
+                      "federation_protocol": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

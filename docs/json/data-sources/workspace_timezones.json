@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_timezones": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the time zones are located.",
+                "computed": true
+              },
+              "time_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cn_description": "string",
+                      "name": "string",
+                      "offset": "string",
+                      "us_description": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of time zones.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

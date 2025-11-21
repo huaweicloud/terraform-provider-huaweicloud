@@ -9,6 +9,10 @@
                 "type": "string",
                 "optional": true
               },
+              "az_affinity": {
+                "type": "string",
+                "optional": true
+              },
               "connection_drain": {
                 "type": "string",
                 "optional": true
@@ -87,6 +91,18 @@
                     "object",
                     {
                       "any_port_enable": "bool",
+                      "az_affinity": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_minimum_healthy_member_count": "number",
+                            "az_minimum_healthy_member_percentage": "number",
+                            "az_unhealthy_fallback_strategy": "string",
+                            "enable": "bool"
+                          }
+                        ]
+                      ],
                       "connection_drain_enabled": "bool",
                       "connection_drain_timeout": "number",
                       "created_at": "string",

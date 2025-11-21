@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "only_attached": {
+                "type": "bool",
+                "description": "Whether to list only policies that are attached to entities.",
+                "optional": true
+              },
+              "path_prefix": {
+                "type": "string",
+                "description": "The resource path prefix.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachment_count": "number",
+                      "created_at": "string",
+                      "default_version_id": "string",
+                      "description": "string",
+                      "path": "string",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "policy_type": "string",
+                      "updated_at": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of IAM policies.",
+                "computed": true
+              },
+              "policy_type": {
+                "type": "string",
+                "description": "The type of identity policy, can be \"custom\" or \"system\".",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

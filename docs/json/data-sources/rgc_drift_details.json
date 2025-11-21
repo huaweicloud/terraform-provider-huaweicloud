@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rgc_drift_details": {
+          "block": {
+            "attributes": {
+              "drift_details": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "drift_message": "string",
+                      "drift_target_id": "string",
+                      "drift_target_type": "string",
+                      "drift_type": "string",
+                      "managed_account_id": "string",
+                      "parent_organizational_unit_id": "string",
+                      "solve_solution": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

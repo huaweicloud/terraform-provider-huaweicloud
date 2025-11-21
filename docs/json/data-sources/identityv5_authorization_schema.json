@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_authorization_schema": {
+          "block": {
+            "attributes": {
+              "actions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_level": "string",
+                      "aliases": [
+                        "list",
+                        "string"
+                      ],
+                      "condition_keys": [
+                        "list",
+                        "string"
+                      ],
+                      "description": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "permission_only": "bool",
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "condition_keys": [
+                              "list",
+                              "string"
+                            ],
+                            "required": "bool",
+                            "urn_template": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "conditions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "key": "string",
+                      "multi_valued": "bool",
+                      "value_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dependent_actions": [
+                        "list",
+                        "string"
+                      ],
+                      "operation_action": "string",
+                      "operation_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type_name": "string",
+                      "urn_template": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "service_code": {
+                "type": "string",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

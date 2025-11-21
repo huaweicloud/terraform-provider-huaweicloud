@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rgc_control_detail": {
+          "block": {
+            "attributes": {
+              "aliases": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "artifacts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "content": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ch": "string",
+                            "en": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "behavior": {
+                "type": "string",
+                "computed": true
+              },
+              "control_id": {
+                "type": "string",
+                "required": true
+              },
+              "control_objective": {
+                "type": "string",
+                "computed": true
+              },
+              "framework": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "guidance": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identifier": {
+                "type": "string",
+                "computed": true
+              },
+              "implementation": {
+                "type": "string",
+                "computed": true
+              },
+              "owner": {
+                "type": "string",
+                "computed": true
+              },
+              "release_date": {
+                "type": "string",
+                "computed": true
+              },
+              "resource": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "service": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

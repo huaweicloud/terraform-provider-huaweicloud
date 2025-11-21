@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_nat_private_transit_subnet": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": "string",
+                "description": "Specifies the CIDR block of the transit subnet.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the transit subnet for private NAT.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the private transit subnet.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "description": "The transit subnet ID.",
+                "computed": true
+              },
+              "ip_count": {
+                "type": "number",
+                "description": "Specifies the number of IP addresses that has been assigned from the transit subnet.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the private transit subnet.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the transit subnet is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the transit subnet.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the transit subnet type.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the transit subnet for private NAT.",
+                "computed": true
+              },
+              "virsubnet_id": {
+                "type": "string",
+                "description": "The ID of the transit subnet to which the transit IP belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "virsubnet_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the project to which the transit subnet belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the transit subnet belongs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT Gateway",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

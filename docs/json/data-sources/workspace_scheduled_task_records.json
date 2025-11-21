@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_scheduled_task_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "execute_object_type": "string",
+                      "execute_task_id": "string",
+                      "failed_num": "number",
+                      "id": "string",
+                      "life_cycle_type": "string",
+                      "scheduled_type": "string",
+                      "skip_num": "number",
+                      "start_time": "string",
+                      "status": "string",
+                      "success_num": "number",
+                      "task_type": "string",
+                      "time_zone": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of scheduled task execution records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the scheduled task records are located.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The ID of the scheduled task to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

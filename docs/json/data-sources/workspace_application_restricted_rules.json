@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_application_restricted_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the restricted application rule to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the restricted application rules are located.",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "rule": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "path_rule": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "path": "string"
+                                }
+                              ]
+                            ],
+                            "product_rule": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "identify_condition": "string",
+                                  "process_name": "string",
+                                  "product_name": "string",
+                                  "product_version": "string",
+                                  "publisher": "string",
+                                  "support_os": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "scope": "string"
+                          }
+                        ]
+                      ],
+                      "rule_source": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of restricted application rules that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

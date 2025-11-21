@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_artifact_accessories": {
+          "block": {
+            "attributes": {
+              "accessories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "artifact_id": "number",
+                      "created_at": "string",
+                      "digest": "string",
+                      "id": "number",
+                      "size": "number",
+                      "subject_artifact_id": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the accessories.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "reference": {
+                "type": "string",
+                "description": "Specifies the digest.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "required": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicates the total counts of the accessories.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the accessort type. Value can be **signature.cosign**.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

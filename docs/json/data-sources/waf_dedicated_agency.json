@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_dedicated_agency": {
+          "block": {
+            "attributes": {
+              "agency_id": {
+                "type": "string",
+                "description": "The agency ID.",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "The domain ID.",
+                "computed": true
+              },
+              "duration": {
+                "type": "string",
+                "description": "The agent existence time period.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_valid": {
+                "type": "bool",
+                "description": "Whether the agency is legal。",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The agency name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

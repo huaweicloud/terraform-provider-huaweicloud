@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_replication_policy_execution_record_sub_tasks": {
+          "block": {
+            "attributes": {
+              "execution_id": {
+                "type": "string",
+                "description": "Specifies the execution record ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the execution record task status.",
+                "optional": true
+              },
+              "sub_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "digest": "string",
+                      "end_time": "string",
+                      "id": "number",
+                      "job_id": "string",
+                      "namespace": "string",
+                      "repository": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "status_text": "string",
+                      "tag": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the execution record sub tasks.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the execution record task ID.",
+                "required": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicates the total tasks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

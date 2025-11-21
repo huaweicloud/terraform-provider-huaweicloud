@@ -44,6 +44,12 @@
                 "type": "number",
                 "description": "The last update time.",
                 "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The IAM user name to which the action rule belongs.",
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {

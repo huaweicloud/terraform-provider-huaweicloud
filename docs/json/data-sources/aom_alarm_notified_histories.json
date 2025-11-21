@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_alarm_notified_histories": {
+          "block": {
+            "attributes": {
+              "event_sn": {
+                "type": "string",
+                "description": "The serial number of the alarm event.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "notified_histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "event_sn": "string",
+                      "notifications": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action_rule": "string",
+                            "notifier_channel": "string",
+                            "smn_channel": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "sent_time": "number",
+                                  "smn_notified_history": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "smn_notified_content": "string",
+                                        "smn_subscription_status": "number",
+                                        "smn_subscription_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "smn_request_id": "string",
+                                  "smn_response_body": "string",
+                                  "smn_response_code": "string",
+                                  "smn_topic": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of notified histories.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the alarm notification histories are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

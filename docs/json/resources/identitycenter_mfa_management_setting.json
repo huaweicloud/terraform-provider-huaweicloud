@@ -1,0 +1,30 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_mfa_management_setting": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "user_permission": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

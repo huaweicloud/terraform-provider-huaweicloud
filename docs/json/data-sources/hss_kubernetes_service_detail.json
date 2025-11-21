@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_kubernetes_service_detail": {
+          "block": {
+            "attributes": {
+              "cluster_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "number",
+                "computed": true
+              },
+              "endpoint_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "selector": {
+                "type": "string",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "required": true
+              },
+              "service_port_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "node_port": "number",
+                      "port": "number",
+                      "protocol": "string",
+                      "service_id": "string",
+                      "target_port": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "session_affinity": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

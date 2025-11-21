@@ -10,6 +10,10 @@
                 "optional": true,
                 "computed": true
               },
+              "cascade_delete": {
+                "type": "bool",
+                "optional": true
+              },
               "connection_drain_enabled": {
                 "type": "bool",
                 "optional": true,
@@ -120,6 +124,34 @@
               }
             },
             "block_types": {
+              "az_affinity": {
+                "block": {
+                  "attributes": {
+                    "az_minimum_healthy_member_count": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "az_minimum_healthy_member_percentage": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "az_unhealthy_fallback_strategy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enable": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "persistence": {
                 "block": {
                   "attributes": {

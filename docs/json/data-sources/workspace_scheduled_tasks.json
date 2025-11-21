@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_scheduled_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_status": {
+                "type": "string",
+                "description": "The last execution status of the scheduled task to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the scheduled tasks are located.",
+                "computed": true
+              },
+              "scheduled_type": {
+                "type": "string",
+                "description": "The execution cycle type of the scheduled task to be queried.",
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The name of the scheduled task to be queried.",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "The type of the scheduled task to be queried.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "enable": "bool",
+                      "id": "string",
+                      "last_status": "string",
+                      "life_cycle_type": "string",
+                      "name": "string",
+                      "next_execution_time": "string",
+                      "priority": "number",
+                      "scheduled_type": "string",
+                      "time_zone": "string",
+                      "type": "string",
+                      "wait_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the scheduled tasks that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

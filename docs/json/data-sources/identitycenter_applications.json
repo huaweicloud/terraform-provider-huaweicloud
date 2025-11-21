@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_applications": {
+          "block": {
+            "attributes": {
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_account": "string",
+                      "application_provider_urn": "string",
+                      "application_urn": "string",
+                      "assignment_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "assignment_required": "bool"
+                          }
+                        ]
+                      ],
+                      "created_date": "string",
+                      "description": "string",
+                      "instance_urn": "string",
+                      "name": "string",
+                      "portal_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "sign_in_options": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "application_url": "string",
+                                  "origin": "string"
+                                }
+                              ]
+                            ],
+                            "visibility": "string",
+                            "visible": "bool"
+                          }
+                        ]
+                      ],
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_nat_private_transit_subnets": {
+          "block": {
+            "attributes": {
+              "descriptions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource descriptions for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource IDs for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource names for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource status for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "transit_subnets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cidr": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_count": "number",
+                      "name": "string",
+                      "project_id": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string",
+                      "virsubnet_id": "string",
+                      "virsubnet_project_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "virsubnet_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource subnet ids for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "virsubnet_project_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource subnet project ids for querying instances.",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource vpc ids for querying instances.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT Gateway",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

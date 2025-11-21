@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_security_report_sending_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "report_category": "string",
+                      "report_id": "string",
+                      "report_name": "string",
+                      "sending_time": "number",
+                      "stat_period": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "begin_time": "number",
+                            "end_time": "number"
+                          }
+                        ]
+                      ],
+                      "subscription_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The detailed list of security report sending records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "report_category": {
+                "type": "string",
+                "description": "Specifies the report category.",
+                "optional": true
+              },
+              "report_name": {
+                "type": "string",
+                "description": "Specifies the report name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

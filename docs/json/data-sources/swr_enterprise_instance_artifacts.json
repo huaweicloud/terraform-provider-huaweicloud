@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_artifacts": {
+          "block": {
+            "attributes": {
+              "artifacts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "digest": "string",
+                      "id": "number",
+                      "manifest_media_type": "string",
+                      "media_type": "string",
+                      "namespace_id": "number",
+                      "pull_time": "string",
+                      "push_time": "string",
+                      "repository_id": "number",
+                      "repository_name": "string",
+                      "size": "number",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "artifact_id": "number",
+                            "id": "number",
+                            "name": "string",
+                            "pull_time": "string",
+                            "push_time": "string",
+                            "repository_id": "number"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the artifacts.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "required": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the artifact version.",
+                "optional": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicates the total counts of artifact.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the artifact type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

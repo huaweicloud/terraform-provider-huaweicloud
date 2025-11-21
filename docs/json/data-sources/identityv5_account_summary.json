@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_account_summary": {
+          "block": {
+            "attributes": {
+              "agencies": {
+                "type": "number",
+                "computed": true
+              },
+              "agencies_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "attached_policies_per_agency_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "attached_policies_per_group_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "attached_policies_per_user_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "groups": {
+                "type": "number",
+                "computed": true
+              },
+              "groups_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policies": {
+                "type": "number",
+                "computed": true
+              },
+              "policies_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "policy_size_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "root_user_mfa_enabled": {
+                "type": "number",
+                "computed": true
+              },
+              "users": {
+                "type": "number",
+                "computed": true
+              },
+              "users_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "versions_per_policy_quota": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

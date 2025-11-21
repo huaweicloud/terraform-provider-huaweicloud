@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "quota": "number",
+                            "type": "string",
+                            "unit": "string",
+                            "used": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of common quotas.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the quotas are located.",
+                "computed": true
+              },
+              "site_quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "quota": "number",
+                            "type": "string",
+                            "unit": "string",
+                            "used": "number"
+                          }
+                        ]
+                      ],
+                      "site_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of site quotas.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

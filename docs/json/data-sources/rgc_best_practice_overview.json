@@ -1,0 +1,197 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rgc_best_practice_overview": {
+          "block": {
+            "attributes": {
+              "compliance_audit": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "data_boundary": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "detect_time": {
+                "type": "string",
+                "computed": true
+              },
+              "financial_governance": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_permission": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "network_planning": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "om_monitor": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "organization_account": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_management": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detection_count": "number",
+                      "high_risk_count": "number",
+                      "low_risk_count": "number",
+                      "medium_risk_count": "number",
+                      "risk_item_description": [
+                        "list",
+                        "string"
+                      ],
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_score": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

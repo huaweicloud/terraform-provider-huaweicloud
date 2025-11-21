@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_domain_owner_verification": {
+          "block": {
+            "attributes": {
+              "dns_verify_name": {
+                "type": "string",
+                "description": "The DNS resolution host record name.",
+                "computed": true
+              },
+              "dns_verify_type": {
+                "type": "string",
+                "description": "The DNS resolution type.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The name of the accelerated domain.",
+                "required": true
+              },
+              "file_verify_domains": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of file verification domain names.",
+                "computed": true
+              },
+              "file_verify_filename": {
+                "type": "string",
+                "description": "The file verification filename.",
+                "computed": true
+              },
+              "file_verify_url": {
+                "type": "string",
+                "description": "The file verification URL address.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "verify_content": {
+                "type": "string",
+                "description": "The verification value, which is the resolution value or file content.",
+                "computed": true
+              },
+              "verify_domain_name": {
+                "type": "string",
+                "description": "The verification domain name.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

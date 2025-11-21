@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_security_report_subscription": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID associated with the subscription.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_all_enterprise_project": {
+                "type": "bool",
+                "description": "Whether the subscription applies to all enterprise projects.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "report_category": {
+                "type": "string",
+                "description": "The category of the security report.",
+                "computed": true
+              },
+              "report_content_subscription": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attack_type_distribution_enable": "bool",
+                      "bandwidth_statistics_enable": "bool",
+                      "group_by_day_enable": "bool",
+                      "overview_statistics_enable": "bool",
+                      "qps_statistics_enable": "bool",
+                      "request_statistics_enable": "bool",
+                      "response_code_statistics_enable": "bool",
+                      "top_abnormal_urls_enable": "bool",
+                      "top_attack_source_ips_enable": "bool",
+                      "top_attack_source_locations_enable": "bool",
+                      "top_attacked_domains_enable": "bool",
+                      "top_attacked_urls_enable": "bool"
+                    }
+                  ]
+                ],
+                "description": "The content subscription configuration of the security report.",
+                "computed": true
+              },
+              "report_name": {
+                "type": "string",
+                "description": "The name of the security report.",
+                "computed": true
+              },
+              "sending_period": {
+                "type": "string",
+                "description": "The sending period of the security report.",
+                "computed": true
+              },
+              "stat_period": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "number",
+                      "end_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The statistical period of the security report.",
+                "computed": true
+              },
+              "subscription_id": {
+                "type": "string",
+                "description": "Specifies the ID of the security report subscription.",
+                "required": true
+              },
+              "subscription_type": {
+                "type": "string",
+                "description": "The subscription type of the security report.",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "The URN of the SMN topic for receiving reports.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

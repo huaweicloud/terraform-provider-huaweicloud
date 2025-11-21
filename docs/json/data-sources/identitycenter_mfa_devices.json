@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_mfa_devices": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "required": true
+              },
+              "mfa_devices": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "device_id": "string",
+                      "device_name": "string",
+                      "display_name": "string",
+                      "mfa_type": "string",
+                      "registered_date": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

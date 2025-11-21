@@ -27,20 +27,17 @@
               "bandwidth_charge_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "bandwidth_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "bandwidth_size": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "charge_mode": {
                 "type": "string",
@@ -100,8 +97,7 @@
               "iptype": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "ipv4_address": {
                 "type": "string",
@@ -115,8 +111,7 @@
               "ipv4_eip_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "ipv4_port_id": {
                 "type": "string",
@@ -124,7 +119,6 @@
               },
               "ipv4_subnet_id": {
                 "type": "string",
-                "description": "the IPv4 subnet ID of the subnet where the load balancer resides",
                 "optional": true
               },
               "ipv6_address": {
@@ -146,24 +140,20 @@
               },
               "ipv6_network_id": {
                 "type": "string",
-                "description": "the ID of the subnet where the load balancer resides",
                 "optional": true
               },
               "l4_flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "l7_flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "loadbalancer_type": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -201,8 +191,7 @@
               "sharetype": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "tags": {
                 "type": [
@@ -219,8 +208,7 @@
               "vpc_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "waf_failure_action": {
                 "type": "string",

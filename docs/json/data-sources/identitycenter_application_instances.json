@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_application_instances": {
+          "block": {
+            "attributes": {
+              "application_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active_certificate": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "algorithm": "string",
+                            "certificate": "string",
+                            "certificate_id": "string",
+                            "expiry_date": "string",
+                            "issue_date": "string",
+                            "key_size": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "client_id": "string",
+                      "description": "string",
+                      "display_name": "string",
+                      "end_user_visible": "bool",
+                      "identity_provider_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "issuer_url": "string",
+                            "metadata_url": "string",
+                            "remote_login_url": "string",
+                            "remote_logout_url": "string"
+                          }
+                        ]
+                      ],
+                      "managed_account": "string",
+                      "name": "string",
+                      "response_config": "string",
+                      "response_schema_config": "string",
+                      "security_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ttl": "string"
+                          }
+                        ]
+                      ],
+                      "service_provider_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "audience": "string",
+                            "consumers": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "binding": "string",
+                                  "default_value": "bool",
+                                  "location": "string"
+                                }
+                              ]
+                            ],
+                            "require_request_signature": "bool",
+                            "start_url": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "visible": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

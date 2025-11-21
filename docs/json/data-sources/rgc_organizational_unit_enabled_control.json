@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rgc_organizational_unit_enabled_control": {
+          "block": {
+            "attributes": {
+              "control": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "behavior": "string",
+                      "control_identifier": "string",
+                      "control_objective": "string",
+                      "description": "string",
+                      "manage_account_id": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "regional_preference": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "control_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "managed_organizational_unit_id": {
+                "type": "string",
+                "required": true
+              },
+              "message": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "region": "string",
+                      "region_configuration_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
