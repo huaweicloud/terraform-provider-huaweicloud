@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identityv5_virtual_mfa_device
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v5/mfa-devices:
+        GET:
+            tag: IAM
+    /v5/virtual-mfa-devices:
+        DELETE:
+            tag: IAM
+        POST:
+            tag: IAM

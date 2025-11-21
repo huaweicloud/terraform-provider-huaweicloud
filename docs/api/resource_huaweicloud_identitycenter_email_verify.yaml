@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_email_verify
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/users/{user_id}/verify-email:
+        POST:
+            tag: IdentityCenter

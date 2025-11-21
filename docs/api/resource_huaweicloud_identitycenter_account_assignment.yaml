@@ -20,3 +20,6 @@ paths:
     /v1/instances/{instance_id}/account-assignments/delete:
         POST:
             tag: IdentityCenter
+    /v1/instances/{instance_id}/account-assignments/deletion-status/{request_id}:
+        GET:
+            tag: IdentityCenter

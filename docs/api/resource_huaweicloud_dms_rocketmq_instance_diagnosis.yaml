@@ -12,7 +12,8 @@ paths:
         GET:
             tag: RocketMQ
     /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis:
-        DELETE:
+        POST:
             tag: RocketMQ
+    /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis/batch-delete:
         POST:
             tag: RocketMQ

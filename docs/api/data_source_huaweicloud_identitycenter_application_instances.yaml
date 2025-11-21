@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_identitycenter_application_instances
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IDENTITYCENTER
+paths:
+    /v1/instances/{instance_id}/application-instances:
+        GET:
+            tag: IDENTITYCENTER

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rgc_account_controls
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RGC
+paths:
+    /v1/governance/managed-accounts/{managed_account_id}/controls:
+        GET:
+            tag: RGC

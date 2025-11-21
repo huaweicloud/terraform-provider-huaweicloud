@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_application_visibility_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-center/apps/actions/batch-disable:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/app-center/apps/actions/batch-enable:
+        POST:
+            tag: Workspace

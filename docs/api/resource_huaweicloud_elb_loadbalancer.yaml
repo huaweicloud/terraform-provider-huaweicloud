@@ -14,9 +14,6 @@ paths:
     /v1/{project_id}/publicips/{publicip_id}:
         DELETE:
             tag: EIP
-    /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags:
-        GET:
-            tag: ELB
     /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags/action:
         POST:
             tag: ELB

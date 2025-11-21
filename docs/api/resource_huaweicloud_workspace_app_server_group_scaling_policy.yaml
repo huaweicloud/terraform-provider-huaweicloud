@@ -6,12 +6,12 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: WorkspaceApp
+    - name: Workspace
 paths:
     /v1/{project_id}/scaling-policy:
         DELETE:
-            tag: WorkspaceApp
+            tag: Workspace
         GET:
-            tag: WorkspaceApp
+            tag: Workspace
         PUT:
-            tag: WorkspaceApp
+            tag: Workspace

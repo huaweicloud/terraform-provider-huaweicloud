@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: WORKSPACEAPP
+    - name: Workspace
 paths:
     /v1/{project_id}/app-server-groups:
         GET:
-            tag: WORKSPACEAPP
+            tag: Workspace

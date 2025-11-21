@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbh_change_instance_type
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBH
+paths:
+    /v2/{project_id}/cbs/instance/type:
+        PUT:
+            tag: CBH
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/orders/customer-orders/pay:
+        POST:
+            tag: BSS

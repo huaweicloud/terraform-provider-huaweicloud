@@ -16,5 +16,5 @@ paths:
     /v1/instances/{instance_id}/application-instances/{application_instance_id}/certificates/{certificate_id}:
         DELETE:
             tag: IdentityCenter
-        POST:
+        PUT:
             tag: IdentityCenter

@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_nat_private_transit_subnet
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: NAT
+paths:
+    /v3/{project_id}/private-nat/transit-subnets:
+        POST:
+            tag: NAT
+    /v3/{project_id}/private-nat/transit-subnets/{transit_subnet_id}:
+        DELETE:
+            tag: NAT
+        GET:
+            tag: NAT
+        PUT:
+            tag: NAT
+    /v3/{project_id}/transit-subnets/{resource_id}/tags:
+        POST:
+            tag: NAT

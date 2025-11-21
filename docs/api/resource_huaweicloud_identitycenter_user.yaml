@@ -18,3 +18,9 @@ paths:
             tag: IdentityCenter
         PUT:
             tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/users/{user_id}/disable:
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/users/{user_id}/enable:
+        POST:
+            tag: IdentityCenter

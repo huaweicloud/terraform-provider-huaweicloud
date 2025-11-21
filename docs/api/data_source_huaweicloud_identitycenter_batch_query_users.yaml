@@ -9,5 +9,5 @@ tags:
     - name: IdentityCenter
 paths:
     /v1/identity-stores/{identity_store_id}/users/batch-query:
-        GET:
+        POST:
             tag: IdentityCenter

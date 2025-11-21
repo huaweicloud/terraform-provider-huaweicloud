@@ -9,5 +9,5 @@ tags:
     - name: HSS
 paths:
     /v5/{project_id}/setting/two-factor-login/config:
-        POST:
+        PUT:
             tag: HSS

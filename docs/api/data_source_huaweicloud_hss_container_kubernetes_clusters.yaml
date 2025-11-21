@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: HSS
 paths:
-    /v5/{project_id}/container/kubernetes:
+    /v5/{project_id}/kubernetes/clusters:
         GET:
             tag: HSS

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_aom_alarm_notified_histories
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v2/{project_id}/alarm-notified-histories:
+        GET:
+            tag: AOM

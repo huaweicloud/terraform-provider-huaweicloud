@@ -9,9 +9,10 @@ tags:
     - name: RocketMQ
 paths:
     /v2/{project_id}/instances/{instance_id}/metadata:
-        DELETE:
-            tag: RocketMQ
         GET:
             tag: RocketMQ
+        POST:
+            tag: RocketMQ
+    /v2/{project_id}/instances/{instance_id}/metadata/batch-delete:
         POST:
             tag: RocketMQ

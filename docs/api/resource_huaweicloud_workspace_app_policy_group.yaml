@@ -6,15 +6,15 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: WORKSPACEAPP
+    - name: Workspace
 paths:
     /v1/{project_id}/policy-groups:
         GET:
-            tag: WORKSPACEAPP
+            tag: Workspace
         POST:
-            tag: WORKSPACEAPP
+            tag: Workspace
     /v1/{project_id}/policy-groups/{policy_group_id}:
         DELETE:
-            tag: WORKSPACEAPP
+            tag: Workspace
         PATCH:
-            tag: WORKSPACEAPP
+            tag: Workspace

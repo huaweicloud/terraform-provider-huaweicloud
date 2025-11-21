@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_identitycenter_group_memberships
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/group-memberships:
+        GET:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/group-memberships-for-member:
+        GET:
+            tag: IdentityCenter

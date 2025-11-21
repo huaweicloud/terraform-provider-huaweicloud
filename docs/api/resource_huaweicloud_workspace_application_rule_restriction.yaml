@@ -6,13 +6,13 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: WORKSPACE
+    - name: Workspace
 paths:
     /v1/{project_id}/app-center/app-restricted-rules:
         GET:
-            tag: WORKSPACE
+            tag: Workspace
         POST:
-            tag: WORKSPACE
+            tag: Workspace
     /v1/{project_id}/app-center/app-restricted-rules/actions/batch-delete:
         POST:
-            tag: WORKSPACE
+            tag: Workspace
