@@ -24,4 +24,6 @@ There are no arguments available for this data source.
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `home_region` - The home region ID.

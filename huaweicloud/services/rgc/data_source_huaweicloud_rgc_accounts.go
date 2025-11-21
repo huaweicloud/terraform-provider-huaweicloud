@@ -3,7 +3,6 @@ package rgc
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -16,30 +15,30 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API RGC GET /v1/managed-organization/managed-organizational-units/{managed_organizational_unit_id}/managed-accounts
-func DataSourceOrganizationalUnitAccounts() *schema.Resource {
+// @API RGC GET /v1/managed-organization/managed-accounts
+func DataSourceAccounts() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationalUnitAccountsRead,
+		ReadContext: dataSourceAccountsRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"managed_organizational_unit_id": {
+			"control_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"managed_accounts": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     accountSchema(),
+				Elem:     listAccountSchema(),
 			},
 		},
 	}
 }
 
-func accountSchema() *schema.Resource {
+func listAccountSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"landing_zone_version": {
@@ -51,10 +50,6 @@ func accountSchema() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"account_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -132,43 +127,41 @@ func accountSchema() *schema.Resource {
 	return &sc
 }
 
-func dataSourceOrganizationalUnitAccountsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	ouId := d.Get("managed_organizational_unit_id").(string)
+func dataSourceAccountsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	listOrganizationalUnitAccountsHttpUrl := "v1/managed-organization/managed-organizational-units/{managed_organizational_unit_id}/managed-accounts"
-	listOrganizationalUnitAccountsProduct := "rgc"
-	listOrganizationalUnitAccountsClient, err := cfg.NewServiceClient(listOrganizationalUnitAccountsProduct, region)
+	listAccountsHttpUrl := "v1/managed-organization/managed-accounts"
+	listAccountsProduct := "rgc"
+	listAccountsClient, err := cfg.NewServiceClient(listAccountsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RGC client: %s", err)
 	}
 
-	listOrganizationalUnitAccountsPath := listOrganizationalUnitAccountsClient.Endpoint + listOrganizationalUnitAccountsHttpUrl
-	listOrganizationalUnitAccountsPath = strings.ReplaceAll(listOrganizationalUnitAccountsPath, "{managed_organizational_unit_id}", ouId)
-	listOrganizationalUnitAccountsOpt := golangsdk.RequestOpts{
+	listAccountsPath := listAccountsClient.Endpoint + listAccountsHttpUrl
+	listAccountsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var organizationalUnitAccounts []interface{}
+	var accounts []interface{}
 	var marker string
 	var queryPath string
 
 	for {
-		queryPath = listOrganizationalUnitAccountsPath + buildListOrganizationalUnitAccountQueryParams(marker)
-		listOrganizationalUnitAccountsResp, err := listOrganizationalUnitAccountsClient.Request("GET", queryPath, &listOrganizationalUnitAccountsOpt)
+		queryPath = listAccountsPath + buildListAccountQueryParams(d, marker)
+		listAccountsResp, err := listAccountsClient.Request("GET", queryPath, &listAccountsOpt)
 		if err != nil {
 			return diag.Errorf("error retrieving RGC accounts: %s", err)
 		}
 
-		listOrganizationalUnitAccountsRespBody, err := utils.FlattenResponse(listOrganizationalUnitAccountsResp)
+		listAccountsRespBody, err := utils.FlattenResponse(listAccountsResp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePageOrganizationalUnitAccounts := flattenOrganizationalUnitAccountsResp(listOrganizationalUnitAccountsRespBody)
-		organizationalUnitAccounts = append(organizationalUnitAccounts, onePageOrganizationalUnitAccounts...)
-		marker = utils.PathSearch("page_info.next_marker", listOrganizationalUnitAccountsRespBody, "").(string)
+		onePageOrganizationalUnitAccounts := FlattenAccountsResp(listAccountsRespBody)
+		accounts = append(accounts, onePageOrganizationalUnitAccounts...)
+		marker = utils.PathSearch("page_info.next_marker", listAccountsRespBody, "").(string)
 		if marker == "" {
 			break
 		}
@@ -181,14 +174,14 @@ func dataSourceOrganizationalUnitAccountsRead(_ context.Context, d *schema.Resou
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("managed_accounts", organizationalUnitAccounts),
+		d.Set("managed_accounts", accounts),
 		d.Set("region", region),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListOrganizationalUnitAccountQueryParams(marker string) string {
+func buildListAccountQueryParams(d *schema.ResourceData, marker string) string {
 	// the default value of limit is 200
 	res := "?limit=200"
 
@@ -196,10 +189,14 @@ func buildListOrganizationalUnitAccountQueryParams(marker string) string {
 		res = fmt.Sprintf("%s&marker=%v", res, marker)
 	}
 
+	if v, ok := d.GetOk("control_id"); ok {
+		res = fmt.Sprintf("%s&control_id=%v", res, v)
+	}
+
 	return res
 }
 
-func flattenOrganizationalUnitAccountsResp(resp interface{}) []interface{} {
+func FlattenAccountsResp(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
@@ -212,7 +209,6 @@ func flattenOrganizationalUnitAccountsResp(resp interface{}) []interface{} {
 			"landing_zone_version":                    utils.PathSearch("landing_zone_version", v, nil),
 			"manage_account_id":                       utils.PathSearch("manage_account_id", v, nil),
 			"account_id":                              utils.PathSearch("account_id", v, nil),
-			"account_name":                            utils.PathSearch("account_name", v, nil),
 			"account_type":                            utils.PathSearch("account_type", v, nil),
 			"owner":                                   utils.PathSearch("owner", v, nil),
 			"state":                                   utils.PathSearch("state", v, nil),
