@@ -20,6 +20,8 @@ import (
 // @API Workspace GET /v1/{project_id}/app-server-group
 // @API Workspace PATCH /v1/{project_id}/app-server-groups/{server_group_id}
 // @API Workspace POST /v1/{project_id}/app-server-groups/{server_group_id}
+// @API Workspace POST /v1/{project_id}/server-group/tags/batch-create
+// @API Workspace DELETE /v1/{project_id}/server-group/tags/batch-delete
 func ResourceAppServerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerGroupCreate,
@@ -118,7 +120,7 @@ func ResourceAppServerGroup() *schema.Resource {
 				Optional:    true,
 				Description: `The description of the server group.`,
 			},
-			"tags": common.TagsForceNewSchema("The key/value pairs to associate with the server group."),
+			"tags": common.TagsSchema("The key/value pairs to associate with the server group."),
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -452,7 +454,10 @@ func flattenAppServerGroupFlavor(flavors []interface{}) []map[string]interface{}
 }
 
 func resourceAppServerGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
+	var (
+		cfg           = meta.(*config.Config)
+		serverGroupId = d.Id()
+	)
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Workspace APP client: %s", err)
@@ -461,9 +466,15 @@ func resourceAppServerGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChanges("name", "system_disk_type", "system_disk_size", "image_id", "image_type", "image_product_id",
 		"description", "app_type", "route_policy", "ou_name", "enabled", "storage_mount_policy") {
 		updateOpt := buildUpdateServerGroupBodyParams(d)
-		serverGroupId := d.Id()
 		if err := updateAppServerGroup(client, serverGroupId, updateOpt); err != nil {
 			return diag.Errorf("error updating server group (%s): %s", serverGroupId, err)
+		}
+	}
+
+	if d.HasChanges("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		if err := updateServerGroupTags(client, serverGroupId, oRaw, nRaw); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -503,6 +514,60 @@ func buildUpdateServerGroupBodyParams(d *schema.ResourceData) map[string]interfa
 		"server_group_status":  d.Get("enabled"),
 		"storage_mount_policy": d.Get("storage_mount_policy"),
 	}
+}
+
+func updateServerGroupTags(client *golangsdk.ServiceClient, serverGroupId string, oRaw, nRaw interface{}) error {
+	removeTags := oRaw.(map[string]interface{})
+	addTags := nRaw.(map[string]interface{})
+	if len(removeTags) > 0 {
+		if err := removeServerGroupTags(client, serverGroupId, removeTags); err != nil {
+			return fmt.Errorf("error removing tags of server group (%s): %s", serverGroupId, err)
+		}
+	}
+
+	if len(addTags) > 0 {
+		if err := addServerGroupTags(client, serverGroupId, addTags); err != nil {
+			return fmt.Errorf("error adding tags of server group (%s): %s", serverGroupId, err)
+		}
+	}
+
+	return nil
+}
+
+func buildUpdateServerGroupTagsBodyParams(serverGroupId string, tags map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"items": []map[string]interface{}{
+			{
+				"server_group_id": serverGroupId,
+				"tags":            utils.ExpandResourceTags(tags),
+			},
+		},
+	}
+}
+
+func addServerGroupTags(client *golangsdk.ServiceClient, serverGroupId string, tags map[string]interface{}) error {
+	httpUrl := "v1/{project_id}/server-group/tags/batch-create"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateServerGroupTagsBodyParams(serverGroupId, tags),
+		OkCodes:          []int{204},
+	}
+	_, err := client.Request("POST", path, &opt)
+	return err
+}
+
+func removeServerGroupTags(client *golangsdk.ServiceClient, serverGroupId string, tags map[string]interface{}) error {
+	httpUrl := "v1/{project_id}/server-group/tags/batch-delete"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateServerGroupTagsBodyParams(serverGroupId, tags),
+	}
+	_, err := client.Request("DELETE", path, &opt)
+	return err
 }
 
 func resourceAppServerGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

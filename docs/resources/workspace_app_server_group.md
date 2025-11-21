@@ -106,9 +106,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the server group.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the server group.
-  Supports up to 20 tags.  
-  Changing this creates a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the server group.
+  Supports up to `20` tags.
   
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
   server group belong.  
