@@ -423,9 +423,17 @@ func buildChannelHealthCheckConfig(healthConfigs []interface{}) *channels.VpcHea
 		return nil
 	}
 
+	// The `health_check` is a `Computed` and `Optional` behavior. If `health_check.protocol` is empty, it means that
+	// the `health_check` is not specified in the script, and `health_check.protocol` is defined as required in the SDK,
+	// so `health_check` should be ignored if empty, otherwise, the SDK will report an error during updates.
 	healthConfig := healthConfigs[0].(map[string]interface{})
+	protocol := healthConfig["protocol"].(string)
+	if protocol == "" {
+		return nil
+	}
+
 	return &channels.VpcHealthConfig{
-		Protocol:          healthConfig["protocol"].(string),
+		Protocol:          protocol,
 		ThresholdNormal:   healthConfig["threshold_normal"].(int),
 		ThresholdAbnormal: healthConfig["threshold_abnormal"].(int),
 		TimeInterval:      healthConfig["interval"].(int),
