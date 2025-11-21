@@ -534,6 +534,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestVpc(rName), rName)
 }
@@ -589,6 +595,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key1  = "value1"
     owner = "terraform_update"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestVpc(rName), rName, rNameUpdate)
 }
@@ -615,6 +627,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestVpc(rName), rName, deletionProtection)
 }
@@ -640,6 +658,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, rName, enterpriseProjectId)
 }
@@ -664,6 +688,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   bandwidth_charge_mode = "traffic"
   sharetype             = "PER"
   bandwidth_size        = 5
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, rName)
 }
@@ -692,6 +722,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   iptype       = "5_bgp"
   sharetype    = "WHOLE"
   bandwidth_id = huaweicloud_vpc_bandwidth.test.id
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, rName)
 }
@@ -704,9 +740,17 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_elb_flavors" "l4flavors" {
+  type            = "L4"
+  max_connections = 1000000
+  cps             = 20000
+  bandwidth       = 100
+}
+
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  l4_flavor_id   = data.huaweicloud_elb_flavors.l4flavors.ids[0]
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -728,9 +772,17 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_elb_flavors" "l4flavors" {
+  type            = "L4"
+  max_connections = 1000000
+  cps             = 20000
+  bandwidth       = 100
+}
+
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  l4_flavor_id   = data.huaweicloud_elb_flavors.l4flavors.ids[0]
 
   charging_mode = "prePaid"
   period_unit   = "month"
@@ -772,11 +824,11 @@ data "huaweicloud_elb_flavors" "l7flavors" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  description     = "update flavors"
-  l4_flavor_id    = data.huaweicloud_elb_flavors.l4flavors.ids[0]
-  l7_flavor_id    = data.huaweicloud_elb_flavors.l7flavors.ids[0]
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  description    = "update flavors"
+  l4_flavor_id   = data.huaweicloud_elb_flavors.l4flavors.ids[0]
+  l7_flavor_id   = data.huaweicloud_elb_flavors.l7flavors.ids[0]
 
   charging_mode = "prePaid"
   period_unit   = "month"
@@ -818,6 +870,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestVpc(rName), rName)
 }
@@ -841,6 +899,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   tags = {
     key1  = "value1"
     owner = "terraform_update"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
   }
 }
 `, common.TestVpc(rName), rNameUpdate)
@@ -869,6 +933,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
   ipv6_address    = "2407:c080:1200:5f0:9bb8:4438:299b:9083"
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, rName)
 }
@@ -896,6 +966,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 
   ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
   ipv6_address    = "2407:c080:1200:5f0:9bb8:4438:299b:9084"
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, rName)
 }
