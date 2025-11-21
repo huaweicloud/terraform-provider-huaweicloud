@@ -2109,6 +2109,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_tag_antileakage_map":                  waf.DataSourceTagAntileakageMap(),
 			"huaweicloud_waf_tag_ip_reputation_map":                waf.DataSourceTagIpReputationMap(),
 			"huaweicloud_waf_security_report_sending_records":      waf.DataSourceWafSecurityReportSendingRecords(),
+			"huaweicloud_waf_protectable_resources":                waf.DataSourceWafProtectables(),
 
 			"huaweicloud_dws_alarm_subscriptions":             dws.DataSourceAlarmSubscriptions(),
 			"huaweicloud_dws_availability_zones":              dws.DataSourceDwsAvailabilityZones(),
