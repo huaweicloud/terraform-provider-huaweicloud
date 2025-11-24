@@ -3080,6 +3080,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_container_kubernetes_cluster_daemonset":         hss.ResourceContainerKubernetesClusterDaemonset(),
 			"huaweicloud_hss_container_kubernetes_cluster_protection_enable": hss.ResourceContainerKubernetesClusterProtectionEnable(),
 			"huaweicloud_hss_container_network_policy_sync":                  hss.ResourceContainerNetworkPolicySync(),
+			"huaweicloud_hss_container_network_cluster_sync":                 hss.ResourceContainerNetworkClusterSync(),
 			"huaweicloud_hss_cluster_protect_switch_mode":                    hss.ResourceClusterProtectSwitchMode(),
 			"huaweicloud_hss_cicd_configuration":                             hss.ResourceCiCdConfiguration(),
 			"huaweicloud_hss_honeypot_port_policy":                           hss.ResourceHoneypotPortPolicy(),
