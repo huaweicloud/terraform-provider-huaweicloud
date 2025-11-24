@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,7 +15,6 @@ func TestAccDataSourceDliFlinkjarJobs_basic(t *testing.T) {
 		dataSource = "data.huaweicloud_dli_flinkjar_jobs.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 		rName      = acceptance.RandomAccResourceName()
-		bucketName = acceptance.RandomAccResourceNameWithDash()
 
 		byId   = "data.huaweicloud_dli_flinkjar_jobs.job_id_filter"
 		dcById = acceptance.InitDataSourceCheck(byId)
@@ -47,11 +47,13 @@ func TestAccDataSourceDliFlinkjarJobs_basic(t *testing.T) {
 			acceptance.TestAccPreCheckDliGenaralQueueName(t)
 			acceptance.TestAccPreCheckDliJarPath(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
+			acceptance.TestAccPreCheckDliFlinkJarObsBucketName(t)
+			acceptance.TestAccPreCheckDliFlinkJarAgencyNames(t, 1)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceDliFlinkjarJobs_basic(rName, bucketName),
+				Config: testDataSourceDataSourceDliFlinkjarJobs_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "jobs.0.id"),
@@ -83,7 +85,7 @@ func TestAccDataSourceDliFlinkjarJobs_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceDliFlinkjarJobs_basic(name, bucketName string) string {
+func testDataSourceDataSourceDliFlinkjarJobs_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -223,5 +225,5 @@ output "tags_filter_is_useful" {
   value = length(data.huaweicloud_dli_flinkjar_jobs.tags_filter.jobs) > 0
 }
 
-`, testAccDliFlinkJarJob_basic_step1(name, bucketName))
+`, testAccFlinkJarJob_basic_step1(name, strings.Split(acceptance.HW_DLI_FLINK_JAR_AGENCY_NAMES, ",")[0]))
 }
