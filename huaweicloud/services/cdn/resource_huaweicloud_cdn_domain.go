@@ -2,6 +2,7 @@ package cdn
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -911,7 +912,8 @@ var clientCert = schema.Schema{
 
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
-// @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
+// @API CDN PUT /v1.0/cdn/domains/{domain_id}/disable
+// @API CDN PUT /v1.0/cdn/domains/{domain_id}/enable
 // @API CDN DELETE /v1.0/cdn/domains/{domainId}
 // @API CDN PUT /v1.1/cdn/configuration/domains/{domain_name}/configs
 // @API CDN GET /v1.1/cdn/configuration/domains/{domain_name}/configs
@@ -1155,7 +1157,7 @@ func ResourceDomain() *schema.Resource {
 									"rule_type": {
 										Type:     schema.TypeString,
 										Required: true,
-										DiffSuppressFunc: func(k, o, n string, d *schema.ResourceData) bool {
+										DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
 											// Convert several original types and change parameter types while ensuring
 											// that the original configuration is available.
 											// Notes: the state file no longer save the original types.
@@ -1177,7 +1179,7 @@ func ResourceDomain() *schema.Resource {
 										Optional:    true,
 										Computed:    true,
 										Description: "schema: Required",
-										DiffSuppressFunc: func(k, o, n string, d *schema.ResourceData) bool {
+										DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
 											// Convert several original types and change parameter types while ensuring
 											// that the original configuration is available.
 											// Notes: the state file no longer save the original types.
@@ -1205,24 +1207,48 @@ func ResourceDomain() *schema.Resource {
 				},
 			},
 			"tags": common.TagsSchema(),
+			"status": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The status of the domain.`,
+			},
+
+			// Attributes.
+			"cname": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The CNAME of the domain.",
+			},
+
+			// Internal parameters.
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
-			"cname": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+
+			// Deprecated attributes.
 			"domain_status": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: utils.SchemaDesc(
+					`The status of the domain.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"domain_name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "schema: Internal",
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The name of the domain.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}
@@ -1303,20 +1329,19 @@ func buildCdnDomainQueryParams(epsID string) string {
 	return fmt.Sprintf("?enterprise_project_id=%s", epsID)
 }
 
-func ReadCdnDomainDetail(client *golangsdk.ServiceClient, domainName, epsID string) (interface{}, error) {
+func GetDomainByName(client *golangsdk.ServiceClient, epsId, domainName string) (interface{}, error) {
 	getPath := client.Endpoint + "v1.0/cdn/configuration/domains/{domain_name}"
 	getPath = strings.ReplaceAll(getPath, "{domain_name}", domainName)
-	getPath += buildCdnDomainQueryParams(epsID)
+	getPath += buildCdnDomainQueryParams(epsId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return nil, err
 	}
-
-	return utils.FlattenResponse(getResp)
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1357,11 +1382,6 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating CDN domain: ID is not found in API response")
 	}
 	d.SetId(id)
-
-	if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
-		d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
-	}
 
 	return resourceDomainUpdate(ctx, d, meta)
 }
@@ -2162,14 +2182,14 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 	var (
 		cfg        = meta.(*config.Config)
 		domainName = getDomainName(d)
-		epsID      = cfg.GetEnterpriseProjectID(d)
+		epsId      = cfg.GetEnterpriseProjectID(d)
 	)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
+	domainResp, err := GetDomainByName(client, epsId, domainName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", "CDN.0170"),
 			"error retrieving CDN domain")
@@ -2180,7 +2200,7 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.SetId(id)
 	}
 
-	configResp, err := queryCdnDomainFullConfig(client, domainName, epsID)
+	configResp, err := queryCdnDomainFullConfig(client, domainName, epsId)
 	if err != nil {
 		return diag.Errorf("error retrieving CDN domain full config: %s", err)
 	}
@@ -2194,11 +2214,13 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 		d.Set("type", utils.PathSearch("domain.business_type", domainResp, nil)),
 		d.Set("cname", utils.PathSearch("domain.cname", domainResp, nil)),
-		d.Set("domain_status", utils.PathSearch("domain.domain_status", domainResp, nil)),
 		d.Set("service_area", utils.PathSearch("domain.service_area", domainResp, nil)),
 		d.Set("sources", flattenSourcesAttributes(configResp)),
 		d.Set("configs", flattenConfigAttributes(configResp, d)),
 		d.Set("tags", tags),
+		d.Set("status", utils.PathSearch("domain.domain_status", domainResp, nil)),
+		// Deprecated attributes.
+		d.Set("domain_status", utils.PathSearch("domain.domain_status", domainResp, nil)),
 		d.Set("domain_name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -3012,8 +3034,8 @@ func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
-			d.Timeout(schema.TimeoutUpdate)); err != nil {
+		if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+			[]string{"online"}, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
@@ -3033,6 +3055,28 @@ func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("status") {
+		targetStatus := d.Get("status").(string)
+		switch targetStatus {
+		case "offline":
+			if err := disableDomain(client, d, cfg.GetEnterpriseProjectID(d)); err != nil {
+				return diag.Errorf("error disabling CDN domain (%s): %s", d.Id(), err)
+			}
+		case "online":
+			if err := enableDomain(client, d, cfg.GetEnterpriseProjectID(d)); err != nil {
+				return diag.Errorf("error enabling CDN domain (%s): %s", d.Id(), err)
+			}
+		default:
+			return diag.Errorf("invalid status (%v) for CDN domain (%s), currently only support 'offline' and 'online'",
+				targetStatus, d.Id())
+		}
+
+		if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+			[]string{targetStatus}, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) to become online: %s", d.Id(), err)
 		}
 	}
 
@@ -3066,39 +3110,7 @@ func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, ep
 	return err
 }
 
-func waitingForCdnDomainDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, epsID string) error {
-	var (
-		domainName               = d.Get("name").(string)
-		resourceNotFoundErrCodes = []string{
-			"CDN.0170",     // Domain not exist.
-			"CDN.00010182", // The resource is not belong to the enterprise project.
-		}
-	)
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
-			if err != nil {
-				parseErr := common.ConvertExpected400ErrInto404Err(err, "error.error_code", resourceNotFoundErrCodes...)
-				if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
-					return "success", "COMPLETED", nil
-				}
-				return nil, "ERROR", err
-			}
-
-			return domainResp, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func disableCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
+func disableDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
 	disablePath := client.Endpoint + "v1.0/cdn/domains/{domain_id}/disable"
 	disablePath = strings.ReplaceAll(disablePath, "{domain_id}", d.Id())
 	disablePath += buildCdnDomainQueryParams(epsID)
@@ -3125,33 +3137,74 @@ func disableCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, e
 	return err
 }
 
-func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, epsID string) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
+func enableDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
+	enablePath := client.Endpoint + "v1.0/cdn/domains/{domain_id}/enable"
+	enablePath = strings.ReplaceAll(enablePath, "{domain_id}", d.Id())
+	enablePath += buildCdnDomainQueryParams(epsID)
+	enableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("PUT", enablePath, &enableOpt)
+	if err != nil {
+		return nil
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+	// Even if there is an error when disabling an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", respBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", respBody, "").(string)
+		return fmt.Errorf("error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
+	return err
+}
+
+func refreshDomainStatus(client *golangsdk.ServiceClient, domainName, epsId string, targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			resourceNotFoundErrCodes = []string{
+				"CDN.0170",     // Domain not exist.
+				"CDN.00010182", // The resource is not belong to the enterprise project.
+			}
+			unexpectedStatus = []string{"configure_failed", "check_failed"}
+		)
+		domain, err := GetDomainByName(client, epsId, domainName)
+		if err != nil {
+			parseErr := common.ConvertExpected400ErrInto404Err(err, "error.error_code", resourceNotFoundErrCodes...)
+			if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
+				return "RESOURCE_NOT_FOUND", "COMPLETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		domainStatus := utils.PathSearch("domain.domain_status", domain, "").(string)
+		if domainStatus == "" {
+			return nil, "ERROR", errors.New("unable to find domain status from the API response")
+		}
+
+		if utils.StrSliceContains(unexpectedStatus, domainStatus) {
+			return domain, "ERROR", fmt.Errorf("unexpect status (%s)", domainStatus)
+		}
+
+		if utils.StrSliceContains(targets, domainStatus) {
+			return domain, "COMPLETED", nil
+		}
+
+		return domain, "PENDING", nil
+	}
+}
+
+func waitForDomainStatusAvailable(ctx context.Context, client *golangsdk.ServiceClient, domainName, epsId string,
+	targets []string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			domainStatus := utils.PathSearch("domain.domain_status", domainResp, "").(string)
-			if domainStatus == "" {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: domain_status is not found in API response")
-			}
-
-			if domainStatus == "offline" {
-				return domainResp, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, domainStatus) {
-				return domainResp, domainStatus, nil
-			}
-			return domainResp, "PENDING", nil
-		},
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshDomainStatus(client, domainName, epsId, targets),
 		Timeout:      timeout,
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -3163,7 +3216,7 @@ func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.Ser
 func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg   = meta.(*config.Config)
-		epsID = cfg.GetEnterpriseProjectID(d)
+		epsId = cfg.GetEnterpriseProjectID(d)
 	)
 
 	client, err := cfg.NewServiceClient("cdn", "")
@@ -3171,18 +3224,33 @@ func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	if d.Get("domain_status").(string) == "online" {
+	domain, err := GetDomainByName(client, epsId, d.Get("name").(string))
+	if err != nil {
+		return diag.Errorf("error getting CDN domain (%s): %s", d.Id(), err)
+	}
+
+	switch utils.PathSearch("domain.domain_status", domain, "").(string) {
+	case "online":
 		// make sure the status has changed to offline before deleting it.
-		if err := disableCdnDomain(client, d, epsID); err != nil {
+		if err := disableDomain(client, d, epsId); err != nil {
 			return diag.Errorf("error disabling CDN domain %s: %s", d.Id(), err)
 		}
 
-		if err := waitingForCdnDomainStatusOffline(ctx, client, d, d.Timeout(schema.TimeoutDelete), epsID); err != nil {
+		if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), epsId, []string{"offline"},
+			d.Timeout(schema.TimeoutDelete)); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
+		}
+	case "offline":
+		// The domain is already offline before deleting, do nothing.
+	default:
+		// Before deleting the domain, make sure the status is already online.
+		err = waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), epsId, []string{"offline"}, d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) to become online before deleting: %s", d.Id(), err)
 		}
 	}
 
-	if err := deleteCdnDomain(client, d, epsID); err != nil {
+	if err := deleteCdnDomain(client, d, epsId); err != nil {
 		// When the domain does not exist, the deletion API will report an error and return the following information:
 		// {"error": {"error_code": "CDN.0000","error_msg": "domain is null or more than one."}}.
 		// The error code "CDN.0000" indicates an internal system error and cannot be used to prove that the resource
@@ -3190,7 +3258,7 @@ func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
 	}
 
-	if err := waitingForCdnDomainDeleted(ctx, client, d, d.Timeout(schema.TimeoutDelete), epsID); err != nil {
+	if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), epsId, nil, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) deletion to complete: %s", d.Id(), err)
 	}
 

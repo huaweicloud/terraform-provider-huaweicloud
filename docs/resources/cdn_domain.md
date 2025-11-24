@@ -10,6 +10,8 @@ description: |-
 
 Manages a CDN domain resource within HuaweiCloud.
 
+-> Before updating the domain configuration, please make sure that the status value is **online**.
+
 ## Example Usage
 
 ### Create a CDN domain
@@ -316,6 +318,11 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the domain.
+
+* `status` - (Optional, String) Specifies the status of the domain.
+  The valid values are as follows:
+  + **online**
+  + **offline**
 
 <a name="sources_cdn_domain"></a>
 The `sources` block supports:
@@ -1165,9 +1172,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The acceleration domain name ID.
 
 * `cname` - The CNAME of the acceleration domain name.
-
-* `domain_status` - The status of the acceleration domain name. The available values are
-  **online**, **offline**, **configuring**, **configure_failed**, **checking**, **check_failed** and **deleting**.
 
 * `configs/https_settings/https_status` - The status of the https. The available values are **on** and **off**.
 
