@@ -1729,7 +1729,21 @@ func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	// `storage_space` equals `broker_num` multiplied by the storage space of each broker.
+	// The `storage_space` value is related to the `broker_num` value.
+	// After broker_num changes, we need to obtain the latest storage_space and compare it with the current storage_space.
 	if d.HasChanges("storage_space") {
+		resp, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return fmt.Errorf("error getting Kafka instance: %s", err)
+		}
+
+		newStorageSpace := d.Get("storage_space").(int)
+		if resp.TotalStorageSpace >= newStorageSpace {
+			log.Printf("[WARN] The new storage space is less than or equal to the current storage space, no need to resize")
+			return nil
+		}
+
 		if err = resizeKafkaInstanceStorage(ctx, d, client); err != nil {
 			return err
 		}
