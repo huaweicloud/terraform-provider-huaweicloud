@@ -2240,6 +2240,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_groups":                   workspace.DataSourceAppServerGroups(),
 			"huaweicloud_workspace_app_server_group_restrict":           workspace.DataSourceAppServerGroupRestrict(),
 			"huaweicloud_workspace_app_server_group_status":             workspace.DataSourceAppServerGroupStatus(),
+			"huaweicloud_workspace_app_server_group_tags":               workspace.DataSourceAppServerGroupTags(),
 			"huaweicloud_workspace_app_server_quotas":                   workspace.DataSourceAppServerQuotas(),
 			"huaweicloud_workspace_app_session_types":                   workspace.DataSourceSessionTypes(),
 			"huaweicloud_workspace_app_storage_policies":                workspace.DataSourceAppStoragePolicies(),
