@@ -20,7 +20,7 @@ func TestAccResourceCertificateDeploy_cdn(t *testing.T) {
 			// Configure the international certificate. The SM2 certificate does not support deployment operations.
 			acceptance.TestAccPreCheckCCMSSLCertificateId(t)
 			// Make sure the domain name match the certificate.
-			acceptance.TestAccPreCheckCDN(t)
+			acceptance.TestAccPreCheckCdnDomainName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

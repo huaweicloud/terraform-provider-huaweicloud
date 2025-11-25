@@ -15,7 +15,7 @@ func TestAccDomainOwnerVerify_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCDN(t)
+			acceptance.TestAccPreCheckCdnDomainName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
