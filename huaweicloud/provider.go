@@ -597,6 +597,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_instance_features":                   apig.DataSourceInstanceFeatures(),
 			"huaweicloud_apig_instance_ingress_associated_domains": apig.DataSourceInstanceIngressAssociatedDomains(),
 			"huaweicloud_apig_instance_ingress_ports":              apig.DataSourceInstanceIngressPorts(),
+			"huaweicloud_apig_instance_metric_data":                apig.DataSourceInstanceMetricData(),
 			"huaweicloud_apig_instance_quotas":                     apig.DataSourceInstanceQuotas(),
 			"huaweicloud_apig_instance_supported_features":         apig.DataSourceInstanceSupportedFeatures(),
 			"huaweicloud_apig_instance_tags":                       apig.DataSourceInstanceTags(),
