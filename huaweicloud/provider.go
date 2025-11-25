@@ -750,6 +750,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_cache_history_tasks":       cdn.DataSourceCacheHistoryTasks(),
 			"huaweicloud_cdn_cache_sharing_groups":      cdn.DataSourceCacheSharingGroups(),
 			"huaweicloud_cdn_domains":                   cdn.DataSourceDomains(),
+			"huaweicloud_cdn_domain_templates":          cdn.DataSourceDomainTemplates(),
 			"huaweicloud_cdn_domain_certificates":       cdn.DataSourceDomainCertificates(),
 			"huaweicloud_cdn_domain_owner_verification": cdn.DataSourceDomainOwnerVerification(),
 			"huaweicloud_cdn_domain_tags":               cdn.DataSourceDomainTags(),
