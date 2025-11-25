@@ -97,6 +97,8 @@ The following arguments are supported:
 * `data_volume` - (Optional, List) Specifies the configuration of data volumes.
   The [object](#desktop_volume) structure is documented below.
 
+  -> Only can append new disks at the end of the queue, and cannot modify the order of existing disks.
+
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone where the desktop is located.
   Changing this will create a new resource.
 
@@ -154,6 +156,8 @@ The `root_volume` and `data_volume` block supports:
   The valid values are as follows:
   + **SAS**: High I/O disk type.
   + **SSD**: Ultra-high I/O disk type.
+  + **GPSSD**: General purpose SSD disk type.
+  + **GPSSD2**: General purpose SSD V2 disk type.
 
   -> Updates are not supported for this parameter. Changing this will not create a new resource, but will throw an
      error.
@@ -161,6 +165,18 @@ The `root_volume` and `data_volume` block supports:
 * `size` - (Required, Int) Specifies the size of system volume, in GB.
   + For root volume, the valid value is range from `80` to `1,020`.
   + For data volume, the valid value is range from `10` to `8,200`.
+
+* `iops` - (Optional, Int) Specifies the IOPS of the volume.  
+  which is the number of read and write operations per second.  
+  This parameter is only valid for GPSSD2 type volumes.  
+  The valid value is range from `3,000` to `12,800`.
+
+* `throughput` - (Optional, Int) Specifies the throughput of the volume.  
+  which is the amount of data successfully transmitted per second (read and write data), in MiB/s.  
+  This parameter is only valid for GPSSD2 type volumes.  
+  The valid value is range from `125` to `1,000`.
+
+* `kms_id` - (Optional, String) Specifies the KMS key ID used to encrypt the volume.
 
 <a name="desktop_nic"></a>
 The `nic` block supports:
