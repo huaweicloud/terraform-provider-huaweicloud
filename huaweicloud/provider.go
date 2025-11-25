@@ -1413,6 +1413,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_vulnerability_cves":                   hss.DataSourceImageVulnerabilityCves(),
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_kubernetes_service_detail":                  hss.DataSourceKubernetesServiceDetail(),
+			"huaweicloud_hss_kubernetes_container_detail":                hss.DataSourceKubernetesContainerDetail(),
 			"huaweicloud_hss_kubernetes_pods":                            hss.DataSourceKubernetesPods(),
 			"huaweicloud_hss_kubernetes_pod_detail":                      hss.DataSourceKubernetesPodDetail(),
 			"huaweicloud_hss_kubernetes_jobs":                            hss.DataSourceKubernetesJobs(),
