@@ -22,6 +22,9 @@ var batchActionHTTPMethodMap = map[string]string{
 	"batch-rejoin-domain": "PATCH",
 	"batch-update-tsvi":   "PATCH",
 	"batch-maint":         "PATCH",
+	"batch-reboot":        "PATCH",
+	"batch-start":         "PATCH",
+	"batch-stop":          "PATCH",
 }
 
 var appServerBatchActionNonUpdatableParams = []string{"type", "content"}
@@ -31,6 +34,9 @@ var appServerBatchActionNonUpdatableParams = []string{"type", "content"}
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-rejoin-domain
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-update-tsvi
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-maint
+// @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-reboot
+// @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-start
+// @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-stop
 func ResourceAppServerBatchAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerBatchActionCreate,
@@ -60,12 +66,16 @@ func ResourceAppServerBatchAction() *schema.Resource {
 					"batch-rejoin-domain",
 					"batch-update-tsvi",
 					"batch-maint",
+					"batch-reboot",
+					"batch-start",
+					"batch-stop",
 				}, false),
 			},
 			"content": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The JSON string content for the batch operation (action) request.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description:  `The JSON string content for the batch operation (action) request.`,
 			},
 
 			// Optional parameter(s).
