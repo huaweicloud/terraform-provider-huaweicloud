@@ -138,7 +138,7 @@ resource "huaweicloud_rds_instance" "test" {
 
   db {
     type    = "PostgreSQL"
-    version = "12"
+    version = "14"
   }
 
   volume {
