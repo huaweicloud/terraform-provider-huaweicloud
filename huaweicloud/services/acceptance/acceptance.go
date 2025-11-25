@@ -3372,9 +3372,9 @@ func TestAccPreCheckCCISecretDockerconfigjson(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCDN(t *testing.T) {
+func TestAccPreCheckCdnDomainName(t *testing.T) {
 	if HW_CDN_DOMAIN_NAME == "" {
-		t.Skip("This environment does not support CDN tests")
+		t.Skip("HW_CDN_DOMAIN_NAME must be set for the acceptance test")
 	}
 }
 
