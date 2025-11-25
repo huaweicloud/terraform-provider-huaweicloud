@@ -102,7 +102,7 @@ func resourcePgAccountPrivilegesCreate(ctx context.Context, d *schema.ResourceDa
 			return diag.FromErr(err)
 		}
 	}
-	if rolePrivileges.Len() > 0 {
+	if systemRolePrivileges.Len() > 0 {
 		requestBody := buildUpdatePgAccountPrivilegesBodyParams(username, "SYSTEM_ROLE", systemRolePrivileges.List())
 		err = updateAccountPrivileges(ctx, d, client, schema.TimeoutCreate, requestBody)
 		if err != nil {
@@ -256,7 +256,7 @@ func resourcePgAccountPrivilegesDelete(ctx context.Context, d *schema.ResourceDa
 			return diag.FromErr(err)
 		}
 	}
-	if rolePrivileges.Len() > 0 {
+	if systemRolePrivileges.Len() > 0 {
 		requestBody := buildUpdatePgAccountPrivilegesBodyParams(username, "RECYCLING_SYSTEM_ROLE", systemRolePrivileges.List())
 		err = updateAccountPrivileges(ctx, d, client, schema.TimeoutDelete, requestBody)
 		if err != nil {
