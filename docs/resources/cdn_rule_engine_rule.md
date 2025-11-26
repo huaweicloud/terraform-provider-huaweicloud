@@ -217,8 +217,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `domain_name` - (Required, String, NonUpdatable) Specifies the accelerated domain name to which the rule engine rule
-  belongs.  
-  Changing this parameter will create a new resource.
+  belongs.
 
 * `name` - (Required, String) Specifies the name of the rule engine rule.  
   The valid length is limit from `1` to `50`.
