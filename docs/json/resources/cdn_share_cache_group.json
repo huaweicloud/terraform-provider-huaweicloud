@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_share_cache_group": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the share cache group, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the share cache group.",
+                "required": true
+              },
+              "primary_domain": {
+                "type": "string",
+                "description": "The primary domain name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the share cache group is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "share_cache_records": {
+                "block": {
+                  "attributes": {
+                    "domain_name": {
+                      "type": "string",
+                      "description": "The associated domain name.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of associated domain names."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

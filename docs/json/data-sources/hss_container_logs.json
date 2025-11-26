@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_logs": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "container_id": {
+                "type": "string",
+                "optional": true
+              },
+              "container_name": {
+                "type": "string",
+                "optional": true
+              },
+              "content": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "cluster_type": "string",
+                      "container_id": "string",
+                      "container_name": "string",
+                      "content": "string",
+                      "host_ip": "string",
+                      "line_num": "string",
+                      "namespace": "string",
+                      "pod_id": "string",
+                      "pod_ip": "string",
+                      "pod_name": "string",
+                      "time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "line_num": {
+                "type": "string",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "pod_id": {
+                "type": "string",
+                "optional": true
+              },
+              "pod_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "pod_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

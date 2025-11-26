@@ -5,9 +5,27 @@
         "huaweicloud_dli_flinkjar_job": {
           "block": {
             "attributes": {
+              "checkpoint_enabled": {
+                "type": "bool",
+                "description": "Whether to enable the automatic job snapshot function.",
+                "optional": true
+              },
+              "checkpoint_interval": {
+                "type": "number",
+                "description": "The interval of the snapshot, in seconds.",
+                "optional": true,
+                "computed": true
+              },
+              "checkpoint_mode": {
+                "type": "number",
+                "description": "The mode of the snapshot.",
+                "optional": true,
+                "computed": true
+              },
               "checkpoint_path": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "cu_num": {
                 "type": "number",
@@ -40,6 +58,11 @@
                 "type": "string",
                 "optional": true
               },
+              "execution_agency_urn": {
+                "type": "string",
+                "description": "The name of the delegation authorized to DLI.",
+                "optional": true
+              },
               "feature": {
                 "type": "string",
                 "optional": true,
@@ -70,7 +93,7 @@
               "manager_cu_num": {
                 "type": "number",
                 "optional": true,
-                "default": 1
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -83,7 +106,7 @@
               "parallel_num": {
                 "type": "number",
                 "optional": true,
-                "default": 1
+                "computed": true
               },
               "queue_name": {
                 "type": "string",
@@ -92,6 +115,12 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "resource_config_version": {
+                "type": "string",
+                "description": "The version of the resource configuration.",
+                "optional": true,
                 "computed": true
               },
               "restart_when_exception": {
@@ -135,12 +164,78 @@
               "tm_cu_num": {
                 "type": "number",
                 "optional": true,
-                "default": 1
+                "computed": true
               },
               "tm_slot_num": {
                 "type": "number",
                 "optional": true,
                 "computed": true
+              }
+            },
+            "block_types": {
+              "resource_config": {
+                "block": {
+                  "attributes": {
+                    "max_slot": {
+                      "type": "number",
+                      "description": "The number of slots in the TaskManager.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "parallel_number": {
+                      "type": "number",
+                      "description": "The parallel number of the job.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "job_manager_resource_spec": {
+                      "block": {
+                        "attributes": {
+                          "cpu": {
+                            "type": "number",
+                            "description": "The cores of the CPU.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "memory": {
+                            "type": "string",
+                            "description": "The memory size, in MB or GB (default).",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The resource specification of the JobManager."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "task_manager_resource_spec": {
+                      "block": {
+                        "attributes": {
+                          "cpu": {
+                            "type": "number",
+                            "description": "The cores of the CPU.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "memory": {
+                            "type": "string",
+                            "description": "The memory size, in MB or GB (default).",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The resource specification of the TaskManager."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

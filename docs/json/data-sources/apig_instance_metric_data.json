@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_metric_data": {
+          "block": {
+            "attributes": {
+              "datapoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "average": "number",
+                      "max": "number",
+                      "min": "number",
+                      "sum": "number",
+                      "timestamp": "number",
+                      "unit": "string",
+                      "variance": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the metric data points that matched the filter parameters.",
+                "computed": true
+              },
+              "dim": {
+                "type": "string",
+                "description": "The dimension of the metric data.",
+                "required": true
+              },
+              "filter": {
+                "type": "string",
+                "description": "The data aggregation method of the metric data.",
+                "required": true
+              },
+              "from": {
+                "type": "string",
+                "description": "The start time of the metric data, UNIX timestamp in milliseconds.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance.",
+                "required": true
+              },
+              "metric_name": {
+                "type": "string",
+                "description": "The name of the metric data.",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The granularity of the metric data.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance is located.",
+                "computed": true
+              },
+              "to": {
+                "type": "string",
+                "description": "The end time of the metric data, UNIX timestamp in milliseconds.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

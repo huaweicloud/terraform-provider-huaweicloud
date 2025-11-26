@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_scheduled_task_record_details": {
+          "block": {
+            "attributes": {
+              "details": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "desktop_id": "string",
+                      "desktop_name": "string",
+                      "end_time": "string",
+                      "exec_script_id": "string",
+                      "exec_status": "string",
+                      "fail_reason": "string",
+                      "id": "string",
+                      "record_id": "string",
+                      "result_code": "string",
+                      "start_time": "string",
+                      "time_zone": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of scheduled task execution record details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "The ID of the scheduled task execution record to be queried.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the scheduled task record details are located.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The ID of the scheduled task to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

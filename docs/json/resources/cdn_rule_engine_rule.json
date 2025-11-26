@@ -1,0 +1,371 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_rule_engine_rule": {
+          "block": {
+            "attributes": {
+              "conditions": {
+                "type": "string",
+                "description": "The trigger conditions of the rule engine rule, in JSON format.",
+                "optional": true,
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The accelerated domain name to which the rule engine rule belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the rule engine rule.",
+                "required": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "The priority of the rule engine rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the rule engine rule is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Whether to enable the rule engine rule.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "actions": {
+                "block": {
+                  "block_types": {
+                    "access_control": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "description": "The access control type.",
+                            "required": true
+                          }
+                        },
+                        "description": "The access control configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "browser_cache_rule": {
+                      "block": {
+                        "attributes": {
+                          "cache_type": {
+                            "type": "string",
+                            "description": "The cache effective type.",
+                            "required": true
+                          },
+                          "ttl": {
+                            "type": "number",
+                            "description": "The cache expiration time.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ttl_unit": {
+                            "type": "string",
+                            "description": "The cache expiration time unit.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The browser cache rule configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "cache_rule": {
+                      "block": {
+                        "attributes": {
+                          "follow_origin": {
+                            "type": "string",
+                            "description": "The cache expiration time source.",
+                            "required": true
+                          },
+                          "force_cache": {
+                            "type": "string",
+                            "description": "Whether to enable forced caching.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ttl": {
+                            "type": "number",
+                            "description": "The cache expiration time.",
+                            "required": true
+                          },
+                          "ttl_unit": {
+                            "type": "string",
+                            "description": "The cache expiration time unit.",
+                            "required": true
+                          }
+                        },
+                        "description": "The cache rule configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "error_code_cache": {
+                      "block": {
+                        "attributes": {
+                          "code": {
+                            "type": "number",
+                            "description": "The error code to be cached.",
+                            "required": true
+                          },
+                          "ttl": {
+                            "type": "number",
+                            "description": "The error code cache time.",
+                            "required": true
+                          }
+                        },
+                        "description": "The list of error code cache configurations."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "flexible_origin": {
+                      "block": {
+                        "attributes": {
+                          "bucket_access_key": {
+                            "type": "string",
+                            "description": "The third-party object storage access key.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "description": "The third-party object storage name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bucket_region": {
+                            "type": "string",
+                            "description": "The third-party object storage region.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bucket_secret_key": {
+                            "type": "string",
+                            "description": "The third-party object storage secret key.",
+                            "optional": true
+                          },
+                          "host_name": {
+                            "type": "string",
+                            "description": "The origin host name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "http_port": {
+                            "type": "number",
+                            "description": "The HTTP port number.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "https_port": {
+                            "type": "number",
+                            "description": "The HTTPS port number.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ip_or_domain": {
+                            "type": "string",
+                            "description": "The origin IP or domain name.",
+                            "required": true
+                          },
+                          "obs_bucket_type": {
+                            "type": "string",
+                            "description": "The OBS bucket type.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "origin_protocol": {
+                            "type": "string",
+                            "description": "The origin protocol.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "priority": {
+                            "type": "number",
+                            "description": "The origin priority.",
+                            "required": true
+                          },
+                          "sources_type": {
+                            "type": "string",
+                            "description": "The source type.",
+                            "required": true
+                          },
+                          "weight": {
+                            "type": "number",
+                            "description": "The origin weight.",
+                            "required": true
+                          }
+                        },
+                        "description": "The list of flexible origin configurations."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "http_response_header": {
+                      "block": {
+                        "attributes": {
+                          "action": {
+                            "type": "string",
+                            "description": "The operation type of setting HTTP response header.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The HTTP response header parameter name.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The HTTP response header parameter value.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The list of HTTP response header configurations."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "origin_range": {
+                      "block": {
+                        "attributes": {
+                          "status": {
+                            "type": "string",
+                            "description": "The origin range status.",
+                            "required": true
+                          }
+                        },
+                        "description": "The origin range configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "origin_request_header": {
+                      "block": {
+                        "attributes": {
+                          "action": {
+                            "type": "string",
+                            "description": "The back-to-origin request header setting type.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The back-to-origin request header parameter name.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The back-to-origin request header parameter value.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The list of origin request header configurations."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "origin_request_url_rewrite": {
+                      "block": {
+                        "attributes": {
+                          "rewrite_type": {
+                            "type": "string",
+                            "description": "The rewrite type.",
+                            "required": true
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "description": "The source URL to be rewritten.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "target_url": {
+                            "type": "string",
+                            "description": "The target URL.",
+                            "required": true
+                          }
+                        },
+                        "description": "The origin request URL rewrite configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "request_limit_rule": {
+                      "block": {
+                        "attributes": {
+                          "limit_rate_after": {
+                            "type": "number",
+                            "description": "The rate limit condition.",
+                            "required": true
+                          },
+                          "limit_rate_value": {
+                            "type": "number",
+                            "description": "The rate limit value.",
+                            "required": true
+                          }
+                        },
+                        "description": "The request rate limit configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "request_url_rewrite": {
+                      "block": {
+                        "attributes": {
+                          "execution_mode": {
+                            "type": "string",
+                            "description": "The execution mode.",
+                            "required": true
+                          },
+                          "redirect_host": {
+                            "type": "string",
+                            "description": "The redirect host.",
+                            "optional": true
+                          },
+                          "redirect_status_code": {
+                            "type": "number",
+                            "description": "The redirect status code.",
+                            "optional": true
+                          },
+                          "redirect_url": {
+                            "type": "string",
+                            "description": "The redirect URL.",
+                            "required": true
+                          }
+                        },
+                        "description": "The access URL rewrite configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The list of actions to be performed when the rule engine rule is met."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

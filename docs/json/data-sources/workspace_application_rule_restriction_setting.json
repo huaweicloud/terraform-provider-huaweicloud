@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_application_rule_restriction_setting": {
+          "block": {
+            "attributes": {
+              "app_control_mode": {
+                "type": "number",
+                "description": "The application control mode.",
+                "computed": true
+              },
+              "app_force_kill_proc_switch": {
+                "type": "bool",
+                "description": "Whether the force kill application switch is enabled.",
+                "computed": true
+              },
+              "app_periodic_interval": {
+                "type": "number",
+                "description": "The periodic monitoring interval time, in minutes.",
+                "computed": true
+              },
+              "app_periodic_switch": {
+                "type": "bool",
+                "description": "Whether the periodic monitoring switch is enabled.",
+                "computed": true
+              },
+              "app_restrict_rule_switch": {
+                "type": "bool",
+                "description": "Whether the application restriction rule switch is enabled.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application rule restriction setting is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

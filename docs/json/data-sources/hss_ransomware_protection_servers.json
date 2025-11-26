@@ -1,0 +1,146 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_ransomware_protection_servers": {
+          "block": {
+            "attributes": {
+              "agent_status": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "agent_status": "string",
+                      "agent_version": "string",
+                      "backup_error": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "number",
+                            "error_description": "string"
+                          }
+                        ]
+                      ],
+                      "backup_policy_enabled": "bool",
+                      "backup_policy_id": "string",
+                      "backup_policy_name": "string",
+                      "backup_protection_status": "string",
+                      "count_backuped": "number",
+                      "count_protect_event": "number",
+                      "enterprise_project_id": "string",
+                      "failed_decoy_dir": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "host_source": "string",
+                      "host_status": "string",
+                      "os_name": "string",
+                      "os_type": "string",
+                      "private_ip": "string",
+                      "project_id": "string",
+                      "protect_policy_id": "string",
+                      "protect_policy_name": "string",
+                      "protect_status": "string",
+                      "ransom_protection_fail_reason": "string",
+                      "ransom_protection_status": "string",
+                      "resources_num": "number",
+                      "vault_allocated": "number",
+                      "vault_charging_mode": "string",
+                      "vault_id": "string",
+                      "vault_name": "string",
+                      "vault_size": "number",
+                      "vault_status": "string",
+                      "vault_used": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "host_status": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_days": {
+                "type": "number",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "ransom_protection_status": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

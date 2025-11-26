@@ -1,0 +1,744 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_source_server": {
+          "block": {
+            "attributes": {
+              "account_rights": {
+                "type": "bool",
+                "optional": true
+              },
+              "add_date": {
+                "type": "number",
+                "computed": true
+              },
+              "adjust_disk": {
+                "type": "bool",
+                "computed": true
+              },
+              "agent_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "boot_loader": {
+                "type": "string",
+                "optional": true
+              },
+              "checks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_or_warn": "string",
+                      "error_params": "string",
+                      "id": "number",
+                      "name": "string",
+                      "params": [
+                        "list",
+                        "string"
+                      ],
+                      "result": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "connected": {
+                "type": "bool",
+                "computed": true
+              },
+              "copystate": {
+                "type": "string",
+                "optional": true
+              },
+              "cpu_quantity": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "current_task": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "clone_server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "clone_error": "string",
+                            "clone_state": "string",
+                            "error_msg": "string",
+                            "name": "string",
+                            "vm_id": "string"
+                          }
+                        ]
+                      ],
+                      "exist_server": "bool",
+                      "id": "string",
+                      "log_collect_status": "string",
+                      "migrate_speed": "number",
+                      "name": "string",
+                      "project_id": "string",
+                      "project_name": "string",
+                      "region_id": "string",
+                      "speed_limit": "number",
+                      "start_date": "number",
+                      "start_target_server": "bool",
+                      "state": "string",
+                      "target_server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "vm_id": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "use_public_ip": "bool",
+                      "vm_template_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "optional": true
+              },
+              "driver_files": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "firmware": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "has_rsync": {
+                "type": "bool",
+                "optional": true
+              },
+              "has_tc": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "hostname": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "init_target_server": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "disks": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "adjust_size": "number",
+                            "device_use": "string",
+                            "id": "number",
+                            "name": "string",
+                            "need_migration": "bool",
+                            "physical_volumes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "adjust_size": "number",
+                                  "device_use": "string",
+                                  "file_system": "string",
+                                  "id": "number",
+                                  "index": "number",
+                                  "inode_size": "number",
+                                  "mount_point": "string",
+                                  "name": "string",
+                                  "need_migration": "bool",
+                                  "size": "number",
+                                  "used_size": "number",
+                                  "uuid": "string"
+                                }
+                              ]
+                            ],
+                            "size": "number",
+                            "used_size": "number"
+                          }
+                        ]
+                      ],
+                      "volume_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "adjust_size": "number",
+                            "components": "string",
+                            "free_size": "number",
+                            "id": "number",
+                            "logical_volumes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "adjust_size": "number",
+                                  "block_count": "number",
+                                  "block_size": "number",
+                                  "device_use": "string",
+                                  "file_system": "string",
+                                  "free_size": "number",
+                                  "id": "number",
+                                  "inode_nums": "number",
+                                  "inode_size": "number",
+                                  "mount_point": "string",
+                                  "name": "string",
+                                  "need_migration": "bool",
+                                  "size": "number",
+                                  "used_size": "number"
+                                }
+                              ]
+                            ],
+                            "name": "string",
+                            "need_migration": "bool",
+                            "size": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "io_read_wait": {
+                "type": "number",
+                "optional": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "kernel_version": {
+                "type": "string",
+                "optional": true
+              },
+              "last_visit_time": {
+                "type": "number",
+                "computed": true
+              },
+              "linux_block_check": {
+                "type": "string",
+                "optional": true
+              },
+              "memory": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "migprojectid": {
+                "type": "string",
+                "optional": true
+              },
+              "migration_cycle": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "oem_system": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "os_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "paravirtualization": {
+                "type": "bool",
+                "optional": true
+              },
+              "platform": {
+                "type": "string",
+                "optional": true
+              },
+              "raw_devices": {
+                "type": "string",
+                "optional": true
+              },
+              "replicatesize": {
+                "type": "number",
+                "computed": true
+              },
+              "stage_action_time": {
+                "type": "number",
+                "computed": true
+              },
+              "start_type": {
+                "type": "string",
+                "optional": true
+              },
+              "state": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "state_action_time": {
+                "type": "number",
+                "computed": true
+              },
+              "system_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "system_services": {
+                "type": "bool",
+                "optional": true
+              },
+              "totalsize": {
+                "type": "number",
+                "computed": true
+              },
+              "virtualization_type": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "btrfs_list": {
+                "block": {
+                  "attributes": {
+                    "data_profile": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "default_subvol_mountpath": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "default_subvol_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "default_subvolid": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "device": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "g_vol_used_size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "global_reserve1": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "label": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "metadata_profile": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "nodesize": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "sectorsize": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "system_profile": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "subvolumn": {
+                      "block": {
+                        "attributes": {
+                          "is_snapshot": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "parent_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "subvol_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "subvol_mount_path": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "subvol_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "uuid": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "disks": {
+                "block": {
+                  "attributes": {
+                    "adjust_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "device_use": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "inode_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "need_migration": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "os_disk": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "partition_style": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "relation_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "used_size": {
+                      "type": "number",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "physical_volumes": {
+                      "block": {
+                        "attributes": {
+                          "adjust_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "device_use": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "file_system": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "id": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "index": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "inode_nums": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "inode_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "mount_point": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "need_migration": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "size_per_cluster": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "used_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "uuid": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "networks": {
+                "block": {
+                  "attributes": {
+                    "gateway": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "ipv6": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mac": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "mtu": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "netmask": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "volume_groups": {
+                "block": {
+                  "attributes": {
+                    "adjust_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "components": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "free_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "need_migration": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "logical_volumes": {
+                      "block": {
+                        "attributes": {
+                          "adjust_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "block_count": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "block_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "device_use": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "file_system": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "free_size": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "id": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "inode_nums": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "inode_size": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "mount_point": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "need_migration": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "size": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "used_size": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_application_batch_authorize": {
+          "block": {
+            "attributes": {
+              "app_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of application IDs to be authorized or unauthorized.",
+                "required": true
+              },
+              "authorization_type": {
+                "type": "string",
+                "description": "The authorization type.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application batch authorization is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "del_users": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The account name.",
+                      "required": true
+                    },
+                    "account_type": {
+                      "type": "string",
+                      "description": "The account type. Valid values are \"SIMPLE\" and \"USER_GROUP\".",
+                      "required": true
+                    },
+                    "domain": {
+                      "type": "string",
+                      "description": "The domain name. Required for user groups.",
+                      "optional": true
+                    },
+                    "platform_type": {
+                      "type": "string",
+                      "description": "The platform type. Valid values are \"AD\" and \"LOCAL\".",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of users to be unauthorized."
+                },
+                "nesting_mode": "list",
+                "max_items": 100
+              },
+              "users": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The account name.",
+                      "required": true
+                    },
+                    "account_type": {
+                      "type": "string",
+                      "description": "The account type. Valid values are \"SIMPLE\" and \"USER_GROUP\".",
+                      "required": true
+                    },
+                    "domain": {
+                      "type": "string",
+                      "description": "The domain name. Required for user groups.",
+                      "optional": true
+                    },
+                    "platform_type": {
+                      "type": "string",
+                      "description": "The platform type. Valid values are \"AD\" and \"LOCAL\".",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of users to be authorized."
+                },
+                "nesting_mode": "list",
+                "max_items": 100
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

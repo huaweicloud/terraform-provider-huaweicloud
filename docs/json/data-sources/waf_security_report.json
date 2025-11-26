@@ -1,0 +1,355 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_security_report": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "report_category": {
+                "type": "string",
+                "computed": true
+              },
+              "report_content_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attack_type_distribution_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ],
+                      "bandwidth_statistics_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "average_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "peak_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "overview_statistics_list_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number",
+                            "top_domains": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "host": "string",
+                                  "num": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "qps_statistics_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "average_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "peak_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "request_statistics_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "timeline": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "num": "number",
+                                  "time": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "response_code_statistics_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "response_source_upstream_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "response_source_waf_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "timeline": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "num": "number",
+                                        "time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "top_abnormal_urls_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "abnormal_404_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "host": "string",
+                                  "key": "string",
+                                  "num": "number"
+                                }
+                              ]
+                            ],
+                            "abnormal_500_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "host": "string",
+                                  "key": "string",
+                                  "num": "number"
+                                }
+                              ]
+                            ],
+                            "abnormal_502_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "host": "string",
+                                  "key": "string",
+                                  "num": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "top_attack_source_ips_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ],
+                      "top_attack_source_locations_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ],
+                      "top_attacked_domains_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number",
+                            "web_tag": "string"
+                          }
+                        ]
+                      ],
+                      "top_attacked_urls_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host": "string",
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "report_id": {
+                "type": "string",
+                "required": true
+              },
+              "report_name": {
+                "type": "string",
+                "computed": true
+              },
+              "sending_period": {
+                "type": "string",
+                "computed": true
+              },
+              "stat_period": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "number",
+                      "end_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "subscription_id": {
+                "type": "string",
+                "required": true
+              },
+              "subscription_type": {
+                "type": "string",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

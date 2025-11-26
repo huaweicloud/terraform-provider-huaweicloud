@@ -7,10 +7,7 @@
             "attributes": {
               "cname": {
                 "type": "string",
-                "computed": true
-              },
-              "domain_status": {
-                "type": "string",
+                "description": "The CNAME of the domain.",
                 "computed": true
               },
               "enterprise_project_id": {
@@ -29,6 +26,12 @@
               "service_area": {
                 "type": "string",
                 "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the domain.",
+                "optional": true,
+                "computed": true
               },
               "tags": {
                 "type": [

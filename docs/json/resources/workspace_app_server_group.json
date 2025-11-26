@@ -167,8 +167,7 @@
                 ],
                 "description": "The key/value pairs to associate with the server group.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

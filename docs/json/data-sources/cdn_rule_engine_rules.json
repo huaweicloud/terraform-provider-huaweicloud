@@ -1,0 +1,186 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_rule_engine_rules": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "The accelerated domain name to which the rule engine rules belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the rule engine rules are located.",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "access_control": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "browser_cache_rule": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cache_type": "string",
+                                  "ttl": "number",
+                                  "ttl_unit": "string"
+                                }
+                              ]
+                            ],
+                            "cache_rule": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "follow_origin": "string",
+                                  "force_cache": "string",
+                                  "ttl": "number",
+                                  "ttl_unit": "string"
+                                }
+                              ]
+                            ],
+                            "error_code_cache": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "code": "number",
+                                  "ttl": "number"
+                                }
+                              ]
+                            ],
+                            "flexible_origin": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "bucket_access_key": "string",
+                                  "bucket_name": "string",
+                                  "bucket_region": "string",
+                                  "host_name": "string",
+                                  "http_port": "number",
+                                  "https_port": "number",
+                                  "ip_or_domain": "string",
+                                  "obs_bucket_type": "string",
+                                  "origin_protocol": "string",
+                                  "priority": "number",
+                                  "sources_type": "string",
+                                  "weight": "number"
+                                }
+                              ]
+                            ],
+                            "http_response_header": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "string",
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "origin_range": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "status": "string"
+                                }
+                              ]
+                            ],
+                            "origin_request_header": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "string",
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "origin_request_url_rewrite": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "rewrite_type": "string",
+                                  "source_url": "string",
+                                  "target_url": "string"
+                                }
+                              ]
+                            ],
+                            "request_limit_rule": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "limit_rate_after": "number",
+                                  "limit_rate_value": "number"
+                                }
+                              ]
+                            ],
+                            "request_url_rewrite": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "execution_mode": "string",
+                                  "redirect_host": "string",
+                                  "redirect_status_code": "number",
+                                  "redirect_url": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "conditions": "string",
+                      "id": "string",
+                      "name": "string",
+                      "priority": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the rule engine rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}
