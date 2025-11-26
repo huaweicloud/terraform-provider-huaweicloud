@@ -153,41 +153,36 @@ func dataSourceKooGalleryAssetsRead(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func flattenImgDeployedObj(obj assets.ImageDeployedObj) map[string]interface{} {
-	return map[string]interface{}{
-		"image_id":     obj.ImageId,
-		"image_name":   obj.ImageName,
-		"os_type":      obj.OsType,
-		"create_time":  obj.CreateTime,
-		"architecture": obj.Architecture,
+func flattenImgDeployedObj(obj assets.ImageDeployedObj) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"image_id":     obj.ImageId,
+			"image_name":   obj.ImageName,
+			"os_type":      obj.OsType,
+			"create_time":  obj.CreateTime,
+			"architecture": obj.Architecture,
+		},
 	}
 }
 
-func flattenSwPkgDeployedObj(obj assets.SoftwarePkgDeployedObj) map[string]interface{} {
-	return map[string]interface{}{
-		"package_name":  obj.PackageName,
-		"internal_path": obj.InternalPath,
-		"checksum":      obj.Checksum,
+func flattenSwPkgDeployedObj(obj assets.SoftwarePkgDeployedObj) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"package_name":  obj.PackageName,
+			"internal_path": obj.InternalPath,
+			"checksum":      obj.Checksum,
+		},
 	}
 }
 
 func flattenAssets(asset assets.Data) map[string]interface{} {
-	var imgDeployedObjs, swDeployedObjs []interface{}
-
-	if asset.ImgDeployedObj.ImageId != "" {
-		imgDeployedObjs = append(imgDeployedObjs, flattenImgDeployedObj(asset.ImgDeployedObj))
-	}
-	if asset.SwPkgDeployedObj.PackageName != "" {
-		swDeployedObjs = append(swDeployedObjs, flattenSwPkgDeployedObj(asset.SwPkgDeployedObj))
-	}
-
 	return map[string]interface{}{
 		"asset_id":                     asset.AssetId,
 		"deployed_type":                asset.DeployedType,
 		"version":                      asset.Version,
 		"version_id":                   asset.VersionId,
 		"region":                       asset.Region,
-		"image_deployed_object":        imgDeployedObjs,
-		"software_pkg_deployed_object": swDeployedObjs,
+		"image_deployed_object":        flattenImgDeployedObj(asset.ImgDeployedObj),
+		"software_pkg_deployed_object": flattenSwPkgDeployedObj(asset.SwPkgDeployedObj),
 	}
 }
