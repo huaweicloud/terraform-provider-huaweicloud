@@ -8,9 +8,6 @@ host: huaweicloud.com
 tags:
     - name: Kafka
 paths:
-    /v2/{engine}/{project_id}/instances:
-        POST:
-            tag: Kafka
     /v2/{project_id}/{engine}/instances/{instance_id}/plain-ssl-switch:
         POST:
             tag: Kafka
@@ -32,9 +29,6 @@ paths:
     /v2/{project_id}/instances/{instance_id}/crossvpc/modify:
         POST:
             tag: Kafka
-    /v2/{project_id}/instances/{instance_id}/extend:
-        POST:
-            tag: Kafka
     /v2/{project_id}/instances/{instance_id}/password:
         POST:
             tag: Kafka
@@ -51,6 +45,12 @@ paths:
         GET:
             tag: Kafka
     /v2/{project_id}/kafka/{instance_id}/tags/action:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances/{instance_id}/extend:
         POST:
             tag: Kafka
     /v2/available-zones:

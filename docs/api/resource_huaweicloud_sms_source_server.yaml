@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sms_source_server
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMS
+paths:
+    /v3/sources:
+        POST:
+            tag: SMS
+    /v3/sources/{source_id}:
+        DELETE:
+            tag: SMS
+        GET:
+            tag: SMS
+        PUT:
+            tag: SMS
+    /v3/sources/{source_id}/changestate:
+        PUT:
+            tag: SMS
+    /v3/sources/{source_id}/diskinfo:
+        PUT:
+            tag: SMS

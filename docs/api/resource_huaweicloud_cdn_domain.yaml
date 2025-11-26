@@ -20,11 +20,14 @@ paths:
     /v1.0/cdn/domains:
         POST:
             tag: CDN
+    /v1.0/cdn/domains/{domain_id}/disable:
+        PUT:
+            tag: CDN
+    /v1.0/cdn/domains/{domain_id}/enable:
+        PUT:
+            tag: CDN
     /v1.0/cdn/domains/{domainId}:
         DELETE:
-            tag: CDN
-    /v1.0/cdn/domains/{domainId}/disable:
-        PUT:
             tag: CDN
     /v1.1/cdn/configuration/domains/{domain_name}/configs:
         GET:

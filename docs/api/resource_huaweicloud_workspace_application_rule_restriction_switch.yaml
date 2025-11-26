@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_application_rule_restriction_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-center/app-rules/actions/disable-rule-restriction:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/app-center/app-rules/actions/enable-rule-restriction:
+        POST:
+            tag: Workspace

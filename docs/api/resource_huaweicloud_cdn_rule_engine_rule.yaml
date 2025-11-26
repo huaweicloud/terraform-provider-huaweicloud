@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_rule_engine_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/configuration/domains/{domain_name}/rules:
+        GET:
+            tag: CDN
+        POST:
+            tag: CDN
+    /v1.0/cdn/configuration/domains/{domain_name}/rules/{rule_id}:
+        DELETE:
+            tag: CDN
+        PUT:
+            tag: CDN

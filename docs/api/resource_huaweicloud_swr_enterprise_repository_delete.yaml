@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_swr_enterprise_repository_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/repositories/{repository_name}:
+        DELETE:
+            tag: SWR

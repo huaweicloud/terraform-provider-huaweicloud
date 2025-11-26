@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: Kafka
 paths:
-    /v2/{engine}/{project_id}/instances/{instance_id}/extend:
+    /v2/{project_id}/kafka/instances/{instance_id}/extend:
         GET:
             tag: Kafka

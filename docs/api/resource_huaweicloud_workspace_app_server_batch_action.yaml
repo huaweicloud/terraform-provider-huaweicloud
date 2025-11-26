@@ -14,10 +14,19 @@ paths:
     /v1/{project_id}/app-servers/actions/batch-maint:
         PATCH:
             tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-reboot:
+        PATCH:
+            tag: Workspace
     /v1/{project_id}/app-servers/actions/batch-reinstall:
         POST:
             tag: Workspace
     /v1/{project_id}/app-servers/actions/batch-rejoin-domain:
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-start:
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-stop:
         PATCH:
             tag: Workspace
     /v1/{project_id}/app-servers/actions/batch-update-tsvi:

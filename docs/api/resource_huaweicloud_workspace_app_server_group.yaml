@@ -19,3 +19,9 @@ paths:
             tag: Workspace
         POST:
             tag: Workspace
+    /v1/{project_id}/server-group/tags/batch-create:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/server-group/tags/batch-delete:
+        DELETE:
+            tag: Workspace

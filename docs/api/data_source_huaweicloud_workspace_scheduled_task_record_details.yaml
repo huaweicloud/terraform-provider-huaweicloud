@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_workspace_scheduled_task_record_details
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v2/{project_id}/scheduled-tasks/{task_id}/records/{record_id}:
+        GET:
+            tag: Workspace
