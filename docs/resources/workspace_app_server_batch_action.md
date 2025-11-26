@@ -102,6 +102,53 @@ resource "huaweicloud_workspace_app_server_batch_action" "maintain_status" {
 }
 ```
 
+### Reboot Server
+
+```hcl
+variable "operate_server_ids" {
+  type = list(string)
+}
+
+resource "huaweicloud_workspace_app_server_batch_action" "reboot" {
+  type    = "batch-reboot"
+  content = jsonencode({
+    items = var.operate_server_ids
+    type  = "SOFT"
+  })
+}
+```
+
+### Stop Server
+
+```hcl
+variable "operate_server_ids" {
+  type = list(string)
+}
+
+resource "huaweicloud_workspace_app_server_batch_action" "stop" {
+  type    = "batch-stop"
+  content = jsonencode({
+    items = var.operate_server_ids
+    type  = "SOFT"
+  })
+}
+```
+
+### Start Server
+
+```hcl
+variable "operate_server_ids" {
+  type = list(string)
+}
+
+resource "huaweicloud_workspace_app_server_batch_action" "start" {
+  type    = "batch-start"
+  content = jsonencode({
+    items = var.operate_server_ids
+  })
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -116,6 +163,9 @@ The following arguments are supported:
   + **batch-rejoin-domain**: Rejoin AD domain.
   + **batch-update-tsvi**: Update virtual session IP configuration.
   + **batch-maint**: Mark server maintenance status.
+  + **batch-reboot**: Reboot server.
+  + **batch-start**: Start server.
+  + **batch-stop**: Stop server.
 
 * `content` - (Required, String, NonUpdatable) Specifies the JSON string content for the batch operation (action)
   request.

@@ -291,3 +291,103 @@ resource "huaweicloud_workspace_app_server_batch_action" "test" {
 }
 `, testAccAppServerBatchAction_base(name))
 }
+
+func TestAccAppServerBatchAction_rebootStopStart(t *testing.T) {
+	var (
+		rNameReboot = "huaweicloud_workspace_app_server_batch_action.reboot"
+		rNameStop   = "huaweicloud_workspace_app_server_batch_action.stop"
+		rNameStart  = "huaweicloud_workspace_app_server_batch_action.start"
+		name        = acceptance.RandomAccResourceName()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		// This resource is a one-time batch action resource and there is no logic in the delete method.
+		// lintignore:AT001
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppServerBatchAction_batchReboot(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rNameReboot, "type", "batch-reboot"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchStop(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rNameStop, "type", "batch-stop"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchStart(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rNameStart, "type", "batch-start"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAppServerBatchAction_batchReboot(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "reboot" {
+  type    = "batch-reboot"
+  content = jsonencode({
+    items = [huaweicloud_workspace_app_server.test.id]
+    type  = "SOFT"
+  })
+
+  max_retries = 3
+
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+func testAccAppServerBatchAction_batchStop(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "stop" {
+  type    = "batch-stop"
+  content = jsonencode({
+    items = [huaweicloud_workspace_app_server.test.id]
+    type  = "SOFT"
+  })
+
+  max_retries = 3
+
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+func testAccAppServerBatchAction_batchStart(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "start" {
+  type    = "batch-start"
+  content = jsonencode({
+    items = [huaweicloud_workspace_app_server.test.id]
+  })
+
+  max_retries = 3
+
+  provisioner "local-exec" {
+    command = "sleep 180"
+  }
+}
+`, testAccAppServerBatchAction_base(name))
+}
