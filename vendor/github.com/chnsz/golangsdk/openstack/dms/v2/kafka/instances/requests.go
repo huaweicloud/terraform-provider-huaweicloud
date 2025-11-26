@@ -242,6 +242,20 @@ func CreateWithEngine(client *golangsdk.ServiceClient, ops CreateOpsBuilder, eng
 	return
 }
 
+func CreateInstance(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResult) {
+	b, err := ops.ToInstanceCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createInstanceURL(client), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+
+	return
+}
+
 // Delete an instance by id
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	_, r.Err = client.Delete(deleteURL(client, id), &golangsdk.RequestOpts{
@@ -371,6 +385,29 @@ func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts)
 
 	var rst golangsdk.Result
 	_, err = client.Post(extend(client, id), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	if err == nil {
+		var r struct {
+			JobID string `json:"job_id"`
+		}
+		if err = rst.ExtractInto(&r); err != nil {
+			return "", err
+		}
+		return r.JobID, nil
+	}
+	return "", err
+}
+
+func ExtendInstance(client *golangsdk.ServiceClient, instanceId string, opts ResizeInstanceOpts) (string, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return "", err
+	}
+
+	var rst golangsdk.Result
+	_, err = client.Post(extendInstanceURL(client, instanceId), b, &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 

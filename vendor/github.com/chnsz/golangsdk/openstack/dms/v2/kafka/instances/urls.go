@@ -14,6 +14,10 @@ func createURLWithEngine(engine string, client *golangsdk.ServiceClient) string 
 	return client.ServiceURL(engine, client.ProjectID, resourcePath)
 }
 
+func createInstanceURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL(client.ProjectID, "kafka", resourcePath)
+}
+
 // deleteURL will build the url of deletion
 func deleteURL(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(client.ProjectID, resourcePath, id)
@@ -35,6 +39,10 @@ func listURL(client *golangsdk.ServiceClient) string {
 
 func extend(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(client.ProjectID, resourcePath, id, "extend")
+}
+
+func extendInstanceURL(client *golangsdk.ServiceClient, instanceId string) string {
+	return client.ServiceURL(client.ProjectID, "kafka", resourcePath, instanceId, "extend")
 }
 
 func crossVpcURL(client *golangsdk.ServiceClient, id string) string {

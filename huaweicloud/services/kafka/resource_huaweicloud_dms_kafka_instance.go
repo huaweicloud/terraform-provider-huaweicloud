@@ -36,11 +36,11 @@ const engineKafka = "kafka"
 
 // @API Kafka GET /v2/available-zones
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
-// @API Kafka POST /v2/{project_id}/instances/{instance_id}/extend
+// @API Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/extend
 // @API Kafka DELETE /v2/{project_id}/instances/{instance_id}
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}
 // @API Kafka PUT /v2/{project_id}/instances/{instance_id}
-// @API Kafka POST /v2/{engine}/{project_id}/instances
+// @API Kafka POST /v2/{project_id}/kafka/instances
 // @API Kafka GET /v2/{project_id}/kafka/{instance_id}/tags
 // @API Kafka POST /v2/{project_id}/kafka/{instance_id}/tags/action
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/autotopic
@@ -919,7 +919,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
+	kafkaInstance, err := instances.CreateInstance(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating Kafka instance: %s", err)
 	}
@@ -1063,7 +1063,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
+	kafkaInstance, err := instances.CreateInstance(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
@@ -1729,7 +1729,21 @@ func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	// `storage_space` equals `broker_num` multiplied by the storage space of each broker.
+	// The `storage_space` value is related to the `broker_num` value.
+	// After broker_num changes, we need to obtain the latest storage_space and compare it with the current storage_space.
 	if d.HasChanges("storage_space") {
+		resp, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return fmt.Errorf("error getting Kafka instance: %s", err)
+		}
+
+		newStorageSpace := d.Get("storage_space").(int)
+		if resp.TotalStorageSpace >= newStorageSpace {
+			log.Printf("[WARN] The new storage space is less than or equal to the current storage space, no need to resize")
+			return nil
+		}
+
 		if err = resizeKafkaInstanceStorage(ctx, d, client); err != nil {
 			return err
 		}
@@ -1752,7 +1766,7 @@ func resizeKafkaInstanceStorage(ctx context.Context, d *schema.ResourceData, cli
 
 func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
 	retryFunc := func() (interface{}, bool, error) {
-		_, err := instances.Resize(client, d.Id(), opts)
+		_, err := instances.ExtendInstance(client, d.Id(), opts)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
