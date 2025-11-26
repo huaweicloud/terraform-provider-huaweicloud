@@ -187,7 +187,8 @@ var (
 	HW_RMS_REQUESTER_ACCOUNT_ID              = os.Getenv("HW_RMS_REQUESTER_ACCOUNT_ID")
 	HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH = os.Getenv("HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH")
 
-	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
+	HW_CDN_DOMAIN_NAME  = os.Getenv("HW_CDN_DOMAIN_NAME")
+	HW_CDN_DOMAIN_NAMES = os.Getenv("HW_CDN_DOMAIN_NAMES")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
 	HW_CDN_CERT_DOMAIN_NAME   = os.Getenv("HW_CDN_CERT_DOMAIN_NAME")
 	HW_CDN_DOMAIN_URL         = os.Getenv("HW_CDN_DOMAIN_URL")
@@ -3388,6 +3389,13 @@ func TestAccPreCheckCdnDomainName(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCdntDomainNames(t *testing.T, n int) {
+	if HW_CDN_DOMAIN_NAMES == "" || len(strings.Split(HW_CDN_DOMAIN_NAMES, ",")) < n {
+		t.Skipf("at lease %d domain name(s) for HW_CDN_DOMAIN_NAMES must be set, separated by the comma (,) character", n)
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCertCDN(t *testing.T) {
 	if HW_CDN_CERT_DOMAIN_NAME == "" {
 		t.Skip("HW_CDN_CERT_DOMAIN_NAME must be set for the acceptance test")
@@ -3403,7 +3411,7 @@ func TestAccPreCheckCDNURL(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckCDNTargetDomainUrls(t *testing.T, n int) {
-	if len(strings.Split(HW_CDN_TARGET_DOMAIN_URLS, ",")) < n {
+	if HW_CDN_TARGET_DOMAIN_URLS == "" || len(strings.Split(HW_CDN_TARGET_DOMAIN_URLS, ",")) < n {
 		t.Skipf("at lease %d domain URL(s) for HW_CDN_TARGET_DOMAIN_URLS must be set, separated by the comma (,) character", n)
 	}
 }
