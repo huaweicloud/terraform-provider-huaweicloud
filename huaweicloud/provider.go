@@ -3613,6 +3613,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_replication_policy_execution_stop": swrenterprise.ResourceSwrEnterpriseReplicationPolicyExecutionStop(),
 			"huaweicloud_swr_enterprise_instance_registry":                 swrenterprise.ResourceSwrEnterpriseInstanceRegistry(),
 			"huaweicloud_swr_enterprise_repository_delete":                 swrenterprise.ResourceSwrEnterpriseRepositoryDelete(),
+			"huaweicloud_swr_enterprise_repository_update":                 swrenterprise.ResourceSwrEnterpriseRepositoryUpdate(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
 			"huaweicloud_tms_tags":          tms.ResourceTmsTag(),
