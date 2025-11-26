@@ -3600,6 +3600,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_image_signature_policy":            swrenterprise.ResourceSwrEnterpriseImageSignaturePolicy(),
 			"huaweicloud_swr_enterprise_image_signature_policy_execute":    swrenterprise.ResourceSwrEnterpriseImageSignaturePolicyExecute(),
 			"huaweicloud_swr_enterprise_job_delete":                        swrenterprise.ResourceSwrEnterpriseJobDelete(),
+			"huaweicloud_swr_enterprise_instance_artifact_delete":          swrenterprise.ResourceSwrEnterpriseInstanceArtifactDelete(),
 			"huaweicloud_swr_enterprise_domain_name":                       swrenterprise.ResourceSwrEnterpriseDomainName(),
 			"huaweicloud_swr_enterprise_long_term_credential":              swrenterprise.ResourceSwrEnterpriseLongTermCredential(),
 			"huaweicloud_swr_enterprise_temporary_credential":              swrenterprise.ResourceSwrEnterpriseTemporaryCredential(),
