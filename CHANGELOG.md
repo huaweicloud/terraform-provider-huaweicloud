@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.80.5 (November 26, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_cdn_rule_engine_rule` [GH-8416]
+  + `huaweicloud_cdn_share_cache_group` [GH-8422]
+  + `huaweicloud_hss_container_network_cluster_sync` [GH-8403]
+  + `huaweicloud_hss_vulnerability_scan_task` [GH-8348]
+  + `huaweicloud_sms_source_server` [GH-7231]
+  + `huaweicloud_swr_enterprise_repository_delete` [GH-8413]
+  + `huaweicloud_swr_enterprise_repository_update` [GH-8424]
+  + `huaweicloud_workspace_application_batch_authorize` [GH-8395]
+  + `huaweicloud_workspace_application_rule_restriction_switch` [GH-8370]
+  + `huaweicloud_workspace_bucket_authorize` [GH-8363]
+
+* **New Data Source:**
+  + `huaweicloud_apig_instance_metric_data` [GH-8406]
+  + `huaweicloud_cdn_rule_engine_rules` [GH-8416]
+  + `huaweicloud_hss_container_images` [GH-8399]
+  + `huaweicloud_hss_container_logs` [GH-8415]
+  + `huaweicloud_hss_kubernetes_container_detail` [GH-8420]
+  + `huaweicloud_hss_kubernetes_deployments` [GH-8401]
+  + `huaweicloud_hss_ransomware_backup_vaults` [GH-8407]
+  + `huaweicloud_hss_ransomware_protection_servers` [GH-8396]
+  + `huaweicloud_swr_enterprise_retention_policy_execution_record_sub_tasks` [GH-8405]
+  + `huaweicloud_waf_event_logs` [GH-8404]
+  + `huaweicloud_waf_rules_application_types` [GH-8402]
+  + `huaweicloud_waf_security_report` [GH-8364]
+  + `huaweicloud_workspace_app_server_group_tags` [GH-8378]
+  + `huaweicloud_workspace_application_rule_restriction_setting` [GH-8409]
+  + `huaweicloud_workspace_scheduled_task_record_details` [GH-8409]
+
 ## 1.80.4 (November 21, 2025)
 
 * **New Resource Source:**
