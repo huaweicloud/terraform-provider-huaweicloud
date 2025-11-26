@@ -82,6 +82,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The last update time.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `delete` - Default is 5 minutes.
+
 ## Import
 
 The application operations management can be imported using the `id` (name), e.g.

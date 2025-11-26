@@ -8,9 +8,11 @@ package aom
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -30,8 +32,13 @@ func ResourceAlarmActionRule() *schema.Resource {
 		UpdateContext: resourceAlarmActionRuleUpdate,
 		ReadContext:   resourceAlarmActionRuleRead,
 		DeleteContext: resourceAlarmActionRuleDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -185,58 +192,55 @@ func buildAlarmActionRuleRequestBodySmnTopics(rawParams interface{}) []map[strin
 	return nil
 }
 
-func resourceAlarmActionRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func getAlarmActionRule(client *golangsdk.ServiceClient, ruleName string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/alert/action-rules/{rule_name}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{rule_name}", ruleName)
 
-	var mErr *multierror.Error
-
-	// getAlarmActionRule: Query the Alarm Action Rule
-	var (
-		getAlarmActionRuleHttpUrl = "v2/{project_id}/alert/action-rules/{rule_name}"
-		getAlarmActionRuleProduct = "aom"
-	)
-	getAlarmActionRuleClient, err := cfg.NewServiceClient(getAlarmActionRuleProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating AOM Client: %s", err)
-	}
-
-	getAlarmActionRulePath := getAlarmActionRuleClient.Endpoint + getAlarmActionRuleHttpUrl
-	getAlarmActionRulePath = strings.ReplaceAll(getAlarmActionRulePath, "{project_id}", getAlarmActionRuleClient.ProjectID)
-	getAlarmActionRulePath = strings.ReplaceAll(getAlarmActionRulePath, "{rule_name}", d.Id())
-
-	getAlarmActionRuleOpt := golangsdk.RequestOpts{
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
 		},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	getAlarmActionRuleOpt.MoreHeaders = map[string]string{
-		"Content-Type": "application/json",
+	requestResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
 	}
-	getAlarmActionRuleResp, err := getAlarmActionRuleClient.Request("GET", getAlarmActionRulePath, &getAlarmActionRuleOpt)
 
+	return utils.FlattenResponse(requestResp)
+}
+
+func resourceAlarmActionRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("aom", region)
+	if err != nil {
+		return diag.Errorf("error creating AOM Client: %s", err)
+	}
+
+	respBody, err := getAlarmActionRule(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving AlarmActionRule")
 	}
 
-	getAlarmActionRuleRespBody, err := utils.FlattenResponse(getAlarmActionRuleResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
+		nil,
 		d.Set("region", region),
-		d.Set("user_name", utils.PathSearch("user_name", getAlarmActionRuleRespBody, nil)),
-		d.Set("name", utils.PathSearch("rule_name", getAlarmActionRuleRespBody, nil)),
-		d.Set("description", utils.PathSearch("desc", getAlarmActionRuleRespBody, nil)),
-		d.Set("type", utils.PathSearch("type", getAlarmActionRuleRespBody, nil)),
-		d.Set("smn_topics", flattenGetAlarmActionRuleResponseBodySmnTopics(getAlarmActionRuleRespBody)),
-		d.Set("notification_template", utils.PathSearch("notification_template", getAlarmActionRuleRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("create_time", getAlarmActionRuleRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("update_time", getAlarmActionRuleRespBody, nil)),
+		d.Set("user_name", utils.PathSearch("user_name", respBody, nil)),
+		d.Set("name", utils.PathSearch("rule_name", respBody, nil)),
+		d.Set("description", utils.PathSearch("desc", respBody, nil)),
+		d.Set("type", utils.PathSearch("type", respBody, nil)),
+		d.Set("smn_topics", flattenGetAlarmActionRuleResponseBodySmnTopics(respBody)),
+		d.Set("notification_template", utils.PathSearch("notification_template", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -298,34 +302,66 @@ func resourceAlarmActionRuleUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceAlarmActionRuleRead(ctx, d, meta)
 }
 
-func resourceAlarmActionRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAlarmActionRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	// deleteAlarmActionRule: delete the Alarm Action Rule
-	var (
-		deleteAlarmActionRuleHttpUrl = "v2/{project_id}/alert/action-rules"
-		deleteAlarmActionRuleProduct = "aom"
-	)
-	deleteAlarmActionRuleClient, err := cfg.NewServiceClient(deleteAlarmActionRuleProduct, region)
+	client, err := cfg.NewServiceClient("aom", region)
 	if err != nil {
 		return diag.Errorf("error creating AOM Client: %s", err)
 	}
 
-	deleteAlarmActionRulePath := deleteAlarmActionRuleClient.Endpoint + deleteAlarmActionRuleHttpUrl
-	deleteAlarmActionRulePath = strings.ReplaceAll(deleteAlarmActionRulePath, "{project_id}", deleteAlarmActionRuleClient.ProjectID)
+	var (
+		httpUrl = "v2/{project_id}/alert/action-rules"
+	)
 
-	deleteAlarmActionRuleOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			204,
 		},
 	}
-	deleteAlarmActionRuleOpt.JSONBody = []string{d.Id()}
-	_, err = deleteAlarmActionRuleClient.Request("DELETE", deleteAlarmActionRulePath, &deleteAlarmActionRuleOpt)
+	deleteOpt.JSONBody = []string{d.Id()}
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return diag.Errorf("error deleting AlarmActionRule: %s", err)
 	}
 
+	err = waitForAlarmActionRuleDeleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.Errorf("error waiting for the alarm action rule (%s) to be deleted: %s", d.Id(), err)
+	}
+
 	return nil
+}
+
+func waitForAlarmActionRuleDeleted(ctx context.Context, client *golangsdk.ServiceClient, ruleName string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshAlarmActionRuleStatus(client, ruleName),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshAlarmActionRuleStatus(client *golangsdk.ServiceClient, ruleName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := getAlarmActionRule(client, ruleName)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "ResourceNotFound", "COMPLETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		return respBody, "PENDING", nil
+	}
 }
