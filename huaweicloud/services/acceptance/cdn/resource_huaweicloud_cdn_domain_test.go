@@ -18,14 +18,14 @@ import (
 func getDomainFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		domainName = state.Primary.Attributes["name"]
-		epsID      = state.Primary.Attributes["enterprise_project_id"]
+		epsId      = state.Primary.Attributes["enterprise_project_id"]
 	)
 
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
-	return cdn.ReadCdnDomainDetail(client, domainName, epsID)
+	return cdn.GetDomainByName(client, epsId, domainName)
 }
 
 // Try to get the domain name from the environment variable. If the environment variable does not exist, use the
@@ -72,10 +72,19 @@ func TestAccDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "status", "offline"),
 				),
 			},
 			{
+				// Enable the domain before changing any resource parameters.
 				Config: testAccDomain_basic_step2(domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "online"),
+				),
+			},
+			{
+				Config: testAccDomain_basic_step3(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
@@ -83,10 +92,11 @@ func TestAccDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service_area", "outside_mainland_china"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "100"),
+					resource.TestCheckResourceAttr(resourceName, "status", "online"),
 				),
 			},
 			{
-				Config: testAccDomain_basic_step3(domainName),
+				Config: testAccDomain_basic_step4(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
@@ -97,10 +107,11 @@ func TestAccDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "1"),
+					resource.TestCheckResourceAttr(resourceName, "status", "online"),
 				),
 			},
 			{
-				Config: testAccDomain_basic_step4(domainName),
+				Config: testAccDomain_basic_step5(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
@@ -127,6 +138,7 @@ resource "huaweicloud_cdn_domain" "test" {
   name         = "%s"
   type         = "web"
   service_area = "outside_mainland_china"
+  status       = "offline"
 
   configs {
     origin_protocol = "http"
@@ -159,7 +171,47 @@ resource "huaweicloud_cdn_domain" "test" {
 `, domainName)
 }
 
+// Just enable the domain without any other changes.
 func testAccDomain_basic_step2(domainName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name         = "%s"
+  type         = "web"
+  service_area = "outside_mainland_china"
+  status       = "online"
+
+  configs {
+    origin_protocol = "http"
+  }
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+    http_port   = 80
+    https_port  = 443
+  }
+
+  cache_settings {
+    rules {
+      rule_type           = "all"
+      ttl                 = 365
+      ttl_type            = "d"
+      priority            = 2
+      url_parameter_type  = "del_params"
+      url_parameter_value = "test_value"
+    }
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, domainName)
+}
+
+func testAccDomain_basic_step3(domainName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name         = "%s"
@@ -194,7 +246,7 @@ resource "huaweicloud_cdn_domain" "test" {
 `, domainName)
 }
 
-func testAccDomain_basic_step3(domainName string) string {
+func testAccDomain_basic_step4(domainName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name         = "%s"
@@ -220,7 +272,7 @@ resource "huaweicloud_cdn_domain" "test" {
 `, domainName)
 }
 
-func testAccDomain_basic_step4(domainName string) string {
+func testAccDomain_basic_step5(domainName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name         = "%s"

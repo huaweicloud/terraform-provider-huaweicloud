@@ -623,7 +623,7 @@ func resourceDomainRuleCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(domainName)
 
-	if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+	if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d), []string{"online"},
 		d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) to become online in create operation: %s", domainName, err)
 	}
@@ -903,7 +903,7 @@ func resourceDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error updating CDN domain rule, error_code: %s; error_msg: %s", errorCode, errorMsg)
 	}
 
-	if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+	if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d), []string{"online"},
 		d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) to become online in update operation: %s", d.Id(), err)
 	}
@@ -939,7 +939,7 @@ func resourceDomainRuleDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error deleting CDN domain rule, error_code: %s; error_msg: %s", errorCode, errorMsg)
 	}
 
-	if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+	if err := waitForDomainStatusAvailable(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d), []string{"online"},
 		d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) to become online in delete operation: %s", d.Id(), err)
 	}
