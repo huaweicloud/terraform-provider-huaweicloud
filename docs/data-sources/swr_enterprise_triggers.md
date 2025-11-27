@@ -15,7 +15,7 @@ Use this data source to get the list of SWR enterprise instance triggers.
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_swr_enterprise_namespaces" "test" {
+data "huaweicloud_swr_enterprise_triggers" "test" {
   instance_id = var.instance_id
 }
 ```
