@@ -36,6 +36,8 @@ The following arguments are supported:
 
 * `name` - (Required, String, NonUpdatable) Specifies the name of the CCI Secret.
 
+-> When creating the secret for AOM integration, the name must be `cci-aom-app-secret`.
+
 * `string_data` - (Optional, Map) Specifies string data of the CCI Secret.
 
 * `data` - (Optional, Map) Specifies the data of the CCI Secret.
