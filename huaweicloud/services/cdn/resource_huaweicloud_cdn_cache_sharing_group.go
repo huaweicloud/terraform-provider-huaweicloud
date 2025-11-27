@@ -18,23 +18,23 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var shareCacheGroupNonUpdatableParams = []string{"name", "primary_domain"}
+var CacheSharingGroupNonUpdatableParams = []string{"name", "primary_domain"}
 
 // @API CDN POST /v1.0/cdn/configuration/share-cache-groups
 // @API CDN GET /v1.0/cdn/configuration/share-cache-groups
 // @API CDN PUT /v1.0/cdn/configuration/share-cache-groups/{id}
 // @API CDN DELETE /v1.0/cdn/configuration/share-cache-groups/{id}
-func ResourceShareCacheGroup() *schema.Resource {
+func ResourceCacheSharingGroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceShareCacheGroupCreate,
-		ReadContext:   resourceShareCacheGroupRead,
-		UpdateContext: resourceShareCacheGroupUpdate,
-		DeleteContext: resourceShareCacheGroupDelete,
+		CreateContext: resourceCacheSharingGroupCreate,
+		ReadContext:   resourceCacheSharingGroupRead,
+		UpdateContext: resourceCacheSharingGroupUpdate,
+		DeleteContext: resourceCacheSharingGroupDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(shareCacheGroupNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(CacheSharingGroupNonUpdatableParams),
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceShareCacheGroupImportState,
+			StateContext: resourceCacheSharingGroupImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -43,19 +43,19 @@ func ResourceShareCacheGroup() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The region where the share cache group is located.`,
+				Description: `The region where the cache sharing group is located.`,
 			},
 
 			// Required parameters.
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The name of the share cache group.`,
+				Description: `The name of the cache sharing group.`,
 			},
 			"primary_domain": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The primary domain name.`,
+				Description: `The primary domain name of the cache sharing group.`,
 			},
 			"share_cache_records": {
 				Type:     schema.TypeSet,
@@ -69,14 +69,14 @@ func ResourceShareCacheGroup() *schema.Resource {
 						},
 					},
 				},
-				Description: `The list of associated domain names.`,
+				Description: `The list of associated domain names of the cache sharing group.`,
 			},
 
 			// Attributes.
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creation time of the share cache group, in RFC3339 format.`,
+				Description: `The creation time of the cache sharing group, in RFC3339 format.`,
 			},
 
 			// Internal parameter.
@@ -105,7 +105,7 @@ func buildShareCacheRecordsBodyParams(items []interface{}) []map[string]interfac
 	return result
 }
 
-func buildShareCacheGroupCreateBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCacheSharingGroupCreateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"group_name":          d.Get("name").(string),
 		"primary_domain":      d.Get("primary_domain").(string),
@@ -113,7 +113,7 @@ func buildShareCacheGroupCreateBodyParams(d *schema.ResourceData) map[string]int
 	}
 }
 
-func createShareCacheGroup(client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
+func createCacheSharingGroup(client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
 	httpUrl := "v1.0/cdn/configuration/share-cache-groups"
 	createPath := client.Endpoint + httpUrl
 
@@ -127,7 +127,7 @@ func createShareCacheGroup(client *golangsdk.ServiceClient, bodyParams map[strin
 	return err
 }
 
-func listShareCacheGroups(client *golangsdk.ServiceClient) ([]interface{}, error) {
+func listCacheSharingGroups(client *golangsdk.ServiceClient) ([]interface{}, error) {
 	var (
 		httpUrl = "v1.0/cdn/configuration/share-cache-groups?limit={limit}"
 		limit   = 1000
@@ -166,8 +166,8 @@ func listShareCacheGroups(client *golangsdk.ServiceClient) ([]interface{}, error
 	return result, nil
 }
 
-func GetShareCacheGroupByName(client *golangsdk.ServiceClient, groupName string) (interface{}, error) {
-	groups, err := listShareCacheGroups(client)
+func GetCacheSharingGroupByName(client *golangsdk.ServiceClient, groupName string) (interface{}, error) {
+	groups, err := listCacheSharingGroups(client)
 	if err != nil {
 		return nil, err
 	}
@@ -179,38 +179,38 @@ func GetShareCacheGroupByName(client *golangsdk.ServiceClient, groupName string)
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/share-cache-groups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the share cache group with name '%s' has been removed", groupName)),
+				Body:      []byte(fmt.Sprintf("the cache sharing group with name '%s' has been removed", groupName)),
 			},
 		}
 	}
 	return group, nil
 }
 
-func resourceShareCacheGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCacheSharingGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	bodyParams := buildShareCacheGroupCreateBodyParams(d)
-	if err := createShareCacheGroup(client, bodyParams); err != nil {
-		return diag.Errorf("error creating CDN share cache group: %s", err)
+	bodyParams := buildCacheSharingGroupCreateBodyParams(d)
+	if err := createCacheSharingGroup(client, bodyParams); err != nil {
+		return diag.Errorf("error creating CDN cache sharing group: %s", err)
 	}
 
 	groupName := d.Get("name").(string)
-	group, err := GetShareCacheGroupByName(client, groupName)
+	group, err := GetCacheSharingGroupByName(client, groupName)
 	if err != nil {
-		return diag.Errorf("error querying CDN share cache groups: %s", err)
+		return diag.Errorf("error querying CDN cache sharing groups: %s", err)
 	}
 
 	d.SetId(utils.PathSearch("id", group, "").(string))
 
-	return resourceShareCacheGroupRead(ctx, d, meta)
+	return resourceCacheSharingGroupRead(ctx, d, meta)
 }
 
-func GetShareCacheGroupById(client *golangsdk.ServiceClient, groupId string) (interface{}, error) {
-	groups, err := listShareCacheGroups(client)
+func GetCacheSharingGroupById(client *golangsdk.ServiceClient, groupId string) (interface{}, error) {
+	groups, err := listCacheSharingGroups(client)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func GetShareCacheGroupById(client *golangsdk.ServiceClient, groupId string) (in
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/share-cache-groups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the share cache group with ID '%s' has been removed", groupId)),
+				Body:      []byte(fmt.Sprintf("the cache sharing group with ID '%s' has been removed", groupId)),
 			},
 		}
 	}
@@ -244,7 +244,7 @@ func flattenShareCacheRecords(records []interface{}) []map[string]interface{} {
 	return result
 }
 
-func resourceShareCacheGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCacheSharingGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		groupId = d.Id()
@@ -255,9 +255,9 @@ func resourceShareCacheGroupRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	group, err := GetShareCacheGroupById(client, groupId)
+	group, err := GetCacheSharingGroupById(client, groupId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting share cache group (%s)", groupId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting cache sharing group (%s)", groupId))
 	}
 
 	mErr := multierror.Append(nil,
@@ -272,13 +272,13 @@ func resourceShareCacheGroupRead(_ context.Context, d *schema.ResourceData, meta
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildShareCacheGroupUpdateBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCacheSharingGroupUpdateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"share_cache_records": buildShareCacheRecordsBodyParams(d.Get("share_cache_records").(*schema.Set).List()),
 	}
 }
 
-func updateShareCacheGroup(client *golangsdk.ServiceClient, groupId string, bodyParams map[string]interface{}) error {
+func updateCacheSharingGroup(client *golangsdk.ServiceClient, groupId string, bodyParams map[string]interface{}) error {
 	httpUrl := "v1.0/cdn/configuration/share-cache-groups/{id}"
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{id}", groupId)
@@ -293,7 +293,7 @@ func updateShareCacheGroup(client *golangsdk.ServiceClient, groupId string, body
 	return err
 }
 
-func resourceShareCacheGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCacheSharingGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		groupId = d.Id()
@@ -304,15 +304,15 @@ func resourceShareCacheGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	bodyParams := buildShareCacheGroupUpdateBodyParams(d)
-	if err := updateShareCacheGroup(client, groupId, bodyParams); err != nil {
-		return diag.Errorf("error updating share cache group (%s): %s", groupId, err)
+	bodyParams := buildCacheSharingGroupUpdateBodyParams(d)
+	if err := updateCacheSharingGroup(client, groupId, bodyParams); err != nil {
+		return diag.Errorf("error updating cache sharing group (%s): %s", groupId, err)
 	}
 
-	return resourceShareCacheGroupRead(ctx, d, meta)
+	return resourceCacheSharingGroupRead(ctx, d, meta)
 }
 
-func deleteShareCacheGroup(client *golangsdk.ServiceClient, groupId string) error {
+func deleteCacheSharingGroup(client *golangsdk.ServiceClient, groupId string) error {
 	httpUrl := "v1.0/cdn/configuration/share-cache-groups/{id}"
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{id}", groupId)
@@ -326,7 +326,7 @@ func deleteShareCacheGroup(client *golangsdk.ServiceClient, groupId string) erro
 	return err
 }
 
-func resourceShareCacheGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCacheSharingGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                     = meta.(*config.Config)
 		groupId                 = d.Id()
@@ -345,22 +345,22 @@ func resourceShareCacheGroupDelete(_ context.Context, d *schema.ResourceData, me
 		bodyParams := map[string]interface{}{
 			"share_cache_records": make([]interface{}, 0),
 		}
-		if err := updateShareCacheGroup(client, groupId, bodyParams); err != nil {
+		if err := updateCacheSharingGroup(client, groupId, bodyParams); err != nil {
 			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", cacheGroupNotFoundCodes...),
-				fmt.Sprintf("error cleaning up share cache records for share cache group (%s)", groupId))
+				fmt.Sprintf("error cleaning up share cache records for cache sharing group (%s)", groupId))
 		}
 	}
 
-	err = deleteShareCacheGroup(client, groupId)
+	err = deleteCacheSharingGroup(client, groupId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", cacheGroupNotFoundCodes...),
-			fmt.Sprintf("error deleting share cache group (%s)", groupId))
+			fmt.Sprintf("error deleting cache sharing group (%s)", groupId))
 	}
 
 	return nil
 }
 
-func resourceShareCacheGroupImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCacheSharingGroupImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 
 	if utils.IsUUID(importedId) {
@@ -374,7 +374,7 @@ func resourceShareCacheGroupImportState(_ context.Context, d *schema.ResourceDat
 		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
 
-	group, err := GetShareCacheGroupByName(client, importedId)
+	group, err := GetCacheSharingGroupByName(client, importedId)
 	if err != nil {
 		return nil, err
 	}
