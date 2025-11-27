@@ -3721,7 +3721,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_group_associate":            waf.ResourceWafInstGroupAssociate(),
 
 			// Workspace
-			"huaweicloud_workspace_user_group":                           workspace.ResourceUserGroup(),
 			"huaweicloud_workspace_access_policy":                        workspace.ResourceAccessPolicy(),
 			"huaweicloud_workspace_application":                          workspace.ResourceApplication(),
 			"huaweicloud_workspace_application_batch_authorize":          workspace.ResourceApplicationBatchAuthorize(),
@@ -3737,12 +3736,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_pool":                         workspace.ResourceDesktopPool(),
 			"huaweicloud_workspace_desktop_pool_action":                  workspace.ResourceDesktopPoolAction(),
 			"huaweicloud_workspace_desktop_pool_notification":            workspace.ResourceDesktopPoolNotification(),
+			"huaweicloud_workspace_eip_associate":                        workspace.ResourceEipAssociate(),
+			"huaweicloud_workspace_log_configuration":                    workspace.ResourceLogConfiguration(),
 			"huaweicloud_workspace_policy_group":                         workspace.ResourcePolicyGroup(),
 			"huaweicloud_workspace_service":                              workspace.ResourceService(),
-			"huaweicloud_workspace_app_service_action":                   workspace.ResourceAppServiceAction(),
 			"huaweicloud_workspace_terminal_binding":                     workspace.ResourceTerminalBinding(),
 			"huaweicloud_workspace_user":                                 workspace.ResourceUser(),
-			"huaweicloud_workspace_eip_associate":                        workspace.ResourceEipAssociate(),
+			"huaweicloud_workspace_user_group":                           workspace.ResourceUserGroup(),
 
 			// Workspace APP
 			"huaweicloud_workspace_app_application_batch_attach":                workspace.ResourceAppApplicationBatchAttach(),
@@ -3765,6 +3765,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_group":                            workspace.ResourceAppServerGroup(),
 			"huaweicloud_workspace_app_server_group_batch_disassociate":         workspace.ResourceAppServerGroupBatchDisassociate(),
 			"huaweicloud_workspace_app_server_group_scaling_policy":             workspace.ResourceAppServerGroupScalingPolicy(),
+			"huaweicloud_workspace_app_service_action":                          workspace.ResourceAppServiceAction(),
 			"huaweicloud_workspace_app_shared_folder":                           workspace.ResourceAppSharedFolder(),
 			"huaweicloud_workspace_app_storage_policy":                          workspace.ResourceAppStoragePolicy(),
 			"huaweicloud_workspace_app_warehouse_application":                   workspace.ResourceAppWarehouseApplication(),
