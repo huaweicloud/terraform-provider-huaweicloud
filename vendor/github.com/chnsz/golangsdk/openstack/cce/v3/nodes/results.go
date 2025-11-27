@@ -144,6 +144,10 @@ type LoginSpec struct {
 	SshKey string `json:"sshKey,omitempty"`
 	// Select the user/password when logging in
 	UserPassword UserPassword `json:"userPassword,omitempty"`
+	// Remove password login
+	RemoveUserPassword bool `json:"removeUserPassword,omitempty"`
+	// Remove the SSH key login
+	RemoveSshKey bool `json:"removeSSHKey,omitempty"`
 }
 
 type UserPassword struct {
