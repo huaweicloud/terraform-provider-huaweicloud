@@ -758,6 +758,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_quotas":                    cdn.DataSourceQuotas(),
 			"huaweicloud_cdn_domain_statistics":         cdn.DataSourceStatistics(),
 			"huaweicloud_cdn_rule_engine_rules":         cdn.DataSourceRuleEngineRules(),
+			"huaweicloud_cdn_statistic_configuration":   cdn.DataSourceStatisticConfiguration(),
 			"huaweicloud_cdn_top_referrer_statistics":   cdn.DataSourceTopReferrerStatistics(),
 			"huaweicloud_cdn_top_url_statistics":        cdn.DataSourceTopUrlStatistics(),
 
