@@ -20,15 +20,15 @@ import (
 // @API Workspace GET /v1/{project_id}/app-groups/{app_group_id}/apps
 // @API Workspace PATCH /v1/{project_id}/app-groups/{app_group_id}/apps/{app_id}
 // @API Workspace POST /v1/{project_id}/app-groups/{app_group_id}/apps/batch-unpublish
-func ResourceAppPublishment() *schema.Resource {
+func ResourceAppApplicationPublishment() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAppPublishmentCreate,
-		ReadContext:   resourceAppPublishmentRead,
-		UpdateContext: resourceAppPublishmentUpdate,
-		DeleteContext: resourceAppPublishmentDelete,
+		CreateContext: resourceAppApplicationPublishmentCreate,
+		ReadContext:   resourceAppApplicationPublishmentRead,
+		UpdateContext: resourceAppApplicationPublishmentUpdate,
+		DeleteContext: resourceAppApplicationPublishmentDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceAppPublishmentImportState,
+			StateContext: resourceAppApplicationPublishmentImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,7 +79,7 @@ func ResourceAppPublishment() *schema.Resource {
 			"work_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The publisher of the application.`,
+				Description: `The working directory of the application.`,
 			},
 			"command_param": {
 				Type:        schema.TypeString,
@@ -125,7 +125,7 @@ func ResourceAppPublishment() *schema.Resource {
 	}
 }
 
-func resourceAppPublishmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppApplicationPublishmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	httpUrl := "v1/{project_id}/app-groups/{app_group_id}/apps"
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
@@ -139,7 +139,7 @@ func resourceAppPublishmentCreate(ctx context.Context, d *schema.ResourceData, m
 	createPath = strings.ReplaceAll(createPath, "{app_group_id}", appGroupId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateAppBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildCreateAppApplicationPublishmentBodyParams(d)),
 	}
 	requestResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
@@ -158,15 +158,15 @@ func resourceAppPublishmentCreate(ctx context.Context, d *schema.ResourceData, m
 		updateStateOpt := map[string]interface{}{
 			"state": d.Get("status"),
 		}
-		if err = updateApplication(client, appGroupId, applicationId, updateStateOpt); err != nil {
+		if err = updateAppPublishedApplication(client, appGroupId, applicationId, updateStateOpt); err != nil {
 			return diag.Errorf("error updating status of the application (%s): %s", d.Get("name").(string), err)
 		}
 	}
 
-	return resourceAppPublishmentRead(ctx, d, meta)
+	return resourceAppApplicationPublishmentRead(ctx, d, meta)
 }
 
-func buildCreateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateAppApplicationPublishmentBodyParams(d *schema.ResourceData) map[string]interface{} {
 	rest := make([]map[string]interface{}, 0)
 	params := map[string]interface{}{
 		"name":             d.Get("name"),
@@ -189,7 +189,7 @@ func buildCreateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
 	}
 }
 
-func resourceAppPublishmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppApplicationPublishmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -200,7 +200,7 @@ func resourceAppPublishmentRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	application, err := GetApplicationByName(client, d.Get("app_group_id").(string), d.Get("name").(string))
+	application, err := GetAppPublishedApplicationByName(client, d.Get("app_group_id").(string), d.Get("name").(string))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Workspace application")
 	}
@@ -230,7 +230,7 @@ func resourceAppPublishmentRead(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func GetApplicationByName(client *golangsdk.ServiceClient, appGroupId, appName string) (interface{}, error) {
+func GetAppPublishedApplicationByName(client *golangsdk.ServiceClient, appGroupId, appName string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/app-groups/{app_group_id}/apps?name={app_name}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -259,7 +259,7 @@ func GetApplicationByName(client *golangsdk.ServiceClient, appGroupId, appName s
 	return application, nil
 }
 
-func resourceAppPublishmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppApplicationPublishmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
 	if err != nil {
@@ -280,15 +280,15 @@ func resourceAppPublishmentUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		appGroupId := d.Get("app_group_id").(string)
-		if err := updateApplication(client, appGroupId, d.Id(), updateOpt); err != nil {
+		if err := updateAppPublishedApplication(client, appGroupId, d.Id(), updateOpt); err != nil {
 			return diag.Errorf("error updating application (%s): %s", appName.(string), err)
 		}
 	}
 
-	return resourceAppPublishmentRead(ctx, d, meta)
+	return resourceAppApplicationPublishmentRead(ctx, d, meta)
 }
 
-func updateApplication(client *golangsdk.ServiceClient, appGroupId, appId string, params map[string]interface{}) error {
+func updateAppPublishedApplication(client *golangsdk.ServiceClient, appGroupId, appId string, params map[string]interface{}) error {
 	httpUrl := "v1/{project_id}/app-groups/{app_group_id}/apps/{app_id}"
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -307,7 +307,7 @@ func updateApplication(client *golangsdk.ServiceClient, appGroupId, appId string
 	return nil
 }
 
-func resourceAppPublishmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppApplicationPublishmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	httpUrl := "v1/{project_id}/app-groups/{app_group_id}/apps/batch-unpublish"
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
@@ -334,7 +334,7 @@ func resourceAppPublishmentDelete(_ context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func resourceAppPublishmentImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceAppApplicationPublishmentImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
 	if len(parts) != 2 {
@@ -353,7 +353,7 @@ func resourceAppPublishmentImportState(_ context.Context, d *schema.ResourceData
 		return []*schema.ResourceData{d}, fmt.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	application, err := GetApplicationByName(client, parts[0], parts[1])
+	application, err := GetAppPublishedApplicationByName(client, parts[0], parts[1])
 	if err != nil {
 		return []*schema.ResourceData{d}, fmt.Errorf("error getting published application from API response: %s", err)
 	}
