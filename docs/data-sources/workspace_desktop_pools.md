@@ -151,5 +151,3 @@ The `autoscale_policy` block supports:
 * `max_auto_created` - The maximum number of auto-created desktops.
 
 * `min_idle` - The minimum number of idle desktops.
-
-* `once_auto_created` - The number of desktops will create in one auto scaling operation.

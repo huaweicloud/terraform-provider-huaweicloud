@@ -209,9 +209,6 @@ The `autoscale_policy` block supports:
   less than this value.  
   The valid value ranges from `1` to `1,000`.
 
-* `once_auto_created` - (Optional, Int) Specifies the number of desktops automatically created at one time.  
-  The valid value ranges from `1` to `100`.
-
 <a name="desktop_pool_security_groups"></a>
 The `security_groups` block supports:
 
