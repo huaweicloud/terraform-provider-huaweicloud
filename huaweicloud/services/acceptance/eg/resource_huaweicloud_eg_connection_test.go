@@ -81,6 +81,7 @@ func TestAccConnection_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "agency"),
 				),
 			},
 			{
@@ -157,6 +158,11 @@ func TestAccConnection_kafka(t *testing.T) {
 						"huaweicloud_dms_kafka_instance.test", "connect_address"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "flavor"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.bandwidth_type"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.concurrency"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.concurrency_type"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.name"),
 				),
 			},
 			{

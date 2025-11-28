@@ -237,3 +237,107 @@ output "eps_id_not_found_validation_pass" {
 }
 `, testAccDataCustomEventChannels_base_withEpsId(), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID)
 }
+
+func TestAccDataCustomEventChannels_fuzzyName(t *testing.T) {
+	var (
+		baseRes = "huaweicloud_eg_custom_event_channel.test"
+		byFuzzy = "data.huaweicloud_eg_custom_event_channels.filter_by_fuzzy_name"
+
+		obj     interface{}
+		rc      = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventChannelFunc)
+		dcFuzzy = acceptance.InitDataSourceCheck(byFuzzy)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataCustomEventChannels_fuzzyName(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					dcFuzzy.CheckResourceExists(),
+					resource.TestCheckOutput("is_fuzzy_name_filter_useful", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataCustomEventChannels_fuzzyName() string {
+	name := acceptance.RandomAccResourceName()
+	fuzzyName := name[:len(name)-3]
+
+	return fmt.Sprintf(`
+resource "huaweicloud_eg_custom_event_channel" "test" {
+  name = "%[1]s"
+}
+
+data "huaweicloud_eg_custom_event_channels" "filter_by_fuzzy_name" {
+  depends_on = [
+    huaweicloud_eg_custom_event_channel.test,
+  ]
+
+  fuzzy_name = "%[2]s"
+}
+
+locals {
+  filter_result = [for v in data.huaweicloud_eg_custom_event_channels.filter_by_fuzzy_name.channels[*].name :
+                   can(regex(".*%[2]s.*", v))]
+}
+
+output "is_fuzzy_name_filter_useful" {
+  value = alltrue(local.filter_result) && length(local.filter_result) > 0
+}
+`, name, fuzzyName)
+}
+
+func TestAccDataCustomEventChannels_sort(t *testing.T) {
+	var (
+		baseRes = "huaweicloud_eg_custom_event_channel.test"
+		bySort  = "data.huaweicloud_eg_custom_event_channels.sort_by_name"
+
+		obj    interface{}
+		rc     = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventChannelFunc)
+		dcSort = acceptance.InitDataSourceCheck(bySort)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataCustomEventChannels_sort(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					dcSort.CheckResourceExists(),
+					resource.TestCheckOutput("is_sort_useful", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataCustomEventChannels_sort() string {
+	name := acceptance.RandomAccResourceName()
+
+	return fmt.Sprintf(`
+resource "huaweicloud_eg_custom_event_channel" "test" {
+  name = "%[1]s"
+}
+
+data "huaweicloud_eg_custom_event_channels" "sort_by_name" {
+  depends_on = [
+    huaweicloud_eg_custom_event_channel.test,
+  ]
+
+  sort = "created_time:DESC"
+}
+
+output "is_sort_useful" {
+  value = length(data.huaweicloud_eg_custom_event_channels.sort_by_name.channels) > 0
+}
+`, name)
+}

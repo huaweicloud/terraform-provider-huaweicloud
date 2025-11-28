@@ -98,7 +98,9 @@ The `kafka_detail` block supports:
 
 * `user_name` - The username of the Kafka instance.
 
-* `acks` - The number of confirmation signals the producer‌ needs to receive to consider the message sent successfully.
+* `acks` - The number of confirmation signals the producer needs to receive to consider the message sent successfully.
+
+* `address` - The connection address of Kafka instance.
 
 <a name="data_connections_flavor"></a>
 The `flavor` block supports:
