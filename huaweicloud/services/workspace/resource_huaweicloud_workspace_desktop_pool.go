@@ -202,9 +202,14 @@ func ResourceDesktopPool() *schema.Resource {
 							the specified value.`,
 						},
 						"once_auto_created": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Description: `The number of desktops automatically created at one time.`,
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: utils.SchemaDesc(
+								`The number of desktops automatically created at one time.`,
+								utils.SchemaDescInput{
+									Deprecated: true,
+								},
+							),
 						},
 					},
 				},
@@ -481,7 +486,7 @@ func resourceDesktopPoolCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(desktopPoolId)
 
 	// The successful creation of a desktop pool does not mean that all desktops under it are successfully created.
-	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	_, err = waitForWorkspaceResourcePoolJobCompleted(ctx, client, desktopPoolId, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
 	}
@@ -496,6 +501,25 @@ func resourceDesktopPoolCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 	return resourceDesktopPoolRead(ctx, d, meta)
+}
+
+func waitForWorkspaceResourcePoolJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId, jobId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"WAITING", "RUNNING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      refreshWorkspaceJobFunc(client, jobId, fmt.Sprintf("&desktop_pool_id=%s", desktopPoolId)),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+
+	resp, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return utils.PathSearch("entities.desktop_id", resp, "").(string), nil
 }
 
 func waitForWorkspacePoolStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolName string,
@@ -656,7 +680,8 @@ func resourceDesktopPoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("image_id", utils.PathSearch("image_id", desktopPool, nil)),
 		d.Set("root_volume", flattenDesktopPoolRootVolume(utils.PathSearch("root_volume", desktopPool, nil))),
 		d.Set("subnet_ids", flattenDesktopPoolSubnet(utils.PathSearch("subnet_id", desktopPool, nil))),
-		d.Set("security_groups", utils.PathSearch("security_groups", desktopPool, nil)),
+		d.Set("security_groups", flattenDesktopPoolSecurityGroups(utils.PathSearch("security_groups", desktopPool,
+			make([]interface{}, 0)).([]interface{}))),
 		d.Set("availability_zone", utils.PathSearch("availability_zone", desktopPool, nil)),
 		d.Set("data_volumes", flattenDesktopPoolDataVolume(utils.PathSearch("data_volumes", desktopPool, make([]interface{}, 0)).([]interface{}))),
 		d.Set("disconnected_retention_period", utils.PathSearch("disconnected_retention_period", desktopPool, nil)),
@@ -741,8 +766,27 @@ func flattenDesktopPoolAuthorizedObjects(authorizedObjects []interface{}) []map[
 	return result
 }
 
+func flattenDesktopPoolSecurityGroups(securityGroups []interface{}) []map[string]interface{} {
+	if len(securityGroups) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(securityGroups))
+	for i, sg := range securityGroups {
+		result[i] = map[string]interface{}{
+			"id": utils.PathSearch("id", sg, nil),
+		}
+	}
+	return result
+}
+
 func flattenDesktopPoolAutoScalePolicy(autoScalePolicy interface{}) []map[string]interface{} {
-	if autoScalePolicy == nil || len(autoScalePolicy.(map[string]interface{})) == 0 {
+	if autoScalePolicy == nil {
+		return nil
+	}
+	autoScalePolicyObject := autoScalePolicy.(map[string]interface{})
+	// In some regions, the once_auto_created field is still returned even after the auto-scaling policy is canceled.
+	if len(autoScalePolicyObject) == 0 || (len(autoScalePolicyObject) == 1 && autoScalePolicyObject["once_auto_created"] != nil) {
 		return nil
 	}
 

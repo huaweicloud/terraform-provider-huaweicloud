@@ -306,9 +306,14 @@ func desktopPoolAutoscalePolicySchema() *schema.Resource {
 				Description: "The minimum number of idle desktops.",
 			},
 			"once_auto_created": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The number of desktops will create in one auto scaling operation.",
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The number of desktops will create in one auto scaling operation.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}

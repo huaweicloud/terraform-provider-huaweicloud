@@ -304,7 +304,7 @@ func waitForWorkspaceJobCompleted(ctx context.Context, client *golangsdk.Service
 	return utils.PathSearch("entities.desktop_id", resp, "").(string), nil
 }
 
-func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string, queryParams ...string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/workspace-sub-jobs"
@@ -319,6 +319,10 @@ func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string) reso
 		listPath := client.Endpoint + httpUrl
 		listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 		listPath = fmt.Sprintf("%s?job_id=%s", listPath, jobId)
+		if len(queryParams) > 0 {
+			listPath += queryParams[0]
+		}
+
 		resp, err := client.Request("GET", listPath, &listOpts)
 		if err != nil {
 			return resp, "ERROR", err
