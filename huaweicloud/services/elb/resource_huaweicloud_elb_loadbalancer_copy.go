@@ -35,8 +35,8 @@ var loadBalancerCopyNonUpdatableParams = []string{
 // @API ELB POST /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags/action
 // @API ELB GET /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API ELB GET /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags
-// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-add}
-// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-remove}
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-add
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-remove
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
