@@ -76,6 +76,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/er"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/esw"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ga"
@@ -1226,6 +1227,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_recycle_bin_policy":         evs.DataSourceRecycleBinPolicy(),
 			"huaweicloud_evs_recycle_bin_volumes_detail": evs.DataSourceRecycleBinVolumesDetail(),
 			"huaweicloud_evs_recycle_bin_volume_detail":  evs.DataSourceRecycleBinVolumeDetail(),
+
+			"huaweicloud_esw_flavors":            esw.DataSourceEswFlavors(),
+			"huaweicloud_esw_availability_zones": esw.DataSourceEswAvailabilityZones(),
+			"huaweicloud_esw_quotas":             esw.DataSourceEswQuotas(),
 
 			"huaweicloud_fgs_applications":                fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates":       fgs.DataSourceApplicationTemplates(),
