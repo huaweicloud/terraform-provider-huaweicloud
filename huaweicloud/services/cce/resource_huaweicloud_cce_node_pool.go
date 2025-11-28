@@ -33,27 +33,9 @@ import (
 // @API CCE DELETE /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
 
 var nodePoolNonUpdatableParams = []string{
-	"cluster_id", "flavor_id", "type",
-	"root_volume", "root_volume.*.size", "root_volume.*.volumetype", "root_volume.*.extend_params", "root_volume.*.kms_key_id",
-	"root_volume.*.dss_pool_id", "root_volume.*.iops", "root_volume.*.throughput", "root_volume.*.hw_passthrough", "root_volume.*.extend_param",
-	"data_volumes", "data_volumes.*.size", "data_volumes.*.volumetype", "data_volumes.*.extend_params", "data_volumes.*.kms_key_id",
-	"data_volumes.*.dss_pool_id", "data_volumes.*.iops", "data_volumes.*.throughput", "data_volumes.*.hw_passthrough",
-	"data_volumes.*.extend_param",
-	"availability_zone", "key_pair", "password",
-	"storage", "storage.*.selectors", "storage.*.selectors.*.name", "storage.*.selectors.*.type", "storage.*.selectors.*.match_label_size",
-	"storage.*.selectors.*.match_label_volume_type", "storage.*.selectors.*.match_label_metadata_encrypted",
-	"storage.*.selectors.*.match_label_metadata_cmkid", "storage.*.selectors.*.match_label_count",
-	"storage.*.groups", "storage.*.groups.*.name", "storage.*.groups.*.cce_managed", "storage.*.groups.*.selector_names",
-	"storage.*.groups.*.virtual_spaces",
-	"storage.*.groups.*.virtual_spaces.*.name", "storage.*.groups.*.virtual_spaces.*.size", "storage.*.groups.*.virtual_spaces.*.lvm_lv_type",
-	"storage.*.groups.*.virtual_spaces.*.lvm_path", "storage.*.groups.*.virtual_spaces.*.runtime_lv_type",
-	"charging_mode", "period_unit", "period", "auto_renew", "runtime",
-	"extend_params", "extend_params.*.max_pods", "extend_params.*.docker_base_size", "extend_params.*.preinstall",
-	"extend_params.*.postinstall", "extend_params.*.node_image_id", "extend_params.*.node_multi_queue", "extend_params.*.nic_threshold",
-	"extend_params.*.agency_name", "extend_params.*.kube_reserved_mem", "extend_params.*.system_reserved_mem",
-	"extend_params.*.security_reinforcement_type", "extend_params.*.market_type", "extend_params.*.spot_price",
-	"security_groups", "pod_security_groups", "ecs_group_id", "hostname_config", "hostname_config.*.type",
-	"max_pods", "preinstall", "postinstall", "extend_param", "partition",
+	"cluster_id", "flavor_id", "type", "availability_zone", "charging_mode", "period_unit", "period", "runtime",
+	"ecs_group_id", "hostname_config", "hostname_config.*.type", "max_pods", "preinstall", "postinstall", "extend_param",
+	"partition",
 }
 
 var nodePoolSchema = map[string]*schema.Schema{
@@ -314,6 +296,7 @@ func ResourceNodePool() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -862,6 +845,11 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 	if !d.Get("ignore_initial_node_count").(bool) {
 		initialNodeCount = d.Get("initial_node_count").(int)
 	}
+	rootVolume := buildResourceNodeRootVolume(d)
+	loginSpec, err := buildUpdateResourceNodeLoginSpec(d)
+	if err != nil {
+		return nil, err
+	}
 	updateOpts := nodepools.UpdateOpts{
 		Metadata: nodepools.UpdateMetaData{
 			Name: d.Get("name").(string),
@@ -877,14 +865,21 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 				Priority:              d.Get("priority").(int),
 			},
 			NodeTemplate: nodepools.UpdateNodeTemplate{
+				Login:                     loginSpec,
+				RootVolume:                &rootVolume,
+				DataVolumes:               buildResourceNodeDataVolume(d),
+				Storage:                   buildResourceNodeStorage(d),
 				UserTags:                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 				K8sTags:                   buildResourceNodeK8sTags(d),
+				ExtendParam:               buildExtendParams(d),
 				Taints:                    buildResourceNodeTaint(d),
 				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
 				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 				Os:                        d.Get("os").(string),
 				NodeNicSpecUpdate:         buildResourceNodePoolNicSpec(d),
 			},
+			PodSecurityGroups:            buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
+			CustomSecurityGroups:         utils.ExpandToStringList(d.Get("security_groups").([]interface{})),
 			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
 			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
 			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
@@ -892,6 +887,36 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 		},
 	}
 	return &updateOpts, nil
+}
+
+func buildUpdateResourceNodeLoginSpec(d *schema.ResourceData) (nodes.LoginSpec, error) {
+	var loginSpec nodes.LoginSpec
+	if !d.HasChanges("key_pair", "password") {
+		return loginSpec, nil
+	}
+	loginSpec = nodes.LoginSpec{}
+	if d.HasChange("key_pair") {
+		if v := d.Get("key_pair"); v != "" {
+			loginSpec.SshKey = v.(string)
+		} else {
+			loginSpec.RemoveSshKey = true
+		}
+	}
+	if d.HasChange("password") {
+		if v := d.Get("password"); v != "" {
+			password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
+			if err != nil {
+				return loginSpec, err
+			}
+			loginSpec.UserPassword = nodes.UserPassword{
+				Username: "root",
+				Password: password,
+			}
+		} else {
+			loginSpec.RemoveUserPassword = true
+		}
+	}
+	return loginSpec, nil
 }
 
 func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -917,7 +942,7 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, []string{""}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        60 * time.Second,
 		PollInterval: 10 * time.Second,
 	}

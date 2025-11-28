@@ -68,17 +68,6 @@ func TestAccNodePool_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNodePool_basic_step3(updateName, baseConfig),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "os", "CentOS 7.6"),
-					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
-					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key1", "test_val1"),
-					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_params.test_key2", "test_val2"),
-				),
-			},
-			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -200,68 +189,6 @@ resource "huaweicloud_cce_node_pool" "test" {
 date
 EOF
   }
-
-  lifecycle {
-    ignore_changes = [
-      extend_params
-    ]
-  }
-}
-`, baseConfig, name)
-}
-
-func testAccNodePool_basic_step3(name, baseConfig string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%[2]s"
-  os                       = "CentOS 7.6"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_kps_keypair.test.name
-  scall_enable             = false
-  min_node_count           = 0
-  max_node_count           = 0
-  scale_down_cooldown_time = 0
-  priority                 = 0
-  type                     = "vm"
-
-  root_volume {
-    size          = 40
-    volumetype    = "SSD"
-    extend_params = {
-      test_key = "test_val"
-    }
-  }
-
-  data_volumes {
-    size          = 100
-    volumetype    = "SSD"
-    extend_params = {
-      test_key1 = "test_val1"
-    }
-  }
-
-  data_volumes {
-    size          = 100
-    volumetype    = "SSD"
-    extend_params = {
-      test_key2 = "test_val2"
-    }
-  }
-
-  extend_params {
-    docker_base_size = 20
-    postinstall      = <<EOF
-#! /bin/bash
-date
-EOF
-  }
-
-  enable_force_new = true
 
   lifecycle {
     ignore_changes = [
@@ -553,18 +480,28 @@ func TestAccNodePool_prePaid(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNodePool_prePaid(name),
+				Config: testAccNodePool_prePaid(name, "false"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttr(resourceName, "current_node_count", "0"),
+				),
+			},
+			{
+				Config: testAccNodePool_prePaid(name, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "current_node_count", "0"),
 				),
 			},
 		},
 	})
 }
 
-func testAccNodePool_prePaid(rName string) string {
+func testAccNodePool_prePaid(rName, autoRenew string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -573,7 +510,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
   flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
+  initial_node_count       = 0
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
@@ -586,6 +523,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
+  auto_renew    = "%[3]s"
 
   root_volume {
     size       = 40
@@ -596,7 +534,7 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccNodePool_base(rName), rName)
+`, testAccNodePool_base(rName), rName, autoRenew)
 }
 
 func TestAccNodePool_SecurityGroups(t *testing.T) {
@@ -631,103 +569,43 @@ func TestAccNodePool_SecurityGroups(t *testing.T) {
 						"huaweicloud_networking_secgroup.test.1", "id"),
 				),
 			},
+			{
+				Config: testAccNodePool_SecurityGroups_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.0",
+						"huaweicloud_networking_secgroup.test.2", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.1",
+						"huaweicloud_networking_secgroup.test.3", "id"),
+				),
+			},
 		},
 	})
 }
 
-func testAccNodePool_SecurityGroups(name string) string {
+func testAccNodePool_SecurityGroups_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "computingv3"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-resource "huaweicloud_kps_keypair" "test" {
-  name = "%[2]s"
-}
 
 resource "huaweicloud_networking_secgroup" "test" {
   count                 = 4
   name                 = "%[2]s-secgroup-${count.index}"
   delete_default_rules = true
 }
-
-resource "huaweicloud_networking_secgroup_rule" "rule1" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  remote_ip_prefix  = huaweicloud_vpc_subnet.eni_test[0].cidr
+`, testAccNodePool_base(name), name)
 }
 
-resource "huaweicloud_networking_secgroup_rule" "rule2" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  ports             = "10250"
-  protocol          = "tcp"
-  remote_ip_prefix  = huaweicloud_vpc_subnet.test.cidr
-}
-
-resource "huaweicloud_networking_secgroup_rule" "rule3" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  ports             = "30000-32767"
-  protocol          = "udp"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "rule4" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  ports             = "30000-32767"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "rule5" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "egress"
-  ethertype         = "IPv4"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "rule6" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  remote_group_id   = huaweicloud_networking_secgroup.test[0].id
-}
-
-resource "huaweicloud_networking_secgroup_rule" "rule7" {
-  security_group_id = huaweicloud_networking_secgroup.test[0].id
-  action            = "allow"
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  ports             = "22"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
+func testAccNodePool_SecurityGroups(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
   flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
+  initial_node_count       = 0
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
@@ -756,7 +634,48 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCluster_turbo(name, 1), name)
+`, testAccNodePool_SecurityGroups_base(name), name)
+}
+
+func testAccNodePool_SecurityGroups_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.9"
+  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
+  initial_node_count       = 0
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  password                 = "test_123456"
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  security_groups = [
+    huaweicloud_networking_secgroup.test[2].id,
+    huaweicloud_networking_secgroup.test[3].id
+  ]
+
+  pod_security_groups = [
+    huaweicloud_networking_secgroup.test[0].id,
+    huaweicloud_networking_secgroup.test[1].id
+  ]
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
+`, testAccNodePool_SecurityGroups_base(name), name)
 }
 
 func TestAccNodePool_serverGroup(t *testing.T) {
@@ -860,6 +779,15 @@ func TestAccNodePool_storage(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "storage.0.groups.#"),
 				),
 			},
+			{
+				Config: testAccNodePool_storage_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.selectors.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.groups.#"),
+				),
+			},
 		},
 	})
 }
@@ -955,6 +883,97 @@ resource "huaweicloud_cce_node_pool" "test" {
 `, testAccNodePool_base(rName), rName)
 }
 
+func testAccNodePool_storage_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[2]s"
+  pending_days = "7"
+}
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.9"
+  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 50
+    volumetype = "SSD"
+  }
+  
+  data_volumes {
+    size       = 200
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+
+  data_volumes {
+    size       = 200
+    volumetype = "SSD"
+    kms_key_id = huaweicloud_kms_key.test.id
+  }
+
+  storage {
+    selectors {
+      name              = "cceUse"
+      type              = "evs"
+      match_label_size  = "200"
+      match_label_count = "1"
+    }
+
+    selectors {
+      name                           = "user"
+      type                           = "evs"
+      match_label_size               = "200"
+      match_label_metadata_encrypted = "1"
+      match_label_metadata_cmkid     = huaweicloud_kms_key.test.id
+      match_label_count              = "1"
+    }
+
+    groups {
+      name           = "vgpaas"
+      selector_names = ["cceUse"]
+      cce_managed    = true
+
+      virtual_spaces {
+        name        = "kubernetes"
+        size        = "20%%"
+        lvm_lv_type = "linear"
+      }
+
+      virtual_spaces {
+        name        = "runtime"
+        size        = "80%%"
+      }
+    }
+
+    groups {
+      name           = "vguser"
+      selector_names = ["user"]
+
+      virtual_spaces {
+        name        = "user"
+        size        = "100%%"
+        lvm_lv_type = "linear"
+        lvm_path    = "/workspace"
+      }
+    }
+  }
+}
+`, testAccNodePool_base(rName), rName)
+}
+
 func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 	var (
 		nodePool nodepools.NodePool
@@ -999,7 +1018,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count",
+					"initial_node_count", "ignore_initial_node_count",
 				},
 			},
 		},
