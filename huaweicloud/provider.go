@@ -2209,6 +2209,7 @@ func Provider() *schema.Provider {
 
 			// Workspace
 			"huaweicloud_workspace_applications":                         workspace.DataSourceApplications(),
+			"huaweicloud_workspace_application_authorizations":           workspace.DataSourceApplicationAuthorizations(),
 			"huaweicloud_workspace_application_catalogs":                 workspace.DataSourceApplicationCatalogs(),
 			"huaweicloud_workspace_application_restricted_rules":         workspace.DataSourceApplicationRestrictedRules(),
 			"huaweicloud_workspace_application_rules":                    workspace.DataSourceApplicationRules(),
