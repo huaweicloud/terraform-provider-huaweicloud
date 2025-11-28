@@ -41,8 +41,8 @@ The following arguments are supported:
 * `__os_version` - (Optional, String, NonUpdatable) Specifies the specific version of the operating system for the
   specified image. If omitted, the default setting is **Other Linux (64 bit)**, and there is no guarantee that this
   image will successfully create a virtual machine or that virtual machines created through this image will function
-  properly. For the range of values,
-  Please refer to the document link [reference](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0910.html).
+  properly. For the range of values, please refer to the document link
+  [reference](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0910.html#section0).
 
 * `visibility` - (Optional, String, NonUpdatable) Specifies whether other tenants are visible.
   The default value is **private**. When creating image metadata, the valid value can only be **private**.
@@ -50,7 +50,7 @@ The following arguments are supported:
 * `name` - (Optional, String, NonUpdatable) Specifies the name of the image metadata.
   If omitted, it defaults to empty, but creating a virtual opportunity using this image fails. The length ranges from
   `1` to `255` characters. Please refer to the document link for the description of the `name` parameter
-  [reference](https://https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0901.html#ims_03_0901__section61598810155254).
+  [reference](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0901.html).
 
 * `protected` - (Optional, Bool, NonUpdatable) Specifies whether the image is protected, and the protected image cannot
   be deleted. The default value is **false**.
@@ -101,7 +101,7 @@ In addition to all arguments above, the following attributes are exported:
 * `__os_bit` - The number of bits in the operating system is usually set to `32` or `64`.
 
 * `__description` - The image description information. Please refer to the document link for parameter specifications
-  [reference](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0901.html#ims_03_0901__section61598810155254).
+  [reference](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0901.html).
 
 * `__isregistered` - Is it a registered image with a value of **true** or **false**.
 
