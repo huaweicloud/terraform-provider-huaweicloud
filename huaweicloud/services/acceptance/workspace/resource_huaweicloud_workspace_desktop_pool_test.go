@@ -147,20 +147,12 @@ func testAccDesktopPool_basic_base(name string) string {
 
 %[2]s
 
-resource "huaweicloud_workspace_service" "test" {
-  access_mode = "INTERNET"
-  vpc_id      = huaweicloud_vpc.test.id
-  network_ids = [
-    huaweicloud_vpc_subnet.test.id
-  ]
-}
+data "huaweicloud_workspace_service" "test" {}
 
 resource "huaweicloud_workspace_user" "test" {
   count = 2
   name  = "%[3]s${count.index}"
   email = "user@test.com"
-
-  depends_on = [huaweicloud_workspace_service.test]
 }
 `, common.TestBaseNetwork(name), testAccDesktopPool_base(name), name)
 }
@@ -195,7 +187,7 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
   }
 
   security_groups {
-    id = huaweicloud_workspace_service.test.desktop_security_group.0.id
+    id = data.huaweicloud_workspace_service.test.desktop_security_group.0.id
   }
   security_groups {
     id = huaweicloud_networking_secgroup.test.id
@@ -261,7 +253,7 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
 
 
   security_groups {
-    id = huaweicloud_workspace_service.test.desktop_security_group.0.id
+    id = data.huaweicloud_workspace_service.test.desktop_security_group.0.id
   }
   security_groups {
     id = huaweicloud_networking_secgroup.test.id
