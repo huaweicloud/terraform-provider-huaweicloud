@@ -18,7 +18,7 @@ import (
 )
 
 // @API Workspace POST /v1/{project_id}/policy-groups
-// @API Workspace GET /v1/{project_id}/policy-groups
+// @API Workspace GET /v1/{project_id}/policy-groups/{policy_group_id}
 // @API Workspace PATCH /v1/{project_id}/policy-groups/{policy_group_id}
 // @API Workspace DELETE /v1/{project_id}/policy-groups/{policy_group_id}
 func ResourceAppPolicyGroup() *schema.Resource {
@@ -152,19 +152,23 @@ func buildTargets(targets *schema.Set) []map[string]interface{} {
 }
 
 func resourceAppPolicyGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		policyGroupId = d.Id()
+	)
 	client, err := cfg.NewServiceClient("appstream", region)
 	if err != nil {
 		return diag.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	policyGroup, err := GetAppGroupPolicy(client, d.Get("name").(string), d.Id())
+	respBody, err := GetAppGroupPolicyById(client, policyGroupId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Workspace APP policy group")
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving Workspace APP policy group (%s)", policyGroupId))
 	}
 
-	mErr := multierror.Append(nil,
+	policyGroup := utils.PathSearch("policy_group", respBody, nil)
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", policyGroup, nil)),
 		d.Set("description", utils.PathSearch("description", policyGroup, nil)),
@@ -176,46 +180,23 @@ func resourceAppPolicyGroupRead(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-// GetAppGroupPolicy is a method used to query policy group detail.
-func GetAppGroupPolicy(client *golangsdk.ServiceClient, policyGroupName, policyGroupId string) (interface{}, error) {
-	// limit: The default value is `10`.
-	httpUrl := "v1/{project_id}/policy-groups?limit=100"
+// GetAppGroupPolicyById is a method used to query policy group detail.
+func GetAppGroupPolicyById(client *golangsdk.ServiceClient, policyGroupId string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/policy-groups/{policy_group_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	// The "policy_group_name" parameter is fuzzy search.
-	if policyGroupName != "" {
-		getPath += fmt.Sprintf("&policy_group_name=%v", policyGroupName)
-	}
+	getPath = strings.ReplaceAll(getPath, "{policy_group_id}", policyGroupId)
 
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=utf-8"},
 	}
-	offset := 0
-	for {
-		getPathWithOffset := fmt.Sprintf("%s&offset=%d", getPath, offset)
-		requestResp, err := client.Request("GET", getPathWithOffset, &getOpts)
-		if err != nil {
-			return nil, err
-		}
-
-		respBody, err := utils.FlattenResponse(requestResp)
-		if err != nil {
-			return nil, err
-		}
-
-		policyGroups := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
-		if len(policyGroups) == 0 {
-			break
-		}
-
-		policyGroup := utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0]", policyGroupId), policyGroups, nil)
-		if policyGroup != nil {
-			return policyGroup, nil
-		}
-		offset += len(policyGroups)
+	requestResp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return utils.FlattenResponse(requestResp)
 }
 
 func flattenAppPolicyGroupTargets(targets []interface{}) []interface{} {
