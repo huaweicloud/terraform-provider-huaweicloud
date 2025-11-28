@@ -1232,6 +1232,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_esw_flavors":            esw.DataSourceEswFlavors(),
 			"huaweicloud_esw_availability_zones": esw.DataSourceEswAvailabilityZones(),
 			"huaweicloud_esw_quotas":             esw.DataSourceEswQuotas(),
+			"huaweicloud_esw_instances":          esw.DataSourceEswInstances(),
 
 			"huaweicloud_fgs_applications":                fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates":       fgs.DataSourceApplicationTemplates(),
@@ -3015,6 +3016,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_recycle_bin_policy":         evs.ResourceRecycleBinPolicy(),
 			"huaweicloud_evs_recycle_bin_volume_delete":  evs.ResourceRecycleBinVolumeDelete(),
 			"huaweicloud_evs_recycle_bin_volume_revert":  evs.ResourceRecycleBinVolumeRevert(),
+
+			"huaweicloud_esw_instance": esw.ResourceInstance(),
 
 			"huaweicloud_fgs_application":                    fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration":     fgs.ResourceAsyncInvokeConfiguration(),
