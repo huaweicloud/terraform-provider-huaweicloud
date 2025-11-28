@@ -37,9 +37,6 @@ resource "huaweicloud_cdn_cache_sharing_group" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region where the cache sharing group is located.  
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
-
 * `name` - (Required, String, NonUpdatable) Specifies the name of the cache sharing group.
 
 * `primary_domain` - (Required, String, NonUpdatable) Specifies the primary domain name of the cache sharing group.

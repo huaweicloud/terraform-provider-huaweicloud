@@ -18,13 +18,6 @@ func DataSourceRuleEngineRules() *schema.Resource {
 		ReadContext: dataSourceRuleEngineRulesRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region where the rule engine rules are located.`,
-			},
-
 			// Required parameters.
 			"domain_name": {
 				Type:        schema.TypeString,
@@ -461,7 +454,6 @@ func dataSourceRuleEngineRulesRead(_ context.Context, d *schema.ResourceData, me
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
 		d.Set("rules", flattenRuleEngineRules(rules)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

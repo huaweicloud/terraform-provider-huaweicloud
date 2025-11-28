@@ -38,14 +38,6 @@ func ResourceCacheSharingGroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The region where the cache sharing group is located.`,
-			},
-
 			// Required parameters.
 			"name": {
 				Type:        schema.TypeString,
@@ -261,7 +253,6 @@ func resourceCacheSharingGroupRead(_ context.Context, d *schema.ResourceData, me
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", utils.PathSearch("group_name", group, nil)),
 		d.Set("primary_domain", utils.PathSearch("primary_domain", group, nil)),
 		d.Set("share_cache_records", flattenShareCacheRecords(utils.PathSearch("share_cache_records", group,

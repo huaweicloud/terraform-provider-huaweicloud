@@ -37,14 +37,6 @@ func ResourceRuleEngineRule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The region where the rule engine rule is located.`,
-			},
-
 			// Required parameters.
 			"domain_name": {
 				Type:        schema.TypeString,
@@ -1029,7 +1021,6 @@ func resourceRuleEngineRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
 		d.Set("domain_name", domainName),
 		d.Set("name", utils.PathSearch("name", rule, nil)),
 		d.Set("status", utils.PathSearch("status", rule, nil)),
