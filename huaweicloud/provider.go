@@ -758,6 +758,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_quotas":                    cdn.DataSourceQuotas(),
 			"huaweicloud_cdn_domain_statistics":         cdn.DataSourceStatistics(),
 			"huaweicloud_cdn_rule_engine_rules":         cdn.DataSourceRuleEngineRules(),
+			"huaweicloud_cdn_statistic_configuration":   cdn.DataSourceStatisticConfiguration(),
 			"huaweicloud_cdn_top_referrer_statistics":   cdn.DataSourceTopReferrerStatistics(),
 			"huaweicloud_cdn_top_url_statistics":        cdn.DataSourceTopUrlStatistics(),
 
@@ -2613,6 +2614,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain_owner_verify":           cdn.ResourceDomainOwnerVerify(),
 			"huaweicloud_cdn_domain_rule":                   cdn.ResourceDomainRule(),
 			"huaweicloud_cdn_rule_engine_rule":              cdn.ResourceRuleEngineRule(),
+			"huaweicloud_cdn_statistic_configuration":       cdn.ResourceStatisticConfiguration(),
 
 			"huaweicloud_ces_alarmrule":                                     ces.ResourceAlarmRule(),
 			"huaweicloud_ces_alarm_template":                                ces.ResourceCesAlarmTemplate(),
