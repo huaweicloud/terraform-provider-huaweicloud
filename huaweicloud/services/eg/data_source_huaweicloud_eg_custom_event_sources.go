@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -43,6 +42,18 @@ func DataSourceCustomEventSources() *schema.Resource {
 				Optional:    true,
 				Description: `The event source name used to query specified custom event source.`,
 			},
+			"fuzzy_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the channels to be queried for fuzzy matching.`,
+			},
+			"sort": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The sorting method for query results.`,
+			},
+
+			// Attributes
 			"sources": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -93,8 +104,36 @@ func DataSourceCustomEventSources() *schema.Resource {
 							Computed:    true,
 							Description: `The update time of the custom event source.`,
 						},
+						"error_info": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The error information of the custom event source.`,
+							Elem:        errorInfoSchema(),
+						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func errorInfoSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"error_code": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The error code of current source.`,
+			},
+			"error_detail": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The error detail of current source.`,
+			},
+			"error_msg": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The error message of current source.`,
 			},
 		},
 	}
@@ -107,6 +146,12 @@ func buildEventSourcesQueryParams(d *schema.ResourceData, providerTypeInput ...s
 	}
 	if channelId, ok := d.GetOk("channel_id"); ok {
 		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
+	}
+	if fuzzyName, ok := d.GetOk("fuzzy_name"); ok {
+		res = fmt.Sprintf("%s&fuzzy_name=%v", res, fuzzyName)
+	}
+	if sort, ok := d.GetOk("sort"); ok {
+		res = fmt.Sprintf("%s&sort=%v", res, sort)
 	}
 
 	if len(providerTypeInput) > 0 {
@@ -174,6 +219,8 @@ func flattenDataCustomEventSources(eventSources []interface{}) []interface{} {
 			"status":       utils.PathSearch("status", eventSource, nil),
 			"created_at":   utils.PathSearch("created_at", eventSource, nil),
 			"updated_at":   utils.PathSearch("updated_at", eventSource, nil),
+			"error_info": flattenConnectionErrorInfo(utils.PathSearch(
+				"error_info", eventSource, make(map[string]interface{})).(map[string]interface{})),
 		})
 	}
 

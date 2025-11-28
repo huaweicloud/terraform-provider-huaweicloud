@@ -80,10 +80,23 @@ func ResourceConnection() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the configuration details of the kafka intance.`,
 			},
+
+			// Attributes
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the status of the connection.`,
+			},
+			"agency": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The user-delegated name used for private network target connection.`,
+			},
+			"flavor": {
+				Type:        schema.TypeList,
+				Elem:        connectionKafkaFlavorSchema(),
+				Computed:    true,
+				Description: `The configuration details of the kafka instance.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -106,20 +119,20 @@ func connectionKafkaDetailSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the ID of the kafka intance.`,
+				Description: `Specifies the ID of the kafka instance.`,
 			},
 			"connect_address": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the IP address of the kafka intance.`,
+				Description: `Specifies the IP address of the kafka instance.`,
 			},
 			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the user name of the kafka intance.`,
+				Description: `Specifies the user name of the kafka instance.`,
 			},
 			"password": {
 				Type:        schema.TypeString,
@@ -127,7 +140,7 @@ func connectionKafkaDetailSchema() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Sensitive:   true,
-				Description: `Specifies the password of the kafka intance.`,
+				Description: `Specifies the password of the kafka instance.`,
 			},
 			"acks": {
 				Type:     schema.TypeString,
@@ -136,6 +149,41 @@ func connectionKafkaDetailSchema() *schema.Resource {
 				ForceNew: true,
 				Description: `Specifies the number of confirmation signals the procuder
                     needs to receive to consider the message sent successfully.`,
+			},
+			"security_protocol": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the security protocol of the kafka instance.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func connectionKafkaFlavorSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bandwidth_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The bandwidth type of the kafka instance.`,
+			},
+			"concurrency": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The concurrency number of the kafka instance..`,
+			},
+			"concurrency_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The concurrency type of the kafka instance.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the kafka instance.`,
 			},
 		},
 	}
@@ -210,9 +258,10 @@ func buildCreateConnectionRequestBodyKafkaDetail(rawParams interface{}) map[stri
 		}
 
 		params := map[string]interface{}{
-			"instance_id": utils.ValueIgnoreEmpty(raw["instance_id"]),
-			"addr":        utils.ValueIgnoreEmpty(raw["connect_address"]),
-			"acks":        utils.ValueIgnoreEmpty(raw["acks"]),
+			"instance_id":       utils.ValueIgnoreEmpty(raw["instance_id"]),
+			"addr":              utils.ValueIgnoreEmpty(raw["connect_address"]),
+			"acks":              utils.ValueIgnoreEmpty(raw["acks"]),
+			"security_protocol": utils.ValueIgnoreEmpty(raw["security_protocol"]),
 		}
 
 		if raw["user_name"].(string) != "" {
@@ -273,7 +322,9 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("description", utils.PathSearch("description", getConnectionRespBody, nil)),
 		d.Set("type", utils.PathSearch("type", getConnectionRespBody, nil)),
 		d.Set("kafka_detail", flattenGetConnectionResponseBodyKafkaDetail(getConnectionRespBody)),
+		d.Set("flavor", flattenGetConnectionResponseBodyKafkaFlavor(getConnectionRespBody)),
 		d.Set("status", utils.PathSearch("status", getConnectionRespBody, nil)),
+		d.Set("agency", utils.PathSearch("agency", getConnectionRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("created_time", getConnectionRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("updated_time", getConnectionRespBody, nil)),
 	)
@@ -290,11 +341,30 @@ func flattenGetConnectionResponseBodyKafkaDetail(resp interface{}) []interface{}
 
 	rst = []interface{}{
 		map[string]interface{}{
-			"instance_id":     utils.PathSearch("instance_id", curJson, nil),
-			"connect_address": utils.PathSearch("addr", curJson, nil),
-			"user_name":       utils.PathSearch("username", curJson, nil),
-			"password":        utils.PathSearch("password", curJson, nil),
-			"acks":            utils.PathSearch("acks", curJson, nil),
+			"instance_id":       utils.PathSearch("instance_id", curJson, nil),
+			"connect_address":   utils.PathSearch("addr", curJson, nil),
+			"user_name":         utils.PathSearch("username", curJson, nil),
+			"password":          utils.PathSearch("password", curJson, nil),
+			"acks":              utils.PathSearch("acks", curJson, nil),
+			"security_protocol": utils.PathSearch("security_protocol", curJson, nil),
+		},
+	}
+	return rst
+}
+
+func flattenGetConnectionResponseBodyKafkaFlavor(resp interface{}) []interface{} {
+	var rst []interface{}
+	curJson := utils.PathSearch("flavor", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
+		return rst
+	}
+
+	rst = []interface{}{
+		map[string]interface{}{
+			"bandwidth_type":   utils.PathSearch("bandwidth_type", curJson, nil),
+			"concurrency":      utils.PathSearch("concurrency", curJson, nil),
+			"concurrency_type": utils.PathSearch("concurrency_type", curJson, nil),
+			"name":             utils.PathSearch("name", curJson, nil),
 		},
 	}
 	return rst

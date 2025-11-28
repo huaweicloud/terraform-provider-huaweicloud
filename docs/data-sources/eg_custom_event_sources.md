@@ -33,6 +33,10 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the event source name used to query specified custom event source.
 
+* `fuzzy_name` - (Optional, String) Specifies the name of the channels to be queried for fuzzy matching.
+
+* `sort` - (Optional, String) Specifies the sorting method for query results.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -40,7 +44,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID.
 
 * `sources` - The filtered custom event source.
-  The [object](#eg_custom_event_sources) structure is documented below.
+  The [sources](#eg_custom_event_sources) structure is documented below.
 
 <a name="eg_custom_event_sources"></a>
 The `sources` block supports:
@@ -62,6 +66,20 @@ The `sources` block supports:
   + **RUNNING**
   + **ERROR**
 
+* `detail` - The message instance link information, in JSON format.
+
+* `error_info` - The error information of the custom event source.  
+  The [error_info](#data_custom_event_sources_error_info) structure is documented below.
+
 * `created_at` - The creation time of the custom event source.
 
 * `updated_at` - The update time of the custom event source.
+
+<a name="data_custom_event_sources_error_info"></a>
+The `error_info` block supports:
+
+* `error_code` - The error code of current source.
+
+* `error_detail` - The error detail of current source.
+
+* `error_msg` - The error message of current source.

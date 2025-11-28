@@ -187,7 +187,7 @@ The `source` block supports:
 -> Exactly one of `kafka`, `mobile_rocketmq`, `community_rocketmq` and `dms_rocketmq` must be provided.
 
 <a name="stream_sink"></a>
-The `targets` block supports:
+The `sink` block supports:
 
 * `name` - (Required, String) Specifies the name of the event target type.  
   The valid values are as follows:
