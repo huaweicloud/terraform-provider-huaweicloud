@@ -18,14 +18,14 @@ func getAppPublishedApplicationFunc(cfg *config.Config, state *terraform.Resourc
 	if err != nil {
 		return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
 	}
-	return workspace.GetApplicationByName(client, state.Primary.Attributes["app_group_id"], state.Primary.Attributes["name"])
+	return workspace.GetAppPublishedApplicationByName(client, state.Primary.Attributes["app_group_id"], state.Primary.Attributes["name"])
 }
 
 // Before running this test, please create a workspace APP server group with COMMON_APP type.
-func TestAccAppPublishment_basic(t *testing.T) {
+func TestAccAppApplicationPublishment_basic(t *testing.T) {
 	var (
 		application  interface{}
-		resourceName = "huaweicloud_workspace_app_publishment.test"
+		resourceName = "huaweicloud_workspace_app_application_publishment.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		baseConfig   = testDataSourceAppGroups_base(name, "COMMON_APP")
@@ -45,7 +45,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppPublishment_basic_step1(baseConfig, name),
+				Config: testAccAppApplicationPublishment_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "app_group_id", "huaweicloud_workspace_app_group.test", "id"),
@@ -65,7 +65,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`))),
 			},
 			{
-				Config: testAccAppPublishment_basic_step2(baseConfig, updateName),
+				Config: testAccAppApplicationPublishment_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -86,17 +86,17 @@ func TestAccAppPublishment_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAppPublishmentImportState(resourceName),
+				ImportStateIdFunc: testAppApplicationPublishmentImportState(resourceName),
 			},
 		},
 	})
 }
 
-func testAccAppPublishment_basic_step1(baseConfig, name string) string {
+func testAccAppApplicationPublishment_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_publishment" "test" {
+resource "huaweicloud_workspace_app_application_publishment" "test" {
   app_group_id   = huaweicloud_workspace_app_group.test.id
   name           = "%[2]s"
   type           = 3
@@ -114,11 +114,11 @@ resource "huaweicloud_workspace_app_publishment" "test" {
 `, baseConfig, name)
 }
 
-func testAccAppPublishment_basic_step2(baseConfig, updateName string) string {
+func testAccAppApplicationPublishment_basic_step2(baseConfig, updateName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_publishment" "test" {
+resource "huaweicloud_workspace_app_application_publishment" "test" {
   app_group_id   = huaweicloud_workspace_app_group.test.id
   name           = "%[2]s"
   type           = 3
@@ -132,7 +132,7 @@ resource "huaweicloud_workspace_app_publishment" "test" {
 `, baseConfig, updateName)
 }
 
-func testAppPublishmentImportState(rName string) resource.ImportStateIdFunc {
+func testAppApplicationPublishmentImportState(rName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[rName]
 		if !ok {

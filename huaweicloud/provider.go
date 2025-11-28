@@ -3751,6 +3751,7 @@ func Provider() *schema.Provider {
 			// Workspace APP
 			"huaweicloud_workspace_app_application_batch_action":                workspace.ResourceAppApplicationBatchAction(),
 			"huaweicloud_workspace_app_application_batch_attach":                workspace.ResourceAppApplicationBatchAttach(),
+			"huaweicloud_workspace_app_application_publishment":                 workspace.ResourceAppApplicationPublishment(),
 			"huaweicloud_workspace_app_bucket_authorize":                        workspace.ResourceAppBucketAuthorize(),
 			"huaweicloud_workspace_app_group_authorization":                     workspace.ResourceAppGroupAuthorization(),
 			"huaweicloud_workspace_app_group_authorization_notification_resend": workspace.ResourceAppGroupAuthorizationNotificationResend(),
@@ -3762,7 +3763,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_personal_folders":                        workspace.ResourceAppPersonalFolders(),
 			"huaweicloud_workspace_app_policy_group":                            workspace.ResourceAppPolicyGroup(),
 			"huaweicloud_workspace_app_policy_template":                         workspace.ResourceAppPolicyTemplate(),
-			"huaweicloud_workspace_app_publishment":                             workspace.ResourceAppPublishment(),
 			"huaweicloud_workspace_app_schedule_task":                           workspace.ResourceAppScheduleTask(),
 			"huaweicloud_workspace_app_server":                                  workspace.ResourceAppServer(),
 			"huaweicloud_workspace_app_server_action":                           workspace.ResourceAppServerAction(),
@@ -3943,6 +3943,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunction(),
 			"huaweicloud_cdn_domain_v1":               cdn.ResourceDomain(),
 			"huaweicloud_scm_certificate":             ccm.ResourceCertificateImport(),
+
+			"huaweicloud_workspace_app_publishment": workspace.ResourceAppApplicationPublishment(),
 
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),

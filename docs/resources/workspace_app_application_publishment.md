@@ -1,18 +1,18 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_app_publishment"
+page_title: "HuaweiCloud: huaweicloud_workspace_app_application_publishment"
 description: |-
-  Manages a Workspace APP pulishing resource within HuaweiCloud.
+  Manages a Workspace APP publishing resource within HuaweiCloud.
 ---
 
-# huaweicloud_workspace_app_publishment
+# huaweicloud_workspace_app_application_publishment
 
-Manages a Workspace APP pulishing resource within HuaweiCloud.
+Manages a Workspace APP publishing resource within HuaweiCloud.
 
 -> 1. Before using this resource, ensure that the `type` parameter of the `huaweicloud_workspace_app_group` resource
    must be **COMMON_APP** and `server_group_id` parameter must be set.
-   <br>2. Deleting this resource will unpublish the APP.
+   <br>2. Deleting this resource will unpublish the application.
 
 ## Example Usage
 
@@ -21,7 +21,7 @@ variable "app_group_id" {}
 variable "app_name" {}
 variable "execute_path" {}
 
-resource "huaweicloud_workspace_app_publishment" "test" {
+resource "huaweicloud_workspace_app_application_publishment" "test" {
   app_group_id = var.app_group_id
   name         = var.app_name
   type         = 3
@@ -64,10 +64,10 @@ The following arguments are supported:
   Changing this creates a new resource.  
   If the `sandbox_enable` is set to `true`, this parameter value is the publisher of the sandboxed application.
 
-* `work_path` - (Optional, String) Specifies the publisher of the application, e.g. `C:\Program Files\Internet Explorer`.
+* `work_path` - (Optional, String) Specifies the working directory of the application, e.g. `C:\Program Files\Internet Explorer`.
 
 * `command_param` - (Optional, String) Specifies the command line parameter used to start the application.  
-  If the `sandbox_enable` is set to `true`, the path of the APP to be started must be enclosed in
+  If the `sandbox_enable` is set to `true`, the path of the application to be started must be enclosed in
   double quotation marks (""), e.g. `/box:DefaultBox "C:\Program Files\Internet Explorer\iexplore.exe"`.
 
 * `description` - (Optional, String) Specifies the description of the application.
@@ -103,7 +103,7 @@ In addition to all arguments above, the following attributes are exported:
 The resource can be imported using `app_group_id` and `name`, separated by a slash (/), e.g.
 
 ```bash
-$ terraform import huaweicloud_workspace_app_publishment.test <app_group_id>/<name>
+$ terraform import huaweicloud_workspace_app_application_publishment.test <app_group_id>/<name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -114,7 +114,7 @@ You can then decide if changes should be applied to the instance, or the resourc
 align with the instance. Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_workspace_app_publishment" "test" {
+resource "huaweicloud_workspace_app_application_publishment" "test" {
   ...
 
   lifecycle {
