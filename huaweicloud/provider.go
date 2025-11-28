@@ -3598,6 +3598,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_trigger":            swr.ResourceSwrImageTrigger(),
 			"huaweicloud_swr_image_retention_policy":   swr.ResourceSwrImageRetentionPolicy(),
 			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
+			"huaweicloud_swr_image_manual_sync":        swr.ResourceSwrImageManualSync(),
 			"huaweicloud_swr_temporary_login_command":  swr.ResourceSwrTemporaryLoginCommand(),
 
 			"huaweicloud_swr_enterprise_instance":                          swrenterprise.ResourceSwrEnterpriseInstance(),
