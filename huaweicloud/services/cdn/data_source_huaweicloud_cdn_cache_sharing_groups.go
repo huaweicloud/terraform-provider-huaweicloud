@@ -18,13 +18,6 @@ func DataSourceCacheSharingGroups() *schema.Resource {
 		ReadContext: dataSourceCacheSharingGroupsRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region where the cache sharing groups are located.`,
-			},
-
 			// Attributes.
 			"groups": {
 				Type:        schema.TypeList,
@@ -117,7 +110,6 @@ func dataSourceCacheSharingGroupsRead(_ context.Context, d *schema.ResourceData,
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
 		d.Set("groups", flattenCacheSharingGroups(groups)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

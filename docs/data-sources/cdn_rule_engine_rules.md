@@ -24,9 +24,6 @@ data "huaweicloud_cdn_rule_engine_rules" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region where the rule engine rules are located.  
-  If omitted, the provider-level region will be used.
-
 * `domain_name` - (Required, String) Specifies the accelerated domain name to which the rule engine rules belong.
 
 ## Attribute Reference

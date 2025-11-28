@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCacheSharingGroups_basic(t *testing.T) {
+func TestAccDataCacheSharingGroups_basic(t *testing.T) {
 	var (
 		rName     = "data.huaweicloud_cdn_cache_sharing_groups.test"
 		dc        = acceptance.InitDataSourceCheck(rName)
@@ -25,7 +25,7 @@ func TestAccDataSourceCacheSharingGroups_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCacheSharingGroups_basic(groupName),
+				Config: testAccDataCacheSharingGroups_basic(groupName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(rName, "groups.#", regexp.MustCompile(`^[0-9]+$`)),
@@ -43,7 +43,7 @@ func TestAccDataSourceCacheSharingGroups_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceCacheSharingGroups_base(name string) string {
+func testAccDataCacheSharingGroups_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_cache_sharing_group" "test" {
   name           = "%[1]s"
@@ -60,7 +60,7 @@ resource "huaweicloud_cdn_cache_sharing_group" "test" {
 `, name, acceptance.HW_CDN_DOMAIN_NAMES)
 }
 
-func testAccDataSourceCacheSharingGroups_basic(name string) string {
+func testAccDataCacheSharingGroups_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -80,5 +80,5 @@ locals {
 output "is_cache_sharing_group_found" {
   value = local.cache_sharing_group_query_result != null && local.cache_sharing_group_query_result.id == local.cache_sharing_group_id
 }
-`, testAccDataSourceCacheSharingGroups_base(name))
+`, testAccDataCacheSharingGroups_base(name))
 }

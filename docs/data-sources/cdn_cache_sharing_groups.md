@@ -16,13 +16,6 @@ Use this data source to get a list of cache sharing groups within HuaweiCloud.
 data "huaweicloud_cdn_cache_sharing_groups" "test" {}
 ```
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `region` - (Optional, String) Specifies the region where the cache sharing groups are located.  
-  If omitted, the provider-level region will be used.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
