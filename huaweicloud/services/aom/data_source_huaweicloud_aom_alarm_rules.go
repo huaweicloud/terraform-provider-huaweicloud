@@ -294,9 +294,8 @@ func dataSourceSchemeMetricTriggerConditions() *schema.Schema {
 					Computed: true,
 				},
 				"promql_expr": {
-					Type:     schema.TypeSet,
+					Type:     schema.TypeString,
 					Computed: true,
-					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"promql_for": {
 					Type:     schema.TypeString,
