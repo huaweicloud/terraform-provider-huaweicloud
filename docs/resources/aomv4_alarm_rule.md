@@ -355,7 +355,7 @@ The `trigger_conditions` block supports:
 
 * `operator` - (Optional, String) Specifies the operator. Options: >, <, =, >=, and <=.
 
-* `promql_expr` - (Optional, List) Specifies the prometheus statement template.
+* `promql_expr` - (Optional, String) Specifies the prometheus statement template.
 
 * `promql_for` - (Optional, String) Specifies the native prometheus monitoring duration.
 

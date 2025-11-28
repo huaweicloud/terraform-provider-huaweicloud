@@ -387,9 +387,8 @@ func resourceSchemeTemplateMetricTriggerConditions() *schema.Schema {
 					Optional: true,
 				},
 				"promql_expr": {
-					Type:     schema.TypeSet,
+					Type:     schema.TypeString,
 					Optional: true,
-					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"promql_for": {
 					Type:     schema.TypeString,
@@ -598,7 +597,7 @@ func buildTemplateMetricAlarmTemplateSpecTriggerConditions(paramsList []interfac
 			"mix_promql":              utils.ValueIgnoreEmpty(params["mix_promql"]),
 			"metric_namespace":        utils.ValueIgnoreEmpty(params["metric_namespace"]),
 			"metric_unit":             utils.ValueIgnoreEmpty(params["metric_unit"]),
-			"promql_expr":             utils.ValueIgnoreEmpty(params["promql_expr"].(*schema.Set).List()),
+			"promql_expr":             utils.ValueIgnoreEmpty(params["promql_expr"]),
 			"promql_for":              utils.ValueIgnoreEmpty(params["promql_for"]),
 			"aom_monitor_level":       utils.ValueIgnoreEmpty(params["aom_monitor_level"]),
 			"metric_statistic_method": utils.ValueIgnoreEmpty(params["metric_statistic_method"]),
