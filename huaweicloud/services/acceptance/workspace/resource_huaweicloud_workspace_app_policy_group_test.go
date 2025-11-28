@@ -17,7 +17,7 @@ func getAppPolicyGroupFunc(conf *config.Config, state *terraform.ResourceState) 
 	if err != nil {
 		return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
 	}
-	return workspace.GetAppGroupPolicy(client, state.Primary.Attributes["name"], state.Primary.ID)
+	return workspace.GetAppGroupPolicyById(client, state.Primary.ID)
 }
 
 // Before running this test, please create a workspace APP server group with SESSION_DESKTOP_APP type.
@@ -38,7 +38,7 @@ func TestAccAppPolicyGroup_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -88,6 +88,37 @@ func TestAccAppPolicyGroup_basic(t *testing.T) {
 	})
 }
 
+// A server group can only be associated with one application group.
+func testAccAppPolicyGroup_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_workspace_service" "test" {}
+
+resource "huaweicloud_workspace_app_server_group" "test" {
+  name             = "%[1]s"
+  os_type          = "Windows"
+  flavor_id        = "%[2]s"
+  vpc_id           = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id        = data.huaweicloud_workspace_service.test.network_ids[0]
+  system_disk_type = "SAS"
+  system_disk_size = 90
+  app_type         = "SESSION_DESKTOP_APP"
+  is_vdi           = true
+  image_id         = "%[3]s"
+  image_type       = "gold"
+  image_product_id = "%[4]s"
+}
+
+resource "huaweicloud_workspace_app_group" "test" {
+  server_group_id = huaweicloud_workspace_app_server_group.test.id
+  name            = "%[1]s"
+  type            = "SESSION_DESKTOP_APP"
+  description     = "Created by terraform script"
+}
+`, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
+}
+
 func testAccAppPolicyGroup_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -111,7 +142,7 @@ resource "huaweicloud_workspace_app_policy_group" "test" {
     }
   })
 }
-`, testDataSourceAppGroups_base(name), name)
+`, testAccAppPolicyGroup_base(name), name)
 }
 
 func testAccAppPolicyGroup_basic_step2(name string) string {
