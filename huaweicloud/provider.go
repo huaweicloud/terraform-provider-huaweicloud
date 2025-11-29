@@ -3024,8 +3024,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_recycle_bin_volume_delete":  evs.ResourceRecycleBinVolumeDelete(),
 			"huaweicloud_evs_recycle_bin_volume_revert":  evs.ResourceRecycleBinVolumeRevert(),
 
-			"huaweicloud_esw_instance":   esw.ResourceInstance(),
-			"huaweicloud_esw_connection": esw.ResourceConnection(),
+			"huaweicloud_esw_instance":              esw.ResourceInstance(),
+			"huaweicloud_esw_connection":            esw.ResourceConnection(),
+			"huaweicloud_esw_connection_vport_bind": esw.ResourceConnectionVportBind(),
 
 			"huaweicloud_fgs_application":                    fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration":     fgs.ResourceAsyncInvokeConfiguration(),

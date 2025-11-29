@@ -20,7 +20,7 @@ import (
 // @API VPC GET /v1/{project_id}/privateips/{privateip_id}
 // @API VPC DELETE /v1/{project_id}/privateips/{privateip_id}
 
-var privateIPSyncNonUpdatableParams = []string{"subnet_id", "ip_address"}
+var privateIPSyncNonUpdatableParams = []string{"subnet_id", "ip_address", "device_owner"}
 
 func ResourceSubnetPrivateIP() *schema.Resource {
 	return &schema.Resource{
@@ -51,6 +51,11 @@ func ResourceSubnetPrivateIP() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"device_owner": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -58,10 +63,6 @@ func ResourceSubnetPrivateIP() *schema.Resource {
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"device_owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -73,8 +74,9 @@ func buildSubnetPrivateIPBodyParams(d *schema.ResourceData) map[string]interface
 	bodyParams := map[string]interface{}{
 		"privateips": []map[string]interface{}{
 			{
-				"subnet_id":  d.Get("subnet_id"),
-				"ip_address": utils.ValueIgnoreEmpty(d.Get("ip_address")),
+				"subnet_id":    d.Get("subnet_id"),
+				"device_owner": utils.ValueIgnoreEmpty(d.Get("device_owner")),
+				"ip_address":   utils.ValueIgnoreEmpty(d.Get("ip_address")),
 			},
 		},
 	}
