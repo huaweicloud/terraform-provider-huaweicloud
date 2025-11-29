@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_esw_instance": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_ref": {
+                "type": "string",
+                "required": true
+              },
+              "ha_mode": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "availability_zones": {
+                "block": {
+                  "attributes": {
+                    "primary": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "standby": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "charge_infos": {
+                "block": {
+                  "attributes": {
+                    "charge_mode": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "tunnel_info": {
+                "block": {
+                  "attributes": {
+                    "tunnel_ip": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tunnel_port": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "tunnel_type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "virsubnet_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ESW",
+            "name": "Enterprise Switch",
+            "catalog": "Networking",
+            "name_cn": "企业交换机",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

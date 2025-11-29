@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_statistic_configuration": {
+          "block": {
+            "attributes": {
+              "config_type": {
+                "type": "number",
+                "description": "The configuration category.",
+                "required": true
+              },
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ua": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enable": "bool"
+                                }
+                              ]
+                            ],
+                            "url": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enable": "bool",
+                                  "limit": "number",
+                                  "sort_by_code": "bool"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "config_type": "number",
+                      "expired_time": "number",
+                      "resource_name": "string",
+                      "resource_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of statistic configurations.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

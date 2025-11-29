@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_application_batch_auto_install": {
+          "block": {
+            "attributes": {
+              "app_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of application IDs to be automatically installed.",
+                "required": true
+              },
+              "assign_scope": {
+                "type": "string",
+                "description": "The assignment scope.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the applications are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "users": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The account name. The account format must be: account(group).",
+                      "required": true
+                    },
+                    "account_type": {
+                      "type": "string",
+                      "description": "The account type.",
+                      "required": true
+                    },
+                    "domain": {
+                      "type": "string",
+                      "description": "The domain name. Required for user groups, and defaults to local.com if not specified.",
+                      "optional": true
+                    },
+                    "platform_type": {
+                      "type": "string",
+                      "description": "The platform type.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of users. Required when assign_scope is ASSIGN_USER."
+                },
+                "nesting_mode": "list",
+                "max_items": 50
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_group_authorization_notification_resend": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_notification_record": {
+                "type": "bool",
+                "description": "Whether to resend according to the authorization notification records.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application group authorization notifications to be resent are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "records": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The name of the authorized account.",
+                      "optional": true
+                    },
+                    "account_auth_name": {
+                      "type": "string",
+                      "description": "The name of the authorized object.",
+                      "optional": true
+                    },
+                    "account_auth_type": {
+                      "type": "string",
+                      "description": "The type of the authorized object.",
+                      "optional": true
+                    },
+                    "app_group_id": {
+                      "type": "string",
+                      "description": "The ID of the application group.",
+                      "optional": true
+                    },
+                    "app_group_name": {
+                      "type": "string",
+                      "description": "The name of the application group.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the authorization notification record or authorization record.",
+                      "required": true
+                    },
+                    "mail_send_type": {
+                      "type": "string",
+                      "description": "The type of authorization notification.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of record IDs to resend authorization notification."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

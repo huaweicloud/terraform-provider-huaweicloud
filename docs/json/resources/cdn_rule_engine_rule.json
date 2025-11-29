@@ -30,11 +30,6 @@
                 "description": "The priority of the rule engine rule.",
                 "required": true
               },
-              "region": {
-                "type": "string",
-                "description": "The region where the rule engine rule is located.",
-                "computed": true
-              },
               "status": {
                 "type": "string",
                 "description": "Whether to enable the rule engine rule.",

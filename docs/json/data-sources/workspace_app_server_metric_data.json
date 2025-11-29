@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_server_metric_data": {
+          "block": {
+            "attributes": {
+              "filter": {
+                "type": "string",
+                "description": "The data aggregation method.",
+                "required": true
+              },
+              "from": {
+                "type": "string",
+                "description": "The start time of the query data, in RFC3339 format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metric_name": {
+                "type": "string",
+                "description": "The name of the monitoring metric.",
+                "required": true
+              },
+              "metrics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "datapoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "average": "number",
+                            "collection_time": "string",
+                            "max": "number",
+                            "min": "number",
+                            "sum": "number",
+                            "unit": "string",
+                            "variance": "number"
+                          }
+                        ]
+                      ],
+                      "dimension_value": "string",
+                      "metric_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of server metric data.",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "The namespace of the service.",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The granularity of monitoring data.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the server metric data are located.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "The ID of the server.",
+                "required": true
+              },
+              "to": {
+                "type": "string",
+                "description": "The end time of the query data, in RFC3339 format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

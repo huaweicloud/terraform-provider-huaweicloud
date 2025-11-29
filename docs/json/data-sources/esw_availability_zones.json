@@ -1,0 +1,36 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_esw_availability_zones": {
+          "block": {
+            "attributes": {
+              "available_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ESW",
+            "name": "Enterprise Switch",
+            "catalog": "Networking",
+            "name_cn": "企业交换机",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

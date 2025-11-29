@@ -18,8 +18,7 @@
                           {
                             "autoscale_type": "string",
                             "max_auto_created": "number",
-                            "min_idle": "number",
-                            "once_auto_created": "number"
+                            "min_idle": "number"
                           }
                         ]
                       ],

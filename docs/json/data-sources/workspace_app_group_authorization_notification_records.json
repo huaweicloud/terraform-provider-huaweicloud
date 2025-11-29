@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_group_authorization_notification_records": {
+          "block": {
+            "attributes": {
+              "account": {
+                "type": "string",
+                "description": "The name of the authorized user (group).",
+                "optional": true
+              },
+              "app_group_id": {
+                "type": "string",
+                "description": "The ID of the application group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mail_send_result": {
+                "type": "string",
+                "description": "The result of the notification sending.",
+                "optional": true
+              },
+              "mail_send_type": {
+                "type": "string",
+                "description": "The type of authorization operation.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account": "string",
+                      "account_auth_name": "string",
+                      "account_auth_type": "string",
+                      "app_group_id": "string",
+                      "app_group_name": "string",
+                      "error_msg": "string",
+                      "id": "string",
+                      "mail_send_result": "string",
+                      "mail_send_type": "string",
+                      "send_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The authorization notification record list that match filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the authorization notification records are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

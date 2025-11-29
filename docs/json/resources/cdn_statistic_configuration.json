@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_statistic_configuration": {
+          "block": {
+            "attributes": {
+              "config_type": {
+                "type": "number",
+                "description": "The configuration category.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_name": {
+                "type": "string",
+                "description": "The resource name, which can be an account or domain name.",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The resource type.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "config_info": {
+                "block": {
+                  "block_types": {
+                    "ua": {
+                      "block": {
+                        "attributes": {
+                          "enable": {
+                            "type": "bool",
+                            "description": "Whether to enable the top UA statistics configuration.",
+                            "required": true
+                          }
+                        },
+                        "description": "The top UA statistics configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "url": {
+                      "block": {
+                        "attributes": {
+                          "enable": {
+                            "type": "bool",
+                            "description": "Whether to enable the top URL statistics configuration.",
+                            "required": true
+                          }
+                        },
+                        "description": "The top URL statistics configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The statistics configuration information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

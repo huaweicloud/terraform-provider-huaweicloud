@@ -153,10 +153,7 @@
                                   "mix_promql": "string",
                                   "operator": "string",
                                   "promql": "string",
-                                  "promql_expr": [
-                                    "set",
-                                    "string"
-                                  ],
+                                  "promql_expr": "string",
                                   "promql_for": "string",
                                   "query_match": "string",
                                   "query_param": "string",

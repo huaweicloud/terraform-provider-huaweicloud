@@ -206,11 +206,6 @@
                       "type": "number",
                       "description": "The desktops will be automatically created when the number of idle desktops is less than\n\t\t\t\t\t\t\tthe specified value.",
                       "optional": true
-                    },
-                    "once_auto_created": {
-                      "type": "number",
-                      "description": "The number of desktops automatically created at one time.",
-                      "optional": true
                     }
                   },
                   "description": "The automatic scaling policy of the desktop pool."

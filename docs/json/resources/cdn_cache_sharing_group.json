@@ -2,12 +2,12 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_cdn_share_cache_group": {
+        "huaweicloud_cdn_cache_sharing_group": {
           "block": {
             "attributes": {
               "create_time": {
                 "type": "string",
-                "description": "The creation time of the share cache group, in RFC3339 format.",
+                "description": "The creation time of the cache sharing group, in RFC3339 format.",
                 "computed": true
               },
               "id": {
@@ -16,18 +16,13 @@
               },
               "name": {
                 "type": "string",
-                "description": "The name of the share cache group.",
+                "description": "The name of the cache sharing group.",
                 "required": true
               },
               "primary_domain": {
                 "type": "string",
-                "description": "The primary domain name.",
+                "description": "The primary domain name of the cache sharing group.",
                 "required": true
-              },
-              "region": {
-                "type": "string",
-                "description": "The region where the share cache group is located.",
-                "computed": true
               }
             },
             "block_types": {
@@ -40,7 +35,7 @@
                       "required": true
                     }
                   },
-                  "description": "The list of associated domain names."
+                  "description": "The list of associated domain names of the cache sharing group."
                 },
                 "nesting_mode": "set",
                 "min_items": 1

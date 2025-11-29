@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_artifact_addition": {
+          "block": {
+            "attributes": {
+              "addition": {
+                "type": "string",
+                "description": "Specifies the addition info type.",
+                "required": true
+              },
+              "build_histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "created_by": "string",
+                      "digest": "string",
+                      "empty_layer": "bool",
+                      "media_type": "string",
+                      "size": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicate the build histories.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "reference": {
+                "type": "string",
+                "description": "Specifies the artifact digest.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "required": true
+              },
+              "total": {
+                "type": "number",
+                "description": "Indicate the tital build histories.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

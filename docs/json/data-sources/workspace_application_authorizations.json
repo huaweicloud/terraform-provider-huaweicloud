@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_application_authorizations": {
+          "block": {
+            "attributes": {
+              "app_id": {
+                "type": "string",
+                "description": "The ID of the application.",
+                "required": true
+              },
+              "authorizations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account": "string",
+                      "account_type": "string",
+                      "domain": "string",
+                      "platform_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of application authorizations that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The username or user group name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application authorizations are located.",
+                "computed": true
+              },
+              "target_type": {
+                "type": "string",
+                "description": "The type of the target.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

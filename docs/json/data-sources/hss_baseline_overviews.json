@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_baseline_overviews": {
+          "block": {
+            "attributes": {
+              "check_rule_failed_num": {
+                "type": "number",
+                "computed": true
+              },
+              "check_rule_high_risk": {
+                "type": "number",
+                "computed": true
+              },
+              "check_rule_low_risk": {
+                "type": "number",
+                "computed": true
+              },
+              "check_rule_medium_risk": {
+                "type": "number",
+                "computed": true
+              },
+              "check_rule_num": {
+                "type": "number",
+                "computed": true
+              },
+              "check_rule_pass_rate": {
+                "type": "number",
+                "computed": true
+              },
+              "check_type_num": {
+                "type": "number",
+                "computed": true
+              },
+              "cn_standard_check_rule_pass_rate": {
+                "type": "number",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "failed_host_num": {
+                "type": "number",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_num": {
+                "type": "number",
+                "computed": true
+              },
+              "host_risks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "high_risk_num": "number",
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "low_risk_num": "number",
+                      "medium_risk_num": "number",
+                      "scan_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "hw_standard_check_rule_pass_rate": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scan_time": {
+                "type": "number",
+                "computed": true
+              },
+              "weak_pwd_normal": {
+                "type": "number",
+                "computed": true
+              },
+              "weak_pwd_not_protected": {
+                "type": "number",
+                "computed": true
+              },
+              "weak_pwd_risk": {
+                "type": "number",
+                "computed": true
+              },
+              "weak_pwd_risk_hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "weak_pwd_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "weak_pwd_total_host": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

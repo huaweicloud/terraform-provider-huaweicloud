@@ -14,11 +14,6 @@
                 "type": "string",
                 "computed": true
               },
-              "region": {
-                "type": "string",
-                "description": "The region where the rule engine rules are located.",
-                "computed": true
-              },
               "rules": {
                 "type": [
                   "list",

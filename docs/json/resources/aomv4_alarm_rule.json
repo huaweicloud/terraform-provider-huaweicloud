@@ -316,10 +316,7 @@
                             "required": true
                           },
                           "promql_expr": {
-                            "type": [
-                              "set",
-                              "string"
-                            ],
+                            "type": "string",
                             "optional": true
                           },
                           "promql_for": {

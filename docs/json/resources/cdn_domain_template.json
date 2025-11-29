@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_domain_template": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "description": "The account ID.",
+                "computed": true
+              },
+              "configs": {
+                "type": "string",
+                "description": "The configuration of the domain template, in JSON format.",
+                "required": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the domain template.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the domain template.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "modify_time": {
+                "type": "string",
+                "description": "The modification time of the domain template.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the domain template.",
+                "required": true
+              },
+              "type": {
+                "type": "number",
+                "description": "The type of the domain template. Valid values are 1 (system preset template) and 2 (tenant custom template).",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

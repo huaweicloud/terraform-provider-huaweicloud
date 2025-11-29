@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_application_batch_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The type of the action.",
+                "required": true
+              },
+              "app_group_id": {
+                "type": "string",
+                "description": "The ID of the application group.",
+                "required": true
+              },
+              "application_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of application IDs to be operated.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the applications to be operated are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}
