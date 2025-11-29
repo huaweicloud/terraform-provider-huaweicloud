@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 1.81.0 (November 30, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_cdn_cache_sharing_group` [GH-8431]
+  + `huaweicloud_cdn_domain_template` [GH-8448]
+  + `huaweicloud_cdn_statistic_configuration` [GH-8434]
+  + `huaweicloud_dms_kafka_instance_upgrade` [GH-8440]
+  + `huaweicloud_esw_instance` [GH-8458]
+  + `huaweicloud_hss_vulnerability_scan_policy` [GH-8429]
+  + `huaweicloud_swr_enterprise_instance_artifact_delete` [GH-8430]
+  + `huaweicloud_swr_enterprise_instance_artifact_tag_delete` [GH-8436]
+  + `huaweicloud_swr_image_manual_sync` [GH-8456]
+  + `huaweicloud_workspace_app_application_batch_action` [GH-8437]
+  + `huaweicloud_workspace_app_application_publishment` [GH-8451]
+  + `huaweicloud_workspace_app_group_authorization_notification_resend` [GH-8435]
+  + `huaweicloud_workspace_application_batch_auto_install` [GH-8442]
+  + `huaweicloud_workspace_log_configuration` [GH-8444]
+
+* **New Data Source:**
+  + `huaweicloud_cdn_cache_sharing_groups` [GH-8431]
+  + `huaweicloud_cdn_domain_templates` [GH-8448]
+  + `huaweicloud_cdn_statistic_configuration` [GH-8434]
+  + `huaweicloud_dms_kafka_instance_upgrade_information` [GH-8440]
+  + `huaweicloud_esw_availability_zones` [GH-8447]
+  + `huaweicloud_esw_flavors` [GH-8447]
+  + `huaweicloud_esw_instances` [GH-8458]
+  + `huaweicloud_esw_quotas` [GH-8447]
+  + `huaweicloud_hss_baseline_overviews` [GH-8423]
+  + `huaweicloud_hss_vulnerability_scan_policy` [GH-8429]
+  + `huaweicloud_hss_webtamper_static_protect_history` [GH-8411]
+  + `huaweicloud_swr_enterprise_instance_artifact_addition` [GH-8438]
+  + `huaweicloud_swr_enterprise_trigger_jobs` [GH-8445]
+  + `huaweicloud_workspace_app_group_authorization_notification_records` [GH-8400]
+  + `huaweicloud_workspace_app_server_metric_data` [GH-8414]
+  + `huaweicloud_workspace_application_authorizations` [GH-8439]
+
 ## 1.80.5 (November 26, 2025)
 
 * **New Resource Source:**
