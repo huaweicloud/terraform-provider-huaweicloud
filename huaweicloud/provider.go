@@ -1236,6 +1236,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_esw_instances":          esw.DataSourceEswInstances(),
 			"huaweicloud_esw_connections":        esw.DataSourceEswConnections(),
 			"huaweicloud_esw_all_connections":    esw.DataSourceEswAllConnections(),
+			"huaweicloud_esw_jobs":               esw.DataSourceEswJobs(),
 
 			"huaweicloud_fgs_applications":                fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates":       fgs.DataSourceApplicationTemplates(),
