@@ -3614,6 +3614,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),
 			"huaweicloud_swr_repository":               swr.ResourceSWRRepository(),
+			"huaweicloud_swr_repository_tag":           swr.ResourceSwrRepositoryTag(),
 			"huaweicloud_swr_repository_sharing":       swr.ResourceSWRRepositorySharing(),
 			"huaweicloud_swr_image_permissions":        swr.ResourceSwrImagePermissions(),
 			"huaweicloud_swr_image_trigger":            swr.ResourceSwrImageTrigger(),
