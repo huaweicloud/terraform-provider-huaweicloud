@@ -236,3 +236,129 @@ output "channel_id_not_found_validation_pass" {
 }
 `, testAccDataCustomEventSources_base(), acceptance.HW_EG_CHANNEL_ID, randUUID)
 }
+
+func TestAccDataCustomEventSources_filterByFuzzyName(t *testing.T) {
+	var (
+		baseRes           = "huaweicloud_eg_custom_event_source.test"
+		byFuzzyName       = "data.huaweicloud_eg_custom_event_sources.filter_by_fuzzy_name"
+		fuzzyNameNotFound = "data.huaweicloud_eg_custom_event_sources.fuzzy_name_not_found"
+
+		obj                 custom.Source
+		rc                  = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventSourceFunc)
+		dcByFuzzyName       = acceptance.InitDataSourceCheck(byFuzzyName)
+		dcFuzzyNameNotFound = acceptance.InitDataSourceCheck(fuzzyNameNotFound)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEgChannelId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataCustomEventSources_filterByFuzzyName(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					dcByFuzzyName.CheckResourceExists(),
+					resource.TestCheckOutput("is_fuzzy_name_filter_useful", "true"),
+					dcFuzzyNameNotFound.CheckResourceExists(),
+					resource.TestCheckOutput("fuzzy_name_not_found_validation_pass", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataCustomEventSources_filterByFuzzyName() string {
+	randUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_eg_custom_event_sources" "filter_by_fuzzy_name" {
+  depends_on = [
+    huaweicloud_eg_custom_event_source.test,
+  ]
+
+  fuzzy_name = huaweicloud_eg_custom_event_source.test.name
+}
+
+data "huaweicloud_eg_custom_event_sources" "fuzzy_name_not_found" {
+  // Since a random name is used, there is no dependency relationship with resource attachment, and the dependency needs
+  // to be manually set.
+  depends_on = [
+    huaweicloud_eg_custom_event_source.test,
+  ]
+
+  fuzzy_name = "%[2]s"
+}
+
+locals {
+  filter_result = [for v in data.huaweicloud_eg_custom_event_sources.filter_by_fuzzy_name.sources[*].name : 
+                   length(regexall("${huaweicloud_eg_custom_event_source.test.name}", v)) > 0]
+}
+
+output "is_fuzzy_name_filter_useful" {
+  value = alltrue(local.filter_result) && length(local.filter_result) > 0
+}
+
+output "fuzzy_name_not_found_validation_pass" {
+  value = length(data.huaweicloud_eg_custom_event_sources.fuzzy_name_not_found.sources) == 0
+}
+`, testAccDataCustomEventSources_base(), randUUID)
+}
+
+func TestAccDataCustomEventSources_filterBySort(t *testing.T) {
+	var (
+		baseRes = "huaweicloud_eg_custom_event_source.test"
+		bySort  = "data.huaweicloud_eg_custom_event_sources.filter_by_sort"
+
+		obj      custom.Source
+		rc       = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventSourceFunc)
+		dcBySort = acceptance.InitDataSourceCheck(bySort)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEgChannelId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataCustomEventSources_filterBySort(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					dcBySort.CheckResourceExists(),
+					resource.TestCheckResourceAttr(bySort, "sources.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataCustomEventSources_filterBySort() string {
+	name := acceptance.RandomAccResourceName()
+
+	return fmt.Sprintf(`
+resource "huaweicloud_eg_custom_event_source" "test" {
+  channel_id = "%[1]s"
+  name       = "%[2]s"
+}
+
+data "huaweicloud_eg_custom_event_sources" "filter_by_sort" {
+  depends_on = [
+    huaweicloud_eg_custom_event_source.test,
+  ]
+
+  sort = "created_time:asc"
+}
+
+output "is_sort_filter_useful" {
+  value = length(data.huaweicloud_eg_custom_event_sources.filter_by_sort.sources) > 0
+}
+`, acceptance.HW_EG_CHANNEL_ID, name)
+}

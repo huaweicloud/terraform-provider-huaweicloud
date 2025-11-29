@@ -28,6 +28,10 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the channel name used to query specified custom event channel.
 
+* `fuzzy_name` - (Optional, String) Specifies the name of the channels to be queried for fuzzy matching.
+
+* `sort` - (Optional, String) Specifies the sorting method for query results.
+
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the custom event
   channels belong.
 

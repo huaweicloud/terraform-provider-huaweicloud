@@ -135,6 +135,7 @@ output "is_kafka_detail_and_valid" {
     lookup(local.kafka_connection_filter_result, "enable_sasl_ssl", "") == true,
     lookup(local.kafka_connection_filter_result, "user_name", "") != "",
     lookup(local.kafka_connection_filter_result, "acks", "") != "",
+    lookup(local.kafka_connection_filter_result, "address", "") != "",
   ])
 }
 `, acceptance.HW_EG_CONNECTION_IDS)

@@ -46,6 +46,16 @@ func DataSourceCustomEventChannels() *schema.Resource {
 				Optional:    true,
 				Description: `The channel name used to query specified custom event channel.`,
 			},
+			"fuzzy_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the channels to be queried for fuzzy matching.`,
+			},
+			"sort": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The sorting method for query results.`,
+			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -111,6 +121,12 @@ func buildEventChannelsQueryParams(d *schema.ResourceData, providerTypeInput ...
 	}
 	if channelId, ok := d.GetOk("channel_id"); ok {
 		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
+	}
+	if sort, ok := d.GetOk("sort"); ok {
+		res = fmt.Sprintf("%s&sort=%v", res, sort)
+	}
+	if fuzzyName, ok := d.GetOk("fuzzy_name"); ok {
+		res = fmt.Sprintf("%s&fuzzy_name=%v", res, fuzzyName)
 	}
 
 	if len(providerTypeInput) > 0 {

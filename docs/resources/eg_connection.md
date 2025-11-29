@@ -120,6 +120,10 @@ The `KafkaDetail` block supports:
 
   Changing this parameter will create a new resource.
 
+* `security_protocol` - (Optional, String, ForceNew) Specifies the security protocol of the kafka instance.
+
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -128,9 +132,25 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the status of the connection.
 
+* `agency` - Indicates the user-delegated name used for private network target connection.
+
 * `created_at` - The creation time of the connection.
 
 * `updated_at` - The last update time of the connection.
+
+* `flavor` - The configuration details of the kafka instance.  
+  The [flavor](#connection_flavor) structure is documented below.
+
+<a name="connection_flavor"></a>
+The `flavor` block supports:
+
+* `name` - The name of the kafka instance.
+
+* `bandwidth_type` - The bandwidth type of the kafka instance.
+
+* `concurrency` - The concurrency number of the kafka instance.
+
+* `concurrency_type` - The concurrency type of the kafka instance.
 
 ## Import
 
