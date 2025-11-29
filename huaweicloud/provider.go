@@ -2242,6 +2242,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_tags":                                 workspace.DataSourceTags(),
 			"huaweicloud_workspace_timezones":                            workspace.DataSourceTimeZones(),
 			"huaweicloud_workspace_users":                                workspace.DataSourceUsers(),
+			"huaweicloud_workspace_user_groups":                          workspace.DataSourceUserGroups(),
 			"huaweicloud_workspace_volume_products":                      workspace.DataSourceVolumeProducts(),
 
 			// Workspace APP
