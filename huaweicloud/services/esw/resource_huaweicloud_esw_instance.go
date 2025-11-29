@@ -24,10 +24,10 @@ var instanceNonUpdatableParams = []string{"flavor_ref", "ha_mode", "availability
 	"availability_zones.*.standby", "tunnel_info", "tunnel_info.*.vpc_id", "tunnel_info.*.virsubnet_id",
 	"tunnel_info.*.tunnel_ip", "charge_infos", "charge_infos.*.charge_mode"}
 
-// @API RDS POST /v3/{project_id}/l2cg/instances
-// @API RDS GET /v3/{project_id}/l2cg/instances/{instance_id}
-// @API RDS PUT /v3/{project_id}/l2cg/instances/{instance_id}
-// @API RDS DELETE /v3/{project_id}/l2cg/instances/{instance_id}
+// @API ESW POST /v3/{project_id}/l2cg/instances
+// @API ESW GET /v3/{project_id}/l2cg/instances/{instance_id}
+// @API ESW PUT /v3/{project_id}/l2cg/instances/{instance_id}
+// @API ESW DELETE /v3/{project_id}/l2cg/instances/{instance_id}
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -86,6 +86,12 @@ func ResourceInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -97,12 +103,6 @@ func ResourceInstance() *schema.Resource {
 			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"enable_force_new": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}

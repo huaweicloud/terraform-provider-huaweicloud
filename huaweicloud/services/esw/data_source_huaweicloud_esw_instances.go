@@ -178,7 +178,7 @@ func dataSourceEswInstancesRead(_ context.Context, d *schema.ResourceData, meta 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 
-	listQueryParams := buildListQueryParams(d)
+	listQueryParams := buildListInstancesQueryParams(d)
 	listPath += listQueryParams
 
 	listResp, err := pagination.ListAllItems(
@@ -214,7 +214,7 @@ func dataSourceEswInstancesRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListQueryParams(d *schema.ResourceData) string {
+func buildListInstancesQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("instance_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
