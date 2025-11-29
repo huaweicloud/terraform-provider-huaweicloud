@@ -1986,6 +1986,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swrv3_repositories":            swr.DataSourceSwrv3Repositories(),
 			"huaweicloud_swr_shared_repositories":       swr.DataSourceSharedRepositories(),
 			"huaweicloud_swrv3_shared_repositories":     swr.DataSourceSwrv3SharedRepositories(),
+			"huaweicloud_swrv3_image_tags":              swr.DataSourceSwrv3ImageTags(),
 			"huaweicloud_swr_image_auto_sync_jobs":      swr.DataSourceSwrImageAutoSyncJobs(),
 			"huaweicloud_swr_image_triggers":            swr.DataSourceImageTriggers(),
 			"huaweicloud_swr_image_tags":                swr.DataSourceImageTags(),
