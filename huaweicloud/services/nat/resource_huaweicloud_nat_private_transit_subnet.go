@@ -19,7 +19,7 @@ import (
 // @API NAT GET /v3/{project_id}/private-nat/transit-subnets/{transit_subnet_id}
 // @API NAT DELETE /v3/{project_id}/private-nat/transit-subnets/{transit_subnet_id}
 // @API NAT PUT /v3/{project_id}/private-nat/transit-subnets/{transit_subnet_id}
-// @API NAT POST  /v3/{project_id}/transit-subnets/{resource_id}/tags
+// @API NAT POST /v3/{project_id}/transit-subnets/{resource_id}/tags/action
 func ResourcePrivateTransitSubnet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateTransitSubnetCreate,
