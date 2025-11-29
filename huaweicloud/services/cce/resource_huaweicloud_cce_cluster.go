@@ -34,8 +34,11 @@ import (
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/operation/{action}
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{id}/mastereip
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/tags/{action}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/tags/create
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/tags/delete
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/operation/resize
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/hibernate
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/awake
 // @API BSS GET /V2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{id}
