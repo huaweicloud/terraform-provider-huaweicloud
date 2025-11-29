@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_workspace_application_authorizations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-center/apps/{app_id}/authorizations:
+        GET:
+            tag: Workspace

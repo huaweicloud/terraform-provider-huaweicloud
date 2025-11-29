@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_cdn_share_cache_group
+    title: resource_huaweicloud_cdn_cache_sharing_group
     description: ""
 schemes:
     - https

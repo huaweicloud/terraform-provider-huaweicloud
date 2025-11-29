@@ -41,10 +41,10 @@ paths:
             tag: ELB
         PUT:
             tag: ELB
-    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-add}:
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-add:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-remove}:
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-remove:
         POST:
             tag: ELB
     /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb:

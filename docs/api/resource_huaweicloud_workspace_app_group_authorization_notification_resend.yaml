@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_group_authorization_notification_resend
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/mails/actions/send:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/mails/actions/send-by-authorization:
+        POST:
+            tag: Workspace

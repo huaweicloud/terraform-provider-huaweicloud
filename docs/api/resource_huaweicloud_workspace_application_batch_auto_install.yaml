@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_application_batch_auto_install
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-center/apps/actions/batch-auto-install:
+        POST:
+            tag: Workspace

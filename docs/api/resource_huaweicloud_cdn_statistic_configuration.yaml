@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_statistic_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1/cdn/statistics/stats-configs:
+        POST:
+            tag: CDN

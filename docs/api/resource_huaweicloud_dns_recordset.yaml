@@ -21,3 +21,13 @@ paths:
             tag: DNS
         PUT:
             tag: DNS
+    /v2/zones/{zone_id}/recordsets:
+        POST:
+            tag: DNS
+    /v2/zones/{zone_id}/recordsets/{recordset_id}:
+        DELETE:
+            tag: DNS
+        GET:
+            tag: DNS
+        PUT:
+            tag: DNS
