@@ -2282,6 +2282,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_image_servers":                            workspace.DataSourceWorkspaceAppImageServers(),
 			"huaweicloud_workspace_app_latest_attached_applications":             workspace.DataSourceLatestAttachedApplications(),
 			"huaweicloud_workspace_app_nas_storages":                             workspace.DataSourceAppNasStorages(),
+			"huaweicloud_workspace_app_original_policy":                          workspace.DataSourceAppOriginalPolicy(),
 			"huaweicloud_workspace_app_policy_groups":                            workspace.DataSourceAppPolicyGroups(),
 			"huaweicloud_workspace_app_publishable_applications":                 workspace.DataSourceAppPublishableApplications(),
 			"huaweicloud_workspace_app_schedule_tasks":                           workspace.DataSourceAppScheduleTasks(),
