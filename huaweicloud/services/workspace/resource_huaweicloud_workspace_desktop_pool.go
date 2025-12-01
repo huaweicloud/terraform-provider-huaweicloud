@@ -700,6 +700,7 @@ func resourceDesktopPoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("image_os_type", utils.PathSearch("image_os_type", desktopPool, nil)),
 		d.Set("image_os_version", utils.PathSearch("image_os_version", desktopPool, nil)),
 		d.Set("image_os_platform", utils.PathSearch("image_os_platform", desktopPool, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", desktopPool, make([]interface{}, 0)).([]interface{}))),
 	)
 
 	authorizedObjects, err := getAssociatedObjectsById(client, desktopPoolId)
