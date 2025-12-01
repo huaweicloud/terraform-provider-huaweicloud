@@ -3740,6 +3740,7 @@ func Provider() *schema.Provider {
 
 			// Workspace
 			"huaweicloud_workspace_access_policy":                        workspace.ResourceAccessPolicy(),
+			"huaweicloud_workspace_app_action":                           workspace.ResourceAppAction(),
 			"huaweicloud_workspace_application":                          workspace.ResourceApplication(),
 			"huaweicloud_workspace_application_batch_authorize":          workspace.ResourceApplicationBatchAuthorize(),
 			"huaweicloud_workspace_application_batch_auto_install":       workspace.ResourceApplicationBatchAutoInstall(),
