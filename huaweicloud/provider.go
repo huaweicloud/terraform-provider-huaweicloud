@@ -3783,6 +3783,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server":                                  workspace.ResourceAppServer(),
 			"huaweicloud_workspace_app_server_action":                           workspace.ResourceAppServerAction(),
 			"huaweicloud_workspace_app_server_batch_action":                     workspace.ResourceAppServerBatchAction(),
+			"huaweicloud_workspace_app_server_batch_migrate":                    workspace.ResourceAppServerBatchMigrate(),
 			"huaweicloud_workspace_app_server_group":                            workspace.ResourceAppServerGroup(),
 			"huaweicloud_workspace_app_server_group_batch_disassociate":         workspace.ResourceAppServerGroupBatchDisassociate(),
 			"huaweicloud_workspace_app_server_group_scaling_policy":             workspace.ResourceAppServerGroupScalingPolicy(),
