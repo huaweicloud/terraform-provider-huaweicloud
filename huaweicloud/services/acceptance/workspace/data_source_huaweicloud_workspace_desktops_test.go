@@ -44,38 +44,38 @@ func TestAccDataDesktops_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceDesktopPoolImageId(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataDesktops_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameters.
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(all, "desktops.#"),
 					resource.TestCheckResourceAttr(all, "desktops.0.is_support_internet", "false"),
-
 					dcFilterByDesktopId.CheckResourceExists(),
 					resource.TestCheckOutput("is_desktop_id_filter_useful", "true"),
-
+					// Filter by 'name' parameter.
 					dcFilterByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
-
+					// Filter by 'user_name' parameter.
 					dcFilterByUserName.CheckResourceExists(),
 					resource.TestCheckOutput("is_user_name_filter_useful", "true"),
-
+					// Filter by 'tags' parameter.
 					dcFilterByTags.CheckResourceExists(),
 					resource.TestCheckOutput("is_tags_filter_useful", "true"),
-
+					// Filter by 'image_id' parameter.
 					dcFilterByImageId.CheckResourceExists(),
 					resource.TestCheckOutput("is_image_id_filter_useful", "true"),
-
+					// Filter by 'enterprise_project_id' parameter.
 					dcFilterByEnterpriseProjectId.CheckResourceExists(),
 					resource.TestCheckOutput("is_enterprise_project_id_filter_useful", "true"),
-
+					// Filter by 'subnet_id' parameter.
 					dcFilterBySubnetId.CheckResourceExists(),
 					resource.TestCheckOutput("is_subnet_id_filter_useful", "true"),
-
+					// Filter by 'status' parameter.
 					dcFilterByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 				),
@@ -86,6 +86,8 @@ func TestAccDataDesktops_basic(t *testing.T) {
 
 func testAccDataDesktops_base(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_workspace_service" "test" {}
 
 data "huaweicloud_workspace_flavors" "test" {
@@ -93,26 +95,16 @@ data "huaweicloud_workspace_flavors" "test" {
 }
 
 locals {
-  cpu_flavors = [for v in data.huaweicloud_workspace_flavors.test.flavors : v if v.is_gpu == false]
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_images_images" "test" {
-  image_id   = "%[1]s"
-  visibility = "market"
+  cpu_flavor_ids = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu]
 }
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
+  flavor_id         = try(local.cpu_flavor_ids[0], "NOT_FOUND")
   image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
+  image_id          = "%[1]s"
   availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
   vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
     network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
@@ -133,8 +125,13 @@ resource "huaweicloud_workspace_desktop" "test" {
     type = "SAS"
     size = 50
   }
+
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
+  }
 }
-`, acceptance.HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID, name)
+`, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, name)
 }
 
 func testAccDataDesktops_basic(name string) string {

@@ -14,41 +14,44 @@ import (
 )
 
 func getDesktopFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.WorkspaceV2Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("workspace", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating Workspace v2 client: %s", err)
+		return nil, fmt.Errorf("error creating Workspace client: %s", err)
 	}
 	return workspace.GetDesktopById(client, state.Primary.ID)
 }
 
+// Before running this test, make sure the Workspace service have at least two networks.
 func TestAccDesktop_basic(t *testing.T) {
 	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
+		obj interface{}
 
-		desktop      interface{}
 		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name       = acceptance.RandomAccResourceNameWithDash()
+		updateName = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDesktop_basic_step1(rName),
+				Config: testAccDesktop_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "data.huaweicloud_workspace_service.test", "vpc_id"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_workspace_flavors.test", "flavors.0.id"),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "image_id", acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+name),
 					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.size", "80"),
@@ -62,31 +65,11 @@ func TestAccDesktop_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDesktop_basic_step2(rName),
+				Config: testAccDesktop_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "data.huaweicloud_workspace_service.test", "vpc_id"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
-						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_workspace_flavors.test", "flavors.0.id"),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
-					resource.TestCheckResourceAttr(resourceName, "root_volume.0.type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "root_volume.0.size", "100"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.0.type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.0.size", "50"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "70"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "data.huaweicloud_workspace_service.test", "network_ids.0"),
-				),
-			},
-			{
-				Config: testAccDesktop_basic_step3(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_workspace_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.0.type", "SAS"),
@@ -98,7 +81,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
-					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "data.huaweicloud_workspace_service.test", "network_ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "data.huaweicloud_workspace_service.test", "network_ids.1"),
 				),
 			},
 			{
@@ -117,66 +100,44 @@ func TestAccDesktop_basic(t *testing.T) {
 	})
 }
 
-func testAccDesktop_basic_step1(rName string) string {
-	return testAccDesktop_basic(rName, 80)
-}
-
-func testAccDesktop_basic_step2(rName string) string {
-	return testAccDesktop_basic(rName, 100)
-}
-
-func testAccDesktop_basic_step3(rName string) string {
-	return testAccDesktop_basic_update(rName)
-}
-
-func testAccDesktop_base() string {
+func testAccDesktop_basic_step1(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_workspace_service" "test" {}
 
 data "huaweicloud_workspace_flavors" "test" {
-  os_type = "Windows"
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
+  os_type           = "Windows"
 }
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_images_images" "test" {
-  image_id   = "%[1]s"
-  visibility = "market"
-}
-`, acceptance.HW_IMAGE_ID)
-}
-
-func testAccDesktop_basic(rName string, rootVolumeSize int) string {
-	return fmt.Sprintf(`
-%[1]s
 
 locals {
+  cpu_flavor_ids    = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu]
   data_volume_sizes = [50, 70]
 }
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
+  flavor_id         = try(local.cpu_flavor_ids[0], "NOT_FOUND")
   image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
+  image_id          = "%[1]s"
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
   vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
     network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
   }
 
-  name       = "%[2]s"
-  user_name  = "user-%[2]s"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
+  name               = "%[2]s"
+  user_name          = "user-%[2]s"
+  user_group         = "administrators"
+  user_email         = "terraform@example.com"
+  delete_user        = true
+  email_notification = true
 
   root_volume {
     type = "SAS"
-    size = %[3]d
+    size = 80
   }
 
   dynamic "data_volume" {
@@ -192,39 +153,51 @@ resource "huaweicloud_workspace_desktop" "test" {
     foo = "bar"
   }
 
-  email_notification = true
-  delete_user        = true
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      availability_zone,
+      user_name,
+    ]
+  }
 }
-`, testAccDesktop_base(), rName, rootVolumeSize)
+`, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, name)
 }
 
-func testAccDesktop_basic_update(rName string) string {
+func testAccDesktop_basic_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_workspace_service" "test" {}
+
+data "huaweicloud_workspace_flavors" "test" {
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
+  os_type           = "Windows"
+}
 
 locals {
+  cpu_flavor_ids    = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu]
   data_volume_sizes = [50, 90, 20, 40]
 }
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
+  flavor_id         = try(local.cpu_flavor_ids[0], "NOT_FOUND")
   image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
+  image_id          = "%[1]s"
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
   vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
-    network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
+    network_id = try(data.huaweicloud_workspace_service.test.network_ids[1], "NOT_FOUND")
   }
 
-  name       = "%[2]s"
-  user_name  = "user-%[2]s"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
+  name               = "%[2]s"
+  user_name          = "user-%[2]s"
+  user_group         = "administrators"
+  user_email         = "terraform@example.com"
+  delete_user        = true
+  email_notification = true
 
   root_volume {
     type = "SAS"
@@ -240,23 +213,26 @@ resource "huaweicloud_workspace_desktop" "test" {
     }
   }
 
-  email_notification = true
-  delete_user        = true
+
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      availability_zone,
+      user_name,
+    ]
+  }
 }
-`, testAccDesktop_base(), rName)
+`, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, name)
 }
 
-func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
+func TestAccDesktop_withEpsId(t *testing.T) {
 	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
+		obj interface{}
 
-		desktop      interface{}
 		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 
 		srcEPS  = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
 		destEPS = acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
@@ -265,32 +241,33 @@ func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
 			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDesktop_withEPSId(rName, srcEPS),
+				Config: testAccDesktop_withEPSId(srcEPS, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "data.huaweicloud_workspace_service.test", "vpc_id"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_workspace_flavors.test", "flavors.0.id"),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+name),
 					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
 				),
 			},
 			{
-				Config: testAccDesktop_withEPSId(rName, destEPS),
+				Config: testAccDesktop_withEPSId(destEPS, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_workspace_flavors.test", "flavors.0.id"),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+name),
 					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
 				),
@@ -299,30 +276,39 @@ func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
 	})
 }
 
-func testAccDesktop_withEPSId(rName, epsId string) string {
+func testAccDesktop_withEPSId(epsId, name string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_workspace_service" "test" {}
+
+data "huaweicloud_workspace_flavors" "test" {
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
+  os_type           = "Windows"
+}
+
+locals {
+  cpu_flavor_ids = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu] 
+}
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id             = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
+  flavor_id             = try(local.cpu_flavor_ids[0], "NOT_FOUND")
   image_type            = "market"
-  image_id              = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  enterprise_project_id = "%[3]s" 
-  availability_zone     = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
+  image_id              = "%[1]s"
+  enterprise_project_id = "%[2]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
   vpc_id                = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups       = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
+  security_groups       = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
     network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
   }
 
-  name       = "%[2]s"
-  user_name  = "user-%[2]s"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
+  name        = "%[3]s"
+  user_name   = "user-%[3]s"
+  user_group  = "administrators"
+  user_email  = "terraform@example.com"
+  delete_user = true
 
   root_volume {
     type = "SAS"
@@ -334,78 +320,80 @@ resource "huaweicloud_workspace_desktop" "test" {
     size = 50
   }
 
-  tags = {
-    foo = "bar"
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      availability_zone,
+      user_name,
+    ]
   }
-
-  delete_user = true
 }
-`, testAccDesktop_base(), rName, epsId)
+`, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, epsId, name)
 }
 
 func TestAccDesktop_powerAction(t *testing.T) {
 	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
+		obj interface{}
 
-		desktop      interface{}
 		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccdesktop_powerAction(rName, "os-stop", "SOFT"),
+				Config: testAccdesktop_powerAction(name, "os-stop", "SOFT"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-stop"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
 					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
 				),
 			},
 			{
-				Config: testAccdesktop_powerAction(rName, "os-start", "SOFT"),
+				Config: testAccdesktop_powerAction(name, "os-start", "SOFT"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-start"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccdesktop_powerAction(rName, "reboot", "SOFT"),
+				Config: testAccdesktop_powerAction(name, "reboot", "SOFT"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccdesktop_powerAction(rName, "reboot", "HARD"),
+				Config: testAccdesktop_powerAction(name, "reboot", "HARD"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccdesktop_powerAction(rName, "os-hibernate", "HARD"),
+				Config: testAccdesktop_powerAction(name, "os-hibernate", "HARD"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-hibernate"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
 					resource.TestCheckResourceAttr(resourceName, "status", "HIBERNATED"),
@@ -428,25 +416,33 @@ func TestAccDesktop_powerAction(t *testing.T) {
 	})
 }
 
-func testAccdesktop_powerAction(rName string, powerAction string, powerActionType string) string {
+func testAccdesktop_powerAction(name string, powerAction string, powerActionType string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_workspace_service" "test" {}
+
+data "huaweicloud_workspace_flavors" "test" {
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
+  os_type           = "Windows"
+}
+
+locals {
+  cpu_flavor_ids = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu] 
+}
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
+  flavor_id         = try(local.cpu_flavor_ids[0], "NOT_FOUND")
   image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
+  image_id          = "%[1]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
     network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
   }
-  
+
   name               = "%[2]s"
   user_name          = "user-%[2]s"
   user_email         = "terraform@example.com"
@@ -464,83 +460,39 @@ resource "huaweicloud_workspace_desktop" "test" {
     type = "SAS"
     size = 50
   }
+
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      availability_zone,
+      user_name,
+    ]
+  }
 }
-`, testAccDesktop_base(), rName, powerAction, powerActionType)
-}
-
-func testAccDesktop_volumeChange_resource(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
-  image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
-  vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
-
-  nic {
-    network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
-  }
-
-  name       = "%[1]s"
-  user_name  = "user-%[1]s"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
-
-  root_volume {
-    type       = var.root_volume.type
-    size       = var.root_volume.size
-    iops       = try(var.root_volume.iops, null)
-    throughput = try(var.root_volume.throughput, null)
-    kms_id     = try(var.root_volume.kms_id, null)
-  }
-
-  dynamic "data_volume" {
-    for_each = var.data_volumes
-
-    content {
-      type       = data_volume.value.type
-      size       = data_volume.value.size
-      iops       = try(data_volume.value.iops, null)
-      throughput = try(data_volume.value.throughput, null)
-      kms_id     = try(data_volume.value.kms_id, null)
-    }
-  }
-
-  tags = {
-    foo = "bar"
-  }
-
-  email_notification = true
-  delete_user        = true
-}
-`, rName)
+`, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, name, powerAction, powerActionType)
 }
 
 func TestAccDesktop_rootVolumeModify(t *testing.T) {
 	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
+		obj interface{}
 
-		desktop      interface{}
 		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				// Test for create GPSSD2 root volume.
-				Config: testAccDesktop_rootVolumeModify_step1(rName),
+				Config: testAccDesktop_rootVolumeModify_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "root_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -552,7 +504,7 @@ func TestAccDesktop_rootVolumeModify(t *testing.T) {
 			},
 			{
 				// Test for modify the size of GPSSD2 root volume.
-				Config: testAccDesktop_rootVolumeModify_step2(rName),
+				Config: testAccDesktop_rootVolumeModify_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "root_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -564,7 +516,7 @@ func TestAccDesktop_rootVolumeModify(t *testing.T) {
 			},
 			{
 				// Test for modify the QoS of GPSSD2 root volume.
-				Config: testAccDesktop_rootVolumeModify_step3(rName),
+				Config: testAccDesktop_rootVolumeModify_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "root_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -578,77 +530,139 @@ func TestAccDesktop_rootVolumeModify(t *testing.T) {
 	})
 }
 
-func testAccDesktop_rootVolumeModify_step1(rName string) string {
-	return testAccDesktop_rootVolumeModify(rName, 120, 3000, 125)
-}
-
-func testAccDesktop_rootVolumeModify_step2(rName string) string {
-	return testAccDesktop_rootVolumeModify(rName, 160, 3000, 125)
-}
-
-func testAccDesktop_rootVolumeModify_step3(rName string) string {
-	return testAccDesktop_rootVolumeModify(rName, 160, 4000, 125)
-}
-
-func testAccDesktop_rootVolumeModify(rName string, size, iops, throughput int) string {
+func testAccDesktop_volumeChange_resource(varBlocks, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_workspace_service" "test" {}
+
+data "huaweicloud_workspace_flavors" "test" {
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], null)
+  os_type           = "Windows"
+}
+
+locals {
+  cpu_flavor_ids = [for v in data.huaweicloud_workspace_flavors.test.flavors : v.id if !v.is_gpu] 
+}
+
+resource "huaweicloud_workspace_desktop" "test" {
+  flavor_id         = try(local.cpu_flavor_ids[0], "NOT_FOUND")
+  image_type        = "market"
+  image_id          = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
+
+  nic {
+    network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
+  }
+
+  name       = "%[3]s"
+  user_name  = "user-%[3]s"
+  user_email = "terraform@example.com"
+  user_group = "administrators"
+
+  root_volume {
+    type       = var.root_volume.type
+    size       = var.root_volume.size
+    iops       = try(var.root_volume.iops, null)
+    throughput = try(var.root_volume.throughput, null)
+  }
+
+  dynamic "data_volume" {
+    for_each = var.data_volumes
+
+    content {
+      type       = data_volume.value.type
+      size       = data_volume.value.size
+      iops       = try(data_volume.value.iops, null)
+      throughput = try(data_volume.value.throughput, null)
+    }
+  }
+
+  email_notification = true
+  delete_user        = true
+
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      availability_zone,
+      user_name,
+    ]
+  }
+}
+`, varBlocks, acceptance.HW_WORKSPACE_DESKTOP_IMAGE_ID, name)
+}
+
+func testAccDesktop_rootVolumeModify(name string, size, iops, throughput int) string {
+	varBlocks := fmt.Sprintf(`
 variable "root_volume" {
   type = object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   })
 
   default = {
     type       = "GPSSD2"
-    size       = %[3]d
-	iops       = %[4]d
-	throughput = %[5]d
+    size       = %[1]d
+    iops       = %[2]d
+    throughput = %[3]d
   }
 }
 
 variable "data_volumes" {
   type = list(object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    type = string
+    size = number
   }))
 
   default = [
-    { type = "SSD", size = 80 },
+    {
+      type = "SSD"
+      size = 80
+    }
   ]
 }
+`, size, iops, throughput)
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
+}
 
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName), size, iops, throughput)
+func testAccDesktop_rootVolumeModify_step1(name string) string {
+	return testAccDesktop_rootVolumeModify(name, 120, 3000, 125)
+}
+
+func testAccDesktop_rootVolumeModify_step2(name string) string {
+	return testAccDesktop_rootVolumeModify(name, 160, 3000, 125)
+}
+
+func testAccDesktop_rootVolumeModify_step3(name string) string {
+	return testAccDesktop_rootVolumeModify(name, 160, 4000, 125)
 }
 
 func TestAccDesktop_dataVolumeModify(t *testing.T) {
 	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
+		obj interface{}
 
-		desktop      interface{}
 		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDesktop_dataVolumeModify_step1(rName),
+				Config: testAccDesktop_dataVolumeModify_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "data_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -661,7 +675,7 @@ func TestAccDesktop_dataVolumeModify(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDesktop_dataVolumeModify_step2(rName),
+				Config: testAccDesktop_dataVolumeModify_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "data_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -674,7 +688,7 @@ func TestAccDesktop_dataVolumeModify(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDesktop_dataVolumeModify_step3(rName),
+				Config: testAccDesktop_dataVolumeModify_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "data_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
@@ -687,53 +701,25 @@ func TestAccDesktop_dataVolumeModify(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDesktop_dataVolumeModify_step4(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(resourceName, "data_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.0.type", "SSD"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.0.size", "100"),
-
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.type", "GPSSD2"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "100"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.iops", "4000"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.1.throughput", "250"),
-
-					resource.TestCheckResourceAttr(resourceName, "data_volume.2.type", "SAS"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.2.size", "100"),
-
-					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "GPSSD2"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "100"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.3.iops", "4000"),
-					resource.TestCheckResourceAttr(resourceName, "data_volume.3.throughput", "250"),
-				),
-			},
-			{
-				Config: testAccDesktop_dataVolumeModify_step5(rName),
+				Config: testAccDesktop_dataVolumeModify_step4(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "data_volume.#", regexp.MustCompile(`^[1-9]([0-9]+)?$`)),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.#", "6"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.0.type", "SSD"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.0.size", "120"),
-
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "120"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.iops", "5000"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.throughput", "250"),
-
 					resource.TestCheckResourceAttr(resourceName, "data_volume.2.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.2.size", "120"),
-
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "120"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.iops", "5000"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.throughput", "250"),
-
 					resource.TestCheckResourceAttr(resourceName, "data_volume.4.type", "GPSSD"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.4.size", "120"),
-
 					resource.TestCheckResourceAttr(resourceName, "data_volume.5.type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.5.size", "120"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.5.iops", "5000"),
@@ -744,243 +730,12 @@ func TestAccDesktop_dataVolumeModify(t *testing.T) {
 	})
 }
 
-func testAccDesktop_dataVolumeModify_step1(rName string) string {
-	return testAccDesktop_dataVolumeModify(rName, 80, 3000, 125)
-}
-
-func testAccDesktop_dataVolumeModify_step2(rName string) string {
-	return testAccDesktop_dataVolumeModify(rName, 100, 3000, 125)
-}
-
-func testAccDesktop_dataVolumeModify_step3(rName string) string {
-	return testAccDesktop_dataVolumeModify(rName, 100, 4000, 250)
-}
-
-func testAccDesktop_dataVolumeModify_step4(rName string) string {
-	return testAccDesktop_dataVolumeModify_moreVolume(rName, 100, 4000, 250)
-}
-
-func testAccDesktop_dataVolumeModify_step5(rName string) string {
-	return testAccDesktop_dataVolumeModify_complex(rName, 120, 5000, 250)
-}
-
-func testAccDesktop_dataVolumeModify(rName string, size, iops, throughput int) string {
-	return fmt.Sprintf(`
-%[1]s
-
+func testAccDesktop_dataVolumeModify(name string, size, iops, throughput int) string {
+	varBlocks := fmt.Sprintf(`
 variable "root_volume" {
   type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  })
-
-  default = {
-    type       = "SSD"
-    size       = 80
-  }
-}
-
-variable "data_volumes" {
-  type = list(object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  }))
-
-  default = [
-    { type = "SSD", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-  ]
-}
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName), size, iops, throughput)
-}
-
-func testAccDesktop_dataVolumeModify_moreVolume(rName string, size, iops, throughput int) string {
-	return fmt.Sprintf(`
-%[1]s
-
-variable "root_volume" {
-  type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  })
-
-  default = {
-    type       = "SSD"
-    size       = 80
-  }
-}
-
-variable "data_volumes" {
-  type = list(object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  }))
-
-  default = [
-    { type = "SSD", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-    { type = "SAS", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-  ]
-}
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName), size, iops, throughput)
-}
-
-func testAccDesktop_dataVolumeModify_complex(rName string, size, iops, throughput int) string {
-	return fmt.Sprintf(`
-%[1]s
-
-variable "root_volume" {
-  type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  })
-
-  default = {
-    type       = "SSD"
-    size       = 80
-  }
-}
-
-variable "data_volumes" {
-  type = list(object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  }))
-
-  default = [
-    { type = "SSD", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-    { type = "SAS", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-    { type = "GPSSD", size = %[3]d },
-    { type = "GPSSD2", size = %[3]d, iops = %[4]d, throughput = %[5]d },
-  ]
-}
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName), size, iops, throughput)
-}
-
-func TestAccDesktop_volumeChangeErrors(t *testing.T) {
-	var (
-		rName = acceptance.RandomAccResourceNameWithDash()
-
-		desktop      interface{}
-		resourceName = "huaweicloud_workspace_desktop.test"
-		rc           = acceptance.InitResourceCheck(
-			resourceName,
-			&desktop,
-			getDesktopFunc,
-		)
-	)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDesktop_volumeChangeErrors_base(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-				),
-			},
-			{
-				Config:      testAccDesktop_volumeChangeErrors_typeChange(rName),
-				ExpectError: regexp.MustCompile(`volume type does not support updates`),
-			},
-			{
-				Config:      testAccDesktop_volumeChangeErrors_sizeDecrease(rName),
-				ExpectError: regexp.MustCompile(`volume.*size.*cannot be smaller`),
-			},
-			{
-				Config:      testAccDesktop_volumeChangeErrors_nonGPSSD2QoS(rName),
-				ExpectError: regexp.MustCompile(`the type of the volume.*is not GPSSD2, cannot set QoS options`),
-			},
-			{
-				Config:      testAccDesktop_volumeChangeErrors_GPSSD2MissingQoS(rName),
-				ExpectError: regexp.MustCompile(`the type of the volume \(index number: \d+\) is GPSSD2, iops and throughput cannot be empty`),
-			},
-			{
-				Config:      testAccDesktop_volumeChangeErrors_volumeCountDecrease(rName),
-				ExpectError: regexp.MustCompile(`the number of volumes cannot be reduced`),
-			},
-		},
-	})
-}
-
-func testAccDesktop_volumeChangeErrors_base(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-variable "root_volume" {
-  type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  })
-
-  default = {
-    type = "SAS"
-    size = 80
-  }
-}
-
-variable "data_volumes" {
-  type = list(object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
-  }))
-
-  default = [
-    { type = "SSD", size = 100 },
-    { type = "GPSSD2", size = 100, iops = 3000, throughput = 125 },
-  ]
-}
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
-}
-
-func testAccDesktop_volumeChangeErrors_typeChange(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-variable "root_volume" {
-  type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    type = string
+    size = number
   })
 
   default = {
@@ -993,9 +748,138 @@ variable "data_volumes" {
   type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
+  }))
+
+  default = [
+    { type = "SSD", size = %[1]d },
+    { type = "GPSSD2", size = %[1]d, iops = %[2]d, throughput = %[3]d },
+  ]
+}
+`, size, iops, throughput)
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
+}
+
+func testAccDesktop_dataVolumeModify_moreVolume(name string, size, iops, throughput int) string {
+	varBlocks := fmt.Sprintf(`
+variable "root_volume" {
+  type = object({
+    type = string
+    size = number
+  })
+
+  default = {
+    type = "SSD"
+    size = 80
+  }
+}
+
+variable "data_volumes" {
+  type = list(object({
+    type       = string
+    size       = number
+    iops       = optional(number, null)
+    throughput = optional(number, null)
+  }))
+
+  default = [
+    { type = "SSD", size = %[1]d },
+    { type = "GPSSD2", size = %[1]d, iops = %[2]d, throughput = %[3]d },
+    { type = "SAS", size = %[1]d },
+    { type = "GPSSD2", size = %[1]d, iops = %[2]d, throughput = %[3]d },
+    { type = "GPSSD", size = %[1]d },
+    { type = "GPSSD2", size = %[1]d, iops = %[2]d, throughput = %[3]d },
+  ]
+}
+`, size, iops, throughput)
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
+}
+
+func testAccDesktop_dataVolumeModify_step1(name string) string {
+	return testAccDesktop_dataVolumeModify(name, 80, 3000, 125)
+}
+
+func testAccDesktop_dataVolumeModify_step2(name string) string {
+	return testAccDesktop_dataVolumeModify(name, 100, 3000, 125)
+}
+
+func testAccDesktop_dataVolumeModify_step3(name string) string {
+	return testAccDesktop_dataVolumeModify(name, 100, 4000, 250)
+}
+
+func testAccDesktop_dataVolumeModify_step4(name string) string {
+	return testAccDesktop_dataVolumeModify_moreVolume(name, 120, 5000, 250)
+}
+
+func TestAccDesktop_volumeChangeErrors(t *testing.T) {
+	var (
+		obj interface{}
+
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDesktopFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceDesktopImageId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDesktop_volumeChangeErrors_base(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
+			{
+				Config:      testAccDesktop_volumeChangeErrors_typeChange(name),
+				ExpectError: regexp.MustCompile(`volume type does not support updates`),
+			},
+			{
+				Config:      testAccDesktop_volumeChangeErrors_sizeDecrease(name),
+				ExpectError: regexp.MustCompile(`volume.*size.*cannot be smaller`),
+			},
+			{
+				Config:      testAccDesktop_volumeChangeErrors_nonGPSSD2QoS(name),
+				ExpectError: regexp.MustCompile(`the type of the volume.*is not GPSSD2, cannot set QoS options`),
+			},
+			{
+				Config:      testAccDesktop_volumeChangeErrors_GPSSD2MissingQoS(name),
+				ExpectError: regexp.MustCompile(`the type of the volume \(index number: \d+\) is GPSSD2, iops and throughput cannot be empty`),
+			},
+			{
+				Config:      testAccDesktop_volumeChangeErrors_volumeCountDecrease(name),
+				ExpectError: regexp.MustCompile(`the number of volumes cannot be reduced`),
+			},
+		},
+	})
+}
+
+func testAccDesktop_volumeChangeErrors_base(name string) string {
+	varBlocks := `
+variable "root_volume" {
+  type = object({
+    type = string
+    size = number
+  })
+
+  default = {
+    type = "SAS"
+    size = 80
+  }
+}
+
+variable "data_volumes" {
+  type = list(object({
+    type       = string
+    size       = number
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   }))
 
   default = [
@@ -1003,22 +887,47 @@ variable "data_volumes" {
     { type = "GPSSD2", size = 100, iops = 3000, throughput = 125 },
   ]
 }
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
 }
 
-func testAccDesktop_volumeChangeErrors_sizeDecrease(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
+func testAccDesktop_volumeChangeErrors_typeChange(name string) string {
+	varBlocks := `
 variable "root_volume" {
   type = object({
+    type = string
+    size = number
+  })
+
+  default = {
+    type = "SSD"
+    size = 80
+  }
+}
+
+variable "data_volumes" {
+  type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
+  }))
+
+  default = [
+    { type = "SSD", size = 100 },
+    { type = "GPSSD2", size = 100, iops = 3000, throughput = 125 },
+  ]
+}
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
+}
+
+func testAccDesktop_volumeChangeErrors_sizeDecrease(name string) string {
+	varBlocks := `
+variable "root_volume" {
+  type = object({
+    type = string
+    size = number
   })
 
   default = {
@@ -1031,9 +940,8 @@ variable "data_volumes" {
   type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   }))
 
   default = [
@@ -1041,22 +949,16 @@ variable "data_volumes" {
     { type = "GPSSD2", size = 100, iops = 3000, throughput = 125 },
   ]
 }
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
 }
 
-func testAccDesktop_volumeChangeErrors_nonGPSSD2QoS(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
+func testAccDesktop_volumeChangeErrors_nonGPSSD2QoS(name string) string {
+	varBlocks := `
 variable "root_volume" {
   type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    type = string
+    size = number
   })
 
   default = {
@@ -1069,9 +971,8 @@ variable "data_volumes" {
   type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   }))
 
   default = [
@@ -1079,22 +980,16 @@ variable "data_volumes" {
     { type = "GPSSD2", size = 100, iops = 3000, throughput = 125 },
   ]
 }
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
 }
 
-func testAccDesktop_volumeChangeErrors_GPSSD2MissingQoS(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
+func testAccDesktop_volumeChangeErrors_GPSSD2MissingQoS(name string) string {
+	varBlocks := `
 variable "root_volume" {
   type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    type = string
+    size = number
   })
 
   default = {
@@ -1107,9 +1002,8 @@ variable "data_volumes" {
   type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   }))
 
   default = [
@@ -1118,22 +1012,16 @@ variable "data_volumes" {
     { type = "GPSSD2", size = 100 },
   ]
 }
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
 }
 
-func testAccDesktop_volumeChangeErrors_volumeCountDecrease(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
+func testAccDesktop_volumeChangeErrors_volumeCountDecrease(name string) string {
+	varBlocks := `
 variable "root_volume" {
   type = object({
-    type       = string
-    size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    type = string
+    size = number
   })
 
   default = {
@@ -1146,16 +1034,14 @@ variable "data_volumes" {
   type = list(object({
     type       = string
     size       = number
-    iops       = optional(number)
-    throughput = optional(number)
-    kms_id     = optional(string)
+    iops       = optional(number, null)
+    throughput = optional(number, null)
   }))
 
   default = [
     { type = "SSD", size = 100 },
   ]
 }
-
-%[2]s
-`, testAccDesktop_base(), testAccDesktop_volumeChange_resource(rName))
+`
+	return testAccDesktop_volumeChange_resource(varBlocks, name)
 }
