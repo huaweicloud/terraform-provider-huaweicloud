@@ -3124,6 +3124,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_host_protection":                                hss.ResourceHostProtection(),
 			"huaweicloud_hss_webtamper_protection":                           hss.ResourceWebTamperProtection(),
 			"huaweicloud_hss_quota":                                          hss.ResourceQuota(),
+			"huaweicloud_hss_ransomware_protection_policy":                   hss.ResourceRansomwareProtectionPolicy(),
 			"huaweicloud_hss_policy_group_deploy":                            hss.ResourcePolicyGroupDeploy(),
 			"huaweicloud_hss_event_unblock_ip":                               hss.ResourceEventUnblockIp(),
 			"huaweicloud_hss_event_delete_isolated_file":                     hss.ResourceEventDeleteIsolatedFile(),
