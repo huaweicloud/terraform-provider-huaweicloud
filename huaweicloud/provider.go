@@ -1427,6 +1427,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_host_groups":                                hss.DataSourceHostGroups(),
 			"huaweicloud_hss_host_vulnerabilities":                       hss.DataSourceHssHostVulnerabilities(),
 			"huaweicloud_hss_hosts":                                      hss.DataSourceHosts(),
+			"huaweicloud_hss_hosts_risk":                                 hss.DataSourceHostsRisk(),
 			"huaweicloud_hss_image_vulnerability_cves":                   hss.DataSourceImageVulnerabilityCves(),
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_kubernetes_service_detail":                  hss.DataSourceKubernetesServiceDetail(),
