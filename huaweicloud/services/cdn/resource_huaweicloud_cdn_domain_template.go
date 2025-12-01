@@ -58,7 +58,7 @@ func ResourceDomainTemplate() *schema.Resource {
 			"type": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `The type of the domain template. Valid values are 1 (system preset template) and 2 (tenant custom template).`,
+				Description: `The type of the domain template.`,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
