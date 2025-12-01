@@ -2241,6 +2241,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_scheduled_task_record_details":        workspace.DataSourceScheduledTaskRecordDetails(),
 			"huaweicloud_workspace_service":                              workspace.DataSourceService(),
 			"huaweicloud_workspace_tags":                                 workspace.DataSourceTags(),
+			"huaweicloud_workspace_tenant_configurations":                workspace.DataSourceTenantConfigurations(),
 			"huaweicloud_workspace_timezones":                            workspace.DataSourceTimeZones(),
 			"huaweicloud_workspace_users":                                workspace.DataSourceUsers(),
 			"huaweicloud_workspace_volume_products":                      workspace.DataSourceVolumeProducts(),
