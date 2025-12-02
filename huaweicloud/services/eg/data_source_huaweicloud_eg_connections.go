@@ -119,6 +119,11 @@ func DataSourceConnections() *schema.Resource {
 										Description: `The number of confirmation signals the producer
 											needs to receive to consider the message sent successfully.`,
 									},
+									"address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The connection address of Kafka instance.`,
+									},
 								},
 							},
 							Description: `The Kafka detail information for the connection.`,
@@ -300,6 +305,7 @@ func flattenConnectionKafkaDetail(kafkaDetail interface{}) []interface{} {
 			"enable_sasl_ssl":   utils.PathSearch("enable_sasl_ssl", kafkaDetail, nil),
 			"user_name":         utils.PathSearch("user_name", kafkaDetail, nil),
 			"acks":              utils.PathSearch("acks", kafkaDetail, nil),
+			"address":           utils.PathSearch("addr", kafkaDetail, nil),
 		},
 	}
 }
