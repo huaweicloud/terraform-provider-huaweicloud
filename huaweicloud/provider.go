@@ -1357,6 +1357,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_kernel_module_statistics":             hss.DataSourceAssetKernelModuleStatistics(),
 			"huaweicloud_hss_asset_manual_collect":                       hss.DataSourceAssetManualCollect(),
 			"huaweicloud_hss_asset_midwares":                             hss.DataSourceAssetMidwares(),
+			"huaweicloud_hss_asset_overview_statistics_top_ports":        hss.DataSourceAssetOverviewStatisticsTopPorts(),
 			"huaweicloud_hss_asset_overview_status_agent":                hss.DataSourceAssetOverviewStatusAgent(),
 			"huaweicloud_hss_asset_overview_status_container_protection": hss.DataSourceAssetOverviewStatusContainerProtection(),
 			"huaweicloud_hss_asset_overview_status_host_protection":      hss.DataSourceAssetOverviewStatusHostProtection(),
