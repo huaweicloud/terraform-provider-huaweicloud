@@ -35,6 +35,9 @@ The following arguments are supported:
 * `ip_address` - (Optional, String, NonUpdatable) Specifies the IP address. The value must be an unused address
   within the subnet cidr. If it is not specified, the system automatically assigns an IP address.
 
+* `device_owner` - (Optional, String, NonUpdatable) Specifies the resource using the private IP address.
+  Value options: **neutron:VIP_PORT**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -42,8 +45,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `status` - The status of the private IP address. Possible values are **ACTIVE** and **DOWN**.
-
-* `device_owner` - The resource using the private IP address. The parameter is left blank if it is not used.
 
 ## Import
 

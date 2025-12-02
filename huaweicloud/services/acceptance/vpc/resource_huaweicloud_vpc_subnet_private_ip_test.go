@@ -63,7 +63,7 @@ func TestAccSubnetPrivateIP_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "status", "DOWN"),
-					resource.TestCheckResourceAttr(resourceName, "device_owner", ""),
+					resource.TestCheckResourceAttr(resourceName, "device_owner", "neutron:VIP_PORT"),
 				),
 			},
 			{
@@ -80,8 +80,9 @@ func testAccSubnetPrivateIP_basic(name string) string {
 %s
 
 resource "huaweicloud_vpc_subnet_private_ip" "test" {
-  subnet_id  = huaweicloud_vpc_subnet.test.id
-  ip_address = "192.168.0.111"
+  subnet_id    = huaweicloud_vpc_subnet.test.id
+  ip_address   = "192.168.0.111"
+  device_owner = "neutron:VIP_PORT"
 }
 `, testAccVpcSubnetV1_basic(name))
 }
