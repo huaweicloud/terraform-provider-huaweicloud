@@ -1395,6 +1395,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_cluster_protect_alarm_events":               hss.DataSourceClusterProtectAlarmEvents(),
 			"huaweicloud_hss_image_local_repositories":                   hss.DataSourceImageLocalRepositories(),
 			"huaweicloud_hss_image_registry_images":                      hss.DataSourceHssImageRegistryImages(),
+			"huaweicloud_hss_image_registries":                           hss.DataSourceHssImageRegistries(),
 			"huaweicloud_hss_image_registry_statistics":                  hss.DataSourceHssImageRegistryStatistics(),
 			"huaweicloud_hss_image_upload_command":                       hss.DataSourceHssImageUploadCommand(),
 			"huaweicloud_hss_image_asset_statistics":                     hss.DataSourceImageAssetStatistics(),
