@@ -1075,11 +1075,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instant_tasks":                           dds.DataSourceDdsInstantTasks(),
 			"huaweicloud_dds_scheduled_tasks":                         dds.DataSourceDdsScheduledTasks(),
 
-			"huaweicloud_deh_types":            deh.DataSourceDehTypes(),
-			"huaweicloud_deh_quotas":           deh.DataSourceDehQuotas(),
-			"huaweicloud_deh_instances":        deh.DataSourceDehInstances(),
-			"huaweicloud_deh_instance_servers": deh.DataSourceDehInstanceServers(),
-			"huaweicloud_deh_instance_tags":    deh.DataSourceDehInstanceTags(),
+			"huaweicloud_deh_types":             deh.DataSourceDehTypes(),
+			"huaweicloud_deh_quotas":            deh.DataSourceDehQuotas(),
+			"huaweicloud_deh_instances":         deh.DataSourceDehInstances(),
+			"huaweicloud_deh_instances_by_tags": deh.DataSourceDehInstancesByTags(),
+			"huaweicloud_deh_instance_servers":  deh.DataSourceDehInstanceServers(),
+			"huaweicloud_deh_instance_tags":     deh.DataSourceDehInstanceTags(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
