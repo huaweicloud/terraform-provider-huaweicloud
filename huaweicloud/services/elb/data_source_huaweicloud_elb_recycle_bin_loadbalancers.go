@@ -498,85 +498,37 @@ func dataSourceElbRecycleBinLoadBalancersRead(_ context.Context, d *schema.Resou
 
 func buildListRecycleBinLoadBalancersQueryParams(d *schema.ResourceData) string {
 	res := ""
-	if v, ok := d.GetOk("loadbalancer_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "id"))
-	}
-	if v, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "name"))
-		for _, id := range v.([]interface{}) {
-			res = fmt.Sprintf("%s&name=%v", res, id)
-		}
-	}
-	if v, ok := d.GetOk("description"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "description"))
-	}
-	if v, ok := d.GetOk("operating_status"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "operating_status"))
-	}
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "loadbalancer_id", "id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "name", "name"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "description", "description"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "operating_status", "operating_status"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "name", "name"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "vpc_id", "vpc_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "vip_port_id", "vip_port_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "vip_address", "vip_address"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "vip_subnet_cidr_id", "vip_subnet_cidr_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "ipv6_vip_port_id", "ipv6_vip_port_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "ipv6_vip_address", "ipv6_vip_address"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "ipv6_vip_virsubnet_id", "ipv6_vip_virsubnet_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "publicips", "publicips"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "availability_zone_list", "availability_zone_list"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "l4_flavor_id", "l4_flavor_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "l7_flavor_id", "l7_flavor_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "billing_info", "billing_info"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "member_device_id", "member_device_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "member_address", "member_address"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "enterprise_project_id", "enterprise_project_id"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "ip_version", "ip_version"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "elb_virsubnet_type", "elb_virsubnet_type"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "protection_status", "protection_status"))
+	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "global_eips", "global_eips"))
 	if v, ok := d.GetOk("guaranteed"); ok {
 		guaranteed, _ := strconv.ParseBool(v.(string))
 		res = fmt.Sprintf("%s&guaranteed=%v", res, guaranteed)
 	}
-	if v, ok := d.GetOk("vpc_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "vpc_id"))
-	}
-	if v, ok := d.GetOk("vip_port_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "vip_port_id"))
-	}
-	if v, ok := d.GetOk("vip_address"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "vip_address"))
-	}
-	if v, ok := d.GetOk("vip_subnet_cidr_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "vip_subnet_cidr_id"))
-	}
-	if v, ok := d.GetOk("ipv6_vip_port_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "ipv6_vip_port_id"))
-	}
-	if v, ok := d.GetOk("ipv6_vip_address"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "ipv6_vip_address"))
-	}
-	if v, ok := d.GetOk("ipv6_vip_virsubnet_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "ipv6_vip_virsubnet_id"))
-	}
-	if v, ok := d.GetOk("publicips"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "publicips"))
-	}
-	if v, ok := d.GetOk("availability_zone_list"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "availability_zone_list"))
-	}
-	if v, ok := d.GetOk("l4_flavor_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "l4_flavor_id"))
-	}
-	if v, ok := d.GetOk("l7_flavor_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "l7_flavor_id"))
-	}
-	if v, ok := d.GetOk("billing_info"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "billing_info"))
-	}
-	if v, ok := d.GetOk("member_device_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "member_device_id"))
-	}
-	if v, ok := d.GetOk("member_address"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "member_address"))
-	}
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "enterprise_project_id"))
-	}
-	if v, ok := d.GetOk("ip_version"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "ip_version"))
-	}
 	if v, ok := d.GetOk("deletion_protection_enable"); ok {
 		deletionProtectionEnable, _ := strconv.ParseBool(v.(string))
 		res = fmt.Sprintf("%s&deletion_protection_enable=%v", res, deletionProtectionEnable)
-	}
-	if v, ok := d.GetOk("elb_virsubnet_type"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "elb_virsubnet_type"))
-	}
-	if v, ok := d.GetOk("protection_status"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "protection_status"))
-	}
-	if v, ok := d.GetOk("global_eips"); ok {
-		res = fmt.Sprintf("%s%v", res, buildCycleParam(v.([]interface{}), "global_eips"))
 	}
 	if v, ok := d.GetOk("log_topic_id"); ok {
 		res = fmt.Sprintf("%s&log_topic_id=%v", res, v)
@@ -590,10 +542,12 @@ func buildListRecycleBinLoadBalancersQueryParams(d *schema.ResourceData) string 
 	return res
 }
 
-func buildCycleParam(value []interface{}, param string) string {
+func buildCycleParam(d *schema.ResourceData, inputParam, param string) string {
 	res := ""
-	for _, v := range value {
-		res = fmt.Sprintf("%s&%s=%v", res, param, v)
+	if raw, ok := d.GetOk(inputParam); ok {
+		for _, v := range raw.([]interface{}) {
+			res = fmt.Sprintf("%s&%s=%v", res, param, v)
+		}
 	}
 	return res
 }

@@ -1,19 +1,19 @@
 ---
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_elb_recycle_bin_instances"
+page_title: "HuaweiCloud: huaweicloud_elb_recycle_bin_loadbalancers"
 description: |-
   Use this data source to get the list of load balancers in the recycle bin.
 ---
 
-# huaweicloud_elb_recycle_bin_instances
+# huaweicloud_elb_recycle_bin_loadbalancers
 
 Use this data source to get the list of load balancers in the recycle bin.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_elb_recycle_bin_instances" "test" {}
+data "huaweicloud_elb_recycle_bin_loadbalancers" "test" {}
 ```
 
 ## Argument Reference
@@ -136,7 +136,7 @@ The `loadbalancers` block supports:
 
 * `availability_zone_list` - Indicates the list of AZs where the load balancers are created.
 
-* `description` - Indicates  the provides supplementary information about the load balancer.
+* `description` - Indicates the provides supplementary information about the load balancer.
 
 * `vpc_id` - Indicates the ID of the VPC where the load balancer is located.
 
@@ -154,7 +154,7 @@ The `loadbalancers` block supports:
 
 * `ip_target_enable` - Indicates whether to add backend servers that are not in the load balancer's VPC.
 
-* `pools` - Indicates  the IDs of backend server groups associated with the load balancer.
+* `pools` - Indicates the IDs of backend server groups associated with the load balancer.
 
   The [pools](#loadbalancers_pools_struct) structure is documented below.
 
@@ -168,8 +168,7 @@ The `loadbalancers` block supports:
 
   The [ipv6_bandwidth](#loadbalancers_ipv6_bandwidth_struct) structure is documented below.
 
-* `provider` - Indicates the provider of the load balancer.
-  The value is fixed to **vlb**.
+* `provider` - Indicates the provider of the load balancer. The value is fixed to **vlb**.
 
 * `protection_status` - Indicates the provisioning status of the load balancer.
 
@@ -203,7 +202,7 @@ The `loadbalancers` block supports:
 
 * `guaranteed` - Indicates whether the load balancer is a dedicated load balancer.
 
-* `billing_info` - Indicates  the povides resource billing information.
+* `billing_info` - Indicates the povides resource billing information.
 
 * `elb_virsubnet_type` - Indicates the type of the subnet on the downstream plane.
 
@@ -211,7 +210,7 @@ The `loadbalancers` block supports:
 
 * `log_topic_id` - Indicates the ID of the log topic that is associated with the load balancer.
 
-* `listeners` - Indicates  the IDs of listeners associated with the load balancer.
+* `listeners` - Indicates the IDs of listeners associated with the load balancer.
 
   The [listeners](#loadbalancers_listeners_struct) structure is documented below.
 
@@ -224,7 +223,7 @@ The `loadbalancers` block supports:
 * `auto_terminate_time` - Indicates the time when the load balancers in the recycle bin will be permanently deleted.
   The format is **yyyy-MM-dd'T'HH:mm:ss'Z'**.
 
-* `created_at` - Indicates  the time when the load balancer was created.
+* `created_at` - Indicates the time when the load balancer was created.
 
 * `updated_at` - Indicates the time when the load balancer was updated.
 
