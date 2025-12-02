@@ -9,10 +9,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceTimezones_basic(t *testing.T) {
+func TestAccDataTimezones_basic(t *testing.T) {
 	var (
-		dataSourceName = "data.huaweicloud_workspace_timezones.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		all = "data.huaweicloud_workspace_timezones.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,20 +20,21 @@ func TestAccDataSourceTimezones_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceTimezones_basic,
+				Config: testAccDataTimezones_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSourceName, "time_zones.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestCheckResourceAttrSet(dataSourceName, "time_zones.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "time_zones.0.offset"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "time_zones.0.us_description"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "time_zones.0.cn_description"),
+					resource.TestMatchResourceAttr(all, "time_zones.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "time_zones.0.name"),
+					resource.TestCheckResourceAttrSet(all, "time_zones.0.offset"),
+					resource.TestCheckResourceAttrSet(all, "time_zones.0.us_description"),
+					resource.TestCheckResourceAttrSet(all, "time_zones.0.cn_description"),
 				),
 			},
 		},
 	})
 }
 
-const testAccDataSourceTimezones_basic = `
-data "huaweicloud_workspace_timezones" "test" {}
+const testAccDataTimezones_basic = `
+data "huaweicloud_workspace_timezones" "all" {}
 `

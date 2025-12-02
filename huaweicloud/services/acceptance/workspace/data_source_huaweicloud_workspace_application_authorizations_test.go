@@ -12,9 +12,10 @@ import (
 
 func TestAccDataApplicationAuthorizations_basic(t *testing.T) {
 	var (
-		name       = acceptance.RandomAccResourceName()
-		dataSource = "data.huaweicloud_workspace_application_authorizations.test"
-		dc         = acceptance.InitDataSourceCheck(dataSource)
+		name = acceptance.RandomAccResourceName()
+
+		all = "data.huaweicloud_workspace_application_authorizations.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		byName   = "data.huaweicloud_workspace_application_authorizations.filter_by_name"
 		dcByName = acceptance.InitDataSourceCheck(byName)
@@ -30,12 +31,15 @@ func TestAccDataApplicationAuthorizations_basic(t *testing.T) {
 			{
 				Config: testAccDataApplicationAuthorizations_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSource, "authorizations.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.account"),
-					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.account_type"),
+					resource.TestMatchResourceAttr(all, "authorizations.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "authorizations.0.account"),
+					resource.TestCheckResourceAttrSet(all, "authorizations.0.account_type"),
+					// Filter by 'name' parameter.
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					// Filter by 'target_type' parameter.
 					dcByTargetType.CheckResourceExists(),
 					resource.TestCheckOutput("is_target_type_filter_useful", "true"),
 				),
@@ -99,7 +103,7 @@ func testAccDataApplicationAuthorizations_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_workspace_application_authorizations" "test" {
+data "huaweicloud_workspace_application_authorizations" "all" {
   app_id = huaweicloud_workspace_application.test.id
 
   depends_on = [
@@ -108,11 +112,11 @@ data "huaweicloud_workspace_application_authorizations" "test" {
 }
 
 locals {
-  authorized_account   = huaweicloud_workspace_user.test.name
+  authorized_account      = huaweicloud_workspace_user.test.name
   authorized_account_type = "SIMPLE"
 }
 
-# Filter by name
+# Without any filter parameter.
 data "huaweicloud_workspace_application_authorizations" "filter_by_name" {
   app_id = huaweicloud_workspace_application.test.id
   name   = local.authorized_account
@@ -133,7 +137,7 @@ output "is_name_filter_useful" {
   value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
 }
 
-# Filter by target_type
+# Filter by 'target_type' parameter.
 data "huaweicloud_workspace_application_authorizations" "filter_by_target_type" {
   app_id     = huaweicloud_workspace_application.test.id
   target_type = local.authorized_account_type

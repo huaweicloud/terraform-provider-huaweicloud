@@ -13,7 +13,7 @@ func TestAccDataAppServerGroups_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
-		all = "data.huaweicloud_workspace_app_server_groups.test"
+		all = "data.huaweicloud_workspace_app_server_groups.all"
 		dc  = acceptance.InitDataSourceCheck(all)
 
 		byId   = "data.huaweicloud_workspace_app_server_groups.filter_by_id"
@@ -40,7 +40,7 @@ func TestAccDataAppServerGroups_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataAppServerGroups_basic_step2(name),
+				Config: testAccDataAppServerGroups_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					dcById.CheckResourceExists(),
@@ -131,63 +131,64 @@ resource "huaweicloud_workspace_app_server_group" "test" {
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
 }
 
-func testAccDataAppServerGroups_basic_step2(name string) string {
+func testAccDataAppServerGroups_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_workspace_app_server_groups" "test" {
+# Without any filter parameter.
+data "huaweicloud_workspace_app_server_groups" "all" {
   depends_on = [
     huaweicloud_workspace_app_server_group.test
   ]
 }
 
-# Filter by ID
+# Filter by 'server_group_id' parameter.
 locals {
-  group_id = huaweicloud_workspace_app_server_group.test.id
+  server_group_id = huaweicloud_workspace_app_server_group.test.id
 }
 
-data "huaweicloud_workspace_app_server_groups" "filter_by_id" {
+data "huaweicloud_workspace_app_server_groups" "filter_by_server_group_id" {
   depends_on = [
     huaweicloud_workspace_app_server_group.test
   ]
 
-  server_group_id = local.group_id
+  server_group_id = local.server_group_id
 }
 
 locals {
-  id_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_id.server_groups[*].id : v == local.group_id
+  server_group_id_filter_result = [
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_server_group_id.server_groups[*].id : v == local.server_group_id
   ]
 }
 
-output "is_id_filter_useful" {
-  value = length(local.id_filter_result) > 0 && alltrue(local.id_filter_result)
+output "is_server_group_id_filter_useful" {
+  value = length(local.server_group_id_filter_result) > 0 && alltrue(local.server_group_id_filter_result)
 }
 
-# Filter by name
+# Filter by 'server_group_name' parameter.
 locals {
-  group_name = huaweicloud_workspace_app_server_group.test.name
+  server_group_name = huaweicloud_workspace_app_server_group.test.name
 }
 
-data "huaweicloud_workspace_app_server_groups" "filter_by_name" {
+data "huaweicloud_workspace_app_server_groups" "filter_by_server_group_name" {
   depends_on = [
     huaweicloud_workspace_app_server_group.test
   ]
 
-  server_group_name = local.group_name
+  server_group_name = local.server_group_name
 }
 
 locals {
-  name_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_name.server_groups[*].name : v == local.group_name
+  server_group_name_filter_result = [
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_server_group_name.server_groups[*].name : v == local.server_group_name
   ]
 }
 
-output "is_name_filter_useful" {
-  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
+output "is_server_group_name_filter_useful" {
+  value = length(local.server_group_name_filter_result) > 0 && alltrue(local.server_group_name_filter_result)
 }
 
-# Filter by app_type
+# Filter by 'app_type' parameter.
 locals {
   app_type = huaweicloud_workspace_app_server_group.test.app_type
 }
@@ -210,7 +211,7 @@ output "is_app_type_filter_useful" {
   value = length(local.app_type_filter_result) > 0 && alltrue(local.app_type_filter_result)
 }
 
-# Filter by tags
+# Filter by 'tags' parameter.
 locals {
   tags_str = "key1=value1"
 }
@@ -234,7 +235,7 @@ output "is_tags_filter_useful" {
   value = length(local.tags_filter_result) > 0 && alltrue(local.tags_filter_result)
 }
 
-# Filter by enterprise_project_id
+# Filter by 'enterprise_project_id' parameter.
 locals {
   eps_id = huaweicloud_workspace_app_server_group.test.enterprise_project_id
 }

@@ -2437,7 +2437,7 @@ func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 	if HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID == "" {
 		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID must be set for Workspace APP acceptance tests.")
 	}
-	TestAccPreCheckWorkspaceAppServerImageInfo(t)
+	TestAccPreCheckWorkspaceAppServerImageId(t)
 }
 
 // lintignore:AT003
@@ -2455,9 +2455,10 @@ func TestAccPreCheckWorkspaceDesktopIds(t *testing.T, min int) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckWorkspaceAppServerImageInfo(t *testing.T) {
-	if HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID == "" || HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID == "" {
-		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID and HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID must be set for Workspace APP acceptance tests.")
+func TestAccPreCheckWorkspaceAppServerImageId(t *testing.T) {
+	// HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID is not required for acceptance tests.
+	if HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID == "" {
+		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID must be set for Workspace APP acceptance tests.")
 	}
 }
 

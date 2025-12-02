@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceService_basic(t *testing.T) {
+func TestAccDataService_basic(t *testing.T) {
 	var (
 		dcName = "data.huaweicloud_workspace_service.test"
 		dc     = acceptance.InitDataSourceCheck(dcName)
@@ -23,7 +23,7 @@ func TestAccDataSourceService_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceService_basic(),
+				Config: testAccDataService_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckOutput("is_service_id_set_and_valid", "true"),
@@ -38,7 +38,7 @@ func TestAccDataSourceService_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceService_basic() string {
+func testAccDataService_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {

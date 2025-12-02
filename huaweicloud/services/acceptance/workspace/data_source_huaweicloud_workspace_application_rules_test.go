@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccApplicationRulesDataSource_basic(t *testing.T) {
+func TestAccDataApplicationRules_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceNameWithDash()
 
@@ -28,8 +28,9 @@ func TestAccApplicationRulesDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApplicationRulesDataSource_basic(name),
+				Config: testAccDataApplicationRules_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dcName, "rules.#", regexp.MustCompile(`^[0-9]+$`)),
 					resource.TestCheckResourceAttrSet(dcName, "rules.0.id"),
@@ -38,8 +39,8 @@ func TestAccApplicationRulesDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dcName, "rules.0.create_time"),
 					resource.TestCheckResourceAttrSet(dcName, "rules.0.update_time"),
 					resource.TestCheckResourceAttrSet(dcName, "rules.0.detail.0.scope"),
+					// Filter by 'name' parameter.
 					dcFilterByName.CheckResourceExists(),
-					resource.TestMatchResourceAttr(filterByName, "rules.#", regexp.MustCompile(`^[0-9]+$`)),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 				),
 			},
@@ -47,7 +48,7 @@ func TestAccApplicationRulesDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccApplicationRulesDataSource_base(name string) string {
+func testAccDataApplicationRules_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_workspace_application_rule" "with_product_rule" {
   name        = "%[1]s"
@@ -83,11 +84,12 @@ resource "huaweicloud_workspace_application_rule" "with_path_rule" {
 `, name)
 }
 
-func testAccApplicationRulesDataSource_basic(name string) string {
+func testAccDataApplicationRules_basic(name string) string {
 	// the name filter case need validate the context is contain the filter parameter?
 	return fmt.Sprintf(`
 %[1]s
 
+# Without any filter parameter.
 data "huaweicloud_workspace_application_rules" "test" {
   depends_on = [
     huaweicloud_workspace_application_rule.with_product_rule,
@@ -95,6 +97,7 @@ data "huaweicloud_workspace_application_rules" "test" {
   ]
 }
 
+# Filter by 'name' parameter.
 data "huaweicloud_workspace_application_rules" "filter_by_name" {
   name = "%[2]s"
 
@@ -104,10 +107,12 @@ data "huaweicloud_workspace_application_rules" "filter_by_name" {
   ]
 }
 
-output "is_name_filter_useful" {
-  value = length(data.huaweicloud_workspace_application_rules.filter_by_name.rules) > 0 && alltrue(
-    [for v in data.huaweicloud_workspace_application_rules.filter_by_name.rules[*].name : strcontains(v, "%[2]s") == true]
-  )
+locals {
+  name_filter_result = [for v in data.huaweicloud_workspace_application_rules.filter_by_name.rules[*].name : strcontains(v, "%[2]s")]
 }
-`, testAccApplicationRulesDataSource_base(name), name)
+
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
+}
+`, testAccDataApplicationRules_base(name), name)
 }

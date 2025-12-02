@@ -12,10 +12,11 @@ import (
 
 func TestAccDataAppServerGroupTags_basic(t *testing.T) {
 	var (
-		all               = "data.huaweicloud_workspace_app_server_group_tags.all"
-		dcAll             = acceptance.InitDataSourceCheck(all)
-		byServerGroupId   = "data.huaweicloud_workspace_app_server_group_tags.test"
-		dcByServerGroupId = acceptance.InitDataSourceCheck(byServerGroupId)
+		all = "data.huaweicloud_workspace_app_server_group_tags.all"
+		dc  = acceptance.InitDataSourceCheck(all)
+
+		filterByServerGroupId   = "data.huaweicloud_workspace_app_server_group_tags.filter_by_server_group_id"
+		dcFilterByServerGroupId = acceptance.InitDataSourceCheck(filterByServerGroupId)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -28,15 +29,17 @@ func TestAccDataAppServerGroupTags_basic(t *testing.T) {
 			{
 				Config: testAccDataAppServerGroupTags_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					dcAll.CheckResourceExists(),
+					// Without any filter parameter.
+					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "tags.#", regexp.MustCompile(`[1-9]([0-9]*)?`)),
 					resource.TestCheckResourceAttrSet(all, "tags.0.key"),
 					resource.TestMatchResourceAttr(all, "tags.0.values.#", regexp.MustCompile(`[1-9]([0-9]*)?`)),
-					dcByServerGroupId.CheckResourceExists(),
-					resource.TestMatchResourceAttr(byServerGroupId, "tags.#", regexp.MustCompile(`[1-9]([0-9]*)?`)),
-					resource.TestCheckResourceAttrSet(byServerGroupId, "tags.0.key"),
-					resource.TestCheckResourceAttr(byServerGroupId, "tags.0.values.#", "1"),
-					resource.TestCheckOutput("is_all_tags_include_test_tags", "true"),
+					// Filter by 'server_group_id' parameter.
+					dcFilterByServerGroupId.CheckResourceExists(),
+					resource.TestMatchResourceAttr(filterByServerGroupId, "tags.#", regexp.MustCompile(`[1-9]([0-9]*)?`)),
+					resource.TestCheckResourceAttrSet(filterByServerGroupId, "tags.0.key"),
+					resource.TestCheckResourceAttr(filterByServerGroupId, "tags.0.values.#", "1"),
+					resource.TestCheckOutput("is_server_group_id_filter_useful", "true"),
 				),
 			},
 		},
@@ -66,16 +69,16 @@ resource "huaweicloud_workspace_app_server_group" "test" {
   }
 }
 
-data "huaweicloud_workspace_app_server_group_tags" "test" {
-  server_group_id = huaweicloud_workspace_app_server_group.test.id
-}
-
 data "huaweicloud_workspace_app_server_group_tags" "all" {
   depends_on = [huaweicloud_workspace_app_server_group.test]
 }
 
-output "is_all_tags_include_test_tags" {
-  value = alltrue([for v in data.huaweicloud_workspace_app_server_group_tags.test.tags:
+data "huaweicloud_workspace_app_server_group_tags" "filter_by_server_group_id" {
+  server_group_id = huaweicloud_workspace_app_server_group.test.id
+}
+
+output "is_server_group_id_filter_useful" {
+  value = alltrue([for v in data.huaweicloud_workspace_app_server_group_tags.filter_by_server_group_id.tags:
     length([for vv in data.huaweicloud_workspace_app_server_group_tags.all.tags:
       vv.key == v.key && contains(vv.values, v.values[0])
     ]) > 0
