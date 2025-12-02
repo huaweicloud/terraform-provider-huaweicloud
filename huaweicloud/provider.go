@@ -1411,6 +1411,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_container_kubernetes_endpoints":             hss.DataSourceContainerKubernetesEndpoints(),
 			"huaweicloud_hss_container_kubernetes_endpoint_detail":       hss.DataSourceContainerKubernetesEndpointDetail(),
 			"huaweicloud_hss_container_kubernetes_mcc":                   hss.DataSourceContainerKubernetesMCC(),
+			"huaweicloud_hss_container_kubernetes_template":              hss.DataSourceHssContainerKubernetesTemplate(),
 			"huaweicloud_hss_container_nodes":                            hss.DataSourceContainerNodes(),
 			"huaweicloud_hss_container_node_statistics":                  hss.DataSourceContainerNodeStatistics(),
 			"huaweicloud_hss_container_cluster_risks":                    hss.DataSourceContainerClusterRisks(),
