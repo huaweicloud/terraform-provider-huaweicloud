@@ -1463,6 +1463,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_rasp_status":                                hss.DataSourceRaspStatus(),
 			"huaweicloud_hss_rasp_statistics":                            hss.DataSourceRaspStatistics(),
 			"huaweicloud_hss_resource_quotas":                            hss.DataSourceResourceQuotas(),
+			"huaweicloud_hss_setting_dictionaries":                       hss.DataSourceSettingDictionaries(),
 			"huaweicloud_hss_setting_login_common_ips":                   hss.DataSourceSettingLoginCommonIps(),
 			"huaweicloud_hss_setting_login_common_locations":             hss.DataSourceSettingLoginCommonLocations(),
 			"huaweicloud_hss_setting_login_white_ips":                    hss.DataSourceSettingLoginWhiteIps(),
