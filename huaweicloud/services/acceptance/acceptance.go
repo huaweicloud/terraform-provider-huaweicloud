@@ -651,6 +651,8 @@ var (
 	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
 	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
 
+	HW_DEH_DEDICATED_HOST_ID = os.Getenv("HW_DEH_DEDICATED_HOST_ID")
+
 	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
 	HW_EVS_TRANSFER_ID              = os.Getenv("HW_EVS_TRANSFER_ID")
@@ -1650,6 +1652,13 @@ func TestAccPreCheckChargingMode(t *testing.T) {
 func TestAccPreCheckErSharedAttachmentAccepter(t *testing.T) {
 	if HW_ER_SHARED_INSTANCE_ID == "" || HW_ER_SHARED_ATTACHMENT_ID == "" {
 		t.Skip("HW_ER_SHARED_INSTANCE_ID and HW_ER_SHARED_ATTACHMENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDehDedicatedHostId(t *testing.T) {
+	if HW_DEH_DEDICATED_HOST_ID == "" {
+		t.Skip("HW_DEH_DEDICATED_HOST_ID must be set for the acceptance test")
 	}
 }
 
