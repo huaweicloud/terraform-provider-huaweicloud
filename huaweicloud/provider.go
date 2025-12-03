@@ -2969,6 +2969,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_line_group":                dns.ResourceLineGroup(),
 			"huaweicloud_dns_zone_authorization":        dns.ResourceZoneAuthorization(),
 			"huaweicloud_dns_zone_authorization_verify": dns.ResourceZoneAuthorizationVerify(),
+			"huaweicloud_dns_zone_retrieval":            dns.ResourceDNSZoneRetrieval(),
+			"huaweicloud_dns_zone_retrieval_verify":     dns.ResourceDNSZoneRetrievalVerify(),
 
 			"huaweicloud_drs_job":                        drs.ResourceDrsJob(),
 			"huaweicloud_drs_job_primary_standby_switch": drs.ResourceDRSPrimaryStandbySwitch(),
