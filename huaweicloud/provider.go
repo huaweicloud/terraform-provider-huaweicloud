@@ -2658,6 +2658,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain_template":               cdn.ResourceDomainTemplate(),
 			"huaweicloud_cdn_rule_engine_rule":              cdn.ResourceRuleEngineRule(),
 			"huaweicloud_cdn_statistic_configuration":       cdn.ResourceStatisticConfiguration(),
+			"huaweicloud_cdn_statistic_subscription_task":   cdn.ResourceStatisticSubscriptionTask(),
 
 			"huaweicloud_ces_alarmrule":                                     ces.ResourceAlarmRule(),
 			"huaweicloud_ces_alarm_template":                                ces.ResourceCesAlarmTemplate(),
