@@ -883,7 +883,7 @@ func getLoadBalancer(client *golangsdk.ServiceClient, id string) (interface{}, e
 func checkLoadBalancerJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"RUNNING"},
-		Target:       []string{"COMPLETE"},
+		Target:       []string{"COMPLETE", "SUCCESS"},
 		Refresh:      loadBalancerJobStatusRefreshFunc(client, jobID),
 		Timeout:      timeout,
 		PollInterval: 2 * time.Second,
