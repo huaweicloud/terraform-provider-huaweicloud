@@ -730,6 +730,7 @@ var (
 	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
 
 	HW_HSS_HOST_PROTECTION_HOST_ID            = os.Getenv("HW_HSS_HOST_PROTECTION_HOST_ID")
+	HW_HSS_POLICY_GROUP_ID                    = os.Getenv("HW_HSS_POLICY_GROUP_ID")
 	HW_HSS_HOST_PROTECTION_QUOTA_ID           = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
 	HW_HSS_TARGET_POLICY_GROUP_ID             = os.Getenv("HW_HSS_TARGET_POLICY_GROUP_ID")
 	HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID     = os.Getenv("HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID")
@@ -3859,6 +3860,13 @@ func TestAccPreCheckVPCEPServiceId(t *testing.T) {
 func TestAccPreCheckHSSHostProtectionHostId(t *testing.T) {
 	if HW_HSS_HOST_PROTECTION_HOST_ID == "" {
 		t.Skip("HW_HSS_HOST_PROTECTION_HOST_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSPolicyGroupId(t *testing.T) {
+	if HW_HSS_POLICY_GROUP_ID == "" {
+		t.Skip("HW_HSS_POLICY_GROUP_ID must be set for the acceptance test")
 	}
 }
 
