@@ -1476,6 +1476,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_setting_login_common_locations":             hss.DataSourceSettingLoginCommonLocations(),
 			"huaweicloud_hss_setting_login_white_ips":                    hss.DataSourceSettingLoginWhiteIps(),
 			"huaweicloud_hss_setting_malware_reminders":                  hss.DataSourceSettingMalwareReminders(),
+			"huaweicloud_hss_setting_switches_status":                    hss.DataSourceSettingSwitchesStatus(),
 			"huaweicloud_hss_setting_two_factor_login_hosts":             hss.DataSourceSettingTwoFactorLoginHosts(),
 			"huaweicloud_hss_setting_virus_kill":                         hss.DataSourceSettingVirusKill(),
 			"huaweicloud_hss_tags":                                       hss.DataSourceHssTags(),
