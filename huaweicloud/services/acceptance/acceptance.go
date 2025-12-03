@@ -740,6 +740,8 @@ var (
 	HW_HSS_ANTIVIRUS_ENABLED                  = os.Getenv("HW_HSS_ANTIVIRUS_ENABLED")
 	HW_HSS_CLUSTER_ID                         = os.Getenv("HW_HSS_CLUSTER_ID")
 	HW_HSS_CLUSTER_RISK_ID                    = os.Getenv("HW_HSS_CLUSTER_RISK_ID")
+	HW_HSS_HOST_ID1                           = os.Getenv("HW_HSS_HOST_ID1")
+	HW_HSS_HOST_ID2                           = os.Getenv("HW_HSS_HOST_ID2")
 	// The vulnerability ID
 	HW_HSS_VUL_ID      = os.Getenv("HW_HSS_VUL_ID")
 	HW_HSS_POLICY_ID   = os.Getenv("HW_HSS_POLICY_ID")
@@ -3867,6 +3869,13 @@ func TestAccPreCheckHSSHostProtectionHostId(t *testing.T) {
 func TestAccPreCheckHSSPolicyGroupId(t *testing.T) {
 	if HW_HSS_POLICY_GROUP_ID == "" {
 		t.Skip("HW_HSS_POLICY_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSHostIds(t *testing.T) {
+	if HW_HSS_HOST_ID1 == "" || HW_HSS_HOST_ID2 == "" {
+		t.Skip("HW_HSS_HOST_ID1 and HW_HSS_HOST_ID2 must be set for the acceptance test")
 	}
 }
 
