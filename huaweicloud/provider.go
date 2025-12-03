@@ -3808,6 +3808,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_eip_associate":                        workspace.ResourceEipAssociate(),
 			"huaweicloud_workspace_log_configuration":                    workspace.ResourceLogConfiguration(),
 			"huaweicloud_workspace_notification_rule":                    workspace.ResourceNotificationRule(),
+			"huaweicloud_workspace_ou":                                   workspace.ResourceOu(),
 			"huaweicloud_workspace_policy_group":                         workspace.ResourcePolicyGroup(),
 			"huaweicloud_workspace_service":                              workspace.ResourceService(),
 			"huaweicloud_workspace_terminal_binding":                     workspace.ResourceTerminalBinding(),

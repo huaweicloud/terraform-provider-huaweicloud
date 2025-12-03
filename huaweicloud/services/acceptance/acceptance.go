@@ -313,8 +313,11 @@ var (
 	HW_WORKSPACE_AD_VPC_ID     = os.Getenv("HW_WORKSPACE_AD_VPC_ID")     // The VPC ID to which the AD servers and desktops belong.
 	HW_WORKSPACE_AD_NETWORK_ID = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID") // The network ID to which the AD servers belong.
 	// The internet access port to which the Workspace service.
-	HW_WORKSPACE_INTERNET_ACCESS_PORT  = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
-	HW_WORKSPACE_OU_NAME               = os.Getenv("HW_WORKSPACE_OU_NAME")
+	HW_WORKSPACE_INTERNET_ACCESS_PORT = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
+	// HW_WORKSPACE_OU_NAME indicates an OU that has been added to the Workspace service.
+	HW_WORKSPACE_OU_NAME = os.Getenv("HW_WORKSPACE_OU_NAME")
+	// HW_WORKSPACE_AD_SERVER_OU_NAMES indicates OUs that do not exist in the Workspace service but only in the Active Directory server.
+	HW_WORKSPACE_AD_SERVER_OU_NAMES    = os.Getenv("HW_WORKSPACE_AD_SERVER_OU_NAMES")
 	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
 	HW_WORKSPACE_SCHEDULED_TASK_ID     = os.Getenv("HW_WORKSPACE_SCHEDULED_TASK_ID")
 
@@ -2490,6 +2493,13 @@ func TestAccPrecheckWorkspaceUserNames(t *testing.T) {
 func TestAccPreCheckWorkspaceOUName(t *testing.T) {
 	if HW_WORKSPACE_OU_NAME == "" {
 		t.Skip("HW_WORKSPACE_OU_NAME must be set for Workspace service acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceOUNames(t *testing.T, min int) {
+	if HW_WORKSPACE_AD_SERVER_OU_NAMES == "" || len(strings.Split(HW_WORKSPACE_AD_SERVER_OU_NAMES, ",")) < min {
+		t.Skipf("At least %d OU must be configured in the HW_WORKSPACE_AD_SERVER_OU_NAMES, and separated by commas (,).", min)
 	}
 }
 
