@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -33,8 +34,6 @@ func ResourceMemberV3() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -187,6 +186,11 @@ func resourceMemberV3Create(ctx context.Context, d *schema.ResourceData, meta in
 
 	d.SetId(memberId)
 
+	err = waitForMemberReady(ctx, elbClient, d, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error creating ELB member: %s", err)
+	}
+
 	return resourceMemberV3Read(ctx, d, meta)
 }
 
@@ -201,6 +205,39 @@ func buildCreateMemberBodyParams(d *schema.ResourceData) map[string]interface{} 
 	return map[string]interface{}{"member": bodyParams}
 }
 
+func waitForMemberReady(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"Ready"},
+		Pending:      []string{"Pending"},
+		Refresh:      resourceMemberRefreshFunc(d, client),
+		Timeout:      timeout,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for ELB member (%s) ready: %s ", d.Id(), err)
+	}
+	return nil
+}
+
+func resourceMemberRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getRespBody, err := getMember(d, client)
+		if err != nil {
+			return nil, "Failed", err
+		}
+
+		status := utils.PathSearch("member.operating_status", getRespBody, "").(string)
+		if utils.StrSliceContains([]string{"NO_MONITOR", "ONLINE", "OFFLINE", "UNKNOWN"}, status) {
+			return getRespBody, "Ready", nil
+		}
+		if status == "INITIAL" {
+			return getRespBody, "Pending", nil
+		}
+		return getRespBody, status, nil
+	}
+}
+
 func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -208,7 +245,6 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 	var mErr *multierror.Error
 
 	var (
-		httpUrl = "v3/{project_id}/elb/pools/{pool_id}/members/{member_id}"
 		product = "elb"
 	)
 	elbClient, err := cfg.NewServiceClient(product, region)
@@ -216,23 +252,9 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	getPath := elbClient.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", elbClient.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{pool_id}", d.Get("pool_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{member_id}", d.Id())
-
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getResp, err := elbClient.Request("GET", getPath, &getOpt)
+	getRespBody, err := getMember(d, elbClient)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving ELB member")
-	}
-
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
@@ -254,6 +276,27 @@ func resourceMemberV3Read(_ context.Context, d *schema.ResourceData, meta interf
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getMember(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}/members/{member_id}"
+	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{pool_id}", d.Get("pool_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{member_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func flattenMemberReason(resp interface{}) []map[string]interface{} {

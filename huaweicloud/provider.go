@@ -3023,6 +3023,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_pool":                             elb.ResourcePoolV3(),
 			"huaweicloud_elb_active_standby_pool":              elb.ResourceActiveStandbyPool(),
 			"huaweicloud_elb_member":                           elb.ResourceMemberV3(),
+			"huaweicloud_elb_member_check_task":                elb.ResourceMemberCheckTask(),
 			"huaweicloud_elb_logtank":                          elb.ResourceLogTank(),
 			"huaweicloud_elb_security_policy":                  elb.ResourceSecurityPolicy(),
 			"huaweicloud_elb_recycle_bin":                      elb.ResourceElbRecycleBin(),
