@@ -28,6 +28,7 @@ var poolNonUpdatableParams = []string{"protocol", "loadbalancer_id", "listener_i
 // @API ELB GET /v3/{project_id}/elb/pools/{pool_id}
 // @API ELB PUT /v3/{project_id}/elb/pools/{pool_id}
 // @API ELB DELETE /v3/{project_id}/elb/pools/{pool_id}
+// @API ELB DELETE /v3/{project_id}/elb/pools/{pool_id}/delete-cascade
 func ResourcePoolV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePoolV3Create,
