@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_kubernetes_template": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default": {
+                "type": "bool",
+                "description": "Whether the template is a default template.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "runtime_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "runtime_name": "string",
+                      "runtime_path": "string"
+                    }
+                  ]
+                ],
+                "description": "The container runtime configuration.",
+                "computed": true
+              },
+              "schedule_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "node_selector": [
+                        "list",
+                        "string"
+                      ],
+                      "pod_tolerances": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The node scheduling information.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

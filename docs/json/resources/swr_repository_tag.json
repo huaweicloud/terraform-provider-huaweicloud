@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_repository_tag": {
+          "block": {
+            "attributes": {
+              "created": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "destination_tag": {
+                "type": "string",
+                "description": "Specifies the destination tag.",
+                "required": true
+              },
+              "digest": {
+                "type": "string",
+                "description": "Indicates the image digest.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "Indicates the image ID.",
+                "computed": true
+              },
+              "internal_path": {
+                "type": "string",
+                "description": "Indicates the image internal pull path.",
+                "computed": true
+              },
+              "is_trusted": {
+                "type": "bool",
+                "description": "Indicates whether the image is trusted.",
+                "computed": true
+              },
+              "manifest": {
+                "type": "string",
+                "description": "Indicates the image manifest.",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the name of the organization.",
+                "required": true
+              },
+              "override": {
+                "type": "bool",
+                "description": "Specifies whether to override.",
+                "optional": true
+              },
+              "path": {
+                "type": "string",
+                "description": "Indicates the image pull path.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the name of the repository.",
+                "required": true
+              },
+              "repository_id": {
+                "type": "number",
+                "description": "Indicates the repository ID.",
+                "computed": true
+              },
+              "schema": {
+                "type": "number",
+                "description": "Indicates the docker schema.",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the image size.",
+                "computed": true
+              },
+              "source_tag": {
+                "type": "string",
+                "description": "Specifies the source tag.",
+                "required": true
+              },
+              "tag": {
+                "type": "string",
+                "description": "Indicates the image tag.",
+                "computed": true
+              },
+              "tag_id": {
+                "type": "number",
+                "description": "Indicates the tag ID.",
+                "computed": true
+              },
+              "tag_type": {
+                "type": "number",
+                "description": "Indicates the tag type.",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

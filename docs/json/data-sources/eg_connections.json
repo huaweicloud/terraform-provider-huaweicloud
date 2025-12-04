@@ -44,6 +44,7 @@
                           "object",
                           {
                             "acks": "string",
+                            "address": "string",
                             "connect_address": "string",
                             "enable_sasl_ssl": "bool",
                             "instance_id": "string",

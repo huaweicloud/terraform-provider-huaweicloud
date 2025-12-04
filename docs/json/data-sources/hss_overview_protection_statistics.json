@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_overview_protection_statistics": {
+          "block": {
+            "attributes": {
+              "alarm_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "auto_kill_virus_status": {
+                "type": "bool",
+                "computed": true
+              },
+              "baseline_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "container_alarm_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "container_firewall_policy_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "file_alarm_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "finger_scan_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_risk_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "protect_days": {
+                "type": "number",
+                "computed": true
+              },
+              "ransomware_alarm_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "rasp_alarm_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "threat_library_update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "vul_detected_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "vul_library_update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "wtp_alarm_detected_total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

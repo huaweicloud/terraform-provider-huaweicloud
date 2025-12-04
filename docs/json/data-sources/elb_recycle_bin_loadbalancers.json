@@ -1,0 +1,318 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_recycle_bin_loadbalancers": {
+          "block": {
+            "attributes": {
+              "availability_zone_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "billing_info": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "deletion_protection_enable": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "elb_virsubnet_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "global_eips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "guaranteed": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "optional": true
+              },
+              "ipv6_vip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ipv6_vip_port_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ipv6_vip_virsubnet_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "l4_flavor_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "l7_flavor_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "loadbalancers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_terminate_time": "string",
+                      "availability_zone_list": [
+                        "list",
+                        "string"
+                      ],
+                      "billing_info": "string",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "deletion_protection_enable": "bool",
+                      "description": "string",
+                      "elb_virsubnet_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "elb_virsubnet_type": "string",
+                      "enterprise_project_id": "string",
+                      "frozen_scene": "string",
+                      "global_eips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "global_eip_address": "string",
+                            "global_eip_id": "string",
+                            "ip_version": "number"
+                          }
+                        ]
+                      ],
+                      "guaranteed": "bool",
+                      "id": "string",
+                      "ip_target_enable": "bool",
+                      "ipv6_bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "ipv6_vip_address": "string",
+                      "ipv6_vip_port_id": "string",
+                      "ipv6_vip_virsubnet_id": "string",
+                      "l4_flavor_id": "string",
+                      "l4_scale_flavor_id": "string",
+                      "l7_flavor_id": "string",
+                      "l7_scale_flavor_id": "string",
+                      "listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "log_group_id": "string",
+                      "log_topic_id": "string",
+                      "name": "string",
+                      "operating_status": "string",
+                      "pools": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "protection_reason": "string",
+                      "protection_status": "string",
+                      "provider": "string",
+                      "provisioning_status": "string",
+                      "public_border_group": "string",
+                      "publicips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_version": "number",
+                            "publicip_address": "string",
+                            "publicip_id": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "vip_address": "string",
+                      "vip_port_id": "string",
+                      "vip_subnet_cidr_id": "string",
+                      "vpc_id": "string",
+                      "waf_failure_action": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "log_topic_id": {
+                "type": "string",
+                "optional": true
+              },
+              "member_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "member_device_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "operating_status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "protection_status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "publicips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vip_port_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vip_subnet_cidr_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

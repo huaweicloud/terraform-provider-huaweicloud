@@ -41,7 +41,7 @@
               },
               "type": {
                 "type": "number",
-                "description": "The type of the domain template. Valid values are 1 (system preset template) and 2 (tenant custom template).",
+                "description": "The type of the domain template.",
                 "computed": true
               }
             }

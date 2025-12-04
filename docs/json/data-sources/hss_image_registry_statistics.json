@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_registry_statistics": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID, which is used to filter assets in different\n\t\t\t\tenterprise projects.",
+                "optional": true
+              },
+              "fail_num": {
+                "type": "number",
+                "description": "The number of access exceptions.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region\n\t\t\t\twill be used.",
+                "computed": true
+              },
+              "registry_type": {
+                "type": "string",
+                "description": "Specifies the image repository type.",
+                "optional": true
+              },
+              "success_num": {
+                "type": "number",
+                "description": "The number of successful accesses.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

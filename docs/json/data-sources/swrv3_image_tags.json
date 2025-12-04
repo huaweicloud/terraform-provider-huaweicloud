@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swrv3_image_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the name of the organization.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the name of the repository.",
+                "required": true
+              },
+              "tag": {
+                "type": "string",
+                "description": "Specifies the source tag.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "digest": "string",
+                      "id": "number",
+                      "image_id": "string",
+                      "internal_path": "string",
+                      "is_trusted": "bool",
+                      "manifest": "string",
+                      "path": "string",
+                      "repo_id": "number",
+                      "schema": "number",
+                      "size": "number",
+                      "tag": "string",
+                      "tag_type": "number",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the tag list.",
+                "computed": true
+              },
+              "with_manifest": {
+                "type": "bool",
+                "description": "Specifies whether to get the manifest infos.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

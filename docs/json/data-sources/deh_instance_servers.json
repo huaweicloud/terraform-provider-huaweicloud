@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_deh_instance_servers": {
+          "block": {
+            "attributes": {
+              "dedicated_host_id": {
+                "type": "string",
+                "description": "Specifies the dedicated host ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "addresses": [
+                        "map",
+                        "string"
+                      ],
+                      "created": "string",
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "image": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "os_type": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "task_state": "string",
+                      "updated": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the servers.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

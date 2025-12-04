@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_notification_rule": {
+          "block": {
+            "attributes": {
+              "comparison_operator": {
+                "type": "string",
+                "description": "The comparison operator for the metric value and threshold.",
+                "required": true
+              },
+              "enable": {
+                "type": "bool",
+                "description": "Whether to enable the rule.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval": {
+                "type": "number",
+                "description": "The interval time (in days) for the next notification after triggering. Default is once per day.",
+                "optional": true
+              },
+              "metric_name": {
+                "type": "string",
+                "description": "The name of the metric. Currently only supports \"desktop_idle_duration\".",
+                "required": true,
+                "forcenew": true
+              },
+              "notify_object": {
+                "type": "string",
+                "description": "The notification object, which is the SMN topic URN.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the notification rule is located.",
+                "computed": true
+              },
+              "threshold": {
+                "type": "number",
+                "description": "The threshold (in days) for the rule configuration.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

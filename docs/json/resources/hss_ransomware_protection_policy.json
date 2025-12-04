@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_ransomware_protection_policy": {
+          "block": {
+            "attributes": {
+              "agent_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ai_protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "bait_protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "count_associated_server": {
+                "type": "number",
+                "computed": true
+              },
+              "default_policy": {
+                "type": "number",
+                "computed": true
+              },
+              "deploy_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "exclude_directory": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operating_system": {
+                "type": "string",
+                "required": true
+              },
+              "policy_name": {
+                "type": "string",
+                "required": true
+              },
+              "process_whitelist_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hash": "string",
+                      "path": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "protection_directory": {
+                "type": "string",
+                "required": true
+              },
+              "protection_mode": {
+                "type": "string",
+                "required": true
+              },
+              "protection_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime_detection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "process_whitelist": {
+                "block": {
+                  "attributes": {
+                    "hash": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

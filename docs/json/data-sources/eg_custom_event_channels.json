@@ -32,6 +32,11 @@
                 "description": "The ID of the enterprise project to which the custom event channels belong.",
                 "optional": true
               },
+              "fuzzy_name": {
+                "type": "string",
+                "description": "The name of the channels to be queried for fuzzy matching.",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -44,6 +49,11 @@
               "region": {
                 "type": "string",
                 "description": "The region where the custom event channels are located."
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sorting method for query results.",
+                "optional": true
               }
             }
           },

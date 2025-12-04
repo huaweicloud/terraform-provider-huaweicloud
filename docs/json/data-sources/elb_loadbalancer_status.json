@@ -1,0 +1,165 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_loadbalancer_status": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "statuses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "loadbalancer": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "listeners": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "l7policies": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "action": "string",
+                                        "id": "string",
+                                        "name": "string",
+                                        "provisioning_status": "string",
+                                        "rules": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "id": "string",
+                                              "provisioning_status": "string",
+                                              "type": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "name": "string",
+                                  "operating_status": "string",
+                                  "pools": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "healthmonitor": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "id": "string",
+                                              "name": "string",
+                                              "provisioning_status": "string",
+                                              "type": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "id": "string",
+                                        "members": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "address": "string",
+                                              "id": "string",
+                                              "operating_status": "string",
+                                              "protocol_port": "number",
+                                              "provisioning_status": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "name": "string",
+                                        "operating_status": "string",
+                                        "provisioning_status": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "provisioning_status": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string",
+                            "operating_status": "string",
+                            "pools": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "healthmonitor": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "id": "string",
+                                        "name": "string",
+                                        "provisioning_status": "string",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "id": "string",
+                                  "members": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "address": "string",
+                                        "id": "string",
+                                        "operating_status": "string",
+                                        "protocol_port": "number",
+                                        "provisioning_status": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "name": "string",
+                                  "operating_status": "string",
+                                  "provisioning_status": "string"
+                                }
+                              ]
+                            ],
+                            "provisioning_status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

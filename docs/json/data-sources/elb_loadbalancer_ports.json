@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_loadbalancer_ports": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ipv6_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true
+              },
+              "port_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ports": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ip_address": "string",
+                      "ipv6_address": "string",
+                      "port_id": "string",
+                      "type": "string",
+                      "virsubnet_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "virsubnet_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

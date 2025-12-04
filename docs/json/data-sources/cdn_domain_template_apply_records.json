@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_domain_template_apply_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operator_id": {
+                "type": "string",
+                "description": "The operation ID of the domain template.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "apply_time": "string",
+                      "configs": "string",
+                      "description": "string",
+                      "operator_id": "string",
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_name": "string",
+                            "error_msg": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "template_id": "string",
+                      "template_name": "string",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of domain template apply records that matched the filter parameters.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "The ID of the domain template.",
+                "optional": true
+              },
+              "template_name": {
+                "type": "string",
+                "description": "The name of the domain template.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

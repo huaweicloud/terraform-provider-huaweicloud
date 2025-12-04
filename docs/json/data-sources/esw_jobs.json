@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_esw_jobs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "end_time": "string",
+                      "fail_reason": "string",
+                      "id": "string",
+                      "name": "string",
+                      "process": "string",
+                      "project_id": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "ESW",
+            "name": "Enterprise Switch",
+            "catalog": "Networking",
+            "name_cn": "企业交换机",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

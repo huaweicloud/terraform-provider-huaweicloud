@@ -1,0 +1,127 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_application_batch_publish": {
+          "block": {
+            "attributes": {
+              "app_group_id": {
+                "type": "string",
+                "description": "The ID of the application group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the applications to be published are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "applications": {
+                "block": {
+                  "attributes": {
+                    "app_extended_info": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The extended information of the custom application.",
+                      "optional": true
+                    },
+                    "command_param": {
+                      "type": "string",
+                      "description": "The command line parameters used to start the application.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the application.",
+                      "optional": true
+                    },
+                    "execute_path": {
+                      "type": "string",
+                      "description": "The execution path of the application.",
+                      "required": true
+                    },
+                    "icon_index": {
+                      "type": "number",
+                      "description": "The icon index of the application.",
+                      "optional": true
+                    },
+                    "icon_path": {
+                      "type": "string",
+                      "description": "The path where the application icon is located.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the published application.",
+                      "computed": true
+                    },
+                    "is_pre_boot": {
+                      "type": "bool",
+                      "description": "Whether to enable application pre-boot.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the application.",
+                      "required": true
+                    },
+                    "publisher": {
+                      "type": "string",
+                      "description": "The publisher of the application.",
+                      "optional": true
+                    },
+                    "sandbox_enable": {
+                      "type": "bool",
+                      "description": "Whether to run in sandbox mode.",
+                      "optional": true
+                    },
+                    "source_image_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of image IDs to which the application belongs.",
+                      "optional": true
+                    },
+                    "source_type": {
+                      "type": "number",
+                      "description": "The type of the application.",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "The version of the application.",
+                      "optional": true
+                    },
+                    "work_path": {
+                      "type": "string",
+                      "description": "The working directory of the application.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of applications to be published."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

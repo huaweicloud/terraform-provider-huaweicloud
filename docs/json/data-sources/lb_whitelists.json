@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lb_whitelists": {
+          "block": {
+            "attributes": {
+              "enable_whitelist": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "whitelist": {
+                "type": "string",
+                "optional": true
+              },
+              "whitelist_id": {
+                "type": "string",
+                "optional": true
+              },
+              "whitelists": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enable_whitelist": "bool",
+                      "id": "string",
+                      "listener_id": "string",
+                      "whitelist": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,11 @@
         "huaweicloud_eg_connection": {
           "block": {
             "attributes": {
+              "agency": {
+                "type": "string",
+                "description": "The user-delegated name used for private network target connection.",
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "description": "The creation time of the connection.",
@@ -14,6 +19,22 @@
                 "type": "string",
                 "description": "Specifies the description of the connection.",
                 "optional": true
+              },
+              "flavor": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_type": "string",
+                      "concurrency": "number",
+                      "concurrency_type": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration details of the kafka instance.",
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -72,27 +93,34 @@
                     },
                     "connect_address": {
                       "type": "string",
-                      "description": "Specifies the IP address of the kafka intance.",
+                      "description": "Specifies the IP address of the kafka instance.",
                       "required": true,
                       "forcenew": true
                     },
                     "instance_id": {
                       "type": "string",
-                      "description": "Specifies the ID of the kafka intance.",
+                      "description": "Specifies the ID of the kafka instance.",
                       "required": true,
                       "forcenew": true
                     },
                     "password": {
                       "type": "string",
-                      "description": "Specifies the password of the kafka intance.",
+                      "description": "Specifies the password of the kafka instance.",
                       "optional": true,
                       "computed": true,
                       "forcenew": true,
                       "sensitive": true
                     },
+                    "security_protocol": {
+                      "type": "string",
+                      "description": "Specifies the security protocol of the kafka instance.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "user_name": {
                       "type": "string",
-                      "description": "Specifies the user name of the kafka intance.",
+                      "description": "Specifies the user name of the kafka instance.",
                       "optional": true,
                       "computed": true,
                       "forcenew": true

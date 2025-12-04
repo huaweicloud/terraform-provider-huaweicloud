@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_desktop_maintenance_batch_manage": {
+          "block": {
+            "attributes": {
+              "desktop_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of desktop IDs to set maintenance mode.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "in_maintenance_mode": {
+                "type": "bool",
+                "description": "Whether to enter or exit maintenance mode.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktops are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

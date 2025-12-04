@@ -10,6 +10,11 @@
                 "description": "The ID of the custom event channel to which the custom event sources belong.",
                 "optional": true
               },
+              "fuzzy_name": {
+                "type": "string",
+                "description": "The name of the channels to be queried for fuzzy matching.",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -22,6 +27,11 @@
               "region": {
                 "type": "string",
                 "description": "The region where the custom event sources are located."
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sorting method for query results.",
+                "optional": true
               },
               "source_id": {
                 "type": "string",
@@ -38,6 +48,17 @@
                       "channel_name": "string",
                       "created_at": "string",
                       "description": "string",
+                      "error_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "string",
+                            "error_detail": "string",
+                            "error_msg": "string"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "name": "string",
                       "status": "string",

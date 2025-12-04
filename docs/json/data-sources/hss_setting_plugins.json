@@ -1,0 +1,145 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_setting_plugins": {
+          "block": {
+            "attributes": {
+              "above_version": {
+                "type": "bool",
+                "optional": true
+              },
+              "agent_status": {
+                "type": "string",
+                "optional": true
+              },
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_id": "string",
+                      "host_name": "string",
+                      "os_type": "string",
+                      "plugin_name": "string",
+                      "plugin_status": "string",
+                      "plugin_version": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
+                      "upgrade_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "detect_result": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "host_status": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_addr": {
+                "type": "string",
+                "optional": true
+              },
+              "label": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true
+              },
+              "outside_host": {
+                "type": "bool",
+                "optional": true
+              },
+              "plugin": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_group_name": {
+                "type": "string",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_status": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "refresh": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

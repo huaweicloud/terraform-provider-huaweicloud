@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_registries": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_version": "string",
+                      "connect_cluster_id": "string",
+                      "fail_reason": "string",
+                      "get_scan_image_channel": "string",
+                      "id": "string",
+                      "images_num": "number",
+                      "latest_sync_time": "number",
+                      "namespace": "string",
+                      "protocol": "string",
+                      "registry_addr": "string",
+                      "registry_name": "string",
+                      "registry_type": "string",
+                      "registry_username": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The image repository list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "registry_addr": {
+                "type": "string",
+                "description": "Specifies the image repository address.",
+                "optional": true
+              },
+              "registry_id": {
+                "type": "string",
+                "description": "Specifies the registry ID.",
+                "optional": true
+              },
+              "registry_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "optional": true
+              },
+              "registry_type": {
+                "type": "string",
+                "description": "Specifies the image repository type.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the access status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

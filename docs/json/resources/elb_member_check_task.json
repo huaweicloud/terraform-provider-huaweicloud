@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_member_check_task": {
+          "block": {
+            "attributes": {
+              "check_item_finished_num": {
+                "type": "number",
+                "computed": true
+              },
+              "check_item_total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "required": true
+              },
+              "member_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "result": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "acl": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_items": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "job_id": "string",
+                                  "name": "string",
+                                  "reason": "string",
+                                  "reason_params": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "reason_template": "string",
+                                  "severity": "string",
+                                  "subject": "string"
+                                }
+                              ]
+                            ],
+                            "check_result": "bool",
+                            "check_status": "string"
+                          }
+                        ]
+                      ],
+                      "config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_items": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "job_id": "string",
+                                  "name": "string",
+                                  "reason": "string",
+                                  "reason_params": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "reason_template": "string",
+                                  "severity": "string",
+                                  "subject": "string"
+                                }
+                              ]
+                            ],
+                            "check_result": "bool",
+                            "check_status": "string"
+                          }
+                        ]
+                      ],
+                      "security_group": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_items": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "job_id": "string",
+                                  "name": "string",
+                                  "reason": "string",
+                                  "reason_params": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "reason_template": "string",
+                                  "severity": "string",
+                                  "subject": "string"
+                                }
+                              ]
+                            ],
+                            "check_result": "bool",
+                            "check_status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subject": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

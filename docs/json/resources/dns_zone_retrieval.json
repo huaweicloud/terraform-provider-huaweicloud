@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_zone_retrieval": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "record": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the record detail.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "retrieval_id": {
+                "type": "string",
+                "description": "Indicates the retrieval ID",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              },
+              "zone_name": {
+                "type": "string",
+                "description": "Specifies the zone name.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

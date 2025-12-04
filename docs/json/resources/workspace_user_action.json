@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_user_action": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "op_type": {
+                "type": "string",
+                "description": "The operation type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the user is located.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The ID of the user to be operated.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

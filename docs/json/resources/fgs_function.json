@@ -362,6 +362,19 @@
                 },
                 "nesting_mode": "list"
               },
+              "func_mounts_order": {
+                "block": {
+                  "attributes": {
+                    "local_mount_path": {
+                      "type": "string",
+                      "description": "The origin function access path.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of function mount configuration that used to reorder the 'func_mounts' parameter."
+                },
+                "nesting_mode": "list"
+              },
               "network_controller": {
                 "block": {
                   "attributes": {

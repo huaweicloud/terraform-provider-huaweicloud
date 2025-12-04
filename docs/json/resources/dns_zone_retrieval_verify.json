@@ -2,42 +2,35 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpc_subnet_private_ip": {
+        "huaweicloud_dns_zone_retrieval_verify": {
           "block": {
             "attributes": {
-              "device_owner": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "ip_address": {
+              "message": {
                 "type": "string",
-                "optional": true,
+                "description": "Indicates the message.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               },
-              "status": {
+              "retrieval_id": {
                 "type": "string",
-                "computed": true
-              },
-              "subnet_id": {
-                "type": "string",
+                "description": "Specifies the retrieval ID.",
                 "required": true
               }
             }
           },
           "product": {
-            "short": "VPC",
-            "name": "Virtual Private Cloud",
+            "short": "DNS",
+            "name": "Domain Name Service",
             "catalog": "Networking",
-            "name_cn": "虚拟私有云",
+            "name_cn": "云解析服务",
             "catalog_cn": "网络"
           }
         }

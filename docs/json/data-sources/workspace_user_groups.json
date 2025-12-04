@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_user_groups": {
+          "block": {
+            "attributes": {
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "description": "string",
+                      "domain": "string",
+                      "group_dn": "string",
+                      "id": "string",
+                      "name": "string",
+                      "parent": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "string",
+                            "description": "string",
+                            "domain": "string",
+                            "group_dn": "string",
+                            "id": "string",
+                            "name": "string",
+                            "platform_type": "string",
+                            "realm_id": "string",
+                            "sid": "string",
+                            "total_desktops": "number",
+                            "user_quantity": "number"
+                          }
+                        ]
+                      ],
+                      "platform_type": "string",
+                      "realm_id": "string",
+                      "sid": "string",
+                      "total_desktops": "number",
+                      "user_quantity": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of user groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the user groups are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_user_desktop_pool_associations": {
+          "block": {
+            "attributes": {
+              "associations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "desktop_pools": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "is_attached": "bool",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of user associations with desktop pools.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the user desktop pool associations are located.",
+                "computed": true
+              },
+              "user_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of user IDs to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

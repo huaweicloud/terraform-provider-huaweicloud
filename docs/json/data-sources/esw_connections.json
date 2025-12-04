@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_esw_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "optional": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "fixed_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "remote_infos": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "segmentation_id": "number",
+                            "tunnel_ip": "string",
+                            "tunnel_port": "number",
+                            "tunnel_type": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "updated_at": "string",
+                      "virsubnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ESW",
+            "name": "Enterprise Switch",
+            "catalog": "Networking",
+            "name_cn": "企业交换机",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

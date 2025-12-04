@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_esw_connection": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "fixed_ips": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "virsubnet_id": {
+                "type": "string",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "remote_infos": {
+                "block": {
+                  "attributes": {
+                    "segmentation_id": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "tunnel_ip": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "tunnel_port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tunnel_type": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ESW",
+            "name": "Enterprise Switch",
+            "catalog": "Networking",
+            "name_cn": "企业交换机",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

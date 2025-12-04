@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_ou": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the OU.",
+                "optional": true
+              },
+              "domain": {
+                "type": "string",
+                "description": "The AD domain name to which the OU belongs.",
+                "required": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "The ID of the AD domain.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ou_dn": {
+                "type": "string",
+                "description": "The distinguished name (DN) of the OU.",
+                "computed": true
+              },
+              "ou_name": {
+                "type": "string",
+                "description": "The name of the OU.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the OU is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

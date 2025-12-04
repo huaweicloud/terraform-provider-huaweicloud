@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_upload_command": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_command": {
+                "type": "string",
+                "description": "The command for uploading an image.",
+                "computed": true
+              },
+              "images_download_url": {
+                "type": "string",
+                "description": "The image download link.",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the image repository project, which is used to specify the image repository\n\t\t\t\tdirectory that the scan component is to be uploaded to.",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the password for logging in to the image repository. The password is used only\n\t\t\t\tto generate commands. HSS does not store your image repository password.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region\n\t\t\t\twill be used.",
+                "computed": true
+              },
+              "registry_addr": {
+                "type": "string",
+                "description": "Specifies the image repository address.",
+                "required": true
+              },
+              "swr_image_pull_command": {
+                "type": "string",
+                "description": "The command for obtaining an image from SWR.",
+                "computed": true
+              },
+              "username": {
+                "type": "string",
+                "description": "Specifies the username for logging in to the image repository.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

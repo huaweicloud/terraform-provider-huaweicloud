@@ -1,0 +1,215 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_registry_images": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "association_images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "number",
+                            "image_digest": "string",
+                            "image_id": "string",
+                            "image_name": "string",
+                            "image_type": "string",
+                            "image_version": "string",
+                            "malicious_file_num": "number",
+                            "namespace": "string",
+                            "scan_status": "string",
+                            "unsafe_setting_num": "number",
+                            "vul_num": "number"
+                          }
+                        ]
+                      ],
+                      "domain_name": "string",
+                      "id": "number",
+                      "image_digest": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "image_size": "number",
+                      "image_type": "string",
+                      "image_version": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_url": "string",
+                      "is_multiple_arch": "bool",
+                      "latest_scan_time": "number",
+                      "latest_sync_time": "number",
+                      "latest_update_time": "number",
+                      "latest_version": "bool",
+                      "malicious_file_num": "number",
+                      "namespace": "string",
+                      "registry_id": "string",
+                      "registry_name": "string",
+                      "registry_type": "string",
+                      "scan_failed_code": "string",
+                      "scan_failed_desc": "string",
+                      "scan_status": "string",
+                      "scannable": "bool",
+                      "severity_level": "string",
+                      "shared_status": "string",
+                      "unsafe_setting_num": "number",
+                      "vul_num": "number"
+                    }
+                  ]
+                ],
+                "description": "The repository image list.",
+                "computed": true
+              },
+              "end_latest_scan_time": {
+                "type": "number",
+                "description": "Specifies the end date of the latest scan completion time, in ms.",
+                "optional": true
+              },
+              "end_latest_sync_time": {
+                "type": "number",
+                "description": "Specifies the end time of the latest synchronization completion, in ms.",
+                "optional": true
+              },
+              "end_latest_update_time": {
+                "type": "number",
+                "description": "Specifies the creation end date, in ms.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "has_malicious_file": {
+                "type": "bool",
+                "description": "Specifies whether there are malicious files.",
+                "optional": true
+              },
+              "has_unsafe_setting": {
+                "type": "bool",
+                "description": "Specifies whether there are baseline check risks.",
+                "optional": true
+              },
+              "has_vul": {
+                "type": "bool",
+                "description": "Specifies whether there are software vulnerabilities.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "description": "Specifies the image name.",
+                "optional": true
+              },
+              "image_size": {
+                "type": "number",
+                "description": "Specifies the image size.",
+                "optional": true
+              },
+              "image_type": {
+                "type": "string",
+                "description": "Specifies the image type.",
+                "optional": true
+              },
+              "image_version": {
+                "type": "string",
+                "description": "Specifies the image tag.",
+                "optional": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise repository instance ID.",
+                "optional": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Specifies the enterprise image instance name.",
+                "optional": true
+              },
+              "is_multarch": {
+                "type": "bool",
+                "description": "Specifies whether it is a multi-architecture image.",
+                "optional": true
+              },
+              "latest_version": {
+                "type": "bool",
+                "description": "Specifies whether to focus only on the latest version image.",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the organization name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "registry_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "optional": true
+              },
+              "risky": {
+                "type": "bool",
+                "description": "Specifies whether there are security risks.",
+                "optional": true
+              },
+              "scan_status": {
+                "type": "string",
+                "description": "Specifies the scan status.",
+                "optional": true
+              },
+              "severity_level": {
+                "type": "string",
+                "description": "Specifies the image risk level, which is displayed after the image scan is complete.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              },
+              "start_latest_scan_time": {
+                "type": "number",
+                "description": "Specifies the start time of latest scan completion, in ms.",
+                "optional": true
+              },
+              "start_latest_sync_time": {
+                "type": "number",
+                "description": "Specifies the start time of the latest synchronization completion, in ms.",
+                "optional": true
+              },
+              "start_latest_update_time": {
+                "type": "number",
+                "description": "Specifies the creation start date, in ms.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

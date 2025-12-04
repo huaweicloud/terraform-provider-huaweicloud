@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_kubernetes_mciuc": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_command": {
+                "type": "string",
+                "description": "The command for uploading an image.",
+                "computed": true
+              },
+              "image_repo": {
+                "type": "string",
+                "description": "Specifies the image repository address.",
+                "required": true
+              },
+              "images_download_url": {
+                "type": "string",
+                "description": "The image download link.",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the organization name.",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the password.",
+                "required": true
+              },
+              "plug_type": {
+                "type": "string",
+                "description": "Specifies the plug-in type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "secret_command": {
+                "type": "string",
+                "description": "The installation credential command.",
+                "computed": true
+              },
+              "username": {
+                "type": "string",
+                "description": "Specifies the username.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
