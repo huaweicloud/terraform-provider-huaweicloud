@@ -2305,6 +2305,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_metric_data":                       workspace.DataSourceAppServerMetricData(),
 			"huaweicloud_workspace_app_server_quotas":                            workspace.DataSourceAppServerQuotas(),
 			"huaweicloud_workspace_app_session_types":                            workspace.DataSourceSessionTypes(),
+			"huaweicloud_workspace_app_shared_folders":                           workspace.DataSourceAppSharedFolders(),
 			"huaweicloud_workspace_app_storage_policies":                         workspace.DataSourceAppStoragePolicies(),
 			"huaweicloud_workspace_app_vnc_remote":                               workspace.DataSourceAppVncRemote(),
 			"huaweicloud_workspace_app_warehouse_applications":                   workspace.DataSourceAppWarehouseApplications(),
