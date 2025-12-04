@@ -3,110 +3,65 @@ package kafka
 import (
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/kafka"
 )
 
-func getDmsKafkaConsumerGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getConsumerGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
-	// getKafkaConsumerGroup: query DMS kafka consumer group
-	var (
-		getKafkaConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/{group}"
-		getKafkaConsumerGroupProduct = "dms"
-	)
-	getKafkaConsumerGroupClient, err := cfg.NewServiceClient(getKafkaConsumerGroupProduct, region)
+	client, err := cfg.NewServiceClient("dms", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DMS Client: %s", err)
+		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	// Split instance_id and group from resource id
-	parts := strings.Split(state.Primary.ID, "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<consumerGroup>")
-	}
-	instanceID := parts[0]
-	name := parts[1]
-	getKafkaConsumerGroupPath := getKafkaConsumerGroupClient.Endpoint + getKafkaConsumerGroupHttpUrl
-	getKafkaConsumerGroupPath = strings.ReplaceAll(getKafkaConsumerGroupPath, "{project_id}",
-		getKafkaConsumerGroupClient.ProjectID)
-	getKafkaConsumerGroupPath = strings.ReplaceAll(getKafkaConsumerGroupPath, "{instance_id}", instanceID)
-	getKafkaConsumerGroupPath = strings.ReplaceAll(getKafkaConsumerGroupPath, "{group}", name)
-
-	getKafkaConsumerGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getKafkaConsumerGroupResp, err := getKafkaConsumerGroupClient.Request("GET", getKafkaConsumerGroupPath,
-		&getKafkaConsumerGroupOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving DMS Kafka consumer group: %s", err)
-	}
-
-	getKafkaConsumerGroupRespBody, err := utils.FlattenResponse(getKafkaConsumerGroupResp)
-	if err != nil {
-		return nil, err
-	}
-	groupJson := utils.PathSearch("group", getKafkaConsumerGroupRespBody, nil)
-	groupState := utils.PathSearch("state", groupJson, nil)
-	if groupState == "DEAD" {
-		return nil, fmt.Errorf("error retrieving DMS Kafka consumer group")
-	}
-	return getKafkaConsumerGroupRespBody, nil
+	return kafka.GetConsumerGroupByName(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["name"])
 }
 
-func TestAccDmsKafkaConsumerGroup_basic(t *testing.T) {
-	var obj interface{}
+func TestAccConsumerGroup_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceNameWithDash()
 
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_dms_kafka_consumer_group.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getDmsKafkaConsumerGroupResourceFunc,
+		obj   interface{}
+		rName = "huaweicloud_dms_kafka_consumer_group.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getConsumerGroupResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDmsKafkaConsumerGroup_basic(rName),
+				Config: testAccConsumerGroup_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "name"),
-					resource.TestCheckResourceAttrSet(resourceName, "description"),
-					resource.TestCheckResourceAttrSet(resourceName, "state"),
-					resource.TestCheckResourceAttrSet(resourceName, "coordinator_id"),
-					resource.TestMatchResourceAttr(resourceName, "created_at",
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(rName, "state", "EMPTY"),
+					resource.TestCheckResourceAttrSet(rName, "coordinator_id"),
+					resource.TestMatchResourceAttr(rName, "created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "add"),
-					resource.TestCheckResourceAttr(resourceName, "state", "EMPTY"),
 				),
 			},
 			{
-				Config: testDmsKafkaConsumerGroup_basic_update(rName),
+				Config: testAccConsumerGroup_basic_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "name", rName),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,26 +69,21 @@ func TestAccDmsKafkaConsumerGroup_basic(t *testing.T) {
 	})
 }
 
-func testDmsKafkaConsumerGroup_basic(name string) string {
+func testAccConsumerGroup_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_dms_kafka_consumer_group" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  description = "add"
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "Created by terraform script"
 }
-`, testAccKafkaInstance_newFormat(name), name)
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
 }
 
-func testDmsKafkaConsumerGroup_basic_update(name string) string {
+func testAccConsumerGroup_basic_step2(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_dms_kafka_consumer_group" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id  
-  name        = "%s"  
-  description = ""
+  instance_id = "%[1]s"
+  name        = "%[2]s"
 }
-`, testAccKafkaInstance_newFormat(name), name)
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
 }
