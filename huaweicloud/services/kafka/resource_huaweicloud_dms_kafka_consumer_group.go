@@ -64,15 +64,21 @@ func ResourceDmsKafkaConsumerGroup() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the coordinator id of the consumer group.`,
 			},
-			"lag": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `Indicates the lag number of the consumer group.`,
-			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the created time of the consumer group.`,
+			},
+			// Deprecated attribute(s).
+			"lag": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The lag number of the consumer group.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}
@@ -240,7 +246,6 @@ func resourceDmsKafkaConsumerGroupRead(_ context.Context, d *schema.ResourceData
 		d.Set("description", utils.PathSearch("group_desc", groupJson, nil)),
 		d.Set("state", utils.PathSearch("state", groupJson, nil)),
 		d.Set("coordinator_id", utils.PathSearch("coordinator_id", groupJson, 0)),
-		d.Set("lag", utils.PathSearch("lag", groupJson, 0)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
 			(int64(utils.PathSearch("createdAt", groupJson, float64(0)).(float64)))/1000, false)),
 	)
