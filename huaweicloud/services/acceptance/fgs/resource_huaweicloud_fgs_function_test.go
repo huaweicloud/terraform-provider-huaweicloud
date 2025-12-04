@@ -2205,3 +2205,173 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name, acceptance.HW_FGS_AGENCY_NAME)
 }
+
+func TestAccFunction_funcMounts(t *testing.T) {
+	var (
+		obj interface{}
+
+		rName = "huaweicloud_fgs_function.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getFunction)
+
+		name       = acceptance.RandomAccResourceName()
+		baseConfig = testAccFunction_funcMounts_base(name)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckSecurityGroupId(t)
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_funcMounts_step1(baseConfig, name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "func_mounts.#", "2"),
+					resource.TestCheckResourceAttr(rName, "func_mounts.0.mount_type", "sfsTurbo"),
+					resource.TestCheckResourceAttrPair(rName, "func_mounts.0.mount_resource", "huaweicloud_sfs_turbo.test.0", "id"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.0.mount_share_path"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.0.local_mount_path"),
+					resource.TestCheckResourceAttr(rName, "func_mounts.1.mount_type", "sfsTurbo"),
+					resource.TestCheckResourceAttrPair(rName, "func_mounts.1.mount_resource", "huaweicloud_sfs_turbo.test.1", "id"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.1.mount_share_path"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.1.local_mount_path"),
+				),
+			},
+			{
+				Config: testAccFunction_funcMounts_step2(baseConfig, name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "func_mounts.#", "2"),
+					resource.TestCheckResourceAttr(rName, "func_mounts.0.mount_type", "sfsTurbo"),
+					resource.TestCheckResourceAttrPair(rName, "func_mounts.0.mount_resource", "huaweicloud_sfs_turbo.test.1", "id"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.0.mount_share_path"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.0.local_mount_path"),
+					resource.TestCheckResourceAttr(rName, "func_mounts.1.mount_type", "sfsTurbo"),
+					resource.TestCheckResourceAttrPair(rName, "func_mounts.1.mount_resource", "huaweicloud_sfs_turbo.test.2", "id"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.1.mount_share_path"),
+					resource.TestCheckResourceAttrSet(rName, "func_mounts.1.local_mount_path"),
+				),
+			},
+		},
+	})
+}
+
+func testAccFunction_funcMounts_base(name string) string {
+	return fmt.Sprintf(`
+variable "script_content" {
+  type    = string
+  default = <<EOT
+def main():
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    main()
+EOT
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id = huaweicloud_vpc.test.id
+
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0), 1)
+}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  count = 3
+
+  name                             = format("%[1]s_%%d", count.index)
+  size                             = 500
+  share_proto                      = "NFS"
+  share_type                       = "STANDARD"
+  vpc_id                           = huaweicloud_vpc.test.id
+  subnet_id                        = huaweicloud_vpc_subnet.test.id
+  security_group_id                = "%[2]s" # Make sure open the full ingress access for 2048, 2051, 2052 and 20048 ports.
+  availability_zone                = data.huaweicloud_availability_zones.test.names[0]
+  auto_create_security_group_rules = "false"
+}
+
+locals {
+  turbo_configurations = [
+    for i, turbo in huaweicloud_sfs_turbo.test : {index = i, detail = turbo}
+  ]
+}
+`, name, acceptance.HW_SECURITY_GROUP_ID)
+}
+
+func testAccFunction_funcMounts_step1(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name                = "%[2]s"
+  memory_size         = 128
+  runtime             = "Python3.9"
+  timeout             = 3
+  app                 = "default"
+  handler             = "index.handler"
+  code_type           = "inline"
+  func_code           = base64encode(var.script_content)
+  agency              = "%[3]s"
+  vpc_id              = huaweicloud_vpc.test.id
+  network_id          = huaweicloud_vpc_subnet.test.id
+  mount_user_id       = -1
+  mount_user_group_id = -1
+
+  dynamic "func_mounts" {
+    for_each = slice(local.turbo_configurations, 0, 2)
+
+    content {
+      mount_type       = "sfsTurbo"
+      mount_resource   = func_mounts.value.detail.id
+      mount_share_path = format("%%s/", func_mounts.value.detail.export_location)
+      local_mount_path = format("/home/data%%d", func_mounts.value.index)
+    }
+  }
+}
+`, baseConfig, name, acceptance.HW_FGS_AGENCY_NAME)
+}
+
+func testAccFunction_funcMounts_step2(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name                = "%[2]s"
+  memory_size         = 128
+  runtime             = "Python3.9"
+  timeout             = 3
+  app                 = "default"
+  handler             = "index.handler"
+  code_type           = "inline"
+  func_code           = base64encode(var.script_content)
+  agency              = "%[3]s"
+  vpc_id              = huaweicloud_vpc.test.id
+  network_id          = huaweicloud_vpc_subnet.test.id
+  mount_user_id       = -1
+  mount_user_group_id = -1
+
+  dynamic "func_mounts" {
+    for_each = slice(local.turbo_configurations, 1, 3)
+
+    content {
+      mount_type       = "sfsTurbo"
+      mount_resource   = func_mounts.value.detail.id
+      mount_share_path = format("%%s/", func_mounts.value.detail.export_location)
+      local_mount_path = format("/home/data%%d", func_mounts.value.index)
+    }
+  }
+}
+`, baseConfig, name, acceptance.HW_FGS_AGENCY_NAME)
+}

@@ -641,6 +641,8 @@ CIDR blocks used by the service.`,
 				Computed:    true,
 				Description: `The version of the function.`,
 			},
+
+			// Internal attributes.
 			"lts_custom_tag_origin": {
 				Type:             schema.TypeMap,
 				Optional:         true,
@@ -650,6 +652,27 @@ CIDR blocks used by the service.`,
 				Description: utils.SchemaDesc(
 					`The script configuration value of this change is also the original value used for comparison with
  the new value next time the change is made. The corresponding parameter name is 'lts_custom_tag'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"func_mounts_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"local_mount_path": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The origin function access path.`,
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of function mount configuration that used to reorder the 'func_mounts' parameter.`,
 					utils.SchemaDescInput{
 						Internal: true,
 					},
@@ -911,7 +934,7 @@ func buildFunctionMountConfig(mounts []interface{}, mountUserId, mountGroupId in
 	}
 
 	return map[string]interface{}{
-		"mount_config": parsedMounts,
+		"func_mounts": parsedMounts,
 		"mount_user": map[string]interface{}{
 			"mount_user_id":       parseFunctionMountId(mountUserId),
 			"mount_user_group_id": parseFunctionMountId(mountGroupId),
@@ -967,7 +990,7 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"pre_stop_timeout":    utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
 		"domain_names":        utils.ValueIgnoreEmpty(d.Get("dns_list")),
 		"func_vpc":            buildFunctionVpcConfig(d),
-		"func_mounts": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
+		"mount_config": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
 			d.Get("mount_user_id").(int), d.Get("mount_user_group_id").(int)),
 		"strategy_config":              buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
 		"enable_dynamic_memory":        utils.GetNestedObjectFromRawConfig(rawConfig, "enable_dynamic_memory"),
@@ -1005,6 +1028,22 @@ func updateFunctionMetadata(client *golangsdk.ServiceClient, functionUrn string,
 		return fmt.Errorf("failed to update the function metadata: %s", err)
 	}
 	return nil
+}
+
+func buildFunctionMountsOrder(d *schema.ResourceData) []interface{} {
+	mounts, ok := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "func_mounts_order").([]interface{})
+	if !ok || mounts == nil {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(mounts))
+	for _, mount := range mounts {
+		result = append(result, map[string]interface{}{
+			"local_mount_path": utils.PathSearch("local_mount_path", mount, nil),
+		})
+	}
+
+	return result
 }
 
 func buildUpdateFunctionCodeBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -1312,6 +1351,10 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.FromErr(err)
 		}
+
+		if err = d.Set("func_mounts_order", buildFunctionMountsOrder(d)); err != nil {
+			log.Printf("[ERROR] error setting the func_mounts_order field after updating function: %s", err)
+		}
 	}
 	// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
 	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
@@ -1398,13 +1441,39 @@ func flattenFgsCustomImage(imageConfig map[string]interface{}) []map[string]inte
 	}
 }
 
-func flattenFuncionMounts(mounts []interface{}) []map[string]interface{} {
+func orderMountsByMountsOrderOrigin(mounts, mountsOrderOrigin []interface{}) []interface{} {
+	if len(mountsOrderOrigin) == 0 {
+		return mounts
+	}
+
+	sortedMounts := make([]interface{}, 0)
+	mountsCopy := mounts
+	for _, mountOrigin := range mountsOrderOrigin {
+		localMountPathOrigin := utils.PathSearch("local_mount_path", mountOrigin, "").(string)
+		for index, mount := range mounts {
+			if utils.PathSearch("local_mount_path", mount, "").(string) != localMountPathOrigin {
+				continue
+			}
+			// Add the found mount configuration to the sorted mounts list.
+			sortedMounts = append(sortedMounts, mountsCopy[index])
+			// Remove the processed mount configuration from the remote mounts array.
+			mountsCopy = append(mountsCopy[:index], mountsCopy[index+1:]...)
+		}
+	}
+
+	// Add unsorted mount configurations to the end of the sorted list.
+	sortedMounts = append(sortedMounts, mountsCopy...)
+	return sortedMounts
+}
+
+func flattenFuncionMounts(mounts, mountsOrderOrigin []interface{}) []map[string]interface{} {
 	if len(mounts) < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, 0, len(mounts))
-	for _, mount := range mounts {
+	sortedMounts := orderMountsByMountsOrderOrigin(mounts, mountsOrderOrigin)
+	result := make([]map[string]interface{}, 0, len(sortedMounts))
+	for _, mount := range sortedMounts {
 		result = append(result, map[string]interface{}{
 			"mount_type":       utils.PathSearch("mount_type", mount, nil),
 			"mount_resource":   utils.PathSearch("mount_resource", mount, nil),
@@ -1736,7 +1805,8 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("mount_user_id", utils.PathSearch("mount_config.mount_user.user_id", function, nil)),
 		d.Set("mount_user_group_id", utils.PathSearch("mount_config.mount_user.user_group_id", function, nil)),
 		d.Set("func_mounts", flattenFuncionMounts(utils.PathSearch("mount_config.func_mounts",
-			function, make([]interface{}, 0)).([]interface{}))),
+			function, make([]interface{}, 0)).([]interface{}),
+			d.Get("func_mounts_order").([]interface{}))),
 		d.Set("enable_dynamic_memory", utils.PathSearch("enable_dynamic_memory", function, nil)),
 		d.Set("is_stateful_function", utils.PathSearch("is_stateful_function", function, nil)),
 		d.Set("network_controller", flattenFunctionNetworkController(utils.PathSearch("network_controller", function, nil))),
