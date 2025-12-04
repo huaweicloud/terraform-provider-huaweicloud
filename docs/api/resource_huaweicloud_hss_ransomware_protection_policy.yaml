@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_ransomware_protection_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/ransomware/protection/policy:
+        DELETE:
+            tag: HSS
+        GET:
+            tag: HSS
+        POST:
+            tag: HSS
+        PUT:
+            tag: HSS

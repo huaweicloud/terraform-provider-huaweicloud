@@ -18,6 +18,6 @@ paths:
             tag: NAT
         PUT:
             tag: NAT
-    /v3/{project_id}/transit-subnets/{resource_id}/tags:
+    /v3/{project_id}/transit-subnets/{resource_id}/tags/action:
         POST:
             tag: NAT

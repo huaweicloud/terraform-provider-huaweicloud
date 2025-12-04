@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_elb_recycle_bin
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v3/{project_id}/elb/recycle-bin:
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB
+    /v3/{project_id}/elb/recycle-bin/policy:
+        PUT:
+            tag: ELB

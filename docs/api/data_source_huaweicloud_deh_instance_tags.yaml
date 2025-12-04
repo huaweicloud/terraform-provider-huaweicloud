@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_deh_instance_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEH
+paths:
+    /v1.0/{project_id}/dedicated-host-tags/tags:
+        GET:
+            tag: DEH

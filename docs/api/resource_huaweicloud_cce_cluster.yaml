@@ -14,6 +14,12 @@ paths:
     /api/v3/projects/{project_id}/clusters:
         POST:
             tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/awake:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/hibernate:
+        POST:
+            tag: CCE
     /api/v3/projects/{project_id}/clusters/{id}:
         DELETE:
             tag: CCE
@@ -33,7 +39,10 @@ paths:
     /api/v3/projects/{project_id}/clusters/{id}/operation/resize:
         POST:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{id}/tags/{action}:
+    /api/v3/projects/{project_id}/clusters/{id}/tags/create:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}/tags/delete:
         POST:
             tag: CCE
     /api/v3/projects/{project_id}/jobs/{job_id}:

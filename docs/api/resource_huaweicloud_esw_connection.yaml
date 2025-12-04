@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_esw_instance
+    title: resource_huaweicloud_esw_connection
     description: ""
 schemes:
     - https
@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: ESW
 paths:
-    /v3/{project_id}/l2cg/instances:
+    /v3/{project_id}/l2cg/instances/{instance_id}/connections:
         POST:
             tag: ESW
-    /v3/{project_id}/l2cg/instances/{instance_id}:
+    /v3/{project_id}/l2cg/instances/{instance_id}/connections/{connection_id}:
         DELETE:
             tag: ESW
         GET:

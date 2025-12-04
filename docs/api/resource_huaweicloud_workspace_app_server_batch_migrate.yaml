@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_server_batch_migrate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-servers/hosts/batch-migrate:
+        PATCH:
+            tag: Workspace
+    /v2/{project_id}/job/{job_id}:
+        GET:
+            tag: Workspace

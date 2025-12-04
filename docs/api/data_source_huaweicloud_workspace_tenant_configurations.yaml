@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_workspace_tenant_configurations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v2/{project_id}/tenant-configs:
+        GET:
+            tag: Workspace

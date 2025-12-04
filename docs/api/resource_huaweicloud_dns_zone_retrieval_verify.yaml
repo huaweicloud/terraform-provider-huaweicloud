@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dns_zone_retrieval_verify
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2/retrieval/verification/{id}:
+        POST:
+            tag: DNS

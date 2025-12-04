@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_esw_connection_vport_bind
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ESW
+paths:
+    /v3/{project_id}/l2cg/connections/{connection_id}/vports/bind:
+        POST:
+            tag: ESW
+    /v3/{project_id}/l2cg/connections/{connection_id}/vports/unbind:
+        POST:
+            tag: ESW

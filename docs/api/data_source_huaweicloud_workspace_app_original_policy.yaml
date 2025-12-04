@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_workspace_app_original_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/policy-groups/actions/list-original-policy:
+        GET:
+            tag: Workspace

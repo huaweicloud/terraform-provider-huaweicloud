@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_statistic_subscription_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1/cdn/statistics/subscription-tasks:
+        GET:
+            tag: CDN
+        POST:
+            tag: CDN
+    /v1/cdn/statistics/subscription-tasks/{id}:
+        DELETE:
+            tag: CDN
+        PUT:
+            tag: CDN

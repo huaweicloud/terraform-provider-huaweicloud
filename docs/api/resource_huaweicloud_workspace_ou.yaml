@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_workspace_app_policy_group
+    title: resource_huaweicloud_workspace_ou
     description: ""
 schemes:
     - https
@@ -8,13 +8,13 @@ host: huaweicloud.com
 tags:
     - name: Workspace
 paths:
-    /v1/{project_id}/policy-groups:
+    /v2/{project_id}/ous:
         POST:
             tag: Workspace
-    /v1/{project_id}/policy-groups/{policy_group_id}:
+    /v2/{project_id}/ous/{ou_id}:
         DELETE:
             tag: Workspace
         GET:
             tag: Workspace
-        PATCH:
+        PUT:
             tag: Workspace

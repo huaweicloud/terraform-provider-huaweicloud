@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_workspace_app_policy_group
+    title: resource_huaweicloud_workspace_notification_rule
     description: ""
 schemes:
     - https
@@ -8,13 +8,13 @@ host: huaweicloud.com
 tags:
     - name: Workspace
 paths:
-    /v1/{project_id}/policy-groups:
-        POST:
-            tag: Workspace
-    /v1/{project_id}/policy-groups/{policy_group_id}:
-        DELETE:
-            tag: Workspace
+    /v2/{project_id}/statistics/notify-rules:
         GET:
             tag: Workspace
-        PATCH:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/statistics/notify-rules/{rule_id}:
+        DELETE:
+            tag: Workspace
+        PUT:
             tag: Workspace

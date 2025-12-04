@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_elb_loadbalancer_ports
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/local-ports:
+        GET:
+            tag: ELB

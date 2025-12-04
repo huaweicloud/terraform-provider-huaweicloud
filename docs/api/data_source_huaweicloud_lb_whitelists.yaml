@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_lb_whitelists
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v2/{project_id}/elb/whitelists:
+        GET:
+            tag: ELB

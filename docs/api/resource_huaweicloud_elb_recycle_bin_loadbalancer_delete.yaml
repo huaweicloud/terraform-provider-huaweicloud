@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_elb_recycle_bin_loadbalancer_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v1/{project_id}/recycle-bin/cloudservers/{loadbalancer_id}:
+        DELETE:
+            tag: ELB

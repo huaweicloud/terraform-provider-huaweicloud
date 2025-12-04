@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_swr_repository_tag
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/manage/namespaces/{namespace}/repos/{repository}/tags:
+        POST:
+            tag: SWR
+    /v2/manage/namespaces/{namespace}/repos/{repository}/tags/{tag}:
+        DELETE:
+            tag: SWR
+        GET:
+            tag: SWR
