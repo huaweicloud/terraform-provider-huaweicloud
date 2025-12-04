@@ -2255,6 +2255,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_queues":                 dws.DataSourceWorkloadQueues(),
 
 			// Workspace
+			"huaweicloud_workspace_ad_ous":                               workspace.DataSourceAdOus(),
 			"huaweicloud_workspace_applications":                         workspace.DataSourceApplications(),
 			"huaweicloud_workspace_application_authorizations":           workspace.DataSourceApplicationAuthorizations(),
 			"huaweicloud_workspace_application_catalogs":                 workspace.DataSourceApplicationCatalogs(),
