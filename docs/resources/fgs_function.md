@@ -308,6 +308,52 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
+### Create function with SFS turbo mounting
+
+```hcl
+variable "function_name" {}
+variable "agency_name" {}  # Allow FunctionGraph service to access VPC service
+variable "vpc_id" {}
+variable "subnet_id" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  # With the meta-parameter count setting.
+}
+
+locals {
+  turbo_configurations = [
+    for i, turbo in huaweicloud_sfs_turbo.test : {index = i, detail = turbo}
+  ]
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name                = "%[2]s"
+  memory_size         = 128
+  runtime             = var.function_name
+  timeout             = 3
+  app                 = "default"
+  handler             = "index.handler"
+  code_type           = "inline"
+  func_code           = base64encode(var.script_content)
+  agency              = var.agency_name
+  vpc_id              = var.vpc_id
+  network_id          = var.subnet_id
+  mount_user_id       = -1
+  mount_user_group_id = -1
+
+  dynamic "func_mounts" {
+    for_each = local.turbo_configurations
+
+    content {
+      mount_type       = "sfsTurbo"
+      mount_resource   = func_mounts.value.detail.id
+      mount_share_path = format("%%s/", func_mounts.value.detail.export_location)
+      local_mount_path = format("/home/data%%d", func_mounts.value.index)
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
