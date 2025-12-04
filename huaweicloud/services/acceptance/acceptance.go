@@ -318,6 +318,7 @@ var (
 	HW_WORKSPACE_OU_NAME = os.Getenv("HW_WORKSPACE_OU_NAME")
 	// HW_WORKSPACE_AD_SERVER_OU_NAMES indicates OUs that do not exist in the Workspace service but only in the Active Directory server.
 	HW_WORKSPACE_AD_SERVER_OU_NAMES    = os.Getenv("HW_WORKSPACE_AD_SERVER_OU_NAMES")
+	HW_WORKSPACE_DESKTOP_IDS           = os.Getenv("HW_WORKSPACE_DESKTOP_IDS")
 	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
 	HW_WORKSPACE_SCHEDULED_TASK_ID     = os.Getenv("HW_WORKSPACE_SCHEDULED_TASK_ID")
 
@@ -2440,6 +2441,13 @@ func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 func TestAccPreCheckWorkspaceScheduledTaskId(t *testing.T) {
 	if HW_WORKSPACE_SCHEDULED_TASK_ID == "" {
 		t.Skip("HW_WORKSPACE_SCHEDULED_TASK_ID must be set for Workspace acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceDesktopIds(t *testing.T, min int) {
+	if HW_WORKSPACE_DESKTOP_IDS == "" || len(strings.Split(HW_WORKSPACE_DESKTOP_IDS, ",")) < min {
+		t.Skip("At least two of desktops must be configured in the HW_WORKSPACE_DESKTOP_IDS, and separated by commas (,).")
 	}
 }
 

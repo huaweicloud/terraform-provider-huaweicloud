@@ -3801,6 +3801,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_bucket_authorize":                     workspace.ResourceBucketAuthorize(),
 			"huaweicloud_workspace_desktop_name_rule":                    workspace.ResourceDesktopNameRule(),
 			"huaweicloud_workspace_desktop":                              workspace.ResourceDesktop(),
+			"huaweicloud_workspace_desktop_maintenance_batch_manage":     workspace.ResourceMaintenanceBatchManage(),
 			"huaweicloud_workspace_desktop_notification":                 workspace.ResourceDesktopNotification(),
 			"huaweicloud_workspace_desktop_pool":                         workspace.ResourceDesktopPool(),
 			"huaweicloud_workspace_desktop_pool_action":                  workspace.ResourceDesktopPoolAction(),
