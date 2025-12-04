@@ -3852,6 +3852,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_personal_folders":                        workspace.ResourceAppPersonalFolders(),
 			"huaweicloud_workspace_app_policy_group":                            workspace.ResourceAppPolicyGroup(),
 			"huaweicloud_workspace_app_policy_template":                         workspace.ResourceAppPolicyTemplate(),
+			"huaweicloud_workspace_app_repo_bucket_assign":                      workspace.ResourceAppRepoBucketAssign(),
 			"huaweicloud_workspace_app_schedule_task":                           workspace.ResourceAppScheduleTask(),
 			"huaweicloud_workspace_app_server":                                  workspace.ResourceAppServer(),
 			"huaweicloud_workspace_app_server_action":                           workspace.ResourceAppServerAction(),
