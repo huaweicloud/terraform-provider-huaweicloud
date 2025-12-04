@@ -210,6 +210,9 @@ func dataSourceDmsKafkaConsumerGroupsRead(_ context.Context, d *schema.ResourceD
 
 	currentTotal := 0
 	results := make([]map[string]interface{}, 0)
+	rawConfig := d.GetRawConfig()
+	lag := utils.GetNestedObjectFromRawConfig(rawConfig, "lag")
+	coordinatorId := utils.GetNestedObjectFromRawConfig(rawConfig, "coordinator_id")
 	for {
 		currentPath := listGroupsPath + fmt.Sprintf("&offset=%d", currentTotal)
 		listGroupsResp, err := client.Request("GET", currentPath, &listGroupsOpt)
@@ -224,20 +227,18 @@ func dataSourceDmsKafkaConsumerGroupsRead(_ context.Context, d *schema.ResourceD
 		groups := utils.PathSearch("groups", listGroupsRespBody, make([]interface{}, 0)).([]interface{})
 		for _, group := range groups {
 			// filter result
-			description := utils.PathSearch("group_desc", group, "").(string)
-			lag := int64(utils.PathSearch("lag", group, float64(0)).(float64))
-			coordinatorID := int64(utils.PathSearch("coordinator_id", group, float64(0)).(float64))
-			state := utils.PathSearch("state", group, "").(string)
-			if val, ok := d.GetOk("description"); ok && description != val {
+			if val, ok := d.GetOk("description"); ok && val != utils.PathSearch("group_desc", group, "").(string) {
 				continue
 			}
-			if val, ok := d.GetOk("lag"); ok && lag != val {
+
+			if lag != nil && int64(lag.(float64)) != int64(utils.PathSearch("lag", group, float64(0)).(float64)) {
 				continue
 			}
-			if val, ok := d.GetOk("coordinator_id"); ok && coordinatorID != val {
+
+			if coordinatorId != nil && int64(coordinatorId.(float64)) != int64(utils.PathSearch("coordinator_id", group, float64(0)).(float64)) {
 				continue
 			}
-			if val, ok := d.GetOk("description"); ok && state != val {
+			if val, ok := d.GetOk("state"); ok && val != utils.PathSearch("state", group, "").(string) {
 				continue
 			}
 
