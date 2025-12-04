@@ -807,7 +807,8 @@ var (
 	HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS = os.Getenv("HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS")
 	HW_SERVICESTAGE_ZIP_STORAGE_URLS     = os.Getenv("HW_SERVICESTAGE_ZIP_STORAGE_URLS")
 
-	HW_DNS_ZONE_NAMES = os.Getenv("HW_DNS_ZONE_NAMES")
+	HW_DNS_ZONE_NAMES          = os.Getenv("HW_DNS_ZONE_NAMES")
+	HW_DNS_ZONE_RETRIEVAL_NAME = os.Getenv("HW_DNS_ZONE_RETRIEVAL_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -4625,5 +4626,12 @@ func TestAccPreCheckServiceStageZipStorageURLs(t *testing.T, n int) {
 func TestAccPreCheckDnsZoneNames(t *testing.T, min int) {
 	if HW_DNS_ZONE_NAMES == "" || len(strings.Split(HW_DNS_ZONE_NAMES, ",")) < min {
 		t.Skipf("At least %d DNS zone name(s) must be supported during the HW_DNS_ZONE_NAMES, separated by commas (,)", min)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDnsZoneRetrievalName(t *testing.T) {
+	if HW_DNS_ZONE_RETRIEVAL_NAME == "" {
+		t.Skipf("HW_DNS_ZONE_RETRIEVAL_NAME must be set for the acceptance test")
 	}
 }
