@@ -1597,11 +1597,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_vpc":            iec.DataSourceVpc(),
 			"huaweicloud_iec_vpc_subnets":    iec.DataSourceVpcSubnets(),
 
-			"huaweicloud_images_image":    ims.DataSourceImagesImageV2(),
-			"huaweicloud_images_images":   ims.DataSourceImagesImages(),
-			"huaweicloud_ims_os_versions": ims.DataSourceOsVersions(),
-			"huaweicloud_ims_quotas":      ims.DataSourceImsQuotas(),
-			"huaweicloud_ims_tags":        ims.DataSourceTags(),
+			"huaweicloud_images_image":       ims.DataSourceImagesImageV2(),
+			"huaweicloud_images_images":      ims.DataSourceImagesImages(),
+			"huaweicloud_ims_os_versions":    ims.DataSourceOsVersions(),
+			"huaweicloud_ims_quotas":         ims.DataSourceImsQuotas(),
+			"huaweicloud_ims_tags":           ims.DataSourceTags(),
+			"huaweicloud_ims_images_by_tags": ims.DataSourceIMSImagesByTags(),
 
 			"huaweicloud_kms_aliases":               dew.DataSourceKmsAliases(),
 			"huaweicloud_kms_custom_keys_by_tags":   dew.DataSourceKmsCustomKeysByTags(),
