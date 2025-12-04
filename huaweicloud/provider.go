@@ -1644,6 +1644,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_loadbalancer": lb.DataSourceELBV2Loadbalancer(),
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),
 			"huaweicloud_lb_pools":        lb.DataSourcePools(),
+			"huaweicloud_lb_whitelists":   lb.DataSourceLbWhitelists(),
 
 			"huaweicloud_live_disable_push_streams": live.DataSourceDisablePushStreams(),
 			"huaweicloud_live_domains":              live.DataSourceLiveDomains(),
