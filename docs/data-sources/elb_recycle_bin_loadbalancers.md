@@ -42,7 +42,7 @@ The following arguments are supported:
   + **true**: The load balancer is a dedicated load balancer.
 
 * `vpc_id` - (Optional, List) Specifies the ID of the VPC where the load balancer resides.
-  Multiple IDs can be used
+  Multiple IDs can be used.
 
 * `vip_port_id` - (Optional, List) Specifies the ID of the port bound to the private IPv4 address of the load balancer.
   Multiple IDs can be used.
