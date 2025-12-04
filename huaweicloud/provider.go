@@ -2270,6 +2270,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_tags_filter":                  workspace.DataSourceDesktopTagsFilter(),
 			"huaweicloud_workspace_flavors":                              workspace.DataSourceWorkspaceFlavors(),
 			"huaweicloud_workspace_hour_packages":                        workspace.DataSourceHourPackages(),
+			"huaweicloud_workspace_ous":                                  workspace.DataSourceOus(),
 			"huaweicloud_workspace_policy_groups":                        workspace.DataSourcePolicyGroups(),
 			"huaweicloud_workspace_quotas":                               workspace.DataSourceQuotas(),
 			"huaweicloud_workspace_scheduled_tasks":                      workspace.DataSourceScheduledTasks(),
