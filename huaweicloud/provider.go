@@ -3610,6 +3610,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_asset":                       secmaster.ResourceAsset(),
 			"huaweicloud_secmaster_incident":                    secmaster.ResourceIncident(),
 			"huaweicloud_secmaster_indicator":                   secmaster.ResourceIndicator(),
+			"huaweicloud_secmaster_operation_connection":        secmaster.ResourceOperationConnection(),
 			"huaweicloud_secmaster_alert_convert_incident":      secmaster.ResourceAlertConvertIncident(),
 			"huaweicloud_secmaster_alert":                       secmaster.ResourceAlert(),
 			"huaweicloud_secmaster_alert_rule":                  secmaster.ResourceAlertRule(),
