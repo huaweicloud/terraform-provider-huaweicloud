@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 1.82.1 (December 5, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_elb_recycle_bin_loadbalancer_recover` [GH-8548]
+  + `huaweicloud_secmaster_operation_connection` [GH-7717]
+  + `huaweicloud_workspace_app_repo_bucket_assign` [GH-8554]
+  + `huaweicloud_workspace_app_shared_folder_assign` [GH-8537]
+  + `huaweicloud_workspace_app_warehouse_bucket_authorize` [GH-8554]
+  + `huaweicloud_workspace_desktop_volume_batch_delete` [GH-8524]
+
+* **New Data Source:**
+  + `huaweicloud_hss_asset_overview_software_top` [GH-8550]
+  + `huaweicloud_hss_operational_report_notification` [GH-8556]
+  + `huaweicloud_workspace_ad_ous` [GH-8532]
+  + `huaweicloud_workspace_app_shared_folders` [GH-8531]
+  + `huaweicloud_workspace_ou_users` [GH-8528]
+
 ## 1.82.0 (December 4, 2025)
 
 * **New Resource Source:**
