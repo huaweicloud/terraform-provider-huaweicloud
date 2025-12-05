@@ -868,3 +868,549 @@ func checkElementInRemoteState(baseField, elementValue string, d *schema.Resourc
 		elementValue)
 	return false
 }
+
+// SuppressObjectSliceDiffs is a method that makes the object slice type parameter ignore the changes made on the console and
+// only allow the local script to take effect. It identifies elements that are decreased compared to origin and
+// elements that are newly added remotely.
+func SuppressObjectSliceDiffs() schema.SchemaDiffSuppressFunc {
+	return func(paramKey, o, n string, d *schema.ResourceData) bool {
+		log.Printf("[DEBUG][SuppressObjectSliceDiffs] Called with paramKey='%s', oldVal='%s', newVal='%s'", paramKey, o, n)
+
+		// Handle TypeSet length field
+		if strings.HasSuffix(paramKey, ".#") {
+			log.Printf("[DEBUG][SuppressObjectSliceDiffs] Processing TypeSet length field: %s", paramKey)
+			return diffObjectSliceLength(paramKey, o, n, d)
+		}
+
+		// Handle TypeSet element fields (e.g., {set_param_key}.1234567890.type, {set_param_key}.1234567890.id)
+		if strings.Contains(paramKey, ".") && !strings.HasSuffix(paramKey, ".%") {
+			log.Printf("[DEBUG][SuppressObjectSliceDiffs] Processing TypeSet element field: %s", paramKey)
+			return diffObjectSliceElement(paramKey, o, n, d)
+		}
+
+		if strings.HasSuffix(paramKey, ".%") {
+			log.Printf("[DEBUG][SuppressObjectSliceDiffs] The current change object is not of type slice.")
+			return false
+		}
+
+		log.Printf("[DEBUG][SuppressObjectSliceDiffs] Processing main field: %s", paramKey)
+		result := diffObjectSliceParam(paramKey, d)
+		log.Printf("[DEBUG][SuppressObjectSliceDiffs] Final result: %v", result)
+		return result
+	}
+}
+
+// diffObjectSliceLength handles the length field of TypeList or TypeSet for object slices
+func diffObjectSliceLength(paramKey, oldVal, newVal string, d *schema.ResourceData) bool {
+	baseField := strings.TrimSuffix(paramKey, ".#")
+
+	// Get the origin value
+	originParamKey := fmt.Sprintf("%s_origin", baseField)
+	originVal := d.Get(originParamKey)
+
+	// Get current values
+	oldCount, _ := strconv.Atoi(oldVal)
+	newCount, _ := strconv.Atoi(newVal)
+
+	// If origin is empty or nil, this is the first time setting the value
+	if originVal == nil {
+		return false
+	}
+
+	// Check if origin is effectively empty
+	var originCount int
+	var isEmpty bool
+	switch v := originVal.(type) {
+	case []interface{}:
+		originCount = len(v)
+		isEmpty = len(v) == 0
+	case *schema.Set:
+		originCount = v.Len()
+		isEmpty = v.Len() == 0
+	default:
+		originCount = 0
+		isEmpty = true
+	}
+
+	// If origin is empty, check if this is a remote-only change that should be suppressed
+	if isEmpty {
+		// Get current remote state to check if this is a remote-only change
+		currentVal := d.Get(baseField)
+		if currentVal != nil {
+			var currentCount int
+			switch v := currentVal.(type) {
+			case []interface{}:
+				currentCount = len(v)
+			case *schema.Set:
+				currentCount = v.Len()
+			default:
+				currentCount = 0
+			}
+
+			// If new count is less than current count, this might be a remote removal
+			// that should be suppressed (unless it's a local removal)
+			if newCount < currentCount {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	// Check if there are actual changes that require length difference to be shown
+	hasLocalAdditions := newCount > oldCount
+	hasLocalRemovals := newCount < originCount
+
+	// If oldCount > newCount and newCount == originCount, this is a remote addition
+	// (objects were added remotely but not in script, and script value equals origin)
+	if oldCount > newCount && newCount == originCount {
+		// Check if there are objects in old value that are not in origin (remote additions)
+		oldParamVal, _ := d.GetChange(baseField)
+		if oldParamVal != nil {
+			var oldObjectList []interface{}
+			switch v := oldParamVal.(type) {
+			case []interface{}:
+				oldObjectList = v
+			case *schema.Set:
+				oldObjectList = v.List()
+			}
+			// Count how many objects in old value are not in origin
+			remoteAdditionsCount := 0
+			for _, oldItem := range oldObjectList {
+				if itemMap, ok := oldItem.(map[string]interface{}); ok {
+					if !isObjectInOrigin(itemMap, originVal) {
+						remoteAdditionsCount++
+					}
+				}
+			}
+			// If the number of remote additions matches the difference, suppress the diff
+			if remoteAdditionsCount >= (oldCount - newCount) {
+				log.Printf("[DEBUG][diffObjectSliceLength] Old count (%d) > new count (%d) and new count equals origin count (%d), with %d remote "+
+					"additions, suppressing diff (remote addition)",
+					oldCount, newCount, originCount, remoteAdditionsCount)
+				return true
+			}
+		}
+	}
+
+	// If there are actual local changes, don't suppress length difference
+	if hasLocalAdditions || hasLocalRemovals {
+		log.Printf("[DEBUG][diffObjectSliceLength] Is local additions happened? %v", hasLocalAdditions)
+		log.Printf("[DEBUG][diffObjectSliceLength] Is local removals happened? %v", hasLocalRemovals)
+		return false
+	}
+
+	// If no actual changes, suppress length difference (e.g., remote-only additions/removals)
+	log.Printf("[DEBUG][diffObjectSliceLength] No local changes, suppressing length difference")
+	return true
+}
+
+// diffObjectSliceElement handles individual object slice elements
+func diffObjectSliceElement(paramKey, oldVal, newVal string, d *schema.ResourceData) bool {
+	parts := strings.Split(paramKey, ".")
+	if len(parts) < 2 {
+		log.Printf("[DEBUG][diffObjectSliceElement] Invalid paramKey format: %s", paramKey)
+		return false
+	}
+	baseField := parts[0]
+
+	originParamKey := fmt.Sprintf("%s_origin", baseField)
+	originVal := d.Get(originParamKey)
+
+	log.Printf("[DEBUG][diffObjectSliceElement] baseField='%s', oldVal='%s', newVal='%s', originVal=%v",
+		baseField, oldVal, newVal, originVal)
+
+	// For object slices, we need to check the entire object, not just individual fields
+	// Get the object hash from paramKey (e.g., "objects.1234567890.type" -> "1234567890")
+	objectHash := parts[1]
+
+	// Handle element removal case: newVal is empty (object is being removed from script)
+	// This includes both local removal and remote addition (object exists in console but not in script)
+	if newVal == "" {
+		return handleObjectElementRemoval(baseField, objectHash, originVal, d)
+	}
+
+	// Handle element addition/modification case: newVal has value
+	// This includes both local addition and remote addition (object exists in both console and script)
+	return handleObjectElementAddition(baseField, objectHash, originVal, d)
+}
+
+// handleObjectElementRemoval handles the case when an object element is being removed
+func handleObjectElementRemoval(baseField, objectHash string, originVal interface{}, d *schema.ResourceData) bool {
+	log.Printf("[DEBUG][handleObjectElementRemoval] Object element '%s' is being removed, checking if should suppress diff", objectHash)
+
+	// Get the object from old state (console value)
+	oldObject := getObjectFromOldState(d, baseField, objectHash)
+
+	// If we can't get the object from old state, try to check if it's a remote addition
+	if oldObject == nil {
+		// Check if the object exists in console value by checking if old value has more objects than new value
+		oldParamVal, newParamVal := d.GetChange(baseField)
+		if oldParamVal != nil && newParamVal != nil {
+			var oldCount, newCount int
+			var oldObjectList []interface{}
+			switch v := oldParamVal.(type) {
+			case []interface{}:
+				oldCount = len(v)
+				oldObjectList = v
+			case *schema.Set:
+				oldCount = v.Len()
+				oldObjectList = v.List()
+			}
+			switch v := newParamVal.(type) {
+			case []interface{}:
+				newCount = len(v)
+			case *schema.Set:
+				newCount = v.Len()
+			}
+
+			// If old count is greater than new count, and origin is not empty,
+			// check if there are objects in old value that are not in origin
+			if oldCount > newCount && !isOriginEmpty(originVal) {
+				// Count how many objects in old value are not in origin
+				remoteAdditionsCount := 0
+				for _, oldItem := range oldObjectList {
+					if itemMap, ok := oldItem.(map[string]interface{}); ok {
+						if !isObjectInOrigin(itemMap, originVal) {
+							remoteAdditionsCount++
+						}
+					}
+				}
+				// If the number of remote additions is at least the difference between old and new count,
+				// then the removed object is likely a remote addition
+				if remoteAdditionsCount >= (oldCount - newCount) {
+					log.Printf("[DEBUG][handleObjectElementRemoval] Object '%s' cannot be found but old count (%d) > new count (%d) and has %d "+
+						"remote additions, suppressing diff (remote addition)", objectHash, oldCount, newCount, remoteAdditionsCount)
+					return true
+				}
+			}
+		}
+
+		// If we can't determine, default to suppressing diff to be safe
+		log.Printf("[DEBUG][handleObjectElementRemoval] Cannot find object '%s' in old state, suppressing diff", objectHash)
+		return true
+	}
+
+	// Check if this object was in origin
+	if isObjectInOrigin(oldObject, originVal) {
+		log.Printf("[DEBUG][handleObjectElementRemoval] Object '%s' was in origin, NOT suppressing diff (allow removal)", objectHash)
+		return false // NOT suppressing - allow removal of origin elements
+	}
+
+	// If object was not in origin, it means it was added remotely (console)
+	// We should suppress the diff to ignore remote-only additions
+	log.Printf("[DEBUG][handleObjectElementRemoval] Object '%s' was not in origin (remote addition), suppressing diff (ignore remote removal)",
+		objectHash)
+	return true // Suppress diff - ignore removal of remote-only elements
+}
+
+// handleObjectElementAddition handles the case when an object element is being added or modified
+func handleObjectElementAddition(baseField, objectHash string, originVal interface{}, d *schema.ResourceData) bool {
+	// Try to get the object from new state first
+	newObject := getObjectFromState(d, baseField, objectHash)
+
+	// If not found in new state, try to get from old state (console value)
+	// This handles the case when object was added remotely
+	if newObject == nil {
+		log.Printf("[DEBUG][handleObjectElementAddition] Cannot find object '%s' in new state, trying old state", objectHash)
+		oldObject := getObjectFromOldState(d, baseField, objectHash)
+		if oldObject != nil {
+			// Object exists in old state but not in new state
+			// Check if it was in origin
+			if !isOriginEmpty(originVal) && isObjectInOrigin(oldObject, originVal) {
+				log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' exists in old state and was in origin, not suppressing diff (allow "+
+					"removal)", objectHash)
+				return false
+			}
+			// Object was added remotely, suppress the diff
+			log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' exists in old state but not in new state (remote addition), suppressing "+
+				"diff", objectHash)
+			return true
+		}
+		log.Printf("[DEBUG][handleObjectElementAddition] Cannot find object '%s' in either new or old state", objectHash)
+		return false
+	}
+
+	// If origin is nil or empty, this is the first time setting the value
+	if isOriginEmpty(originVal) {
+		return handleFirstTimeObjectSetting(baseField, newObject, d)
+	}
+
+	// Check if this object is in origin
+	if isObjectInOrigin(newObject, originVal) {
+		// If the object is unchanged, don't suppress diff
+		// This ensures Terraform knows the config value still exists
+		oldObject := getObjectFromOldState(d, baseField, objectHash)
+		if oldObject != nil && reflect.DeepEqual(oldObject, newObject) {
+			log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' unchanged and in origin, not suppressing diff to preserve config value",
+				objectHash)
+			return false
+		}
+		log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' was in origin, suppressing diff", objectHash)
+		return true
+	}
+
+	// If object was not in origin, check if it exists in remote state (console added)
+	// If it exists in remote state, suppress the diff (ignore remote addition)
+	if checkObjectInRemoteState(baseField, newObject, d) {
+		log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' was not in origin but exists in remote state, suppressing diff (ignore "+
+			"remote addition)", objectHash)
+		return true
+	}
+
+	// If object was not in origin and not in remote state, don't suppress (this is a local addition)
+	log.Printf("[DEBUG][handleObjectElementAddition] Object '%s' was not in origin and not in remote state, not suppressing diff (local addition)",
+		objectHash)
+	return false
+}
+
+// handleFirstTimeObjectSetting handles the case when origin is empty or nil for objects
+func handleFirstTimeObjectSetting(baseField string, newObject map[string]interface{}, d *schema.ResourceData) bool {
+	// Check if this object exists in remote state
+	return checkObjectInRemoteState(baseField, newObject, d)
+}
+
+// isObjectInOrigin checks if an object exists in origin value
+func isObjectInOrigin(obj map[string]interface{}, originVal interface{}) bool {
+	if originVal == nil {
+		return false
+	}
+
+	var originList []interface{}
+	switch v := originVal.(type) {
+	case []interface{}:
+		originList = v
+	case *schema.Set:
+		originList = v.List()
+	default:
+		return false
+	}
+
+	for _, item := range originList {
+		if itemMap, ok := item.(map[string]interface{}); ok {
+			if reflect.DeepEqual(itemMap, obj) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// getObjectFromState retrieves an object from the resource state by its hash
+func getObjectFromState(d *schema.ResourceData, baseField, objectHash string) map[string]interface{} {
+	// For TypeSet, we need to reconstruct the object from individual fields
+	// Since TypeSet uses hash, we can't directly access by hash
+	// Instead, we need to reconstruct the object from individual fields
+	obj := make(map[string]interface{})
+	hasFields := false
+
+	// Try to get all fields of this object from the state
+	// The paramKey format for object fields is: baseField.objectHash.fieldName
+	if d.State() != nil && d.State().Attributes != nil {
+		for key := range d.State().Attributes {
+			if strings.HasPrefix(key, fmt.Sprintf("%s.%s.", baseField, objectHash)) {
+				fieldName := strings.TrimPrefix(key, fmt.Sprintf("%s.%s.", baseField, objectHash))
+				obj[fieldName] = d.Get(key)
+				hasFields = true
+			}
+		}
+	}
+
+	if !hasFields {
+		return nil
+	}
+
+	return obj
+}
+
+// getObjectFromOldState retrieves an object from the old state (console value) by its hash
+func getObjectFromOldState(d *schema.ResourceData, baseField, objectHash string) map[string]interface{} {
+	// First, try to get the object from state attributes (for old state)
+	obj := make(map[string]interface{})
+	hasFields := false
+
+	// Try to get all fields of this object from the old state attributes
+	// The paramKey format for object fields is: baseField.objectHash.fieldName
+	if d.State() != nil && d.State().Attributes != nil {
+		for key, val := range d.State().Attributes {
+			if strings.HasPrefix(key, fmt.Sprintf("%s.%s.", baseField, objectHash)) {
+				fieldName := strings.TrimPrefix(key, fmt.Sprintf("%s.%s.", baseField, objectHash))
+				// In diff suppression, we need to check if this is from old state
+				// The old state value might be in the state attributes
+				obj[fieldName] = val
+				hasFields = true
+			}
+		}
+	}
+
+	// If we found fields in state, return the object
+	if hasFields {
+		return obj
+	}
+
+	// If not found in state attributes, try to reconstruct from GetChange old value
+	// Since TypeSet uses hash, we need to find the object by matching all fields
+	oldParamVal, _ := d.GetChange(baseField)
+	if oldParamVal != nil {
+		var oldObjectList []interface{}
+		switch v := oldParamVal.(type) {
+		case []interface{}:
+			oldObjectList = v
+		case *schema.Set:
+			oldObjectList = v.List()
+		}
+
+		// Try to find the object by checking if any object in old value has fields matching the hash
+		// We can't directly match by hash, but we can try to find objects that are not in new value
+		// For now, return nil and let the caller handle it based on count comparison
+		_ = oldObjectList
+	}
+
+	// If not found, return nil and let the caller handle it.
+	// The caller will check if the object is in origin, and if not, assume it's a remote addition.
+	return nil
+}
+
+// checkObjectInRemoteState checks if an object exists in remote state (console value)
+func checkObjectInRemoteState(baseField string, obj map[string]interface{}, d *schema.ResourceData) bool {
+	// Get the old value (console/remote state) from GetChange
+	oldParamVal, _ := d.GetChange(baseField)
+	if oldParamVal == nil {
+		return false
+	}
+
+	var objectList []interface{}
+	switch v := oldParamVal.(type) {
+	case []interface{}:
+		objectList = v
+	case *schema.Set:
+		objectList = v.List()
+	default:
+		return false
+	}
+
+	// Check if the object exists in the list
+	for _, item := range objectList {
+		if itemMap, ok := item.(map[string]interface{}); ok {
+			if reflect.DeepEqual(itemMap, obj) {
+				log.Printf("[DEBUG][checkObjectInRemoteState] Object already exists in remote state, suppressing diff")
+				return true
+			}
+		}
+	}
+
+	log.Printf("[DEBUG][checkObjectInRemoteState] Object does not exist in remote state, allowing change")
+	return false
+}
+
+// convertToObjectSlice converts interface{} to []map[string]interface{}
+func convertToObjectSlice(val interface{}) []map[string]interface{} {
+	if val == nil {
+		return nil
+	}
+
+	var result []map[string]interface{}
+	switch v := val.(type) {
+	case []interface{}:
+		for _, item := range v {
+			if itemMap, ok := item.(map[string]interface{}); ok {
+				result = append(result, itemMap)
+			}
+		}
+	case *schema.Set:
+		for _, item := range v.List() {
+			if itemMap, ok := item.(map[string]interface{}); ok {
+				result = append(result, itemMap)
+			}
+		}
+	}
+
+	return result
+}
+
+// checkLocalAdditions checks if there are locally added elements
+func checkLocalAdditions(newScriptSlice, consoleSlice []map[string]interface{}) bool {
+	localAdditions := FindObjectSliceElementsNotInAnother(newScriptSlice, consoleSlice)
+	if len(localAdditions) > 0 {
+		log.Printf("[DEBUG][diffObjectSliceParam] New script contains elements not in console (locally added): %d, not suppressing diff",
+			len(localAdditions))
+		return true
+	}
+	return false
+}
+
+// checkLocalRemovals checks if there are locally removed elements
+func checkLocalRemovals(originSlice, newScriptSlice []map[string]interface{}) bool {
+	localRemovals := FindObjectSliceElementsNotInAnother(originSlice, newScriptSlice)
+	if len(localRemovals) > 0 {
+		log.Printf("[DEBUG][diffObjectSliceParam] New script has elements decreased compared to origin (locally removed), not suppressing diff")
+		return true
+	}
+	return false
+}
+
+// diffObjectSliceParam is used to check whether the parameters of the current object slice type have been modified
+// other than those changed in the console.
+// The following scenarios will determine whether the parameter has changed (method return false):
+//  1. The new value of the script adds new elements compared to the console value (locally added elements).
+//  2. The new value of the script has elements decreased compared to the origin value (locally removed elements).
+//
+// The following scenarios will suppress the diff (method return true):
+//  1. The new value of the script is a subset of the console value AND
+//     the new value of the script has no elements decreased compared to the origin value.
+func diffObjectSliceParam(paramKey string, d *schema.ResourceData) bool {
+	originParamKey := fmt.Sprintf("%s_origin", paramKey)
+	originVal := d.Get(originParamKey)
+	originSlice := convertToObjectSlice(originVal)
+
+	// If origin is empty, this is the first time setting the value
+	if len(originSlice) == 0 {
+		log.Printf("[DEBUG][diffObjectSliceParam] Origin is empty, allowing change (first time setting)")
+		return false
+	}
+
+	// Get old and new values from GetChange
+	oldParamVal, newParamVal := d.GetChange(paramKey)
+	consoleSlice := convertToObjectSlice(oldParamVal)
+	newScriptSlice := convertToObjectSlice(newParamVal)
+
+	log.Printf("[DEBUG][diffObjectSliceParam] paramKey='%s', originSlice length=%d, consoleSlice length=%d, newScriptSlice length=%d",
+		paramKey, len(originSlice), len(consoleSlice), len(newScriptSlice))
+
+	// Check if only care about elements that are in new script but NOT in console (locally added)
+	if checkLocalAdditions(newScriptSlice, consoleSlice) {
+		return false
+	}
+
+	// Check if new script has elements decreased compared to origin (locally removed)
+	if checkLocalRemovals(originSlice, newScriptSlice) {
+		return false
+	}
+
+	// Both conditions are met, suppress the diff
+	log.Printf("[DEBUG][diffObjectSliceParam] No local additions and no local removals, suppressing diff")
+	return true
+}
+
+// FindObjectSliceElementsNotInAnother returns elements from source that are not in target
+// This is equivalent to source - target (set difference) for object slices
+func FindObjectSliceElementsNotInAnother(source, target []map[string]interface{}) []map[string]interface{} {
+	var result []map[string]interface{}
+	for _, sv := range source {
+		if !ObjectSliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+	return result
+}
+
+// ObjectSliceContains checks if a target object is present in a slice of objects
+func ObjectSliceContains(slice []map[string]interface{}, target map[string]interface{}) bool {
+	for _, v := range slice {
+		if reflect.DeepEqual(v, target) {
+			return true
+		}
+	}
+	return false
+}
