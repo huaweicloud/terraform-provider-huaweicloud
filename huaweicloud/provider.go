@@ -2372,8 +2372,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_rocketmq_broker":   rocketmq.DataSourceBrokers(),
 
-			"huaweicloud_elb_recycle_bin_loadbalancer_revocer": elb.ResourceElbRecycleBinLoadBalancerRecover(),
-
 			"huaweicloud_identity_role_v3":             iam.DataSourceIdentityRole(),
 			"huaweicloud_identity_virtual_mfa_devices": iam.DataSourceIamIdentityVirtualMfaDevices(),
 
@@ -3965,6 +3963,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_isntance_restore": dcs.ResourceDcsRestore(),
 
 			"huaweicloud_kms_key_v1": dew.ResourceKmsKey(),
+
+			"huaweicloud_elb_recycle_bin_loadbalancer_revocer": elb.ResourceElbRecycleBinLoadBalancerRecover(),
 
 			"huaweicloud_lb_certificate_v2":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2": lb.ResourceLoadBalancer(),
