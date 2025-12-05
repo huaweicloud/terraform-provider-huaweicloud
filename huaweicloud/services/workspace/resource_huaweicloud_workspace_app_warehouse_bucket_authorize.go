@@ -14,17 +14,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var appRepoBucketAssignNonUpdatableParams = []string{"bucket_name"}
+var appWarehouseBucketAuthorizeNonUpdatableParams = []string{"bucket_name"}
 
 // @API Workspace POST /v1/{project_id}/app-warehouse/bucket
-func ResourceAppRepoBucketAssign() *schema.Resource {
+func ResourceAppWarehouseBucketAuthorize() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAppRepoBucketAssignCreate,
-		ReadContext:   resourceAppRepoBucketAssignRead,
-		UpdateContext: resourceAppRepoBucketAssignUpdate,
-		DeleteContext: resourceAppRepoBucketAssignDelete,
+		CreateContext: resourceAppWarehouseBucketAuthorizeCreate,
+		ReadContext:   resourceAppWarehouseBucketAuthorizeRead,
+		UpdateContext: resourceAppWarehouseBucketAuthorizeUpdate,
+		DeleteContext: resourceAppWarehouseBucketAuthorizeDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(appRepoBucketAssignNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(appWarehouseBucketAuthorizeNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -44,13 +44,13 @@ func ResourceAppRepoBucketAssign() *schema.Resource {
 	}
 }
 
-func buildAppRepoBucketAssignBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildAppWarehouseBucketAuthorizeBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"bucket_name": utils.ValueIgnoreEmpty(d.Get("bucket_name")),
 	}
 }
 
-func resourceAppRepoBucketAssignCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppWarehouseBucketAuthorizeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -69,7 +69,7 @@ func resourceAppRepoBucketAssignCreate(ctx context.Context, d *schema.ResourceDa
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: utils.RemoveNil(buildAppRepoBucketAssignBodyParams(d)),
+		JSONBody: utils.RemoveNil(buildAppWarehouseBucketAuthorizeBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -83,18 +83,18 @@ func resourceAppRepoBucketAssignCreate(ctx context.Context, d *schema.ResourceDa
 	}
 	d.SetId(randomUUID)
 
-	return resourceAppRepoBucketAssignRead(ctx, d, meta)
+	return resourceAppWarehouseBucketAuthorizeRead(ctx, d, meta)
 }
 
-func resourceAppRepoBucketAssignRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAppWarehouseBucketAuthorizeRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceAppRepoBucketAssignUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAppWarehouseBucketAuthorizeUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceAppRepoBucketAssignDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAppWarehouseBucketAuthorizeDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is only a one-time action resource for assigning an app repository bucket.
 Deleting this resource will not clear the corresponding request record, but will only remove the resource information
 from the tfstate file.`
