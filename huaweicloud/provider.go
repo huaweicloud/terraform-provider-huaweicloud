@@ -1521,6 +1521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_baseline_security_checks_directories":       hss.DataSourceBaselineSecurityChecksDirectories(),
 			"huaweicloud_hss_configs":                                    hss.DataSourceConfigs(),
 			"huaweicloud_hss_container_kubernetes_mciuc":                 hss.DataSourceHssContainerKubernetesMciuc(),
+			"huaweicloud_hss_operational_report_notification":            hss.DataSourceOperationalReportNotification(),
 
 			"huaweicloud_identity_permissions":                  iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":                         iam.DataSourceIdentityRole(),
