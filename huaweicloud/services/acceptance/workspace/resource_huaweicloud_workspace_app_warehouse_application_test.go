@@ -20,7 +20,7 @@ func getWarehouseApplicationFunc(conf *config.Config, state *terraform.ResourceS
 	return workspace.GetWarehouseApplicationById(client, state.Primary.ID)
 }
 
-func TestAccResourceAppWarehouseApplication_basic(t *testing.T) {
+func TestAccAppWarehouseApplication_basic(t *testing.T) {
 	var (
 		application  interface{}
 		resourceName = "huaweicloud_workspace_app_warehouse_application.test"
@@ -48,7 +48,7 @@ func TestAccResourceAppWarehouseApplication_basic(t *testing.T) {
 		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceWarehouseApplication_basic_step1(name),
+				Config: testAccAppWarehouseApplication_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -62,7 +62,7 @@ func TestAccResourceAppWarehouseApplication_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccResourceWarehouseApplication_basic_step2(updateName),
+				Config: testAccAppWarehouseApplication_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -128,7 +128,7 @@ resource "huaweicloud_obs_bucket_object" "test" {
 }`, acceptance.HW_REGION_NAME, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
 
-func testAccResourceWarehouseApplication_basic_step1(name string) string {
+func testAccAppWarehouseApplication_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -144,7 +144,7 @@ resource "huaweicloud_workspace_app_warehouse_application" "test" {
 `, executionFileUploadResourcesConfig(), name, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
 
-func testAccResourceWarehouseApplication_basic_step2(name string) string {
+func testAccAppWarehouseApplication_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 

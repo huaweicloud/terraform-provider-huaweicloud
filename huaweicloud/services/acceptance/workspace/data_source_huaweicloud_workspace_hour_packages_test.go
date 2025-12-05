@@ -9,10 +9,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccHourPackagesDataSource_basic(t *testing.T) {
+func TestAccDataHourPackages_basic(t *testing.T) {
 	var (
-		dcName = "data.huaweicloud_workspace_hour_packages.all"
-		dc     = acceptance.InitDataSourceCheck(dcName)
+		all = "data.huaweicloud_workspace_hour_packages.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		filterByDesktopResourceSpecCodeName   = "data.huaweicloud_workspace_hour_packages.filter_by_desktop_resource_spec_code"
 		dcFilterByDesktopResourceSpecCodeName = acceptance.InitDataSourceCheck(filterByDesktopResourceSpecCodeName)
@@ -28,22 +28,23 @@ func TestAccHourPackagesDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHourPackagesDataSource_basic,
+				Config: testAccDataHourPackages_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "hour_packages.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.cloud_service_type"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.resource_type"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.resource_spec_code"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.desktop_resource_spec_code"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.descriptions.0.zh_cn"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.descriptions.0.en_us"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.package_duration"),
-					resource.TestCheckResourceAttrSet(dcName, "hour_packages.0.status"),
-					// filter by desktop resource spec code
+					resource.TestMatchResourceAttr(all, "hour_packages.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.cloud_service_type"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.resource_type"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.resource_spec_code"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.desktop_resource_spec_code"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.descriptions.0.zh_cn"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.descriptions.0.en_us"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.package_duration"),
+					resource.TestCheckResourceAttrSet(all, "hour_packages.0.status"),
+					// Filter by 'desktop_resource_spec_code' parameter.
 					dcFilterByDesktopResourceSpecCodeName.CheckResourceExists(),
 					resource.TestCheckOutput("is_desktop_resource_spec_code_filter_useful", "true"),
-					// filter by resource spec code
+					// Filter by 'resource_spec_code' parameter.
 					dcFilterByResourceSpecCodeName.CheckResourceExists(),
 					resource.TestCheckOutput("is_resource_spec_code_filter_useful", "true"),
 				),
@@ -52,7 +53,8 @@ func TestAccHourPackagesDataSource_basic(t *testing.T) {
 	})
 }
 
-const testAccHourPackagesDataSource_basic = `
+const testAccDataHourPackages_basic = `
+// Without any filter parameter.
 data "huaweicloud_workspace_hour_packages" "all" {}
 
 locals {
@@ -60,7 +62,7 @@ locals {
   resource_spec_code         = try(data.huaweicloud_workspace_hour_packages.all.hour_packages[0].resource_spec_code, "NOT_FOUND")
 }
 
-# Filter by desktop resource spec code
+# Filter by 'desktop_resource_spec_code' parameter.
 data "huaweicloud_workspace_hour_packages" "filter_by_desktop_resource_spec_code" {
   desktop_resource_spec_code = local.desktop_resource_spec_code
 }
@@ -76,7 +78,7 @@ output "is_desktop_resource_spec_code_filter_useful" {
   value = length(local.desktop_resource_spec_code_filter_result) > 0 && alltrue(local.desktop_resource_spec_code_filter_result)
 }
 
-# Filter by resource spec code
+# Filter by 'resource_spec_code' parameter.
 data "huaweicloud_workspace_hour_packages" "filter_by_resource_spec_code" {
   resource_spec_code = local.resource_spec_code
 }

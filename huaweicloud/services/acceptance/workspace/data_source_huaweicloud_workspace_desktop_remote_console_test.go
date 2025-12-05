@@ -11,12 +11,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDesktopRemoteConsoleDataSource_basic(t *testing.T) {
+func TestAccDataDesktopRemoteConsole_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceNameWithDash()
 
-		dcName = "data.huaweicloud_workspace_desktop_remote_console.test"
-		dc     = acceptance.InitDataSourceCheck(dcName)
+		all = "data.huaweicloud_workspace_desktop_remote_console.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -26,93 +26,43 @@ func TestAccDesktopRemoteConsoleDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDesktopRemoteConsoleDataSource_basic_step1(name),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "remote_console.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dcName, "remote_console.0.type"),
-					resource.TestCheckResourceAttrSet(dcName, "remote_console.0.url"),
-				),
+				Config:      testAccDataDesktopRemoteConsole_basic_invalidDesktopId(),
+				ExpectError: regexp.MustCompile(`The desktop does not exist.`),
 			},
 			{
-				Config:      testAccDesktopRemoteConsoleDataSource_basic_step2(),
-				ExpectError: regexp.MustCompile(`The desktop does not exist.`),
+				Config: testAccDataDesktopRemoteConsole_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "remote_console.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "remote_console.0.type"),
+					resource.TestCheckResourceAttrSet(all, "remote_console.0.url"),
+				),
 			},
 		},
 	})
 }
 
-func testAccDesktopRemoteConsoleDataSource_base(name string) string {
+func testAccDataDesktopRemoteConsole_basic_invalidDesktopId() string {
+	randomId, _ := uuid.GenerateUUID()
 	return fmt.Sprintf(`
-data "huaweicloud_workspace_service" "test" {}
-
-data "huaweicloud_workspace_flavors" "test" {
-  os_type = "Windows"
+# Without any filter parameter but with invalid value.
+data "huaweicloud_workspace_desktop_remote_console" "invalid_desktop_id" {
+  desktop_id = "%[1]s"
+}
+`, randomId)
 }
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_images_images" "test" {
-  name_regex = "WORKSPACE"
-  visibility = "market"
-}
-
-resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
-  image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
-  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
-  vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
-  security_groups   = [
-    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"),
-    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
-  ]
-
-  nic {
-    network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
-  }
-
-  name       = "%[1]s"
-  user_name  = "user-%[1]s"
-  user_email = "terraform@example.com"
-  user_group = "administrators"
-
-  root_volume {
-    type = "SAS"
-    size = 80
-  }
-
-  data_volume {
-    type = "SAS"
-    size = 10
-  }
-
-  email_notification = true
-  delete_user        = true
-}
-`, name)
-}
-
-func testAccDesktopRemoteConsoleDataSource_basic_step1(name string) string {
+func testAccDataDesktopRemoteConsole_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_workspace_desktop_remote_console" "test" {
+# Without any filter parameter.
+data "huaweicloud_workspace_desktop_remote_console" "all" {
   desktop_id = huaweicloud_workspace_desktop.test.id
 
   depends_on = [
     huaweicloud_workspace_desktop.test
   ]
 }
-`, testAccDesktopRemoteConsoleDataSource_base(name))
-}
-
-func testAccDesktopRemoteConsoleDataSource_basic_step2() string {
-	randomId, _ := uuid.GenerateUUID()
-	return fmt.Sprintf(`
-
-data "huaweicloud_workspace_desktop_remote_console" "test" {
-  desktop_id = "%[1]s"
-}
-`, randomId)
+`, testAccDataDesktops_base(name))
 }

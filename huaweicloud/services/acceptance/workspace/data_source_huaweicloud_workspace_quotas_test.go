@@ -11,8 +11,8 @@ import (
 
 func TestAccDataQuotas_basic(t *testing.T) {
 	var (
-		dataSourceName = "data.huaweicloud_workspace_quotas.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		all = "data.huaweicloud_workspace_quotas.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,17 +22,18 @@ func TestAccDataQuotas_basic(t *testing.T) {
 			{
 				Config: testAccDataQuotas_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSourceName, "quotas.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestMatchResourceAttr(dataSourceName, "quotas.0.resources.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestCheckResourceAttrSet(dataSourceName, "quotas.0.resources.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "quotas.0.resources.0.quota"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "quotas.0.resources.0.used"),
-					resource.TestMatchResourceAttr(dataSourceName, "site_quotas.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestMatchResourceAttr(dataSourceName, "site_quotas.0.resources.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestCheckResourceAttrSet(dataSourceName, "site_quotas.0.resources.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "site_quotas.0.resources.0.quota"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "site_quotas.0.resources.0.used"),
+					resource.TestMatchResourceAttr(all, "quotas.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestMatchResourceAttr(all, "quotas.0.resources.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "quotas.0.resources.0.type"),
+					resource.TestCheckResourceAttrSet(all, "quotas.0.resources.0.quota"),
+					resource.TestCheckResourceAttrSet(all, "quotas.0.resources.0.used"),
+					resource.TestMatchResourceAttr(all, "site_quotas.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestMatchResourceAttr(all, "site_quotas.0.resources.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "site_quotas.0.resources.0.type"),
+					resource.TestCheckResourceAttrSet(all, "site_quotas.0.resources.0.quota"),
+					resource.TestCheckResourceAttrSet(all, "site_quotas.0.resources.0.used"),
 				),
 			},
 		},
@@ -40,5 +41,5 @@ func TestAccDataQuotas_basic(t *testing.T) {
 }
 
 const testAccDataQuotas_basic = `
-data "huaweicloud_workspace_quotas" "test" {}
+data "huaweicloud_workspace_quotas" "all" {}
 `

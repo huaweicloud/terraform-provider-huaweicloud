@@ -12,9 +12,8 @@ import (
 
 func TestAccAppServers_basic(t *testing.T) {
 	var (
-		all  = "data.huaweicloud_workspace_app_servers.test"
-		dc   = acceptance.InitDataSourceCheck(all)
-		name = acceptance.RandomAccResourceName()
+		all = "data.huaweicloud_workspace_app_servers.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		byServerName   = "data.huaweicloud_workspace_app_servers.filter_by_server_name"
 		dcByServerName = acceptance.InitDataSourceCheck(byServerName)
@@ -30,6 +29,8 @@ func TestAccAppServers_basic(t *testing.T) {
 
 		byScalingAutoCreate   = "data.huaweicloud_workspace_app_servers.filter_by_scaling_auto_create"
 		dcByScalingAutoCreate = acceptance.InitDataSourceCheck(byScalingAutoCreate)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -42,6 +43,7 @@ func TestAccAppServers_basic(t *testing.T) {
 			{
 				Config: testDataSourceAppServers_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "servers.#", regexp.MustCompile(`[1-9]\d*`)),
 					resource.TestCheckResourceAttrSet(all, "servers.0.id"),
@@ -53,14 +55,19 @@ func TestAccAppServers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(all, "servers.0.product_info.#"),
 					resource.TestCheckResourceAttrSet(all, "servers.0.host_address.#"),
 					resource.TestCheckResourceAttrSet(all, "servers.0.tags.#"),
+					// Filter by 'server_name' parameter.
 					dcByServerName.CheckResourceExists(),
 					resource.TestCheckOutput("is_server_name_filter_useful", "true"),
+					// Filter by 'machine_name' parameter.
 					dcByMachineName.CheckResourceExists(),
 					resource.TestCheckOutput("is_machine_name_filter_useful", "true"),
+					// Filter by 'server_group_id' parameter.
 					dcByServerGroupId.CheckResourceExists(),
 					resource.TestCheckOutput("is_server_group_id_filter_useful", "true"),
+					// Filter by 'maintain_status' parameter.
 					dcByMaintainStatus.CheckResourceExists(),
 					resource.TestCheckOutput("is_maintain_status_filter_useful", "true"),
+					// Filter by 'scaling_auto_create' parameter.
 					dcByScalingAutoCreate.CheckResourceExists(),
 					resource.TestCheckOutput("is_scaling_auto_create_filter_useful", "true"),
 				),
@@ -100,18 +107,19 @@ func testDataSourceAppServers_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_workspace_app_servers" "test" {
+# Without any filter parameter.
+data "huaweicloud_workspace_app_servers" "all" {
   server_id = huaweicloud_workspace_app_server.test.id
 }
 
-# Filter by server name
+# Filter by 'server_name' parameter.
 locals {
-  server_name = data.huaweicloud_workspace_app_servers.test.servers[0].name
+  server_name = data.huaweicloud_workspace_app_servers.all.servers[0].name
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_server_name" {
   depends_on = [
-    data.huaweicloud_workspace_app_servers.test
+    data.huaweicloud_workspace_app_servers.all
   ]
 
   server_name = local.server_name
@@ -127,14 +135,14 @@ output "is_server_name_filter_useful" {
   value = length(local.server_name_filter_result) > 0 && alltrue(local.server_name_filter_result)
 }
 
-# Filter by machine name
+# Filter by 'machine_name' parameter.
 locals {
-  machine_name = data.huaweicloud_workspace_app_servers.test.servers[0].machine_name
+  machine_name = data.huaweicloud_workspace_app_servers.all.servers[0].machine_name
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_machine_name" {
   depends_on = [
-    data.huaweicloud_workspace_app_servers.test
+    data.huaweicloud_workspace_app_servers.all
   ]
 
   machine_name = local.machine_name
@@ -150,14 +158,14 @@ output "is_machine_name_filter_useful" {
   value = length(local.machine_name_filter_result) > 0 && alltrue(local.machine_name_filter_result)
 }
 
-# Filter by server group ID
+# Filter by 'server_group_id' parameter.
 locals {
-  server_group_id = data.huaweicloud_workspace_app_servers.test.servers[0].server_group_id
+  server_group_id = data.huaweicloud_workspace_app_servers.all.servers[0].server_group_id
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_server_group_id" {
   depends_on = [
-    data.huaweicloud_workspace_app_servers.test
+    data.huaweicloud_workspace_app_servers.all
   ]
 
   server_group_id = local.server_group_id
@@ -173,17 +181,17 @@ output "is_server_group_id_filter_useful" {
   value = length(local.server_group_id_filter_result) > 0 && alltrue(local.server_group_id_filter_result)
 }
 
-# Filter by maintain status
+# Filter by 'maintain_status' parameter.
 data "huaweicloud_workspace_app_servers" "filter_by_maintain_status" {
   depends_on = [
-    data.huaweicloud_workspace_app_servers.test
+    data.huaweicloud_workspace_app_servers.all
   ]
 
   maintain_status = false
 }
 
 locals {
-  maintain_status = data.huaweicloud_workspace_app_servers.test.servers[0].maintain_status
+  maintain_status = data.huaweicloud_workspace_app_servers.all.servers[0].maintain_status
 
   maintain_status_filter_result = [
     for v in data.huaweicloud_workspace_app_servers.filter_by_maintain_status.servers[*].maintain_status : v == false
@@ -194,17 +202,17 @@ output "is_maintain_status_filter_useful" {
   value = length(local.maintain_status_filter_result) > 0 && alltrue(local.maintain_status_filter_result)
 }
 
-# Filter by scaling auto create
+# Filter by 'scaling_auto_create' parameter.
 data "huaweicloud_workspace_app_servers" "filter_by_scaling_auto_create" {
   depends_on = [
-    data.huaweicloud_workspace_app_servers.test
+    data.huaweicloud_workspace_app_servers.all
   ]
 
   scaling_auto_create = false
 }
 
 locals {
-  scaling_auto_create = data.huaweicloud_workspace_app_servers.test.servers[0].scaling_auto_create
+  scaling_auto_create = data.huaweicloud_workspace_app_servers.all.servers[0].scaling_auto_create
 
   scaling_auto_create_filter_result = [
     for v in data.huaweicloud_workspace_app_servers.filter_by_scaling_auto_create.servers[*].scaling_auto_create : v == false

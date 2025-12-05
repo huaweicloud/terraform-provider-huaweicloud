@@ -9,10 +9,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceAppServerQuotas_basic(t *testing.T) {
+func TestAccDataAppServerQuotas_basic(t *testing.T) {
 	var (
-		dataSourceName = "data.huaweicloud_workspace_app_server_quotas.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		all = "data.huaweicloud_workspace_app_server_quotas.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		byFlavorId   = "data.huaweicloud_workspace_app_server_quotas.filter_by_flavor_id"
 		dcByFlavorId = acceptance.InitDataSourceCheck(byFlavorId)
@@ -27,18 +27,21 @@ func TestAccDataSourceAppServerQuotas_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceAppServerQuotas_notFound,
+				Config:      testAccDataAppServerQuotas_notFound,
 				ExpectError: regexp.MustCompile("The product 'not_exist' not find"),
 			},
 			{
-				Config: testAccDataSourceAppServerQuotas_basic,
+				Config: testAccDataAppServerQuotas_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSourceName, "quotas.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttr(dataSourceName, "is_enough", "true"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "quotas.0.type"),
+					resource.TestMatchResourceAttr(all, "quotas.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttr(all, "is_enough", "true"),
+					resource.TestCheckResourceAttrSet(all, "quotas.0.type"),
+					// Filter by 'flavor_id' parameter.
 					dcByFlavorId.CheckResourceExists(),
 					resource.TestCheckOutput("is_flavor_id_filter_useful", "true"),
+					// Filter by 'is_period' parameter.
 					dcByIsPeriod.CheckResourceExists(),
 					resource.TestMatchResourceAttr(byIsPeriod, "quotas.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 				),
@@ -47,7 +50,7 @@ func TestAccDataSourceAppServerQuotas_basic(t *testing.T) {
 	})
 }
 
-const testAccDataSourceAppServerQuotas_notFound = `
+const testAccDataAppServerQuotas_notFound = `
 data "huaweicloud_workspace_app_server_quotas" "test" {
   product_id       = "not_exist"
   subscription_num = 1
@@ -56,7 +59,7 @@ data "huaweicloud_workspace_app_server_quotas" "test" {
 }
 `
 
-const testAccDataSourceAppServerQuotas_basic = `
+const testAccDataAppServerQuotas_basic = `
 data "huaweicloud_workspace_app_flavors" "test" {}
 
 locals {
@@ -64,7 +67,7 @@ locals {
   disk_size  = try(data.huaweicloud_workspace_app_flavors.test.flavors[0].system_disk_size, null)
 }
 
-data "huaweicloud_workspace_app_server_quotas" "test" {
+data "huaweicloud_workspace_app_server_quotas" "all" {
   product_id       = local.product_id
   subscription_num = 1
   disk_size        = local.disk_size

@@ -19,7 +19,7 @@ func TestAccAppServerAction_changeImage(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerImageInfo(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerImageId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		// This resource is a one-time action resource and there is no logic in the delete method.
@@ -75,14 +75,18 @@ func testAccAppServerAction_changeImage(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+variable "image_product_id" {
+  default = "%[2]s"
+}
+
 resource "huaweicloud_workspace_app_server_action" "test" {
   type      = "change-image"
   server_id = huaweicloud_workspace_app_server.test.id
   content   = jsonencode({
-    image_id            = "%[2]s"
-    image_type          = "gold"
+    image_id            = "%[3]s"
     os_type             = "Windows"
-	image_product_id    = "%[3]s"
+    image_type          = var.image_product_id != "" ? "gold" : null
+	image_product_id    = var.image_product_id != "" ? var.image_product_id : null
     update_access_agent = true
   })
 
@@ -93,8 +97,8 @@ resource "huaweicloud_workspace_app_server_action" "test" {
   }
 }
 `, testAccAppServerAction_base(name),
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
+		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID)
 }
 
 func TestAccAppServerAction_reinstall(t *testing.T) {

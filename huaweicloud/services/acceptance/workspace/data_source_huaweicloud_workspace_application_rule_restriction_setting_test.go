@@ -9,8 +9,8 @@ import (
 )
 
 func TestAccDataApplicationRuleRestrictionSetting_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_workspace_application_rule_restriction_setting.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	dcName := "data.huaweicloud_workspace_application_rule_restriction_setting.test"
+	dc := acceptance.InitDataSourceCheck(dcName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -20,11 +20,11 @@ func TestAccDataApplicationRuleRestrictionSetting_basic(t *testing.T) {
 				Config: testAccDataApplicationRuleRestrictionSetting_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSource, "app_restrict_rule_switch", "true"),
-					resource.TestCheckResourceAttr(dataSource, "app_control_mode", "0"),
-					resource.TestCheckResourceAttr(dataSource, "app_periodic_switch", "true"),
-					resource.TestCheckResourceAttr(dataSource, "app_periodic_interval", "10"),
-					resource.TestCheckResourceAttr(dataSource, "app_force_kill_proc_switch", "true"),
+					resource.TestCheckResourceAttr(dcName, "app_restrict_rule_switch", "true"),
+					resource.TestCheckResourceAttr(dcName, "app_control_mode", "0"),
+					resource.TestCheckResourceAttr(dcName, "app_periodic_switch", "true"),
+					resource.TestCheckResourceAttr(dcName, "app_periodic_interval", "10"),
+					resource.TestCheckResourceAttr(dcName, "app_force_kill_proc_switch", "true"),
 				),
 			},
 		},

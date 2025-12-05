@@ -31,6 +31,7 @@ func TestAccDataApplications_basic(t *testing.T) {
 			{
 				Config: testAccDataApplications_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dcName, "applications.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckResourceAttrSet(dcName, "applications.0.id"),
@@ -51,8 +52,8 @@ func TestAccDataApplications_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dcName, "applications.0.catalog"),
 					resource.TestMatchResourceAttr(dcName, "applications.0.application_file_store.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckResourceAttrSet(dcName, "applications.0.application_file_store.0.store_type"),
+					// Filter by 'name' parameter.
 					dcFilterByName.CheckResourceExists(),
-					resource.TestMatchResourceAttr(filterByName, "applications.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 				),
 			},
@@ -109,6 +110,7 @@ func testAccDataApplications_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+# Without any filter parameter.
 data "huaweicloud_workspace_applications" "all" {
   depends_on = [
     huaweicloud_workspace_application.with_file_store,
@@ -138,7 +140,7 @@ output "is_install_info_set_and_valid" {
   , false)
 }
 
-# Filter by name
+# Filter by 'name' parameter.
 data "huaweicloud_workspace_applications" "filter_by_name" {
   name = "%[2]s"
 
@@ -148,9 +150,12 @@ data "huaweicloud_workspace_applications" "filter_by_name" {
   ]
 }
 
+locals {
+  name_filter_result = [for v in data.huaweicloud_workspace_applications.filter_by_name.applications[*].name : strcontains(v, "%[2]s")]
+}
+
 output "is_name_filter_useful" {
-  value = length(data.huaweicloud_workspace_applications.filter_by_name.applications) > 0 && alltrue(
-    [for v in data.huaweicloud_workspace_applications.filter_by_name.applications[*].name : strcontains(v, "%[2]s")]
-  )
-}`, testAccDataApplications_base(name), name)
+  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
+}
+`, testAccDataApplications_base(name), name)
 }

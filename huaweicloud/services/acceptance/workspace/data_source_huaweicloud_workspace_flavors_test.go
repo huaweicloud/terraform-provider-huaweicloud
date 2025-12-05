@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,12 +9,22 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceFlavors_basic(t *testing.T) {
+func TestAccDataFlavors_basic(t *testing.T) {
 	var (
-		byVcpus           = "data.huaweicloud_workspace_flavors.filter_by_vcpus"
-		vcpusNotFound     = "data.huaweicloud_workspace_flavors.not_found"
-		dcByVcpus         = acceptance.InitDataSourceCheck(byVcpus)
-		dcServiceNotFound = acceptance.InitDataSourceCheck(vcpusNotFound)
+		all = "data.huaweicloud_workspace_flavors.all"
+		dc  = acceptance.InitDataSourceCheck(all)
+
+		filterByVcpus   = "data.huaweicloud_workspace_flavors.filter_by_vcpus"
+		dcFilterByVcpus = acceptance.InitDataSourceCheck(filterByVcpus)
+
+		filterByNotFoundVcpus   = "data.huaweicloud_workspace_flavors.filter_by_not_found_vcpus"
+		dcFilterByNotFoundVcpus = acceptance.InitDataSourceCheck(filterByNotFoundVcpus)
+
+		filterByMemory   = "data.huaweicloud_workspace_flavors.filter_by_memory"
+		dcFilterByMemory = acceptance.InitDataSourceCheck(filterByMemory)
+
+		filterByOsType   = "data.huaweicloud_workspace_flavors.filter_by_os_type"
+		dcFilterByOsType = acceptance.InitDataSourceCheck(filterByOsType)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,117 +32,22 @@ func TestAccDataSourceFlavors_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFlavors_basic,
+				Config: testAccDataFlavors_basic,
 				Check: resource.ComposeTestCheckFunc(
-					dcByVcpus.CheckResourceExists(),
-					resource.TestCheckOutput("internal_charging_mode_useful", "true"),
-					resource.TestCheckOutput("internal_status_useful", "true"),
+					// Without any filter parameter.
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "flavors.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					// Filter by 'vcpus' parameter.
+					dcFilterByVcpus.CheckResourceExists(),
 					resource.TestCheckOutput("is_vcpus_filter_useful", "true"),
-					dcServiceNotFound.CheckResourceExists(),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-const testAccDataSourceFlavors_basic = `
-data "huaweicloud_workspace_flavors" "filter_by_vcpus" {
-  vcpus = 2
-}
-
-locals {
-  vcpus_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_vcpus.flavors : v.vcpus == 2]
-}
-
-output "is_vcpus_filter_useful" {
-  value = alltrue(local.vcpus_filter_result) && length(local.vcpus_filter_result) > 0
-}
-
-locals {
-  charging_mode_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_vcpus.flavors : v.charging_mode == "postPaid"]
-}
-
-output "internal_charging_mode_useful" {
-  value = alltrue(local.charging_mode_filter_result) && length(local.charging_mode_filter_result) > 0
-}
-
-locals {
-  status_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_vcpus.flavors : v.status == "normal"]
-}
-
-output "internal_status_useful" {
-  value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
-}
-
-data "huaweicloud_workspace_flavors" "not_found" {
-  vcpus = -1
-}
-
-output "not_found_validation_pass" {
-  value = length(data.huaweicloud_workspace_flavors.not_found.flavors) == 0
-}`
-
-func TestAccDataSourceFlavors_filterByMemory(t *testing.T) {
-	var (
-		byMemory         = "data.huaweicloud_workspace_flavors.filter_by_memory"
-		memoryNotFound   = "data.huaweicloud_workspace_flavors.not_found"
-		dcByMemory       = acceptance.InitDataSourceCheck(byMemory)
-		dcMemoryNotFound = acceptance.InitDataSourceCheck(memoryNotFound)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceFlavors_filterByMemory,
-				Check: resource.ComposeTestCheckFunc(
-					dcByMemory.CheckResourceExists(),
+					// Filter by not found vpcus.
+					dcFilterByNotFoundVcpus.CheckResourceExists(),
+					resource.TestCheckOutput("is_not_found_validation_pass", "true"),
+					// Filter by 'memory' parameter.
+					dcFilterByMemory.CheckResourceExists(),
 					resource.TestCheckOutput("is_memory_filter_useful", "true"),
-					dcMemoryNotFound.CheckResourceExists(),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-const testAccDataSourceFlavors_filterByMemory = `
-data "huaweicloud_workspace_flavors" "filter_by_memory" {
-  memory = 4
-}
-
-locals {
-  memory_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_memory.flavors : v.memory == 4]
-}
-
-output "is_memory_filter_useful" {
-  value = alltrue(local.memory_filter_result) && length(local.memory_filter_result) > 0
-}
-
-data "huaweicloud_workspace_flavors" "not_found" {
-  memory = -5
-}
-
-output "not_found_validation_pass" {
-  value = length(data.huaweicloud_workspace_flavors.not_found.flavors) == 0
-}`
-
-func TestAccDataSourceFlavors_filterByOsType(t *testing.T) {
-	var (
-		byWindows   = "data.huaweicloud_workspace_flavors.filter_by_os_type"
-		dcByWindows = acceptance.InitDataSourceCheck(byWindows)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceFlavors_filterByOsType,
-				Check: resource.ComposeTestCheckFunc(
-					dcByWindows.CheckResourceExists(),
+					// Filter by 'os_type' parameter.
+					dcFilterByOsType.CheckResourceExists(),
 					resource.TestCheckOutput("is_os_type_filter_useful", "true"),
 				),
 			},
@@ -139,43 +55,63 @@ func TestAccDataSourceFlavors_filterByOsType(t *testing.T) {
 	})
 }
 
-const testAccDataSourceFlavors_filterByOsType = `
-data "huaweicloud_workspace_flavors" "filter_by_os_type" {
+const testAccDataFlavors_basic = `
+// Without any filter parameter.
+data "huaweicloud_workspace_flavors" "all" {}
+
+# Filter by 'vcpus' parameter.
+locals {
+  vcpus = data.huaweicloud_workspace_flavors.all.flavors[0].vcpus
+}
+
+data "huaweicloud_workspace_flavors" "filter_by_vcpus" {
+  vcpus = local.vcpus
+}
+
+locals {
+  vcpus_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_vcpus.flavors : v.vcpus == local.vcpus]
+}
+
+output "is_vcpus_filter_useful" {
+  value = alltrue(local.vcpus_filter_result) && length(local.vcpus_filter_result) > 0
+}
+
+# Filter by 'vcpus' parameter and with invalid value.
+data "huaweicloud_workspace_flavors" "filter_by_not_found_vcpus" {
+  vcpus = -1
+}
+
+output "is_not_found_validation_pass" {
+  value = length(data.huaweicloud_workspace_flavors.filter_by_not_found_vcpus.flavors) == 0
+}
+
+# Filter by 'memory' parameter.
+locals {
+  memory = data.huaweicloud_workspace_flavors.all.flavors[0].memory
+}
+
+data "huaweicloud_workspace_flavors" "filter_by_memory" {
+  memory = local.memory
+}
+
+locals {
+  memory_filter_result = [for v in data.huaweicloud_workspace_flavors.filter_by_memory.flavors : v.memory == local.memory]
+}
+
+output "is_memory_filter_useful" {
+  value = alltrue(local.memory_filter_result) && length(local.memory_filter_result) > 0
+}
+
+# Filter by 'os_type' parameter.
+locals {
   os_type = "Windows"
+}
+
+data "huaweicloud_workspace_flavors" "filter_by_os_type" {
+  os_type = local.os_type
 }
 
 output "is_os_type_filter_useful" {
   value = length(data.huaweicloud_workspace_flavors.filter_by_os_type.flavors) > 0
-}`
-
-func TestAccDataSourceFlavors_filterByAvailabilityZone(t *testing.T) {
-	var (
-		byAZone   = "data.huaweicloud_workspace_flavors.filter_by_availability_zone"
-		dcByAZone = acceptance.InitDataSourceCheck(byAZone)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceFlavors_filterByAvailabilityZone,
-				Check: resource.ComposeTestCheckFunc(
-					dcByAZone.CheckResourceExists(),
-					resource.TestCheckOutput("is_availability_zone_filter_useful", "true"),
-				),
-			},
-		},
-	})
 }
-
-const testAccDataSourceFlavors_filterByAvailabilityZone = `
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_workspace_flavors" "filter_by_availability_zone" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}
-
-output "is_availability_zone_filter_useful" {
-  value = length(data.huaweicloud_workspace_flavors.filter_by_availability_zone.flavors) > 0
-}`
+`

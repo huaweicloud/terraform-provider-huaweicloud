@@ -8,9 +8,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceAppStoragePolicies_basic(t *testing.T) {
+func TestAccDataAppStoragePolicies_basic(t *testing.T) {
 	var (
-		all = "data.huaweicloud_workspace_app_storage_policies.test"
+		all = "data.huaweicloud_workspace_app_storage_policies.all"
 		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
@@ -22,8 +22,9 @@ func TestAccDataSourceAppStoragePolicies_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceAppStoragePolicies_basic,
+				Config: testAccDataAppStoragePolicies_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
 					resource.TestCheckOutput("is_system_policy_exist", "true"),
 					resource.TestCheckOutput("is_policy_id_filter_useful", "true"),
@@ -33,29 +34,29 @@ func TestAccDataSourceAppStoragePolicies_basic(t *testing.T) {
 	})
 }
 
-const testAccDataSourceAppStoragePolicies_basic string = `
+const testAccDataAppStoragePolicies_basic string = `
 resource "huaweicloud_workspace_app_storage_policy" "test" {
   server_actions = ["GetObject"]
 }
 
-data "huaweicloud_workspace_app_storage_policies" "test" {
+data "huaweicloud_workspace_app_storage_policies" "all" {
   depends_on = [huaweicloud_workspace_app_storage_policy.test]
 }
 
-// Filter all system policies
+# Filter all system policies
 locals {
-  system_policies = [for o in data.huaweicloud_workspace_app_storage_policies.test.policies: o if strcontains(o.id, "DEFAULT")]
+  system_policies = [for o in data.huaweicloud_workspace_app_storage_policies.all.policies: o if strcontains(o.id, "DEFAULT")]
 }
 
 output "is_system_policy_exist" {
   value = length(local.system_policies) > 0
 }
 
-// Filter by storage permission policy ID, in manual
+# Filter by storage permission policy ID, in manual
 locals {
   policy_id = huaweicloud_workspace_app_storage_policy.test.id
 
-  policy_id_filter_result = [for o in data.huaweicloud_workspace_app_storage_policies.test.policies: o if o.id == local.policy_id]
+  policy_id_filter_result = [for o in data.huaweicloud_workspace_app_storage_policies.all.policies: o if o.id == local.policy_id]
 }
 
 output "is_policy_id_filter_useful" {

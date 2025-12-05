@@ -14,8 +14,8 @@ func TestAccDataApplicationRestrictedRules_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceNameWithDash()
 
-		dcName = "data.huaweicloud_workspace_application_restricted_rules.test"
-		dc     = acceptance.InitDataSourceCheck(dcName)
+		all = "data.huaweicloud_workspace_application_restricted_rules.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		filterByName   = "data.huaweicloud_workspace_application_restricted_rules.filter_by_name"
 		dcFilterByName = acceptance.InitDataSourceCheck(filterByName)
@@ -30,16 +30,17 @@ func TestAccDataApplicationRestrictedRules_basic(t *testing.T) {
 			{
 				Config: testAccDataApplicationRestrictedRules_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "rules.#", regexp.MustCompile(`^[0-9]+$`)),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.id"),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.name"),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.rule_source"),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.create_time"),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.update_time"),
-					resource.TestCheckResourceAttrSet(dcName, "rules.0.rule.0.scope"),
+					resource.TestMatchResourceAttr(all, "rules.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "rules.0.id"),
+					resource.TestCheckResourceAttrSet(all, "rules.0.name"),
+					resource.TestCheckResourceAttrSet(all, "rules.0.rule_source"),
+					resource.TestCheckResourceAttrSet(all, "rules.0.create_time"),
+					resource.TestCheckResourceAttrSet(all, "rules.0.update_time"),
+					resource.TestCheckResourceAttrSet(all, "rules.0.rule.0.scope"),
+					// Filter by 'name' parameter.
 					dcFilterByName.CheckResourceExists(),
-					resource.TestMatchResourceAttr(filterByName, "rules.#", regexp.MustCompile(`^[0-9]+$`)),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 				),
 			},
@@ -49,7 +50,7 @@ func TestAccDataApplicationRestrictedRules_basic(t *testing.T) {
 
 func testAccDataApplicationRestrictedRules_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_workspace_application_rule" "with_product_rule" {
+resource "huaweicloud_workspace_application_rule" "test" {
   name        = "%[1]s"
   description = "Created by terraform script"
 
@@ -69,7 +70,7 @@ resource "huaweicloud_workspace_application_rule" "with_product_rule" {
 }
 
 resource "huaweicloud_workspace_application_rule_restriction" "test" {
-  rule_ids = [huaweicloud_workspace_application_rule.with_product_rule.id]
+  rule_ids = [huaweicloud_workspace_application_rule.test.id]
 }
 `, name)
 }
@@ -78,14 +79,16 @@ func testAccDataApplicationRestrictedRules_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_workspace_application_restricted_rules" "test" {
+# Without any filter parameter.
+data "huaweicloud_workspace_application_restricted_rules" "all" {
   depends_on = [
     huaweicloud_workspace_application_rule_restriction.test
   ]
 }
 
+# Filter by 'name' parameter.
 locals {
-  rule_name = huaweicloud_workspace_application_rule.with_product_rule.name
+  rule_name = huaweicloud_workspace_application_rule.test.name
 }
 
 data "huaweicloud_workspace_application_restricted_rules" "filter_by_name" {
@@ -98,7 +101,7 @@ data "huaweicloud_workspace_application_restricted_rules" "filter_by_name" {
 
 locals {
   name_filter_result = [
-    for v in data.huaweicloud_workspace_application_restricted_rules.filter_by_name.rules[*].name : v == "%[2]s"
+    for v in data.huaweicloud_workspace_application_restricted_rules.filter_by_name.rules[*].name : v == local.rule_name
   ]
 }
 

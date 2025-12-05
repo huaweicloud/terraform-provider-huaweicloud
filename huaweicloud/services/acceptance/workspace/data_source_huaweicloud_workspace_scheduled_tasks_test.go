@@ -11,22 +11,21 @@ import (
 
 func TestAccDataScheduledTasks_basic(t *testing.T) {
 	var (
-		dataSourceName = "data.huaweicloud_workspace_scheduled_tasks.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		all = "data.huaweicloud_workspace_scheduled_tasks.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
-		byTaskName   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_task_name"
-		dcByTaskName = acceptance.InitDataSourceCheck(byTaskName)
+		filterByTaskName   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_task_name"
+		dcFilterByTaskName = acceptance.InitDataSourceCheck(filterByTaskName)
 
-		byTaskType   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_task_type"
-		dcByTaskType = acceptance.InitDataSourceCheck(byTaskType)
+		filterByTaskType   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_task_type"
+		dcFilterByTaskType = acceptance.InitDataSourceCheck(filterByTaskType)
 
-		byScheduledType   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_scheduled_type"
-		dcByScheduledType = acceptance.InitDataSourceCheck(byScheduledType)
+		filterByScheduledType   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_scheduled_type"
+		dcFilterByScheduledType = acceptance.InitDataSourceCheck(filterByScheduledType)
 
-		byLastStatus   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_last_status"
-		dcByLastStatus = acceptance.InitDataSourceCheck(byLastStatus)
+		filterByLastStatus   = "data.huaweicloud_workspace_scheduled_tasks.filter_by_last_status"
+		dcFilterByLastStatus = acceptance.InitDataSourceCheck(filterByLastStatus)
 	)
-
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -34,21 +33,26 @@ func TestAccDataScheduledTasks_basic(t *testing.T) {
 			{
 				Config: testAccDataScheduledTasks_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSourceName, "tasks.#", regexp.MustCompile(`^[0-9]+$`)),
-					dcByTaskName.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "tasks.#", regexp.MustCompile(`^[0-9]+$`)),
+					// Filter by 'task_name' parameter.
+					dcFilterByTaskName.CheckResourceExists(),
 					resource.TestCheckOutput("is_task_name_filter_useful", "true"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.id"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.name"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.type"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.scheduled_type"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.enable"),
-					resource.TestCheckResourceAttrSet(byTaskName, "tasks.0.time_zone"),
-					dcByTaskType.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.id"),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.name"),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.type"),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.scheduled_type"),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.enable"),
+					resource.TestCheckResourceAttrSet(filterByTaskName, "tasks.0.time_zone"),
+					// Filter by 'task_type' parameter.
+					dcFilterByTaskType.CheckResourceExists(),
 					resource.TestCheckOutput("is_task_type_filter_useful", "true"),
-					dcByScheduledType.CheckResourceExists(),
+					// Filter by 'scheduled_type' parameter.
+					dcFilterByScheduledType.CheckResourceExists(),
 					resource.TestCheckOutput("is_scheduled_type_filter_useful", "true"),
-					dcByLastStatus.CheckResourceExists(),
+					// Filter by 'last_status' parameter.
+					dcFilterByLastStatus.CheckResourceExists(),
 					resource.TestCheckOutput("is_last_status_filter_useful", "true"),
 				),
 			},
@@ -58,13 +62,13 @@ func TestAccDataScheduledTasks_basic(t *testing.T) {
 
 const testAccDataScheduledTasks_basic = `
 # Query all scheduled tasks without any filter parameters.
-data "huaweicloud_workspace_scheduled_tasks" "test" {}
+data "huaweicloud_workspace_scheduled_tasks" "all" {}
 
 locals {
-  task_name      = try(data.huaweicloud_workspace_scheduled_tasks.test.tasks[0].name, "NOT_FOUND")
-  task_type      = try(data.huaweicloud_workspace_scheduled_tasks.test.tasks[0].type, "NOT_FOUND")
-  scheduled_type = try(data.huaweicloud_workspace_scheduled_tasks.test.tasks[0].scheduled_type, "NOT_FOUND")
-  last_status    = try([for v in data.huaweicloud_workspace_scheduled_tasks.test.tasks : v.last_status if v.last_status != ""][0], "NOT_FOUND")
+  task_name      = try(data.huaweicloud_workspace_scheduled_tasks.all.tasks[0].name, "NOT_FOUND")
+  task_type      = try(data.huaweicloud_workspace_scheduled_tasks.all.tasks[0].type, "NOT_FOUND")
+  scheduled_type = try(data.huaweicloud_workspace_scheduled_tasks.all.tasks[0].scheduled_type, "NOT_FOUND")
+  last_status    = try([for v in data.huaweicloud_workspace_scheduled_tasks.all.tasks : v.last_status if v.last_status != ""][0], "NOT_FOUND")
 }
 
 # Filter by task name.

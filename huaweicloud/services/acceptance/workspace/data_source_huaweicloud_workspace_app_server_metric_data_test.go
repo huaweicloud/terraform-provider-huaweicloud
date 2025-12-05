@@ -43,8 +43,8 @@ func TestAccDataAppServerMetricData_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataAppServerMetricData_serverIdNotFound(startTime, endTime),
-				ExpectError: regexp.MustCompile("The cloud application server requested by the client was not found, and '" +
-					".+" + "' is a non-existing cloud application server."),
+				ExpectError: regexp.MustCompile(
+					`The cloud application server requested by the client was not found, and '.*' is a non-existing cloud application server.`),
 			},
 			{
 				Config: testAccDataAppServerMetricData_basic(startTime, endTime),
