@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_shared_folder_assign": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the WKS storage is located.",
+                "computed": true
+              },
+              "storage_claim_id": {
+                "type": "string",
+                "description": "The WKS storage directory claim ID.",
+                "required": true
+              },
+              "storage_id": {
+                "type": "string",
+                "description": "The WKS storage ID to which the shared folder belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "add_items": {
+                "block": {
+                  "attributes": {
+                    "attach": {
+                      "type": "string",
+                      "description": "The target.",
+                      "required": true
+                    },
+                    "attach_type": {
+                      "type": "string",
+                      "description": "The associated object type.",
+                      "required": true
+                    },
+                    "policy_statement_id": {
+                      "type": "string",
+                      "description": "The policy ID.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of members to be added."
+                },
+                "nesting_mode": "list"
+              },
+              "del_items": {
+                "block": {
+                  "attributes": {
+                    "attach": {
+                      "type": "string",
+                      "description": "The target.",
+                      "required": true
+                    },
+                    "attach_type": {
+                      "type": "string",
+                      "description": "The associated object type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of members to be removed."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

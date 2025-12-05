@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_shared_folders": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "path": {
+                "type": "string",
+                "description": "The shared folder path for query.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the WKS storage is located.",
+                "computed": true
+              },
+              "shared_folders": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "claim_mode": "string",
+                      "count": [
+                        "map",
+                        "number"
+                      ],
+                      "delimiter": "string",
+                      "folder_path": "string",
+                      "storage_claim_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the shared folders that matched filter parameters.",
+                "computed": true
+              },
+              "storage_claim_id": {
+                "type": "string",
+                "description": "The WKS storage directory claim ID.",
+                "optional": true
+              },
+              "storage_id": {
+                "type": "string",
+                "description": "The WKS storage ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

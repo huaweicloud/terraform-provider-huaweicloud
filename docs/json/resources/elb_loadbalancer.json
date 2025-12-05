@@ -88,6 +88,7 @@
               },
               "gw_flavor_id": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "id": {

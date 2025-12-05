@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_ou_users": {
+          "block": {
+            "attributes": {
+              "enable_create_count": {
+                "type": "number",
+                "description": "The number of users that can be created.",
+                "computed": true
+              },
+              "has_existed": {
+                "type": "bool",
+                "description": "Whether the user already exists in the user list.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ou_dn": {
+                "type": "string",
+                "description": "The distinguished name (DN) of the OU.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the OU users are located.",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The name of the user to which the OU belongs.",
+                "optional": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expired_time": "string",
+                      "has_existed": "bool",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of users that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

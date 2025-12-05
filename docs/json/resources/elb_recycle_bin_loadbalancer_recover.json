@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_recycle_bin_loadbalancer_recover": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
