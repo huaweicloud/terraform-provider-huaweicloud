@@ -48,8 +48,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `coordinator_id` - Indicates the coordinator id of the consumer group.
 
-* `lag` - Indicates the lag number of the consumer group.
-
 * `created_at` - Indicates the creation time of the consumer group.
 
 ## Import
