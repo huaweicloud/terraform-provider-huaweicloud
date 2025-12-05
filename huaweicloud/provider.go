@@ -1477,6 +1477,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_resource_quotas":                            hss.DataSourceResourceQuotas(),
 			"huaweicloud_hss_setting_alarm_configuration":                hss.DataSourceSettingAlarmConfiguration(),
 			"huaweicloud_hss_setting_dictionaries":                       hss.DataSourceSettingDictionaries(),
+			"huaweicloud_hss_setting_docker_plugin_install_script":       hss.DataSourceSettingDockerPluginInstallScript(),
 			"huaweicloud_hss_setting_login_common_ips":                   hss.DataSourceSettingLoginCommonIps(),
 			"huaweicloud_hss_setting_login_common_locations":             hss.DataSourceSettingLoginCommonLocations(),
 			"huaweicloud_hss_setting_login_white_ips":                    hss.DataSourceSettingLoginWhiteIps(),
