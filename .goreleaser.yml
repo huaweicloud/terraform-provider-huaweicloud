@@ -1,5 +1,7 @@
 # Visit https://goreleaser.com for documentation on how to customize this
 # behavior.
+parallelism: 4
+
 before:
   hooks:
     # this is just an example and not a requirement for provider building/publishing
@@ -10,6 +12,7 @@ builds:
     # usage by users in CI/CD systems like Terraform Cloud where
     # they are unable to install libraries.
     - CGO_ENABLED=0
+  max_parallelism: 4
   mod_timestamp: '{{ .CommitTimestamp }}'
   flags:
     - -mod=readonly
