@@ -3828,6 +3828,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_pool":                         workspace.ResourceDesktopPool(),
 			"huaweicloud_workspace_desktop_pool_action":                  workspace.ResourceDesktopPoolAction(),
 			"huaweicloud_workspace_desktop_pool_notification":            workspace.ResourceDesktopPoolNotification(),
+			"huaweicloud_workspace_desktop_volume_batch_delete":          workspace.ResourceDesktopVolumeBatchDelete(),
 			"huaweicloud_workspace_eip_associate":                        workspace.ResourceEipAssociate(),
 			"huaweicloud_workspace_log_configuration":                    workspace.ResourceLogConfiguration(),
 			"huaweicloud_workspace_notification_rule":                    workspace.ResourceNotificationRule(),
