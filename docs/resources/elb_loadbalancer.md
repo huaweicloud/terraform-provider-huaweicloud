@@ -196,6 +196,8 @@ The following arguments are supported:
 
 * `l7_flavor_id` - (Optional, String) The L7 flavor id of the load balancer.
 
+* `gw_flavor_id` - (Optional, String) The flavor ID of the gateway load balancer.
+
 * `backend_subnets` - (Optional, List) The IDs of subnets on the downstream plane.
   + If this parameter is not specified, select subnets as follows:
       - If IPv6 is enabled for a load balancer, the ID of subnet specified in `ipv6_network_id` will be used.
@@ -252,8 +254,6 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the load balancer.
-
-* `gw_flavor_id` - The flavor ID of the gateway load balancer.
 
 * `ipv4_port_id` - The ID of the port bound to the private IPv4 address of the load balancer.
 

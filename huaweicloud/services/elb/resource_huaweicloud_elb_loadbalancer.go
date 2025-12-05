@@ -110,6 +110,11 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"gw_flavor_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"cross_vpc_backend": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -304,10 +309,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"gw_flavor_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"autoscaling_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -412,6 +413,7 @@ func buildCreateLoadBalancerBodyParams(d *schema.ResourceData, cfg *config.Confi
 		"protection_status":          utils.ValueIgnoreEmpty(d.Get("protection_status").(string)),
 		"protection_reason":          utils.ValueIgnoreEmpty(d.Get("protection_reason").(string)),
 		"loadbalancer_type":          utils.ValueIgnoreEmpty(d.Get("loadbalancer_type").(string)),
+		"gw_flavor_id":               utils.ValueIgnoreEmpty(d.Get("gw_flavor_id").(string)),
 		"description":                utils.ValueIgnoreEmpty(d.Get("description").(string)),
 		"enterprise_project_id":      utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"deletion_protection_enable": utils.ValueIgnoreEmpty(d.Get("deletion_protection_enable").(bool)),
@@ -608,8 +610,8 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
-		"ipv4_address", "ipv6_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
-		"protection_status", "protection_reason", "deletion_protection_enable", "waf_failure_action",
+		"ipv4_address", "ipv6_address", "l4_flavor_id", "l7_flavor_id", "gw_flavor_id", "autoscaling_enabled",
+		"min_l7_flavor_id", "protection_status", "protection_reason", "deletion_protection_enable", "waf_failure_action",
 	}
 	if d.HasChanges(updateLoadBalancerChanges...) {
 		params := buildUpdateLoadBalancerParamsBodyParams(d)
@@ -668,8 +670,9 @@ func buildUpdateLoadBalancerParamsBodyParams(d *schema.ResourceData) map[string]
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           d.Get("description"),
-		"l4_flavor_id":          d.Get("l4_flavor_id"),
-		"l7_flavor_id":          d.Get("l7_flavor_id"),
+		"l4_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l4_flavor_id")),
+		"l7_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l7_flavor_id")),
+		"gw_flavor_id":          utils.ValueIgnoreEmpty(d.Get("gw_flavor_id")),
 		"protection_status":     utils.ValueIgnoreEmpty(d.Get("protection_status")),
 		"protection_reason":     d.Get("protection_reason"),
 		"waf_failure_action":    utils.ValueIgnoreEmpty(d.Get("waf_failure_action")),
