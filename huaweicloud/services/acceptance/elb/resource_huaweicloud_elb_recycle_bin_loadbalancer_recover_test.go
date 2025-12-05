@@ -27,7 +27,7 @@ func TestAccElbRecycleBinLoadBalancerRecover_Basic(t *testing.T) {
 
 func testAccElbRecycleBinLoadBalancerRecover_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_elb_recycle_bin_loadbalancer_revocer" "test" {
+resource "huaweicloud_elb_recycle_bin_loadbalancer_recover" "test" {
   loadbalancer_id = "%s"
 }
 `, acceptance.HW_ELB_LOADBALANCER_ID)

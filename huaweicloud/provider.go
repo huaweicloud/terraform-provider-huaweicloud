@@ -2369,6 +2369,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_rocketmq_broker":   rocketmq.DataSourceBrokers(),
 
+			"huaweicloud_elb_recycle_bin_loadbalancer_revocer": elb.ResourceElbRecycleBinLoadBalancerRecover(),
+
 			"huaweicloud_identity_role_v3":             iam.DataSourceIdentityRole(),
 			"huaweicloud_identity_virtual_mfa_devices": iam.DataSourceIamIdentityVirtualMfaDevices(),
 
@@ -3044,7 +3046,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_logtank":                          elb.ResourceLogTank(),
 			"huaweicloud_elb_security_policy":                  elb.ResourceSecurityPolicy(),
 			"huaweicloud_elb_recycle_bin":                      elb.ResourceElbRecycleBin(),
-			"huaweicloud_elb_recycle_bin_loadbalancer_revocer": elb.ResourceElbRecycleBinLoadBalancerRecover(),
+			"huaweicloud_elb_recycle_bin_loadbalancer_recover": elb.ResourceElbRecycleBinLoadBalancerRecover(),
 			"huaweicloud_elb_recycle_bin_loadbalancer_delete":  elb.ResourceElbRecycleBinLoadBalancerDelete(),
 
 			"huaweicloud_enterprise_project":           eps.ResourceEnterpriseProject(),

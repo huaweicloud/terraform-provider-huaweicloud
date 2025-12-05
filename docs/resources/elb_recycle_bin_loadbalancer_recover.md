@@ -1,12 +1,12 @@
 ---
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_elb_recycle_bin_loadbalancer_revocer"
+page_title: "HuaweiCloud: huaweicloud_elb_recycle_bin_loadbalancer_recover"
 description: |-
   Manages an ELB recycle bin load balancer recover resource within HuaweiCloud.
 ---
 
-# huaweicloud_elb_recycle_bin_loadbalancer_revocer
+# huaweicloud_elb_recycle_bin_loadbalancer_recover
 
 Manages an ELB recycle bin load balancer recover resource within HuaweiCloud.
 
@@ -15,7 +15,7 @@ Manages an ELB recycle bin load balancer recover resource within HuaweiCloud.
 ```hcl
 variable "loadbalancer_id" {}
 
-resource "huaweicloud_elb_recycle_bin_loadbalancer_revocer" "test" {
+resource "huaweicloud_elb_recycle_bin_loadbalancer_recover" "test" {
   loadbalancer_id = var.loadbalancer_id
 }
 ```
