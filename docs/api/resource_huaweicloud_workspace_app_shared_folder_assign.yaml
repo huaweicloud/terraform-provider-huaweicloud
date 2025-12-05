@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_shared_folder_assign
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/persistent-storages/{storage_id}/actions/assign-share-folder:
+        POST:
+            tag: Workspace
