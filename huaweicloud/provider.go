@@ -3857,7 +3857,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_personal_folders":                        workspace.ResourceAppPersonalFolders(),
 			"huaweicloud_workspace_app_policy_group":                            workspace.ResourceAppPolicyGroup(),
 			"huaweicloud_workspace_app_policy_template":                         workspace.ResourceAppPolicyTemplate(),
-			"huaweicloud_workspace_app_repo_bucket_assign":                      workspace.ResourceAppRepoBucketAssign(),
 			"huaweicloud_workspace_app_schedule_task":                           workspace.ResourceAppScheduleTask(),
 			"huaweicloud_workspace_app_server":                                  workspace.ResourceAppServer(),
 			"huaweicloud_workspace_app_server_action":                           workspace.ResourceAppServerAction(),
@@ -3871,6 +3870,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_shared_folder_assign":                    workspace.ResourceAppSharedFolderAssign(),
 			"huaweicloud_workspace_app_storage_policy":                          workspace.ResourceAppStoragePolicy(),
 			"huaweicloud_workspace_app_warehouse_application":                   workspace.ResourceAppWarehouseApplication(),
+			"huaweicloud_workspace_app_warehouse_bucket_authorize":              workspace.ResourceAppWarehouseBucketAuthorize(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
@@ -4044,7 +4044,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain_v1":               cdn.ResourceDomain(),
 			"huaweicloud_scm_certificate":             ccm.ResourceCertificateImport(),
 
-			"huaweicloud_workspace_app_publishment": workspace.ResourceAppApplicationPublishment(),
+			"huaweicloud_workspace_app_publishment":        workspace.ResourceAppApplicationPublishment(),
+			"huaweicloud_workspace_app_repo_bucket_assign": workspace.ResourceAppWarehouseBucketAuthorize(),
 
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),

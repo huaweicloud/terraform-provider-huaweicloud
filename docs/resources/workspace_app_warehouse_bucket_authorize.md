@@ -1,12 +1,12 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_app_repo_bucket_assign"
+page_title: "HuaweiCloud: huaweicloud_workspace_app_warehouse_bucket_authorize"
 description: |-
   Use this resource to assign a bucket for the app repository within HuaweiCloud.
 ---
 
-# huaweicloud_workspace_app_repo_bucket_assign
+# huaweicloud_workspace_app_warehouse_bucket_authorize
 
 Use this resource to assign a bucket for the app repository within HuaweiCloud.
 
@@ -19,7 +19,7 @@ Use this resource to assign a bucket for the app repository within HuaweiCloud.
 ```hcl
 variable "bucket_name" {}
 
-resource "huaweicloud_workspace_app_repo_bucket_assign" "test" {
+resource "huaweicloud_workspace_app_warehouse_bucket_authorize" "test" {
   bucket_name = var.bucket_name
 }
 ```

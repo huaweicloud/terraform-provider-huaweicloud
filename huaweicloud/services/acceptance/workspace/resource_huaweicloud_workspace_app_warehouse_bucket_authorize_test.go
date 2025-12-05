@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccResourceAppRepoBucketAssign_basic(t *testing.T) {
+func TestAccResourceAppWarehouseBucketAuthorize_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceNameWithDash()
 	)
@@ -24,20 +24,20 @@ func TestAccResourceAppRepoBucketAssign_basic(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceAppRepoBucketAssign,
+				Config: testAccResourceAppWarehouseBucketAuthorize,
 			},
 			{
-				Config: testAccResourceAppRepoBucketAssign_withName(name),
+				Config: testAccResourceAppWarehouseBucketAuthorize_withName(name),
 			},
 		},
 	})
 }
 
-const testAccResourceAppRepoBucketAssign = `resource "huaweicloud_workspace_app_repo_bucket_assign" "test" {}`
+const testAccResourceAppWarehouseBucketAuthorize = `resource "huaweicloud_workspace_app_warehouse_bucket_authorize" "test" {}`
 
-func testAccResourceAppRepoBucketAssign_withName(name string) string {
+func testAccResourceAppWarehouseBucketAuthorize_withName(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_workspace_app_repo_bucket_assign" "test_with_name" {
+resource "huaweicloud_workspace_app_warehouse_bucket_authorize" "test_with_name" {
   bucket_name = "%[1]s"
 }`, name)
 }
