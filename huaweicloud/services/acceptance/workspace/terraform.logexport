@@ -1,0 +1,2724 @@
+2025-12-05T16:55:31.948+0800 [DEBUG] sdk.helper_resource: Starting TestCase: test_name=TestAccDesktop_basic test_step_number=4
+2025-12-05T16:55:31.948+0800 [DEBUG] sdk.helper_resource: Calling TestCase PreCheck: test_step_number=4 test_name=TestAccDesktop_basic
+2025-12-05T16:55:31.948+0800 [DEBUG] sdk.helper_resource: Called TestCase PreCheck: test_name=TestAccDesktop_basic test_step_number=4
+2025-12-05T16:55:31.950+0800 [DEBUG] sdk.helper_resource: Found Terraform CLI: test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform
+2025-12-05T16:55:32.697+0800 [DEBUG] sdk.helper_resource: Creating sdkv2 provider instance: test_step_number=4 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic
+2025-12-05T16:55:32.697+0800 [DEBUG] sdk.helper_resource: Created sdkv2 provider instance: test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform
+2025-12-05T16:55:32.697+0800 [DEBUG] sdk.helper_resource: Starting sdkv2 provider instance server: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789
+2025-12-05T16:55:32.701+0800 [DEBUG] sdk.helper_resource: Started sdkv2 provider instance server: test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:55:33.011+0800 [DEBUG] sdk.helper_resource: Stopping providers: test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform
+2025-12-05T16:55:33.012+0800 [DEBUG] sdk.helper_resource: Starting TestSteps: test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=4 test_terraform_path=/usr/bin/terraform
+2025-12-05T16:55:33.012+0800 [DEBUG] sdk.helper_resource: Starting TestStep: test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1
+2025-12-05T16:55:33.013+0800 [DEBUG] sdk.helper_resource: Creating sdkv2 provider instance: test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform
+2025-12-05T16:55:33.013+0800 [DEBUG] sdk.helper_resource: Created sdkv2 provider instance: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789
+2025-12-05T16:55:33.013+0800 [DEBUG] sdk.helper_resource: Starting sdkv2 provider instance server: test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:55:33.014+0800 [DEBUG] sdk.helper_resource: Started sdkv2 provider instance server: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789
+2025/12/05 16:55:42 [DEBUG] customer endpoints: map[]
+2025/12/05 16:55:42 [DEBUG] [1764924942014-1] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942014-1] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 469
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=41fbbd9e973d6fe79e; path=/
+Set-Cookie: HWWAFSESTIME=1764924938187; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: cache_cn-north-4_null_9392c2c2f5fdd1a404b4e10204cce354
+X-Request-Id: 9392c2c2f5fdd1a404b4e10204cce354
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942014-1] API Response Body: {
+  "links": {
+    "next": null,
+    "previous": null,
+    "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4"
+  },
+  "projects": [
+    {
+      "description": "",
+      "domain_id": "0970d7b7d400f2470fbec00316a03560",
+      "enabled": true,
+      "id": "0970dd7a1300f5672ff2c003c60ae115",
+      "is_domain": false,
+      "links": {
+        "next": null,
+        "previous": null,
+        "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects/0970dd7a1300f5672ff2c003c60ae115"
+      },
+      "name": "cn-north-4",
+      "parent_id": "0970d7b7d400f2470fbec00316a03560"
+    }
+  ]
+}
+2025/12/05 16:55:42 [DEBUG] init region and project map: map[string]string{"cn-north-4":"0970dd7a1300f5672ff2c003c60ae115"}
+2025/12/05 16:55:42 [DEBUG] [1764924942278-2] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/auth/domains
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942278-2] API Response Code: 200
+API Response Headers:
+Connection: keep-alive
+Content-Length: 270
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=41fbbdce973d6fe79e; path=/
+Set-Cookie: HWWAFSESTIME=1764924938187; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: token_cn-north-4_null_60eaa5e23fbc2c58d3fd8e5780b34d99
+X-Request-Id: 60eaa5e23fbc2c58d3fd8e5780b34d99
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942278-2] API Response Body: {
+  "domains": [
+    {
+      "description": "",
+      "enabled": true,
+      "id": "0970d7b7d400f2470fbec00316a03560",
+      "links": {
+        "self": "https://iam.myhuaweicloud.com/v3/domains/0970d7b7d400f2470fbec00316a03560"
+      },
+      "name": "hwstaff_zhenguo"
+    }
+  ],
+  "links": {
+    "self": "https://iam.myhuaweicloud.com/v3/auth/domains"
+  }
+}
+2025/12/05 16:55:42 [DEBUG] [1764924942372-3] API Request URL: GET https://bss.myhuaweicloud.com/v2/products/service-types?limit=1
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942372-3] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 146
+Content-Type: application/json; charset=utf-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Lubanops-Gtrace-Id: v-5539157-1764924942496-20706440
+Lubanops-Nenv-Id: 159970
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=5263dc15c4fccb1716; path=/
+Set-Cookie: HWWAFSESTIME=1764924937785; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Kong-Proxy-Latency: 21
+X-Kong-Upstream-Latency: 28
+X-Request-Id: e7da8c150c02201913b18302f16deffb
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942372-3] API Response Body: {
+  "service_types": [
+    {
+      "abbreviation": "MessageOver5G",
+      "service_type_code": "hws.service.type.5gmsg",
+      "service_type_name": "5G消息"
+    }
+  ],
+  "total_count": 864
+}
+2025/12/05 16:55:42 [WARN] check upgrade skipped
+2025/12/05 16:55:42 [DEBUG] [1764924942555-6] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/products?charge_mode=1&os_type=Windows&status=normal
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json;charset=utf8
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942555-6] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=3712773e873ec14d51; path=/
+Set-Cookie: HWWAFSESTIME=1764924942595; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 211
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 137fb6710674bb6caea80e651d8383d4
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942555-6] API Response Body: {
+  "os_type": "Windows",
+  "products": [
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|2核|4GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.2",
+      "is_gpu": false,
+      "memory": "4096",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|2vCPUs|4GB",
+        "zh_cn": "通用办公型|2核|4GB内存"
+      },
+      "product_id": "workspace.x86.general.large2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|2核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.4",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|2vCPUs|8GB",
+        "zh_cn": "通用办公型|2核|8GB内存"
+      },
+      "product_id": "workspace.x86.general.large4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|4核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.2",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|4vCPUs|8GB",
+        "zh_cn": "通用办公型|4核|8GB内存"
+      },
+      "product_id": "workspace.x86.general.xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|4核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.4",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|4vCPUs|16GB",
+        "zh_cn": "通用办公型|4核|16GB内存"
+      },
+      "product_id": "workspace.x86.general.xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|8核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.2",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|8vCPUs|16GB",
+        "zh_cn": "通用办公型|8核|16GB内存"
+      },
+      "product_id": "workspace.x86.general.2xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|8核|32GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.4",
+      "is_gpu": false,
+      "memory": "32768",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|8vCPUs|32GB",
+        "zh_cn": "通用办公型|8核|32GB内存"
+      },
+      "product_id": "workspace.x86.general.2xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|2核|4GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.2",
+      "is_gpu": false,
+      "memory": "4096",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|2vCPUs|4GB",
+        "zh_cn": "尊享办公型|2核|4GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.large2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|2核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.4",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|2vCPUs|8GB",
+        "zh_cn": "尊享办公型|2核|8GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.large4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|4核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.2",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|4vCPUs|8GB",
+        "zh_cn": "尊享办公型|4核|8GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|4核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.4",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|4vCPUs|16GB",
+        "zh_cn": "尊享办公型|4核|16GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|8核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.2",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|8vCPUs|16GB",
+        "zh_cn": "尊享办公型|8核|16GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.2xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|8核|32GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.4",
+      "is_gpu": false,
+      "memory": "32768",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|8vCPUs|32GB",
+        "zh_cn": "尊享办公型|8核|32GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.2xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    }
+  ],
+  "total_count": 12
+}
+2025/12/05 16:55:42 [DEBUG] [1764924942555-4] API Request URL: GET https://ecs.cn-north-4.myhuaweicloud.com/v2.1/0970dd7a1300f5672ff2c003c60ae115/os-availability-zone
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942555-4] API Response Code: 200
+API Response Headers:
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 310
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Openstack-Api-Version: compute 2.1
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=1858f79c900c704b1c; path=/
+Set-Cookie: HWWAFSESTIME=1764924941852; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+Vary: OpenStack-API-Version
+Vary: X-OpenStack-Nova-API-Version
+X-Compute-Request-Id: 6261b33f-99d8-422c-93eb-cd2865d013f0
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Openstack-Nova-Api-Version: 2.1
+X-Openstack-Request-Id: 6261b33f-99d8-422c-93eb-cd2865d013f0
+X-Request-Id: aa9883f050f0b22f482fa8da46770ca9
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942555-4] API Response Body: {
+  "availabilityZoneInfo": [
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4a",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4b",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4c",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4g",
+      "zoneState": {
+        "available": true
+      }
+    }
+  ]
+}
+2025/12/05 16:55:42 [DEBUG] [1764924942555-7] API Request URL: GET https://ims.cn-north-4.myhuaweicloud.com/v2/cloudimages?__imagetype=market&enterprise_project_id=all_granted_eps&id=c068583a-1eb3-47a4-a891-0f0732976f0a&sort_dir=asc&sort_key=name&status=active
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:42 [DEBUG] [1764924942555-7] API Response Code: 200
+API Response Headers:
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:42 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=2be7a7c2f4218c5908; path=/
+Set-Cookie: HWWAFSESTIME=1764924939043; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 60df907f7ab10489ebc79b49f216023a
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:42 [DEBUG] [1764924942555-7] API Response Body: {
+  "images": [
+    {
+      "__data_origin": "image,cn-north-4,e3cc4383-2f83-4deb-92a0-6fe436f018ef",
+      "__image_size": "11268747264",
+      "__image_source_type": "uds",
+      "__imagetype": "market",
+      "__isregistered": "true",
+      "__lazyloading": "True",
+      "__market_resource_type_code": "hws.resource.type.marketplace",
+      "__market_service_type_code": "hws.service.type.marketplace",
+      "__metering_type": "cpu",
+      "__originalimagename": "e3cc4383-2f83-4deb-92a0-6fe436f018ef",
+      "__os_bit": "64",
+      "__os_type": "Windows",
+      "__os_version": "Other Windows(64 bit)",
+      "__platform": "Windows",
+      "__productcode": "9993aaab-d3d9-49ba-9738-fcd0a7439bfb",
+      "__root_origin": "file",
+      "__source_image_id": "bffd2993-56e6-4211-941b-e7dcda2e12a3",
+      "__source_owner": "0744f92c3f0026a82f97c00364034c96",
+      "__support_kvm": "true",
+      "__support_xen": "true",
+      "active_at": "2025-06-20T08:57:14Z",
+      "checksum": "99914b932bd37a50b983c5e7c90ae93b",
+      "container_format": "bare",
+      "created_at": "2025-06-20T08:56:58Z",
+      "disk_format": "zvhd2",
+      "file": "/v2/images/c068583a-1eb3-47a4-a891-0f0732976f0a/file",
+      "hw_firmware_type": "bios",
+      "id": "c068583a-1eb3-47a4-a891-0f0732976f0a",
+      "image_checksum": "zBlgp1moLPJTkQiJrgy8Bw==",
+      "is_migrate": "true",
+      "max_ram": "0",
+      "min_disk": 80,
+      "min_ram": 0,
+      "name": "WindowsServer2022_ZH-CN_V2024_08_cpu_0604",
+      "owner": "055ae17837800fbd2f29c00dd1a271cf",
+      "protected": true,
+      "schema": "/v2/schemas/image",
+      "self": "/v2/images/c068583a-1eb3-47a4-a891-0f0732976f0a",
+      "size": 2,
+      "status": "active",
+      "tags": [],
+      "updated_at": "2025-07-04T09:11:14Z",
+      "virtual_env_type": "FusionCompute",
+      "virtual_size": null,
+      "visibility": "public"
+    }
+  ],
+  "page_info": {
+    "next_marker": "c068583a-1eb3-47a4-a891-0f0732976f0a"
+  }
+}
+2025/12/05 16:55:43 [DEBUG] [1764924942841-8] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/products?charge_mode=1&offset=12&os_type=Windows&status=normal
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json;charset=utf8
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:43 [DEBUG] [1764924942841-8] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:43 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=3712776e873ec14d51; path=/
+Set-Cookie: HWWAFSESTIME=1764924942595; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 150
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 37575c7236ff7c6bc26619ac2f417695
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:43 [DEBUG] [1764924942841-8] API Response Body: {
+  "os_type": "Windows",
+  "products": [],
+  "total_count": 12
+}
+2025/12/05 16:55:43 [DEBUG] [1764924942972-9] API Request URL: GET https://ims.cn-north-4.myhuaweicloud.com/v2/cloudimages?__imagetype=market&enterprise_project_id=all_granted_eps&id=c068583a-1eb3-47a4-a891-0f0732976f0a&marker=c068583a-1eb3-47a4-a891-0f0732976f0a&sort_dir=asc&sort_key=name&status=active
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:43 [DEBUG] [1764924942972-9] API Response Code: 200
+API Response Headers:
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 28
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:43 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=2be7a7f2f4218c5908; path=/
+Set-Cookie: HWWAFSESTIME=1764924939043; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 0de6a07f4a5eb8c4073155587c9f9397
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:43 [DEBUG] [1764924942972-9] API Response Body: {
+  "images": [],
+  "page_info": {}
+}
+2025/12/05 16:55:43 [DEBUG] [1764924942555-5] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspaces
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085542Z
+2025/12/05 16:55:43 [DEBUG] [1764924942555-5] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:43 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=54ca7739ca005cd832; path=/
+Set-Cookie: HWWAFSESTIME=1764924942610; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 904
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 577aecf7c533fd5511b052ea9e388d81
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:43 [DEBUG] [1764924942555-5] API Response Body: {
+  "access_mode": "INTERNET",
+  "ad_domains": {
+    "domain_type": "LITE_AS"
+  },
+  "assist_auth_config_info": {
+    "auth_type": "OTP",
+    "otp_config_info": {
+      "apply_objects": [],
+      "enable": true,
+      "id": "7e30cd03766a47138093c363897f5286",
+      "receive_mode": "VMFA"
+    }
+  },
+  "authorized_collect_log": false,
+  "authorized_hda_upgrade": false,
+  "closable": false,
+  "config_status": "3",
+  "desktop_security_group": {
+    "id": "ad80b871-5dfc-4208-b02f-17519d8a3654",
+    "name": "WorkspaceUserSecurityGroup"
+  },
+  "enable_user_create_snapshot": false,
+  "enterprise_id": "433624",
+  "enterprise_project_id": "0",
+  "id": "01f9d5ac-baea-40e1-846c-7c1581d5e806",
+  "infrastructure_security_group": {
+    "id": "4ee0c4c8-40b6-4976-9e53-01a31ed16dd7",
+    "name": "WorkspaceManagerSecurityGroup"
+  },
+  "internet_access_address": "https://120.46.12.155",
+  "internet_access_port": "443",
+  "is_authorized_install_agent": false,
+  "is_config_nat_mapping": false,
+  "is_global": false,
+  "is_multi_vpc": false,
+  "is_send_email": false,
+  "is_support_ipv6": false,
+  "management_subnet_cidr": "10.10.0.0/20",
+  "progress": "100%",
+  "project_resource_type": "private",
+  "site_configs": [
+    {
+      "access_config": {
+        "access_mode": "INTERNET",
+        "dedicated_access_standby_address": [],
+        "internet_access_address": "https://120.46.12.155",
+        "internet_access_port": "443"
+      },
+      "availability_zones": [
+        "cn-north-4a",
+        "cn-north-4b",
+        "cn-north-4c",
+        "cn-north-4g"
+      ],
+      "closable": false,
+      "config_status": "3",
+      "desktop_security_group": {
+        "id": "ad80b871-5dfc-4208-b02f-17519d8a3654",
+        "name": "WorkspaceUserSecurityGroup"
+      },
+      "infrastructure_security_group": {
+        "id": "4ee0c4c8-40b6-4976-9e53-01a31ed16dd7",
+        "name": "WorkspaceManagerSecurityGroup"
+      },
+      "network_config": {
+        "management_node_subnet_id": "b9001e4c-e858-4fef-96b4-2d8a828b0f56",
+        "management_subnet_cidr": "10.10.0.0/20",
+        "subnet_ids": [
+          "b9001e4c-e858-4fef-96b4-2d8a828b0f56",
+          "ef8f988a-93d0-4093-9323-08c3a9726da6"
+        ],
+        "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151",
+        "vpc_name": "ad-do-not-remove"
+      },
+      "progress": "100%",
+      "site_id": "01f9d5ac-baea-40e1-846c-7c1581d5e806",
+      "site_name": "华北北京四中心站",
+      "site_type": "CENTER",
+      "status": "SUBSCRIBED"
+    }
+  ],
+  "status": "SUBSCRIBED",
+  "subnet_ids": [
+    {
+      "subnet_id": "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+    },
+    {
+      "subnet_id": "ef8f988a-93d0-4093-9323-08c3a9726da6"
+    }
+  ],
+  "vpc_config_infos": [
+    {
+      "default_access_vpc": false,
+      "subnet_ids": [
+        "ef8f988a-93d0-4093-9323-08c3a9726da6",
+        "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+      ],
+      "used_subnet_ids": [
+        "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+      ],
+      "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151"
+    }
+  ],
+  "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151",
+  "vpc_name": "ad-do-not-remove"
+}
+2025/12/05 16:55:43 [DEBUG] [1764924943549-10] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/assist-auth-config/method-config
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085543Z
+2025/12/05 16:55:43 [DEBUG] [1764924943549-10] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Length: 154
+Content-Type: application/json
+Date: Fri, 05 Dec 2025 08:55:43 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=54ca7769ca005cd832; path=/
+Set-Cookie: HWWAFSESTIME=1764924942610; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 155
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 4447f35ed7b8673529e453b976051651
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:43 [DEBUG] [1764924943549-10] API Response Body: {
+  "otp_config_info": {
+    "apply_objects": [],
+    "enable": true,
+    "id": "7e30cd03766a47138093c363897f5286",
+    "receive_mode": "VMFA"
+  }
+}
+2025/12/05 16:55:43 [DEBUG] [1764924943753-11] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspaces/lock-status
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085543Z
+2025/12/05 16:55:43 [DEBUG] [1764924943753-11] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Length: 19
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:43 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=54ca7799ca005cd832; path=/
+Set-Cookie: HWWAFSESTIME=1764924942610; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 80
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: e3bc396089ab2c689f93c7878c645bb2
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:43 [DEBUG] [1764924943753-11] API Response Body: {
+  "is_lock": 0
+}
+2025/12/05 16:55:43 error parsing the input time (), the time string does not match time format (2006-01-02 15:04:05): parsing time "" as "2006-01-02 15:04:05": cannot parse "" as "2006"
+2025-12-05T16:55:50.693+0800 [DEBUG] sdk.helper_resource: Stopping providers: test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic
+2025-12-05T16:55:50.693+0800 [DEBUG] sdk.helper_resource: Running Terraform CLI plan and apply: test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1
+2025-12-05T16:55:50.693+0800 [DEBUG] sdk.helper_resource: Creating sdkv2 provider instance: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789
+2025-12-05T16:55:50.693+0800 [DEBUG] sdk.helper_resource: Created sdkv2 provider instance: test_terraform_path=/usr/bin/terraform tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1
+2025-12-05T16:55:50.693+0800 [DEBUG] sdk.helper_resource: Starting sdkv2 provider instance server: test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:55:50.695+0800 [DEBUG] sdk.helper_resource: Started sdkv2 provider instance server: test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:55:59.279+0800 [WARN]  sdk.helper_schema: Previously configured provider being re-configured. This can cause issues in concurrent testing if the configurations are not equal.: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud tf_rpc=Configure tf_req_id=9fc829a8-ddd5-3669-863e-105fb17ebf49
+2025/12/05 16:55:59 [DEBUG] customer endpoints: map[]
+2025/12/05 16:55:59 [DEBUG] [1764924959279-12] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:55:59 [DEBUG] [1764924959279-12] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 469
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:59 GMT
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=7d7368eb94bfb146f6; path=/
+Set-Cookie: HWWAFSESTIME=1764924958750; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: cache_cn-north-4_null_bb18178a36899e5aa6cbdce2967e4b7d
+X-Request-Id: bb18178a36899e5aa6cbdce2967e4b7d
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:59 [DEBUG] [1764924959279-12] API Response Body: {
+  "links": {
+    "next": null,
+    "previous": null,
+    "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4"
+  },
+  "projects": [
+    {
+      "description": "",
+      "domain_id": "0970d7b7d400f2470fbec00316a03560",
+      "enabled": true,
+      "id": "0970dd7a1300f5672ff2c003c60ae115",
+      "is_domain": false,
+      "links": {
+        "next": null,
+        "previous": null,
+        "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects/0970dd7a1300f5672ff2c003c60ae115"
+      },
+      "name": "cn-north-4",
+      "parent_id": "0970d7b7d400f2470fbec00316a03560"
+    }
+  ]
+}
+2025/12/05 16:55:59 [DEBUG] init region and project map: map[string]string{"cn-north-4":"0970dd7a1300f5672ff2c003c60ae115"}
+2025/12/05 16:55:59 [DEBUG] [1764924959335-13] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/auth/domains
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:55:59 [DEBUG] [1764924959335-13] API Response Code: 200
+API Response Headers:
+Connection: keep-alive
+Content-Length: 270
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:59 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=2def088995e6df1261; path=/
+Set-Cookie: HWWAFSESTIME=1764924957657; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: token_cn-north-4_null_c75a5533274e718048118b8677f6a061
+X-Request-Id: c75a5533274e718048118b8677f6a061
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:59 [DEBUG] [1764924959335-13] API Response Body: {
+  "domains": [
+    {
+      "description": "",
+      "enabled": true,
+      "id": "0970d7b7d400f2470fbec00316a03560",
+      "links": {
+        "self": "https://iam.myhuaweicloud.com/v3/domains/0970d7b7d400f2470fbec00316a03560"
+      },
+      "name": "hwstaff_zhenguo"
+    }
+  ],
+  "links": {
+    "self": "https://iam.myhuaweicloud.com/v3/auth/domains"
+  }
+}
+2025/12/05 16:55:59 [DEBUG] [1764924959392-14] API Request URL: GET https://bss.myhuaweicloud.com/v2/products/service-types?limit=1
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:55:59 [DEBUG] [1764924959392-14] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 146
+Content-Type: application/json; charset=utf-8
+Date: Fri, 05 Dec 2025 08:55:59 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Lubanops-Gtrace-Id: v-5539160-1764924959558-20585058
+Lubanops-Nenv-Id: 159970
+Lubanops-Nspan-Id: 1
+Lubanops-Ntrace-Id: 5540530-1764924959563-1418272
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=4e48d7c1f6e9e04d39; path=/
+Set-Cookie: HWWAFSESTIME=1764924958942; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Kong-Proxy-Latency: 33
+X-Kong-Upstream-Latency: 27
+X-Request-Id: 4e6506aaa246a1a1a7ab8e26247e9e72
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:59 [DEBUG] [1764924959392-14] API Response Body: {
+  "service_types": [
+    {
+      "abbreviation": "MessageOver5G",
+      "service_type_code": "hws.service.type.5gmsg",
+      "service_type_name": "5G消息"
+    }
+  ],
+  "total_count": 864
+}
+2025/12/05 16:55:59 [WARN] check upgrade skipped
+2025/12/05 16:55:59 [DEBUG] [1764924959612-15] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/products?charge_mode=1&os_type=Windows&status=normal
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json;charset=utf8
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:55:59 [DEBUG] [1764924959612-15] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:59 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b582373ee6acd43c32; path=/
+Set-Cookie: HWWAFSESTIME=1764924959639; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 201
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: dbdeb466575b601fe89707b2536a6efb
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:59 [DEBUG] [1764924959612-15] API Response Body: {
+  "os_type": "Windows",
+  "products": [
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|2核|4GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.2",
+      "is_gpu": false,
+      "memory": "4096",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|2vCPUs|4GB",
+        "zh_cn": "通用办公型|2核|4GB内存"
+      },
+      "product_id": "workspace.x86.general.large2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|2核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.4",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|2vCPUs|8GB",
+        "zh_cn": "通用办公型|2核|8GB内存"
+      },
+      "product_id": "workspace.x86.general.large4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|4核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.2",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|4vCPUs|8GB",
+        "zh_cn": "通用办公型|4核|8GB内存"
+      },
+      "product_id": "workspace.x86.general.xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|4核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.4",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|4vCPUs|16GB",
+        "zh_cn": "通用办公型|4核|16GB内存"
+      },
+      "product_id": "workspace.x86.general.xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|8核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.2",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|8vCPUs|16GB",
+        "zh_cn": "通用办公型|8核|16GB内存"
+      },
+      "product_id": "workspace.x86.general.2xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "通用办公|8核|32GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.4",
+      "is_gpu": false,
+      "memory": "32768",
+      "name": {
+        "en_us": "General Desktop",
+        "zh_cn": "通用办公型"
+      },
+      "package_type": "general",
+      "product_desc": {
+        "en_us": "General Desktop|8vCPUs|32GB",
+        "zh_cn": "通用办公型|8核|32GB内存"
+      },
+      "product_id": "workspace.x86.general.2xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "series_type": "",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|2核|4GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.2",
+      "is_gpu": false,
+      "memory": "4096",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|2vCPUs|4GB",
+        "zh_cn": "尊享办公型|2核|4GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.large2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "2",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|2核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.large.4",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|2vCPUs|8GB",
+        "zh_cn": "尊享办公型|2核|8GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.large4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|4核|8GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.2",
+      "is_gpu": false,
+      "memory": "8192",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|4vCPUs|8GB",
+        "zh_cn": "尊享办公型|4核|8GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "4",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|4核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.xlarge.4",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|4vCPUs|16GB",
+        "zh_cn": "尊享办公型|4核|16GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|8核|16GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.2",
+      "is_gpu": false,
+      "memory": "16384",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|8vCPUs|16GB",
+        "zh_cn": "尊享办公型|8核|16GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.2xlarge2",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    },
+    {
+      "architecture": "x86",
+      "bill_switch": "on",
+      "charge_mode": "1",
+      "cloud_service_type": "hws.service.type.vdi",
+      "contain_data_disk": false,
+      "cpu": "8",
+      "default_desktop_num": 4,
+      "descriptions": "尊享办公|8核|32GB内存",
+      "domain_ids": [],
+      "flavor_id": "s6.2xlarge.4",
+      "is_gpu": false,
+      "memory": "32768",
+      "name": {
+        "en_us": "Ultimate Desktop",
+        "zh_cn": "尊享办公型"
+      },
+      "package_type": "ultimate",
+      "product_desc": {
+        "en_us": "Ultimate Desktop|8vCPUs|32GB",
+        "zh_cn": "尊享办公型|8核|32GB内存"
+      },
+      "product_id": "workspace.x86.ultimate.2xlarge4",
+      "resource_type": "hws.resource.type.workspace.desktop",
+      "status": "normal",
+      "system_disk_size": "140",
+      "system_disk_type": "SAS",
+      "type": "BASE",
+      "volume_product_type": "workspace"
+    }
+  ],
+  "total_count": 12
+}
+2025/12/05 16:55:59 [DEBUG] [1764924959612-16] API Request URL: GET https://ims.cn-north-4.myhuaweicloud.com/v2/cloudimages?__imagetype=market&enterprise_project_id=all_granted_eps&id=c068583a-1eb3-47a4-a891-0f0732976f0a&sort_dir=asc&sort_key=name&status=active
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:55:59 [DEBUG] [1764924959612-16] API Response Code: 200
+API Response Headers:
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:55:59 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=15a6c73cdb4c54d2ad; path=/
+Set-Cookie: HWWAFSESTIME=1764924959667; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: d7a12f4f6befbce05580c6923717e260
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:55:59 [DEBUG] [1764924959612-16] API Response Body: {
+  "images": [
+    {
+      "__data_origin": "image,cn-north-4,e3cc4383-2f83-4deb-92a0-6fe436f018ef",
+      "__image_size": "11268747264",
+      "__image_source_type": "uds",
+      "__imagetype": "market",
+      "__isregistered": "true",
+      "__lazyloading": "True",
+      "__market_resource_type_code": "hws.resource.type.marketplace",
+      "__market_service_type_code": "hws.service.type.marketplace",
+      "__metering_type": "cpu",
+      "__originalimagename": "e3cc4383-2f83-4deb-92a0-6fe436f018ef",
+      "__os_bit": "64",
+      "__os_type": "Windows",
+      "__os_version": "Other Windows(64 bit)",
+      "__platform": "Windows",
+      "__productcode": "9993aaab-d3d9-49ba-9738-fcd0a7439bfb",
+      "__root_origin": "file",
+      "__source_image_id": "bffd2993-56e6-4211-941b-e7dcda2e12a3",
+      "__source_owner": "0744f92c3f0026a82f97c00364034c96",
+      "__support_kvm": "true",
+      "__support_xen": "true",
+      "active_at": "2025-06-20T08:57:14Z",
+      "checksum": "99914b932bd37a50b983c5e7c90ae93b",
+      "container_format": "bare",
+      "created_at": "2025-06-20T08:56:58Z",
+      "disk_format": "zvhd2",
+      "file": "/v2/images/c068583a-1eb3-47a4-a891-0f0732976f0a/file",
+      "hw_firmware_type": "bios",
+      "id": "c068583a-1eb3-47a4-a891-0f0732976f0a",
+      "image_checksum": "zBlgp1moLPJTkQiJrgy8Bw==",
+      "is_migrate": "true",
+      "max_ram": "0",
+      "min_disk": 80,
+      "min_ram": 0,
+      "name": "WindowsServer2022_ZH-CN_V2024_08_cpu_0604",
+      "owner": "055ae17837800fbd2f29c00dd1a271cf",
+      "protected": true,
+      "schema": "/v2/schemas/image",
+      "self": "/v2/images/c068583a-1eb3-47a4-a891-0f0732976f0a",
+      "size": 2,
+      "status": "active",
+      "tags": [],
+      "updated_at": "2025-07-04T09:11:14Z",
+      "virtual_env_type": "FusionCompute",
+      "virtual_size": null,
+      "visibility": "public"
+    }
+  ],
+  "page_info": {
+    "next_marker": "c068583a-1eb3-47a4-a891-0f0732976f0a"
+  }
+}
+2025/12/05 16:56:00 [DEBUG] [1764924959612-17] API Request URL: GET https://ecs.cn-north-4.myhuaweicloud.com/v2.1/0970dd7a1300f5672ff2c003c60ae115/os-availability-zone
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:56:00 [DEBUG] [1764924959612-17] API Response Code: 200
+API Response Headers:
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 310
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Openstack-Api-Version: compute 2.1
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=76c36b5da4b4172c58; path=/
+Set-Cookie: HWWAFSESTIME=1764924956471; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+Vary: OpenStack-API-Version
+Vary: X-OpenStack-Nova-API-Version
+X-Compute-Request-Id: daea67be-4dfe-4376-ab14-d9284a3922b6
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Openstack-Nova-Api-Version: 2.1
+X-Openstack-Request-Id: daea67be-4dfe-4376-ab14-d9284a3922b6
+X-Request-Id: 64d14df5e96470109488e2b1eefdbc99
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924959612-17] API Response Body: {
+  "availabilityZoneInfo": [
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4a",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4b",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4c",
+      "zoneState": {
+        "available": true
+      }
+    },
+    {
+      "hosts": null,
+      "zoneName": "cn-north-4g",
+      "zoneState": {
+        "available": true
+      }
+    }
+  ]
+}
+2025/12/05 16:56:00 [DEBUG] [1764924959874-19] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/products?charge_mode=1&offset=12&os_type=Windows&status=normal
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json;charset=utf8
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:56:00 [DEBUG] [1764924959874-19] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b582379ee6acd43c32; path=/
+Set-Cookie: HWWAFSESTIME=1764924959639; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 211
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 36b57cd8e3656a7e597d34d7c114f95f
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924959874-19] API Response Body: {
+  "os_type": "Windows",
+  "products": [],
+  "total_count": 12
+}
+2025/12/05 16:56:00 [DEBUG] [1764924959981-20] API Request URL: GET https://ims.cn-north-4.myhuaweicloud.com/v2/cloudimages?__imagetype=market&enterprise_project_id=all_granted_eps&id=c068583a-1eb3-47a4-a891-0f0732976f0a&marker=c068583a-1eb3-47a4-a891-0f0732976f0a&sort_dir=asc&sort_key=name&status=active
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:56:00 [DEBUG] [1764924959981-20] API Response Code: 200
+API Response Headers:
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 28
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=15a6c76cdb4c54d2ad; path=/
+Set-Cookie: HWWAFSESTIME=1764924959667; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+Vary: Accept-Charset, Accept-Encoding, Accept-Language, Accept
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: d306af61829ffb22983790ebce83333b
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924959981-20] API Response Body: {
+  "images": [],
+  "page_info": {}
+}
+2025/12/05 16:56:00 [DEBUG] [1764924959612-18] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspaces
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085559Z
+2025/12/05 16:56:00 [DEBUG] [1764924959612-18] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b582376ee6acd43c32; path=/
+Set-Cookie: HWWAFSESTIME=1764924959639; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 805
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 32e8fe4cd2e4a29c361a1ff8d0d1e744
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924959612-18] API Response Body: {
+  "access_mode": "INTERNET",
+  "ad_domains": {
+    "domain_type": "LITE_AS"
+  },
+  "assist_auth_config_info": {
+    "auth_type": "OTP",
+    "otp_config_info": {
+      "apply_objects": [],
+      "enable": true,
+      "id": "7e30cd03766a47138093c363897f5286",
+      "receive_mode": "VMFA"
+    }
+  },
+  "authorized_collect_log": false,
+  "authorized_hda_upgrade": false,
+  "closable": false,
+  "config_status": "3",
+  "desktop_security_group": {
+    "id": "ad80b871-5dfc-4208-b02f-17519d8a3654",
+    "name": "WorkspaceUserSecurityGroup"
+  },
+  "enable_user_create_snapshot": false,
+  "enterprise_id": "433624",
+  "enterprise_project_id": "0",
+  "id": "01f9d5ac-baea-40e1-846c-7c1581d5e806",
+  "infrastructure_security_group": {
+    "id": "4ee0c4c8-40b6-4976-9e53-01a31ed16dd7",
+    "name": "WorkspaceManagerSecurityGroup"
+  },
+  "internet_access_address": "https://120.46.12.155",
+  "internet_access_port": "443",
+  "is_authorized_install_agent": false,
+  "is_config_nat_mapping": false,
+  "is_global": false,
+  "is_multi_vpc": false,
+  "is_send_email": false,
+  "is_support_ipv6": false,
+  "management_subnet_cidr": "10.10.0.0/20",
+  "progress": "100%",
+  "project_resource_type": "private",
+  "site_configs": [
+    {
+      "access_config": {
+        "access_mode": "INTERNET",
+        "dedicated_access_standby_address": [],
+        "internet_access_address": "https://120.46.12.155",
+        "internet_access_port": "443"
+      },
+      "availability_zones": [
+        "cn-north-4a",
+        "cn-north-4b",
+        "cn-north-4c",
+        "cn-north-4g"
+      ],
+      "closable": false,
+      "config_status": "3",
+      "desktop_security_group": {
+        "id": "ad80b871-5dfc-4208-b02f-17519d8a3654",
+        "name": "WorkspaceUserSecurityGroup"
+      },
+      "infrastructure_security_group": {
+        "id": "4ee0c4c8-40b6-4976-9e53-01a31ed16dd7",
+        "name": "WorkspaceManagerSecurityGroup"
+      },
+      "network_config": {
+        "management_node_subnet_id": "b9001e4c-e858-4fef-96b4-2d8a828b0f56",
+        "management_subnet_cidr": "10.10.0.0/20",
+        "subnet_ids": [
+          "b9001e4c-e858-4fef-96b4-2d8a828b0f56",
+          "ef8f988a-93d0-4093-9323-08c3a9726da6"
+        ],
+        "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151",
+        "vpc_name": "ad-do-not-remove"
+      },
+      "progress": "100%",
+      "site_id": "01f9d5ac-baea-40e1-846c-7c1581d5e806",
+      "site_name": "华北北京四中心站",
+      "site_type": "CENTER",
+      "status": "SUBSCRIBED"
+    }
+  ],
+  "status": "SUBSCRIBED",
+  "subnet_ids": [
+    {
+      "subnet_id": "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+    },
+    {
+      "subnet_id": "ef8f988a-93d0-4093-9323-08c3a9726da6"
+    }
+  ],
+  "vpc_config_infos": [
+    {
+      "default_access_vpc": false,
+      "subnet_ids": [
+        "ef8f988a-93d0-4093-9323-08c3a9726da6",
+        "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+      ],
+      "used_subnet_ids": [
+        "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+      ],
+      "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151"
+    }
+  ],
+  "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151",
+  "vpc_name": "ad-do-not-remove"
+}
+2025/12/05 16:56:00 [DEBUG] [1764924960476-21] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/assist-auth-config/method-config
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085600Z
+2025/12/05 16:56:00 [DEBUG] [1764924960476-21] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Length: 154
+Content-Type: application/json
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b58237cee6acd43c32; path=/
+Set-Cookie: HWWAFSESTIME=1764924959639; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 235
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: c6eb2ab7a111863919ddc59a4e8476fe
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924960476-21] API Response Body: {
+  "otp_config_info": {
+    "apply_objects": [],
+    "enable": true,
+    "id": "7e30cd03766a47138093c363897f5286",
+    "receive_mode": "VMFA"
+  }
+}
+2025/12/05 16:56:00 [DEBUG] [1764924960745-22] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspaces/lock-status
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085600Z
+2025/12/05 16:56:00 [DEBUG] [1764924960745-22] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Length: 19
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:00 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b58237fee6acd43c32; path=/
+Set-Cookie: HWWAFSESTIME=1764924959639; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 133
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: f68a36eb4006911b57b5b6a315878040
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:00 [DEBUG] [1764924960745-22] API Response Body: {
+  "is_lock": 0
+}
+2025/12/05 16:56:00 error parsing the input time (), the time string does not match time format (2006-01-02 15:04:05): parsing time "" as "2006-01-02 15:04:05": cannot parse "" as "2006"
+2025-12-05T16:56:08.824+0800 [DEBUG] sdk.helper_resource: Stopping providers: test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic
+2025-12-05T16:56:08.825+0800 [DEBUG] sdk.helper_resource: Creating sdkv2 provider instance: test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:56:08.825+0800 [DEBUG] sdk.helper_resource: Created sdkv2 provider instance: test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:56:08.825+0800 [DEBUG] sdk.helper_resource: Starting sdkv2 provider instance server: test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:56:08.826+0800 [DEBUG] sdk.helper_resource: Started sdkv2 provider instance server: test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:56:09.258+0800 [DEBUG] sdk.helper_resource: Stopping providers: test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1
+2025-12-05T16:56:09.258+0800 [DEBUG] sdk.helper_resource: Creating sdkv2 provider instance: test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud
+2025-12-05T16:56:09.258+0800 [DEBUG] sdk.helper_resource: Created sdkv2 provider instance: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789
+2025-12-05T16:56:09.259+0800 [DEBUG] sdk.helper_resource: Starting sdkv2 provider instance server: test_working_directory=/tmp/plugintest1721365789 test_name=TestAccDesktop_basic test_step_number=1 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_terraform_path=/usr/bin/terraform
+2025-12-05T16:56:09.260+0800 [DEBUG] sdk.helper_resource: Started sdkv2 provider instance server: test_step_number=1 test_terraform_path=/usr/bin/terraform test_working_directory=/tmp/plugintest1721365789 tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud test_name=TestAccDesktop_basic
+2025-12-05T16:56:12.266+0800 [WARN]  sdk.helper_schema: Previously configured provider being re-configured. This can cause issues in concurrent testing if the configurations are not equal.: tf_provider_addr=registry.terraform.io/hashicorp/huaweicloud tf_rpc=Configure tf_req_id=c9fba82d-00c4-256c-453a-df02d7212dd4
+2025/12/05 16:56:12 [DEBUG] customer endpoints: map[]
+2025/12/05 16:56:12 [DEBUG] [1764924972266-23] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Sdk-Date: 20251205T085612Z
+2025/12/05 16:56:12 [DEBUG] [1764924972266-23] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 469
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:12 GMT
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=5a1ba10fcc1145f4683; path=/
+Set-Cookie: HWWAFSESTIME=1764924968584; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: cache_cn-north-4_null_498e8df5e05541779b0e350101e70947
+X-Request-Id: 498e8df5e05541779b0e350101e70947
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:12 [DEBUG] [1764924972266-23] API Response Body: {
+  "links": {
+    "next": null,
+    "previous": null,
+    "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects?name=cn-north-4"
+  },
+  "projects": [
+    {
+      "description": "",
+      "domain_id": "0970d7b7d400f2470fbec00316a03560",
+      "enabled": true,
+      "id": "0970dd7a1300f5672ff2c003c60ae115",
+      "is_domain": false,
+      "links": {
+        "next": null,
+        "previous": null,
+        "self": "https://iam.cn-north-4.myhuaweicloud.com/v3/projects/0970dd7a1300f5672ff2c003c60ae115"
+      },
+      "name": "cn-north-4",
+      "parent_id": "0970d7b7d400f2470fbec00316a03560"
+    }
+  ]
+}
+2025/12/05 16:56:12 [DEBUG] init region and project map: map[string]string{"cn-north-4":"0970dd7a1300f5672ff2c003c60ae115"}
+2025/12/05 16:56:12 [DEBUG] [1764924972322-24] API Request URL: GET https://iam.cn-north-4.myhuaweicloud.com/v3/auth/domains
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085612Z
+2025/12/05 16:56:12 [DEBUG] [1764924972322-24] API Response Code: 200
+API Response Headers:
+Connection: keep-alive
+Content-Length: 270
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:12 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=fa707c1080dc196d14; path=/
+Set-Cookie: HWWAFSESTIME=1764924968695; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Iam-Trace-Id: token_cn-north-4_null_60c58ca0af10116615ab3865b624250b
+X-Request-Id: 60c58ca0af10116615ab3865b624250b
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:12 [DEBUG] [1764924972322-24] API Response Body: {
+  "domains": [
+    {
+      "description": "",
+      "enabled": true,
+      "id": "0970d7b7d400f2470fbec00316a03560",
+      "links": {
+        "self": "https://iam.myhuaweicloud.com/v3/domains/0970d7b7d400f2470fbec00316a03560"
+      },
+      "name": "hwstaff_zhenguo"
+    }
+  ],
+  "links": {
+    "self": "https://iam.myhuaweicloud.com/v3/auth/domains"
+  }
+}
+2025/12/05 16:56:12 [DEBUG] [1764924972396-25] API Request URL: GET https://bss.myhuaweicloud.com/v2/products/service-types?limit=1
+API Request Headers:
+Accept: application/json
+Authorization: ***
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085612Z
+2025/12/05 16:56:12 [DEBUG] [1764924972396-25] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, must-revalidate
+Connection: keep-alive
+Content-Length: 146
+Content-Type: application/json; charset=utf-8
+Date: Fri, 05 Dec 2025 08:56:12 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Lubanops-Gtrace-Id: v-5539159-1764924972700-20611653
+Lubanops-Nenv-Id: 159970
+Pragma: no-cache
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=0ea8fd3abe96bbb380; path=/
+Set-Cookie: HWWAFSESTIME=1764924967454; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Kong-Proxy-Latency: 57
+X-Kong-Upstream-Latency: 35
+X-Request-Id: dc4ff98c9e756d67f77e24c5bb8d6bb1
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:12 [DEBUG] [1764924972396-25] API Response Body: {
+  "service_types": [
+    {
+      "abbreviation": "MessageOver5G",
+      "service_type_code": "hws.service.type.5gmsg",
+      "service_type_name": "5G消息"
+    }
+  ],
+  "total_count": 864
+}
+2025/12/05 16:56:12 [WARN] check upgrade skipped
+2025/12/05 16:56:27 [DEBUG] [1764924981418-26] API Request URL: POST https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/desktops
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085621Z
+2025/12/05 16:56:27 [DEBUG] [1764924981418-26] API Request Body: {
+  "availability_zone": "cn-north-4a",
+  "data_volumes": [
+    {
+      "size": 50,
+      "type": "SAS"
+    },
+    {
+      "size": 70,
+      "type": "SAS"
+    }
+  ],
+  "desktop_type": "DEDICATED",
+  "desktops": [
+    {
+      "computer_name": "tf-test-tbm10",
+      "user_email": "terraform@example.com",
+      "user_group": "administrators",
+      "user_name": "user-tf-test-tbm10"
+    }
+  ],
+  "email_notification": true,
+  "image_id": "c068583a-1eb3-47a4-a891-0f0732976f0a",
+  "image_type": "market",
+  "nics": [
+    {
+      "subnet_id": "b9001e4c-e858-4fef-96b4-2d8a828b0f56"
+    }
+  ],
+  "product_id": "workspace.x86.general.large2",
+  "root_volume": {
+    "size": 80,
+    "type": "SAS"
+  },
+  "security_groups": [
+    {
+      "id": "ad80b871-5dfc-4208-b02f-17519d8a3654"
+    },
+    {
+      "id": "4ee0c4c8-40b6-4976-9e53-01a31ed16dd7"
+    }
+  ],
+  "tags": [
+    {
+      "key": "foo",
+      "value": "bar"
+    }
+  ],
+  "vpc_id": "f0112319-3fae-4143-ba1e-efd8407d2151"
+}
+2025/12/05 16:56:27 [DEBUG] [1764924981418-26] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Length: 55
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:27 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=c5abe7315cc9536b94; path=/
+Set-Cookie: HWWAFSESTIME=1764924981441; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 6476
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 33cbfc875763cd37822a59a9b45fdf22
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:27 [DEBUG] [1764924981418-26] API Response Body: {
+  "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455"
+}
+2025/12/05 16:56:27 [DEBUG] Waiting for state to become: [SUCCESS]
+2025/12/05 16:56:38 [DEBUG] [1764924997951-27] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085637Z
+2025/12/05 16:56:38 [DEBUG] [1764924997951-27] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:38 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=c792173d0f292dfadb; path=/
+Set-Cookie: HWWAFSESTIME=1764924997946; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 353
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 7aed601ac90ca0c2580fbb12f3ca3a8a
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:38 [DEBUG] [1764924997951-27] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 12,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:56:53 [DEBUG] [1764925013332-28] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085653Z
+2025/12/05 16:56:53 [DEBUG] [1764925013332-28] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:56:53 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=2424273d8b80719605; path=/
+Set-Cookie: HWWAFSESTIME=1764925013327; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 302
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 3961b0be573028d0d2f27208313fe663
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:56:53 [DEBUG] [1764925013332-28] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 12,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:57:09 [DEBUG] [1764925028662-29] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085708Z
+2025/12/05 16:57:09 [DEBUG] [1764925028662-29] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:57:09 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=dc39273e79f6194906; path=/
+Set-Cookie: HWWAFSESTIME=1764925028657; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 374
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 4c2191fc2a643969bdd22a4026999f81
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:57:09 [DEBUG] [1764925028662-29] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 12,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:57:24 [DEBUG] [1764925044066-30] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085724Z
+2025/12/05 16:57:24 [DEBUG] [1764925044066-30] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:57:24 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=2fe10761848fe55f14; path=/
+Set-Cookie: HWWAFSESTIME=1764925042312; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 233
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 9ca0f3ffacb5763afb6b2b1305d0636f
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:57:24 [DEBUG] [1764925044066-30] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:57:39 [DEBUG] [1764925059332-31] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085739Z
+2025/12/05 16:57:39 [DEBUG] [1764925059332-31] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:57:39 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=23bc273d3cf6ecd115; path=/
+Set-Cookie: HWWAFSESTIME=1764925059326; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 332
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: f669d06ce2d9c18925ea43e2f44db9db
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:57:39 [DEBUG] [1764925059332-31] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:57:54 [DEBUG] [1764925074697-32] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085754Z
+2025/12/05 16:57:54 [DEBUG] [1764925074697-32] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:57:54 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=e6aee733311d395aca; path=/
+Set-Cookie: HWWAFSESTIME=1764925074692; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 263
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 86dec35cdb10656ab164c5af516cf48b
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:57:54 [DEBUG] [1764925074697-32] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:58:10 [DEBUG] [1764925089988-33] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085809Z
+2025/12/05 16:58:10 [DEBUG] [1764925089988-33] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:58:10 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=43c0873c4f373606bd; path=/
+Set-Cookie: HWWAFSESTIME=1764925089982; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 155
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: ae448ff60daabb974e0cfa583d3370f9
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:58:10 [DEBUG] [1764925089988-33] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:58:25 [DEBUG] [1764925105175-34] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085825Z
+2025/12/05 16:58:25 [DEBUG] [1764925105175-34] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:58:25 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=9cb8273e8b11b82103; path=/
+Set-Cookie: HWWAFSESTIME=1764925105170; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 192
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: dd87ef32fbf31d04d3f700b1e761f82f
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:58:25 [DEBUG] [1764925105175-34] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:58:40 [DEBUG] [1764925120394-35] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085840Z
+2025/12/05 16:58:40 [DEBUG] [1764925120394-35] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:58:40 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=026e973f485e59c2fa; path=/
+Set-Cookie: HWWAFSESTIME=1764925120390; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 185
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 37ebc0e2396f27c932362b892b763f87
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:58:40 [DEBUG] [1764925120394-35] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:58:55 [DEBUG] [1764925135605-36] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085855Z
+2025/12/05 16:58:55 [DEBUG] [1764925135605-36] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:58:55 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=f93fc73e2fc5f4be62; path=/
+Set-Cookie: HWWAFSESTIME=1764925135599; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 240
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: d8448cc444d9db6bf951a58a7148da0a
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:58:55 [DEBUG] [1764925135605-36] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:59:11 [DEBUG] [1764925150871-37] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085910Z
+2025/12/05 16:59:11 [DEBUG] [1764925150871-37] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:59:11 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=e6e3c73021c7821f93; path=/
+Set-Cookie: HWWAFSESTIME=1764925150864; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 216
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: aef9194235709a81f44ae5f9c1c23d04
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:59:11 [DEBUG] [1764925150871-37] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 31,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:59:26 [DEBUG] [1764925166117-38] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085926Z
+2025/12/05 16:59:26 [DEBUG] [1764925166117-38] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:59:26 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=b4664731b66ea8e06d; path=/
+Set-Cookie: HWWAFSESTIME=1764925166111; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 207
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: acec1821180c597b1a9b013188c232e2
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:59:26 [DEBUG] [1764925166117-38] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 33,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:59:41 [DEBUG] [1764925181371-39] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085941Z
+2025/12/05 16:59:41 [DEBUG] [1764925181371-39] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:59:41 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=7b60873ea697b31ebc; path=/
+Set-Cookie: HWWAFSESTIME=1764925181364; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 182
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: de4cc2e1914ffd79ed94179ba70387a7
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:59:41 [DEBUG] [1764925181371-39] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 33,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}
+2025/12/05 16:59:56 [DEBUG] [1764925196587-40] API Request URL: GET https://workspace.cn-north-4.myhuaweicloud.com/v2/0970dd7a1300f5672ff2c003c60ae115/workspace-sub-jobs?job_id=dc1428fc-4678-4b24-b1b8-d55d25be1455
+API Request Headers:
+Accept: application/json
+Authorization: ***
+Content-Type: application/json
+User-Agent: terraform-provider-iac golangsdk/2.0.0
+X-Project-Id: 0970dd7a1300f5672ff2c003c60ae115
+X-Sdk-Date: 20251205T085956Z
+2025/12/05 16:59:56 [DEBUG] [1764925196587-40] API Response Code: 200
+API Response Headers:
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Connection: keep-alive
+Content-Type: application/json; charset=UTF-8
+Date: Fri, 05 Dec 2025 08:59:56 GMT
+Server: CloudWAF
+Set-Cookie: HWWAFSESID=7f56d731c368f55cd8; path=/
+Set-Cookie: HWWAFSESTIME=1764925196580; path=/
+Strict-Transport-Security: max-age=31536000; includeSubdomains;
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Envoy-Upstream-Service-Time: 146
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 3569bf5815451add5898a4d3c07c33a9
+X-Xss-Protection: 1; mode=block;
+2025/12/05 16:59:56 [DEBUG] [1764925196587-40] API Response Body: {
+  "jobs": [
+    {
+      "begin_time": "2025-12-05T08:56:27Z",
+      "end_time": "",
+      "entities": {
+        "desktop_id": "58719257-a194-4043-885d-014d7595ad27",
+        "ip_address": "192.168.30.155",
+        "product_id": "workspace.x86.general.large2",
+        "user_name": "LOCAL\\user-tf-test-tbm10"
+      },
+      "error_code": "",
+      "fail_reason": "",
+      "id": "cf0ed282-046a-4c22-b1f5-8be92f7d6ccd",
+      "ip_address": "192.168.30.155",
+      "job_id": "dc1428fc-4678-4b24-b1b8-d55d25be1455",
+      "job_type": "createDesktops",
+      "process": 45,
+      "status": "RUNNING"
+    }
+  ],
+  "total_count": 1
+}

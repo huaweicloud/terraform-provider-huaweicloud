@@ -89,18 +89,18 @@ data "huaweicloud_workspace_flavors" "test" {
 }
 
 resource "huaweicloud_workspace_desktop" "test" {
-  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id)
+  flavor_id         = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "NOT_FOUND")
   image_type        = "market"
-  image_id          = try(data.huaweicloud_images_images.test.images[0].id)
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
+  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "NOT_FOUND")
+  availability_zone = try(data.huaweicloud_availability_zones.test.names[0], "NOT_FOUND")
+  vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
   security_groups   = [
-    huaweicloud_workspace_service.test.desktop_security_group.0.id,
-    huaweicloud_networking_secgroup.test.id,
+    try(data.huaweicloud_workspace_service.test.desktop_security_group[0].id, "NOT_FOUND"), 
+    try(data.huaweicloud_workspace_service.test.infrastructure_security_group[0].id, "NOT_FOUND")
   ]
 
   nic {
-    network_id = huaweicloud_vpc_subnet.test.id
+    network_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
   }
 
   name        = "%[2]s"
@@ -249,5 +249,5 @@ output "is_status_filter_useful" {
     [for v in data.huaweicloud_workspace_desktops.filter_by_status.desktops[*].status : v == local.status]
   )
 }
-`, testAccDesktop_base(rName), rName)
+`, testAccDesktop_base(), rName)
 }
