@@ -19,7 +19,7 @@ import (
 
 // @API Workspace POST /v1/{project_id}/policy-templates
 // @API Workspace GET /v1/{project_id}/policy-templates
-// @API Workspace PUT /v1/{project_id}/policy-templates/{policy_template_id}
+// @API Workspace PATCH /v1/{project_id}/policy-templates/{policy_template_id}
 // @API Workspace DELETE /v1/{project_id}/policy-templates/{policy_template_id}
 func ResourceAppPolicyTemplate() *schema.Resource {
 	return &schema.Resource{
