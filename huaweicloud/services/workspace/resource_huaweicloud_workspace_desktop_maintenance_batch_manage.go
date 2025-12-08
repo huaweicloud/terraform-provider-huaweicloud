@@ -15,20 +15,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var maintenanceBatchManageNonUpdatableParams = []string{
+var desktopMaintenanceBatchManageNonUpdatableParams = []string{
 	"desktop_ids",
 	"in_maintenance_mode",
 }
 
 // @API Workspace PUT /v2/{project_id}/desktops/maintenance-mode
-func ResourceMaintenanceBatchManage() *schema.Resource {
+func ResourceDesktopMaintenanceBatchManage() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceMaintenanceBatchManageCreate,
-		ReadContext:   resourceMaintenanceBatchManageRead,
-		UpdateContext: resourceMaintenanceBatchManageUpdate,
-		DeleteContext: resourceMaintenanceBatchManageDelete,
+		CreateContext: resourceDesktopMaintenanceBatchManageCreate,
+		ReadContext:   resourceDesktopMaintenanceBatchManageRead,
+		UpdateContext: resourceDesktopMaintenanceBatchManageUpdate,
+		DeleteContext: resourceDesktopMaintenanceBatchManageDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(maintenanceBatchManageNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(desktopMaintenanceBatchManageNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -63,7 +63,7 @@ func ResourceMaintenanceBatchManage() *schema.Resource {
 	}
 }
 
-func buildMaintenanceBatchManageBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildDesktopMaintenanceBatchManageBodyParams(d *schema.ResourceData) map[string]interface{} {
 	body := map[string]interface{}{
 		"desktop_ids":         d.Get("desktop_ids").([]interface{}),
 		"in_maintenance_mode": d.Get("in_maintenance_mode").(bool),
@@ -72,7 +72,7 @@ func buildMaintenanceBatchManageBodyParams(d *schema.ResourceData) map[string]in
 	return body
 }
 
-func resourceMaintenanceBatchManageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDesktopMaintenanceBatchManageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -92,7 +92,7 @@ func resourceMaintenanceBatchManageCreate(ctx context.Context, d *schema.Resourc
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: buildMaintenanceBatchManageBodyParams(d),
+		JSONBody: buildDesktopMaintenanceBatchManageBodyParams(d),
 	}
 
 	_, err = client.Request("PUT", createPath, &opt)
@@ -106,18 +106,18 @@ func resourceMaintenanceBatchManageCreate(ctx context.Context, d *schema.Resourc
 	}
 	d.SetId(randomUUID)
 
-	return resourceMaintenanceBatchManageRead(ctx, d, meta)
+	return resourceDesktopMaintenanceBatchManageRead(ctx, d, meta)
 }
 
-func resourceMaintenanceBatchManageRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDesktopMaintenanceBatchManageRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceMaintenanceBatchManageUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDesktopMaintenanceBatchManageUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceMaintenanceBatchManageDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDesktopMaintenanceBatchManageDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is a one-time action resource for batch managing desktops' maintenance mode. Deleting
     this resource will not clear the corresponding request record, but will only remove the resource information
     from the tfstate file.`
