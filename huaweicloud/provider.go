@@ -2015,6 +2015,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_topic_subscriptions":       smn.DataSourceSmnTopicSubscriptions(),
 			"huaweicloud_smn_protocols":                 smn.DataSourceSmnProtocols(),
 			"huaweicloud_smn_authorized_cloud_services": smn.DataSourceSmnAuthorizedCloudServices(),
+			"huaweicloud_smn_tags":                      smn.DataSourceSmnTags(),
 
 			"huaweicloud_sms_source_servers":                       sms.DataSourceServers(),
 			"huaweicloud_sms_agent_configs":                        sms.DataSourceSmsAgentConfigs(),
