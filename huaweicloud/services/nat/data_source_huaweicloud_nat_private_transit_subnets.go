@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API NAT POST  /v3/{project_id}/private-nat/transit-subnets
+// @API NAT GET /v3/{project_id}/private-nat/transit-subnets
 func DataSourceNatPrivateTransitSubnets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNatPrivateTransitSubnetsRead,
