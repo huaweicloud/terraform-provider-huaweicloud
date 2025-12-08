@@ -3278,6 +3278,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ims_obs_system_image":         ims.ResourceObsSystemImage(),
 			"huaweicloud_ims_obs_iso_image":            ims.ResourceObsIsoImage(),
 			"huaweicloud_ims_image_export":             ims.ResourceImageExport(),
+			"huaweicloud_imsv21_image_export":          ims.ResourceIMSV21ImageExport(),
 			"huaweicloud_ims_image_metadata":           ims.ResourceImageMetadata(),
 			"huaweicloud_ims_image_registration":       ims.ResourceImageRegistration(),
 			"huaweicloud_ims_quickimport_system_image": ims.ResourceQuickImportSystemImage(),

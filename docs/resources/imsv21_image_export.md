@@ -3,7 +3,7 @@ subcategory: "Image Management Service (IMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ims_image_export"
 description: |-
-  Manages an IMS image export resource within HuaweiCloud.
+  Manages an IMS image export resource by v2.1 API within HuaweiCloud.
 ---
 
 # huaweicloud_ims_image_export
@@ -53,18 +53,17 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `image_id` - (Required, String, ForceNew) Specifies the image ID to export.
-  Changing this parameter will create a new resource.
+* `image_id` - (Required, String, NonUpdatable) Specifies the image ID to export.
 
-* `bucket_url` - (Required, String, ForceNew) Specifies the URL of the image file to be exported to the OBS bucket, the
-  format is **OBS bucket name:image file name**, e.g. **test_bucket:test_image_file**. The storage category of the OBS
-  bucket and image file here must be OBS standard storage. Changing this parameter will create a new resource.
+* `bucket_url` - (Required, String, NonUpdatable) Specifies the URL of the image file to be exported to the OBS bucket,
+  the format is **OBS bucket name:image file name**, e.g. **test_bucket:test_image_file**. The storage category of the
+  OBS bucket and image file here must be OBS standard storage.
 
-* `file_format` - (Optional, String, ForceNew) Specifies the format of the image file to be exported. The valid values
-  are **qcow2**, **vhd**, **zvhd**, or **vmdk**. Changing this parameter will create a new resource.
+* `file_format` - (Optional, String, NonUpdatable) Specifies the format of the image file to be exported. The valid
+  values are **qcow2**, **vhd**, **zvhd**, or **vmdk**.
 
-* `is_quick_export` - (Optional, Bool, ForceNew) Specifies whether to use quick export. The valid value is **true** or
-  **false**. Changing this parameter will create a new resource.
+* `is_quick_export` - (Optional, Bool, NonUpdatable) Specifies whether to use quick export. The valid value is **true**
+  or **false**.
 
 -> 1. When the `is_quick_export` parameter is ignored or set to **false**, the `file_format` parameter is required.
    <br/>2. When the `is_quick_export` parameter is set to **true**, the `file_format` parameter must be ignored, and
