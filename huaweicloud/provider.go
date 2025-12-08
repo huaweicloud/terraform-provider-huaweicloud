@@ -1450,6 +1450,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_tasks":                                hss.DataSourceImageTasks(),
 			"huaweicloud_hss_image_vulnerability_cves":                   hss.DataSourceImageVulnerabilityCves(),
 			"huaweicloud_hss_image_whitelists":                           hss.DataSourceImageWhitelists(),
+			"huaweicloud_hss_image_files_statistics":                     hss.DataSourceImageFilesStatistics(),
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_malware_collect_status":                     hss.DataSourceHssMalwareCollectStatus(),
 			"huaweicloud_hss_operational_report_welfare":                 hss.DataSourceOperationalReportWelfare(),
