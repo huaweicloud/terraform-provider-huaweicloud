@@ -10,10 +10,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceAppVncRemote_basic(t *testing.T) {
+func TestAccDataAppVncRemote_basic(t *testing.T) {
 	var (
-		dataSourceName = "data.huaweicloud_workspace_app_vnc_remote.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		dcName = "data.huaweicloud_workspace_app_vnc_remote.test"
+		dc     = acceptance.InitDataSourceCheck(dcName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -24,10 +24,10 @@ func TestAccDataSourceAppVncRemote_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceAppVncRemote_basic(),
+				Config: testAccDataAppVncRemote_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dataSourceName, "url", regexp.MustCompile(`^https?://.*$`)),
+					resource.TestMatchResourceAttr(dcName, "url", regexp.MustCompile(`^https?://.*$`)),
 					resource.TestCheckOutput("is_type_valid", "true"),
 				),
 			},
@@ -35,7 +35,7 @@ func TestAccDataSourceAppVncRemote_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceAppVncRemote_basic() string {
+func testAccDataAppVncRemote_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_workspace_app_vnc_remote" "test" {
   server_id = "%[1]s"

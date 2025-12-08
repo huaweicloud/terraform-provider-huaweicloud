@@ -15,8 +15,8 @@ func TestAccDataUsers_basic(t *testing.T) {
 		name     = acceptance.RandomAccResourceName()
 		password = acceptance.RandomPassword()
 
-		dcName = "data.huaweicloud_workspace_users.all"
-		dc     = acceptance.InitDataSourceCheck(dcName)
+		all = "data.huaweicloud_workspace_users.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		filterByUserName   = "data.huaweicloud_workspace_users.filter_by_user_name"
 		dcFilterByUserName = acceptance.InitDataSourceCheck(filterByUserName)
@@ -30,8 +30,8 @@ func TestAccDataUsers_basic(t *testing.T) {
 		filterByGroupName   = "data.huaweicloud_workspace_users.filter_by_group_name"
 		dcFilterByGroupName = acceptance.InitDataSourceCheck(filterByGroupName)
 
-		computeByIsQueryTotalDesktops   = "data.huaweicloud_workspace_users.computor_by_is_query_total_desktops"
-		dcComputeByIsQueryTotalDesktops = acceptance.InitDataSourceCheck(computeByIsQueryTotalDesktops)
+		filterByIsQueryTotalDesktops   = "data.huaweicloud_workspace_users.filter_by_is_query_total_desktops"
+		dcFilterByIsQueryTotalDesktops = acceptance.InitDataSourceCheck(filterByIsQueryTotalDesktops)
 
 		filterByEnterpriseProjectId   = "data.huaweicloud_workspace_users.filter_by_enterprise_project_id"
 		dcFilterByEnterpriseProjectId = acceptance.InitDataSourceCheck(filterByEnterpriseProjectId)
@@ -44,23 +44,30 @@ func TestAccDataUsers_basic(t *testing.T) {
 			{
 				Config: testAccDataUsers_basic(name, password),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "users.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dcName, "users.0.id"),
-					resource.TestCheckResourceAttrSet(dcName, "users.0.sid"),
-					resource.TestCheckResourceAttrSet(dcName, "users.0.user_name"),
-					resource.TestCheckResourceAttrSet(dcName, "users.0.total_desktops"),
-					resource.TestCheckResourceAttrSet(dcName, "users.0.active_type"),
+					resource.TestMatchResourceAttr(all, "users.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "users.0.id"),
+					resource.TestCheckResourceAttrSet(all, "users.0.sid"),
+					resource.TestCheckResourceAttrSet(all, "users.0.user_name"),
+					resource.TestCheckResourceAttrSet(all, "users.0.total_desktops"),
+					resource.TestCheckResourceAttrSet(all, "users.0.active_type"),
+					// Filter by 'user_name' parameter.
 					dcFilterByUserName.CheckResourceExists(),
 					resource.TestCheckOutput("is_user_name_filter_useful", "true"),
+					// Filter by 'description' parameter.
 					dcFilterByDescription.CheckResourceExists(),
 					resource.TestCheckOutput("is_description_filter_useful", "true"),
+					// Filter by 'active_type' parameter.
 					dcFilterByActiveType.CheckResourceExists(),
 					resource.TestCheckOutput("is_active_type_filter_useful", "true"),
+					// Filter by 'group_name' parameter.
 					dcFilterByGroupName.CheckResourceExists(),
 					resource.TestCheckOutput("is_group_name_filter_useful", "true"),
-					dcComputeByIsQueryTotalDesktops.CheckResourceExists(),
-					resource.TestCheckOutput("is_query_total_desktops_computor_useful", "true"),
+					// Filter by 'is_query_total_desktops' parameter.
+					dcFilterByIsQueryTotalDesktops.CheckResourceExists(),
+					resource.TestCheckOutput("is_is_query_total_desktops_filter_useful", "true"),
+					// Filter by 'enterprise_project_id' parameter.
 					dcFilterByEnterpriseProjectId.CheckResourceExists(),
 					resource.TestCheckOutput("is_enterprise_project_id_filter_useful", "true"),
 				),
@@ -129,7 +136,7 @@ locals {
   enterprise_project_id = try(data.huaweicloud_workspace_users.all.users[0].enterprise_project_id, "NOT_FOUND")
 }
 
-# Filter by user name
+# Filter by user name.
 data "huaweicloud_workspace_users" "filter_by_user_name" {
   user_name = local.user_name
 
@@ -150,7 +157,7 @@ output "is_user_name_filter_useful" {
   value = length(local.user_name_filter_result) > 0 && alltrue(local.user_name_filter_result)
 }
 
-# Filter by description
+# Filter by description.
 data "huaweicloud_workspace_users" "filter_by_description" {
   description = local.description
 
@@ -171,7 +178,7 @@ output "is_description_filter_useful" {
   value = length(local.description_filter_result) > 0 && alltrue(local.description_filter_result)
 }
 
-# Filter by active type
+# Filter by active type.
 data "huaweicloud_workspace_users" "filter_by_active_type" {
   active_type = local.active_type
 
@@ -192,7 +199,7 @@ output "is_active_type_filter_useful" {
   value = length(local.active_type_filter_result) > 0 && alltrue(local.active_type_filter_result)
 }
 
-# Filter by group name
+# Filter by group name.
 data "huaweicloud_workspace_users" "filter_by_group_name" {
   group_name = local.group_name
 
@@ -213,8 +220,8 @@ output "is_group_name_filter_useful" {
   value = length(local.group_name_filter_result) > 0 && alltrue(local.group_name_filter_result)
 }
 
-# Computor by is query total desktops
-data "huaweicloud_workspace_users" "computor_by_is_query_total_desktops" {
+# Filter by query total desktops switch.
+data "huaweicloud_workspace_users" "filter_by_is_query_total_desktops" {
   is_query_total_desktops = false
 
   depends_on = [
@@ -224,17 +231,17 @@ data "huaweicloud_workspace_users" "computor_by_is_query_total_desktops" {
 }
 
 locals {
-  is_query_total_desktops_computor_result = [
-    for v in data.huaweicloud_workspace_users.computor_by_is_query_total_desktops.users[*].total_desktops :
+  is_query_total_desktops_filter_result = [
+    for v in data.huaweicloud_workspace_users.filter_by_is_query_total_desktops.users[*].total_desktops :
     v == 0
   ]
 }
 
-output "is_query_total_desktops_computor_useful" {
-  value = length(local.is_query_total_desktops_computor_result) > 0 && alltrue(local.is_query_total_desktops_computor_result)
+output "is_is_query_total_desktops_filter_useful" {
+  value = length(local.is_query_total_desktops_filter_result) > 0 && alltrue(local.is_query_total_desktops_filter_result)
 }
 
-# Filter by enterprise project ID
+# Filter by enterprise project ID.
 data "huaweicloud_workspace_users" "filter_by_enterprise_project_id" {
   enterprise_project_id = local.enterprise_project_id
 

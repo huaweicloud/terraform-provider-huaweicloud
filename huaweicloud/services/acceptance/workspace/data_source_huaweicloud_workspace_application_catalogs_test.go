@@ -11,8 +11,8 @@ import (
 
 func TestAccDataApplicationCatalogs_basic(t *testing.T) {
 	var (
-		dcName = "data.huaweicloud_workspace_application_catalogs.test"
-		dc     = acceptance.InitDataSourceCheck(dcName)
+		all = "data.huaweicloud_workspace_application_catalogs.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,11 +22,12 @@ func TestAccDataApplicationCatalogs_basic(t *testing.T) {
 			{
 				Config: testAccDataApplicationCatalogs_basic,
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameter.
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "catalogs.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dcName, "catalogs.0.id"),
-					resource.TestCheckResourceAttrSet(dcName, "catalogs.0.zh"),
-					resource.TestCheckResourceAttrSet(dcName, "catalogs.0.en"),
+					resource.TestMatchResourceAttr(all, "catalogs.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "catalogs.0.id"),
+					resource.TestCheckResourceAttrSet(all, "catalogs.0.zh"),
+					resource.TestCheckResourceAttrSet(all, "catalogs.0.en"),
 				),
 			},
 		},
@@ -34,5 +35,5 @@ func TestAccDataApplicationCatalogs_basic(t *testing.T) {
 }
 
 const testAccDataApplicationCatalogs_basic = `
-data "huaweicloud_workspace_application_catalogs" "test" {}
+data "huaweicloud_workspace_application_catalogs" "all" {}
 `

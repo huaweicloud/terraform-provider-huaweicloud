@@ -9,13 +9,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccAvailableIpNumberDataSource_basic(t *testing.T) {
+func TestAccDataAvailableIpNumber_basic(t *testing.T) {
 	var (
 		dcName = "data.huaweicloud_workspace_available_ip_number.test"
 		dc     = acceptance.InitDataSourceCheck(dcName)
-
-		notExistSubnetName = "data.huaweicloud_workspace_available_ip_number.test_non_exist_subnet"
-		dcNonExistSubnet   = acceptance.InitDataSourceCheck(notExistSubnetName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,33 +22,33 @@ func TestAccAvailableIpNumberDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAvailableIpNumberDataSource_step1,
+				Config: testAccDataAvailableIpNumber_basic_step1,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(dcName, "available_ip", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttr(dcName, "available_ip", "0"),
 				),
 			},
 			{
-				Config: testAccAvailableIpNumberDataSource_step2,
+				Config: testAccDataAvailableIpNumber_basic_step2,
 				Check: resource.ComposeTestCheckFunc(
-					dcNonExistSubnet.CheckResourceExists(),
-					resource.TestCheckResourceAttr(notExistSubnetName, "available_ip", "0"),
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(dcName, "available_ip", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 				),
 			},
 		},
 	})
 }
 
-const testAccAvailableIpNumberDataSource_step1 = `
+const testAccDataAvailableIpNumber_basic_step1 = `
+data "huaweicloud_workspace_available_ip_number" "test" {
+  subnet_id = "NOT_FOUND"
+}
+`
+
+const testAccDataAvailableIpNumber_basic_step2 = `
 data "huaweicloud_workspace_service" "test" {}
 
 data "huaweicloud_workspace_available_ip_number" "test" {
   subnet_id = try(data.huaweicloud_workspace_service.test.network_ids[0], "NOT_FOUND")
-}
-`
-
-const testAccAvailableIpNumberDataSource_step2 = `
-data "huaweicloud_workspace_available_ip_number" "test_non_exist_subnet" {
-  subnet_id = "NOT_FOUND"
 }
 `
