@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -737,18 +738,20 @@ func buildAddDesktopVolumesBody(d *schema.ResourceData, volumeRole string) map[s
 	}
 }
 
-func isUpdateNewVolumeRetryableError(resp *http.Response, err error) bool {
-	if err != nil {
-		return false
+func isAddVolumeRetryableError(err error) bool {
+	if apiErr, ok := err.(golangsdk.ErrDefault400); ok {
+		var respBody interface{}
+		if jsonErr := json.Unmarshal(apiErr.Body, &respBody); jsonErr != nil {
+			log.Printf("[WARN] failed to unmarshal the response body: %s", jsonErr)
+			return false
+		}
+		// WKS.0407: This operation cannot be performed because disks are being added.
+		errCode := utils.PathSearch("error_code", respBody, "")
+		if errCode == "WKS.0407" {
+			return true
+		}
 	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return false
-	}
-
-	errorCode := utils.PathSearch("error_code", respBody, "").(string)
-	return errorCode == "WKS.0407"
+	return false
 }
 
 // lintignore:R018
@@ -770,17 +773,17 @@ func updateNewVolume(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		JSONBody: utils.RemoveNil(addVolumeBody),
 	}
 
-	var resp *http.Response
-	var retryErr error
+	var (
+		requestResp *http.Response
+		retryErr    error
+	)
 	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		log.Printf("[DEBUG] The new volumeOpts is: %#v", addVolumeOpts)
-		resp, retryErr = client.Request("POST", addVolumePath, &addVolumeOpts)
-		if isUpdateNewVolumeRetryableError(resp, retryErr) {
-			time.Sleep(5 * time.Minute)
-			return resource.RetryableError(
-				errors.New("the desktop is adding volumes, the time interval for the each operation must over 5 minutes"))
-		}
-		if retryErr != nil {
+		if requestResp, retryErr = client.Request("POST", addVolumePath, &addVolumeOpts); retryErr != nil {
+			if isAddVolumeRetryableError(retryErr) {
+				time.Sleep(5 * time.Minute)
+				return resource.RetryableError(
+					errors.New("the desktop is adding volumes, the time interval for the each operation must over 5 minutes"))
+			}
 			return resource.NonRetryableError(retryErr)
 		}
 		return nil
@@ -789,7 +792,7 @@ func updateNewVolume(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		return fmt.Errorf("unable to add volumes for desktop: %s", err)
 	}
 
-	respBody, err := utils.FlattenResponse(resp)
+	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
 		return err
 	}
