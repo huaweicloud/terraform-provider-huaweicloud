@@ -2,8 +2,10 @@ package workspace
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -26,12 +28,15 @@ import (
 // @API Workspace GET /v2/{project_id}/desktop-pools/{pool_id}
 // @API Workspace GET /v2/{project_id}/desktop-pools/{pool_id}/users
 // @API Workspace PUT /v2/{project_id}/desktop-pools/{pool_id}
+// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/resize
+// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/users
 // @API Workspace GET /v2/{project_id}/desktops
 // @API Workspace POST /v2/{project_id}/desktops/batch-delete
 // @API Workspace DELETE /v2/{project_id}/desktop-pools/{pool_id}
-var nonUpdatableParams = []string{"type", "size", "product_id", "image_type", "image_id", "root_volume",
+
+var nonUpdatableParams = []string{"type", "size", "image_type", "image_id", "root_volume",
 	"root_volume.*.type", "root_volume.*.size", "subnet_ids",
-	"vpc_id", "security_groups", "data_volumes", "authorized_objects", "enterprise_project_id"}
+	"vpc_id", "security_groups", "data_volumes", "enterprise_project_id"}
 
 func ResourceDesktopPool() *schema.Resource {
 	return &schema.Resource{
@@ -42,6 +47,7 @@ func ResourceDesktopPool() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -849,7 +855,10 @@ func updateDesktopPool(client *golangsdk.ServiceClient, desktopPoolId string, pa
 }
 
 func resourceDesktopPoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
+	var (
+		cfg           = meta.(*config.Config)
+		desktopPoolId = d.Id()
+	)
 	client, err := cfg.NewServiceClient("workspace", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Workspace client: %s", err)
@@ -862,12 +871,147 @@ func resourceDesktopPoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 			updateOpt["name"] = d.Get("name")
 		}
 
-		if err := updateDesktopPool(client, d.Id(), updateOpt); err != nil {
+		if err := updateDesktopPool(client, desktopPoolId, updateOpt); err != nil {
 			return diag.Errorf("error updating desktop pool: %s", err)
 		}
 	}
 
+	if d.HasChange("product_id") {
+		err = updateDesktopPoolProductId(ctx, client, desktopPoolId, d.Get("product_id").(string), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("authorized_objects") {
+		oldRaw, newRaw := d.GetChange("authorized_objects")
+		addObjects := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+		rmObjects := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+		if rmObjects.Len() > 0 {
+			if err := updateDesktopPoolAuthorizedObjects(client, desktopPoolId, "REMOVE", rmObjects); err != nil {
+				return diag.Errorf("error removing authorized objects: %s", err)
+			}
+		}
+
+		if addObjects.Len() > 0 {
+			if err := updateDesktopPoolAuthorizedObjects(client, desktopPoolId, "ADD", addObjects); err != nil {
+				return diag.Errorf("error adding authorized objects: %s", err)
+			}
+		}
+	}
+
 	return resourceDesktopPoolRead(ctx, d, meta)
+}
+
+func updateDesktopPoolProductId(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId, productId string,
+	timeout time.Duration) error {
+	httpUrl := "v2/{project_id}/desktop-pools/{pool_id}/resize"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", desktopPoolId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"product_id": productId,
+			// If the desktop pool contains desktops that are not powered off, the specification change for the corresponding desktop
+			//  will fail. Therefore, 'mode' is set to 'STOP_DESKTOP'.
+			// `STOP_DESKTOP`: If the desktops under the desktop pool are powered on, they will be powered off first before
+			// the specification change.
+			"mode": "STOP_DESKTOP",
+		},
+	}
+
+	// Make sure all desktops under the desktop pool not processing jobs before updating the product ID.
+	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx: ctx,
+		RetryFunc: func() (interface{}, bool, error) {
+			res, err := client.Request("POST", updatePath, &opt)
+			retry, err := handleOperationDesktopPoolError409(err)
+			return res, retry, err
+		},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 20 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating product ID of the desktop pool (%s): %s", desktopPoolId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find job ID from API response under the desktop pool (%s)", desktopPoolId)
+	}
+
+	if _, err = waitForJobCompleted(ctx, client, jobId, timeout); err != nil {
+		return fmt.Errorf("error waiting for the update product ID job (%s) completed: %s", jobId, err)
+	}
+
+	err = waitForDesktopPoolJobCompleted(ctx, client, jobId, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for the desktops status running: %s", err)
+	}
+
+	return nil
+}
+
+func handleOperationDesktopPoolError409(err error) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+
+	if err409, ok := err.(golangsdk.ErrDefault409); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(err409.Body, &apiError); jsonErr != nil {
+			return false, jsonErr
+		}
+
+		errCode := utils.PathSearch("error_code", apiError, "")
+		// WKS.00010032: Operation conflict. The desktop current instance status is [xxx] and deny operation [xxx], resource id [xxx].
+		if errCode == "WKS.00010032" {
+			return true, err
+		}
+	}
+	return false, err
+}
+
+func waitForDesktopPoolJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshJobStatusFunc(client, jobId),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 20 * time.Second,
+		// After the job is completed, the desktop status does not change immediately.
+		// Therefore, set the ContinuousTargetOccurence to 2 to ensure the desktop status is changed.
+		ContinuousTargetOccurence: 2,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func updateDesktopPoolAuthorizedObjects(client *golangsdk.ServiceClient, desktopPoolId, action string, authorizedObjects *schema.Set) error {
+	httpUrl := "v2/{project_id}/desktop-pools/{pool_id}/users"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", desktopPoolId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"action":  action,
+			"objects": buildDesktopPoolAuthorizedObjects(authorizedObjects),
+		},
+	}
+	_, err := client.Request("POST", updatePath, &opt)
+	return err
 }
 
 func resourceDesktopPoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
