@@ -136,7 +136,7 @@ func ResourceDesktopPool() *schema.Resource {
 				Description: `The list of the security groups to which the desktop pool belongs.`,
 			},
 			"data_volumes": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        desktopPoolVolumeSchema(),
 				Description: `The list of the data volume configurations of the desktop pool.`,
@@ -322,6 +322,33 @@ func ResourceDesktopPool() *schema.Resource {
 				Computed:    true,
 				Description: `The image OS platform of the desktop pool.`,
 			},
+			// Internal attribute(s).
+			"data_volumes_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The origin data volume size.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The origin data volume type.`,
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of data volume configuration that used to reorder the 'data_volumes' parameter.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
 		},
 	}
 }
@@ -363,7 +390,7 @@ func buildCreateDesktopPoolBodyParam(epsId string, d *schema.ResourceData) map[s
 		"vpc_id":                        utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 		"security_groups":               buildDesktopPoolSecurityGroups(d.Get("security_groups").(*schema.Set)),
 		"availability_zone":             utils.ValueIgnoreEmpty(d.Get("availability_zone")),
-		"data_volumes":                  buildDesktopPoolDataVolumes(d.Get("data_volumes").(*schema.Set)),
+		"data_volumes":                  buildDesktopPoolDataVolumes(d.Get("data_volumes").([]interface{})),
 		"authorized_objects":            buildDesktopPoolAuthorizedObjects(d.Get("authorized_objects").(*schema.Set)),
 		"disconnected_retention_period": utils.ValueIgnoreEmpty(d.Get("disconnected_retention_period")),
 		"enable_autoscale":              d.Get("enable_autoscale"),
@@ -383,13 +410,13 @@ func buildDesktopPoolRootVolume(rootVolume interface{}) map[string]interface{} {
 	}
 }
 
-func buildDesktopPoolDataVolumes(dataVolumes *schema.Set) []map[string]interface{} {
-	if dataVolumes.Len() == 0 {
+func buildDesktopPoolDataVolumes(dataVolumes []interface{}) []map[string]interface{} {
+	if len(dataVolumes) == 0 {
 		return nil
 	}
 
-	rest := make([]map[string]interface{}, dataVolumes.Len())
-	for i, v := range dataVolumes.List() {
+	rest := make([]map[string]interface{}, len(dataVolumes))
+	for i, v := range dataVolumes {
 		rest[i] = map[string]interface{}{
 			"type": utils.PathSearch("type", v, nil),
 			"size": utils.PathSearch("size", v, nil),
@@ -491,6 +518,10 @@ func resourceDesktopPoolCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(desktopPoolId)
 
+	if err = d.Set("data_volumes_order", buildDesktopPoolDataVolumesOrder(d)); err != nil {
+		log.Printf("[ERROR] error setting the data_volumes_order field after creating desktop pool: %s", err)
+	}
+
 	// The successful creation of a desktop pool does not mean that all desktops under it are successfully created.
 	_, err = waitForWorkspaceResourcePoolJobCompleted(ctx, client, desktopPoolId, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -507,6 +538,23 @@ func resourceDesktopPoolCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 	return resourceDesktopPoolRead(ctx, d, meta)
+}
+
+func buildDesktopPoolDataVolumesOrder(d *schema.ResourceData) []interface{} {
+	dataVolumes, ok := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "data_volumes").([]interface{})
+	if !ok || dataVolumes == nil {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(dataVolumes))
+	for _, dataVolume := range dataVolumes {
+		result = append(result, map[string]interface{}{
+			"size": utils.PathSearch("size", dataVolume, nil),
+			"type": utils.PathSearch("type", dataVolume, nil),
+		})
+	}
+
+	return result
 }
 
 func waitForWorkspaceResourcePoolJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId, jobId string,
@@ -689,7 +737,9 @@ func resourceDesktopPoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("security_groups", flattenDesktopPoolSecurityGroups(utils.PathSearch("security_groups", desktopPool,
 			make([]interface{}, 0)).([]interface{}))),
 		d.Set("availability_zone", utils.PathSearch("availability_zone", desktopPool, nil)),
-		d.Set("data_volumes", flattenDesktopPoolDataVolume(utils.PathSearch("data_volumes", desktopPool, make([]interface{}, 0)).([]interface{}))),
+		d.Set("data_volumes", flattenDesktopPoolDataVolume(utils.PathSearch("data_volumes",
+			desktopPool, make([]interface{}, 0)).([]interface{}),
+			d.Get("data_volumes_order").([]interface{}))),
 		d.Set("disconnected_retention_period", utils.PathSearch("disconnected_retention_period", desktopPool, nil)),
 		d.Set("enable_autoscale", utils.PathSearch("enable_autoscale", desktopPool, nil)),
 		d.Set("autoscale_policy", flattenDesktopPoolAutoScalePolicy(utils.PathSearch("autoscale_policy", desktopPool, nil))),
@@ -740,20 +790,57 @@ func flattenDesktopPoolSubnet(subnetId interface{}) []interface{} {
 	return []interface{}{subnetId}
 }
 
-func flattenDesktopPoolDataVolume(volumes []interface{}) []map[string]interface{} {
+func flattenDesktopPoolDataVolume(volumes, volumesOrderOrigin []interface{}) []map[string]interface{} {
 	if len(volumes) == 0 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(volumes))
-	for i, volume := range volumes {
-		result[i] = map[string]interface{}{
+	sortedVolumes := orderDataVolumesByDataVolumesOrderOrigin(volumes, volumesOrderOrigin)
+	result := make([]map[string]interface{}, 0, len(sortedVolumes))
+	for _, volume := range sortedVolumes {
+		result = append(result, map[string]interface{}{
 			"type": utils.PathSearch("type", volume, nil),
 			"size": utils.PathSearch("size", volume, nil),
 			"id":   utils.PathSearch("id", volume, nil),
-		}
+		})
 	}
 	return result
+}
+
+func orderDataVolumesByDataVolumesOrderOrigin(volumes, volumesOrderOrigin []interface{}) []interface{} {
+	if len(volumesOrderOrigin) == 0 {
+		return volumes
+	}
+
+	sortedVolumes := make([]interface{}, 0)
+	for _, volumeOrigin := range volumesOrderOrigin {
+		index := findVolumeBySizeAndType(volumes, int64(utils.PathSearch("size", volumeOrigin, 0).(int)),
+			utils.PathSearch("type", volumeOrigin, "").(string))
+		if index == -1 {
+			continue
+		}
+
+		// Add the found volume configuration to the sorted volumes list.
+		sortedVolumes = append(sortedVolumes, volumes[index])
+		// Remove the processed volume configuration from the remote volumes array.
+		volumes = append(volumes[:index], volumes[index+1:]...)
+	}
+
+	// Add unsorted volumes configurations to the end of the sorted list.
+	sortedVolumes = append(sortedVolumes, volumes...)
+	log.Printf("[DEBUG] data_volumes sort result by data_volumes_order: %#v", sortedVolumes)
+	return sortedVolumes
+}
+
+func findVolumeBySizeAndType(volumes []interface{}, originSize int64, originType string) int {
+	for index, volume := range volumes {
+		if int64(utils.PathSearch("size", volume, float64(0)).(float64)) == originSize &&
+			utils.PathSearch("type", volume, "").(string) == originType {
+			return index
+		}
+	}
+
+	return -1
 }
 
 func flattenDesktopPoolAuthorizedObjects(authorizedObjects []interface{}) []map[string]interface{} {
