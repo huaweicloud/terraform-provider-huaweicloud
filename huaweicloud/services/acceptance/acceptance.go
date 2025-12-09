@@ -805,6 +805,7 @@ var (
 	HW_SFS_TURBO_AD_DOMAIN_DNS_SERVER_IP = os.Getenv("HW_SFS_TURBO_AD_DOMAIN_DNS_SERVER_IP")
 
 	HW_SMN_SUBSCRIBED_TOPIC_URN = os.Getenv("HW_SMN_SUBSCRIBED_TOPIC_URN")
+	HW_SMN_SUBSCRIBE_ID         = os.Getenv("HW_SMN_SUBSCRIBE_ID")
 
 	HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS = os.Getenv("HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS")
 	HW_SERVICESTAGE_ZIP_STORAGE_URLS     = os.Getenv("HW_SERVICESTAGE_ZIP_STORAGE_URLS")
@@ -4615,6 +4616,13 @@ func TestAccPrecheckCphObsBucketName(t *testing.T) {
 func TestAccPrecheckSmnSubscribedTopicUrn(t *testing.T) {
 	if HW_SMN_SUBSCRIBED_TOPIC_URN == "" {
 		t.Skip("HW_SMN_SUBSCRIBED_TOPIC_URN must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckSmnSubscribeId(t *testing.T) {
+	if HW_SMN_SUBSCRIBE_ID == "" {
+		t.Skip("HW_SMN_SUBSCRIBE_ID must be set for the acceptance test")
 	}
 }
 
