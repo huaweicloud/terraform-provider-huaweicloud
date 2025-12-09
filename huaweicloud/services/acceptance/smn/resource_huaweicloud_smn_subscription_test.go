@@ -87,11 +87,36 @@ func TestAccSMNV2Subscription_basic(t *testing.T) {
 					rc3.CheckResourceExists(),
 					rc4.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName1, "endpoint", "mailtest@gmail.com"),
+					resource.TestCheckResourceAttr(resourceName1, "remark", "rest remark"),
 					resource.TestCheckResourceAttr(resourceName2, "endpoint", "13600000000"),
+					resource.TestCheckResourceAttr(resourceName2, "remark", "rest remark"),
 					resource.TestCheckResourceAttr(resourceName3, "endpoint", "https://test.com"),
+					resource.TestCheckResourceAttr(resourceName3, "remark", "rest remark"),
 					resource.TestCheckResourceAttr(resourceName3, "extension.#", "1"),
 					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.%", "1"),
 					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.X-Custom-Header", "test"),
+					resource.TestCheckResourceAttr(resourceName4, "remark", "rest remark"),
+					resource.TestCheckResourceAttrPair(
+						resourceName4, "endpoint", "huaweicloud_fgs_function.test", "urn"),
+				),
+			},
+			{
+				Config: testAccSMNV2SubscriptionConfig_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc1.CheckResourceExists(),
+					rc2.CheckResourceExists(),
+					rc3.CheckResourceExists(),
+					rc4.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName1, "endpoint", "mailtest@gmail.com"),
+					resource.TestCheckResourceAttr(resourceName1, "remark", "rest remark update"),
+					resource.TestCheckResourceAttr(resourceName2, "endpoint", "13600000000"),
+					resource.TestCheckResourceAttr(resourceName2, "remark", "rest remark update"),
+					resource.TestCheckResourceAttr(resourceName3, "endpoint", "https://test.com"),
+					resource.TestCheckResourceAttr(resourceName3, "remark", ""),
+					resource.TestCheckResourceAttr(resourceName3, "extension.#", "1"),
+					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.%", "1"),
+					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.X-Custom-Header", "test"),
+					resource.TestCheckResourceAttr(resourceName4, "remark", ""),
 					resource.TestCheckResourceAttrPair(
 						resourceName4, "endpoint", "huaweicloud_fgs_function.test", "urn"),
 				),
@@ -138,9 +163,11 @@ func testAccCheckSMNSubscriptionV2Destroy(s *terraform.State) error {
 }
 
 func testAccSMNV2SubscriptionConfig_basic(rName string) string {
+	funcCode := "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnIC" +
+		"sganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   app         = "default"
   description = "fuction test"
   handler     = "index.handler"
@@ -148,11 +175,11 @@ resource "huaweicloud_fgs_function" "test" {
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = "%[2]s"
 }
 
 resource "huaweicloud_smn_topic" "topic_1" {
-  name         = "%s"
+  name         = "%[1]s"
   display_name = "The display name of topic_1"
 }
 
@@ -160,21 +187,21 @@ resource "huaweicloud_smn_subscription" "subscription_1" {
   topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = "mailtest@gmail.com"
   protocol  = "email"
-  remark    = "O&M"
+  remark    = "rest remark"
 }
 
 resource "huaweicloud_smn_subscription" "subscription_2" {
   topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = "13600000000"
   protocol  = "sms"
-  remark    = "O&M"
+  remark    = "rest remark"
 }
 
 resource "huaweicloud_smn_subscription" "subscription_3" {
   topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = "https://test.com"
   protocol  = "https"
-  remark    = "O&M"
+  remark    = "rest remark"
 
   extension {
     header = {
@@ -187,7 +214,62 @@ resource "huaweicloud_smn_subscription" "subscription_4" {
   topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = huaweicloud_fgs_function.test.urn
   protocol  = "functionstage"
-  remark    = "O&M"
+  remark    = "rest remark"
 }
-`, rName, rName)
+`, rName, funcCode)
+}
+
+func testAccSMNV2SubscriptionConfig_update(rName string) string {
+	funcCode := "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnIC" +
+		"sganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  description = "fuction test"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "%[2]s"
+}
+
+resource "huaweicloud_smn_topic" "topic_1" {
+  name         = "%[1]s"
+  display_name = "The display name of topic_1"
+}
+
+resource "huaweicloud_smn_subscription" "subscription_1" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "mailtest@gmail.com"
+  protocol  = "email"
+  remark    = "rest remark update"
+}
+
+resource "huaweicloud_smn_subscription" "subscription_2" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "13600000000"
+  protocol  = "sms"
+  remark    = "rest remark update"
+}
+
+resource "huaweicloud_smn_subscription" "subscription_3" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "https://test.com"
+  protocol  = "https"
+
+  extension {
+    header = {
+      "X-Custom-Header" = "test"
+    }
+  }
+}
+
+resource "huaweicloud_smn_subscription" "subscription_4" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = huaweicloud_fgs_function.test.urn
+  protocol  = "functionstage"
+}
+`, rName, funcCode)
 }
