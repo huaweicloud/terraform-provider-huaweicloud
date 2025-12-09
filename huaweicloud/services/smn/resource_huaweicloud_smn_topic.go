@@ -26,8 +26,8 @@ import (
 // @API SMN GET /v2/{project_id}/notifications/topics/{id}
 // @API SMN PUT /v2/{project_id}/notifications/topics/{id}
 // @API SMN POST /v2/{project_id}/notifications/topics
-// @API SMN POST /v2/{project_id}/smn_topic/{id}/tags/action
-// @API SMN GET /v2/{project_id}/smn_topic/{id}/tags
+// @API SMN POST /v2/{project_id}/{resource_type}/{id}/tags/action
+// @API SMN GET /v2/{project_id}/{resource_type}/{id}/tags
 // @API SMN PUT /v2/{project_id}/notifications/topics/{id}/attributes/{policyName}
 func ResourceTopic() *schema.Resource {
 	return &schema.Resource{
