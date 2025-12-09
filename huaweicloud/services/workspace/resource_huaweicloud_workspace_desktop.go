@@ -2,8 +2,10 @@ package workspace
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"sort"
 	"strings"
 	"time"
@@ -31,6 +33,24 @@ func desktopVolumeSchemaResource() *schema.Resource {
 			"size": {
 				Type:     schema.TypeInt,
 				Required: true,
+			},
+			"iops": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The IOPS of the volume.`,
+			},
+			"throughput": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The throughput of the volume.`,
+			},
+			"kms_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The KMS key ID used to encrypt the volume.`,
 			},
 			"id": {
 				Type:     schema.TypeString,
@@ -211,8 +231,11 @@ func buildDesktopRootVolume(volumes []interface{}) map[string]interface{} {
 
 	volume := volumes[0].(map[string]interface{})
 	return map[string]interface{}{
-		"type": volume["type"].(string),
-		"size": volume["size"].(int),
+		"type":       volume["type"].(string),
+		"size":       volume["size"].(int),
+		"iops":       utils.ValueIgnoreEmpty(volume["iops"].(int)),
+		"throughput": utils.ValueIgnoreEmpty(volume["throughput"].(int)),
+		"kms_id":     utils.ValueIgnoreEmpty(volume["kms_id"].(string)),
 	}
 }
 
@@ -225,8 +248,11 @@ func buildDesktopDataVolumes(volumes []interface{}) []map[string]interface{} {
 	for i, val := range volumes {
 		volume := val.(map[string]interface{})
 		result[i] = map[string]interface{}{
-			"type": volume["type"].(string),
-			"size": volume["size"].(int),
+			"type":       volume["type"].(string),
+			"size":       volume["size"].(int),
+			"iops":       utils.ValueIgnoreEmpty(volume["iops"].(int)),
+			"throughput": utils.ValueIgnoreEmpty(volume["throughput"].(int)),
+			"kms_id":     utils.ValueIgnoreEmpty(volume["kms_id"].(string)),
 		}
 	}
 	return result
@@ -412,6 +438,8 @@ func flattenDesktopRootVolume(volume interface{}) []map[string]interface{} {
 		{
 			"type":       utils.PathSearch("type", volume, nil),
 			"size":       utils.PathSearch("size", volume, nil),
+			"iops":       utils.PathSearch("iops", volume, nil),
+			"throughput": utils.PathSearch("throughput", volume, nil),
 			"id":         utils.PathSearch("volume_id", volume, nil),
 			"name":       utils.PathSearch("display_name", volume, nil),
 			"device":     utils.PathSearch("device", volume, nil),
@@ -430,6 +458,8 @@ func flattenDesktopDataVolumes(volumes []interface{}) []map[string]interface{} {
 		result[i] = map[string]interface{}{
 			"type":       utils.PathSearch("type", volume, nil),
 			"size":       utils.PathSearch("size", volume, nil),
+			"iops":       utils.PathSearch("iops", volume, nil),
+			"throughput": utils.PathSearch("throughput", volume, nil),
 			"id":         utils.PathSearch("volume_id", volume, nil),
 			"name":       utils.PathSearch("display_name", volume, nil),
 			"device":     utils.PathSearch("device", volume, nil),
@@ -601,127 +631,342 @@ func updateDesktopFlavor(ctx context.Context, client *golangsdk.ServiceClient, d
 	return nil
 }
 
-func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	desktopId := d.Id()
-	expandSlice := make([]map[string]interface{}, 0)
+const (
+	RootVolume = "root_volume"
+	DataVolume = "data_volume"
+)
 
-	if d.HasChange("root_volume") {
-		expandSlice = append(expandSlice, map[string]interface{}{
-			"desktop_id": desktopId,
-			"volume_id":  d.Get("root_volume.0.id").(string),
-			"new_size":   d.Get("root_volume.0.size").(int),
+func collectVolumeChangeErrors(d *schema.ResourceData, volumeRole string) error {
+	var (
+		oldVal, newVal = d.GetChange(volumeRole)
+		oldVolumes     = oldVal.([]interface{})
+		newVolumes     = newVal.([]interface{})
+		errs           *multierror.Error
+		oldLen         = len(oldVolumes)
+		newLen         = len(newVolumes)
+	)
+
+	if newLen < oldLen {
+		errs = multierror.Append(errs, errors.New("the number of volumes cannot be reduced"))
+		return errs.ErrorOrNil()
+	}
+
+	for i, val := range oldVolumes {
+		oldVolume := val.(map[string]interface{})
+		newVolume := newVolumes[i].(map[string]interface{})
+		if newVolume["type"].(string) != oldVolume["type"].(string) {
+			errs = multierror.Append(errs, errors.New("volume type does not support updates"))
+		}
+		if newVolume["size"].(int) < oldVolume["size"].(int) {
+			errs = multierror.Append(errs, fmt.Errorf("volume (%v) size (old:%v, new:%v) cannot be smaller than the size before the change",
+				oldVolume["name"], oldVolume["size"], newVolume["size"]))
+		}
+		if newVolume["type"].(string) != "GPSSD2" {
+			isQosChange := false
+			if oldVolume["iops"] != newVolume["iops"] {
+				isQosChange = true
+			}
+			if oldVolume["throughput"] != newVolume["throughput"] {
+				isQosChange = true
+			}
+
+			if isQosChange {
+				errs = multierror.Append(errs, fmt.Errorf("the type of the volume (%v) is not GPSSD2, cannot set QoS options", oldVolume["name"]))
+			}
+		}
+	}
+
+	if newLen > oldLen {
+		for i := oldLen; i < newLen; i++ {
+			newVolume := newVolumes[i].(map[string]interface{})
+			if newVolume["type"].(string) == "GPSSD2" {
+				isQoSNotSet := false
+				iops, iopsOk := newVolume["iops"].(int)
+				if !iopsOk || iops == 0 {
+					isQoSNotSet = true
+				}
+				throughput, throughputOk := newVolume["throughput"].(int)
+				if !throughputOk || throughput == 0 {
+					isQoSNotSet = true
+				}
+
+				if isQoSNotSet {
+					errs = multierror.Append(errs,
+						fmt.Errorf("the type of the volume (index number: %d) is GPSSD2, iops and throughput cannot be empty", i))
+				}
+			}
+		}
+	}
+
+	return errs.ErrorOrNil()
+}
+
+func buildAddDesktopVolumesBody(d *schema.ResourceData, volumeRole string) map[string]interface{} {
+	var (
+		desktopId      = d.Id()
+		oldVal, newVal = d.GetChange(volumeRole)
+		oldVolumes     = oldVal.([]interface{})
+		newVolumes     = newVal.([]interface{})
+		oldLen         = len(oldVolumes)
+		newLen         = len(newVolumes)
+	)
+
+	if newLen <= oldLen {
+		return nil
+	}
+
+	volumes := make([]map[string]interface{}, 0, newLen-oldLen)
+	for i := oldLen; i < newLen; i++ {
+		volume := newVolumes[i].(map[string]interface{})
+		volumes = append(volumes, map[string]interface{}{
+			"type":       volume["type"],
+			"size":       volume["size"],
+			"iops":       utils.ValueIgnoreEmpty(volume["iops"]),
+			"throughput": utils.ValueIgnoreEmpty(volume["throughput"]),
+			"kms_id":     utils.ValueIgnoreEmpty(volume["kms_id"]),
 		})
 	}
 
-	lengthDiff := 0
-	if d.HasChange("data_volume") {
-		var (
-			volumeHttpUrl  = "v2/{project_id}/volumes"
-			oldVal, newVal = d.GetChange("data_volume")
-			oldRaw         = oldVal.([]interface{})
-			newRaw         = newVal.([]interface{})
-			newLen         = len(newRaw)
-			oldLen         = len(oldRaw)
-		)
-		if newLen < oldLen {
-			return fmt.Errorf("the number of volumes cannot be reduced")
+	return map[string]interface{}{
+		"addDesktopVolumesReq": []map[string]interface{}{
+			{
+				"desktop_id": desktopId,
+				"volumes":    volumes,
+			},
+		},
+	}
+}
+
+func isUpdateNewVolumeRetryableError(resp *http.Response, err error) bool {
+	if err != nil {
+		return false
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return false
+	}
+
+	errorCode := utils.PathSearch("error_code", respBody, "").(string)
+	return errorCode == "WKS.0407"
+}
+
+// lintignore:R018
+func updateNewVolume(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, volumeRole string) error {
+	var httpUrl = "v2/{project_id}/volumes"
+
+	addVolumeBody := buildAddDesktopVolumesBody(d, volumeRole)
+	if addVolumeBody == nil {
+		return nil
+	}
+
+	addVolumePath := client.Endpoint + httpUrl
+	addVolumePath = strings.ReplaceAll(addVolumePath, "{project_id}", client.ProjectID)
+	addVolumeOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(addVolumeBody),
+	}
+
+	var resp *http.Response
+	var retryErr error
+	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		log.Printf("[DEBUG] The new volumeOpts is: %#v", addVolumeOpts)
+		resp, retryErr = client.Request("POST", addVolumePath, &addVolumeOpts)
+		if isUpdateNewVolumeRetryableError(resp, retryErr) {
+			time.Sleep(5 * time.Minute)
+			return resource.RetryableError(
+				errors.New("the desktop is adding volumes, the time interval for the each operation must over 5 minutes"))
 		}
-		lengthDiff = newLen - oldLen
-
-		for i, val := range oldRaw {
-			oldVolume := val.(map[string]interface{})
-			newVolume := newRaw[i].(map[string]interface{})
-			if newVolume["type"].(string) != oldVolume["type"].(string) {
-				return fmt.Errorf("volume type does not support updates")
-			}
-			if newVolume["size"].(int) < oldVolume["size"].(int) {
-				return fmt.Errorf("volume (%v) size (old:%v, new:%v) cannot be smaller than the size before the change",
-					oldVolume["name"], oldVolume["size"], newVolume["size"])
-			} else if newVolume["size"].(int) > oldVolume["size"].(int) {
-				expandSlice = append(expandSlice, map[string]interface{}{
-					"desktop_id": desktopId,
-					"volume_id":  oldVolume["id"].(string),
-					"new_size":   newVolume["size"].(int),
-				})
-			}
+		if retryErr != nil {
+			return resource.NonRetryableError(retryErr)
 		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("unable to add volumes for desktop: %s", err)
+	}
 
-		if lengthDiff > 0 {
-			newVolumeSlice := make([]map[string]interface{}, 0, lengthDiff)
-			for i := newLen - lengthDiff; i < newLen; i++ {
-				newVolume := newRaw[i].(map[string]interface{})
-				newVolumeSlice = append(newVolumeSlice, map[string]interface{}{
-					"type": newVolume["type"].(string),
-					"size": newVolume["size"].(int),
-				})
-			}
-			newVolumeOpts := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json",
-				},
-				JSONBody: map[string]interface{}{
-					"addDesktopVolumesReq": []map[string]interface{}{
-						{
-							"desktop_id": desktopId,
-							"volumes":    newVolumeSlice,
-						},
-					},
-				},
-			}
-			log.Printf("[DEBUG] The new volumeOpts is: %#v", newVolumeOpts)
-			volumePath := client.Endpoint + volumeHttpUrl
-			volumePath = strings.ReplaceAll(volumePath, "{project_id}", client.ProjectID)
-			resp, err := client.Request("POST", volumePath, &newVolumeOpts)
-			if err != nil {
-				return fmt.Errorf("unable to add volume for desktop: %s", err)
-			}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
 
-			respBody, err := utils.FlattenResponse(resp)
-			if err != nil {
-				return err
-			}
-			jobId := utils.PathSearch("job_id", respBody, "").(string)
-			_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return fmt.Errorf("error waiting for the add volume job (%s) completed: %s", jobId, err)
-			}
-			log.Printf("[DEBUG] The add volume job (%s) has been completed", jobId)
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the add volumes job (%s) completed: %s", jobId, err)
+	}
+
+	log.Printf("[DEBUG] The add volumes job (%s) has been completed", jobId)
+	return nil
+}
+
+func buildExpandDesktopVolumesBody(d *schema.ResourceData, volumeRole string) map[string]interface{} {
+	var (
+		desktopId      = d.Id()
+		oldVal, newVal = d.GetChange(volumeRole)
+		oldVolumes     = oldVal.([]interface{})
+		newVolumes     = newVal.([]interface{})
+	)
+
+	expandSlice := make([]map[string]interface{}, 0)
+	for i, val := range oldVolumes {
+		oldVolume := val.(map[string]interface{})
+		newVolume := newVolumes[i].(map[string]interface{})
+		if newVolume["size"].(int) > oldVolume["size"].(int) {
+			expandSlice = append(expandSlice, map[string]interface{}{
+				"desktop_id": desktopId,
+				"volume_id":  oldVolume["id"].(string),
+				"new_size":   newVolume["size"].(int),
+			})
 		}
 	}
 
-	if len(expandSlice) > 0 {
-		var (
-			expandHttpUrl = "v2/{project_id}/volumes/expand"
-			expandOpts    = golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json",
-				},
-				JSONBody: map[string]interface{}{
-					"expandVolumesReq": expandSlice,
-				},
-			}
-		)
-		log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
-		expandPath := client.Endpoint + expandHttpUrl
-		expandPath = strings.ReplaceAll(expandPath, "{project_id}", client.ProjectID)
-		resp, err := client.Request("POST", expandPath, &expandOpts)
+	if len(expandSlice) == 0 {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"desktop_volumes_expansion": expandSlice,
+	}
+}
+
+func updateVolumeSizeChange(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, volumeRole string) error {
+	var httpUrl = "v2/{project_id}/volumes/expand"
+
+	expandBody := buildExpandDesktopVolumesBody(d, volumeRole)
+	if expandBody == nil {
+		return nil
+	}
+
+	expandPath := client.Endpoint + httpUrl
+	expandPath = strings.ReplaceAll(expandPath, "{project_id}", client.ProjectID)
+	expandOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(expandBody),
+	}
+
+	log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
+	resp, err := client.Request("POST", expandPath, &expandOpts)
+	if err != nil {
+		return fmt.Errorf("unable to expand volume size: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+	}
+
+	log.Printf("[DEBUG] The expand volume job (%s) has been completed", jobId)
+	return nil
+}
+
+func buildUpdateDesktopVolumesQosBody(d *schema.ResourceData, volumeRole string) []map[string]interface{} {
+	var (
+		oldVal, newVal = d.GetChange(volumeRole)
+		oldVolumes     = oldVal.([]interface{})
+		newVolumes     = newVal.([]interface{})
+	)
+
+	qosChangeSlice := make([]map[string]interface{}, 0)
+	for i, val := range oldVolumes {
+		oldVolume := val.(map[string]interface{})
+		newVolume := newVolumes[i].(map[string]interface{})
+
+		if newVolume["type"].(string) != "GPSSD2" {
+			continue
+		}
+
+		if newVolume["iops"] == oldVolume["iops"] && newVolume["throughput"] == oldVolume["throughput"] {
+			continue
+		}
+
+		qosChangeSlice = append(qosChangeSlice, map[string]interface{}{
+			"volume_ids": []string{oldVolume["id"].(string)},
+			"qos": map[string]interface{}{
+				"iops":       newVolume["iops"].(int),
+				"throughput": newVolume["throughput"].(int),
+			},
+		})
+	}
+
+	return qosChangeSlice
+}
+
+func updateVolumeQosChange(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, volumeRole string) error {
+	var httpUrl = "v2/{project_id}/volumes/batch-modify-qos"
+
+	qosChangeSlice := buildUpdateDesktopVolumesQosBody(d, volumeRole)
+	if len(qosChangeSlice) == 0 {
+		return nil
+	}
+
+	qosChangePath := client.Endpoint + httpUrl
+	qosChangePath = strings.ReplaceAll(qosChangePath, "{project_id}", client.ProjectID)
+	for _, qosChange := range qosChangeSlice {
+		qosChangeOpts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(qosChange),
+		}
+
+		log.Printf("[DEBUG] The new QoSChangeOpts is: %#v", qosChangeOpts)
+		resp, err := client.Request("PUT", qosChangePath, &qosChangeOpts)
 		if err != nil {
-			return fmt.Errorf("unable to expand volume size: %s", err)
+			return fmt.Errorf("unable to change volume QoS: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return err
 		}
+
 		jobId := utils.PathSearch("job_id", respBody, "").(string)
 		_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return fmt.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+			return fmt.Errorf("error waiting for the change volume QoS job (%s) completed: %s", jobId, err)
 		}
-		log.Printf("[DEBUG] The expand volume job (%s) has been completed", jobId)
+		log.Printf("[DEBUG] The change volume QoS job (%s) has been completed", jobId)
 	}
+
+	return nil
+}
+
+func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, volumeRole string) error {
+	err := collectVolumeChangeErrors(d, volumeRole)
+	if err != nil {
+		return err
+	}
+
+	err = updateNewVolume(ctx, client, d, volumeRole)
+	if err != nil {
+		return err
+	}
+
+	err = updateVolumeSizeChange(ctx, client, d, volumeRole)
+	if err != nil {
+		return err
+	}
+
+	err = updateVolumeQosChange(ctx, client, d, volumeRole)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -906,7 +1151,10 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChanges("root_volume", "data_volume") {
-		if err = updateDesktopVolumes(ctx, client, d); err != nil {
+		if err = updateDesktopVolumes(ctx, client, d, RootVolume); err != nil {
+			return diag.FromErr(err)
+		}
+		if err = updateDesktopVolumes(ctx, client, d, DataVolume); err != nil {
 			return diag.FromErr(err)
 		}
 	}
