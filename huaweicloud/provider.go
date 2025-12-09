@@ -3212,6 +3212,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_login_common_location":                          hss.ResourceLoginCommonLocation(),
 			"huaweicloud_hss_modify_webtamper_protection_policy":             hss.ResourceModifyWebtamperProtectionPolicy(),
 			"huaweicloud_hss_modify_webtamper_rasp_path":                     hss.ResourceModifyWebtamperRaspPath(),
+			"huaweicloud_hss_rasp_protection_policy":                         hss.ResourceRaspProtectionPolicy(),
 			"huaweicloud_hss_setting_two_factor_login_config":                hss.ResourceSettingTwoFactorLoginConfig(),
 			"huaweicloud_hss_switch_honeypot_port_policy":                    hss.ResourceSwitchHoneypotPortPolicy(),
 			"huaweicloud_hss_vulnerability_information_export":               hss.ResourceVulnerabilityInformationExport(),
