@@ -71,11 +71,11 @@ The following arguments are supported:
     the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
   + **For a dingding subscription**, the endpoint is an IP address of a DingTalk group chatbot.
   + **For a wechat subscription**, the endpoint is an IP address of a WeChat group chatbot.
-  + **For a feishu subscription**, the endpoint is a an IP address of a Lark group chatbot.
-  + **For a welink subscription**, the endpoint is a a WeLink group account.
+  + **For a feishu subscription**, the endpoint is an IP address of a Lark group chatbot.
+  + **For a welink subscription**, the endpoint is a WeLink group account.
 
-* `remark` - (Optional, String, ForceNew) Remark information. The remarks must be a UTF-8-coded character string
-  containing 128 bytes. Changing this parameter will create a new resource.
+* `remark` - (Optional, String) Remark information. The remarks must be a UTF-8-coded character string
+  containing 128 bytes.
 
 * `extension` - (Optional, List, ForceNew) Specifies the extension configurations.
   The [extension](#extension) structure is documented below.

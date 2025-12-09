@@ -19,11 +19,13 @@ import (
 
 // @API SMN DELETE /v2/{project_id}/notifications/subscriptions/{subscriptionUrn}
 // @API SMN GET /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions
+// @API SMN PUT /v2/{project_id}/notifications/topics/{topic_urn}/subscriptions/{subscription_urn}
 // @API SMN POST /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions
 func ResourceSubscription() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSubscriptionCreate,
 		ReadContext:   resourceSubscriptionRead,
+		UpdateContext: resourceSubscriptionUpdate,
 		DeleteContext: resourceSubscriptionDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceSubscriptionImport,
@@ -54,7 +56,6 @@ func ResourceSubscription() *schema.Resource {
 			"remark": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"extension": {
 				Type:     schema.TypeList,
@@ -219,6 +220,44 @@ func resourceSubscriptionRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error setting SMN topic fields: %s", err)
 	}
 	return nil
+}
+
+func resourceSubscriptionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	if d.HasChange("remark") {
+		var (
+			httpUrl = "v2/{project_id}/notifications/topics/{topic_urn}/subscriptions/{subscription_urn}"
+			product = "smn"
+		)
+		client, err := cfg.NewServiceClient(product, region)
+		if err != nil {
+			return diag.Errorf("error creating SMN client: %s", err)
+		}
+
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{topic_urn}", d.Get("topic_urn").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{subscription_urn}", d.Id())
+
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateOpt.JSONBody = buildUpdateSubscriptionBodyParams(d)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SMN subscriptions: %s", err)
+		}
+	}
+	return resourceSubscriptionRead(ctx, d, meta)
+}
+
+func buildUpdateSubscriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"remark": d.Get("remark"),
+	}
+	return bodyParams
 }
 
 func resourceSubscriptionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
