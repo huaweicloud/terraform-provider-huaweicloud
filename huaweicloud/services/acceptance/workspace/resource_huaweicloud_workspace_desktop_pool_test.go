@@ -31,7 +31,7 @@ func TestAccDesktopPool_basic(t *testing.T) {
 		rc           = acceptance.InitResourceCheck(resourceName, &desktopPool, getDesktopPoolFunc)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceDesktopPoolImageId(t)
@@ -90,6 +90,9 @@ func TestAccDesktopPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "in_maintenance_mode", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttrPair(resourceName, "product_id",
+						"data.huaweicloud_workspace_flavors.test", "flavors.1.id"),
+					resource.TestCheckResourceAttr(resourceName, "authorized_objects.#", "1"),
 					// Check attributes.
 					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.id"),
@@ -150,7 +153,7 @@ func testAccDesktopPool_basic_base(name string) string {
 data "huaweicloud_workspace_service" "test" {}
 
 resource "huaweicloud_workspace_user" "test" {
-  count = 2
+  count = 3
   name  = "%[3]s${count.index}"
   email = "user@test.com"
 }
@@ -203,7 +206,7 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
   }
 
   dynamic "authorized_objects" {
-    for_each = huaweicloud_workspace_user.test[*]
+    for_each = slice(huaweicloud_workspace_user.test, 0, 2)
 
     content {
       object_id   = authorized_objects.value.id
@@ -239,7 +242,7 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
   name                          = "%[2]s"
   type                          = "DYNAMIC"
   size                          = 2
-  product_id                    = try(data.huaweicloud_workspace_flavors.test.flavors[0].id, "")
+  product_id                    = try(data.huaweicloud_workspace_flavors.test.flavors[1].id, "")
   image_type                    = "gold"
   image_id                      = "%[3]s"
   subnet_ids                    = [huaweicloud_vpc_subnet.test.id]
@@ -269,7 +272,7 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
   }
 
   dynamic "authorized_objects" {
-    for_each = huaweicloud_workspace_user.test[*]
+    for_each = slice(huaweicloud_workspace_user.test, 2, 3)
 
     content {
       object_id   = authorized_objects.value.id
@@ -292,7 +295,7 @@ func TestAccDesktopPool_localAD(t *testing.T) {
 		rc           = acceptance.InitResourceCheck(resourceName, &desktopPool, getDesktopPoolFunc)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceDesktopPoolImageId(t)

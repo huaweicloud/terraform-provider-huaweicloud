@@ -105,7 +105,7 @@ The following arguments are supported:
     `terraform apply`. If it is inconsistent with the script configuration, it can be ignored by `ignore_changes`
     in non-change scenarios.
 
-* `product_id` - (Required, String, NonUpdatable) Specifies the specification ID of the desktop pool.
+* `product_id` - (Required, String) Specifies the specification ID of the desktop pool.
 
 * `image_type` - (Required, String, NonUpdatable) Specifies the image type of the desktop pool.  
   The valid values are as follows:
@@ -129,7 +129,7 @@ The following arguments are supported:
   the desktop pool.  
   The [data_volumes](#desktop_pool_volume) structure is documented below.
   
-* `authorized_objects` - (Optional, List, NonUpdatable) Specifies the list of the users or user groups
+* `authorized_objects` - (Optional, List) Specifies the list of the users or user groups
   to be authorized.  
   The [authorized_objects](#desktop_pool_authorized_objects) structure is documented below.
 
@@ -275,6 +275,7 @@ The `product` block supports:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 20 minutes.
+* `update` - Default is 20 minutes.
 * `delete` - Default is 20 minutes.
 
 ## Import
