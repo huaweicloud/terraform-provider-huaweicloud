@@ -922,7 +922,7 @@ func TestAccDesktop_volumeChangeErrors(t *testing.T) {
 			},
 			{
 				Config:      testAccDesktop_volumeChangeErrors_GPSSD2MissingQoS(rName),
-				ExpectError: regexp.MustCompile(`the type of the .*th volume is GPSSD2, iops and throughput cannot be empty`),
+				ExpectError: regexp.MustCompile(`the type of the volume \(index number: \d+\) is GPSSD2, iops and throughput cannot be empty`),
 			},
 			{
 				Config:      testAccDesktop_volumeChangeErrors_volumeCountDecrease(rName),
