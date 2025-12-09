@@ -17,9 +17,9 @@ import (
 )
 
 // @API Workspace POST /v1/{project_id}/app-server-groups
-// @API Workspace GET /v1/{project_id}/app-server-group
+// @API Workspace GET /v1/{project_id}/app-server-groups/{server_group_id}
 // @API Workspace PATCH /v1/{project_id}/app-server-groups/{server_group_id}
-// @API Workspace POST /v1/{project_id}/app-server-groups/{server_group_id}
+// @API Workspace DELETE /v1/{project_id}/app-server-groups/{server_group_id}
 // @API Workspace POST /v1/{project_id}/server-group/tags/batch-create
 // @API Workspace DELETE /v1/{project_id}/server-group/tags/batch-delete
 func ResourceAppServerGroup() *schema.Resource {
