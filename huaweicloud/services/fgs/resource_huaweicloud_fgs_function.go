@@ -1031,7 +1031,7 @@ func updateFunctionMetadata(client *golangsdk.ServiceClient, functionUrn string,
 }
 
 func buildFunctionMountsOrder(d *schema.ResourceData) []interface{} {
-	mounts, ok := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "func_mounts_order").([]interface{})
+	mounts, ok := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "func_mounts").([]interface{})
 	if !ok || mounts == nil {
 		return nil
 	}
@@ -1450,7 +1450,7 @@ func orderMountsByMountsOrderOrigin(mounts, mountsOrderOrigin []interface{}) []i
 	mountsCopy := mounts
 	for _, mountOrigin := range mountsOrderOrigin {
 		localMountPathOrigin := utils.PathSearch("local_mount_path", mountOrigin, "").(string)
-		for index, mount := range mounts {
+		for index, mount := range mountsCopy {
 			if utils.PathSearch("local_mount_path", mount, "").(string) != localMountPathOrigin {
 				continue
 			}
@@ -1918,6 +1918,10 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		err := updateFunctionMetadata(client, funcUrnWithoutVersion, params)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+
+		if err = d.Set("func_mounts_order", buildFunctionMountsOrder(d)); err != nil {
+			log.Printf("[ERROR] error setting the func_mounts_order field after updating function: %s", err)
 		}
 	}
 	// If the request is successful, obtain the values ​​of all JSON|object parameters first and save them to the
