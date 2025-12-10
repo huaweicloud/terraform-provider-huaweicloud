@@ -64,8 +64,16 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Repository can be imported using the organization name and repository name separated by a slash, e.g.:
+Repository can be imported using the organization name and repository name separated by a slash or a comma, e.g.:
+
+Only when repository name is with no slashes, can use a slash to separate the organization name and repository name.
 
 ```bash
 $ terraform import huaweicloud_swr_repository.test org-name/repo-name
+```
+
+Using comma to separate the organization name and repository name is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_repository.test org-name,repo-name
 ```
