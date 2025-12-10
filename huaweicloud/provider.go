@@ -1455,6 +1455,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_malware_collect_status":                     hss.DataSourceHssMalwareCollectStatus(),
 			"huaweicloud_hss_operational_report_welfare":                 hss.DataSourceOperationalReportWelfare(),
+			"huaweicloud_hss_overview_security_risks":                    hss.DataSourceOverviewSecurityRisks(),
 			"huaweicloud_hss_kubernetes_service_detail":                  hss.DataSourceKubernetesServiceDetail(),
 			"huaweicloud_hss_kubernetes_container_detail":                hss.DataSourceKubernetesContainerDetail(),
 			"huaweicloud_hss_kubernetes_pods":                            hss.DataSourceKubernetesPods(),
