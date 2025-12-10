@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -30,13 +31,15 @@ import (
 // @API Workspace PUT /v2/{project_id}/desktop-pools/{pool_id}
 // @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/resize
 // @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/users
+// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-add
+// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-delete
 // @API Workspace GET /v2/{project_id}/desktops
 // @API Workspace POST /v2/{project_id}/desktops/batch-delete
 // @API Workspace DELETE /v2/{project_id}/desktop-pools/{pool_id}
 
 var nonUpdatableParams = []string{"type", "size", "image_type", "image_id", "root_volume",
 	"root_volume.*.type", "root_volume.*.size", "subnet_ids",
-	"vpc_id", "security_groups", "data_volumes", "enterprise_project_id"}
+	"vpc_id", "security_groups", "enterprise_project_id"}
 
 func ResourceDesktopPool() *schema.Resource {
 	return &schema.Resource{
@@ -945,6 +948,7 @@ func resourceDesktopPoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 	var (
 		cfg           = meta.(*config.Config)
 		desktopPoolId = d.Id()
+		updateTimeout = d.Timeout(schema.TimeoutUpdate)
 	)
 	client, err := cfg.NewServiceClient("workspace", cfg.GetRegion(d))
 	if err != nil {
@@ -963,8 +967,31 @@ func resourceDesktopPoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.HasChange("data_volumes") {
+		oldRaw, _ := d.GetChange("data_volumes")
+		oldDataVolumes := oldRaw.([]interface{})
+		addVolumes, rmVolumes := getDesktopPoolDataVolumesDiff(d, oldDataVolumes)
+		log.Printf("[DEBUG] want to add data volumes: %#v", addVolumes)
+		log.Printf("[DEBUG] want to remove data volumes: %#v", rmVolumes)
+		if len(rmVolumes) > 0 {
+			if err = removeDesktopPoolDataVolumes(ctx, client, desktopPoolId, rmVolumes, updateTimeout); err != nil {
+				return diag.Errorf("error removing data volumes of the desktop pool (%s): %s", desktopPoolId, err)
+			}
+		}
+
+		if len(addVolumes) > 0 {
+			if err = addDesktopPoolDataVolumes(ctx, client, desktopPoolId, addVolumes, updateTimeout); err != nil {
+				return diag.Errorf("error adding data volumes of the desktop pool (%s): %s", desktopPoolId, err)
+			}
+		}
+
+		if err = d.Set("data_volumes_order", buildDesktopPoolDataVolumesOrder(d)); err != nil {
+			log.Printf("[ERROR] error setting the 'data_volumes_order' field after updating data volumes: %s", err)
+		}
+	}
+
 	if d.HasChange("product_id") {
-		err = updateDesktopPoolProductId(ctx, client, desktopPoolId, d.Get("product_id").(string), d.Timeout(schema.TimeoutUpdate))
+		err = updateDesktopPoolProductId(ctx, client, desktopPoolId, d.Get("product_id").(string), updateTimeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -988,6 +1015,195 @@ func resourceDesktopPoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceDesktopPoolRead(ctx, d, meta)
+}
+
+// Get the value from the configuration file, record it as `configDataVolumes`, and iterate through `oldDataVolumes`.
+// 1. If an element in `oldDataVolumes` exists in `configDataVolumes`, it means the element has not changed,
+// so remove it from both `configDataVolumes` and `oldDataVolumes`.
+// 2. If an element in `configDataVolumes` does not exist in `oldDataVolumes`, it means the element needs to be added,
+// so keep it in `configDataVolumes`.
+// 3. Finally return the remaining elements in `configDataVolumes` and `oldDataVolumes`,
+// where `configDataVolumes` are elements to be added and `oldDataVolumes` are elements to be removed.
+func getDesktopPoolDataVolumesDiff(d *schema.ResourceData, oldDataVolumes []interface{}) (addVolumes, rmVolumes []interface{}) {
+	configDataVolumes, ok := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "data_volumes").([]interface{})
+	if !ok || configDataVolumes == nil {
+		return nil, nil
+	}
+
+	// The oldVolumeIndexes records the indices of elements in oldDataVolumes that do not need to be modified.
+	oldVolumeIndexes := make([]int, 0)
+	for i, oldVolume := range oldDataVolumes {
+		configIndex := findVolumeBySizeAndType(
+			configDataVolumes,
+			int64(utils.PathSearch("size", oldVolume, 0).(int)),
+			utils.PathSearch("type", oldVolume, "").(string),
+		)
+		if configIndex == -1 {
+			continue
+		}
+
+		configDataVolumes = append(configDataVolumes[:configIndex], configDataVolumes[configIndex+1:]...)
+		oldVolumeIndexes = append(oldVolumeIndexes, i)
+	}
+
+	if len(oldVolumeIndexes) > 0 {
+		// Sort indices in descending order to delete from back to front.
+		// This avoids index shifting when deleting elements.
+		sort.Sort(sort.Reverse(sort.IntSlice(oldVolumeIndexes)))
+		// Delete elements from `oldDataVolumes` at the corresponding indexes.
+		for _, idx := range oldVolumeIndexes {
+			if idx < 0 || idx >= len(oldDataVolumes) {
+				// Boundary check to avoid panic.
+				continue
+			}
+			oldDataVolumes = append(oldDataVolumes[:idx], oldDataVolumes[idx+1:]...)
+		}
+	}
+
+	rmVolumes = oldDataVolumes
+	addVolumes = configDataVolumes
+	return
+}
+
+func addDesktopPoolDataVolumes(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId string, dataVolumes []interface{},
+	timeout time.Duration) error {
+	// When the data volumes are added, all desktops in the desktop pool must be running.
+	err := waitForDesktopsUnderDesktopPoolStatusCompleted(ctx, client, desktopPoolId, timeout)
+	if err != nil {
+		return err
+	}
+
+	httpUrl := "v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-add"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", desktopPoolId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"volumes": buildDesktopPoolDataVolumes(dataVolumes),
+		},
+	}
+
+	resp, err := client.Request("POST", updatePath, &opt)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find job ID under the desktop pool (%s) from API response", desktopPoolId)
+	}
+
+	err = waitForDesktopPoolJobCompleted(ctx, client, jobId, timeout)
+	return err
+}
+
+func waitForDesktopsUnderDesktopPoolStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshDesktopsUnderDesktopPoolStatusFunc(client, desktopPoolId),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshDesktopsUnderDesktopPoolStatusFunc(client *golangsdk.ServiceClient, desktopPoolId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		desktops, err := getDesktopsUnderDesktopPoolById(client, desktopPoolId)
+		if err != nil {
+			return desktops, "ERROR", err
+		}
+
+		statuses := utils.PathSearch("[*].status", desktops, make([]interface{}, 0)).([]interface{})
+		// ACTIVE：Running
+		// SHUTOFF：Shutdown
+		// ERROR：Error
+		// HIBERNATED：Hibernate
+		for _, v := range statuses {
+			status := v.(string)
+			if status == "ERROR" {
+				return desktops, "ERROR", fmt.Errorf("unexpect status: %s", status)
+			}
+
+			if status != "ACTIVE" {
+				return desktops, "PENDING", nil
+			}
+		}
+
+		return desktops, "COMPLETED", nil
+	}
+}
+
+func buildRemoveDesktopPoolDataVolumes(dataVolumes []interface{}) []map[string]interface{} {
+	if len(dataVolumes) == 0 {
+		return nil
+	}
+
+	rest := make([]map[string]interface{}, 0, len(dataVolumes))
+	for _, v := range dataVolumes {
+		rest = append(rest, map[string]interface{}{
+			"id":   utils.PathSearch("id", v, nil),
+			"type": utils.PathSearch("type", v, nil),
+			"size": utils.PathSearch("size", v, nil),
+		})
+	}
+
+	return rest
+}
+
+func removeDesktopPoolDataVolumes(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId string, dataVolumes []interface{},
+	timeout time.Duration) error {
+	httpUrl := "v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-delete"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", desktopPoolId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"volumes": buildRemoveDesktopPoolDataVolumes(dataVolumes),
+		},
+	}
+
+	// There may be desktops under the desktop pool that are in the process of operation,
+	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx: ctx,
+		RetryFunc: func() (interface{}, bool, error) {
+			res, err := client.Request("POST", updatePath, &opt)
+			retry, err := handleOperationDesktopPoolError409(err)
+			return res, retry, err
+		},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 20 * time.Second,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find job ID under the desktop pool (%s) from API response", desktopPoolId)
+	}
+
+	err = waitForDesktopPoolJobCompleted(ctx, client, jobId, timeout)
+	return err
 }
 
 func updateDesktopPoolProductId(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId, productId string,
@@ -1033,10 +1249,6 @@ func updateDesktopPoolProductId(ctx context.Context, client *golangsdk.ServiceCl
 	jobId := utils.PathSearch("job_id", respBody, "").(string)
 	if jobId == "" {
 		return fmt.Errorf("unable to find job ID from API response under the desktop pool (%s)", desktopPoolId)
-	}
-
-	if _, err = waitForJobCompleted(ctx, client, jobId, timeout); err != nil {
-		return fmt.Errorf("error waiting for the update product ID job (%s) completed: %s", jobId, err)
 	}
 
 	err = waitForDesktopPoolJobCompleted(ctx, client, jobId, timeout)
@@ -1125,7 +1337,8 @@ func resourceDesktopPoolDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// Before deleting the desktop pool, you must delete all desktops under it.
-	desktopIds, err := getDesktopIdsUnderDesktopPoolById(client, desktopPoolId)
+	desktops, err := getDesktopsUnderDesktopPoolById(client, desktopPoolId)
+	desktopIds := utils.PathSearch("[*].desktop_id", desktops, make([]interface{}, 0)).([]interface{})
 	if err != nil {
 		return diag.Errorf("error retrieving desktop IDs under specified desktop pool (%s): %s", desktopPoolId, err)
 	}
@@ -1149,7 +1362,7 @@ func resourceDesktopPoolDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func getDesktopIdsUnderDesktopPoolById(client *golangsdk.ServiceClient, desktopPoolId string) ([]interface{}, error) {
+func getDesktopsUnderDesktopPoolById(client *golangsdk.ServiceClient, desktopPoolId string) ([]interface{}, error) {
 	var (
 		// The 'limit' default value is 1000.
 		httpUrl = "v2/{project_id}/desktops"
@@ -1183,7 +1396,7 @@ func getDesktopIdsUnderDesktopPoolById(client *golangsdk.ServiceClient, desktopP
 		result = append(result, desktops...)
 		offset += len(desktops)
 	}
-	return utils.PathSearch("[*].desktop_id", result, make([]interface{}, 0)).([]interface{}), nil
+	return result, nil
 }
 
 func deleteDesktopsUnderDesktopPool(client *golangsdk.ServiceClient, desktopIds interface{}) (string, error) {

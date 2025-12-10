@@ -56,6 +56,8 @@ func TestAccDesktopPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "security_groups.#", "2"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.0.id"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.size", "70"),
 					resource.TestCheckResourceAttr(resourceName, "authorized_objects.#", "2"),
 					resource.TestCheckResourceAttrSet(resourceName, "authorized_objects.0.object_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "authorized_objects.0.object_name"),
@@ -82,6 +84,16 @@ func TestAccDesktopPool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.type"),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.size"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.type"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.size", "60"),
+					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.1.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.1.type"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.size", "70"),
 					resource.TestCheckResourceAttr(resourceName, "availability_zone", ""),
 					resource.TestCheckResourceAttr(resourceName, "disconnected_retention_period", "43200"),
 					resource.TestCheckResourceAttr(resourceName, "enable_autoscale", "false"),
@@ -94,8 +106,6 @@ func TestAccDesktopPool_basic(t *testing.T) {
 						"data.huaweicloud_workspace_flavors.test", "flavors.1.id"),
 					resource.TestCheckResourceAttr(resourceName, "authorized_objects.#", "1"),
 					// Check attributes.
-					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.id"),
 					resource.TestCheckResourceAttr(resourceName, "status", "STEADY"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_time"),
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_used"),
@@ -119,6 +129,10 @@ func TestAccDesktopPool_basic(t *testing.T) {
 					"image_type",
 					"vpc_id",
 					"tags",
+					// The `data_volumes_order` parameter only be ignored in test cases; it will not be changed after importing in actual use.
+					"data_volumes_order",
+					// During import, the order in the script may differ from the order returned by the API.
+					"data_volumes",
 				},
 			},
 		},
@@ -234,8 +248,12 @@ func testAccDesktopPool_basic_step2(name, updateName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+# Currently, only one data volume can be deleted or added at a time during the update phase.
+# Update the data volume sizes from [50, 70] to [60, 70].
+# Firstly, delete the data volume with size 50.
+# Secondly, add the data volume with size 60.
 locals {
-  data_volume_sizes = [50, 70]
+  data_volume_sizes = [60, 70]
 }
 
 resource "huaweicloud_workspace_desktop_pool" "test" {
