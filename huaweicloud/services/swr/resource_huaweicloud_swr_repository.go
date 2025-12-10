@@ -2,7 +2,7 @@ package swr
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strings"
 	"time"
 
@@ -129,8 +129,9 @@ func resourceSWRRepositoryRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	organization := d.Get("organization").(string)
+	repositoryName := strings.ReplaceAll(d.Id(), "/", "$")
 
-	repo, err := repositories.Get(client, organization, d.Id()).Extract()
+	repo, err := repositories.Get(client, organization, repositoryName).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving SWR repository")
 	}
@@ -168,8 +169,8 @@ func resourceSWRRepositoryUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	organization := d.Get("organization").(string)
-
-	err = repositories.Update(client, organization, d.Id(), opts).ExtractErr()
+	repositoryName := strings.ReplaceAll(d.Id(), "/", "$")
+	err = repositories.Update(client, organization, repositoryName, opts).ExtractErr()
 	if err != nil {
 		return diag.Errorf("error updating SWR repository: %s", err)
 	}
@@ -185,7 +186,8 @@ func resourceSWRRepositoryDelete(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	organization := d.Get("organization").(string)
-	err = repositories.Delete(client, organization, d.Id()).ExtractErr()
+	repositoryName := strings.ReplaceAll(d.Id(), "/", "$")
+	err = repositories.Delete(client, organization, repositoryName).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting SWR repository")
 	}
@@ -194,10 +196,15 @@ func resourceSWRRepositoryDelete(_ context.Context, d *schema.ResourceData, meta
 }
 
 func resourceSWRRepositoryImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), ",")
 	if len(parts) != 2 {
-		err := fmt.Errorf("invalid format specified for SWR repository import: format must be <organization>/<repository>")
-		return nil, err
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 2 {
+			err := errors.New("invalid format specified for SWR repository import: format must be " +
+				"<organization>/<repository> or <organization>,<repository>, if repository contains slashes," +
+				" format must be <organization>,<repository>")
+			return nil, err
+		}
 	}
 	org := parts[0]
 	repo := parts[1]
