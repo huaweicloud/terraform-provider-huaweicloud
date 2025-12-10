@@ -18,17 +18,11 @@ Manages a Workspace desktop resource within HuaweiCloud.
 ```hcl
 variable "flavor_id" {}
 variable "image_id" {}
-variable "vpc_id" {}
-variable "network_id" {}
-variable "security_group_id" {}
 variable "desktop_name" {}
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroups" "test" {
-  // Security group automatically created when first opening the Workspace account, do not remove
-  name = "WorkspaceUserSecurityGroup"
-}
+data "huaweicloud_workspace_service" "test" {}
 
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id  = var.flavor_id
@@ -36,12 +30,11 @@ resource "huaweicloud_workspace_desktop" "test" {
   image_id   = var.image_id
 
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = var.vpc_id
-  security_groups   = setunion(data.huaweicloud_networking_secgroups.test.security_groups[*].id,
-    [var.security_group_id])
+  vpc_id            = data.huaweicloud_workspace_service.test.vpc_id
+  security_groups   = data.huaweicloud_workspace_service.test.desktop_security_group[*].id
 
   nic {
-    network_id = var.network_id
+    network_id = data.huaweicloud_workspace_service.test.network_ids[0]
   }
 
   name               = var.desktop_name
@@ -118,14 +111,15 @@ The following arguments are supported:
 * `nic` - (Optional, List) Specifies the NIC information corresponding to the desktop.
   The [object](#desktop_nic) structure is documented below.
 
-* `name` - (Optional, String, ForceNew) Specifies the desktop name.
+* `name` - (Optional, String) Specifies the desktop name.
   The name can contain `1` to `15` characters, only letters, digits and hyphens (-) are allowed.
   The name must start with a letter or digit and cannot end with a hyphen.
-  Changing this will create a new resource.
 
   ~> Some images will cause the names in `.tfstate` file to be set to uppercase.
      Although this will not cause changes by terraform commands, special processing is required when subsequent
      resources reference this field.
+
+  -> Only desktops in the **ACTIVE** status support renaming.
 
 * `email_notification` - (Optional, Bool, ForceNew) Specifies whether to send emails to user mailbox during important
   operations.  

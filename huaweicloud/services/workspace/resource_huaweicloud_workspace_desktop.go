@@ -76,11 +76,13 @@ func desktopVolumeSchemaResource() *schema.Resource {
 // @API Workspace POST /v2/{project_id}/desktops/rebuild
 // @API Workspace POST /v2/{project_id}/desktops/resize
 // @API Workspace GET /v2/{project_id}/desktops/{desktop_id}
+// @API Workspace PUT /v2/{project_id}/desktops/{desktop_id}
 // @API Workspace DELETE /v2/{project_id}/desktops/{desktop_id}
 // @API Workspace POST /v2/{project_id}/desktops/{id}/tags/action
 // @API Workspace POST /v2/{project_id}/volumes
 // @API Workspace GET /v2/{project_id}/desktops/{desktop_id}/networks
 // @API Workspace PUT /v2/{project_id}/desktops/{desktop_id}/networks
+// @API Workspace POST /v2/{project_id}/desktops/action
 // @API Workspace POST /v2/{project_id}/desktops
 // @API Workspace POST /v2/{project_id}/volumes/expand
 // @API Workspace GET /v2/{project_id}/workspace-sub-jobs
@@ -190,7 +192,6 @@ func ResourceDesktop() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"email_notification": {
@@ -1132,6 +1133,38 @@ func updateDesktopImage(ctx context.Context, client *golangsdk.ServiceClient, d 
 	return nil
 }
 
+func updateDesktopAttributes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl   = "v2/{project_id}/desktops/{desktop_id}"
+		desktopId = d.Id()
+		opts      = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: map[string]interface{}{
+				"desktop": map[string]interface{}{
+					"computer_name": utils.ValueIgnoreEmpty(d.Get("name").(string)),
+				},
+			},
+		}
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{desktop_id}", desktopId)
+	_, err := client.Request("PUT", updatePath, &opts)
+	if err != nil {
+		return fmt.Errorf("error updating desktop attributes: %s", err)
+	}
+
+	err = waitForWorkspaceStatusCompleted(ctx, client, desktopId, "os-start", d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for power action (os-start) for desktop (%s) failed: %s", desktopId, err)
+	}
+	return nil
+}
+
 func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1149,6 +1182,12 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	if d.HasChanges("image_type", "image_id") {
 		if err = updateDesktopImage(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("name") {
+		if err = updateDesktopAttributes(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
