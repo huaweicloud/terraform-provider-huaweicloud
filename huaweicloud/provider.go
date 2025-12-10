@@ -1983,6 +1983,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_collector_logstash_parsers":   secmaster.DataSourceCollectorLogstashParsers(),
 			"huaweicloud_secmaster_collector_parser_templates":   secmaster.DataSourceSecmasterCollectorParserTemplates(),
 			"huaweicloud_secmaster_collector_channel_instances":  secmaster.DataSourceCollectorChannelInstances(),
+			"huaweicloud_secmaster_collector_connections":        secmaster.DataSourceCollectorConnections(),
 			"huaweicloud_secmaster_installation_scripts":         secmaster.DataSourceSecmasterInstallationScripts(),
 			"huaweicloud_secmaster_retrieve_scripts":             secmaster.DataSourceRetrieveScripts(),
 			"huaweicloud_secmaster_tables":                       secmaster.DataSourceTables(),
