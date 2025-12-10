@@ -2302,6 +2302,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_remote_console":                    workspace.DataSourceDesktopRemoteConsole(),
 			"huaweicloud_workspace_desktop_sysprep":                           workspace.DataSourceDesktopSysprep(),
 			"huaweicloud_workspace_desktop_pools":                             workspace.DataSourceDesktopPools(),
+			"huaweicloud_workspace_desktop_pool_associated_desktops":          workspace.DataSourceDesktopPoolAssociatedDesktops(),
 			"huaweicloud_workspace_desktop_tags":                              workspace.DataSourceDesktopTags(),
 			"huaweicloud_workspace_desktop_tags_filter":                       workspace.DataSourceDesktopTagsFilter(),
 			"huaweicloud_workspace_flavors":                                   workspace.DataSourceWorkspaceFlavors(),
