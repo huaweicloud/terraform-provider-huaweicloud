@@ -17,7 +17,7 @@ import (
 
 var recycleBinLoadBalancerDeleteNonUpdatableParams = []string{"loadbalancer_id"}
 
-// @API ELB DELETE /v3/{project_id}/recycle-bin/cloudservers/{loadbalancer_id}
+// @API ELB DELETE /v3/{project_id}/elb/recycle-bin/loadbalancers/{loadbalancer_id}
 func ResourceElbRecycleBinLoadBalancerDelete() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceElbRecycleBinLoadBalancerDeleteCreate,
