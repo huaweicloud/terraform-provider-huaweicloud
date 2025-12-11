@@ -346,8 +346,8 @@ The following arguments are supported:
   The default option.
   + **Retain**: Skip the deletion process.
 
-* `hibernate` - (Optional, Bool) Specifies whether to hibernate the CCE cluster. Defaults to **false**. After a cluster is
-  hibernated, resources such as workloads cannot be created or managed in the cluster, and the cluster cannot be
+* `hibernate` - (Optional, Bool) Specifies whether to hibernate the CCE cluster. Defaults to **false**. After a cluster
+  is hibernated, resources such as workloads cannot be created or managed in the cluster, and the cluster cannot be
   deleted.
 
 <a name="cce_cluster_masters"></a>

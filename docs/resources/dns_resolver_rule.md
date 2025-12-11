@@ -50,9 +50,9 @@ The following arguments are supported:
 
 * `domain_name` - (Required, String, ForceNew) Specifies the domain name.  
   The maximum length of the domain name is `254` characters.  
-  The domain name consists of multiple strings separated by dots (.), and the maximum length of a single string is `63` characters.
-  Only Chinese and English characters, digits, and hyphens (-) allowed, and it cannot start or end with a hyphen.  
-  Changing this parameter will create a new resource.
+  The domain name consists of multiple strings separated by dots (.), and the maximum length of a single string is `63`
+  characters. Only Chinese and English characters, digits, and hyphens (-) allowed, and it cannot start or end with a
+  hyphen. Changing this parameter will create a new resource.
 
 * `ip_addresses` - (Required, List) Specifies the IP address list of the DNS resolver rule.  
   The [ip_address](#resolver_rule_ip_addresses) structure is documented below.

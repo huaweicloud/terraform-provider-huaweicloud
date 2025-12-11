@@ -835,7 +835,8 @@ The `bootstrap_scripts` block supports:
 
 * `nodes` - (Required, List, ForceNew) Specifies names of the node group where the bootstrap action script is executed.
 
-* `fail_action` - (Required, String, ForceNew) Specifies the action after the bootstrap action script fails to be executed.
+* `fail_action` - (Required, String, ForceNew) Specifies the action after the bootstrap action script fails to be
+  executed.
   The options are as follows:
     + **continue**: Continue to execute subsequent scripts.
     + **errorout**: Stop the action.
@@ -848,8 +849,8 @@ The `bootstrap_scripts` block supports:
 
 * `parameters` - (Optional, String, ForceNew) Specifies bootstrap action script parameters.
 
-* `active_master` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script runs only on active master nodes.
-  The default value is **false**, indicating that the bootstrap action script can run on all master nodes.
+* `active_master` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script runs only on active master
+  nodes. The default value is **false**, indicating that the bootstrap action script can run on all master nodes.
 
 * `before_component_start` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script is executed
   before component start.

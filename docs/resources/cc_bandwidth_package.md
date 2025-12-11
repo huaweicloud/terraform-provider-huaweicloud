@@ -76,22 +76,27 @@ The following arguments are supported:
 * `spec_code` - (Optional, String, ForceNew) Specification code of the bandwidth package.
   Changing this parameter will create a new resource.
   If the value of `interflow_mode` is **Area**, the values are as follows:
-  + **bandwidth.aftoela**: Southern Africa-Eastern Latin America on both the Chinese Mainland website and International website.
+  + **bandwidth.aftoela**: Southern Africa-Eastern Latin America on both the Chinese Mainland website and International
+    website.
   + **bandwidth.aftonla**: Southern Africa-Northern Latin America on both the Chinese Mainland website and International
     website.
-  + **bandwidth.aftowla**: Southern Africa-Western Latin America on both the Chinese Mainland website and International website.
+  + **bandwidth.aftowla**: Southern Africa-Western Latin America on both the Chinese Mainland website and International
+    website.
   + **bandwidth.aptoaf**: Asia Pacific-Southern Africa on the International website.
   + **bandwidth.aptoap**: Asia Pacific on the International website.
-  + **bandwidth.aptoela**: Asia Pacific-Eastern Latin America on both the Chinese Mainland website and International website.
-  + **bandwidth.aptonla**: Asia Pacific-Northern Latin America on both the Chinese Mainland website and International website.
-  + **bandwidth.aptowla**: Asia Pacific-Western Latin America on both the Chinese Mainland website and International website.
+  + **bandwidth.aptoela**: Asia Pacific-Eastern Latin America on both the Chinese Mainland website and International
+    website.
+  + **bandwidth.aptonla**: Asia Pacific-Northern Latin America on both the Chinese Mainland website and International
+    website.
+  + **bandwidth.aptowla**: Asia Pacific-Western Latin America on both the Chinese Mainland website and International
+    website.
   + **bandwidth.cmtoaf**: Chinese mainland-Southern Africa on the International website.
   + **bandwidth.cmtoap**: Chinese mainland-Asia Pacific on the International website.
   + **bandwidth.cmtocm**: Chinese mainland on the International website.
   + **bandwidth.cmtoela**: Chinese mainland-Eastern Latin America on both the Chinese Mainland website and International
     website.
-  + **bandwidth.cmtonla**: Chinese mainland-Northern Latin America on both the Chinese Mainland website and International
-    website.
+  + **bandwidth.cmtonla**: Chinese mainland-Northern Latin America on both the Chinese Mainland website and
+    International website.
   + **bandwidth.cmtowla**: Chinese mainland-Western Latin America on both the Chinese Mainland website and International
     website.
   + **bandwidth.elatoela**: Eastern Latin America on both the Chinese Mainland website and International website.
@@ -103,7 +108,8 @@ The following arguments are supported:
     International website.
   + **bandwidth.wlatowla**: Western Latin America on both the Chinese Mainland website and International website.
 
-  If the value of `interflow_mode` is **Region**, the value depends on the specified interflow regions, e.g. **Beijing4toGuangzhou**.
+  If the value of `interflow_mode` is **Region**, the value depends on the specified interflow regions,
+  e.g. **Beijing4toGuangzhou**.
 
 * `description` - (Optional, String) The description about the bandwidth package.  
   The description can contain a maximum of 85 characters.

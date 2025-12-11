@@ -161,8 +161,8 @@ The following arguments are supported:
   the binding of up to six load balancers. The [lbaas_listeners](#group_lbaas_listener_object) structure is documented below.
 
 * `health_periodic_audit_method` - (Optional, String) Specifies the health check method for instances in the AS group.
-  The health check methods include **ELB_AUDIT** and **NOVA_AUDIT**. If load balancing is configured, the default value of
-  this parameter is **ELB_AUDIT**. Otherwise, the default value is **NOVA_AUDIT**.
+  The health check methods include **ELB_AUDIT** and **NOVA_AUDIT**. If load balancing is configured, the default value
+  of this parameter is **ELB_AUDIT**. Otherwise, the default value is **NOVA_AUDIT**.
 
 * `health_periodic_audit_time` - (Optional, Int) Specifies the health check period for instances. The unit is minute
   and value includes **0**, **1**, **5** (default), **15**, **60**, and **180**.
@@ -178,7 +178,8 @@ The following arguments are supported:
 
   + **OLD_CONFIG_OLD_INSTANCE** (default): The earlier-created instances based on the earlier-created AS configurations
     are removed first.
-  + **OLD_CONFIG_NEW_INSTANCE**: The later-created instances based on the earlier-created AS configurations are removed first.
+  + **OLD_CONFIG_NEW_INSTANCE**: The later-created instances based on the earlier-created AS configurations are removed
+    first.
   + **OLD_INSTANCE**: The earlier-created instances are removed first.
   + **NEW_INSTANCE**: The later-created instances are removed first.
 

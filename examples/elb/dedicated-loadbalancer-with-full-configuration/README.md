@@ -1,8 +1,8 @@
 # Create a dedicated Elastic Load Balance service
 
 This example provides best practice code for using Terraform to create a dedicated Elastic Load Balance (ELB) service
-in HuaweiCloud, including elastic load balancer, listener, backend server group, and bind the backend server and enable health
-check for each server.
+in HuaweiCloud, including elastic load balancer, listener, backend server group, and bind the backend server and enable
+health check for each server.
 
 ## Prerequisites
 

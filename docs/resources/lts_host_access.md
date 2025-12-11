@@ -164,10 +164,12 @@ The `single_log_format` blocks supports:
   + **wildcard**: the time wildcard.
 
 * `value` - (Optional, String) Specifies value of single-line log format.
-  + If mode is **system**, the value is the current timestamp, the number of milliseconds elapsed since January 1, 1970 UTC.
-  + If mode is **wildcard**, the value is **required** and is a time wildcard, which is used to look for the log printing
-    time as the beginning of a log event. If the time format in a log event is `2019-01-01 23:59:59`, the time wildcard is
-    **YYYY-MM-DD hh:mm:ss**. If the time format in a log event is `19-1-1 23:59:59`, the time wildcard is **YY-M-D hh:mm:ss**.
+  + If mode is **system**, the value is the current timestamp, the number of milliseconds elapsed since January 1, 1970
+    UTC.
+  + If mode is **wildcard**, the value is **required** and is a time wildcard, which is used to look for the log
+    printing time as the beginning of a log event. If the time format in a log event is `2019-01-01 23:59:59`,
+    the time wildcard is **YYYY-MM-DD hh:mm:ss**. If the time format in a log event is `19-1-1 23:59:59`,
+    the time wildcard is **YY-M-D hh:mm:ss**.
 
 <a name="HostAccessConfigMultiLogFormat"></a>
 The `multi_log_format` blocks supports:
@@ -179,12 +181,13 @@ The `multi_log_format` blocks supports:
 * `value` - (Required, String) Specifies value of multi-line log format.
   + If mode is **regular**, the value is a regular expression.
   + If mode is **time**, the value is a time wildcard, which is used to look for the log printing time as the beginning
-    of a log event. If the time format in a log event is `2019-01-01 23:59:59`, the time wildcard is **YYYY-MM-DD hh:mm:ss**.
+    of a log event. If the time format in a log event is `2019-01-01 23:59:59`,
+    the time wildcard is **YYYY-MM-DD hh:mm:ss**.
     If the time format in a log event is `19-1-1 23:59:59`, the time wildcard is **YY-M-D hh:mm:ss**.
 
--> The time wildcard and regular expression will look for the specified pattern right from the beginning of each log line.
-  If no match is found, the system time, which may be different from the time in the log event, is used. In general cases,
-  you are advised to select **Single-line** for Log Format and **system** time for Log Time.
+-> The time wildcard and regular expression will look for the specified pattern right from the beginning of each log
+  line. If no match is found, the system time, which may be different from the time in the log event, is used.
+  In general cases, you are advised to select **Single-line** for Log Format and **system** time for Log Time.
 
 <a name="HostAccessConfigWindowsLogInfo"></a>
 The `windows_log_info` block supports:
@@ -192,8 +195,8 @@ The `windows_log_info` block supports:
 * `categorys` - (Required, List) Specifies the types of Windows event logs to collect. The valid values are
   **Application**, **System**, **Security** and **Setup**.
 
-* `event_level` - (Required, List) Specifies the Windows event severity. The valid values are **information**, **warning**,
-   **error**, **critical** and **verbose**.  Only Windows Vista or later is supported.
+* `event_level` - (Required, List) Specifies the Windows event severity. The valid values are **information**,
+  **warning**, **error**, **critical** and **verbose**.  Only Windows Vista or later is supported.
 
 * `time_offset_unit` - (Required, String) Specifies the collection time offset unit. The valid values are
   **day**, **hour** and **sec**.

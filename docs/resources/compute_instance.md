@@ -281,11 +281,11 @@ The following arguments are supported:
 * `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
-* `eip_type` - (Optional, String, ForceNew) Specifies the type of an EIP that will be automatically assigned to the instance.
-  Available values are *5_bgp* (dynamic BGP) and *5_sbgp* (static BGP). Changing this creates a new instance.
+* `eip_type` - (Optional, String, ForceNew) Specifies the type of an EIP that will be automatically assigned to the
+  instance. Available values are *5_bgp* (dynamic BGP) and *5_sbgp* (static BGP). Changing this creates a new instance.
 
-* `bandwidth` - (Optional, List, ForceNew) Specifies the bandwidth of an EIP that will be automatically assigned to the instance.
-  The object structure is documented below. Changing this creates a new instance.
+* `bandwidth` - (Optional, List, ForceNew) Specifies the bandwidth of an EIP that will be automatically assigned to the
+  instance. The object structure is documented below. Changing this creates a new instance.
 
 * `eip_id` - (Optional, String, ForceNew) Specifies the ID of an *existing* EIP assigned to the instance.
   This parameter and `eip_type`, `bandwidth` are alternative. Changing this creates a new instance.
@@ -308,21 +308,22 @@ The following arguments are supported:
 * `scheduler_hints` - (Optional, List) Specifies the scheduler with hints on how the instance should be launched. The
   available hints are described below.
 
-* `stop_before_destroy` - (Optional, Bool) Specifies whether to try stop instance gracefully before destroying it, thus giving
-  chance for guest OS daemons to stop correctly. If instance doesn't stop within timeout, it will be destroyed anyway.
+* `stop_before_destroy` - (Optional, Bool) Specifies whether to try stop instance gracefully before destroying it, thus
+  giving chance for guest OS daemons to stop correctly. If instance doesn't stop within timeout, it will be destroyed
+  anyway.
 
-* `delete_disks_on_termination` - (Optional, Bool) Specifies whether to delete the data disks when the instance is terminated.
-  Defaults to *false*. This parameter is valid if `charging_mode` is set to *postPaid*, and all data disks will be deleted
-  in *prePaid* charging mode.
+* `delete_disks_on_termination` - (Optional, Bool) Specifies whether to delete the data disks when the instance is
+  terminated. Defaults to *false*. This parameter is valid if `charging_mode` is set to *postPaid*, and all data disks
+  will be deleted in *prePaid* charging mode.
 
 * `delete_eip_on_termination` - (Optional, Bool) Specifies whether the EIP is released when the instance is terminated.
   Defaults to *true*.
 
-* `include_data_disks_on_update` - (Optional, Bool) Specifies whether to change the billing modes of all pay-per-use data
-  disks to yearly/monthly. Defaults to **false**.
+* `include_data_disks_on_update` - (Optional, Bool) Specifies whether to change the billing modes of all pay-per-use
+  data disks to yearly/monthly. Defaults to **false**.
 
-* `include_publicips_on_update` - (Optional, Bool) Specifies whether to change the billing modes of EIPs that are exclusive
-  and billed by bandwidth to yearly/monthly. Defaults to **false**.
+* `include_publicips_on_update` - (Optional, Bool) Specifies whether to change the billing modes of EIPs that are
+  exclusive and billed by bandwidth to yearly/monthly. Defaults to **false**.
 
 * `enterprise_project_id` - (Optional, String) Specifies a unique id in UUID format of enterprise project.
 
@@ -425,8 +426,8 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
   Changing this creates a new instance.
 
-* `snapshot_id` - (Optional, String, ForceNew) Specifies the EVS snapshot ID or ID of the original data disk contained in
-  the full-ECS image. Changing this creates a new instance.
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the EVS snapshot ID or ID of the original data disk contained
+  in the full-ECS image. Changing this creates a new instance.
 
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
   Changing this creates a new instance.
@@ -455,7 +456,8 @@ The `data_disks` block supports:
 
 The `bandwidth` block supports:
 
-* `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. Changing this creates a new instance.
+* `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. Changing this creates a new
+  instance.
   Possible values are as follows:
   + **PER**: Dedicated bandwidth
   + **WHOLE**: Shared bandwidth
@@ -466,14 +468,16 @@ The `bandwidth` block supports:
 * `id` - (Optional, String, ForceNew) Specifies the **shared** bandwidth id. This parameter is mandatory when
   `share_type` is set to **WHOLE**. Changing this creates a new instance.
 
-* `charge_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing mode. The value can be *traffic* or *bandwidth*.
+* `charge_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing mode. The value can be *traffic* or
+  *bandwidth*.
   Changing this creates a new instance.
 
 * `extend_param` - (Optional, Map, ForceNew) Specifies the additional EIP information.
   Changing this creates a new instance.
 
   -> Currently, only the `charging_mode` key is supported and the value can be **prePaid** or **postPaid**.  
-    The value combinations of the `charging_mode` of instance, this `charging_mode` and `charge_mode` are shown in this table.
+    The value combinations of the `charging_mode` of instance, this `charging_mode` and `charge_mode` are shown in this
+    table.
 
   <!-- markdownlint-disable MD033 -->
   <table class="tg"><thead>
@@ -504,8 +508,8 @@ The `scheduler_hints` block supports:
 * `group` - (Optional, String, ForceNew) Specifies a UUID of a Server Group.
   The instance will be placed into that group. Changing this creates a new instance.
 
-* `tenancy` - (Optional, String) Specifies the tenancy specifies whether the ECS is to be created on a Dedicated Host(DeH)
-  or in a shared pool. Value options: **share**, **dedicate**.
+* `tenancy` - (Optional, String) Specifies the tenancy specifies whether the ECS is to be created on a Dedicated
+  Host(DeH) or in a shared pool. Value options: **share**, **dedicate**.
 
 * `deh_id` - (Optional, String) Specifies the ID of DeH. This parameter takes effect only when the value of tenancy is
   **dedicated**.
@@ -575,9 +579,9 @@ terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `admin_pass`, `user_data`, `metadata`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
-`delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
-`power_action` and arguments for pre-paid and spot price.
+The missing attributes include: `admin_pass`, `user_data`, `metadata`, `data_disks`, `scheduler_hints`,
+`stop_before_destroy`, `delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`,
+`bandwidth`, `eip_type`, `power_action` and arguments for pre-paid and spot price.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.

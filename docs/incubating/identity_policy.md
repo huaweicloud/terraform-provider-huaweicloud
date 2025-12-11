@@ -50,9 +50,10 @@ The following arguments are supported:
   If specified, this version will be deleted instead of the earliest one when updating the `policy_document`.
   The value must be an existing version and can not be the default version.
 
-* `path` - (Optional, String, NonUpdatable) Specifies the resource path. It is made of several strings, each containing one
-  or more English letters, digits, underscores (_), plus (+), equals (=), comma (,), dots (.), at (@) and hyphens (-),
-  and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is empty.
+* `path` - (Optional, String, NonUpdatable) Specifies the resource path. It is made of several strings, each containing
+  one or more English letters, digits, underscores (_), plus (+), equals (=), comma (,), dots (.), at (@) and hyphens
+  (-), and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is
+  empty.
 
 * `description` - (Optional, String, NonUpdatable) Specifies the description of the identity policy.
 

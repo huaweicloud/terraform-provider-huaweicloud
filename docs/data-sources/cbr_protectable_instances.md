@@ -159,7 +159,8 @@ The `billing` block supports:
 * `consistent_level` - The backup specifications. Which can be **crash_consistent** (crash consistent backup) or
   **app_consistent** (application consistency backup).
 
-* `object_type` - The object type, which can be **server**, **disk**, **turbo**, **workspace**, **vmware**, **rds**, or **file**.
+* `object_type` - The object type, which can be **server**, **disk**, **turbo**, **workspace**, **vmware**, **rds**,
+  or **file**.
 
 * `order_id` - The order ID.
 

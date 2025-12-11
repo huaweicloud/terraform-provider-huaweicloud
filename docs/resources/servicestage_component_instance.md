@@ -129,8 +129,8 @@ resource "huaweicloud_servicestage_component_instance" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create (deploy) the ServiceStage (component) instance.
-  If omitted, the provider-level region will be used. Changing this will create a new instance.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create (deploy) the ServiceStage (component)
+  instance. If omitted, the provider-level region will be used. Changing this will create a new instance.
 
 * `application_id` - (Required, String, ForceNew) Specifies the application ID to which the instance belongs.
   Changing this will create a new instance.
@@ -138,8 +138,8 @@ The following arguments are supported:
 * `component_id` - (Required, String, ForceNew) Specifies the component ID to build (deploy).
   Changing this will create a new instance.
 
-* `environment_id` - (Required, String, ForceNew) Specifies the environment ID in which the component to build (deployed).
-  Changing this will create a new instance.
+* `environment_id` - (Required, String, ForceNew) Specifies the environment ID in which the component to
+  build (deployed). Changing this will create a new instance.
 
 * `name` - (Required, String, ForceNew) Specifies the instance name.
   The name can contain `2` to `63` characters, only lowercase letters, digits and hyphens (-) are allowed.
@@ -212,7 +212,8 @@ The `refer_resource` block supports:
   + When `type` is set to **cce**, this parameter is mandatory, and need to specify the namespace of the cluster where
   the component is to be deployed, such as **{"namespace": "default"}**.
   + When `type` is set to **ecs**, this parameter is mandatory, and need to specify the hosts where the component is to
-  be deployed, such as **{"hosts":"[\"04d9f887-9860-4029-91d1-7d3102903a69\", \"04d9f887-9860-4029-91d1-7d3102903a70\"]"}**.
+  be deployed, such as
+  **{"hosts":"[\"04d9f887-9860-4029-91d1-7d3102903a69\", \"04d9f887-9860-4029-91d1-7d3102903a70\"]"}**.
 
 <a name="servicestage_artifact"></a>
 The `artifact` block supports:

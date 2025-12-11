@@ -739,7 +739,8 @@ The `hwc_rds` block supports:
 
 * `disk_encryption_id` - (Optional, String) Specifies the disk encryption ID.
 
-* `backup_used_space` - (Optional, Float) Specifies the backup space usage of the RDS. Only supports RDS for SQL Server engine.
+* `backup_used_space` - (Optional, Float) Specifies the backup space usage of the RDS. Only supports RDS for SQL Server
+  engine.
 
 <a name="hwc_rds_ha_struct"></a>
 The `ha` block supports:

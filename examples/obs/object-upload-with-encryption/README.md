@@ -197,7 +197,8 @@ The example supports different storage classes for cost optimization:
 
 * Make sure to keep your credentials secure and never commit them to version control
 * The creation of the OBS bucket and object upload is usually instantaneous
-* This example creates the OBS bucket, optionally a KMS key for encryption, and uploads an encrypted object with custom content
+* This example creates the OBS bucket, optionally a KMS key for encryption, and uploads an encrypted object with custom
+  content
 * KMS encryption provides server-side encryption for enhanced data security
 * Object-level encryption provides additional security layer for sensitive data
 * All resources will be created in the specified region

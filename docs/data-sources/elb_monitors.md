@@ -61,8 +61,8 @@ The following arguments are supported:
 
 * `http_method` - (Optional, String)  Specifies the HTTP method. Value options: **GET**, **HEAD**, **POST**.
 
-* `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a slash
-  (/), and the default value is **/**. This parameter is available only when type is set to **HTTP**.
+* `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a
+  slash(/), and the default value is **/**. This parameter is available only when type is set to **HTTP**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
@@ -93,8 +93,8 @@ The `monitors` block supports:
 * `max_retries` - The number of consecutive health checks when the health check result of a backend server changes from
   **OFFLINE** to **ONLINE**.
 
-* `max_retries_down` - The number of consecutive health checks when the health check result of a backend server changes from
-  **ONLINE** to **OFFLINE**.
+* `max_retries_down` - The number of consecutive health checks when the health check result of a backend server changes
+  from **ONLINE** to **OFFLINE**.
 
 * `port` - The port used for the health check.
 

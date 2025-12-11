@@ -78,8 +78,8 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason.
 The missing attributes include: `params`, `record_id` and `trigger_source`.
 It is generally recommended running `terraform plan` after importing the resource.
-You can then decide if changes should be applied to the deployment record, or the resource definition should be updated to
-align with the deployment record. Also you can ignore changes as below.
+You can then decide if changes should be applied to the deployment record, or the resource definition should be updated
+to align with the deployment record. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_codearts_deploy_application_deploy" "test" {

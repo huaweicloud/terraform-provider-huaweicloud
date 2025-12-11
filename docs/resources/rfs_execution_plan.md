@@ -34,7 +34,8 @@ The following arguments are supported:
   is located. If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `stack_name` - (Required, String, ForceNew) Specifies the name of the resource stack to which the execution plan belongs.
+* `stack_name` - (Required, String, ForceNew) Specifies the name of the resource stack to which the execution plan
+  belongs.
   Changing this creates a new resource.
   
 * `name` - (Required, String, ForceNew) Specifies the name of the execution plan.
@@ -60,13 +61,13 @@ The following arguments are supported:
   Changing this creates a new resource.  
   This parameter and `vars_uri` parameters cannot be set at the same time.
 
-* `template_uri` - (Optional, String, ForceNew) Specifies the OBS address where the HCL/JSON template archive (**.zip** file,
-  which contains all resource **.tf.json** script files to be deployed) or **.tf.json** file is located, which describes
-  the target status of the deployment resources.  
+* `template_uri` - (Optional, String, ForceNew) Specifies the OBS address where the HCL/JSON template archive
+  (**.zip** file, which contains all resource **.tf.json** script files to be deployed) or **.tf.json** file is located,
+  which describes the target status of the deployment resources.  
   Changing this creates a new resource.
 
-* `vars_uri` - (Optional, String, ForceNew) Specifies the OBS address where the variable (**.tfvars**) file corresponding
-  to the HCL/JSON template located, which describes the target status of the deployment resources.  
+* `vars_uri` - (Optional, String, ForceNew) Specifies the OBS address where the variable (**.tfvars**) file
+  corresponding to the HCL/JSON template located, which describes the target status of the deployment resources.  
   Changing this creates a new resource.
 
 ## Attribute Reference

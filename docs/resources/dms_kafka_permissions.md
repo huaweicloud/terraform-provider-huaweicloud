@@ -36,11 +36,11 @@ resource "huaweicloud_dms_kafka_permissions" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the DMS kafka permissions resource. If omitted, the
-  provider-level region will be used. Changing this creates a new resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the DMS kafka permissions resource. If omitted,
+  the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the DMS kafka instance to which the permissions belongs.
-  Changing this creates a new resource.
+* `instance_id` - (Required, String, ForceNew) Specifies the ID of the DMS kafka instance to which the permissions
+  belongs. Changing this creates a new resource.
 
 * `topic_name` - (Required, String, ForceNew) Specifies the name of the topic to which the permissions belongs.
   Changing this creates a new resource.

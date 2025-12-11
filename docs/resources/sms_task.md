@@ -39,8 +39,8 @@ The following arguments are supported:
     high efficiency but poor compatibility while file-level migration has low efficiency but excellent compatibility.
   + For Windows servers, SMS only supports highly efficient block-level migration.
 
-* `os_type` - (Required, String, ForceNew) Specifies the OS type of the source server. The value can be **WINDOWS** and **LINUX**.
-  Changing this parameter will create a new resource.
+* `os_type` - (Required, String, ForceNew) Specifies the OS type of the source server. The value can be **WINDOWS** and
+  **LINUX**. Changing this parameter will create a new resource.
 
 * `source_server_id` - (Required, String, ForceNew) Specifies the ID of the source server.
   Changing this parameter will create a new resource.

@@ -89,7 +89,8 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the imported SSL certificate.
-  The valid length is limited from `3` to `63`. Only letters, digits, hyphens (-), underscores (_), and periods (.) are allowed.
+  The valid length is limited from `3` to `63`. Only letters, digits, hyphens (-), underscores (_), and periods (.) are
+  allowed.
 
   Changing this parameter will create a new resource.
 

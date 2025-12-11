@@ -172,7 +172,8 @@ This example creates the following resources:
 This example uses manual storage configuration where:
 
 * **OBS Bucket** - An OBS bucket is manually created
-* **Persistent Volume (PV)** - A Kubernetes PV resource is manually created and configured for the manually created OBS bucket
+* **Persistent Volume (PV)** - A Kubernetes PV resource is manually created and configured for the manually created OBS
+  bucket
 * **Persistent Volume Claim (PVC)** - A PVC is created and bound to the manually configured PV
 * **Storage Binding** - The PV is bound to the PVC, making the OBS storage available to pods
 

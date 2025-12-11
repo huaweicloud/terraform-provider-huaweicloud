@@ -55,7 +55,8 @@ resource "huaweicloud_identity_provider_mapping" "mapping" {
 
 The following arguments are supported:
 
-* `provider_id` - (Required, String, NonUpdatable) Specifies the ID of the identity provider used to manage the mapping rules.
+* `provider_id` - (Required, String, NonUpdatable) Specifies the ID of the identity provider used to manage the mapping
+  rules.
 
 * `mapping_rules` - (Required, String) Specifies the identity mapping rules in json string format.
 

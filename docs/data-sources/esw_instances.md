@@ -18,8 +18,8 @@ data "huaweicloud_esw_instances" "test" {}
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the instances. If omitted, the provider-level region will be
-  used.
+* `region` - (Optional, String) The region in which to obtain the instances. If omitted, the provider-level region will
+  be used.
 
 * `instance_id` - (Optional, String) Specifies the ID of the instance.
 

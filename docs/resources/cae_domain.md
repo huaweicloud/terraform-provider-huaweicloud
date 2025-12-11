@@ -36,7 +36,8 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Specifies the domain name to be associated with the CAE environment.
   Changing this creates a new resource.  
   The maximum length of the domain name is `254` characters.  
-  The domain name consists of multiple strings separated by dots (.), and the maximum length of a single string is `63` characters.
+  The domain name consists of multiple strings separated by dots (.), and the maximum length of a single string is `63`
+  characters.
   Only letters, digits, and hyphens (-) allowed, and must start with a letter or a digit.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the

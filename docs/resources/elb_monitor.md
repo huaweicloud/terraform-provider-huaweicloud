@@ -85,7 +85,8 @@ The following arguments are supported:
 
   Defaults to **200**.
 
-* `http_method` - (Optional, String) Specifies the HTTP method. Value options: **GET**, **HEAD**, **POST**. Defaults to **GET**.
+* `http_method` - (Optional, String) Specifies the HTTP method. Value options: **GET**, **HEAD**, **POST**. Defaults to
+  **GET**.
 
 * `enabled` - (Optional, Bool) Specifies whether the health check is enabled.
   + **true(default)**: Health check is enabled.

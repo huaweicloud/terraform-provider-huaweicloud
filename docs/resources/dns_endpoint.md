@@ -70,8 +70,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `resolver_rule_count` - The number of resolver rules.
 
--> The newly added resolver rules needs to wait until the next time `terraform refresh` command is executed before that value
-   can be refreshed.
+-> The newly added resolver rules needs to wait until the next time `terraform refresh` command is executed before that
+  value can be refreshed.
 
 * `status` - The status of endpoint.
 
