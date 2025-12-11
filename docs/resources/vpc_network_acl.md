@@ -123,11 +123,11 @@ The `ingress_rules` and `egress_rules` block supports:
 * `source_port` - (Optional, String) Specifies the source ports of a network ACL rule.
   You can specify a single port or a port range. Separate every two entries with a comma.
   
-* `destination_ip_address` - (Optional, String) Specifies the destination IP address or CIDR block of a network ACL rule.
-  The `destination_ip_address` and `destination_address_group_id` cannot be configured at the same time.
+* `destination_ip_address` - (Optional, String) Specifies the destination IP address or CIDR block of a network ACL
+  rule. The `destination_ip_address` and `destination_address_group_id` cannot be configured at the same time.
   
-* `destination_ip_address_group_id` - (Optional, String) Specifies the destination IP address group ID of a network ACL rule.
-  The `destination_ip_address` and `destination_address_group_id` cannot be configured at the same time.
+* `destination_ip_address_group_id` - (Optional, String) Specifies the destination IP address group ID of a network ACL
+  rule. The `destination_ip_address` and `destination_address_group_id` cannot be configured at the same time.
 
 * `destination_port` - (Optional, String) Specifies the destination ports of a network ACL rule.
   You can specify a single port or a port range. Separate every two entries with a comma.

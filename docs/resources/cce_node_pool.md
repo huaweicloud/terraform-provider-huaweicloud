@@ -463,7 +463,8 @@ The `data_volumes` block supports:
 * `throughput` - (Optional, Int) Specifies the throughput of the disk in MiB/s,
   required when `volumetype` is **GPSSD2**.
 
-  -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time ever.
+  -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time
+  ever.
 
 <a name="taints_struct"></a>
 The `taints` block supports:

@@ -645,7 +645,8 @@ The `items` block supports:
 * `path` - The path.
 
 * `resource_file_ref` - The resource file ref.
-  The [resource_file_ref](#pods_volumes_projected_sources_downward_api_items_resource_file_ref) structure is documented below.
+  The [resource_file_ref](#pods_volumes_projected_sources_downward_api_items_resource_file_ref) structure is documented
+  below.
 
 <a name="pods_volumes_projected_sources_downward_api_items_field_ref"></a>
 The `field_ref` block supports:

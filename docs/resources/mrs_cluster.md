@@ -170,8 +170,8 @@ The `add_jobs` block supports:
 
   -> NOTE: Spark and Hive jobs can be added to only clusters including Spark and Hive components.
 
-* `job_name` - (Required, String, ForceNew) Job name. It contains `1` to `64` characters. Only letters, digits, hyphens (-),
-  and underscores (_) are allowed. NOTE: Identical job names are allowed but not recommended.
+* `job_name` - (Required, String, ForceNew) Job name. It contains `1` to `64` characters. Only letters, digits,
+  hyphens (-), and underscores (_) are allowed. NOTE: Identical job names are allowed but not recommended.
 
 * `jar_path` - (Required, String, ForceNew) Path of the **.jar** file or **.sql** file for program execution.  
   The parameter must meet the following requirements:

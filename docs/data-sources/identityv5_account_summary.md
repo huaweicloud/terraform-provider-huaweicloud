@@ -30,7 +30,8 @@ In addition to all arguments above, the following attributes are exported:
 * `attached_policies_per_group_quota` - Indicates the maximum number of identity policies that can be attached to
   a user group.
 
-* `attached_policies_per_user_quota` - Indicates the maximum number of identity policies that can be attached to an IAM user.
+* `attached_policies_per_user_quota` - Indicates the maximum number of identity policies that can be attached to an IAM
+  user.
 
 * `groups_quota` - Indicates the quota of user groups that can be created in this account.
 

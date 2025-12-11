@@ -146,7 +146,8 @@ In addition to all arguments above, the following attributes are exported:
   + **ipv4**: IPv4 subnet
   + **dualstack**: subnet that supports IPv4/IPv6 dual stack
 
-* `frozen_scene` - Indicates the scenario where the load balancer is frozen. Multiple values are separated using commas (,).
+* `frozen_scene` - Indicates the scenario where the load balancer is frozen. Multiple values are separated using
+  commas (,).
   The value can be:
   + **POLICE**: The load balancer is frozen due to security reasons.
   + **ILLEGAL**: The load balancer is frozen due to violation of laws and regulations.

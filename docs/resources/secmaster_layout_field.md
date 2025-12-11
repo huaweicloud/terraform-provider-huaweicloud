@@ -51,7 +51,8 @@ The following arguments are supported:
 
 * `default_value` - (Optional, String) Specifies the default value of the field.
 
-* `field_type` - (Optional, String) Specifies the type of the layout field, such as **shorttext**, **radio**, **grid**, etc.
+* `field_type` - (Optional, String) Specifies the type of the layout field, such as **shorttext**, **radio**, **grid**,
+  etc.
 
 * `display_type` - (Optional, String) Specifies the display type of the field.
 

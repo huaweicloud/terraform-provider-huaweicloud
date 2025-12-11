@@ -74,7 +74,8 @@ The following arguments are supported:
    no tags in this list. Keys in this list are in an AND relationship while values in each key-value structure are
    in an OR relationship. If no tag filtering condition is specified, full data is returned.
 
-* `not_tags_any` - (Optional, List) Specifies the tags to query resource list which do not contain any of the specified tags.
+* `not_tags_any` - (Optional, List) Specifies the tags to query resource list which do not contain any of the specified
+  tags.
   The [not_tags_any](#tags_params_struct) structure is documented below.
 
   -> Each resource to be queried contains a maximum of `10` keys. Each tag key can have a maximum of `10` tag values.
@@ -86,7 +87,8 @@ The following arguments are supported:
 * `matches` - (Optional, List) Specifies the search field.
   The [matches](#matches_params_struct) structure is documented below.
 
-  -> The tag key is the field to be matched, for example, **resource_name**. The tag value indicates the value to be matched.
+  -> The tag key is the field to be matched, for example, **resource_name**. The tag value indicates the value to be
+  matched.  
    The key is a fixed dictionary value and cannot contain duplicate keys or unsupported keys.
    Determine whether fuzzy match is required based on the keys. For example, if key is **resource_name**,
    fuzzy search (case insensitive) is used by default. If value is an empty string, exact match is used.

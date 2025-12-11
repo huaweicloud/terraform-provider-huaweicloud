@@ -48,8 +48,9 @@ The following arguments are supported:
 <a name="datastore_struct"></a>
 The `datastore` block supports:
 
-* `type` - (Required, String, NonUpdatable) Specifies the DB engine. Currently, MySQL, PostgreSQL, Microsoft SQL Server and
-  MariaDB are supported. The value is case-insensitive and can be **mysql**, **postgresql**, **sqlserver**, or **mariadb**.
+* `type` - (Required, String, NonUpdatable) Specifies the DB engine. Currently, MySQL, PostgreSQL, Microsoft SQL Server
+  and MariaDB are supported. The value is case-insensitive and can be **mysql**, **postgresql**, **sqlserver**,
+  or **mariadb**.
 
 * `version` - (Required, String, NonUpdatable) Specifies the database version.
   + MySQL databases support MySQL 5.6 and 5.7. Example value: 5.7.
@@ -63,8 +64,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the resource ID.
 
-* `configuration_parameters` - Indicates the parameter configuration defined by users based on the default parameters groups.
-  The [configuration_parameters](#configuration_parameters_struct) structure is documented below.
+* `configuration_parameters` - Indicates the parameter configuration defined by users based on the default parameters
+  groups. The [configuration_parameters](#configuration_parameters_struct) structure is documented below.
 
 * `created_at` - Indicates the creation time, in UTC format.
 

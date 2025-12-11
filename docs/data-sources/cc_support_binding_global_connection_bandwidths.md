@@ -36,11 +36,13 @@ The following arguments are supported:
 
 * `local_area` - (Optional, String) Specifies the local access point.
   If the bandwidth type is set to **region**, all multi-city bandwidths that meet the filtering criteria are returned.
-  This field is not matched for filtering. For other types, this field is used to match **local_area** of the backbone bandwidth.
+  This field is not matched for filtering. For other types, this field is used to match **local_area** of the backbone
+  bandwidth.
 
 * `remote_area` - (Optional, String) Specifies the remote access point.
   If the bandwidth type is set to **region**, all multi-city bandwidths that meet the filtering criteria are returned.
-  This field is not matched for filtering. For other types, this field is used to match **remote_area** of the backbone bandwidth.
+  This field is not matched for filtering. For other types, this field is used to match **remote_area** of the backbone
+  bandwidth.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 

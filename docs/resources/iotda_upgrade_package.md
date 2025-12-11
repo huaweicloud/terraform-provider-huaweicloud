@@ -116,9 +116,9 @@ The `obs_location` block supports:
   formats. The valid length is limited from `1` to `1024`.
   Changing this parameter will create a new resource.
 
-* `sign` - (Optional, String, ForceNew) Specifies the signature value of the upgrade package calculated by SHA256 algorithm.
-  After added the upgrade package and created the upgrade task, when the IoT platform issues an upgrade notification to the
-  device, it will send the signature to the device.
+* `sign` - (Optional, String, ForceNew) Specifies the signature value of the upgrade package calculated by SHA256
+  algorithm. After added the upgrade package and created the upgrade task, when the IoT platform issues an upgrade
+  notification to the device, it will send the signature to the device.
   The valid length is `64`, only letters `a(A)` to `f(F)` and digits are allowed.
 
   Changing this parameter will create a new resource.

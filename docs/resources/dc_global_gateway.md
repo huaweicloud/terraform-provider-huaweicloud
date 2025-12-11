@@ -45,11 +45,11 @@ The following arguments are supported:
 
   Defaults to **ipv4**.
 
-* `bgp_asn` - (Optional, Int, NonUpdatable) Specifies the BGP ASN of the global DC gateway. Valid value is limited from `1`
-  to `4,294,967,295`. Defaults to `64,512`.
+* `bgp_asn` - (Optional, Int, NonUpdatable) Specifies the BGP ASN of the global DC gateway. Valid value is limited from
+  `1` to `4,294,967,295`. Defaults to `64,512`.
 
-* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID that the global DC gateway
-  belongs to. For enterprise users, if omitted, default enterprise project will be used.
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID that the global DC
+  gateway belongs to. For enterprise users, if omitted, default enterprise project will be used.
 
 * `tags` - (Optional, Map, NonUpdatable) Specifies the key/value pairs to associate with the DC global gateway.
 

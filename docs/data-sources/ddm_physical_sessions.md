@@ -29,7 +29,8 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String) Specifies the ID of the associated RDS instance.
 
-* `keyword` - (Optional, String) Specifies the Keyword filtered by the sessions result. It can contain a maximum of 255 characters.
+* `keyword` - (Optional, String) Specifies the Keyword filtered by the sessions result. It can contain a maximum of 255
+  characters.
 
 ## Attribute Reference
 

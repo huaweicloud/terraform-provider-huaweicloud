@@ -194,7 +194,8 @@ The `volume_group_configs` block supports:
 * `docker_thin_pool` - The percentage of container volumes to data volumes on resource pool nodes.
 
 * `lvm_config` - The configuration of the LVM management.  
-  The [lvm_config](#modelarts_v2_resource_pools_spec_resources_volume_group_configs_lvm_config) structure is documented below.
+  The [lvm_config](#modelarts_v2_resource_pools_spec_resources_volume_group_configs_lvm_config) structure is documented
+  below.
 
 * `types` - The storage types of the volume group.
 

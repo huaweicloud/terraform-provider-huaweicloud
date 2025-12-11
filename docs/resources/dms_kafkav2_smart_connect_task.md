@@ -86,8 +86,8 @@ The following arguments are supported:
 * `topics` - (Optional, List, ForceNew) Specifies the topic names list of the smart connect task.
   Changing this parameter will create a new resource.
 
-* `topics_regex` - (Optional, String, ForceNew) Specifies the regular expression of topic name for the smart connect task.
-  Changing this parameter will create a new resource.
+* `topics_regex` - (Optional, String, ForceNew) Specifies the regular expression of topic name for the smart connect
+  task. Changing this parameter will create a new resource.
 
   -> Exactly one of `topics`, `topics_regex` should be specified.
 
@@ -154,8 +154,8 @@ The `source_task` block supports:
   cannot exceed the number of brokers in the peer instance. Changing this parameter will create a new resource.
 
 * `task_num` - (Optional, Int, ForceNew) Specifies the number of data replication tasks.
-  If the `direction` is set to **two-way**, the actual number of tasks will be twice the number of tasks you configure here.
-  Changing this parameter will create a new resource.
+  If the `direction` is set to **two-way**, the actual number of tasks will be twice the number of tasks you configure
+  here. Changing this parameter will create a new resource.
 
 * `rename_topic_enabled` - (Optional, Bool, ForceNew) Specifies whether to rename the topic. If true, will add the
   alias of the source Kafka instance before the target topic name to form a new name of the target topic.
@@ -166,8 +166,8 @@ The `source_task` block supports:
 
   -> When `rename_topic_enabled` is true, `topics_mapping` can not be specified.
 
-* `provenance_header_enabled` - (Optional, Bool, ForceNew) Specifies whether the message header contains the message source.
-  Changing this parameter will create a new resource.
+* `provenance_header_enabled` - (Optional, Bool, ForceNew) Specifies whether the message header contains the message
+  source. Changing this parameter will create a new resource.
 
 * `consumer_strategy` - (Optional, String, ForceNew) Specifies the start offset. Value options are:
   + **latest**: Read the latest data.
@@ -264,7 +264,8 @@ This resource provides the following timeout configuration options:
 
 ## Import
 
-The kafka smart connect task can be imported using the kafka instance `instance_id` and `task_id` separated by a slash, e.g.
+The kafka smart connect task can be imported using the kafka instance `instance_id` and `task_id` separated by a slash,
+e.g.
 
 ```bash
 $ terraform import huaweicloud_dms_kafkav2_smart_connect_task.test <instance_id>/<task_id>

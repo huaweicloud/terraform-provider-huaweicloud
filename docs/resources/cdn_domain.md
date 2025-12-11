@@ -283,8 +283,8 @@ resource "huaweicloud_cdn_domain" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, NonUpdatable) Specifies acceleration domain name. The domain name consists of one or more parts,
-  representing domains at different levels. Domain names at all levels can only be composed of letters, digits,
+* `name` - (Required, String, NonUpdatable) Specifies acceleration domain name. The domain name consists of one or more
+  parts, representing domains at different levels. Domain names at all levels can only be composed of letters, digits,
   and hyphens (-), and the letters are equivalent in upper and lower case. Domain names at all levels are connected
   with (.). The domain name can contain up to `75` characters.
 
@@ -452,7 +452,8 @@ The `configs` block support:
 
   -> This field can only be used when the HTTPS certificate is enabled. Disabling the HTTPS certificate will disable QUIC.
 
-* `referer` - (Optional, List) Specifies the referer validation. The [referer](#referer_object) structure is documented below.
+* `referer` - (Optional, List) Specifies the referer validation.
+  The [referer](#referer_object) structure is documented below.
 
   -> You can define referer whitelists and blacklists to control who can access specific domain names.
 
@@ -704,8 +705,8 @@ The `flexible_origin` block support:
 * `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from `1`
   to `100`. A greater number indicates a higher priority.
 
-* `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed `1`.
-  The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
+* `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot
+  exceed `1`. The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
 
 * `match_pattern` - (Optional, String) Specifies the URI match rule. The usage rules are as follows:
   + When `match_type` is set to **all**, set this field to empty.
@@ -796,12 +797,12 @@ The `remote_auth_rules` block support:
   **specific_file**. In other cases, this parameter is left blank.
 
 * `reserve_args` - (Optional, String) Specifies the reserve args. Multiple args are separated by vertical bars (|).
-  For example: **key1|key2**. This parameter is mandatory when `reserve_args_setting` is set to **reserve_specific_args**.
-  In other cases, this parameter is left blank.
+  For example: **key1|key2**. This parameter is mandatory when `reserve_args_setting` is set to
+  **reserve_specific_args**. In other cases, this parameter is left blank.
 
-* `reserve_headers` - (Optional, String) Specifies the reserve headers. Multiple headers are separated by vertical bars (|).
-  For example: **key1|key2**. This parameter is mandatory when `reserve_headers_setting` is set to **reserve_specific_headers**.
-  In other cases, this parameter is left blank.
+* `reserve_headers` - (Optional, String) Specifies the reserve headers. Multiple headers are separated by vertical
+  bars (|). For example: **key1|key2**. This parameter is mandatory when `reserve_headers_setting` is set to
+  **reserve_specific_headers**. In other cases, this parameter is left blank.
 
 * `add_custom_args_rules` - (Optional, List) Specifies the URL validation parameters.
   The [add_custom_args_rules](#add_custom_rules_object) structure is documented below.

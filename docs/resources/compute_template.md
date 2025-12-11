@@ -134,7 +134,8 @@ The `market_options` block supports:
 <a name="spot_options_struct"></a>
 The `spot_options` block supports:
 
-* `spot_price` - (Optional, Float, NonUpdatable) Specifies the highest price per hour you are willing to pay for a spot ECS.
+* `spot_price` - (Optional, Float, NonUpdatable) Specifies the highest price per hour you are willing to pay for a spot
+ ECS.
 
 * `block_duration_minutes` - (Optional, Int, NonUpdatable) Specifies the predefined duration of the spot ECS.
 

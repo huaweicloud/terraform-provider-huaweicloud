@@ -157,8 +157,8 @@ The following arguments are supported:
   The [redirect_url_config](#redirect_url_config_object) structure is documented below.
 
 * `fixed_response_config` - (Optional, List) The fixed configuration of the page to which the traffic is
-  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `advanced_forwarding_enabled` of
-  the listener must be set to **true**.
+  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `advanced_forwarding_enabled`
+  of the listener must be set to **true**.
   The [fixed_response_config](#fixed_response_config_object) structure is documented below.
 
 <a name="redirect_pools_config_object"></a>

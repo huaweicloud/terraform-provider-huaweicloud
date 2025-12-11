@@ -76,7 +76,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enable_https` - (Required, Bool, ForceNew) Whether to enable the security mode. This mode may damage GES performance greatly.
+* `enable_https` - (Required, Bool, ForceNew) Whether to enable the security mode. This mode may damage GES performance
+  greatly.
 
   Changing this parameter will create a new resource.
 

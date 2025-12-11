@@ -23,20 +23,23 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `server_group_id` - (Optional, String) Specifies the ID of the protection group, in which all protected instances are queried.
+* `server_group_id` - (Optional, String) Specifies the ID of the protection group, in which all protected instances are
+  queried.
   The value of this parameter can query from datasource `huaweicloud_sdrs_protection_groups`.
 
 * `server_group_ids` - (Optional, String) Specifies the protection group ID list. The value is in the following format:
   **[server_group_id1,server_group_id2,...,server_group_idx]**. Convert it using URL encoding.
   + All the protected instances with valid `server_group_id` in `server_group_ids` are returned.
   + The protected instances of a maximum of `30` `server_group_id` values can be queried.
-  + If parameters `server_group_id` and `server_group_ids` are both specified in the request, `server_group_id` will be ignored.
+  + If parameters `server_group_id` and `server_group_ids` are both specified in the request, `server_group_id` will be
+    ignored.
 
 * `protected_instance_ids` - (Optional, String) Specifies the protected instance ID list. The value is in the following
   format: **[protected_instance_id1,protected_instance_id2,...,protected_instance_idx]**. Convert it using URL encoding.
   + All the protected instances with valid `protected_instance_id` in `protected_instance_ids` are returned.
   + The protected instances of a maximum of `30` `protected_instance_id` values can be queried.
-  + If parameter `server_group_id` or `server_group_ids` is specified in the request, `protected_instance_ids` will be ignored.
+  + If parameter `server_group_id` or `server_group_ids` is specified in the request, `protected_instance_ids` will be
+    ignored.
 
 * `status` - (Optional, String) Specifies the status.
   For details, see [Protected Instance Status](https://support.huaweicloud.com/intl/en-us/api-sdrs/en-us_topic_0126152931.html).

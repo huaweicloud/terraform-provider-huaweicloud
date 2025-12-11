@@ -168,7 +168,8 @@ The `spot_options` block supports:
 
 * `block_duration_minutes` - Indicates the predefined duration of the spot ECS.
 
-* `instance_interruption_behavior` - Indicates the spot ECS interruption policy, which can only be set to **immediate** currently.
+* `instance_interruption_behavior` - Indicates the spot ECS interruption policy, which can only be set to **immediate**
+  currently.
 
 <a name="template_data_internet_access_struct"></a>
 The `internet_access` block supports:

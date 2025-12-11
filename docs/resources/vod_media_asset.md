@@ -101,7 +101,8 @@ The following arguments are supported:
   separated by commas.
 
 * `template_group_name` - (Optional, String, ForceNew) Specifies the transcoding template group name. If not empty,
-  the uploaded media will be transcoded with the specified transcoding template group. Changing this creates a new resource.
+  the uploaded media will be transcoded with the specified transcoding template group. Changing this creates a new
+  resource.
 
 * `workflow_name` - (Optional, String, ForceNew) Specifies the workflow name. If not empty, the uploaded media will be
   processed with the specified workflow. Changing this creates a new resource.
@@ -112,10 +113,11 @@ The following arguments are supported:
   `template_group_name` must be specified, and the output format of transcoding is **HLS**. Defaults to: **false**.
   Changing this creates a new resource.
 
-* `auto_preload` - (Optional, Bool, ForceNew) Specifies whether to automatically warm up the media to CDN. Defaults to: **false**.
-  Changing this creates a new resource.
+* `auto_preload` - (Optional, Bool, ForceNew) Specifies whether to automatically warm up the media to CDN. Defaults to
+  **false**. Changing this creates a new resource.
 
-* `review_template_id` - (Optional, String, ForceNew) Specifies the review template ID. Changing this creates a new resource.
+* `review_template_id` - (Optional, String, ForceNew) Specifies the review template ID. Changing this creates a new
+  resource.
 
 * `thumbnail` - (Optional, List, ForceNew) Specifies the review thumbnail configurations.
   The [object](#thumbnail_object) structure is documented below. Changing this creates a new resource.
@@ -126,8 +128,8 @@ The `thumbnail` block supports:
 * `type` - (Required, String, ForceNew) Specifies the screenshot type. Valid values are: **time** and **dots**.
   Changing this creates a new resource.
 
-* `time` - (Optional, Int, ForceNew) Specifies the screenshot time interval (unit: second). The value range is `1` to `12`.
-  Required when `type` is **time**. Changing this creates a new resource.
+* `time` - (Optional, Int, ForceNew) Specifies the screenshot time interval (unit: second). The value range is `1` to
+  `12`. Required when `type` is **time**. Changing this creates a new resource.
 
 * `dots` - (Optional, List, ForceNew) Specifies an array of time points of screenshot. Required when `type` is **dots**.
   Changing this creates a new resource.
