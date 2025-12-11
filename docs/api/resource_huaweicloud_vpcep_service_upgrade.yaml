@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpcep_service_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPCEP
+paths:
+    /v2/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/upgrade:
+        POST:
+            tag: VPCEP

@@ -16,12 +16,17 @@ paths:
             tag: Workspace
         GET:
             tag: Workspace
+        PUT:
+            tag: Workspace
     /v2/{project_id}/desktops/{desktop_id}/networks:
         GET:
             tag: Workspace
         PUT:
             tag: Workspace
     /v2/{project_id}/desktops/{id}/tags/action:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/desktops/action:
         POST:
             tag: Workspace
     /v2/{project_id}/desktops/rebuild:

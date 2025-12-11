@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: SMN
 paths:
+    /v2/{project_id}/{resource_type}/{id}/tags:
+        GET:
+            tag: SMN
+    /v2/{project_id}/{resource_type}/{id}/tags/action:
+        POST:
+            tag: SMN
     /v2/{project_id}/notifications/topics:
         POST:
             tag: SMN
@@ -23,10 +29,4 @@ paths:
             tag: SMN
     /v2/{project_id}/notifications/topics/{id}/attributes/{policyName}:
         PUT:
-            tag: SMN
-    /v2/{project_id}/smn_topic/{id}/tags:
-        GET:
-            tag: SMN
-    /v2/{project_id}/smn_topic/{id}/tags/action:
-        POST:
             tag: SMN

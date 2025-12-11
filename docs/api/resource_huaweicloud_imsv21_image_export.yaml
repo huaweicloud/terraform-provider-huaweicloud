@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_imsv21_image_export
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IMS
+paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: IMS
+    /v2.1/cloudimages/{image_id}/file:
+        POST:
+            tag: IMS

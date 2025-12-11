@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_image_cache
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /v5/imagecaches:
+        POST:
+            tag: CCE
+    /v5/imagecaches/{image_cache_id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE

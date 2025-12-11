@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_server_group_batch_disassociate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-groups/actions/disassociate-app-group:
+        POST:
+            tag: Workspace

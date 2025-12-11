@@ -9,5 +9,5 @@ tags:
     - name: NAT
 paths:
     /v3/{project_id}/private-nat/transit-subnets:
-        POST:
+        GET:
             tag: NAT

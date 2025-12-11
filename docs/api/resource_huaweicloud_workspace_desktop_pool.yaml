@@ -18,8 +18,13 @@ paths:
             tag: Workspace
         PUT:
             tag: Workspace
+    /v2/{project_id}/desktop-pools/{pool_id}/resize:
+        POST:
+            tag: Workspace
     /v2/{project_id}/desktop-pools/{pool_id}/users:
         GET:
+            tag: Workspace
+        POST:
             tag: Workspace
     /v2/{project_id}/desktops:
         GET:

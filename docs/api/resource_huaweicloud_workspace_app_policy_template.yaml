@@ -16,5 +16,5 @@ paths:
     /v1/{project_id}/policy-templates/{policy_template_id}:
         DELETE:
             tag: Workspace
-        PUT:
+        PATCH:
             tag: Workspace

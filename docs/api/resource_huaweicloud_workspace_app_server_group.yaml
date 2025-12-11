@@ -8,16 +8,15 @@ host: huaweicloud.com
 tags:
     - name: Workspace
 paths:
-    /v1/{project_id}/app-server-group:
-        GET:
-            tag: Workspace
     /v1/{project_id}/app-server-groups:
         POST:
             tag: Workspace
     /v1/{project_id}/app-server-groups/{server_group_id}:
-        PATCH:
+        DELETE:
             tag: Workspace
-        POST:
+        GET:
+            tag: Workspace
+        PATCH:
             tag: Workspace
     /v1/{project_id}/server-group/tags/batch-create:
         POST:

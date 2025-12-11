@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_module
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/modules:
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/modules/{module_id}:
+        DELETE:
+            tag: SecMaster
+        GET:
+            tag: SecMaster
+        PUT:
+            tag: SecMaster

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_ims_image_shared_members
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IMS
+paths:
+    /v1/{project_id}/cloudimages/{image_id}/members:
+        GET:
+            tag: IMS
