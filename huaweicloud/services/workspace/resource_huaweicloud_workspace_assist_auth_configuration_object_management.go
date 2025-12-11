@@ -2,9 +2,7 @@ package workspace
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -203,62 +201,6 @@ func resourceAssistAuthConfigurationObjectManagementCreate(ctx context.Context, 
 	}
 
 	return resourceAssistAuthConfigurationObjectManagementRead(ctx, d, meta)
-}
-
-func buildAssistAuthConfigurationAppliedObjectsQueryParams(d *schema.ResourceData) string {
-	res := ""
-
-	if v, ok := d.GetOk("object_type"); ok {
-		res = fmt.Sprintf("%s&object_type=%v", res, v)
-	}
-	if v, ok := d.GetOk("object_name"); ok {
-		res = fmt.Sprintf("%s&object_name=%v", res, v)
-	}
-
-	return res
-}
-
-func listAssistAuthConfigurationAppliedObjects(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
-	var (
-		httpUrl = "v2/{project_id}/assist-auth-config/apply-objects?limit={limit}"
-		limit   = 100
-		offset  = 0
-		result  = make([]interface{}, 0)
-	)
-
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
-	if len(d) > 0 {
-		listPath += buildAssistAuthConfigurationAppliedObjectsQueryParams(d[0])
-	}
-
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-
-	for {
-		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
-		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
-		if err != nil {
-			return nil, err
-		}
-		respBody, err := utils.FlattenResponse(requestResp)
-		if err != nil {
-			return nil, err
-		}
-		objects := utils.PathSearch("objects", respBody, make([]interface{}, 0)).([]interface{})
-		result = append(result, objects...)
-		if len(objects) < limit {
-			break
-		}
-		offset += len(objects)
-	}
-
-	return result, nil
 }
 
 func orderAssistAuthConfigurationAppliedObjects(appliedObjects, originObjects []interface{}) []interface{} {
