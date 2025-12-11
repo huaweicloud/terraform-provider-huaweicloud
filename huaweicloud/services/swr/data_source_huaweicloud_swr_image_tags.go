@@ -126,7 +126,8 @@ func dataSourceImageTagsRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
+
 	listImageTagsPath := listImageTagsClient.Endpoint + listImageTagsHttpUrl
 	listImageTagsPath = strings.ReplaceAll(listImageTagsPath, "{namespace}", organization)
 	listImageTagsPath = strings.ReplaceAll(listImageTagsPath, "{repository}", repository)

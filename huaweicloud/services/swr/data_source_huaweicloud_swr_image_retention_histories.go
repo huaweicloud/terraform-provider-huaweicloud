@@ -126,9 +126,11 @@ func (w *ImageRetentionHistoriesDSWrapper) ListRetentionHistories() (*gjson.Resu
 		return nil, err
 	}
 
+	repository := strings.ReplaceAll(w.Get("repository").(string), "/", "$")
+
 	uri := "/v2/manage/namespaces/{namespace}/repos/{repository}/retentions/histories"
 	uri = strings.ReplaceAll(uri, "{namespace}", w.Get("organization").(string))
-	uri = strings.ReplaceAll(uri, "{repository}", w.Get("repository").(string))
+	uri = strings.ReplaceAll(uri, "{repository}", repository)
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).

@@ -153,7 +153,8 @@ func dataSourceImageTriggersRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
+
 	listImageTriggersPath := listImageTriggersClient.Endpoint + listImageTriggersHttpUrl
 	listImageTriggersPath = strings.ReplaceAll(listImageTriggersPath, "{namespace}", organization)
 	listImageTriggersPath = strings.ReplaceAll(listImageTriggersPath, "{repository}", repository)
