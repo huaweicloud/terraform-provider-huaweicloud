@@ -131,25 +131,25 @@ func StringToJson(jsonStrObj string, defaultVal ...interface{}) interface{} {
 		}
 		return nil
 	}
-	jsonMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(jsonStrObj), &jsonMap)
+
+	var jsonResult interface{}
+	err := json.Unmarshal([]byte(jsonStrObj), &jsonResult)
 	if err != nil {
 		log.Printf("[ERROR] Unable to convert the JSON string to the map object: %s", err)
 	}
-	return jsonMap
+	return jsonResult
 }
 
 // Try to parse the string value as the JSON array format, if the operation failed, returns an empty list result.
-func StringToJsonArray(jsonStrArray string) []map[string]interface{} {
+func StringToJsonArray(jsonStrArray string) interface{} {
 	if jsonStrArray == "" {
 		return nil
 	}
 
-	var jsonArray []map[string]interface{}
+	jsonArray := make([]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(jsonStrArray), &jsonArray)
 	if err != nil {
 		log.Printf("[ERROR] Unable to convert the JSON string to the JSON array: %s", err)
-		return make([]map[string]interface{}, 0)
 	}
 	return jsonArray
 }

@@ -422,6 +422,18 @@ func resourceSchemeV4MetricTriggerConditions() *schema.Schema {
 	}
 }
 
+func normalizeJsonStringForSet(jsonStr string) string {
+	if jsonStr == "" {
+		return jsonStr
+	}
+	normalized, err := utils.NormalizeJsonString(jsonStr)
+	if err != nil {
+		// If normalization fails, return original string
+		return jsonStr
+	}
+	return normalized
+}
+
 func resourceMetricTriggerConditionHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
@@ -439,7 +451,11 @@ func resourceMetricTriggerConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["aggregation_window"].(string)))
 	}
 	if m["query_match"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["query_match"].(string)))
+		queryMatchStr := ""
+		if str, ok := m["query_match"].(string); ok && str != "" {
+			queryMatchStr = normalizeJsonStringForSet(str)
+		}
+		buf.WriteString(fmt.Sprintf("%s-", queryMatchStr))
 	}
 	if m["aggregate_type"] != nil {
 		buf.WriteString(fmt.Sprintf("%s-", m["aggregate_type"].(string)))
@@ -475,7 +491,11 @@ func resourceMetricTriggerConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", m["metric_labels"]))
 	}
 	if m["query_param"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["query_param"].(string)))
+		queryParamStr := ""
+		if str, ok := m["query_param"].(string); ok && str != "" {
+			queryParamStr = normalizeJsonStringForSet(str)
+		}
+		buf.WriteString(fmt.Sprintf("%s-", queryParamStr))
 	}
 	if m["metric_namespace"] != nil {
 		buf.WriteString(fmt.Sprintf("%s-", m["metric_namespace"].(string)))
@@ -675,7 +695,7 @@ func buildAlarmRuleMetricAlarmSpecTriggerConditions(paramsList []interface{}) in
 			"metric_name":             params["metric_name"],
 			"promql":                  params["promql"],
 			"aggregation_window":      utils.ValueIgnoreEmpty(params["aggregation_window"]),
-			"query_match":             utils.ValueIgnoreEmpty(params["query_match"]),
+			"query_match":             utils.ValueIgnoreEmpty(utils.StringToJson(utils.PathSearch("query_match", params, "").(string))),
 			"aggregate_type":          utils.ValueIgnoreEmpty(params["aggregate_type"]),
 			"metric_labels":           utils.ValueIgnoreEmpty(params["metric_labels"].(*schema.Set).List()),
 			"aggregation_type":        utils.ValueIgnoreEmpty(params["aggregation_type"]),
@@ -686,7 +706,7 @@ func buildAlarmRuleMetricAlarmSpecTriggerConditions(paramsList []interface{}) in
 			"trigger_interval":        utils.ValueIgnoreEmpty(params["trigger_interval"]),
 			"expression":              utils.ValueIgnoreEmpty(params["expression"]),
 			"mix_promql":              utils.ValueIgnoreEmpty(params["mix_promql"]),
-			"query_param":             utils.ValueIgnoreEmpty(params["query_param"]),
+			"query_param":             utils.ValueIgnoreEmpty(utils.StringToJson(utils.PathSearch("query_param", params, "").(string))),
 			"metric_namespace":        utils.ValueIgnoreEmpty(params["metric_namespace"]),
 			"metric_unit":             utils.ValueIgnoreEmpty(params["metric_unit"]),
 			"promql_expr":             utils.ValueIgnoreEmpty(params["promql_expr"]),
@@ -886,19 +906,33 @@ func flattenV4TriggerConditions(paramsList []interface{}) interface{} {
 	rst := make([]map[string]interface{}, 0, len(paramsList))
 	for _, params := range paramsList {
 		// query_param is unset, it's a structure in return
+		queryMatchStr := ""
+		if queryMatch := utils.PathSearch("query_match", params, ""); queryMatch != nil {
+			if str, ok := queryMatch.(string); ok {
+				queryMatchStr = normalizeJsonStringForSet(str)
+			}
+		}
+
+		queryParamStr := ""
+		if queryParam := utils.PathSearch("query_param", params, nil); queryParam != nil {
+			queryParamStr = normalizeJsonStringForSet(utils.JsonToString(queryParam))
+		}
+
 		m := map[string]interface{}{
-			"metric_query_mode":       utils.PathSearch("metric_query_mode", params, nil),
-			"metric_name":             utils.PathSearch("metric_name", params, nil),
-			"metric_labels":           utils.PathSearch("metric_labels", params, nil),
-			"promql":                  utils.PathSearch("promql", params, nil),
-			"trigger_times":           strconv.FormatFloat(utils.PathSearch("trigger_times", params, float64(0)).(float64), 'f', -1, 64),
-			"trigger_interval":        utils.PathSearch("trigger_interval", params, nil),
-			"trigger_type":            utils.PathSearch("trigger_type", params, nil),
-			"aggregation_type":        utils.PathSearch("aggregation_type", params, nil),
-			"aggregation_window":      utils.PathSearch("aggregation_window", params, nil),
-			"operator":                utils.PathSearch("operator", params, nil),
-			"thresholds":              utils.PathSearch("thresholds", params, nil),
-			"query_match":             utils.PathSearch("query_match", params, nil),
+			"metric_query_mode":  utils.PathSearch("metric_query_mode", params, nil),
+			"metric_name":        utils.PathSearch("metric_name", params, nil),
+			"metric_labels":      utils.PathSearch("metric_labels", params, nil),
+			"promql":             utils.PathSearch("promql", params, nil),
+			"trigger_times":      strconv.FormatFloat(utils.PathSearch("trigger_times", params, float64(0)).(float64), 'f', -1, 64),
+			"trigger_interval":   utils.PathSearch("trigger_interval", params, nil),
+			"trigger_type":       utils.PathSearch("trigger_type", params, nil),
+			"aggregation_type":   utils.PathSearch("aggregation_type", params, nil),
+			"aggregation_window": utils.PathSearch("aggregation_window", params, nil),
+			"operator":           utils.PathSearch("operator", params, nil),
+			"thresholds":         utils.PathSearch("thresholds", params, nil),
+			// Normalize JSON strings to ensure consistent field order for TypeSet hash calculation
+			"query_match":             queryMatchStr,
+			"query_param":             queryParamStr,
 			"aggregate_type":          utils.PathSearch("aggregate_type", params, nil),
 			"metric_statistic_method": utils.PathSearch("metric_statistic_method", params, nil),
 			"expression":              utils.PathSearch("expression", params, nil),
