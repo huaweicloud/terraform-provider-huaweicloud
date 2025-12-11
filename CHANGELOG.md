@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## 1.82.3 (December 10, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_hss_rasp_protection_policy` [GH-8583]
+  + `huaweicloud_imsv21_image_export` [GH-8566]
+  + `huaweicloud_secmaster_layout_field` [GH-7680]
+  + `huaweicloud_secmaster_module` [GH-8578]
+  + `huaweicloud_smn_notify_policy` [GH-8571]
+  + `huaweicloud_smn_topic_subscriber` [GH-8588]
+  + `huaweicloud_vpcep_service_upgrade` [GH-8582]
+  + `huaweicloud_workspace_assist_auth_configuration_object_management` [GH-8559]
+
+* **New Data Source:**
+  + `huaweicloud_hss_container_network_statistics` [GH-8579]
+  + `huaweicloud_hss_honeypot_port_default_config` [GH-8576]
+  + `huaweicloud_hss_host_statistics` [GH-8544]
+  + `huaweicloud_hss_image_files_statistics` [GH-8568]
+  + `huaweicloud_hss_image_tasks` [GH-8557]
+  + `huaweicloud_hss_resource_locked_status` [GH-8569]
+  + `huaweicloud_hss_setting_docker_plugin_install_script` [GH-8551]
+  + `huaweicloud_hss_setting_system_configs` [GH-8587]
+  + `huaweicloud_ims_image_shared_members` [GH-8572]
+  + `huaweicloud_secmaster_baseline_checkitems` [GH-8592]
+  + `huaweicloud_smn_authorized_cloud_services` [GH-8565]
+  + `huaweicloud_smn_protocols` [GH-8565]
+  + `huaweicloud_smn_tags` [GH-8577]
+
 ## 1.82.1 (December 5, 2025)
 
 * **New Resource Source:**
