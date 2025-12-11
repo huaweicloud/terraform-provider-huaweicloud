@@ -44,8 +44,7 @@
               "name": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "power_action": {
                 "type": "string",
@@ -118,6 +117,18 @@
                       "type": "string",
                       "computed": true
                     },
+                    "iops": {
+                      "type": "number",
+                      "description": "The IOPS of the volume.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "kms_id": {
+                      "type": "string",
+                      "description": "The KMS key ID used to encrypt the volume.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "name": {
                       "type": "string",
                       "computed": true
@@ -125,6 +136,12 @@
                     "size": {
                       "type": "number",
                       "required": true
+                    },
+                    "throughput": {
+                      "type": "number",
+                      "description": "The throughput of the volume.",
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
@@ -160,6 +177,18 @@
                       "type": "string",
                       "computed": true
                     },
+                    "iops": {
+                      "type": "number",
+                      "description": "The IOPS of the volume.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "kms_id": {
+                      "type": "string",
+                      "description": "The KMS key ID used to encrypt the volume.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "name": {
                       "type": "string",
                       "computed": true
@@ -167,6 +196,12 @@
                     "size": {
                       "type": "number",
                       "required": true
+                    },
+                    "throughput": {
+                      "type": "number",
+                      "description": "The throughput of the volume.",
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",

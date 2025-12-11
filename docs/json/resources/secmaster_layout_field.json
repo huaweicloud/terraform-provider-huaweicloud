@@ -1,0 +1,204 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_layout_field": {
+          "block": {
+            "attributes": {
+              "aopworkflow_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "aopworkflow_version_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "boa_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_id": {
+                "type": "string",
+                "computed": true
+              },
+              "cloud_pack_name": {
+                "type": "string",
+                "computed": true
+              },
+              "cloud_pack_version": {
+                "type": "string",
+                "computed": true
+              },
+              "creatable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "computed": true
+              },
+              "dataclass_id": {
+                "type": "string",
+                "computed": true
+              },
+              "default_value": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "display_type": {
+                "type": "string",
+                "optional": true
+              },
+              "editable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "en_default_value": {
+                "type": "string",
+                "computed": true
+              },
+              "en_description": {
+                "type": "string",
+                "computed": true
+              },
+              "en_field_tooltip": {
+                "type": "string",
+                "computed": true
+              },
+              "extra_json": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "field_key": {
+                "type": "string",
+                "required": true
+              },
+              "field_tooltip": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "field_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "computed": true
+              },
+              "json_schema": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "layout_id": {
+                "type": "string",
+                "optional": true
+              },
+              "maintainable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "modifier_id": {
+                "type": "string",
+                "computed": true
+              },
+              "modifier_name": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "playbook_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "playbook_version_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "readonly": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "required": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "searchable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "visible": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "wizard_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

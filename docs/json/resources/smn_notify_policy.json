@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_notify_policy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "polling": {
+                "block": {
+                  "attributes": {
+                    "order": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "subscription_urns": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "subscriptions": {
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "endpoint": "string",
+                            "remark": "string",
+                            "status": "number",
+                            "subscription_urn": "string"
+                          }
+                        ]
+                      ],
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

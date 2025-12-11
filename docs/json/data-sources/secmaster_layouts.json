@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_layouts": {
+          "block": {
+            "attributes": {
+              "binding_code": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "binding_code": "string",
+                      "binding_id": "string",
+                      "binding_name": "string",
+                      "boa_version": "string",
+                      "cloud_pack_id": "string",
+                      "cloud_pack_name": "string",
+                      "cloud_pack_version": "string",
+                      "create_time": "string",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "en_description": "string",
+                      "en_name": "string",
+                      "fields_sum": "number",
+                      "id": "string",
+                      "is_built_in": "bool",
+                      "is_template": "bool",
+                      "layout_cfg": "string",
+                      "layout_json": "string",
+                      "layout_type": "string",
+                      "modules_sum": "number",
+                      "name": "string",
+                      "parent_id": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "sections_sum": "number",
+                      "tabs_sum": "number",
+                      "thumbnail": "string",
+                      "update_time": "string",
+                      "used_by": "string",
+                      "version": "string",
+                      "wizards_sum": "number",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "from_date": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "optional": true
+              },
+              "is_default": {
+                "type": "bool",
+                "optional": true
+              },
+              "is_template": {
+                "type": "bool",
+                "optional": true
+              },
+              "layout_type": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "search_txt": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "to_date": {
+                "type": "string",
+                "optional": true
+              },
+              "used_by": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

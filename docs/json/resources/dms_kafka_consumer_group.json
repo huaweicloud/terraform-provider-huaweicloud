@@ -30,11 +30,6 @@
                 "required": true,
                 "forcenew": true
               },
-              "lag": {
-                "type": "number",
-                "description": "Indicates the lag number of the consumer group.",
-                "computed": true
-              },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the consumer group.",

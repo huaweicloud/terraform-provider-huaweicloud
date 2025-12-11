@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_tasks": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "number",
+                      "end_time": "number",
+                      "failed_images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_reason": "string",
+                            "id": "number",
+                            "image_name": "string",
+                            "image_version": "string",
+                            "namespace": "string",
+                            "registry_id": "string",
+                            "registry_name": "string",
+                            "registry_type": "string"
+                          }
+                        ]
+                      ],
+                      "failed_num": "number",
+                      "failed_reason": "string",
+                      "image_type": "string",
+                      "is_all": "bool",
+                      "policy_id": "string",
+                      "rate_limit": "number",
+                      "remain_min": "number",
+                      "risky_num": "number",
+                      "scan_scope": "number",
+                      "success_num": "number",
+                      "sync_task_type": "string",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "task_status": "number",
+                      "task_type": "string",
+                      "total_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "global_image_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scan_scope": {
+                "type": "string",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "optional": true
+              },
+              "task_status": {
+                "type": "string",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

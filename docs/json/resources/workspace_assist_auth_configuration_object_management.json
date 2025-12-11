@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_assist_auth_configuration_object_management": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the apply objects of assist auth configuration are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "objects": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the binding object.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the binding object.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the binding object.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of objects to be managed with the assist auth configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "objects_origin": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the binding object.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the binding object.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the binding object.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\nthe new value next time the change is made. The corresponding parameter name is 'objects'."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

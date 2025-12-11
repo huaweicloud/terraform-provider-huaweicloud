@@ -2,13 +2,12 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_smn_subscription": {
+        "huaweicloud_smn_topic_subscriber": {
           "block": {
             "attributes": {
               "endpoint": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "computed": true
               },
               "filter_policies": {
                 "type": [
@@ -24,7 +23,6 @@
                     }
                   ]
                 ],
-                "description": "The message filter policies of a subscriber.",
                 "computed": true
               },
               "id": {
@@ -37,8 +35,7 @@
               },
               "protocol": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -46,59 +43,19 @@
               },
               "remark": {
                 "type": "string",
-                "optional": true
+                "computed": true
               },
               "status": {
                 "type": "number",
                 "computed": true
               },
-              "subscription_urn": {
+              "subscribe_id": {
                 "type": "string",
-                "computed": true
+                "required": true
               },
               "topic_urn": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
-              }
-            },
-            "block_types": {
-              "extension": {
-                "block": {
-                  "attributes": {
-                    "client_id": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "client_secret": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "header": {
-                      "type": [
-                        "map",
-                        "string"
-                      ],
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "keyword": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "sign_secret": {
-                      "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "forcenew": true,
-                "max_items": 1
+                "required": true
               }
             }
           },

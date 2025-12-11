@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_baseline_checkitems": {
+          "block": {
+            "attributes": {
+              "builtin_checkitem_num": {
+                "type": "number",
+                "computed": true
+              },
+              "catalog_uuid": {
+                "type": "string",
+                "optional": true
+              },
+              "checkitem_num": {
+                "type": "number",
+                "computed": true
+              },
+              "checkitems": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "aggregation_handle_status": "string",
+                      "audit_procedure": "string",
+                      "cloud_server": "string",
+                      "description": "string",
+                      "impact": "string",
+                      "level": "string",
+                      "method": "number",
+                      "name": "string",
+                      "source": "number",
+                      "spec_checkitem_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "checkitem_uuid": "string",
+                            "create_time": "string",
+                            "language": "string",
+                            "name": "string",
+                            "remove_time": "string",
+                            "specification_uuid": "string",
+                            "uuid": "string"
+                          }
+                        ]
+                      ],
+                      "workflow_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "compliance_package_id": {
+                "type": "string",
+                "optional": true
+              },
+              "customized_checkitem_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "order": {
+                "type": "string",
+                "optional": true
+              },
+              "query_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_by": {
+                "type": "string",
+                "optional": true
+              },
+              "source_list": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "optional": true
+              },
+              "suggestion": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "number",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

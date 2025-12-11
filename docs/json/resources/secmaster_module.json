@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_module": {
+          "block": {
+            "attributes": {
+              "boa_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "computed": true
+              },
+              "data_query": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "en_description": {
+                "type": "string",
+                "computed": true
+              },
+              "en_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "computed": true
+              },
+              "metric_ids": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "module_json": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "module_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tag": {
+                "type": "string",
+                "computed": true
+              },
+              "thumbnail": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
