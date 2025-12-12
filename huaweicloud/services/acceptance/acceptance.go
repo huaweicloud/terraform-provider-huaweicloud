@@ -1840,6 +1840,20 @@ func TestAccPreCheckRAMPermissionVersions(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckRAMPermission(t *testing.T) {
+	if HW_RAM_PERMISSION_ID == "" {
+		t.Skip("HW_RAM_PERMISSION_ID must be set for RAM permission tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRAMResourceSharePermission(t *testing.T) {
+	if HW_RAM_PERMISSION_ID == "" || HW_RAM_SHARE_ID == "" {
+		t.Skip("HW_RAM_PERMISSION_ID and HW_RAM_SHARE_ID must be set for RAM permission versions tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckRMSTargetIDForFGS(t *testing.T) {
 	if HW_RMS_TARGET_ID_FOR_FGS == "" {
 		t.Skip("HW_RMS_TARGET_ID_FOR_FGS must be set for the acceptance tests.")

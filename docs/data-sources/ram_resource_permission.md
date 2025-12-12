@@ -1,22 +1,24 @@
 ---
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_ram_permission_versions"
+page_title: "HuaweiCloud: huaweicloud_ram_resource_permission"
 description: |
-  Use this data source to list permission versions in Resource Access Manager.
+  Use this data source to get the permission for the specified version.
 ---
 
-# huaweicloud_ram_resource_permissions_versions
+# huaweicloud_ram_resource_permission
 
-Use this data source to list permission versions in Resource Access Manager.
+Use this data source to get the permission for the specified version.
 
 ## Example Usage
 
 ```hcl
-variable "resource_type" {}
+variable "permission_id" {}
+variable "permission_version" {}
 
-data "huaweicloud_ram_resource_permissions_versions" "test" {
-  resource_type = var.resource_type
+data "huaweicloud_ram_resource_permission" "test" {
+  resource_type      = var.permission_id
+  permission_version = var.permission_version
 }
 ```
 
@@ -24,11 +26,10 @@ data "huaweicloud_ram_resource_permissions_versions" "test" {
 
 The following arguments are supported:
 
-* `resource_type` - (Optional, String) Specifies the resource type of RAM permission.
+* `permission_id` - (Required, String) Specifies the id of RAM permission.
 
-* `permission_type` - (Optional, String) Specifies the type of the permission.
-
-* `name` - (Optional, String) Specifies the name of RAM permission.
+* `permission_version` - (Optional, String) Specifies the version of RAM permission.
+  Not setting this value will return the default version permission.
 
 ## Attribute Reference
 
@@ -36,11 +37,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `permissions` - Indicates the list of the RAM permissions
-  The [permissions](#RAM_Permissions) structure is documented below.
+* `permission` - Indicates the list of the RAM permissions
+  The [permission](#RAM_Permission) structure is documented below.
 
-<a name="RAM_Permissions"></a>
-The `permissions` block supports:
+<a name="RAM_Permission"></a>
+The `permission` block supports:
 
 * `id` - Indicates the id of RAM permission.
 
@@ -49,6 +50,8 @@ The `permissions` block supports:
 * `resource_type` - Indicates the resource type of RAM permission.
 
 * `is_resource_type_default` - Whether the RAM permission resource type is default.
+
+* `content` - Impact and actions allowed by the permission.
 
 * `created_at` - Indicates the RAM permission create time.
 
