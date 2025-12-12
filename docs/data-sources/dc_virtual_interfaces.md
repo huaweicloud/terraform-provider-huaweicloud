@@ -106,6 +106,9 @@ The `virtual_interfaces` block supports:
 * `vif_peers` - The peer information of the virtual interface.
   The [vif_peers](#DCDataVirtualInterface_vif_peers) structure is documented below.
 
+* `extend_attribute` - The extended parameter information.
+  The [extend_attribute](#DCVirtualInterface_extend_attribute) structure is documented below.
+
 <a name="DCDataVirtualInterface_vif_peers"></a>
 The `vif_peers` block supports:
 
@@ -146,3 +149,24 @@ The `vif_peers` block supports:
   this parameter is meaningless and the value is **-1**.
 
 * `remote_ep_group` - The remote subnet list, which records the CIDR blocks used in the on-premises data center.
+
+<a name="DCVirtualInterface_extend_attribute"></a>
+The `extend_attribute` block supports:
+
+* `ha_type` - The availability detection type of the virtual interface.
+
+* `ha_mode` - The availability detection mode.
+
+* `detect_multiplier` - The number of detection retries.
+
+* `min_rx_interval` - The interval for receiving detection packets.
+
+* `min_tx_interval` - The interval for sending detection packets.
+
+* `remote_disclaim` - The remote identifier of the static BFD session.
+
+* `local_disclaim` - The local identifier of the static BFD session.
+
+* `ipv6_remote_disclaim` - The remote identifier of the static IPv6 BFD session.
+
+* `ipv6_local_disclaim` - The local identifier of the static IPv6 BFD session.
