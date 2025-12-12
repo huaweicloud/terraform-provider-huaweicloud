@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_resource_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

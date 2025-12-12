@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_agencies": {
+          "block": {
+            "attributes": {
+              "agencies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency_id": "string",
+                      "agency_name": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "max_session_duration": "number",
+                      "path": "string",
+                      "trust_domain_id": "string",
+                      "trust_domain_name": "string",
+                      "trust_policy": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of agencies.",
+                "computed": true
+              },
+              "agency_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "path_prefix": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

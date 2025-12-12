@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_distinct_shared_resources": {
+          "block": {
+            "attributes": {
+              "distinct_shared_resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_type": "string",
+                      "resource_urn": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "principal": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "resource_owner": {
+                "type": "string",
+                "required": true
+              },
+              "resource_region": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_urns": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

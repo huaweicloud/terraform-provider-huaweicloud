@@ -2,45 +2,40 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_enterprise_project": {
+        "huaweicloud_ram_resource_share_permission": {
           "block": {
             "attributes": {
               "created_at": {
                 "type": "string",
                 "computed": true
               },
-              "delete_flag": {
-                "type": "bool",
-                "optional": true
-              },
-              "description": {
-                "type": "string",
-                "optional": true
-              },
-              "enable": {
-                "type": "bool",
-                "optional": true,
-                "default": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
+              "permission_id": {
                 "type": "string",
                 "required": true
               },
-              "skip_disable_on_destroy": {
-                "type": "bool",
-                "optional": true
-              },
-              "status": {
-                "type": "number",
+              "permission_name": {
+                "type": "string",
                 "computed": true
               },
-              "type": {
-                "type": "string",
+              "replace": {
+                "type": "bool",
                 "optional": true,
+                "default": false
+              },
+              "resource_share_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
                 "computed": true
               },
               "updated_at": {
@@ -50,10 +45,10 @@
             }
           },
           "product": {
-            "short": "EPS",
-            "name": "Enterprise Project Management Service",
+            "short": "RAM",
+            "name": "Resource Access Manager",
             "catalog": "Management & Governance",
-            "name_cn": "企业项目管理服务",
+            "name_cn": "资源访问管理",
             "catalog_cn": "管理与监管"
           }
         }

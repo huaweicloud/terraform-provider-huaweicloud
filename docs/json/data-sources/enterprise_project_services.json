@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_enterprise_project_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "locale": {
+                "type": "string",
+                "optional": true
+              },
+              "service": {
+                "type": "string",
+                "optional": true
+              },
+              "services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "global": "bool",
+                            "regions": [
+                              "list",
+                              "string"
+                            ],
+                            "resource_type": "string",
+                            "resource_type_i18n_display_name": "string"
+                          }
+                        ]
+                      ],
+                      "service": "string",
+                      "service_i18n_display_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EPS",
+            "name": "Enterprise Project Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "企业项目管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

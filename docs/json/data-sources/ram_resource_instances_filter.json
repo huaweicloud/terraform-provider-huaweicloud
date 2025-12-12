@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_resource_instances_filter": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "computed": true
+              },
+              "without_any_tag": {
+                "type": "bool",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

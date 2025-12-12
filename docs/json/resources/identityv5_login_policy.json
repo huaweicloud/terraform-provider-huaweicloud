@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_login_policy": {
+          "block": {
+            "attributes": {
+              "custom_info_for_login": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lockout_duration": {
+                "type": "number",
+                "optional": true
+              },
+              "login_failed_times": {
+                "type": "number",
+                "optional": true
+              },
+              "period_with_login_failures": {
+                "type": "number",
+                "optional": true
+              },
+              "session_timeout": {
+                "type": "number",
+                "optional": true
+              },
+              "show_recent_login_info": {
+                "type": "bool",
+                "optional": true
+              },
+              "user_validity_period": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "allow_address_netmasks": {
+                "block": {
+                  "attributes": {
+                    "address_netmask": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "allow_ip_ranges": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ip_range": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "allow_ip_ranges_ipv6": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ip_range": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_policy_attached_entities": {
+          "block": {
+            "attributes": {
+              "entity_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_agencies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency_id": "string",
+                      "attached_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policy_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attached_at": "string",
+                      "group_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "required": true
+              },
+              "policy_users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attached_at": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

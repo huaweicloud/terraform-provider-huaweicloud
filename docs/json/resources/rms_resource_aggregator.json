@@ -24,6 +24,14 @@
                 "required": true,
                 "forcenew": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "type": {
                 "type": "string",
                 "description": "Specifies the resource aggregator type, which can be **ACCOUNT** or **ORGANIZATION**.",

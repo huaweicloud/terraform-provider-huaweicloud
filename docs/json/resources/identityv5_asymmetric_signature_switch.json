@@ -1,0 +1,22 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_asymmetric_signature_switch": {
+          "block": {
+            "attributes": {
+              "asymmetric_signature_switch": {
+                "type": "bool",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

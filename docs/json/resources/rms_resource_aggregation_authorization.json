@@ -20,6 +20,14 @@
                 "type": "string",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "urn": {
                 "type": "string",
                 "description": "Indicates the authorization identifier of the resource aggregation account.",

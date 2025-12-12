@@ -60,6 +60,23 @@
                       "enable_bfd": "bool",
                       "enable_nqa": "bool",
                       "enterprise_project_id": "string",
+                      "extend_attribute": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detect_multiplier": "number",
+                            "ha_mode": "string",
+                            "ha_type": "string",
+                            "ipv6_local_disclaim": "number",
+                            "ipv6_remote_disclaim": "number",
+                            "local_disclaim": "number",
+                            "min_rx_interval": "number",
+                            "min_tx_interval": "number",
+                            "remote_disclaim": "number"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "lag_id": "string",
                       "local_gateway_v4_ip": "string",

@@ -75,25 +75,6 @@
                 "computed": true,
                 "forcenew": true
               },
-              "extend_attribute": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "detect_multiplier": "number",
-                      "ha_mode": "string",
-                      "ha_type": "string",
-                      "local_disclaim": "number",
-                      "min_rx_interval": "number",
-                      "min_tx_interval": "number",
-                      "remote_disclaim": "number"
-                    }
-                  ]
-                ],
-                "description": "The extended parameter information.",
-                "computed": true
-              },
               "gateway_id": {
                 "type": "string",
                 "description": "The ID of the gateway associated with the virtual interface.",
@@ -286,6 +267,71 @@
                 "description": "The VLAN for constom side.",
                 "required": true,
                 "forcenew": true
+              }
+            },
+            "block_types": {
+              "extend_attribute": {
+                "block": {
+                  "attributes": {
+                    "detect_multiplier": {
+                      "type": "number",
+                      "description": "The number of detection retries.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ha_mode": {
+                      "type": "string",
+                      "description": "The availability detection mode.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ha_type": {
+                      "type": "string",
+                      "description": "The availability detection type of the virtual interface.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ipv6_local_disclaim": {
+                      "type": "number",
+                      "description": "The local identifier of the static ipv6 BFD session.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ipv6_remote_disclaim": {
+                      "type": "number",
+                      "description": "The remote identifier of the static ipv6 BFD session.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "local_disclaim": {
+                      "type": "number",
+                      "description": "The local identifier of the static BFD session.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "min_rx_interval": {
+                      "type": "number",
+                      "description": "The interval for receiving detection packets.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "min_tx_interval": {
+                      "type": "number",
+                      "description": "The interval for sending detection packets.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "remote_disclaim": {
+                      "type": "number",
+                      "description": "The remote identifier of the static BFD session.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The extended parameter information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

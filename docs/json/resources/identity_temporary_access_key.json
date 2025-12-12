@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_temporary_access_key": {
+          "block": {
+            "attributes": {
+              "access": {
+                "type": "string",
+                "computed": true
+              },
+              "agency_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "domain_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "duration_seconds": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true,
+                "default": 900
+              },
+              "expires_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "methods": {
+                "type": "string",
+                "description": "Authentication method, the content of this field is either `token` or `assume_role`.",
+                "required": true,
+                "forcenew": true
+              },
+              "policy": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "secret": {
+                "type": "string",
+                "computed": true
+              },
+              "securitytoken": {
+                "type": "string",
+                "computed": true
+              },
+              "session_user_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "token": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

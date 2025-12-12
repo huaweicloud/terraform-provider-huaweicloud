@@ -1,0 +1,203 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_overview_security_risks": {
+          "block": {
+            "attributes": {
+              "alarm_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_num": "number",
+                            "os_type": "string",
+                            "policy_id": "string",
+                            "policy_name": "string",
+                            "rule_name": "string"
+                          }
+                        ]
+                      ],
+                      "risk_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effected_host_num": "number",
+                            "risk_num": "number",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "total_risk_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "asset_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "existed_danger_port_host_num": "number",
+                      "policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_num": "number",
+                            "os_type": "string",
+                            "policy_id": "string",
+                            "policy_name": "string",
+                            "rule_name": "string"
+                          }
+                        ]
+                      ],
+                      "total_risk_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "baseline_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "existed_pwd_host_num": "number",
+                      "policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_num": "number",
+                            "os_type": "string",
+                            "policy_id": "string",
+                            "policy_name": "string",
+                            "rule_name": "string"
+                          }
+                        ]
+                      ],
+                      "risk_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effected_host_num": "number",
+                            "risk_num": "number",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "total_risk_num": "number",
+                      "un_scanned_baseline_host_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "risk_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "image_num": "number",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "total_risk_num": "number",
+                      "un_scanned_image_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_protect_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "total_risk_num": "number",
+                      "un_open_protection_host_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_risk_num": {
+                "type": "number",
+                "computed": true
+              },
+              "vul_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deduct_score": "number",
+                      "risk_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effected_host_num": "number",
+                            "risk_num": "number",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "total_risk_num": "number",
+                      "un_scanned_host_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
