@@ -81,6 +81,7 @@ func TestAccAggregationAuthorization_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "account_id", accountID),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttr(rName, "tags.k1", "v1"),
 				),
 			},
 			{
@@ -96,6 +97,9 @@ func testAggregationAuthorizationorization_basic(account string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rms_resource_aggregation_authorization" "test" {
   account_id = "%s"
+  tags       = {
+    k1 = "v1"
+  }
 }
 `, account)
 }
