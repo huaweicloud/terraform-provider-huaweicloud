@@ -7,6 +7,7 @@ package swr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -30,7 +31,7 @@ func ResourceSwrImageAutoSync() *schema.Resource {
 		ReadContext:   resourceSwrImageAutoSyncRead,
 		DeleteContext: resourceSwrImageAutoSyncDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceSwrImageAutoSyncImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -105,7 +106,7 @@ func resourceSwrImageAutoSyncCreate(ctx context.Context, d *schema.ResourceData,
 	targetOrganization := d.Get("target_organization").(string)
 	createSwrImageAutoSyncPath := createSwrImageAutoSyncClient.Endpoint + createSwrImageAutoSyncHttpUrl
 	createSwrImageAutoSyncPath = strings.ReplaceAll(createSwrImageAutoSyncPath, "{namespace}", organization)
-	createSwrImageAutoSyncPath = strings.ReplaceAll(createSwrImageAutoSyncPath, "{repository}", repository)
+	createSwrImageAutoSyncPath = strings.ReplaceAll(createSwrImageAutoSyncPath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 
 	createSwrImageAutoSyncOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -152,15 +153,10 @@ func resourceSwrImageAutoSyncRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 4)
-	if len(parts) != 4 {
-		return diag.Errorf("invalid id format, must be " +
-			"<organization_name>/<repository_name>/<target_region>/<target_organization>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	targetRegion := parts[2]
-	targetOrganization := parts[3]
+	organization := d.Get("organization").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
+	targetRegion := d.Get("target_region").(string)
+	targetOrganization := d.Get("target_organization").(string)
 
 	getSwrImageAutoSyncPath := getSwrImageAutoSyncClient.Endpoint + getSwrImageAutoSyncHttpUrl
 	getSwrImageAutoSyncPath = strings.ReplaceAll(getSwrImageAutoSyncPath, "{namespace}", organization)
@@ -224,7 +220,7 @@ func resourceSwrImageAutoSyncDelete(_ context.Context, d *schema.ResourceData, m
 	deleteSwrImageAutoSyncPath = strings.ReplaceAll(deleteSwrImageAutoSyncPath, "{namespace}",
 		fmt.Sprintf("%v", d.Get("organization")))
 	deleteSwrImageAutoSyncPath = strings.ReplaceAll(deleteSwrImageAutoSyncPath, "{repository}",
-		fmt.Sprintf("%v", d.Get("repository")))
+		strings.ReplaceAll(d.Get("repository").(string), "/", "$"))
 
 	deleteSwrImageAutoSyncOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -250,4 +246,27 @@ func buildDeleteSwrImageAutoSyncBodyParams(d *schema.ResourceData) map[string]in
 		"remoteNamespace": utils.ValueIgnoreEmpty(d.Get("target_organization")),
 	}
 	return bodyParams
+}
+
+func resourceSwrImageAutoSyncImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 4 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 4 {
+			return nil, errors.New("invalid id format, must be " +
+				"<organization_name>/<repository_name>/<target_region>/<target_organization> or " +
+				"<organization_name>,<repository_name>,<target_region>,<target_organization>")
+		}
+	} else {
+		// reform ID to be separated by slashes
+		id := fmt.Sprintf("%s/%s/%s/%s", parts[0], parts[1], parts[2], parts[3])
+		d.SetId(id)
+	}
+
+	d.Set("organization", parts[0])
+	d.Set("repository", parts[1])
+	d.Set("target_region", parts[2])
+	d.Set("target_organization", parts[3])
+
+	return []*schema.ResourceData{d}, nil
 }
