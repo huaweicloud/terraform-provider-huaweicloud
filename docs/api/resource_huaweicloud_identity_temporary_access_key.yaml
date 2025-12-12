@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identity_temporary_access_key
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v3.0/OS-CREDENTIAL/securitytokens:
+        POST:
+            tag: IAM

@@ -12,6 +12,8 @@ paths:
         POST:
             tag: EPS
     /v1.0/enterprise-projects/{enterprise_project_id}:
+        DELETE:
+            tag: EPS
         GET:
             tag: EPS
         PUT:

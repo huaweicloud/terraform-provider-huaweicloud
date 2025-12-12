@@ -21,3 +21,6 @@ paths:
             tag: DC
         PUT:
             tag: DC
+    /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}/extend-attributes:
+        PUT:
+            tag: DC

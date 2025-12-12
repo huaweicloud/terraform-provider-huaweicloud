@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_access_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v3/access-policies:
+        POST:
+            tag: CCE
+    /api/v3/access-policies/{policy_id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE

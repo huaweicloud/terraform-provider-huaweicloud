@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identityv5_login_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v5/login-policy:
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpcep_service_connection_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPCEP
+paths:
+    /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections:
+        GET:
+            tag: VPCEP
+    /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections/description:
+        PUT:
+            tag: VPCEP

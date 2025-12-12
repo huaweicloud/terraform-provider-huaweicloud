@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_enterprise_project_configs
+    title: data_source_huaweicloud_enterprise_project_services
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: EPS
 paths:
-    /v1/enterprise-projects/configs:
+    /v1.0/enterprise-projects/providers:
         GET:
             tag: EPS

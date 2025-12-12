@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
-    /v3/{project_id}/recycle-bin/cloudservers/{loadbalancer_id}:
+    /v3/{project_id}/elb/recycle-bin/loadbalancers/{loadbalancer_id}:
         DELETE:
             tag: ELB
