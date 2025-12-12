@@ -1195,6 +1195,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_enterprise_project_migrate_record":       eps.DataSourceMigrateRecord(),
 			"huaweicloud_enterprise_project_resources_mapping":    eps.DataSourceResourcesMapping(),
 			"huaweicloud_enterprise_project_associated_resources": eps.DataSourceAssociatedResources(),
+			"huaweicloud_enterprise_project_services":             eps.DataSourceEpsServices(),
 
 			"huaweicloud_er_associations":       er.DataSourceAssociations(),
 			"huaweicloud_er_attachments":        er.DataSourceAttachments(),

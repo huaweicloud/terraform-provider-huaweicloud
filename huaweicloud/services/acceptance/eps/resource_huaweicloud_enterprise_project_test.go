@@ -60,9 +60,47 @@ func TestAccEnterpriseProject_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_flag"},
+			},
+		},
+	})
+}
+
+func TestAccEnterpriseProject_delete(t *testing.T) {
+	var project enterpriseprojects.Project
+	deleteName := acceptance.RandomAccResourceName() + "delete"
+	resourceDeleteName := "huaweicloud_enterprise_project.test_delete"
+
+	rc_delete := acceptance.InitResourceCheck(
+		resourceDeleteName,
+		&project,
+		getResourceEnterpriseProject,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckEnterpriseProjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEnterpriseProject_delete(deleteName),
+				Check: resource.ComposeTestCheckFunc(
+					rc_delete.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceDeleteName, "name", deleteName),
+					resource.TestCheckResourceAttr(resourceDeleteName, "description", "terraform test delete"),
+					resource.TestCheckResourceAttr(resourceDeleteName, "status", "1"),
+				),
+			},
+			{
+				ResourceName:            resourceDeleteName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_flag"},
 			},
 		},
 	})
@@ -104,5 +142,14 @@ func testAccEnterpriseProject_update(rName string) string {
 resource "huaweicloud_enterprise_project" "test" {
   name        = "%s"
   description = "terraform test update"
+}`, rName)
+}
+
+func testAccEnterpriseProject_delete(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_enterprise_project" "test_delete" {
+  name        = "%s"
+  description = "terraform test delete"
+  delete_flag = true
 }`, rName)
 }
