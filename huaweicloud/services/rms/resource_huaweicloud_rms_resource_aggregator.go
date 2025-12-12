@@ -59,6 +59,7 @@ func ResourceAggregator() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the resource aggregator identifier.`,
 			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -70,6 +71,9 @@ func buildAggregatorBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"account_aggregation_sources": map[string]interface{}{
 			"domain_ids": utils.ValueIgnoreEmpty(d.Get("account_ids").(*schema.Set).List()),
 		},
+	}
+	if tagMap := d.Get("tags").(map[string]interface{}); len(tagMap) > 0 {
+		bodyParams["tags"] = utils.ExpandResourceTags(tagMap)
 	}
 	return bodyParams
 }
@@ -153,6 +157,7 @@ func resourceAggregatorRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("type", utils.PathSearch("aggregator_type", getAggregatorRespBody, nil)),
 		d.Set("account_ids", utils.PathSearch("account_aggregation_sources.domain_ids", getAggregatorRespBody, nil)),
 		d.Set("urn", utils.PathSearch("aggregator_urn", getAggregatorRespBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", getAggregatorRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -172,6 +177,7 @@ func resourceAggregatorUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	updateAggregatorChanges := []string{
 		"account_ids",
+		"tags",
 	}
 
 	if d.HasChanges(updateAggregatorChanges...) {

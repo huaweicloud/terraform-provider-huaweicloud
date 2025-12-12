@@ -50,6 +50,8 @@ The following arguments are supported:
 * `account_ids` - (Optional, List) Specifies the source account list being aggregated.
   This parameter is only valid in **ACCOUNT** type.
 
+* `tags` - (Optional, Map)  Specifies the key/value pairs to associate with the aggregator.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

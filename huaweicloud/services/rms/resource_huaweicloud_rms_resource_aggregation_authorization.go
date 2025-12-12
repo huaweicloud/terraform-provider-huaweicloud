@@ -50,6 +50,7 @@ func ResourceAggregationAuthorization() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the time when the resource aggregation account was authorized.`,
 			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -57,6 +58,9 @@ func ResourceAggregationAuthorization() *schema.Resource {
 func buildCreateAggregationAuthBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"authorized_account_id": d.Get("account_id"),
+	}
+	if tagMap := d.Get("tags").(map[string]interface{}); len(tagMap) > 0 {
+		bodyParams["tags"] = utils.ExpandResourceTags(tagMap)
 	}
 	return bodyParams
 }
@@ -143,6 +147,7 @@ func resourceAggregationAuthRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("urn", utils.PathSearch("aggregation_authorization_urn", item, nil)),
 		d.Set("account_id", utils.PathSearch("authorized_account_id", item, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", item, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", item, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

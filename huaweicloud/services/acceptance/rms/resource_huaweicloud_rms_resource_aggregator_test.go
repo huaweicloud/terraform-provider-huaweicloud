@@ -77,15 +77,17 @@ func TestAccAggregator_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "type", "ACCOUNT"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttr(rName, "tags.k1", "v1"),
 				),
 			},
 			{
-				Config: testAggregator_config(name, updateAccountIDs),
+				Config: testAggregator_config_update(name, updateAccountIDs),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "type", "ACCOUNT"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttr(rName, "tags.k2", "v2"),
 				),
 			},
 			{
@@ -108,6 +110,29 @@ resource "huaweicloud_rms_resource_aggregator" "test" {
   name        = "%s"
   type        = "ACCOUNT"
   account_ids = [%s]
+  
+  tags = {
+    k1 = "v1"
+  }
+}
+`, name, hclAccounts)
+}
+
+func testAggregator_config_update(name string, accounts []string) string {
+	var hclAccounts string
+	for _, id := range accounts {
+		hclAccounts += fmt.Sprintf("\"%s\", ", id)
+	}
+
+	return fmt.Sprintf(`
+resource "huaweicloud_rms_resource_aggregator" "test" {
+  name        = "%s"
+  type        = "ACCOUNT"
+  account_ids = [%s]
+  
+  tags = {
+    k2 = "v2"
+  }
 }
 `, name, hclAccounts)
 }
