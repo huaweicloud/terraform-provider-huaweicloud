@@ -118,10 +118,13 @@ func dataSourceSwrImageAutoSyncJobsRead(_ context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
+
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
+
 	listHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/sync_job?filter=limit::10"
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{namespace}", d.Get("organization").(string))
-	listPath = strings.ReplaceAll(listPath, "{repository}", d.Get("repository").(string))
+	listPath = strings.ReplaceAll(listPath, "{repository}", repository)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},

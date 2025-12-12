@@ -140,7 +140,7 @@ func dataSourceImageRetentionPoliciesRead(_ context.Context, d *schema.ResourceD
 
 func getImageRetentionPolicies(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	listRetentionPoliciesHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/retentions"
 	listRetentionPoliciesPath := client.Endpoint + listRetentionPoliciesHttpUrl

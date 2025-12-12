@@ -122,7 +122,7 @@ func dataSourceSharedAccountsRead(_ context.Context, d *schema.ResourceData, met
 
 func getSharedAccounts(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	listSharedAccountsHttpUrl := "v2/manage/namespaces/{namespace}/repositories/{repository}/access-domains"
 	listSharedAccountsPath := client.Endpoint + listSharedAccountsHttpUrl

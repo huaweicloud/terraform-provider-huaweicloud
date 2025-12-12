@@ -170,9 +170,11 @@ func (w *v3ImageTagsDSWrapper) ListRepositoryTag() (*gjson.Result, error) {
 		return nil, err
 	}
 
+	repository := strings.ReplaceAll(w.Get("repository").(string), "/", "$")
+
 	uri := "/v3/manage/namespaces/{namespace}/repos/{repository}/tags"
 	uri = strings.ReplaceAll(uri, "{namespace}", w.Get("organization").(string))
-	uri = strings.ReplaceAll(uri, "{repository}", w.Get("repository").(string))
+	uri = strings.ReplaceAll(uri, "{repository}", repository)
 	params := map[string]any{
 		"tag":           w.Get("tag"),
 		"with_manifest": w.Get("with_manifest"),
