@@ -3796,10 +3796,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_traffic_mirror_session":      vpc.ResourceTrafficMirrorSession(),
 			"huaweicloud_vpc_subnet_cidr_reservation":     vpc.ResourceVpcSubnetCidrReservation(),
 
-			"huaweicloud_vpcep_approval":        vpcep.ResourceVPCEndpointApproval(),
-			"huaweicloud_vpcep_endpoint":        vpcep.ResourceVPCEndpoint(),
-			"huaweicloud_vpcep_service":         vpcep.ResourceVPCEndpointService(),
-			"huaweicloud_vpcep_service_upgrade": vpcep.ResourceVPCServiceUpgrade(),
+			"huaweicloud_vpcep_approval":                  vpcep.ResourceVPCEndpointApproval(),
+			"huaweicloud_vpcep_endpoint":                  vpcep.ResourceVPCEndpoint(),
+			"huaweicloud_vpcep_service":                   vpcep.ResourceVPCEndpointService(),
+			"huaweicloud_vpcep_service_upgrade":           vpcep.ResourceVPCServiceUpgrade(),
+			"huaweicloud_vpcep_service_connection_update": vpcep.ResourceVPCEndpointServiceConnectionUpdate(),
 
 			"huaweicloud_vpn_access_policy":                     vpn.ResourceAccessPolicy(),
 			"huaweicloud_vpn_gateway":                           vpn.ResourceGateway(),
