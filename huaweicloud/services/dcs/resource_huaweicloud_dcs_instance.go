@@ -988,13 +988,14 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
 }
 
-func setDcsInstanceCapacity(d *schema.ResourceData, resp interface{}) error {
-	capacity := utils.PathSearch("capacity", resp, float64(0)).(float64)
+// lintignore:R014
+func setDcsInstanceCapacity(d *schema.ResourceData, instance interface{}) error {
+	capacity := utils.PathSearch("capacity", instance, float64(0)).(float64)
 	if capacity > 0 {
 		return d.Set("capacity", capacity)
 	}
 
-	capacityMinor := utils.PathSearch("capacity_minor", resp, "").(string)
+	capacityMinor := utils.PathSearch("capacity_minor", instance, "").(string)
 	if strings.HasPrefix(capacityMinor, ".") {
 		capacityMinor = fmt.Sprintf("0%s", capacityMinor)
 	}
