@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API EPS GET /v1.0/enterprise-projects/configs
+// @API EPS GET /v1/enterprise-projects/configs
 func DataSourceConfigs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceConfigsRead,
