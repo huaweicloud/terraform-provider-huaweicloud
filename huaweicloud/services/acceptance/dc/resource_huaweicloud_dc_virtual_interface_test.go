@@ -141,6 +141,13 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccVirtualInterface_with_bfd(updateName, vlan),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "extend_attribute.0.min_tx_interval", "800"),
+				),
+			},
+			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -587,4 +594,44 @@ resource "huaweicloud_dc_virtual_interface" "test" {
 }
 `, acceptance.HW_DC_DIRECT_CONNECT_ID, acceptance.HW_DC_TARGET_TENANT_VGW_ID, name, vlan,
 		acceptance.HW_DC_RESOURCE_TENANT_ID)
+}
+
+func testAccVirtualInterface_with_bfd(name string, vlan int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dc_virtual_interface" "test" {
+  direct_connect_id = "%[2]s"
+  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
+  name              = "%[3]s"
+  description       = "Created by acc test"
+  type              = "private"
+  route_mode        = "static"
+  vlan              = %[4]d
+  bandwidth         = 5
+  enable_bfd        = true
+  enable_nqa        = false
+
+  remote_ep_group = [
+    "1.1.1.0/30",
+  ]
+
+  address_family       = "ipv4"
+  local_gateway_v4_ip  = "1.1.1.1/30"
+  remote_gateway_v4_ip = "1.1.1.2/30"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
+  extend_attribute {
+    ha_type           = "bfd"
+    ha_mode           = "auto_single"
+    min_rx_interval   = 800
+    min_tx_interval   = 1000
+    detect_multiplier = 3
+  }
+}
+`, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
 }

@@ -204,6 +204,12 @@ func virtualInterfaceSchema() *schema.Resource {
 				Elem:        datasourceVifPeersSchema(),
 				Description: "The peer information of the virtual interface.",
 			},
+			"extend_attribute": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        datasourceExtendAttributeSchema(),
+				Description: "The extended parameter information.",
+			},
 		},
 	}
 	return &sc
@@ -308,6 +314,60 @@ func datasourceVifPeersSchema() *schema.Resource {
 	return &sc
 }
 
+func datasourceExtendAttributeSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ha_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The availability detection type of the virtual interface.`,
+			},
+			"ha_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The availability detection mode.`,
+			},
+			"detect_multiplier": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of detection retries.`,
+			},
+			"min_rx_interval": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The interval for receiving detection packets.`,
+			},
+			"min_tx_interval": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The interval for sending detection packets.`,
+			},
+			"remote_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The remote identifier of the static BFD session.`,
+			},
+			"local_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The local identifier of the static BFD session.`,
+			},
+			"ipv6_remote_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The remote identifier of the static ipv6 BFD session.`,
+			},
+			"ipv6_local_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The local identifier of the static ipv6 BFD session.`,
+			},
+		},
+	}
+
+	return &sc
+}
+
 func resourceDCVirtualInterfacesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -401,6 +461,7 @@ func flattenListVirtualInterfacesBody(resp interface{}) []interface{} {
 			"asn":                   utils.PathSearch("bgp_asn", v, nil),
 			"bgp_md5":               utils.PathSearch("bgp_md5", v, nil),
 			"vif_peers":             flattenVifPeersAttributes(v),
+			"extend_attribute":      flattenExtendAttributes(v),
 		})
 	}
 	return rst
@@ -436,6 +497,30 @@ func flattenVifPeersAttributes(resp interface{}) []interface{} {
 		})
 	}
 	return rst
+}
+
+func flattenExtendAttributes(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	extendResp := utils.PathSearch("extend_attribute", resp, nil)
+	if extendResp == nil {
+		return nil
+	}
+
+	extendAttribute := map[string]interface{}{
+		"ha_type":              utils.PathSearch("ha_type", extendResp, nil),
+		"ha_mode":              utils.PathSearch("ha_mode", extendResp, nil),
+		"detect_multiplier":    utils.PathSearch("detect_multiplier", extendResp, nil),
+		"min_rx_interval":      utils.PathSearch("min_rx_interval", extendResp, nil),
+		"min_tx_interval":      utils.PathSearch("min_tx_interval", extendResp, nil),
+		"remote_disclaim":      utils.PathSearch("remote_disclaim", extendResp, nil),
+		"local_disclaim":       utils.PathSearch("local_disclaim", extendResp, nil),
+		"ipv6_remote_disclaim": utils.PathSearch("ipv6_remote_disclaim", extendResp, nil),
+		"ipv6_local_disclaim":  utils.PathSearch("ipv6_local_disclaim", extendResp, nil),
+	}
+
+	return []interface{}{extendAttribute}
 }
 
 func filterListVirtualInterfacesBody(all []interface{}, d *schema.ResourceData) []interface{} {
