@@ -1,6 +1,38 @@
 # CHANGELOG
 
-## 1.82.3 (December 10, 2025)
+## 1.82.3 (December 12, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_cce_access_policy` [GH-8541]
+  + `huaweicloud_identity_temporary_access_key` [GH-8619]
+  + `huaweicloud_identityv5_asymmetric_signature_switch` [GH-8619]
+  + `huaweicloud_identityv5_login_policy` [GH-8619]
+  + `huaweicloud_identityv5_password_policy` [GH-8619]
+  + `huaweicloud_identityv5_resource_tag` [GH-8619]
+  + `huaweicloud_identityv5_user_password` [GH-8619]
+  + `huaweicloud_ram_resource_share_permission` [GH-8615]
+  + `huaweicloud_vpcep_service_connection_update` [GH-8598]
+
+* **New Data Source:**
+  + `huaweicloud_enterprise_project_services` [GH-8617]
+  + `huaweicloud_hss_honeypot_port_hosts` [GH-8593]
+  + `huaweicloud_hss_overview_security_risks` [GH-8600]
+  + `huaweicloud_hss_webtamper_protection_statistics` [GH-8595]
+  + `huaweicloud_identity_enterprise_project_groups` [GH-8619]
+  + `huaweicloud_identity_enterprise_project_users` [GH-8619]
+  + `huaweicloud_identityv5_agencies` [GH-8619]
+  + `huaweicloud_identityv5_policy_attached_entities` [GH-8619]
+  + `huaweicloud_identityv5_resource_tags` [GH-8619]
+  + `huaweicloud_ram_distinct_shared_principals` [GH-8615]
+  + `huaweicloud_ram_distinct_shared_resources` [GH-8615]
+  + `huaweicloud_ram_resource_instances_count` [GH-8615]
+  + `huaweicloud_ram_resource_instances_filter` [GH-8615]
+  + `huaweicloud_ram_resource_permission` [GH-5733]
+  + `huaweicloud_secmaster_modules` [GH-8606]
+  + `huaweicloud_smn_resources_by_tags` [GH-8602]
+  + `huaweicloud_workspace_assist_auth_configuration_applied_objects` [GH-8560]
+
+## 1.82.2 (December 11, 2025)
 
 * **New Resource Source:**
   + `huaweicloud_hss_rasp_protection_policy` [GH-8583]
