@@ -81,6 +81,14 @@ The `SelfPermission` block supports:
 
 The SWR image permissions can be imported using the organization name and repository name separated by a slash, e.g.:
 
+Only when repository name is with no slashes, can use a slash to separate.
+
 ```bash
 $ terraform import huaweicloud_swr_image_permissions.test <organization_name>/<repository_name>
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_image_permissions.test <organization_name>,<repository_name>
 ```

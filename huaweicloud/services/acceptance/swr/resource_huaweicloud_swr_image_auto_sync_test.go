@@ -27,15 +27,10 @@ func getSwrImageAutoSyncResourceFunc(cfg *config.Config, state *terraform.Resour
 		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(state.Primary.ID, "/", 4)
-	if len(parts) != 4 {
-		return nil, fmt.Errorf("invalid id format, must be " +
-			"<organization_name>/<repository_name>/<target_region>/<target_organization>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	targetRegion := parts[2]
-	targetOrganization := parts[3]
+	organization := state.Primary.Attributes["organization"]
+	repository := strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$")
+	targetRegion := state.Primary.Attributes["target_region"]
+	targetOrganization := state.Primary.Attributes["target_organization"]
 
 	getSwrImageAutoSyncPath := getSwrImageAutoSyncClient.Endpoint + getSwrImageAutoSyncHttpUrl
 	getSwrImageAutoSyncPath = strings.ReplaceAll(getSwrImageAutoSyncPath, "{namespace}", organization)

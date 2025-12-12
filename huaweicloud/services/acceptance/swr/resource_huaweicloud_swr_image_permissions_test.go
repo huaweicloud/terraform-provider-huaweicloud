@@ -27,12 +27,8 @@ func getSwrImagePermissionsResourceFunc(cfg *config.Config, state *terraform.Res
 		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(state.Primary.ID, "/", 2)
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <organization_name>/<repository_name>")
-	}
-	organization := parts[0]
-	repository := parts[1]
+	organization := state.Primary.Attributes["organization"]
+	repository := strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$")
 
 	getSwrImagePermissionsPath := getSwrImagePermissionsClient.Endpoint + getSwrImagePermissionsHttpUrl
 	getSwrImagePermissionsPath = strings.ReplaceAll(getSwrImagePermissionsPath, "{namespace}",

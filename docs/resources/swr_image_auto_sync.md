@@ -65,8 +65,16 @@ In addition to all arguments above, the following attributes are exported:
 ## Import
 
 The SWR image auto sync can be imported using the organization name, repository name,
-target region and target organization separated by a slash, e.g.:
+target region and target organization separated by slashes or commas, e.g.:
+
+Only when repository name is with no slashes, can use slashes to separate.
 
 ```bash
 $ terraform import huaweicloud_swr_image_auto_sync.test <organization_name>/<repository_name>/<target_region>/<target_organization>
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_image_auto_sync.test <organization_name>,<repository_name>,<target_region>,<target_organization>
 ```

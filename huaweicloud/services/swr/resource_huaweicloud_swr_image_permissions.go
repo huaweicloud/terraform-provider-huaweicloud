@@ -7,6 +7,7 @@ package swr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -33,7 +34,7 @@ func ResourceSwrImagePermissions() *schema.Resource {
 		ReadContext:   resourceSwrImagePermissionsRead,
 		DeleteContext: resourceSwrImagePermissionsDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceSwrImagePermissionsImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -158,12 +159,8 @@ func resourceSwrImagePermissionsRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating SWR Client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <organization_name>/<repository_name>")
-	}
-	organization := parts[0]
-	repository := parts[1]
+	organization := d.Get("organization").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	getSwrImagePermissionsPath := getSwrImagePermissionsClient.Endpoint + getSwrImagePermissionsHttpUrl
 	getSwrImagePermissionsPath = strings.ReplaceAll(getSwrImagePermissionsPath, "{namespace}",
@@ -312,7 +309,7 @@ func addSwrImagePermissions(d *schema.ResourceData, cfg *config.Config, client *
 	)
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 	createSwrImagePermissionsPath := client.Endpoint + createSwrImagePermissionsHttpUrl
 	createSwrImagePermissionsPath = strings.ReplaceAll(createSwrImagePermissionsPath, "{namespace}",
 		organization)
@@ -348,7 +345,7 @@ func deleteSwrImagePermissions(d *schema.ResourceData, client *golangsdk.Service
 	deleteSwrImagePermissionsPath = strings.ReplaceAll(deleteSwrImagePermissionsPath, "{namespace}",
 		fmt.Sprintf("%v", d.Get("organization")))
 	deleteSwrImagePermissionsPath = strings.ReplaceAll(deleteSwrImagePermissionsPath, "{repository}",
-		fmt.Sprintf("%v", d.Get("repository")))
+		strings.ReplaceAll(d.Get("repository").(string), "/", "$"))
 
 	deleteSwrImagePermissionsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -402,4 +399,24 @@ func buildSwrImagePermissionsUsersChildBody(d *schema.ResourceData, cfg *config.
 	}
 
 	return params, nil
+}
+
+func resourceSwrImagePermissionsImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 2 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 2 {
+			return nil, errors.New("invalid id format, must be <organization_name>/<repository_name> or " +
+				"<organization_name>,<repository_name>")
+		}
+	} else {
+		// reform ID to be separated by a slash
+		id := fmt.Sprintf("%s/%s", parts[0], parts[1])
+		d.SetId(id)
+	}
+
+	d.Set("organization", parts[0])
+	d.Set("repository", parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }

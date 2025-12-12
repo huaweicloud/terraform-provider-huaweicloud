@@ -86,7 +86,7 @@ func resourceSwrImageManualSyncCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	createHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/sync_images"
 	createPath := client.Endpoint + createHttpUrl
