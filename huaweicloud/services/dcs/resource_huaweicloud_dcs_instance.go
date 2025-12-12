@@ -988,13 +988,13 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
 }
 
-func setDcsInstanceCapacity(d *schema.ResourceData, instance interface{}) error {
-	capacity := utils.PathSearch("capacity", instance, float64(0)).(float64)
+func setDcsInstanceCapacity(d *schema.ResourceData, resp interface{}) error {
+	capacity := utils.PathSearch("capacity", resp, float64(0)).(float64)
 	if capacity > 0 {
 		return d.Set("capacity", capacity)
 	}
 
-	capacityMinor := utils.PathSearch("capacity_minor", instance, "").(string)
+	capacityMinor := utils.PathSearch("capacity_minor", resp, "").(string)
 	if strings.HasPrefix(capacityMinor, ".") {
 		capacityMinor = fmt.Sprintf("0%s", capacityMinor)
 	}
@@ -1335,6 +1335,8 @@ func updateInstance(ctx context.Context, d *schema.ResourceData, client *golangs
 		httpMethod:       "PUT",
 		pathParams:       map[string]string{"instance_id": d.Id()},
 		updateBodyParams: utils.RemoveNil(buildUpdateInstanceBodyParams(d)),
+		isRetry:          true,
+		timeout:          schema.TimeoutUpdate,
 	})
 	if err != nil {
 		return fmt.Errorf("error updating instance: %s", err)
