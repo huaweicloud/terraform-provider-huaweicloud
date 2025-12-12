@@ -88,7 +88,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "expire_key_interval", "20"),
 					resource.TestCheckResourceAttr(rName, "expire_key_timeout", "100"),
 					resource.TestCheckResourceAttr(rName, "expire_key_scan_keys_count", "20000"),
-					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "true"),
+					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "false"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -136,7 +136,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "true"),
 					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "20:00"),
 					resource.TestCheckResourceAttr(rName, "expire_key_enable_auto_scan", "false"),
-					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "false"),
+					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "true"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "launched_at"),
 					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
@@ -1084,7 +1084,7 @@ resource "huaweicloud_dcs_instance" "test" {
   flavor                       = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin               = "22:00:00"
   maintain_end                 = "23:00:00"
-  transparent_client_ip_enable = true
+  transparent_client_ip_enable = false
 
   big_key_enable_auto_scan    = true
   big_key_schedule_at         = ["10:00"]
@@ -1156,7 +1156,7 @@ resource "huaweicloud_dcs_instance" "test" {
   flavor                       = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin               = "06:00:00"
   maintain_end                 = "07:00:00"
-  transparent_client_ip_enable = false
+  transparent_client_ip_enable = true
 
   big_key_enable_auto_scan    = false
   big_key_schedule_at         = ["17:00"]

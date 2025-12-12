@@ -678,7 +678,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	if d.Get("transparent_client_ip_enable").(bool) {
+	if !d.Get("transparent_client_ip_enable").(bool) {
 		err = updateTransparentClientIpEnable(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
@@ -978,13 +978,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
 
-	capacity := utils.PathSearch("capacity", instance, float64(0)).(float64)
-	if capacity > 0 {
-		mErr = multierror.Append(mErr, d.Set("capacity", capacity))
-	} else {
-		mErr = multierror.Append(mErr, d.Set("capacity", utils.PathSearch("capacity_minor", instance, nil)))
-	}
-
+	mErr = multierror.Append(mErr, setDcsInstanceCapacity(d, instance))
 	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceBigKeyAutoScan(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceHotKeyAutoScan(d, client)...)
@@ -992,6 +986,24 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
+}
+
+func setDcsInstanceCapacity(d *schema.ResourceData, instance interface{}) error {
+	capacity := utils.PathSearch("capacity", instance, float64(0)).(float64)
+	if capacity > 0 {
+		return d.Set("capacity", capacity)
+	}
+
+	capacityMinor := utils.PathSearch("capacity_minor", instance, "").(string)
+	if strings.HasPrefix(capacityMinor, ".") {
+		capacityMinor = fmt.Sprintf("0%s", capacityMinor)
+	}
+	capacity, err := strconv.ParseFloat(capacityMinor, 64)
+	if err != nil {
+		log.Printf("[WARN] error convert DCS instance(%s) capacity minor(%s): %s", d.Id(), capacityMinor, err)
+		return nil
+	}
+	return d.Set("capacity", capacity)
 }
 
 func getDcsInstanceByID(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
