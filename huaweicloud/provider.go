@@ -3453,10 +3453,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_transfer":                         lts.ResourceLtsTransfer(),
 			"huaweicloud_lts_waf_access":                       lts.ResourceWAFAccess(),
 
-			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
-			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
-			"huaweicloud_mapreduce_data_connection": mrs.ResourceDataConnection(),
-			"huaweicloud_mapreduce_scaling_policy":  mrs.ResourceScalingPolicy(),
+			"huaweicloud_mapreduce_cluster":                   mrs.ResourceMRSClusterV2(),
+			"huaweicloud_mapreduce_cluster_node_batch_expand": mrs.ResourceClusterNodeBatchExpand(),
+			"huaweicloud_mapreduce_cluster_node_batch_shrink": mrs.ResourceClusterNodeBatchShrink(),
+			"huaweicloud_mapreduce_job":                       mrs.ResourceMRSJobV2(),
+			"huaweicloud_mapreduce_data_connection":           mrs.ResourceDataConnection(),
+			"huaweicloud_mapreduce_scaling_policy":            mrs.ResourceScalingPolicy(),
 
 			"huaweicloud_meeting_admin_assignment": meeting.ResourceAdminAssignment(),
 			"huaweicloud_meeting_conference":       meeting.ResourceConference(),
