@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
@@ -25,6 +26,7 @@ var appServerActionNonUpdatableParams = []string{"action_type", "server_id", "co
 
 // @API Workspace POST /v1/{project_id}/app-servers/{server_id}/actions/change-image
 // @API Workspace POST /v1/{project_id}/app-servers/{server_id}/actions/reinstall
+// @API Workspace GET /v2/{project_id}/job/{job_id}
 func ResourceAppServerAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerActionCreate,
@@ -122,8 +124,9 @@ func resourceAppServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(randUUID)
 
+	var resp *http.Response
 	for i := 0; i < maxRetries+1; i++ {
-		_, err = client.Request(httpMethod, createPath, &opt)
+		resp, err = client.Request(httpMethod, createPath, &opt)
 		if err == nil {
 			break
 		}
@@ -140,7 +143,23 @@ func resourceAppServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 			i, actionType, err)
 	}
 
-	return resourceAppServerActionRead(ctx, d, meta)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find job ID from API response")
+	}
+
+	_, err = waitForAppServerJobCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), jobId)
+	if err != nil {
+		return diag.Errorf("error waiting for the APP server operation (action: %s) job (%s) completed: %s",
+			actionType, jobId, err)
+	}
+
+	return nil
 }
 
 func resourceAppServerActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

@@ -9,10 +9,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccAppServerBatchAction_batchChangeImage(t *testing.T) {
+func TestAccAppServerBatchAction_basic(t *testing.T) {
 	var (
-		resourceName = "huaweicloud_workspace_app_server_batch_action.test"
-		name         = acceptance.RandomAccResourceName()
+		name = acceptance.RandomAccResourceName()
+
+		changeImageRName = "huaweicloud_workspace_app_server_batch_action.changeImage"
+		reinstallRName   = "huaweicloud_workspace_app_server_batch_action.reinstall"
+		maintainRName    = "huaweicloud_workspace_app_server_batch_action.maintain"
+		rebootRName      = "huaweicloud_workspace_app_server_batch_action.reboot"
+		stopRName        = "huaweicloud_workspace_app_server_batch_action.stop"
+		startRName       = "huaweicloud_workspace_app_server_batch_action.start"
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -28,7 +34,37 @@ func TestAccAppServerBatchAction_batchChangeImage(t *testing.T) {
 			{
 				Config: testAccAppServerBatchAction_batchChangeImage(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "type", "batch-change-image"),
+					resource.TestCheckResourceAttr(changeImageRName, "type", "batch-change-image"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchReinstall(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(reinstallRName, "type", "batch-reinstall"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_maintain(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(maintainRName, "type", "batch-maint"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchReboot(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rebootRName, "type", "batch-reboot"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchStop(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(stopRName, "type", "batch-stop"),
+				),
+			},
+			{
+				Config: testAccAppServerBatchAction_batchStart(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(startRName, "type", "batch-start"),
 				),
 			},
 		},
@@ -46,7 +82,9 @@ data "huaweicloud_vpc_subnets" "test" {
 }
 
 resource "huaweicloud_workspace_app_server" "test" {
-  name                = "%[2]s" 
+  count = 2
+
+  name                = "%[2]s${count.index}" 
   server_group_id     = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].id, null)
   type                = "createApps"
   flavor_id           = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].product_id, null)
@@ -86,10 +124,10 @@ locals {
     ], [])
 }
 
-resource "huaweicloud_workspace_app_server_batch_action" "test" {
+resource "huaweicloud_workspace_app_server_batch_action" "changeImage" {
   type    = "batch-change-image"
   content = jsonencode({
-    server_ids          = [huaweicloud_workspace_app_server.test.id]
+    server_ids          = huaweicloud_workspace_app_server.test[*].id
     image_id            = try(local.available_images[0].id, "NOT_FOUND")
     image_type          = "gold"
     os_type             = "Windows"
@@ -97,60 +135,90 @@ resource "huaweicloud_workspace_app_server_batch_action" "test" {
   })
 
   max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 600"
-  }
 }
 `, testAccAppServerBatchAction_base(name))
-}
-
-func TestAccAppServerBatchAction_batchReinstall(t *testing.T) {
-	var (
-		resourceName = "huaweicloud_workspace_app_server_batch_action.test"
-		name         = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		// This resource is a one-time batch action resource and there is no logic in the delete method.
-		// lintignore:AT001
-		CheckDestroy: nil,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAppServerBatchAction_batchReinstall(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "type", "batch-reinstall"),
-				),
-			},
-		},
-	})
 }
 
 func testAccAppServerBatchAction_batchReinstall(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_server_batch_action" "test" {
+resource "huaweicloud_workspace_app_server_batch_action" "reinstall" {
   type    = "batch-reinstall"
   content = jsonencode({
-    server_ids          = [huaweicloud_workspace_app_server.test.id]
+    server_ids          = huaweicloud_workspace_app_server.test[*].id
     update_access_agent = false
   })
 
   max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 1200"
-  }
 }
 `, testAccAppServerBatchAction_base(name))
 }
 
+func testAccAppServerBatchAction_maintain(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "maintain" {
+  type    = "batch-maint"
+  content = jsonencode({
+    items           = huaweicloud_workspace_app_server.test[*].id
+    maintain_status = true
+  })
+
+  max_retries = 3
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+func testAccAppServerBatchAction_batchReboot(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "reboot" {
+  type    = "batch-reboot"
+  content = jsonencode({
+    items = huaweicloud_workspace_app_server.test[*].id
+    type  = "SOFT"
+  })
+
+  max_retries = 3
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+func testAccAppServerBatchAction_batchStop(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "stop" {
+  type    = "batch-stop"
+  content = jsonencode({
+    items = huaweicloud_workspace_app_server.test[*].id
+    type  = "SOFT"
+  })
+
+  max_retries = 3
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+func testAccAppServerBatchAction_batchStart(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "start" {
+  type    = "batch-start"
+  content = jsonencode({
+    items = huaweicloud_workspace_app_server.test[*].id
+  })
+
+  max_retries = 3
+}
+`, testAccAppServerBatchAction_base(name))
+}
+
+// The Workspace serivice must connect to the Active Directory server.
 func TestAccAppServerBatchAction_batchRejoinDomain(t *testing.T) {
 	var (
 		resourceName = "huaweicloud_workspace_app_server_batch_action.test"
@@ -184,14 +252,10 @@ func testAccAppServerBatchAction_batchRejoinDomain(name string) string {
 resource "huaweicloud_workspace_app_server_batch_action" "test" {
   type    = "batch-rejoin-domain"
   content = jsonencode({
-    items = [huaweicloud_workspace_app_server.test.id]
+    items = [huaweicloud_workspace_app_server.test[0].id]
   })
 
   max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 300"
-  }
 }
 `, testAccAppServerBatchAction_base(name))
 }
@@ -238,156 +302,6 @@ resource "huaweicloud_workspace_app_server_batch_action" "test" {
   })
 
   max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 600"
-  }
-}
-`, testAccAppServerBatchAction_base(name))
-}
-
-func TestAccAppServerBatchAction_batchMaint(t *testing.T) {
-	var (
-		resourceName = "huaweicloud_workspace_app_server_batch_action.test"
-		name         = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		// This resource is a one-time batch action resource and there is no logic in the delete method.
-		// lintignore:AT001
-		CheckDestroy: nil,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAppServerBatchAction_batchMaint(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "type", "batch-maint"),
-				),
-			},
-		},
-	})
-}
-
-func testAccAppServerBatchAction_batchMaint(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_workspace_app_server_batch_action" "test" {
-  type    = "batch-maint"
-  content = jsonencode({
-    items           = [huaweicloud_workspace_app_server.test.id]
-    maintain_status = true
-  })
-
-  max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 120"
-  }
-}
-`, testAccAppServerBatchAction_base(name))
-}
-
-func TestAccAppServerBatchAction_rebootStopStart(t *testing.T) {
-	var (
-		rNameReboot = "huaweicloud_workspace_app_server_batch_action.reboot"
-		rNameStop   = "huaweicloud_workspace_app_server_batch_action.stop"
-		rNameStart  = "huaweicloud_workspace_app_server_batch_action.start"
-		name        = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerId(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		// This resource is a one-time batch action resource and there is no logic in the delete method.
-		// lintignore:AT001
-		CheckDestroy: nil,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAppServerBatchAction_batchReboot(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rNameReboot, "type", "batch-reboot"),
-				),
-			},
-			{
-				Config: testAccAppServerBatchAction_batchStop(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rNameStop, "type", "batch-stop"),
-				),
-			},
-			{
-				Config: testAccAppServerBatchAction_batchStart(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rNameStart, "type", "batch-start"),
-				),
-			},
-		},
-	})
-}
-
-func testAccAppServerBatchAction_batchReboot(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_workspace_app_server_batch_action" "reboot" {
-  type    = "batch-reboot"
-  content = jsonencode({
-    items = [huaweicloud_workspace_app_server.test.id]
-    type  = "SOFT"
-  })
-
-  max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 180"
-  }
-}
-`, testAccAppServerBatchAction_base(name))
-}
-
-func testAccAppServerBatchAction_batchStop(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_workspace_app_server_batch_action" "stop" {
-  type    = "batch-stop"
-  content = jsonencode({
-    items = [huaweicloud_workspace_app_server.test.id]
-    type  = "SOFT"
-  })
-
-  max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 180"
-  }
-}
-`, testAccAppServerBatchAction_base(name))
-}
-
-func testAccAppServerBatchAction_batchStart(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_workspace_app_server_batch_action" "start" {
-  type    = "batch-start"
-  content = jsonencode({
-    items = [huaweicloud_workspace_app_server.test.id]
-  })
-
-  max_retries = 3
-
-  provisioner "local-exec" {
-    command = "sleep 180"
-  }
 }
 `, testAccAppServerBatchAction_base(name))
 }
