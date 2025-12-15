@@ -1028,6 +1028,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_connect_gateway_geips":                dc.DataSourceDcConnectGatewayGeips(),
 			"huaweicloud_dc_tags":                                 dc.DataSourceDcTags(),
 			"huaweicloud_dc_resources_by_tags":                    dc.DataSourceDcResourcesByTags(),
+			"huaweicloud_dc_vif_peer_detections":                  dc.DataSourceDcVifPeerDetections(),
 
 			"huaweicloud_dcs_quotas":                              dcs.DataSourceDcsQuotas(),
 			"huaweicloud_dcs_flavors":                             dcs.DataSourceDcsFlavorsV2(),
@@ -2887,6 +2888,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_global_gateway_route_table":     dc.ResourceDcGlobalGatewayRouteTable(),
 			"huaweicloud_dc_connect_gateway":                dc.ResourceDcConnectGateway(),
 			"huaweicloud_dc_connect_gateway_geip_associate": dc.ResourceDcConnectGatewayGeipAssociate(),
+			"huaweicloud_dc_vif_peer_detection":             dc.ResourceDcVifPeerDetection(),
 
 			"huaweicloud_dcs_instance":                           dcs.ResourceDcsInstance(),
 			"huaweicloud_dcs_instance_public_access":             dcs.ResourceDcsInstancePublicAccess(),
