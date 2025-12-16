@@ -2,6 +2,7 @@ package swr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -119,7 +120,7 @@ func resourceSWRRepositorySharingCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	err = domains.Create(client, organization, repository, opts).ExtractErr()
 	if err != nil {
@@ -138,7 +139,7 @@ func resourceSWRRepositorySharingRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	domain, err := domains.Get(client, organization, repository, d.Id()).Extract()
 	if err != nil {
@@ -189,7 +190,7 @@ func resourceSWRRepositorySharingUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	err = domains.Update(client, organization, repository, d.Id(), opts).ExtractErr()
 	if err != nil {
@@ -207,7 +208,7 @@ func resourceSWRRepositorySharingDelete(_ context.Context, d *schema.ResourceDat
 	}
 
 	organization := d.Get("organization").(string)
-	repository := d.Get("repository").(string)
+	repository := strings.ReplaceAll(d.Get("repository").(string), "/", "$")
 
 	err = domains.Delete(client, organization, repository, d.Id()).ExtractErr()
 	if err != nil {
@@ -218,10 +219,13 @@ func resourceSWRRepositorySharingDelete(_ context.Context, d *schema.ResourceDat
 }
 
 func resourceSWRRepositorySharingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 3)
+	parts := strings.Split(d.Id(), ",")
 	if len(parts) != 3 {
-		err := fmt.Errorf("invalid format specified for SWR repository import: format must be <organization>/<repository>/<sharing_account>")
-		return nil, err
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 3 {
+			return nil, errors.New("invalid id format, must be <organization>/<repository>/<sharing_account> or " +
+				"<organization>,<repository>,<sharing_account>")
+		}
 	}
 	org := parts[0]
 	repo := parts[1]

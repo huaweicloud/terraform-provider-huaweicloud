@@ -21,13 +21,9 @@ func getResourceRepositoryTag(cfg *config.Config, state *terraform.ResourceState
 		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.Split(state.Primary.ID, "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid ID format, want '<organization>/<repository>/<tag>', but got '%s'", state.Primary.ID)
-	}
-	organization := parts[0]
-	repository := parts[1]
-	tag := parts[2]
+	organization := state.Primary.Attributes["organization"]
+	repository := strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$")
+	tag := state.Primary.Attributes["tag"]
 
 	getHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/tags/{tag}"
 	getPath := client.Endpoint + getHttpUrl

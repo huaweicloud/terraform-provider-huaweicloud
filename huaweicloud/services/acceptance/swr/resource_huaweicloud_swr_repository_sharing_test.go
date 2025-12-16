@@ -2,6 +2,7 @@ package swr
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -20,7 +21,7 @@ func getResourceRepositorySharing(conf *config.Config, state *terraform.Resource
 	}
 
 	return domains.Get(swrClient, state.Primary.Attributes["organization"],
-		state.Primary.Attributes["repository"], state.Primary.ID).Extract()
+		strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$"), state.Primary.ID).Extract()
 }
 
 func TestAccSWRRepositorySharing_basic(t *testing.T) {

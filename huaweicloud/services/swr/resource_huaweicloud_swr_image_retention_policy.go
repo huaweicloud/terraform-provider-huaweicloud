@@ -7,6 +7,8 @@ package swr
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -33,7 +35,7 @@ func ResourceSwrImageRetentionPolicy() *schema.Resource {
 		ReadContext:   resourceSwrImageRetentionPolicyRead,
 		DeleteContext: resourceSwrImageRetentionPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceSwrImageRetentionPolicyImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -72,6 +74,11 @@ func ResourceSwrImageRetentionPolicy() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the image tags that are not counted in the retention policy`,
+			},
+			"retention_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the retention ID.`,
 			},
 		},
 	}
@@ -118,7 +125,7 @@ func resourceSwrImageRetentionPolicyCreate(ctx context.Context, d *schema.Resour
 	createSwrImageRetentionPolicyPath = strings.ReplaceAll(createSwrImageRetentionPolicyPath, "{namespace}",
 		organization)
 	createSwrImageRetentionPolicyPath = strings.ReplaceAll(createSwrImageRetentionPolicyPath, "{repository}",
-		repository)
+		strings.ReplaceAll(repository, "/", "$"))
 
 	createSwrImageRetentionPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -144,6 +151,7 @@ func resourceSwrImageRetentionPolicyCreate(ctx context.Context, d *schema.Resour
 	}
 
 	d.SetId(organization + "/" + repository + "/" + strconv.Itoa(int(id)))
+	d.Set("retention_id", strconv.Itoa(int(id)))
 
 	return resourceSwrImageRetentionPolicyRead(ctx, d, meta)
 }
@@ -206,17 +214,13 @@ func resourceSwrImageRetentionPolicyRead(_ context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 3)
-	if len(parts) != 3 {
-		return diag.Errorf("invalid id format, must be <organization_name>/<repository_name>/<retention_id>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	retentionId := parts[2]
+	organization := d.Get("organization").(string)
+	repository := d.Get("repository").(string)
+	retentionId := d.Get("retention_id").(string)
 
 	getSwrImageRetentionPolicyPath := getSwrImageRetentionPolicyClient.Endpoint + getSwrImageRetentionPolicyHttpUrl
 	getSwrImageRetentionPolicyPath = strings.ReplaceAll(getSwrImageRetentionPolicyPath, "{namespace}", organization)
-	getSwrImageRetentionPolicyPath = strings.ReplaceAll(getSwrImageRetentionPolicyPath, "{repository}", repository)
+	getSwrImageRetentionPolicyPath = strings.ReplaceAll(getSwrImageRetentionPolicyPath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 	getSwrImageRetentionPolicyPath = strings.ReplaceAll(getSwrImageRetentionPolicyPath, "{retention_id}", retentionId)
 
 	getSwrImageRetentionPolicyOpt := golangsdk.RequestOpts{
@@ -301,17 +305,14 @@ func resourceSwrImageRetentionPolicyUpdate(ctx context.Context, d *schema.Resour
 			return diag.Errorf("error creating SWR client: %s", err)
 		}
 
-		parts := strings.SplitN(d.Id(), "/", 3)
-		if len(parts) != 3 {
-			return diag.Errorf("invalid id format, must be <organization_name>/<repository_name>/<retention_id>")
-		}
-		organization := parts[0]
-		repository := parts[1]
-		retentionId := parts[2]
+		organization := d.Get("organization").(string)
+		repository := d.Get("repository").(string)
+		retentionId := d.Get("retention_id").(string)
 
 		updateSwrImageRetentionPolicyPath := updateSwrImageRetentionPolicyClient.Endpoint + updateSwrImageRetentionPolicyHttpUrl
 		updateSwrImageRetentionPolicyPath = strings.ReplaceAll(updateSwrImageRetentionPolicyPath, "{namespace}", organization)
-		updateSwrImageRetentionPolicyPath = strings.ReplaceAll(updateSwrImageRetentionPolicyPath, "{repository}", repository)
+		updateSwrImageRetentionPolicyPath = strings.ReplaceAll(updateSwrImageRetentionPolicyPath, "{repository}",
+			strings.ReplaceAll(repository, "/", "$"))
 		updateSwrImageRetentionPolicyPath = strings.ReplaceAll(updateSwrImageRetentionPolicyPath, "{retention_id}", retentionId)
 
 		updateSwrImageRetentionPolicyOpt := golangsdk.RequestOpts{
@@ -343,17 +344,14 @@ func resourceSwrImageRetentionPolicyDelete(_ context.Context, d *schema.Resource
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 3)
-	if len(parts) != 3 {
-		return diag.Errorf("invalid id format, must be <organization_name>/<repository_name>/<retention_id>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	retentionId := parts[2]
+	organization := d.Get("organization").(string)
+	repository := d.Get("repository").(string)
+	retentionId := d.Get("retention_id").(string)
 
 	deleteSwrImageRetentionPolicyPath := deleteSwrImageRetentionPolicyClient.Endpoint + deleteSwrImageRetentionPolicyHttpUrl
 	deleteSwrImageRetentionPolicyPath = strings.ReplaceAll(deleteSwrImageRetentionPolicyPath, "{namespace}", organization)
-	deleteSwrImageRetentionPolicyPath = strings.ReplaceAll(deleteSwrImageRetentionPolicyPath, "{repository}", repository)
+	deleteSwrImageRetentionPolicyPath = strings.ReplaceAll(deleteSwrImageRetentionPolicyPath, "{repository}",
+		strings.ReplaceAll(repository, "/", "$"))
 	deleteSwrImageRetentionPolicyPath = strings.ReplaceAll(deleteSwrImageRetentionPolicyPath, "{retention_id}", retentionId)
 
 	deleteSwrImageRetentionPolicyOpt := golangsdk.RequestOpts{
@@ -371,4 +369,25 @@ func resourceSwrImageRetentionPolicyDelete(_ context.Context, d *schema.Resource
 	}
 
 	return nil
+}
+
+func resourceSwrImageRetentionPolicyImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 3 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 3 {
+			return nil, errors.New("invalid id format, must be <organization_name>/<repository_name>/<retention_id> or " +
+				"<organization_name>,<repository_name>,<retention_id>")
+		}
+	} else {
+		// reform ID to be separated by slashes
+		id := fmt.Sprintf("%s/%s/%s", parts[0], parts[1], parts[2])
+		d.SetId(id)
+	}
+
+	d.Set("organization", parts[0])
+	d.Set("repository", parts[1])
+	d.Set("retention_id", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }

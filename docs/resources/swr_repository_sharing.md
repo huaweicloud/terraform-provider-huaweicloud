@@ -70,8 +70,16 @@ This resource provides the following timeouts configuration options:
 ## Import
 
 Repository sharing can be imported using the organization name, repository name and sharing account
-separated by a slash, e.g.:
+separated by slashes or commas, e.g.:
+
+Only when repository name is with no slashes, can use slashes to separate.
 
 ```bash
 $ terraform import huaweicloud_swr_repository_sharing.test org-name/repo-name/sharing-account
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_repository_sharing.test org-name,repo-name,sharing-account
 ```

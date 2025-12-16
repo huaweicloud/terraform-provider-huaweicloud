@@ -114,6 +114,14 @@ In addition to all arguments above, the following attributes are exported:
 The swr image trigger can be imported using the organization name, repository name
 and trigger name separated by a slash, e.g.:
 
+Only when repository name is with no slashes, can use slashes to separate.
+
 ```bash
 $ terraform import huaweicloud_swr_image_trigger.test <organization_name>/<repository_name>/<trigger_name>
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_image_trigger.test <organization_name>,<repository_name>,<trigger_name>
 ```

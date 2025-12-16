@@ -27,13 +27,9 @@ func getSwrImageTriggerResourceFunc(cfg *config.Config, state *terraform.Resourc
 		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(state.Primary.ID, "/", 3)
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid id format, must be <organization_name>/<repository_name>/<trigger_name>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	trigger := parts[2]
+	organization := state.Primary.Attributes["organization"]
+	repository := strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$")
+	trigger := state.Primary.Attributes["name"]
 
 	getSwrImageTriggerPath := getSwrImageTriggerClient.Endpoint + getSwrImageTriggerHttpUrl
 	getSwrImageTriggerPath = strings.ReplaceAll(getSwrImageTriggerPath, "{namespace}", organization)
