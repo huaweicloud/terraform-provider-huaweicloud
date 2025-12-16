@@ -1,0 +1,11 @@
+vpc_eip_publicip_type         = "5_bgp"
+vpc_eip_bandwidth_share_type  = "PER"
+vpc_eip_bandwidth_name        = "test-antiddos-basic-name"
+vpc_eip_bandwidth_size        = 5
+vpc_eip_bandwidth_charge_mode = "traffic"
+smn_topic_name                = "test-antiddos-basic-name"
+smn_topic_display_name        = "The display name of topic test-antiddos-basic-name"
+smn_subscription_endpoint     = "mailtest@gmail.com"
+smn_subscription_protocol     = "email"
+smn_subscription_remark       = "test remark"
+antiddos_traffic_threshold    = 200
