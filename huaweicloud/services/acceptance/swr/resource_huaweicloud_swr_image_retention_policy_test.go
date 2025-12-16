@@ -27,13 +27,9 @@ func getSwrImageRetentionPolicyResourceFunc(cfg *config.Config, state *terraform
 		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(state.Primary.ID, "/", 3)
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid id format, must be <organization_name>/<repository_name>/<retention_id>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	retentionId := parts[2]
+	organization := state.Primary.Attributes["organization"]
+	repository := strings.ReplaceAll(state.Primary.Attributes["repository"], "/", "$")
+	retentionId := state.Primary.Attributes["retention_id"]
 
 	getSwrImageRetentionPolicyPath := getSwrImageRetentionPolicyClient.Endpoint + getSwrImageRetentionPolicyHttpUrl
 	getSwrImageRetentionPolicyPath = strings.ReplaceAll(getSwrImageRetentionPolicyPath, "{namespace}", organization)

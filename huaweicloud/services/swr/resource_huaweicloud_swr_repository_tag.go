@@ -2,6 +2,8 @@ package swr
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -31,7 +33,7 @@ func ResourceSwrRepositoryTag() *schema.Resource {
 		DeleteContext: resourceSwrRepositoryTagDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceSwrRepositoryTagImportState,
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(repositoryTagNonUpdatableParams),
@@ -164,7 +166,7 @@ func resourceSwrRepositoryTagCreate(ctx context.Context, d *schema.ResourceData,
 	createPath := client.Endpoint + createHttpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{namespace}", organization)
-	createPath = strings.ReplaceAll(createPath, "{repository}", repository)
+	createPath = strings.ReplaceAll(createPath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -178,6 +180,7 @@ func resourceSwrRepositoryTagCreate(ctx context.Context, d *schema.ResourceData,
 
 	tag := d.Get("destination_tag").(string)
 	d.SetId(organization + "/" + repository + "/" + tag)
+	d.Set("tag", tag)
 
 	return resourceSwrRepositoryTagRead(ctx, d, meta)
 }
@@ -200,19 +203,15 @@ func resourceSwrRepositoryTagRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return diag.Errorf("invalid ID format, want '<organization>/<repository>/<tag>', but got '%s'", d.Id())
-	}
-	organization := parts[0]
-	repository := parts[1]
-	tag := parts[2]
+	organization := d.Get("organization").(string)
+	repository := d.Get("repository").(string)
+	tag := d.Get("tag").(string)
 
 	getHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/tags/{tag}"
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{namespace}", organization)
-	getPath = strings.ReplaceAll(getPath, "{repository}", repository)
+	getPath = strings.ReplaceAll(getPath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 	getPath = strings.ReplaceAll(getPath, "{tag}", tag)
 
 	getOpt := golangsdk.RequestOpts{
@@ -230,9 +229,6 @@ func resourceSwrRepositoryTagRead(_ context.Context, d *schema.ResourceData, met
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("organization", organization),
-		d.Set("repository", repository),
-		d.Set("tag", tag),
 		d.Set("tag_id", utils.PathSearch("id", getRespBody, nil)),
 		d.Set("repository_id", utils.PathSearch("repo_id", getRespBody, nil)),
 		d.Set("image_id", utils.PathSearch("image_id", getRespBody, nil)),
@@ -263,19 +259,15 @@ func resourceSwrRepositoryTagDelete(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return diag.Errorf("invalid ID format, want '<organization>/<repository>/<tag>', but got '%s'", d.Id())
-	}
-	organization := parts[0]
-	repository := parts[1]
-	tag := parts[2]
+	organization := d.Get("organization").(string)
+	repository := d.Get("repository").(string)
+	tag := d.Get("tag").(string)
 
 	deleteHttpUrl := "v2/manage/namespaces/{namespace}/repos/{repository}/tags/{tag}"
 	deletePath := client.Endpoint + deleteHttpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deletePath = strings.ReplaceAll(deletePath, "{namespace}", organization)
-	deletePath = strings.ReplaceAll(deletePath, "{repository}", repository)
+	deletePath = strings.ReplaceAll(deletePath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 	deletePath = strings.ReplaceAll(deletePath, "{tag}", tag)
 
 	deleteOpt := golangsdk.RequestOpts{
@@ -288,4 +280,25 @@ func resourceSwrRepositoryTagDelete(_ context.Context, d *schema.ResourceData, m
 	}
 
 	return nil
+}
+
+func resourceSwrRepositoryTagImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 3 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 3 {
+			return nil, errors.New("invalid id format, must be <organization_name>/<repository_name>/<tag> or " +
+				"<organization_name>,<repository_name>,<tag>")
+		}
+	} else {
+		// reform ID to be separated by slashes
+		id := fmt.Sprintf("%s/%s/%s", parts[0], parts[1], parts[2])
+		d.SetId(id)
+	}
+
+	d.Set("organization", parts[0])
+	d.Set("repository", parts[1])
+	d.Set("tag", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }

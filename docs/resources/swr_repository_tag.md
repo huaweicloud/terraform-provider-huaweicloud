@@ -82,8 +82,16 @@ In addition to all arguments above, the following attributes are exported:
 
 The repository tag can be imported using `organization`, `repository` and `tag`, e.g.
 
+Only when repository name is with no slashes, can use slashes to separate.
+
 ```bash
 $ terraform import huaweicloud_swr_repository_tag.test <organization>/<repository>/<tag>
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_repository_tag.test <organization>,<repository>,<tag>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the

@@ -7,6 +7,7 @@ package swr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -33,7 +34,7 @@ func ResourceSwrImageTrigger() *schema.Resource {
 		ReadContext:   resourceSwrImageTriggerRead,
 		DeleteContext: resourceSwrImageTriggerDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceSwrImageTriggerImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -160,7 +161,7 @@ func resourceSwrImageTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 	createSwrImageTriggerPath = strings.ReplaceAll(createSwrImageTriggerPath, "{namespace}",
 		organization)
 	createSwrImageTriggerPath = strings.ReplaceAll(createSwrImageTriggerPath, "{repository}",
-		repository)
+		strings.ReplaceAll(repository, "/", "$"))
 
 	createSwrImageTriggerOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -237,17 +238,13 @@ func resourceSwrImageTriggerRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 3)
-	if len(parts) != 3 {
-		return diag.Errorf("invalid id format, must be <organization_name>/<repository_name>/<trigger_name>")
-	}
-	organization := parts[0]
-	repository := parts[1]
-	trigger := parts[2]
+	organization := d.Get("organization").(string)
+	repository := d.Get("repository").(string)
+	trigger := d.Get("name").(string)
 
 	getSwrImageTriggerPath := getSwrImageTriggerClient.Endpoint + getSwrImageTriggerHttpUrl
 	getSwrImageTriggerPath = strings.ReplaceAll(getSwrImageTriggerPath, "{namespace}", organization)
-	getSwrImageTriggerPath = strings.ReplaceAll(getSwrImageTriggerPath, "{repository}", repository)
+	getSwrImageTriggerPath = strings.ReplaceAll(getSwrImageTriggerPath, "{repository}", strings.ReplaceAll(repository, "/", "$"))
 	getSwrImageTriggerPath = strings.ReplaceAll(getSwrImageTriggerPath, "{trigger}", trigger)
 
 	getSwrImageTriggerOpt := golangsdk.RequestOpts{
@@ -314,7 +311,7 @@ func resourceSwrImageTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 		updateSwrImageTriggerPath = strings.ReplaceAll(updateSwrImageTriggerPath, "{namespace}",
 			fmt.Sprintf("%v", d.Get("organization")))
 		updateSwrImageTriggerPath = strings.ReplaceAll(updateSwrImageTriggerPath, "{repository}",
-			fmt.Sprintf("%v", d.Get("repository")))
+			strings.ReplaceAll(d.Get("repository").(string), "/", "$"))
 		updateSwrImageTriggerPath = strings.ReplaceAll(updateSwrImageTriggerPath, "{trigger}",
 			fmt.Sprintf("%v", d.Get("name")))
 
@@ -359,7 +356,7 @@ func resourceSwrImageTriggerDelete(_ context.Context, d *schema.ResourceData, me
 	deleteSwrImageTriggerPath = strings.ReplaceAll(deleteSwrImageTriggerPath, "{namespace}",
 		fmt.Sprintf("%v", d.Get("organization")))
 	deleteSwrImageTriggerPath = strings.ReplaceAll(deleteSwrImageTriggerPath, "{repository}",
-		fmt.Sprintf("%v", d.Get("repository")))
+		strings.ReplaceAll(d.Get("repository").(string), "/", "$"))
 	deleteSwrImageTriggerPath = strings.ReplaceAll(deleteSwrImageTriggerPath, "{trigger}",
 		fmt.Sprintf("%v", d.Get("name")))
 
@@ -375,4 +372,25 @@ func resourceSwrImageTriggerDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	return nil
+}
+
+func resourceSwrImageTriggerImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 3 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 3 {
+			return nil, errors.New("invalid id format, must be <organization_name>/<repository_name>/<trigger_name> or " +
+				"<organization_name>,<repository_name>,<trigger_name>")
+		}
+	} else {
+		// reform ID to be separated by slashes
+		id := fmt.Sprintf("%s/%s/%s", parts[0], parts[1], parts[2])
+		d.SetId(id)
+	}
+
+	d.Set("organization", parts[0])
+	d.Set("repository", parts[1])
+	d.Set("name", parts[2])
+
+	return []*schema.ResourceData{d}, nil
 }

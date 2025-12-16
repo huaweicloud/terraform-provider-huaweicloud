@@ -75,11 +75,21 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `retention_id` - The retention ID.
+
 ## Import
 
 The swr image retention policy can be imported using the organization name, repository name
-and retention id separated by a slash, e.g.:
+and retention ID separated by slashes or commas, e.g.:
+
+Only when repository name is with no slashes, can use slashes to separate.
 
 ```bash
 $ terraform import huaweicloud_swr_image_retention_policy.test <organization_name>/<repository_name>/<retention_id>
+```
+
+Using comma to separate is available for repository name with slashes or not.
+
+```bash
+$ terraform import huaweicloud_swr_image_retention_policy.test <organization_name>,<repository_name>,<retention_id>
 ```
