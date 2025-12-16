@@ -131,6 +131,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "storage_space"),
 					resource.TestCheckResourceAttrSet(resourceName, "maintain_begin"),
 					resource.TestCheckResourceAttrSet(resourceName, "maintain_end"),
+					resource.TestCheckResourceAttr(resourceName, "disk_encrypted_enable", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "disk_encrypted_key", "huaweicloud_kms_key.test", "id"),
 					// Check attributes.
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestMatchResourceAttr(resourceName, "partition_num", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -213,6 +215,7 @@ func TestAccKafkaInstance_publicIp(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by Terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "retention_policy", "time_base"),
+					resource.TestCheckResourceAttr(resourceName, "disk_encrypted_enable", "false"),
 					// Check attributes.
 					resource.TestCheckResourceAttr(resourceName, "enable_public_ip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "public_ip_address.#", "3"),
@@ -262,7 +265,7 @@ func TestAccKafkaInstance_publicIp(t *testing.T) {
 
 func testAccKafkaInstance_newFormat(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -275,8 +278,14 @@ locals {
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
+resource "huaweicloud_kms_key" "test" {
+  key_alias     = "%[2]s"
+  key_algorithm = "AES_256"
+  key_usage     = "ENCRYPT_DECRYPT"
+}
+
 resource "huaweicloud_dms_kafka_instance" "test" {
-  name              = "%s"
+  name              = "%[2]s"
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -293,11 +302,13 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   broker_num     = 3
   arch_type      = "X86"
 
-  ssl_enable         = true
-  access_user        = "user"
-  password           = "Kafkatest@123"
-  security_protocol  = "SASL_PLAINTEXT"
-  enabled_mechanisms = ["SCRAM-SHA-512"]
+  ssl_enable            = true
+  access_user           = "user"
+  password              = "Kafkatest@123"
+  security_protocol     = "SASL_PLAINTEXT"
+  enabled_mechanisms    = ["SCRAM-SHA-512"]
+  disk_encrypted_enable = true
+  disk_encrypted_key    = huaweicloud_kms_key.test.id
 
   cross_vpc_accesses {
     advertised_ip = ""
@@ -318,7 +329,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
 func testAccKafkaInstance_newFormatUpdate(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -331,8 +342,14 @@ locals {
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
+resource "huaweicloud_kms_key" "test" {
+  key_alias     = "%[2]s"
+  key_algorithm = "AES_256"
+  key_usage     = "ENCRYPT_DECRYPT"
+}
+
 resource "huaweicloud_dms_kafka_instance" "test" {
-  name              = "%s"
+  name              = "%[2]s"
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -349,13 +366,15 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   broker_num     = 4
   arch_type      = "X86"
 
-  ssl_enable         = true
-  access_user        = "user"
-  password           = "Kafkatest@123"
-  security_protocol  = "SASL_PLAINTEXT"
-  enabled_mechanisms = ["SCRAM-SHA-512"]
-  maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  ssl_enable            = true
+  access_user           = "user"
+  password              = "Kafkatest@123"
+  security_protocol     = "SASL_PLAINTEXT"
+  enabled_mechanisms    = ["SCRAM-SHA-512"]
+  maintain_begin        = "06:00:00"
+  maintain_end          = "10:00:00"
+  disk_encrypted_enable = true
+  disk_encrypted_key    = huaweicloud_kms_key.test.id
 
   cross_vpc_accesses {
     advertised_ip = "192.168.0.61"

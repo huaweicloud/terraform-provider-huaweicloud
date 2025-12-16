@@ -238,6 +238,14 @@ The following arguments are supported:
 * `port_protocol` - (Optional, List) Specifies the port protocol information.  
   The [object](#kafka_instance_port_protocol) structure is documented below.
 
+* `disk_encrypted_enable` - (Optional, Bool, ForceNew) Specifies whether to enable disk encryption.  
+  Defaults to **false**.  
+  Changing this creates a new instance resource.
+
+* `disk_encrypted_key` - (Optional, String, ForceNew) Specifies the key ID of the disk encryption.  
+  Changing this creates a new instance resource.  
+  This parameter is required when `disk_encrypted_enable` is set to **true**.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
 

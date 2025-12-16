@@ -404,6 +404,20 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				},
 				Description: `The port protocol information of the Kafka instance.`,
 			},
+			"disk_encrypted_enable": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"disk_encrypted_key"},
+				Description:  `Whether to enable disk encryption.`,
+			},
+			"disk_encrypted_key": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"disk_encrypted_enable"},
+				Description:  `The key ID of the disk encryption.`,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -866,6 +880,8 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
 		PortProtocol:          buildKafkaPortProtocol(d.Get("port_protocol").([]interface{})),
 		TenantIps:             utils.ExpandToStringList(d.Get("new_tenant_ips").([]interface{})),
+		DiskEncryptedEnable:   d.Get("disk_encrypted_enable").(bool),
+		DiskEncryptedKey:      d.Get("disk_encrypted_key").(string),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -1018,6 +1034,8 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
 		PortProtocol:          buildKafkaPortProtocol(d.Get("port_protocol").([]interface{})),
 		TenantIps:             utils.ExpandToStringList(d.Get("new_tenant_ips").([]interface{})),
+		DiskEncryptedEnable:   d.Get("disk_encrypted_enable").(bool),
+		DiskEncryptedKey:      d.Get("disk_encrypted_key").(string),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -1354,6 +1372,8 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("vpc_client_plain", v.VpcClientPlain),
 		d.Set("port_protocols", flattenKafkaSecurityConfig(v.PortProtocols)),
 		d.Set("port_protocol", flattenKafkaSecurityConfig(v.PortProtocols)),
+		d.Set("disk_encrypted_enable", v.DiskEncrypted),
+		d.Set("disk_encrypted_key", v.DiskEncryptedKey),
 		// Attributes.
 		d.Set("engine", v.Engine),
 		d.Set("partition_num", partitionNum),

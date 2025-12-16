@@ -156,6 +156,12 @@ type CreateOps struct {
 
 	// The private IP addresses of the Kafka instance.
 	TenantIps []string `json:"tenant_ips,omitempty"`
+
+	// Indicates whether to enable disk encryption.
+	DiskEncryptedEnable bool `json:"disk_encrypted_enable,omitempty"`
+
+	// The key ID of the disk encryption.
+	DiskEncryptedKey string `json:"disk_encrypted_key,omitempty"`
 }
 
 type BssParam struct {
