@@ -1,0 +1,5 @@
+workspace_name               = "tf_test_workspace"
+workflow_name                = "tf_test_workflow"
+workflow_version_taskflow    = "your_workflow_taskflow"
+workflow_version_taskconfig  = "your_workflow_taskconfig"
+workflow_version_description = "This is a workflow version created by Terraform"
