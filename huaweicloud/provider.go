@@ -2588,7 +2588,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_asm_mesh": asm.ResourceAsmMesh(),
 
-			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
+			"huaweicloud_bms_instance":      bms.ResourceBmsInstance(),
+			"huaweicloud_bms_volume_attach": bms.ResourceVolumeAttach(),
+
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
 
 			"huaweicloud_cae_application":              cae.ResourceApplication(),
