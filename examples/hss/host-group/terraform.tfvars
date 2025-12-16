@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_hss_host_group_vpc"
+subnet_name         = "tf_test_hss_host_group_subnet"
+security_group_name = "tf_test_hss_host_group_secgroup"
+ecs_instance_name   = "tf_test_hss_host_group_ecs_instance"
+host_group_name     = "tf_test_hss_host_group"
