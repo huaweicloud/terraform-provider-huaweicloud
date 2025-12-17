@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 1.82.4 (December 17, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_bms_volume_attach` [GH-8633]
+  + `huaweicloud_dc_vif_peer_detection` [GH-8609]
+  + `huaweicloud_workspace_desktop_user_batch_attach` [GH-8549]
+  + `huaweicloud_workspace_desktop_user_batch_detach` [GH-8549]
+
+* **New Data Source:**
+  + `huaweicloud_ces_batch_metric_data` [GH-8623]
+  + `huaweicloud_dc_vif_peer_detections` [GH-8609]
+
+BUG FIXES:
+
+* Fix repository name in url for SWR resources [GH-8634]
+
 ## 1.82.3 (December 12, 2025)
 
 * **New Resource Source:**
