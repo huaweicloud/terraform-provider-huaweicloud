@@ -15,7 +15,7 @@ builds:
     - -mod=readonly
     - -trimpath
   ldflags:
-    - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
+    - '-s -w -X github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud.Version={{.Version}}'
   goos:
     - freebsd
     - windows
@@ -23,7 +23,6 @@ builds:
     - darwin
   goarch:
     - amd64
-    - '386'
     - arm
     - arm64
   ignore:
