@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.57.1 (December 17, 2025)
+
+- Remove the `condition` field in the `golangsdk`, which causes an error when creating a CCE cluster.
+
 ## 1.57.0 (October 31, 2023)
 
 * **New Resurce:**
