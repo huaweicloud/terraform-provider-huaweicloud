@@ -301,12 +301,13 @@ The `nodes` block supports:
 * `id` - Indicates the node ID.
 * `name` - Indicates the node name.
 * `role` - Indicates the node role.
-* `type` - Indicates the node type.
 * `private_ip` - Indicates the private IP address of a node. This parameter is valid only for mongos nodes, replica set
   instances, and single node instances.
 * `public_ip` - Indicates the EIP that has been bound on a node. This parameter is valid only for mongos nodes of
   cluster instances, primary nodes and secondary nodes of replica set instances, and single node instances.
 * `status` - Indicates the node status.
+* `spec_code` - Indicates the node spec code.
+* `availability_zone` - Indicates the availability zone.
 
 ## Timeouts
 
