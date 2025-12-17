@@ -637,6 +637,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors":             bms.DataSourceBmsFlavors(),
 			"huaweicloud_bms_available_resources": bms.DataSourceAvailableResources(),
 			"huaweicloud_bms_instances":           bms.DataSourceBmsInstances(),
+			"huaweicloud_bms_volume_attachments":  bms.DataSourceBmsVolumeAttachments(),
 
 			"huaweicloud_cae_applications":       cae.DataSourceApplications(),
 			"huaweicloud_cae_components":         cae.DataSourceComponents(),
