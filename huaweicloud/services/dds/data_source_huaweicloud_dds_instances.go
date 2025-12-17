@@ -255,11 +255,6 @@ func ddsInstanceInstanceNodeSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the node role.`,
 			},
-			"type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the node type.`,
-			},
 			"private_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -274,6 +269,21 @@ func ddsInstanceInstanceNodeSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the node status.`,
+			},
+			"spec_code": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the node spec code.`,
+			},
+			"availability_zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the availability zone.`,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "schema: Deprecated",
 			},
 		},
 	}
@@ -418,13 +428,15 @@ func flattenInstanceNodes(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":         utils.PathSearch("id", v, nil),
-			"name":       utils.PathSearch("name", v, nil),
-			"role":       utils.PathSearch("role", v, nil),
-			"type":       utils.PathSearch("type", v, nil),
-			"private_ip": utils.PathSearch("private_ip", v, nil),
-			"public_ip":  utils.PathSearch("public_ip", v, nil),
-			"status":     utils.PathSearch("status", v, nil),
+			"id":                utils.PathSearch("id", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"role":              utils.PathSearch("role", v, nil),
+			"type":              utils.PathSearch("type", v, nil),
+			"private_ip":        utils.PathSearch("private_ip", v, nil),
+			"public_ip":         utils.PathSearch("public_ip", v, nil),
+			"status":            utils.PathSearch("status", v, nil),
+			"spec_code":         utils.PathSearch("spec_code", v, nil),
+			"availability_zone": utils.PathSearch("availability_zone", v, nil),
 		})
 	}
 	return rst

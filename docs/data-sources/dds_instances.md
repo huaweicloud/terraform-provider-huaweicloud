@@ -128,10 +128,12 @@ The `node` block supports:
 
 * `role` - Indicates the node role.
 
-* `type` - Indicates the node type.
-
 * `private_ip` - Indicates the private IP address of a node.
 
 * `public_ip` - Indicates the EIP that has been bound on a node.
 
 * `status` - Indicates the node status.
+
+* `spec_code` - Indicates the node spec code.
+
+* `availability_zone` - Indicates the availability zone.
