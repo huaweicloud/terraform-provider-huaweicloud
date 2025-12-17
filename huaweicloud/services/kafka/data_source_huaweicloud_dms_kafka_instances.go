@@ -526,6 +526,16 @@ func DataSourceInstances() *schema.Resource {
 							Computed:    true,
 							Description: `The creation time of the instance, in RFC3339 format.`,
 						},
+						"disk_encrypted_enable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the disk encryption is enabled.`,
+						},
+						"disk_encrypted_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The key ID of the disk encryption.`,
+						},
 						// Deprecated attributes.
 						// Typo, it is only kept in the code, will not be shown in the docs.
 						"manegement_connect_address": {
@@ -625,6 +635,8 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 			"public_bandwidth":           utils.PathSearch("public_bandwidth", val, nil),
 			"public_boundwidth":          utils.PathSearch("public_boundwidth", val, nil),
 			"created_at":                 utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false),
+			"disk_encrypted_enable":      utils.PathSearch("disk_encrypted", val, nil),
+			"disk_encrypted_key":         utils.PathSearch("disk_encrypted_key", val, nil),
 			// Deprecated attributes.
 			"manegement_connect_address": utils.PathSearch("management_connect_address", val, nil),
 		}

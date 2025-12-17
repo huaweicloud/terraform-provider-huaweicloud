@@ -205,6 +205,10 @@ The `instances` block supports:
 
 * `created_at` - The creation time of the instance, in RFC3339 format.
 
+* `disk_encrypted_enable` - Whether the disk encryption is enabled.
+
+* `disk_encrypted_key` - The key ID of the disk encryption.
+
 <a name="kafka_instance_cross_vpc_accesses_attr"></a>
 The `cross_vpc_accesses` block supports:
 

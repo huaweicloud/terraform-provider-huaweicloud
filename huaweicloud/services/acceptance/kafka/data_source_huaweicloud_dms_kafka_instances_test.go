@@ -121,6 +121,8 @@ func TestAccDataInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(byInstanceId, "instances.0.cross_vpc_accesses.0.advertised_ip"),
 					resource.TestMatchResourceAttr(byInstanceId, "instances.0.cross_vpc_accesses.0.port", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckResourceAttrSet(byInstanceId, "instances.0.cross_vpc_accesses.0.port_id"),
+					resource.TestCheckResourceAttr(byInstanceId, "instances.0.disk_encrypted_enable", "true"),
+					resource.TestCheckResourceAttrPair(byInstanceId, "instances.0.disk_encrypted_key", "huaweicloud_kms_key.test", "id"),
 					// deprecated attributes.
 					resource.TestCheckResourceAttrSet(byInstanceId, "instances.0.cross_vpc_accesses.0.lisenter_ip"),
 					// management_connect_address and resource_spec_code are not returned.
@@ -162,6 +164,12 @@ resource "huaweicloud_vpc_eip" "test" {
   }
 }
 
+resource "huaweicloud_kms_key" "test" {
+  key_alias     = "%[2]s"
+  key_algorithm = "AES_256"
+  key_usage     = "ENCRYPT_DECRYPT"
+}
+
 resource "huaweicloud_dms_kafka_instance" "test" {
   name              = "%[2]s"
   flavor_id         = local.flavor.id
@@ -170,17 +178,19 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   storage_spec_code = try(local.flavor.ios[0].storage_spec_code, null)
   broker_num        = 3
 
-  vpc_id             = huaweicloud_vpc.test.id
-  network_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  access_user        = "%[2]s"
-  password           = "%[3]s"
-  enabled_mechanisms = ["SCRAM-SHA-512"]
-  public_ip_ids      = huaweicloud_vpc_eip.test[*].id
-  enable_auto_topic  = true
-  description        = "Create by Terraform script"
-  dumping            = true
+  vpc_id                = huaweicloud_vpc.test.id
+  network_id            = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  access_user           = "%[2]s"
+  password              = "%[3]s"
+  enabled_mechanisms    = ["SCRAM-SHA-512"]
+  public_ip_ids         = huaweicloud_vpc_eip.test[*].id
+  enable_auto_topic     = true
+  description           = "Create by Terraform script"
+  dumping               = true
+  disk_encrypted_enable = true
+  disk_encrypted_key    = huaweicloud_kms_key.test.id
 
   port_protocol {
     private_plain_enable         = true
