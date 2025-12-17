@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_bms_volume_attach
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BMS
+paths:
+    /v1/{project_id}/baremetalservers/{server_id}/attachvolume:
+        POST:
+            tag: BMS
+    /v1/{project_id}/baremetalservers/{server_id}/detachvolume/{attachment_id}:
+        DELETE:
+            tag: BMS
+    /v1/{project_id}/baremetalservers/{server_id}/os-volume_attachments:
+        GET:
+            tag: BMS

@@ -26,6 +26,12 @@ paths:
             tag: Workspace
         POST:
             tag: Workspace
+    /v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-add:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/desktop-pools/{pool_id}/volumes/batch-delete:
+        POST:
+            tag: Workspace
     /v2/{project_id}/desktops:
         GET:
             tag: Workspace
