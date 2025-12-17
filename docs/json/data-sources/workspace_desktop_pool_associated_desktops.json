@@ -1,0 +1,136 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_desktop_pool_associated_desktops": {
+          "block": {
+            "attributes": {
+              "desktops": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attach_state": "string",
+                      "availability_zone": "string",
+                      "bill_resource_id": "string",
+                      "computer_name": "string",
+                      "created": "string",
+                      "data_volumes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bill_resource_id": "string",
+                            "create_time": "string",
+                            "device": "string",
+                            "display_name": "string",
+                            "id": "string",
+                            "resource_spec_code": "string",
+                            "size": "number",
+                            "type": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "desktop_id": "string",
+                      "desktop_type": "string",
+                      "enterprise_project_id": "string",
+                      "in_maintenance_mode": "bool",
+                      "ip_addresses": [
+                        "list",
+                        "string"
+                      ],
+                      "ipv4": "string",
+                      "ipv6": "string",
+                      "is_attaching_eip": "bool",
+                      "is_support_internet": "bool",
+                      "login_status": "string",
+                      "os_host_name": "string",
+                      "os_version": "string",
+                      "product": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "architecture": "string",
+                            "charge_mode": "string",
+                            "cloud_service_type": "string",
+                            "contain_data_disk": "bool",
+                            "cpu": "string",
+                            "descriptions": "string",
+                            "flavor_id": "string",
+                            "is_gpu": "bool",
+                            "memory": "string",
+                            "package_type": "string",
+                            "product_id": "string",
+                            "resource_type": "string",
+                            "status": "string",
+                            "system_disk_size": "string",
+                            "system_disk_type": "string",
+                            "type": "string",
+                            "volume_product_type": "string"
+                          }
+                        ]
+                      ],
+                      "product_id": "string",
+                      "root_volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bill_resource_id": "string",
+                            "create_time": "string",
+                            "device": "string",
+                            "display_name": "string",
+                            "id": "string",
+                            "resource_spec_code": "string",
+                            "size": "number",
+                            "type": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "sid": "string",
+                      "site_name": "string",
+                      "site_type": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of associated desktops.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The ID of the desktop pool to which the associated desktops belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the associated desktops are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -60,6 +60,8 @@
                         ]
                       ],
                       "description": "string",
+                      "disk_encrypted_enable": "bool",
+                      "disk_encrypted_key": "string",
                       "dumping": "bool",
                       "enable_auto_topic": "bool",
                       "enable_log_collection": "bool",

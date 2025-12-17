@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_batch_metric_data": {
+          "block": {
+            "attributes": {
+              "data_points": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "timestamp": "number",
+                      "unit": "string",
+                      "value": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "from": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metric_dimension": {
+                "type": "string",
+                "required": true
+              },
+              "metric_name": {
+                "type": "string",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "to": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

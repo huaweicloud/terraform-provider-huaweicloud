@@ -234,7 +234,25 @@
                   },
                   "description": "The list of the data volume configurations of the desktop pool."
                 },
-                "nesting_mode": "set"
+                "nesting_mode": "list"
+              },
+              "data_volumes_order": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "description": "The origin data volume size.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The origin data volume type.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of data volume configuration that used to reorder the 'data_volumes' parameter."
+                },
+                "nesting_mode": "list"
               },
               "root_volume": {
                 "block": {

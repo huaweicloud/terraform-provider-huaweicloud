@@ -61,6 +61,18 @@
                 "type": "string",
                 "optional": true
               },
+              "disk_encrypted_enable": {
+                "type": "bool",
+                "description": "Whether to enable disk encryption.",
+                "optional": true,
+                "forcenew": true
+              },
+              "disk_encrypted_key": {
+                "type": "string",
+                "description": "The key ID of the disk encryption.",
+                "optional": true,
+                "forcenew": true
+              },
               "dumping": {
                 "type": "bool",
                 "optional": true,

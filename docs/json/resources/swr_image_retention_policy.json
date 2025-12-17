@@ -30,6 +30,11 @@
                 "required": true,
                 "forcenew": true
               },
+              "retention_id": {
+                "type": "string",
+                "description": "Indicates the retention ID.",
+                "computed": true
+              },
               "type": {
                 "type": "string",
                 "description": "Specifies the retention policy type.",

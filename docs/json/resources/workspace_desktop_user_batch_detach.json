@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_desktop_user_batch_detach": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktops and users are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "desktops": {
+                "block": {
+                  "attributes": {
+                    "desktop_id": {
+                      "type": "string",
+                      "description": "The ID of the desktop to be detached.",
+                      "optional": true
+                    },
+                    "is_detach_all_users": {
+                      "type": "bool",
+                      "description": "Whether to detach all users.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "detach_user_infos": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the object.",
+                            "optional": true
+                          },
+                          "user_group": {
+                            "type": "string",
+                            "description": "The user group which the user belongs to.",
+                            "optional": true
+                          },
+                          "user_id": {
+                            "type": "string",
+                            "description": "The ID of the user.",
+                            "optional": true
+                          },
+                          "user_name": {
+                            "type": "string",
+                            "description": "The name of the user or user group.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The list of users to be detached."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The list of desktop user detach information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 100
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}
