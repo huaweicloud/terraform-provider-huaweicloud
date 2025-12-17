@@ -2,7 +2,8 @@
 subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dms_kafka_instance"
-description: ""
+description: |-
+  Manages DMS Kafka instance resource within HuaweiCloud.
 ---
 
 # huaweicloud_dms_kafka_instance
@@ -70,7 +71,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new instance resource.
 
 * `name` - (Required, String) Specifies the name of the DMS Kafka instance. An instance name starts with a letter,
-  consists of 4 to 64 characters, and supports only letters, digits, hyphens (-) and underscores (_).
+  consists of `4` to `64` characters, and supports only letters, digits, hyphens (-) and underscores (_).
 
 * `flavor_id` - (Optional, String) Specifies the Kafka [flavor ID](https://support.huaweicloud.com/intl/en-us/productdesc-kafka/Kafka-specification.html),
   e.g. **c6.2u4g.cluster**. This parameter and `product_id` are alternative.
@@ -85,7 +86,8 @@ The following arguments are supported:
   manually modify the value of `storage_space` after changing the `product_id`.
 
 * `engine_version` - (Required, String, ForceNew) Specifies the version of the Kafka engine,
-  such as 1.1.0, 2.3.0, 2.7 or other supported versions. Changing this creates a new instance resource.
+  such as `1.1.0`, `2.3.0`, `2.7` or other supported versions.  
+  Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
   If the instance is created with `flavor_id`, the valid values are as follows:
@@ -139,22 +141,23 @@ The following arguments are supported:
 
   -> The number of specified IP addresses must be less than or equal to the number of new brokers.
 
-* `access_user` - (Optional, String) Specifies the username of SASL_SSL user. A username consists of 4
-  to 64 characters and supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
+* `access_user` - (Optional, String) Specifies the username of SASL_SSL user. A username consists of `4`
+  to `64` characters and supports only letters, digits, and hyphens (-).
 
   -> This parameter can be modified only when SSL is enabled for the first time using the `port_protocol` parameter.
      This parameter cannot be modified after encrypted access is enabled.
 
-* `password` - (Optional, String) Specifies the password of SASL_SSL user. A password must meet the following
-  complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following character types:
-  lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
+* `password` - (Optional, String) Specifies the password of SASL_SSL user.  
+  A password must meet the following complexity requirements: Must be `8` to `32` characters long.
+  Must contain at least `2` of the following character types: lowercase letters, uppercase letters, digits,
+  and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
 
   -> **NOTE:** `access_user` and `password` is mandatory and available when `ssl_enable` is **true**.
 
 * `security_protocol` - (Optional, String, ForceNew) Specifies the protocol to use after SASL is enabled. Value options:
   + **SASL_SSL**: Data is encrypted with SSL certificates for high-security transmission.
   + **SASL_PLAINTEXT**: Data is transmitted in plaintext with username and password authentication. This protocol only
-    uses the SCRAM-SHA-512 mechanism and delivers high performance.
+    uses the **SCRAM-SHA-512** mechanism and delivers high performance.
   
   Defaults to **SASL_SSL**. Changing this creates a new instance resource.
 
@@ -166,29 +169,31 @@ The following arguments are supported:
   + **PLAIN**: Simple username and password verification.
   + **SCRAM-SHA-512**: User credential verification, which is more secure than **PLAIN**.
   
-  Defaults to [**PLAIN**]. Changing this creates a new instance resource.
+  Defaults to [**PLAIN**].
 
   -> This parameter can be modified only when SSL is enabled for the first time using the `port_protocol` parameter.
      This parameter cannot be modified after encrypted access is enabled.
 
 * `description` - (Optional, String) Specifies the description of the DMS Kafka instance. It is a character string
-  containing not more than 1,024 characters.
+  containing not more than `1,024` characters.
 
-* `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm. The
-  start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
-  window. The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00. Parameters `maintain_begin`
-  and `maintain_end` must be set in pairs. If parameter `maintain_begin` is left blank, parameter `maintain_end` is also
-  blank. In this case, the system automatically allocates the default start time 02:00.
+* `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: `HH:mm`.
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
+  time window. The start time must be set to `22:00`, `02:00`, `06:00`, `10:00`, `14:00`, or `18:00`.
+  Parameters `maintain_begin` and `maintain_end` must be set in pairs.  
+  If parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank. In this case, the system
+  automatically allocates the default start time `02:00`.
 
-* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: HH:mm. The
-  start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
-  window. The end time is four hours later than the start time. For example, if the start time is 22:00, the end time is
-  02:00. Parameters `maintain_begin`
-  and `maintain_end` must be set in pairs. If parameter `maintain_end` is left blank, parameter
-  `maintain_begin` is also blank. In this case, the system automatically allocates the default end time 06:00.
+* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: `HH:mm`.
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
+  time window. The end time is four hours later than the start time. For example, if the start time is `22:00`,
+  the end time is `02:00`.  
+  Parameters `maintain_begin` and `maintain_end` must be set in pairs.  
+  If parameter `maintain_end` is left blank, parameter `maintain_begin` is also blank. In this case, the system
+  automatically allocates the default end time `06:00`.
 
 * `public_ip_ids` - (Optional, List) Specifies the IDs of the elastic IP address (EIP)
-  bound to the DMS Kafka instance. Changing this creates a new instance resource.
+  bound to the DMS Kafka instance.
   + If the instance is created with `flavor_id`, the total number of public IPs is equal to `broker_num`.
   + If the instance is created with `product_id`, the total number of public IPs must provide as follows:
 
@@ -213,22 +218,24 @@ The following arguments are supported:
   Changing this creates a new instance resource.
 
 * `enable_auto_topic` - (Optional, Bool) Specifies whether to enable automatic topic creation. If automatic
-  topic creation is enabled, a topic will be automatically created with 3 partitions and 3 replicas when a message is
-  produced to or consumed from a topic that does not exist.
-  The default value is false.
+  topic creation is enabled, a topic will be automatically created with `3` partitions and `3` replicas when
+  a message is produced to or consumed from a topic that does not exist.  
+  The default value is **false**.
 
 * `parameters` - (Optional, List) Specifies the array of one or more parameters to be set to the Kafka instance after
-  launched. The [parameters](#dms_parameters) structure is documented below.
+  launched.  
+  The [parameters](#dms_parameters) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
 * `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.  
   Defaults to **false**.  
-  Changing this creates a new resource.  
+  Changing this creates a new instance resource.  
   When both `port_protocol` and `ssl_enable` parameters are set, `port_protocol` takes precedence.
 
 * `vpc_client_plain` - (Optional, Bool, ForceNew) Specifies whether the intra-VPC plaintext access is enabled.
-  Defaults to **false**. Changing this creates a new resource.
+  Defaults to **false**.  
+  Changing this creates a new instance resource.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS Kafka instance.
 
@@ -243,21 +250,26 @@ The following arguments are supported:
   Changing this creates a new instance resource.
 
 * `disk_encrypted_key` - (Optional, String, ForceNew) Specifies the key ID of the disk encryption.  
-  Changing this creates a new instance resource.  
-  This parameter is required when `disk_encrypted_enable` is set to **true**.
+  This parameter is required when `disk_encrypted_enable` is set to **true**.  
+  Changing this creates a new instance resource.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
-  and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.  
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
+  Changing this creates a new instance resource.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
-  Changing this creates a new resource.
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.  
+  Valid values are **month** and **year**.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this creates a new instance resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance. If `period_unit` is set to *month*
-  , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter is
-  mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
+  + If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  + If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this creates a new instance resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
 <a name="dms_cross_vpc_accesses"></a>
 The `cross_vpc_accesses` block supports:
@@ -267,7 +279,8 @@ The `cross_vpc_accesses` block supports:
 <a name="dms_parameters"></a>
 The `parameters` block supports:
 
-* `name` - (Required, String) Specifies the parameter name. Static parameter needs to restart the instance to take effect.
+* `name` - (Required, String) Specifies the parameter name. Static parameter needs to restart the instance
+  to take effect.
 
 * `value` - (Required, String) Specifies the parameter value.
 
@@ -279,7 +292,7 @@ The `port_protocol` block supports:
   -> The private plaintext access and private SSL access cannot be disabled at the same time.
 
 * `private_sasl_ssl_enable` - (Optional, Bool) Specifies whether the private SASL SSL access is enabled.  
-  This parameter and `private_sasl_plaintext_enable` cannot be set to `true` at the same time.
+  This parameter and `private_sasl_plaintext_enable` cannot be set to **true** at the same time.
 
 * `private_sasl_plaintext_enable` - (Optional, Bool) Specifies whether the private SASL plaintext access is enabled.
 
@@ -372,10 +385,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-DMS Kafka instance can be imported using the instance id, e.g.
+DMS Kafka instance can be imported using the instance `id`, e.g.
 
 ```
- $ terraform import huaweicloud_dms_kafka_instance.instance_1 8d3c7938-dc47-4937-a30f-c80de381c5e3
+ $ terraform import huaweicloud_dms_kafka_instance.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -386,8 +399,8 @@ a DMS Kafka instance. You can then decide if changes should be applied to the in
 should be updated to align with the instance. Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_dms_kafka_instance" "instance_1" {
-    ...
+resource "huaweicloud_dms_kafka_instance" "test" {
+  ...
 
   lifecycle {
     ignore_changes = [
