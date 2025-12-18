@@ -2,11 +2,13 @@ package workspace
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -37,6 +39,8 @@ var appServerBatchActionNonUpdatableParams = []string{"type", "content"}
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-reboot
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-start
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-stop
+// @API Workspace GET /v2/{project_id}/job/{job_id}
+// @API Workspace GET /v1/{project_id}/app-servers
 func ResourceAppServerBatchAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerBatchActionCreate,
@@ -98,12 +102,13 @@ func ResourceAppServerBatchAction() *schema.Resource {
 
 func resourceAppServerBatchActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		httpUrl    = "v1/{project_id}/app-servers/actions/{type}"
-		actionType = d.Get("type").(string)
-		content    = d.Get("content").(string)
-		maxRetries = d.Get("max_retries").(int)
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		httpUrl       = "v1/{project_id}/app-servers/actions/{type}"
+		actionType    = d.Get("type").(string)
+		actionServers = utils.StringToJson(d.Get("content").(string))
+		maxRetries    = d.Get("max_retries").(int)
+		timeout       = d.Timeout(schema.TimeoutCreate)
 	)
 
 	client, err := cfg.NewServiceClient("appstream", region)
@@ -125,7 +130,7 @@ func resourceAppServerBatchActionCreate(ctx context.Context, d *schema.ResourceD
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: utils.StringToJson(content),
+		JSONBody: actionServers,
 	}
 
 	randUUID, err := uuid.GenerateUUID()
@@ -134,8 +139,9 @@ func resourceAppServerBatchActionCreate(ctx context.Context, d *schema.ResourceD
 	}
 	d.SetId(randUUID)
 
+	var resp *http.Response
 	for i := 0; i < maxRetries+1; i++ {
-		_, err = client.Request(httpMethod, createPath, &opt)
+		resp, err = client.Request(httpMethod, createPath, &opt)
 		if err == nil {
 			break
 		}
@@ -152,7 +158,85 @@ func resourceAppServerBatchActionCreate(ctx context.Context, d *schema.ResourceD
 			i, actionType, err)
 	}
 
-	return resourceAppServerBatchActionRead(ctx, d, meta)
+	// When the operation type is `batch-rejoin-domain`, the server status is REGISTERED, but the task of joining the domain
+	// is not actually completed. Therefore, we cannot use a query of the entire server list to check if the task is complete,
+	// we use the task ID to check the status.
+	if utils.StrSliceContains([]string{"batch-rejoin-domain", "batch-update-tsvi"}, actionType) {
+		repsBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		jobId := utils.PathSearch("job_id", repsBody, "").(string)
+		if jobId == "" {
+			return diag.Errorf("unable to find job ID from API response")
+		}
+
+		_, err = waitForAppServerJobCompleted(ctx, client, timeout, jobId)
+		if err != nil {
+			return diag.Errorf("error waiting for the APP server batch operation (action: %s) job (%s) completed: %s",
+				actionType, jobId, err)
+		}
+
+		return nil
+	}
+
+	// a. `batch-reinstall` and `batch-change-image` response item format: [{"job_id": "xxx", "server_id": "xxx"}].
+	// b. `batch-maint`, `batch-reboot`, `batch-start`, and `batch-stop` not return job IDs.
+	// For both of these cases, we uniformly use the API to query the list of all servers to check the status.
+	if utils.StrSliceContains([]string{"batch-reinstall", "batch-change-image", "batch-maint", "batch-reboot",
+		"batch-start", "batch-stop"}, actionType) {
+		serverIds := utils.PathSearch("items", actionServers, make([]interface{}, 0)).([]interface{})
+		if actionType == "batch-change-image" || actionType == "batch-reinstall" {
+			serverIds = utils.PathSearch("server_ids", actionServers, make([]interface{}, 0)).([]interface{})
+		}
+
+		err = waitForAppServerBatchActionCompleted(ctx, client, utils.ExpandToStringList(serverIds), timeout)
+		if err != nil {
+			return diag.Errorf("error waiting for the APP server batch operation (action: %s) completed: %s", actionType, err)
+		}
+
+		return nil
+	}
+
+	return nil
+}
+
+func waitForAppServerBatchActionCompleted(ctx context.Context, client *golangsdk.ServiceClient, serverIds []string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshAppServerBatchActionStatusFunc(client, serverIds),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshAppServerBatchActionStatusFunc(client *golangsdk.ServiceClient, serverIds []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// Some action not return job ID, so we use query all server list API to check the status.
+		servers, err := listAppServers(client)
+		if err != nil {
+			return servers, "ERROR", err
+		}
+
+		for _, server := range servers {
+			serverId := utils.PathSearch("id", server, "").(string)
+			if utils.StrSliceContains(serverIds, serverId) {
+				status := utils.PathSearch("status", server, "").(string)
+				if !utils.StrSliceContains([]string{"REGISTERED", "STOPPED", "FREEZE", "NONE"}, status) {
+					return servers, "PENDING", nil
+				}
+			}
+		}
+
+		return servers, "COMPLETED", nil
+	}
 }
 
 func resourceAppServerBatchActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

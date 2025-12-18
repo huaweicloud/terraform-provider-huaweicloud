@@ -530,7 +530,7 @@ func buildAppServersQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func listAppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func listAppServers(client *golangsdk.ServiceClient, queryParams ...string) ([]interface{}, error) {
 	var (
 		httpUrl  = "v1/{project_id}/app-servers?limit={limit}"
 		limit    = 100
@@ -542,7 +542,9 @@ func listAppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
-	listPath += buildAppServersQueryParams(d)
+	if len(queryParams) > 0 && queryParams[0] != "" {
+		listPath += queryParams[0]
+	}
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -755,7 +757,7 @@ func dataSourceAppServersRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	servers, err := listAppServers(client, d)
+	servers, err := listAppServers(client, buildAppServersQueryParams(d))
 	if err != nil {
 		return diag.Errorf("error getting app servers: %s", err)
 	}
