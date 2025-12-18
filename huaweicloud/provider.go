@@ -2675,6 +2675,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_pool_scale":                       cce.ResourceNodePoolScale(),
 			"huaweicloud_cce_cluster_certificate_rotatecredentials": cce.ResourceRotatecredentials(),
 			"huaweicloud_cce_nodes_remove":                          cce.ResourceNodesRemove(),
+			"huaweicloud_cce_release":                               cce.ResourceRelease(),
 
 			"huaweicloud_cts_tracker":       cts.ResourceCTSTracker(),
 			"huaweicloud_cts_configuration": cts.ResourceConfiguration(),
