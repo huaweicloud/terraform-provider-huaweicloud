@@ -13,7 +13,7 @@ import (
 )
 
 // ResourceIdentityUserInfo
-// @API IAM POST /v3.0/OS-USER/users/{user_id}/info
+// @API IAM PUT /v3.0/OS-USER/users/{user_id}/info
 func ResourceIdentityUserInfo() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityUserInfoCreate,
