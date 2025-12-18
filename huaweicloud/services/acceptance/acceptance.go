@@ -80,6 +80,8 @@ var (
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
 	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
 
+	HW_BMS_INSTANCE_ID = os.Getenv("HW_BMS_INSTANCE_ID")
+
 	HW_CAE_ENVIRONMENT_ID = os.Getenv("HW_CAE_ENVIRONMENT_ID")
 	// The list of CAE environment IDs. Using commas (,) to separate multiple IDs. At least one ID is required.
 	// The first environment ID belongs to the default enterprise project ID, and the second belongs to non-default.
@@ -1242,6 +1244,13 @@ func TestAccPreCheckApigSubResourcesRelatedInfo(t *testing.T) {
 func TestAccPreCheckApigChannelRelatedInfo(t *testing.T) {
 	if HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID == "" {
 		t.Skip("Before running APIG acceptance tests, please ensure the env 'HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID' has been configured")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckBmsInstanceId(t *testing.T) {
+	if HW_BMS_INSTANCE_ID == "" {
+		t.Skip("HW_BMS_INSTANCE_ID must be set for acceptance tests")
 	}
 }
 
