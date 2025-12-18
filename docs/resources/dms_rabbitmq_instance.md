@@ -231,6 +231,14 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the RabbitMQ instance.
 
+* `disk_encrypted_enable` - (Optional, Bool, ForceNew) Specifies whether to enable disk encryption.  
+  Defaults to **false**.  
+  Changing this creates a new instance resource.
+
+* `disk_encrypted_key` - (Optional, String, ForceNew) Specifies the key ID of the disk encryption.  
+  This parameter is **required** when `disk_encrypted_enable` is set to **true**.  
+  Changing this creates a new instance resource.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are
   **prePaid** and **postPaid**, defaults to **postPaid**. Changing this creates a new resource.
 

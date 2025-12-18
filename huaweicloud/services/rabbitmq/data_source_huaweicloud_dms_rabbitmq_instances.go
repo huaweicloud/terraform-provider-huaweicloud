@@ -249,6 +249,16 @@ func rabbitmqInstanceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the name of a VPC.`,
 			},
+			"disk_encrypted_enable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the disk is encrypted.`,
+			},
+			"disk_encrypted_key": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The key ID of the disk encryption.`,
+			},
 		},
 	}
 	return &sc
@@ -334,6 +344,8 @@ func resourceDmsRabbitMQInstancesRead(_ context.Context, d *schema.ResourceData,
 				"used_storage_space":         utils.PathSearch("used_storage_space", v, nil),
 				"vpc_id":                     utils.PathSearch("vpc_id", v, nil),
 				"vpc_name":                   utils.PathSearch("vpc_name", v, nil),
+				"disk_encrypted_enable":      utils.PathSearch("disk_encrypted", v, nil),
+				"disk_encrypted_key":         utils.PathSearch("disk_encrypted_key", v, nil),
 			})
 		}
 
