@@ -3842,6 +3842,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_cc_protection_rule_batch_delete":     waf.ResourceCcRuleBatchDelete(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
 			"huaweicloud_waf_cloud_instance":                      waf.ResourceCloudInstance(),
+			"huaweicloud_waf_dedicated_agency":                    waf.ResourceWafDedicatedAgency(),
 			"huaweicloud_waf_dedicated_domain":                    waf.ResourceWafDedicatedDomain(),
 			"huaweicloud_waf_dedicated_instance":                  waf.ResourceWafDedicatedInstance(),
 			"huaweicloud_waf_dedicated_instance_action":           waf.ResourceDedicatedInstanceAction(),
