@@ -3241,6 +3241,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_batch_scan":                               hss.ResourceImageBatchScan(),
 			"huaweicloud_hss_login_common_location":                          hss.ResourceLoginCommonLocation(),
 			"huaweicloud_hss_login_white_ip":                                 hss.ResourceLoginWhiteIp(),
+			"huaweicloud_hss_change_host_ignore_status":                      hss.ResourceChangeHostIgnoreStatus(),
 			"huaweicloud_hss_modify_webtamper_protection_policy":             hss.ResourceModifyWebtamperProtectionPolicy(),
 			"huaweicloud_hss_modify_webtamper_rasp_path":                     hss.ResourceModifyWebtamperRaspPath(),
 			"huaweicloud_hss_rasp_protection_policy":                         hss.ResourceRaspProtectionPolicy(),
