@@ -638,6 +638,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_available_resources": bms.DataSourceAvailableResources(),
 			"huaweicloud_bms_instances":           bms.DataSourceBmsInstances(),
 			"huaweicloud_bms_volume_attachments":  bms.DataSourceBmsVolumeAttachments(),
+			"huaweicloud_bms_instance_password":   bms.DataSourceBmsInstancePassword(),
 
 			"huaweicloud_cae_applications":       cae.DataSourceApplications(),
 			"huaweicloud_cae_components":         cae.DataSourceComponents(),
@@ -2592,8 +2593,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_asm_mesh": asm.ResourceAsmMesh(),
 
-			"huaweicloud_bms_instance":      bms.ResourceBmsInstance(),
-			"huaweicloud_bms_volume_attach": bms.ResourceVolumeAttach(),
+			"huaweicloud_bms_instance":                 bms.ResourceBmsInstance(),
+			"huaweicloud_bms_volume_attach":            bms.ResourceVolumeAttach(),
+			"huaweicloud_bms_instance_password_reset":  bms.ResourceInstancePasswordReset(),
+			"huaweicloud_bms_instance_password_delete": bms.ResourceInstancePasswordDelete(),
 
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
 
