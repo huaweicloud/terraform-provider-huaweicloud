@@ -10,8 +10,6 @@ description: |-
 
 Manages a SecMaster dataspace resource within HuaweiCloud.
 
--> The current resource is a one-time resource, and destroying this resource will not change the current status.
-
 ## Example Usage
 
 ```hcl
@@ -37,11 +35,39 @@ The following arguments are supported:
 * `workspace_id` - (Required, String, NonUpdatable) Sepcifies the ID of the workspace to which the dataspace belongs.
 
 * `dataspace_name` - (Required, String, NonUpdatable) Sepcifies the name of the dataspace.
+  The name can only contain English letters, digits and hyphens (-), and cannot start or end with a hyphens (-),
+  nor can they appear consecutively.
+  The name valid length is limited from `5` to `63`.
 
-* `description` - (Required, String, NonUpdatable) Sepcifies the description of the dataspace.
+* `description` - (Required, String) Sepcifies the description of the dataspace.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `dataspace_type` - The dataspace type.
+  The valid values are as follows:
+  + **system-defined**
+  + **user-defined**
+
+* `domain_id` - The account ID.
+
+* `project_id` - The project ID.
+
+* `create_by` - The dataspace creator.
+
+* `update_by` - The dataspace updater.
+
+* `create_time` - The dataspace creation time.
+
+* `update_time` - The dataspace update time.
+
+## Import
+
+The dataspace can be imported using the `workspace_id` and their `id`, separated by a slash (/), e.g.
+
+```bash
+$ terraform import huaweicloud_secmaster_dataspace.test <workspace_id>/<id>
+```
