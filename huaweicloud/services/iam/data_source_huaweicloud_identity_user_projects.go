@@ -16,6 +16,7 @@ import (
 
 // DataSourceIdentityUserProjects
 // @API IAM GET /v3/users/{user_id}/projects
+// @API IAM GET /v5/caller-identity
 func DataSourceIdentityUserProjects() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: DataSourceIdentityUserProjectsRead,
