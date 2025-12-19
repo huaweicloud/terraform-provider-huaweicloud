@@ -2659,6 +2659,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cce_autopilot_cluster": cceautopilot.ResourceAutopilotCluster(),
 			"huaweicloud_cce_autopilot_addon":   cceautopilot.ResourceAutopilotAddon(),
+			"huaweicloud_cce_autopilot_chart":   cceautopilot.ResourceAutopilotChart(),
 
 			"huaweicloud_cce_access_policy":                         cce.ResourceAccessPolicy(),
 			"huaweicloud_cce_cluster":                               cce.ResourceCluster(),
