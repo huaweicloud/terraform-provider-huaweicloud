@@ -173,6 +173,11 @@ The following arguments are supported:
   data_disks object structure is documented below. A maximum of 59 disks can be mounted. Changing this creates a new
   instance.
 
+* `power_action` - (Optional, String) Specifies the power action to be done for the instance.
+  Value options: **ON**, **OFF** and **REBOOT**.
+
+  -> **NOTE:** The `power_action` is a one-time action.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 * `enterprise_project_id` - (Optional, String) Specifies a unique id in UUID format of enterprise project.
