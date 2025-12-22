@@ -25,6 +25,16 @@ func TestAccCCENodePoolV3DataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolV3DataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.metadata.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.metadata.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.metadata.0.uid"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.0.flavor"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.0.az"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.0.autoscaling.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.0.autoscaling.0.extension_priority"),
+					resource.TestCheckResourceAttrSet(resourceName, "extension_scale_groups.0.spec.0.autoscaling.0.enable"),
 				),
 			},
 		},
@@ -73,9 +83,27 @@ resource "huaweicloud_cce_node_pool" "test" {
     size       = 100
     volumetype = "SSD"
   }
+
+  extension_scale_groups {
+    metadata {
+      name = "%[2]s-group1"
+    }
+
+    spec {
+      flavor = data.huaweicloud_compute_flavors.test.ids[0]
+      az     = data.huaweicloud_availability_zones.test.names[1]
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+      }
+    }
+  }
 }
 
 data "huaweicloud_cce_node_pool" "test" {
+  depends_on = [huaweicloud_cce_node_pool.test]
+
   cluster_id = huaweicloud_cce_cluster.test.id
   name       = huaweicloud_cce_node_pool.test.name
 }

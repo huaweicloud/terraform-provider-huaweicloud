@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -14,8 +15,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools
@@ -118,6 +117,7 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"extension_scale_groups": nodePoolExtensionScaleGroupsSchema(),
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -175,11 +175,94 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 	}
 }
 
+func nodePoolExtensionScaleGroupsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"metadata": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+							"uid": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+						},
+					},
+				},
+				"spec": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"flavor": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+							"az": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+							"capacity_reservation_specification": {
+								Type:     schema.TypeList,
+								Computed: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"id": {
+											Type:     schema.TypeString,
+											Computed: true,
+										},
+										"preference": {
+											Type:     schema.TypeString,
+											Computed: true,
+										},
+									},
+								},
+							},
+							"autoscaling": {
+								Type:     schema.TypeList,
+								Computed: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"enable": {
+											Type:     schema.TypeBool,
+											Computed: true,
+										},
+										"extension_priority": {
+											Type:     schema.TypeInt,
+											Computed: true,
+										},
+										"min_node_count": {
+											Type:     schema.TypeInt,
+											Computed: true,
+										},
+										"max_node_count": {
+											Type:     schema.TypeInt,
+											Computed: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := nodepools.ListOpts{
@@ -191,24 +274,24 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 	refinedNodePools, err := nodepools.List(cceClient, d.Get("cluster_id").(string), listOpts)
 
 	if err != nil {
-		return fmtp.DiagErrorf("unable to retrieve Node Pools: %s", err)
+		return diag.Errorf("unable to retrieve Node Pools: %s", err)
 	}
 
 	if len(refinedNodePools) < 1 {
-		return fmtp.DiagErrorf("your query returned no results, please change your search criteria and try again")
+		return diag.Errorf("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedNodePools) > 1 {
-		return fmtp.DiagErrorf("your query returned more than one result, please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	NodePool := refinedNodePools[0]
 
-	logp.Printf("[DEBUG] Retrieved Node Pools using given filter %s: %+v", NodePool.Metadata.Id, NodePool)
+	log.Printf("[DEBUG] retrieved Node Pools using given filter %s: %+v", NodePool.Metadata.Id, NodePool)
 
 	d.SetId(NodePool.Metadata.Id)
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("node_pool_id", NodePool.Metadata.Id),
 		d.Set("name", NodePool.Metadata.Name),
 		d.Set("type", NodePool.Spec.Type),
@@ -226,6 +309,7 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 		d.Set("subnet_id", NodePool.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId),
 		d.Set("status", NodePool.Status.Phase),
 		d.Set("hostname_config", flattenResourceNodeHostnameConfig(NodePool.Spec.NodeTemplate.HostnameConfig)),
+		d.Set("extension_scale_groups", flattenExtensionScaleGroups(NodePool.Spec.ExtensionScaleGroups)),
 		d.Set("enterprise_project_id", NodePool.Spec.NodeTemplate.ServerEnterpriseProjectID),
 	)
 
@@ -248,7 +332,7 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 		case bool:
 			extendParamToSet[k] = strconv.FormatBool(v)
 		default:
-			logp.Printf("[WARN] can not set %s to extend_param, the value is %v", k, v)
+			log.Printf("[WARN] can not set %s to extend_param, the value is %v", k, v)
 		}
 	}
 
@@ -286,11 +370,11 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
 	// set tags
-	tagmap := utils.TagsToMap(NodePool.Spec.NodeTemplate.UserTags)
-	mErr = multierror.Append(mErr, d.Set("tags", tagmap))
+	tagMap := utils.TagsToMap(NodePool.Spec.NodeTemplate.UserTags)
+	mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting node pool fields: %s", err)
+		return diag.Errorf("error setting node pool fields: %s", err)
 	}
 
 	return nil
