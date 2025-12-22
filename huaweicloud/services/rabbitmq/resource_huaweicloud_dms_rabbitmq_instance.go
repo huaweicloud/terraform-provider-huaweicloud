@@ -171,6 +171,20 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"disk_encrypted_enable": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"disk_encrypted_key"},
+				Description:  "Whether to enable disk encryption.",
+			},
+			"disk_encrypted_key": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"disk_encrypted_enable"},
+				Description:  "The key ID of the disk encryption.",
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -370,6 +384,8 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		EnableAcl:           d.Get("enable_acl").(bool),
+		DiskEncryptedEnable: d.Get("disk_encrypted_enable").(bool),
+		DiskEncryptedKey:    d.Get("disk_encrypted_key").(string),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -544,6 +560,8 @@ func createRabbitMQInstanceWithProductID(ctx context.Context, d *schema.Resource
 		SslEnable:           d.Get("ssl_enable").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		DiskEncryptedEnable: d.Get("disk_encrypted_enable").(bool),
+		DiskEncryptedKey:    d.Get("disk_encrypted_key").(string),
 	}
 
 	if pubIpID, ok := d.GetOk("public_ip_id"); ok {
@@ -654,6 +672,8 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("is_logical_volume", v.IsLogicalVolume),
 		d.Set("public_ip_address", v.PublicIPAddress),
 		d.Set("enable_acl", v.EnableAcl),
+		d.Set("disk_encrypted_enable", v.DiskEncrypted),
+		d.Set("disk_encrypted_key", v.DiskEncryptedKey),
 	)
 
 	// set tags

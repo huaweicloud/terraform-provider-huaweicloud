@@ -102,6 +102,12 @@ type CreateOps struct {
 
 	// Whether to enable ACL
 	EnableAcl bool `json:"enable_acl,omitempty"`
+
+	// Indicates whether to enable disk encryption.
+	DiskEncryptedEnable bool `json:"disk_encrypted_enable,omitempty"`
+
+	// The key ID of the disk encryption.
+	DiskEncryptedKey string `json:"disk_encrypted_key,omitempty"`
 }
 
 type BssParam struct {

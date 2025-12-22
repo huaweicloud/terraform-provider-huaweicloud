@@ -140,3 +140,7 @@ The `instances` block supports:
 * `vpc_id` - Indicates the ID of a VPC.
 
 * `vpc_name` - Indicates the name of a VPC.
+
+* `disk_encrypted_enable` - Whether the disk is encrypted.
+
+* `disk_encrypted_key` - The key of the disk encryption.
