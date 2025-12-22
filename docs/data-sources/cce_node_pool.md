@@ -62,11 +62,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `extend_param` - Extended parameter.
 
-* `scall_enable` - Whether auto scaling is enabled.
+* `extension_scale_groups` - The configurations of extended scaling groups in the node pool.
+  The [extension_scale_groups](#extension_scale_groups_struct) structure is documented below.
 
-* `min_node_count` - Minimum number of nodes allowed if auto scaling is enabled.
+* `scall_enable` - Whether auto-scaling is enabled.
 
-* `max_node_count` - Maximum number of nodes allowed if auto scaling is enabled.
+* `min_node_count` - Minimum number of nodes allowed if auto-scaling is enabled.
+
+* `max_node_count` - Maximum number of nodes allowed if auto-scaling is enabled.
 
 * `scale_down_cooldown_time` - Interval between two scaling operations, in minutes.
 
@@ -76,15 +79,67 @@ In addition to all arguments above, the following attributes are exported:
 
 * `tags` - Tags of a VM node, key/value pair format.
 
-* `root_volume` - It corresponds to the system disk related configuration. Structure is documented below.
+* `root_volume` - It corresponds to the system disk related configuration.
+  The [root_volume](#volume_struct) structure is documented below.
 
-* `data_volumes` - Represents the data disk to be created. Structure is documented below.
+* `data_volumes` - Represents the data disk to be created.
+  The [data_volumes](#volume_struct) structure is documented below.
 
 * `enterprise_project_id` - The enterprise project ID of the node pool.
 
 * `hostname_config` - The hostname config of the kubernetes node.
-  The [object](#hostname_config) structure is documented below.
+  The [hostname_config](#hostname_config_struct) structure is documented below.
 
+<a name="extension_scale_groups_struct"></a>
+The `extension_scale_groups` block supports:
+
+* `metadata` - The basic information about the extended scaling group.
+  The [metadata](#metadata_struct) structure is documented below.
+
+* `spec` - The configurations of the extended scaling group, which carry different configurations from those of the
+  default scaling group.
+  The [spec](#spec_struct) structure is documented below.
+
+<a name="metadata_struct"></a>
+The `metadata` block supports:
+
+* `name` - The name of an extended scaling group.
+  Only digits, lowercase letters, and hyphens (-) are allowed.
+
+* `uid` - The extended scaling group UUID.
+
+<a name="spec_struct"></a>
+The `spec` block supports:
+
+* `flavor` - The node flavor.
+
+* `az` - The availability zone of a node.
+
+* `capacity_reservation_specification` - The capacity reservation configurations of the extended scaling group.
+  The [capacity_reservation_specification](#capacity_reservation_specification_struct) structure is documented below.
+
+* `autoscaling` - The auto-scaling configurations of the extended scaling group.
+  The [autoscaling](#autoscaling_struct) structure is documented below.
+
+<a name="capacity_reservation_specification_struct"></a>
+The `capacity_reservation_specification` block supports:
+
+* `id` - The private pool ID.
+
+* `preference` - The capacity of a private storage pool.
+
+<a name="autoscaling_struct"></a>
+The `autoscaling` block supports:
+
+* `enable` - Whether to enable auto-scaling for the scaling group.
+
+* `extension_priority` - The priority of the scaling group. A higher value indicates a greater priority.
+
+* `min_node_count` - The minimum number of nodes in the scaling group during auto-scaling.
+
+* `max_node_count` - The maximum number of nodes that can be retained in the scaling group during auto-scaling.
+
+<a name="volume_struct"></a>
 The `root_volume` and `data_volumes` blocks support:
 
 * `size` - Disk size in GB.
@@ -93,7 +148,7 @@ The `root_volume` and `data_volumes` blocks support:
 
 * `extend_params` - Disk expansion parameters.
 
-<a name="hostname_config"></a>
+<a name="hostname_config_struct"></a>
 The `hostname_config` block supports:
 
 * `type` - The hostname type of the kubernetes node.
