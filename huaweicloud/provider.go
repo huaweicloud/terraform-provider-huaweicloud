@@ -3901,6 +3901,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_notification":                        workspace.ResourceDesktopNotification(),
 			"huaweicloud_workspace_desktop_pool":                                workspace.ResourceDesktopPool(),
 			"huaweicloud_workspace_desktop_pool_action":                         workspace.ResourceDesktopPoolAction(),
+			"huaweicloud_workspace_desktop_pool_expand":                         workspace.ResourceDesktopPoolExpand(),
 			"huaweicloud_workspace_desktop_pool_notification":                   workspace.ResourceDesktopPoolNotification(),
 			"huaweicloud_workspace_desktop_user_batch_attach":                   workspace.ResourceDesktopUserBatchAttach(),
 			"huaweicloud_workspace_desktop_user_batch_detach":                   workspace.ResourceDesktopUserBatchDetach(),
