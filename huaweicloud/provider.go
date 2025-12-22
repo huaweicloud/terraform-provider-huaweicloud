@@ -1398,6 +1398,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_baseline_check_rule_hab":                    hss.DataSourceBaselineCheckRuleHAB(),
 			"huaweicloud_hss_baseline_overviews":                         hss.DataSourceBaselineOverviews(),
 			"huaweicloud_hss_baseline_risk_config_check_rules":           hss.DataSourceBaselineRiskConfigCheckRules(),
+			"huaweicloud_hss_baseline_check_rule_fail_detail":            hss.DataSourceBaselineCheckRuleFailDetail(),
 			"huaweicloud_hss_baseline_scan_status":                       hss.DataSourceBaselineScanStatus(),
 			"huaweicloud_hss_baseline_white_lists":                       hss.DataSourceBaselineWhiteLists(),
 			"huaweicloud_hss_cluster_asset_statistics":                   hss.DataSourceClusterAssetStatistics(),
