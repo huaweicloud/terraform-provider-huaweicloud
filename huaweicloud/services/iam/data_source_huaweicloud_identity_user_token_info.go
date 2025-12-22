@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GET /v3/auth/tokens
+// @API IAM GET /v3/auth/tokens
 func DataSourceIdentityUserTokenInfo() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityUserTokenInfoRead,
