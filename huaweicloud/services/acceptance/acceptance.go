@@ -134,6 +134,7 @@ var (
 	HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID = os.Getenv("HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID")
 	HW_WAF_RULE_ID                              = os.Getenv("HW_WAF_RULE_ID")
 	HW_WAF_GEO_RULE_ID                          = os.Getenv("HW_WAF_GEO_RULE_ID")
+	HW_WAF_ALARM_NOTIFICATION_ID                = os.Getenv("HW_WAF_ALARM_NOTIFICATION_ID")
 
 	HW_ELB_CERT_ID         = os.Getenv("HW_ELB_CERT_ID")
 	HW_ELB_LOADBALANCER_ID = os.Getenv("HW_ELB_LOADBALANCER_ID")
@@ -1376,6 +1377,13 @@ func TestAccPrecheckWafInstance(t *testing.T) {
 func TestAccPrecheckWafSecurityReportSubscription(t *testing.T) {
 	if HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID == "" {
 		t.Skip("HW_WAF_SECURITY_REPORT_SUBSCRIPTION_ID must be set for WAF security report subscription acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckWafAlarmNotificationId(t *testing.T) {
+	if HW_WAF_ALARM_NOTIFICATION_ID == "" {
+		t.Skip("HW_WAF_ALARM_NOTIFICATION_ID must be set for WAF alarm notification ID acceptance tests.")
 	}
 }
 
