@@ -3869,6 +3869,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_ip_intelligence_rule":                waf.ResourceIpIntelligenceRule(),
 			"huaweicloud_waf_modify_alarm_notification":           waf.ResourceModifyAlarmNotification(),
 			"huaweicloud_waf_alarm_notification":                  waf.ResourceWafAlarmNotification(),
+			"huaweicloud_waf_batch_create_whiteblackip_rules":     waf.ResourceWafBatchCreateWhiteBlackIpRules(),
 			"huaweicloud_waf_batch_delete_alarm_notifications":    waf.ResourceWafBatchDeleteAlarmNotifications(),
 			"huaweicloud_waf_migrate_domain":                      waf.ResourceMigrateDomain(),
 			"huaweicloud_waf_policy":                              waf.ResourceWafPolicy(),
