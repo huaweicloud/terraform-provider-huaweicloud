@@ -3482,6 +3482,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_mapreduce_cluster":                     mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_cluster_component_batch_add": mrs.ResourceClusterComponentBatchAdd(),
+			"huaweicloud_mapreduce_cluster_node_batch_expand":   mrs.ResourceClusterNodeBatchExpand(),
+			"huaweicloud_mapreduce_cluster_node_batch_shrink":   mrs.ResourceClusterNodeBatchShrink(),
 			"huaweicloud_mapreduce_job":                         mrs.ResourceMRSJobV2(),
 			"huaweicloud_mapreduce_data_connection":             mrs.ResourceDataConnection(),
 			"huaweicloud_mapreduce_scaling_policy":              mrs.ResourceScalingPolicy(),
