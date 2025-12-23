@@ -245,6 +245,8 @@ The `Clusters` block supports:
 * `eipv6_address` - IPv6 address of the cluster EIP.  
   This parameter is not returned when an IPv4 address is used.
 
+* `mrs_ecs_default_agency` - The default agency name bound to the cluster node.
+
 <a name="MrsClusters_ClustersComponentList"></a>
 The `component_list` block supports:
 

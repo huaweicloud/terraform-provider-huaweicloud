@@ -252,6 +252,14 @@ func ResourceMRSClusterV2() *schema.Resource {
 				MaxItems: 1,
 				Elem:     smnNotifySchema(),
 			},
+			"mrs_ecs_default_agency": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Adding `Computed` to prevent changes when some regions return a default agency name.
+				Computed:    true,
+				Description: `The default agency name to be bound to the cluster node.`,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -790,6 +798,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		ExternalDatasources:  buildClusterExternalDatasources(d.Get("external_datasources")),
 		BootstrapScripts:     buildBootstrapScripts(d.Get("bootstrap_scripts").(*schema.Set)),
 		SMNNotifyConfig:      buildSMNNotify(d),
+		MrsEcsDefaultAgency:  d.Get("mrs_ecs_default_agency").(string),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -1161,6 +1170,7 @@ func resourceMRSClusterV2Read(_ context.Context, d *schema.ResourceData, meta in
 		setMrsClusterNodeGroups(d, client, resp),
 		d.Set("tags", flattenTags(resp.Tags)),
 		d.Set("bootstrap_scripts", flattenBootstrapScripts(resp.BootstrapScripts)),
+		d.Set("mrs_ecs_default_agency", resp.MrsEcsDefaultAgency),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
