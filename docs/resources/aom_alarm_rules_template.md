@@ -407,6 +407,8 @@ The `trigger_conditions` block supports:
 
 * `query_match` - (Optional, String) Specifies the query filter criteria.
 
+* `query_param` - (Optional, String) Specifies the query parameters.
+
 * `thresholds` - (Optional, Map) Specifies the thresholds. Key-value pair. The key indicates the alarm severity while
   the value indicates the alarm threshold.
 

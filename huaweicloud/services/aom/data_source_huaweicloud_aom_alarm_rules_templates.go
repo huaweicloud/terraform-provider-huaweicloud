@@ -372,6 +372,10 @@ func dataSourceSchemeTemplateMetricTriggerConditions() *schema.Schema {
 					Type:     schema.TypeString,
 					Computed: true,
 				},
+				"query_param": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 				"metric_namespace": {
 					Type:     schema.TypeString,
 					Computed: true,

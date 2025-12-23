@@ -378,6 +378,10 @@ func resourceSchemeTemplateMetricTriggerConditions() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"query_param": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 				"metric_namespace": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -400,6 +404,7 @@ func resourceSchemeTemplateMetricTriggerConditions() *schema.Schema {
 				},
 			},
 		},
+		Set: resourceMetricTriggerConditionHash,
 	}
 }
 

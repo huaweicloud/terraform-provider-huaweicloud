@@ -257,6 +257,8 @@ The `trigger_conditions` block supports:
 
 * `query_match` - Indicates the query filter criteria.
 
+* `query_param` - Indicates the query parameters.
+
 * `thresholds` - Key-value pair. The key indicates the alarm severity while the value indicates the alarm threshold.
 
 * `trigger_interval` - Indicates the check interval.
