@@ -10,7 +10,7 @@ HuaweiCloud.
 * HuaweiCloud access key and secret key (AK/SK)
 * SSL certificate files (if using custom certificate for HTTPS)
 
-## Variable Introduction
+## Variables Introduction
 
 The following variables need to be configured:
 
@@ -168,5 +168,5 @@ The following variables need to be configured:
 
 | Name | Version |
 | ---- | ---- |
-| terraform | >= 1.9.0 |
+| terraform | >= 1.3.0 |
 | huaweicloud | >= 1.64.3 |
