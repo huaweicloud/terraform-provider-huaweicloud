@@ -581,7 +581,7 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	// Read the encryption configuration
-	if err := setObsBucketEncryption(obsClient, d); err != nil {
+	if err := setObsBucketEncryption(obsClientWithSignature, d); err != nil {
 		return diag.FromErr(err)
 	}
 
