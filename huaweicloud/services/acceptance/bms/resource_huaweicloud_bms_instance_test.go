@@ -141,6 +141,18 @@ func TestAccBmsInstance_password_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "admin_pass", "Test@123"),
 				),
 			},
+			{
+				Config: testAccBmsInstance_password_update_image(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "admin_pass", "Test@123456"),
+				),
+			},
 		},
 	})
 }
@@ -436,6 +448,51 @@ resource "huaweicloud_bms_instance" "test" {
 `, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
+func testAccBmsInstance_password_update_image(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_images_images" "unbutu" {
+  name_regex = "x86"
+  os         = "Ubuntu"
+  image_type = "Ironic"
+}
+
+locals {
+  x86_unbutu_images = [for v in data.huaweicloud_images_images.unbutu.images: v.id if v.container_format == "bare"]
+}
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  admin_pass        = "Test@123456"
+  image_id          = try(local.x86_unbutu_images[0], "")
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
 // The `user_data` field is specified for a Linux BMS that is created using an image with Cloud-Init installed,
 // the `admin_pass` field becomes invalid and `user_data` will be injected into the BMS as a password.
 // The `user_data` field is the result of base64 encoding of the following command:
@@ -480,17 +537,18 @@ func testAccBmsInstance_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_vpc_eip" "myeip" {
-  publicip {
-    type = "5_bgp"
-  }
+data "huaweicloud_images_images" "unbutu" {
+  name_regex = "x86"
+  os         = "Ubuntu"
+  image_type = "Ironic"
+}
 
-  bandwidth {
-    name        = "%[2]s"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
+locals {
+  x86_unbutu_images = [for v in data.huaweicloud_images_images.unbutu.images: v.id if v.container_format == "bare"]
+}
+
+resource "huaweicloud_kps_keypair" "update" {
+  name = "%s_update"
 }
 
 resource "huaweicloud_bms_instance" "test" {
@@ -498,12 +556,17 @@ resource "huaweicloud_bms_instance" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
-  key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = try(local.x86_images[0], "")
+  key_pair          = huaweicloud_kps_keypair.update.name
+  image_id          = try(local.x86_unbutu_images[0], "")
 
   name                  = "%[2]s_update"
   user_id               = "%[3]s"
   enterprise_project_id = "%[4]s"
+
+    user_data = <<EOT
+#!/bin/sh
+echo "Hello World!"
+EOT
 
   nics {
     subnet_id = huaweicloud_vpc_subnet.test.id
@@ -540,17 +603,36 @@ func testAccBmsInstance_update2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_images_images" "unbutu" {
+  name_regex = "x86"
+  os         = "Ubuntu"
+  image_type = "Ironic"
+}
+
+locals {
+  x86_unbutu_images = [for v in data.huaweicloud_images_images.unbutu.images: v.id if v.container_format == "bare"]
+}
+
+resource "huaweicloud_kps_keypair" "update" {
+  name = "%s_update"
+}
+
 resource "huaweicloud_bms_instance" "test" {
   security_groups   = [huaweicloud_networking_secgroup.test.id]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
-  key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = try(local.x86_images[0], "")
+  key_pair          = huaweicloud_kps_keypair.update.name
+  image_id          = try(local.x86_unbutu_images[0], "")
 
   name                  = "%[2]s_update"
   user_id               = "%[3]s"
   enterprise_project_id = "%[4]s"
+
+    user_data = <<EOT
+#!/bin/sh
+echo "Hello World!"
+EOT
 
   nics {
     subnet_id = huaweicloud_vpc_subnet.test.id
