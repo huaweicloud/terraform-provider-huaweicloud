@@ -306,17 +306,19 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMrsCustom(t)
+			acceptance.TestAccPreCheckMrsClusterFlavorID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMrsMapReduceClusterConfig_customCompact(rName, password, 3),
+				Config: testAccMrsMapReduceClusterConfig_customCompact(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+					resource.TestCheckResourceAttr(resourceName, "mrs_ecs_default_agency", "MRS_ECS_DEFAULT_AGENCY"),
 					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "3"),
 				),
@@ -828,31 +830,33 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 		nodeNums.AnalysisCoreNum, nodeNums.StreamCoreNum, nodeNums.AnalysisTaskNum)
 }
 
-func testAccMrsMapReduceClusterConfig_customCompact(rName, pwd string, nodeNum1 int) string {
+func testAccMrsMapReduceClusterConfig_customCompact(rName, pwd string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_mapreduce_cluster" "test" {
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  name               = "%s"
-  type               = "CUSTOM"
-  version            = "MRS 3.1.5"
-  safe_mode          = true
-  manager_admin_pass = "%s"
-  node_admin_pass    = "%s"
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  vpc_id             = huaweicloud_vpc.test.id
-  template_id        = "mgmt_control_combined_v4.1"
-  component_list     = ["Hadoop", "ZooKeeper", "Ranger"]
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  name                   = "%[2]s"
+  type                   = "CUSTOM"
+  version                = "MRS 3.5.0-LTS"
+  safe_mode              = true
+  manager_admin_pass     = "%[3]s"
+  node_admin_pass        = "%[3]s"
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  template_id            = "mgmt_control_combined_v4.1"
+  component_list         = ["Hadoop", "ZooKeeper", "Ranger", "DBService"]
+  mrs_ecs_default_agency = "MRS_ECS_DEFAULT_AGENCY"
 
   master_nodes {
-    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    flavor            = "%[4]s"
     node_number       = 3
     root_volume_type  = "SAS"
-    root_volume_size  = 100
+    root_volume_size  = 480
     data_volume_type  = "SAS"
-    data_volume_size  = 200
+    data_volume_size  = 600
     data_volume_count = 1
+
     assigned_roles = [
       "OMSServer:1,2",
       "SlapdServer:1,2",
@@ -878,13 +882,14 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   custom_nodes {
     group_name        = "node_group_1"
-    flavor            = "ac7.4xlarge.4.linux.bigdata"
-    node_number       = %d
+    flavor            = "%[4]s"
+    node_number       = 3
     root_volume_type  = "SAS"
-    root_volume_size  = 100
+    root_volume_size  = 480
     data_volume_type  = "SAS"
-    data_volume_size  = 200
+    data_volume_size  = 600
     data_volume_count = 1
+
     assigned_roles = [
       "DataNode",
       "NodeManager",
@@ -896,12 +901,12 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   custom_nodes {
     group_name        = "node_group_2"
-    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    flavor            = "%[4]s"
     node_number       = 2
     root_volume_type  = "SAS"
-    root_volume_size  = 100
+    root_volume_size  = 480
     data_volume_type  = "SAS"
-    data_volume_size  = 200
+    data_volume_size  = 600
     data_volume_count = 1
     assigned_roles = [
       "NodeManager",
@@ -910,7 +915,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
       "meta"
     ]
   }
-}`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
+}`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, acceptance.HW_MRS_CLUSTER_FLAVOR_ID)
 }
 
 func testAccMrsClusterConfig_externalDataSources(rName, pwd string) string {

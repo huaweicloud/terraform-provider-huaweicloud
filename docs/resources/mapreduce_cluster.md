@@ -488,6 +488,9 @@ The EIP must have been created and must be in the same region as the cluster.
   structure is documented below.
   Changing this will create a new MapReduce cluster resource.
 
+* `mrs_ecs_default_agency` - (Optional, String, ForceNew) Specifies the default agency name bound to the cluster node.  
+  Changing this will create a new MapReduce cluster resource.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.  
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
   Changing this parameter will create a new MapReduce cluster resource.

@@ -337,6 +337,11 @@ func mrsClustersClustersSchema() *schema.Resource {
 				Computed:    true,
 				Description: `IPv6 address of the cluster EIP.`,
 			},
+			"mrs_ecs_default_agency": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The default agency name bound to the cluster node.`,
+			},
 		},
 	}
 	return &sc
@@ -616,6 +621,7 @@ func flattenGetClustersResponseBodyClusters(clusters []interface{}) []interface{
 			"eip_id":                   utils.PathSearch("eipId", v, nil),
 			"eip_address":              utils.PathSearch("eipAddress", v, nil),
 			"eipv6_address":            utils.PathSearch("eipv6Address", v, nil),
+			"mrs_ecs_default_agency":   utils.PathSearch("mrsEcsDefaultAgency", v, nil),
 		})
 	}
 	return rst

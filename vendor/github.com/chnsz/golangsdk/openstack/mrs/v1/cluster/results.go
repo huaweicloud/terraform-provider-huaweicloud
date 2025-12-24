@@ -69,6 +69,8 @@ type Cluster struct {
 	EipAddress            string            `json:"eipAddress"`
 	Eipv6Address          string            `json:"eipv6Address"`
 	Tags                  string            `json:"tags"`
+	// The default agency name bound to the cluster node.
+	MrsEcsDefaultAgency string `json:"mrsEcsDefaultAgency"`
 }
 
 type Component struct {
