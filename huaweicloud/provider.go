@@ -2007,6 +2007,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_security_reports":             secmaster.DataSourceSecurityReports(),
 			"huaweicloud_secmaster_siem_directories":             secmaster.DataSourceSiemDirectories(),
 			"huaweicloud_secmaster_soc_mappings":                 secmaster.DataSourceSocMappings(),
+			"huaweicloud_secmaster_soc_preprocess_rules":         secmaster.DataSourceSocPreprocessRules(),
 			"huaweicloud_secmaster_subscription_resource":        secmaster.DataSourceSecmasterSubscriptionResource(),
 			"huaweicloud_secmaster_table_consumption":            secmaster.DataSourceTableConsumption(),
 			"huaweicloud_secmaster_table_histograms":             secmaster.DataSourceTableHistograms(),
