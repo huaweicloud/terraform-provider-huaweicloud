@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Container Engine (CCE)"
+subcategory: "Cloud Container Engine Autopilot (CCE Autopilot)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_autopilot_chart"
 description: |-

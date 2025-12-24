@@ -1,4 +1,4 @@
-package cce
+package cceautopilot
 
 import (
 	"context"
@@ -19,16 +19,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade
-// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck
-// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}
-// @API CCE POST /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot
-// @API CCE GET /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck
-var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "current_version", "addons", "is_snapshot",
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade
+// @API CCE GET /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck
+// @API CCE GET /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}
+// @API CCE POST /autopilot/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot
+// @API CCE GET /autopilot/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck
+var autopilotClusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "current_version", "addons", "is_snapshot",
 	"addons.*.addon_template_name",
 	"addons.*.operation",
 	"addons.*.version",
@@ -40,18 +39,18 @@ var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", 
 	"strategy.*.in_place_rolling_update.*.user_defined_step",
 }
 
-func ResourceClusterUpgrade() *schema.Resource {
+func ResourceAutopilotClusterUpgrade() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceClusterUpgradeCreate,
-		ReadContext:   resourceClusterUpgradeRead,
-		UpdateContext: resourceClusterUpgradeUpdate,
-		DeleteContext: resourceClusterUpgradeDelete,
+		CreateContext: resourceAutopilotClusterUpgradeCreate,
+		ReadContext:   resourceAutopilotClusterUpgradeRead,
+		UpdateContext: resourceAutopilotClusterUpgradeUpdate,
+		DeleteContext: resourceAutopilotClusterUpgradeDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(clusterUpgradeNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(autopilotClusterUpgradeNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -168,13 +167,13 @@ func ResourceClusterUpgrade() *schema.Resource {
 	}
 }
 
-func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string) (map[string]interface{}, error) {
-	nodeOrder, err := buildClusterUpgradeNodeOrderOpts(d)
+func buildAutopilotClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string) (map[string]interface{}, error) {
+	nodeOrder, err := buildAutopilotClusterUpgradeNodeOrderOpts(d)
 	if err != nil {
 		return nil, fmt.Errorf("error building node_order Opts: %s", err)
 	}
 
-	addons, err := buildClusterUpgradeAddonsOpts(d)
+	addons, err := buildAutopilotClusterUpgradeAddonsOpts(d)
 	if err != nil {
 		return nil, fmt.Errorf("error building addons Opts: %s", err)
 	}
@@ -185,11 +184,11 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 			"apiVersion": "v3",
 		},
 		"spec": map[string]interface{}{
-			"clusterUpgradeAction": map[string]interface{}{
+			"autopilotClusterUpgradeAction": map[string]interface{}{
 				"addons":        addons,
 				"nodeOrder":     nodeOrder,
 				"nodePoolOrder": d.Get("nodepool_order"),
-				"strategy":      buildClusterUpgradeStrategyOpts(d),
+				"strategy":      buildAutopilotClusterUpgradeStrategyOpts(d),
 				"targetVersion": targetVersion,
 			},
 		},
@@ -197,7 +196,7 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 	return result, nil
 }
 
-func buildClusterUpgradeAddonsOpts(d *schema.ResourceData) ([]map[string]interface{}, error) {
+func buildAutopilotClusterUpgradeAddonsOpts(d *schema.ResourceData) ([]map[string]interface{}, error) {
 	addonsRaw := d.Get("addons").([]interface{})
 	if len(addonsRaw) == 0 {
 		return nil, nil
@@ -207,7 +206,7 @@ func buildClusterUpgradeAddonsOpts(d *schema.ResourceData) ([]map[string]interfa
 
 	for i, v := range addonsRaw {
 		if addon, ok := v.(map[string]interface{}); ok {
-			values, err := buildClusterUpgradeAddonsValuesOpts(addon["values"].([]interface{}))
+			values, err := buildAutopilotClusterUpgradeAddonsValuesOpts(addon["values"].([]interface{}))
 			if err != nil {
 				return nil, err
 			}
@@ -222,7 +221,7 @@ func buildClusterUpgradeAddonsOpts(d *schema.ResourceData) ([]map[string]interfa
 	return result, nil
 }
 
-func buildClusterUpgradeAddonsValuesOpts(valuesRaw []interface{}) (map[string]interface{}, error) {
+func buildAutopilotClusterUpgradeAddonsValuesOpts(valuesRaw []interface{}) (map[string]interface{}, error) {
 	if len(valuesRaw) == 0 {
 		return nil, nil
 	}
@@ -259,7 +258,7 @@ func buildClusterUpgradeAddonsValuesOpts(valuesRaw []interface{}) (map[string]in
 	return nil, nil
 }
 
-func buildClusterUpgradeNodeOrderOpts(d *schema.ResourceData) (map[string]interface{}, error) {
+func buildAutopilotClusterUpgradeNodeOrderOpts(d *schema.ResourceData) (map[string]interface{}, error) {
 	nodeOrderRaw := d.Get("node_order").(map[string]interface{})
 	if len(nodeOrderRaw) == 0 {
 		return nil, nil
@@ -277,7 +276,7 @@ func buildClusterUpgradeNodeOrderOpts(d *schema.ResourceData) (map[string]interf
 	return result, nil
 }
 
-func buildClusterUpgradeStrategyOpts(d *schema.ResourceData) map[string]interface{} {
+func buildAutopilotClusterUpgradeStrategyOpts(d *schema.ResourceData) map[string]interface{} {
 	strategyRaw := d.Get("strategy").([]interface{})
 	if len(strategyRaw) == 0 {
 		return nil
@@ -286,14 +285,14 @@ func buildClusterUpgradeStrategyOpts(d *schema.ResourceData) map[string]interfac
 	if strategy, ok := strategyRaw[0].(map[string]interface{}); ok {
 		return map[string]interface{}{
 			"type":                 strategy["type"],
-			"inPlaceRollingUpdate": buildClusterUpgradeInPlaceRollingUpdateOpts(strategy["in_place_rolling_update"].([]interface{})),
+			"inPlaceRollingUpdate": buildAutopilotClusterUpgradeInPlaceRollingUpdateOpts(strategy["in_place_rolling_update"].([]interface{})),
 		}
 	}
 
 	return nil
 }
 
-func buildClusterUpgradeInPlaceRollingUpdateOpts(inPlaceRollingUpdateRaw []interface{}) map[string]interface{} {
+func buildAutopilotClusterUpgradeInPlaceRollingUpdateOpts(inPlaceRollingUpdateRaw []interface{}) map[string]interface{} {
 	if len(inPlaceRollingUpdateRaw) == 0 {
 		return nil
 	}
@@ -307,35 +306,21 @@ func buildClusterUpgradeInPlaceRollingUpdateOpts(inPlaceRollingUpdateRaw []inter
 	return nil
 }
 
-func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAutopilotClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	// Wait for the cce cluster to become available
 	clusterID := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      clusterStateRefreshFunc(client, clusterID, []string{"Available"}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        5 * time.Second,
-		PollInterval: 5 * time.Second,
-	}
-	_, err = stateCluster.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for CCE cluster to become available: %s", err)
-	}
-
 	currentVersion := d.Get("current_version").(string)
 	targetVersion := d.Get("target_version").(string)
 
 	// workflow
 	workflowResp, err := createWorkflow(client, clusterID, currentVersion, targetVersion)
 	if err != nil {
-		return diag.Errorf("error creating CCE cluster precheck: %s", err)
+		return diag.Errorf("error creating CCE Autopilot cluster precheck: %s", err)
 	}
 
 	exactCurrentVersion := utils.PathSearch("spec.clusterVersion", workflowResp, "").(string)
@@ -347,7 +332,7 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 	// precheck
 	createPreCheckResp, err := createPreCheck(client, clusterID, exactCurrentVersion, exactTargetVersion)
 	if err != nil {
-		return diag.Errorf("error creating CCE cluster precheck: %s", err)
+		return diag.Errorf("error creating CCE Autopilot cluster precheck: %s", err)
 	}
 	preCheckTaskId := utils.PathSearch("metadata.uid", createPreCheckResp, "").(string)
 	err = clusterPreCheckForStateCompleted(ctx, client, clusterID, preCheckTaskId, d.Timeout(schema.TimeoutCreate))
@@ -359,7 +344,7 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 	if d.Get("is_snapshot").(bool) {
 		createSnapshotResp, err := createSnapshot(client, clusterID)
 		if err != nil {
-			return diag.Errorf("error creating CCE cluster snapshot: %s", err)
+			return diag.Errorf("error creating CCE Autopilot cluster snapshot: %s", err)
 		}
 		snapTaskId := utils.PathSearch("uid", createSnapshotResp, "").(string)
 		err = clusterSnapshotWaitingForStateCompleted(ctx, client, clusterID, snapTaskId, d.Timeout(schema.TimeoutCreate))
@@ -369,42 +354,42 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	var (
-		createClusterUpgradeHttpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade"
+		createAutopilotClusterUpgradeHttpUrl = "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade"
 	)
 
-	createClusterUpgradePath := client.Endpoint + createClusterUpgradeHttpUrl
-	createClusterUpgradePath = strings.ReplaceAll(createClusterUpgradePath, "{project_id}", client.ProjectID)
-	createClusterUpgradePath = strings.ReplaceAll(createClusterUpgradePath, "{cluster_id}", clusterID)
+	createAutopilotClusterUpgradePath := client.Endpoint + createAutopilotClusterUpgradeHttpUrl
+	createAutopilotClusterUpgradePath = strings.ReplaceAll(createAutopilotClusterUpgradePath, "{project_id}", client.ProjectID)
+	createAutopilotClusterUpgradePath = strings.ReplaceAll(createAutopilotClusterUpgradePath, "{cluster_id}", clusterID)
 
-	createClusterUpgradeOpt := golangsdk.RequestOpts{
+	createAutopilotClusterUpgradeOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	createOpts, err := buildClusterUpgradeCreateOpts(d, exactTargetVersion)
+	createOpts, err := buildAutopilotClusterUpgradeCreateOpts(d, exactTargetVersion)
 	if err != nil {
 		return nil
 	}
 
-	createClusterUpgradeOpt.JSONBody = utils.RemoveNil(createOpts)
-	createClusterUpgradeResp, err := client.Request("POST",
-		createClusterUpgradePath, &createClusterUpgradeOpt)
+	createAutopilotClusterUpgradeOpt.JSONBody = utils.RemoveNil(createOpts)
+	createAutopilotClusterUpgradeResp, err := client.Request("POST",
+		createAutopilotClusterUpgradePath, &createAutopilotClusterUpgradeOpt)
 	if err != nil {
-		return diag.Errorf("error upgrading CCE cluster: %s", err)
+		return diag.Errorf("error upgrading CCE Autopilot cluster: %s", err)
 	}
 
-	createClusterUpgradeRespBody, err := utils.FlattenResponse(createClusterUpgradeResp)
+	createAutopilotClusterUpgradeRespBody, err := utils.FlattenResponse(createAutopilotClusterUpgradeResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	taskID := utils.PathSearch("metadata.uid", createClusterUpgradeRespBody, "").(string)
+	taskID := utils.PathSearch("metadata.uid", createAutopilotClusterUpgradeRespBody, "").(string)
 	if taskID == "" {
-		return diag.Errorf("error upgrading CCE cluster: task_id is not found in API response")
+		return diag.Errorf("error upgrading CCE Autopilot cluster: task_id is not found in API response")
 	}
 
 	d.SetId(taskID)
 
-	err = clusterUpgradeWaitingForStateCompleted(ctx, client, clusterID, taskID, d.Timeout(schema.TimeoutCreate))
+	err = autopilotClusterUpgradeWaitingForStateCompleted(ctx, client, clusterID, taskID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for upgrading cluster task to complete: %s", err)
 	}
@@ -417,11 +402,11 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	return resourceClusterUpgradeRead(ctx, d, meta)
+	return resourceAutopilotClusterUpgradeRead(ctx, d, meta)
 }
 
 func createWorkflow(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
-	workflowHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows"
+	workflowHttpUrl := "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows"
 	workflowPath := client.Endpoint + workflowHttpUrl
 	workflowPath = strings.ReplaceAll(workflowPath, "{project_id}", client.ProjectID)
 	workflowPath = strings.ReplaceAll(workflowPath, "{cluster_id}", clusterID)
@@ -440,14 +425,14 @@ func createWorkflow(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 	}
 	workflowResp, err := client.Request("POST", workflowPath, &workflowOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error preccheck CCE cluster: %s", err)
+		return nil, fmt.Errorf("error preccheck CCE Autopilot cluster: %s", err)
 	}
 
 	return utils.FlattenResponse(workflowResp)
 }
 
 func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
-	preCheckHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck"
+	preCheckHttpUrl := "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck"
 	preCheckPath := client.Endpoint + preCheckHttpUrl
 	preCheckPath = strings.ReplaceAll(preCheckPath, "{project_id}", client.ProjectID)
 	preCheckPath = strings.ReplaceAll(preCheckPath, "{cluster_id}", clusterID)
@@ -466,7 +451,7 @@ func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 	}
 	preCheckResp, err := client.Request("POST", preCheckPath, &preCheckOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error precheck CCE cluster: %s", err)
+		return nil, fmt.Errorf("error precheck CCE Autopilot cluster: %s", err)
 	}
 
 	return utils.FlattenResponse(preCheckResp)
@@ -488,7 +473,7 @@ func clusterPreCheckForStateCompleted(ctx context.Context, client *golangsdk.Ser
 
 func refreshClusterPreCheckState(client *golangsdk.ServiceClient, clusterID, preCheckTaskId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		preCheckTaskHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}"
+		preCheckTaskHttpUrl := "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}"
 		preCheckTaskPath := client.Endpoint + preCheckTaskHttpUrl
 		preCheckTaskPath = strings.ReplaceAll(preCheckTaskPath, "{project_id}", client.ProjectID)
 		preCheckTaskPath = strings.ReplaceAll(preCheckTaskPath, "{cluster_id}", clusterID)
@@ -542,7 +527,7 @@ func clusterSnapshotWaitingForStateCompleted(ctx context.Context, client *golang
 
 func refreshClusterSnapshotState(client *golangsdk.ServiceClient, clusterID, snapTaskId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		snapshotTaskHttpUrl := "api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks"
+		snapshotTaskHttpUrl := "autopilot/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks"
 		snapshotTaskPath := client.Endpoint + snapshotTaskHttpUrl
 		snapshotTaskPath = strings.ReplaceAll(snapshotTaskPath, "{project_id}", client.ProjectID)
 		snapshotTaskPath = strings.ReplaceAll(snapshotTaskPath, "{cluster_id}", clusterID)
@@ -580,7 +565,7 @@ func refreshClusterSnapshotState(client *golangsdk.ServiceClient, clusterID, sna
 }
 
 func createSnapshot(client *golangsdk.ServiceClient, clusterID string) (interface{}, error) {
-	createSnapshotHttpUrl := "api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot"
+	createSnapshotHttpUrl := "autopilot/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot"
 	createSnapshotPath := client.Endpoint + createSnapshotHttpUrl
 	createSnapshotPath = strings.ReplaceAll(createSnapshotPath, "{project_id}", client.ProjectID)
 	createSnapshotPath = strings.ReplaceAll(createSnapshotPath, "{cluster_id}", clusterID)
@@ -597,7 +582,7 @@ func createSnapshot(client *golangsdk.ServiceClient, clusterID string) (interfac
 }
 
 func checkoutAfterUpgrade(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) error {
-	postCheckHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck"
+	postCheckHttpUrl := "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck"
 	postCheckPath := client.Endpoint + postCheckHttpUrl
 	postCheckPath = strings.ReplaceAll(postCheckPath, "{project_id}", client.ProjectID)
 	postCheckPath = strings.ReplaceAll(postCheckPath, "{cluster_id}", clusterID)
@@ -616,7 +601,7 @@ func checkoutAfterUpgrade(client *golangsdk.ServiceClient, clusterID, currentVer
 	}
 	postCheckResp, err := client.Request("POST", postCheckPath, &postCheckOpt)
 	if err != nil {
-		return fmt.Errorf("error confirmation after CCE cluster upgrade: %s", err)
+		return fmt.Errorf("error confirmation after CCE Autopilot cluster upgrade: %s", err)
 	}
 
 	postCheckRespBody, err := utils.FlattenResponse(postCheckResp)
@@ -626,39 +611,39 @@ func checkoutAfterUpgrade(client *golangsdk.ServiceClient, clusterID, currentVer
 
 	status := utils.PathSearch("status.phase", postCheckRespBody, "").(string)
 	if status != "Success" {
-		return fmt.Errorf("error confirmation after CCE cluster upgrade: %s", status)
+		return fmt.Errorf("error confirmation after CCE Autopilot cluster upgrade: %s", status)
 	}
 
 	return nil
 }
 
-func clusterUpgradeWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+func autopilotClusterUpgradeWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient,
 	clusterID, taskID string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			clusterUpgradeWaitingRespBody, err := getClusterUpgradeDetail(client, clusterID, taskID)
+			autopilotClusterUpgradeWaitingRespBody, err := getAutopilotClusterUpgradeDetail(client, clusterID, taskID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status := utils.PathSearch(`status.phase`, clusterUpgradeWaitingRespBody, "").(string)
+			status := utils.PathSearch(`status.phase`, autopilotClusterUpgradeWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"Success",
 			}
 			if utils.StrSliceContains(targetStatus, status) {
-				return clusterUpgradeWaitingRespBody, "COMPLETED", nil
+				return autopilotClusterUpgradeWaitingRespBody, "COMPLETED", nil
 			}
 
 			unexpectedStatus := []string{
 				"Failed",
 			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return clusterUpgradeWaitingRespBody, status, nil
+				return autopilotClusterUpgradeWaitingRespBody, status, nil
 			}
 
-			return clusterUpgradeWaitingRespBody, "PENDING", nil
+			return autopilotClusterUpgradeWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -668,8 +653,8 @@ func clusterUpgradeWaitingForStateCompleted(ctx context.Context, client *golangs
 	return err
 }
 
-func getClusterUpgradeDetail(client *golangsdk.ServiceClient, clusterID, taskID string) (interface{}, error) {
-	getUpgradeDetailHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}"
+func getAutopilotClusterUpgradeDetail(client *golangsdk.ServiceClient, clusterID, taskID string) (interface{}, error) {
+	getUpgradeDetailHttpUrl := "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}"
 
 	getUpgradeDetailPath := client.Endpoint + getUpgradeDetailHttpUrl
 	getUpgradeDetailPath = strings.ReplaceAll(getUpgradeDetailPath, "{project_id}", client.ProjectID)
@@ -687,15 +672,15 @@ func getClusterUpgradeDetail(client *golangsdk.ServiceClient, clusterID, taskID 
 	return utils.FlattenResponse(getUpgradeDetailResp)
 }
 
-func resourceClusterUpgradeRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAutopilotClusterUpgradeRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceClusterUpgradeUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAutopilotClusterUpgradeUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceClusterUpgradeDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceAutopilotClusterUpgradeDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := "Deleting cluster upgrade resource is not supported. The cluster upgrade resource is only removed from the state."
 	return diag.Diagnostics{
 		diag.Diagnostic{
