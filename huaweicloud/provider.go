@@ -3274,6 +3274,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_antivirus_create_virus_scan_task":               hss.ResourceCreateVirusScanTask(),
 			"huaweicloud_hss_antivirus_create_pay_per_scan_task":             hss.ResourceAntivirusCreatePayPerScanTask(),
 			"huaweicloud_hss_app_whitelist_policy_process":                   hss.ResourceAppWhitelistPolicyProcess(),
+			"huaweicloud_hss_associated_asset_importance":                    hss.ResourceAssociatedAssetImportance(),
 
 			"huaweicloud_identity_access_key":                   iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                          iam.ResourceIdentityACL(),
