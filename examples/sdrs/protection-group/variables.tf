@@ -39,7 +39,7 @@ variable "source_availability_zone" {
   default     = ""
 
   validation {
-    condition = (
+    condition     = (
       (var.source_availability_zone == "" && var.target_availability_zone == "") ||
       (var.source_availability_zone != "" && var.target_availability_zone != "")
     )

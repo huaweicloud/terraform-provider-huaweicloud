@@ -49,7 +49,7 @@ variable "subnet_gateway_ip" {
 }
 
 variable "security_group_rule" {
-  type = list(object({
+  type    = list(object({
     direction        = string
     ethertype        = string
     protocol         = string
@@ -63,7 +63,7 @@ variable "security_group_rule" {
 }
 
 variable "example_dnat_rule" {
-  type = list(object({
+  type    = list(object({
     private_ip            = string
     internal_service_port = number
     protocol              = string

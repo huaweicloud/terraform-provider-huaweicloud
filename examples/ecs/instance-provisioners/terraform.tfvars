@@ -10,6 +10,7 @@ instance_user_data  = <<EOF
 #!/bin/bash
 echo "Hello, World!" > /home/test.txt
 EOF
+
 instance_remote_exec_inline = [
   "cat /home/test.txt"
 ]

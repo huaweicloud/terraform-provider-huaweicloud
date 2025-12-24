@@ -6,7 +6,7 @@ terraform {
       source  = "huaweicloud/huaweicloud"
       version = ">= 1.68.0"
     }
-    time = {
+    time        = {
       source  = "hashicorp/time"
       version = "~> 0.13"
     }

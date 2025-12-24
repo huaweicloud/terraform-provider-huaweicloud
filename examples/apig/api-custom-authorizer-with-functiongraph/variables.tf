@@ -169,13 +169,13 @@ variable "custom_authorizer_use_data" {
 
 variable "custom_authorizer_identity" {
   description = "The identity list of the custom authorizer"
-  type = list(object({
+  type        = list(object({
     name       = string
     location   = string
     validation = optional(string, null)
   }))
-  default  = []
-  nullable = false
+  default     = []
+  nullable    = false
 }
 
 variable "response_name" {
@@ -185,17 +185,17 @@ variable "response_name" {
 
 variable "response_rules" {
   description = "The response rules of the dedicated APIG"
-  type = list(object({
+  type        = list(object({
     error_type  = string
     body        = string
     status_code = optional(number, null)
-    headers = optional(list(object({
+    headers     = optional(list(object({
       key   = string
       value = string
     })), [])
   }))
-  default  = []
-  nullable = false
+  default     = []
+  nullable    = false
 }
 
 variable "group_name" {
@@ -239,14 +239,14 @@ variable "api_matching" {
 
 variable "api_backend_params" {
   description = "The backend parameters of the API"
-  type = list(object({
+  type        = list(object({
     type              = string
     name              = string
     location          = string
     value             = string
     system_param_type = optional(string, null)
   }))
-  nullable = false
+  nullable    = false
 }
 
 variable "api_func_graph_network_type" {

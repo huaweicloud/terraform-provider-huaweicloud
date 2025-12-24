@@ -1,13 +1,14 @@
-vpc_name          = "tf_test_dcs_instance_vpc"
-subnet_name       = "tf_test_dcs_instance_subnet"
-instance_name     = "tf_test_dcs_instance"
-instance_password = "YourRedisInstancePassword!"
+vpc_name               = "tf_test_dcs_instance_vpc"
+subnet_name            = "tf_test_dcs_instance_subnet"
+instance_name          = "tf_test_dcs_instance"
+instance_password      = "YourRedisInstancePassword!"
 instance_backup_policy = {
   backup_type = "auto"
   backup_at   = [1, 3, 4, 5, 6]
   begin_at    = "02:00-04:00"
   save_days   = 7
 }
+
 instance_whitelists = [
   {
     group_name = "test-group1"
@@ -30,6 +31,7 @@ instance_parameters = [
     value = "4096"
   }
 ]
+
 instance_tags = {
   foo = "bar"
 }
