@@ -34,9 +34,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the Workspace APP is located.  
   Changing this creates a new resource.
 
-* `server_id` - (Required, String) Specifies the ID of the image server instance.
+* `server_id` - (Required, String, NonUpdatable) Specifies the ID of the image server instance.
 
-* `record_ids` - (Required, List) Specifies the list of application record IDs to be attach.
+* `record_ids` - (Required, List, NonUpdatable) Specifies the list of application record IDs to be attach.
 
 ## Attribute Reference
 

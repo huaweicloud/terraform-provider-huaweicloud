@@ -80,7 +80,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the application batch authorization is located.  
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `app_ids` - (Required, List) Specifies the list of application IDs to be authorized or unauthorized.
+* `app_ids` - (Required, List, NonUpdatable) Specifies the list of application IDs to be authorized or unauthorized.
 
 * `authorization_type` - (Required, String, NonUpdatable) Specifies the authorization type.  
   Valid values are:
@@ -98,16 +98,16 @@ The following arguments are supported:
 <a name="application_batch_authorize_user"></a>
 The `users` and `del_users` block supports:
 
-* `account` - (Required, String) Specifies the account name.
+* `account` - (Required, String, NonUpdatable) Specifies the account name.
 
-* `account_type` - (Required, String) Specifies the account type.  
+* `account_type` - (Required, String, NonUpdatable) Specifies the account type.  
   The valid values are as follows:
   + **SIMPLE** - Simple user.
   + **USER_GROUP** - User group.
 
-* `domain` - (Optional, String) Specifies the domain name. Required for user groups.
+* `domain` - (Optional, String, NonUpdatable) Specifies the domain name. Required for user groups.
 
-* `platform_type` - (Optional, String) Specifies the platform type.  
+* `platform_type` - (Optional, String, NonUpdatable) Specifies the platform type.  
   The valid values are as follows:
   + **AD** - AD domain.
   + **LOCAL** - LiteAs.

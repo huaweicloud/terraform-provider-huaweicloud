@@ -93,18 +93,18 @@ The following arguments are supported:
 <a name="application_batch_auto_install_user"></a>
 The `users` block supports:
 
-* `account` - (Required, String) Specifies the account name.  
+* `account` - (Required, String, NonUpdatable) Specifies the account name.  
   The account format must be: account(group).
 
-* `account_type` - (Required, String) Specifies the account type.  
+* `account_type` - (Required, String, NonUpdatable) Specifies the account type.  
   The valid values are as follows:
   + **SIMPLE** - Simple user.
   + **USER_GROUP** - User group.
 
-* `domain` - (Optional, String) Specifies the domain name.  
+* `domain` - (Optional, String, NonUpdatable) Specifies the domain name.  
   Required for user groups, and defaults to local.com if not specified.
 
-* `platform_type` - (Optional, String) Specifies the platform type.  
+* `platform_type` - (Optional, String, NonUpdatable) Specifies the platform type.  
   The valid values are as follows:
   + **AD** - AD domain.
   + **LOCAL** - LiteAs.

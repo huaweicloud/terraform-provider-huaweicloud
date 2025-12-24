@@ -79,11 +79,11 @@ The following arguments are supported:
 <a name="workspace_shared_folders_access_add_items"></a>
 The `add_items` block supports:
 
-* `policy_statement_id` - (Required, String) Specifies the policy ID.
+* `policy_statement_id` - (Required, String, NonUpdatable) Specifies the policy ID.
 
-* `attach` - (Required, String) Specifies the target.
+* `attach` - (Required, String, NonUpdatable) Specifies the target.
 
-* `attach_type` - (Required, String) Specifies the associated object type.  
+* `attach_type` - (Required, String, NonUpdatable) Specifies the associated object type.  
   The valid values are as follows:
   + **USER** - User
   + **USER_GROUP** - User group
@@ -91,9 +91,9 @@ The `add_items` block supports:
 <a name="workspace_shared_folders_access_del_items"></a>
 The `del_items` block supports:
 
-* `attach` - (Required, String) Specifies the target.
+* `attach` - (Required, String, NonUpdatable) Specifies the target.
 
-* `attach_type` - (Required, String) Specifies the associated object type.  
+* `attach_type` - (Required, String, NonUpdatable) Specifies the associated object type.  
   The valid values are as follows:
   + **USER** - User
   + **USER_GROUP** - User group

@@ -18,8 +18,16 @@ import (
 var applicationBatchAuthorizeNonUpdatableParams = []string{
 	"app_ids",
 	"authorization_type",
-	"users",
 	"del_users",
+	"del_users.*.account",
+	"del_users.*.account_type",
+	"del_users.*.domain",
+	"del_users.*.platform_type",
+	"users",
+	"users.*.account",
+	"users.*.account_type",
+	"users.*.domain",
+	"users.*.platform_type",
 }
 
 // @API Workspace POST /v1/{project_id}/app-center/apps/actions/batch-assign-authorization
