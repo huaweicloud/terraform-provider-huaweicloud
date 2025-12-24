@@ -7,7 +7,8 @@ instance_description     = "Created by terraform script"
 migration_task_name      = "tf_test_migration_task"
 migration_task_overwrite = "true"
 migration_task_type      = "rocketmq"
-migration_task_topic_configs = [
+
+migration_task_topic_configs       = [
   {
     topic_name        = "tf_test_task_topic"
     topic_filter_type = "SINGLE_TAG"

@@ -122,7 +122,7 @@ variable "is_multi_az" {
 variable "tags" {
   description = "The tags of the vault, in the format of key-value pairs"
   type        = map(string)
-  default = {
+  default     = {
     environment = "test"
     terraform   = "true"
     service     = "sfs-turbo"

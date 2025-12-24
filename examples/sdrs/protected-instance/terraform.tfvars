@@ -7,7 +7,7 @@ protected_instance_name        = "tf_test_sdrs_protected_instance"
 delete_target_server           = true
 delete_target_eip              = true
 protected_instance_description = "Created by terraform script"
-protected_instance_tags = {
+protected_instance_tags        = {
   foo = "bar"
   key = "value"
 }

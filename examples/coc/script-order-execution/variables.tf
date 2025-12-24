@@ -140,7 +140,7 @@ variable "script_content" {
 
 variable "script_parameters" {
   description = "The parameter list of the script"
-  type = list(object({
+  type        = list(object({
     name        = string
     value       = string
     description = string
@@ -160,7 +160,7 @@ variable "script_execute_user" {
 
 variable "script_execute_parameters" {
   description = "The parameter list of the script execution"
-  type = list(object({
+  type        = list(object({
     name  = string
     value = string
   }))

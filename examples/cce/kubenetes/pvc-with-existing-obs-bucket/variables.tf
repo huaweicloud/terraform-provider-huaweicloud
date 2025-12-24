@@ -361,7 +361,7 @@ variable "deployment_image_pull_secrets" {
     name = string
   }))
 
-  default = [
+  default  = [
     {
       name = "default-secret"
     }
