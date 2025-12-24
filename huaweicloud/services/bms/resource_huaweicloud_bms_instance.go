@@ -16,8 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -296,182 +295,414 @@ func ResourceBmsInstance() *schema.Resource {
 
 func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl    = "v1/{project_id}/baremetalservers"
+		product    = "bms"
+		bssProduct = "bssv2"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating bms client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
-
-	createOpts := &baremetalservers.CreateOpts{
-		Name:      d.Get("name").(string),
-		ImageRef:  d.Get("image_id").(string),
-		FlavorRef: d.Get("flavor_id").(string),
-		MetaData: baremetalservers.MetaData{
-			OpSvcUserId: d.Get("user_id").(string),
-			AgencyName:  d.Get("agency_name").(string),
-		},
-		UserData:         []byte(d.Get("user_data").(string)),
-		AdminPass:        d.Get("admin_pass").(string),
-		KeyName:          d.Get("key_pair").(string),
-		VpcId:            d.Get("vpc_id").(string),
-		SecurityGroups:   resourceBmsInstanceSecGroupsV1(d),
-		AvailabilityZone: d.Get("availability_zone").(string),
-		Nics:             resourceBmsInstanceNicsV1(d),
-		DataVolumes:      resourceBmsInstanceDataVolumesV1(d),
-		ExtendParam: baremetalservers.ServerExtendParam{
-			ChargingMode:        d.Get("charging_mode").(string),
-			PeriodType:          d.Get("period_unit").(string),
-			PeriodNum:           d.Get("period").(int),
-			IsAutoPay:           "true",
-			IsAutoRenew:         d.Get("auto_renew").(string),
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		},
-	}
-
-	var eipOpts baremetalservers.PublicIp
-	var hasEIP bool
-	if eipID, ok := d.GetOk("eip_id"); ok {
-		hasEIP = true
-		eipOpts.Id = eipID.(string)
-	} else if eipType, ok := d.GetOk("iptype"); ok {
-		hasEIP = true
-		eipOpts.Eip = &baremetalservers.Eip{
-			IpType: eipType.(string),
-			BandWidth: baremetalservers.BandWidth{
-				ShareType:  d.Get("sharetype").(string),
-				Size:       d.Get("bandwidth_size").(int),
-				ChargeMode: d.Get("bandwidth_charge_mode").(string),
-			},
-			ExtendParam: baremetalservers.EipExtendParam{
-				ChargingMode: d.Get("eip_charge_mode").(string),
-			},
-		}
-	}
-	if hasEIP {
-		createOpts.PublicIp = &eipOpts
-	}
-
-	if v, ok := d.GetOk("system_disk_type"); ok {
-		volRequest := baremetalservers.RootVolume{
-			VolumeType: v.(string),
-			Size:       d.Get("system_disk_size").(int),
-		}
-		createOpts.RootVolume = &volRequest
-	}
-
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		taglist := utils.ExpandResourceTags(tagRaw)
-		createOpts.ServerTags = taglist
-	}
-
-	n, err := baremetalservers.CreatePrePaid(bmsClient, createOpts).ExtractOrderResponse()
-	if err != nil {
-		return diag.Errorf("error creating BMS server: %s", err)
-	}
-
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.NewServiceClient(bssProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
-	err = common.WaitOrderComplete(ctx, bssClient, n.OrderID, d.Timeout(schema.TimeoutCreate))
+
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg))
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating BMS instance: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, n.OrderID, d.Timeout(schema.TimeoutCreate))
+
+	orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderId == "" {
+		return diag.Errorf("error creating BMS instance: order_id is not found in API response")
+	}
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId(resourceId)
 
-	// update the user-defined metadata if necessary
-	if v, ok := d.GetOk("metadata"); ok {
-		metadataOpts := v.(map[string]interface{})
-		log.Printf("[DEBUG] BMS metadata options: %v", metadataOpts)
-
-		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), metadataOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating the BMS metadata: %s", err)
-		}
-	}
-
-	if action, ok := d.GetOk("power_action"); ok && action == "OFF" {
-		err = updatePowerAction(ctx, d, bmsClient, action.(string), schema.TimeoutCreate)
+	if _, ok := d.GetOk("metadata"); ok {
+		err = updateInstanceMetadata(d, client, buildUpdateInstanceMetadataBodyParams(d))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
+
+	if action, ok := d.GetOk("power_action"); ok && action == "OFF" {
+		err = updatePowerAction(ctx, d, client, action.(string), schema.TimeoutCreate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceBmsInstanceRead(ctx, d, meta)
+}
+
+func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":              d.Get("name"),
+		"imageRef":          d.Get("image_id"),
+		"flavorRef":         d.Get("flavor_id"),
+		"metadata":          buildCreateInstanceMetadataBodyParams(d),
+		"user_data":         utils.ValueIgnoreEmpty(buildCreateInstanceUserDataBodyParams(d)),
+		"adminPass":         utils.ValueIgnoreEmpty(d.Get("admin_pass")),
+		"key_name":          utils.ValueIgnoreEmpty(d.Get("key_pair")),
+		"vpcid":             d.Get("vpc_id"),
+		"security_groups":   buildCreateInstanceSecurityGroupsBodyParams(d),
+		"availability_zone": d.Get("availability_zone"),
+		"nics":              buildCreateInstanceNicsBodyParams(d),
+		"data_volumes":      utils.ValueIgnoreEmpty(buildCreateInstanceDataVolumesBodyParams(d)),
+		"extendparam":       buildCreateInstanceExtendParamBodyParams(d, cfg),
+		"publicip":          buildCreateInstancePublicIpBodyParams(d),
+		"root_volume":       buildCreateInstanceRootVolumeBodyParams(d),
+		"server_tags":       utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+	}
+	return map[string]interface{}{
+		"server": bodyParams,
+	}
+}
+
+func buildCreateInstanceMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"op_svc_userid": d.Get("user_id"),
+		"agency_name":   utils.ValueIgnoreEmpty(d.Get("agency_name")),
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceUserDataBodyParams(d *schema.ResourceData) string {
+	userData := d.Get("user_data").(string)
+	if userData == "" {
+		return ""
+	}
+	if _, err := base64.StdEncoding.DecodeString(userData); err != nil {
+		userData = base64.StdEncoding.EncodeToString([]byte(userData))
+	}
+	return userData
+}
+
+func buildCreateInstanceSecurityGroupsBodyParams(d *schema.ResourceData) []interface{} {
+	rawSecGroups := d.Get("security_groups").(*schema.Set)
+	if rawSecGroups.Len() == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, rawSecGroups.Len())
+	for _, v := range rawSecGroups.List() {
+		rst = append(rst, map[string]interface{}{
+			"id": v,
+		})
+	}
+	return rst
+}
+
+func buildCreateInstanceNicsBodyParams(d *schema.ResourceData) []interface{} {
+	rawNics := d.Get("nics").([]interface{})
+	if len(rawNics) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawNics))
+	for _, v := range rawNics {
+		if nicRaw, ok := v.(map[string]interface{}); ok {
+			nic := map[string]interface{}{
+				"subnet_id": nicRaw["subnet_id"],
+			}
+			if len(nicRaw["ip_address"].(string)) > 0 {
+				nic["ip_address"] = nicRaw["ip_address"]
+			}
+			rst = append(rst, nic)
+		}
+	}
+	return rst
+}
+
+func buildCreateInstanceDataVolumesBodyParams(d *schema.ResourceData) []interface{} {
+	rawDataDisks := d.Get("data_disks").([]interface{})
+	if len(rawDataDisks) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawDataDisks))
+	for _, v := range rawDataDisks {
+		if dataDisk, ok := v.(map[string]interface{}); ok {
+			rst = append(rst, map[string]interface{}{
+				"volumetype": dataDisk["type"],
+				"size":       dataDisk["size"],
+			})
+		}
+	}
+	return rst
+}
+
+func buildCreateInstanceExtendParamBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"chargingMode":          d.Get("charging_mode"),
+		"periodType":            d.Get("period_unit"),
+		"periodNum":             d.Get("period"),
+		"isAutoPay":             "true",
+		"isAutoRenew":           utils.ValueIgnoreEmpty(d.Get("auto_renew")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+	}
+	return bodyParams
+}
+
+func buildCreateInstancePublicIpBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("eip_id"); ok {
+		bodyParams := map[string]interface{}{
+			"id": v,
+		}
+		return bodyParams
+	}
+	if v, ok := d.GetOk("iptype"); ok {
+		bodyParams := map[string]interface{}{
+			"iptype":      v,
+			"bandwidth":   buildCreateInstancePublicIpBandwidthBodyParams(d),
+			"extendparam": buildCreateInstancePublicIpExtendParamBodyParams(d),
+		}
+		return map[string]interface{}{
+			"eip": bodyParams,
+		}
+	}
+
+	return nil
+}
+
+func buildCreateInstancePublicIpBandwidthBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"sharetype":  d.Get("sharetype"),
+		"size":       d.Get("bandwidth_size"),
+		"chargemode": utils.ValueIgnoreEmpty(d.Get("bandwidth_charge_mode")),
+	}
+	return bodyParams
+}
+
+func buildCreateInstancePublicIpExtendParamBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"chargingMode": d.Get("eip_charge_mode"),
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceRootVolumeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	v, ok := d.GetOk("system_disk_type")
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"volumetype": v,
+		"size":       d.Get("system_disk_size"),
+	}
+	return bodyParams
 }
 
 func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	bmsClient, err := cfg.BmsV1Client(region)
+
+	var mErr *multierror.Error
+
+	var (
+		product = "bms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
 
-	server, err := baremetalservers.Get(bmsClient, d.Id()).Extract()
+	getRespBody, err := getInstance(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "server")
+		return common.CheckDeletedDiag(d, err, "error retrieving BMS instance")
 	}
-	if server.Status == "DELETED" {
-		d.SetId("")
+	status := utils.PathSearch("server.status", getRespBody, "").(string)
+	if status == "DELETED" {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving BMS instance")
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("server.name", getRespBody, nil)),
+		d.Set("image_id", utils.PathSearch(`server.metadata."metering.image_id"`, getRespBody, nil)),
+		d.Set("flavor_id", utils.PathSearch("server.flavor.id", getRespBody, nil)),
+		d.Set("host_id", utils.PathSearch("server.hostId", getRespBody, nil)),
+		d.Set("nics", flattenInstanceNics(cfg, region, getRespBody)),
+		d.Set("key_pair", utils.PathSearch("server.key_name", getRespBody, nil)),
+		d.Set("security_groups", flattenInstanceSecurityGroups(getRespBody)),
+		d.Set("status", status),
+		d.Set("user_id", utils.PathSearch("server.metadata.op_svc_userid", getRespBody, nil)),
+		d.Set("image_name", utils.PathSearch("server.metadata.image_name", getRespBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("server.metadata.vpc_id", getRespBody, nil)),
+		d.Set("agency_name", utils.PathSearch("server.metadata.agency_name", getRespBody, nil)),
+		d.Set("availability_zone", utils.PathSearch(`server."OS-EXT-AZ:availability_zone"`, getRespBody, nil)),
+		d.Set("description", utils.PathSearch("server.description", getRespBody, nil)),
+		d.Set("user_data", utils.PathSearch(`server."OS-EXT-SRV-ATTR:user_data"`, getRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("server.enterprise_project_id", getRespBody, nil)),
+		d.Set("disk_ids", flattenInstanceDiskIds(getRespBody)),
+		d.Set("public_ip", flattenInstancePublicIp(getRespBody)),
+	)
+
+	if resourceTags, err := tags.Get(client, "baremetalservers", d.Id()).Extract(); err == nil {
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
+	} else {
+		log.Printf("[WARN] error fetching tags of BMS instance (%s): %s", d.Id(), err)
+	}
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getInstance(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{server_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func flattenInstanceNics(cfg *config.Config, region string, respBody interface{}) []interface{} {
+	curJson := utils.PathSearch("server.addresses", respBody, nil)
+	if curJson == nil {
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
-
-	nics := flattenBmsInstanceNicsV1(d, meta, server.Addresses)
-
-	// Set security groups
-	var secGrpIds []string
-	for _, sg := range server.SecurityGroups {
-		secGrpIds = append(secGrpIds, sg.ID)
+	networkingClient, err := cfg.NewServiceClient("networkv2", region)
+	if err != nil {
+		log.Printf("error creating networking client: %s", err)
 	}
-
-	// Set disk ids
-	var diskIds []string
-	for _, disk := range server.VolumeAttached {
-		diskIds = append(diskIds, disk.ID)
+	rst := make([]interface{}, 0)
+	for _, addrs := range curJson.(map[string]interface{}) {
+		for _, addr := range addrs.([]interface{}) {
+			addType := utils.PathSearch(`"OS-EXT-IPS:type"`, addr, "").(string)
+			if addType != "fixed" {
+				continue
+			}
+			portId := utils.PathSearch(`"OS-EXT-IPS:port_id"`, addr, "").(string)
+			nic := map[string]interface{}{
+				"ip_address":  utils.PathSearch("addr", addr, nil),
+				"mac_address": utils.PathSearch(`"OS-EXT-IPS-MAC:mac_addr"`, addr, nil),
+				"port_id":     portId,
+			}
+			port, err := getNicPort(networkingClient, portId)
+			if err != nil {
+				log.Printf("[WARN] error retrieving instance nics: failed to fetch port %s", portId)
+			} else {
+				nic["subnet_id"] = utils.PathSearch("port.network_id", port, nil)
+			}
+			rst = append(rst, nic)
+		}
 	}
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("name", server.Name),
-		d.Set("image_id", server.Metadata.ImageID),
-		d.Set("flavor_id", server.Flavor.ID),
-		d.Set("host_id", server.HostID),
-		d.Set("nics", nics),
-		d.Set("key_pair", server.KeyName),
-		d.Set("security_groups", secGrpIds),
-		d.Set("status", server.Status),
-		d.Set("user_id", server.Metadata.OpSvcUserId),
-		d.Set("image_name", server.Metadata.ImageName),
-		d.Set("vpc_id", server.Metadata.VpcID),
-		d.Set("agency_name", server.Metadata.AgencyName),
-		d.Set("availability_zone", server.AvailabilityZone),
-		d.Set("description", server.Description),
-		d.Set("user_data", server.UserData),
-		d.Set("enterprise_project_id", server.EnterpriseProjectID),
-		d.Set("disk_ids", diskIds),
-		utils.SetResourceTagsToState(d, bmsClient, "baremetalservers", d.Id()),
-		d.Set("tags", d.Get("tags")),
+	return rst
+}
+
+func getNicPort(client *golangsdk.ServiceClient, portId string) (interface{}, error) {
+	var (
+		httpUrl = "v2.0/ports/{port_id}"
 	)
 
-	// Set fixed and floating ip
-	if eip := bmsPublicIP(server); eip != "" {
-		mErr = multierror.Append(mErr, d.Set("public_ip", eip))
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{port_id}", portId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	return diag.FromErr(mErr.ErrorOrNil())
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving port: %s", err)
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func flattenInstanceSecurityGroups(respBody interface{}) []interface{} {
+	curJson := utils.PathSearch("server.security_groups", respBody, nil)
+	if curJson == nil {
+		return nil
+	}
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, utils.PathSearch("id", v, nil))
+	}
+	return rst
+}
+
+func flattenInstanceDiskIds(respBody interface{}) []interface{} {
+	curJson := utils.PathSearch(`server."os-extended-volumes:volumes_attached"`, respBody, nil)
+	if curJson == nil {
+		return nil
+	}
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, utils.PathSearch("id", v, nil))
+	}
+	return rst
+}
+
+func flattenInstancePublicIp(respBody interface{}) interface{} {
+	curJson := utils.PathSearch("server.addresses", respBody, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	for _, addrs := range curJson.(map[string]interface{}) {
+		for _, addr := range addrs.([]interface{}) {
+			addType := utils.PathSearch(`"OS-EXT-IPS:type"`, addr, "").(string)
+			if addType == "floating" {
+				return utils.PathSearch("addr", addr, nil)
+			}
+		}
+	}
+	return nil
 }
 
 func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	bmsClient, err := cfg.BmsV1Client(region)
+
+	var (
+		product = "bms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
 
 	instanceId := d.Id()
@@ -484,42 +715,36 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// if power_action is changed from OFF to ON, the instance should be start first
 	powerAction := d.Get("power_action").(string)
 	if d.HasChanges("power_action") && powerAction == "ON" {
-		if err = updatePowerAction(ctx, d, bmsClient, powerAction, schema.TimeoutUpdate); err != nil {
+		if err = updatePowerAction(ctx, d, client, powerAction, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("image_id") {
-		err = updateInstanceImage(ctx, d, bmsClient)
+		err = updateInstanceImage(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("name") {
-		var updateOpts baremetalservers.UpdateOpts
-		updateOpts.Name = d.Get("name").(string)
-
-		_, err = baremetalservers.Update(bmsClient, instanceId, updateOpts).Extract()
+		err = updateInstanceName(d, client)
 		if err != nil {
-			return diag.Errorf("error updating bms server: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("agency_name") {
-		metadataOpts := map[string]interface{}{
-			"agency_name": d.Get("agency_name").(string),
-		}
-		_, err := baremetalservers.UpdateMetadata(bmsClient, instanceId, metadataOpts).Extract()
+		err = updateInstanceMetadata(d, client, buildUpdateInstanceAgencyNameBodyParams(d))
 		if err != nil {
-			return diag.Errorf("error updating the BMS metadata agency_name: %s", err)
+			return diag.Errorf("error updating BMS instance agency name: %s", err)
 		}
 	}
 
 	if d.HasChanges("metadata") {
-		_, err := baremetalservers.UpdateMetadata(bmsClient, instanceId, d.Get("metadata").(map[string]interface{})).Extract()
+		err = updateInstanceMetadata(d, client, buildUpdateInstanceMetadataBodyParams(d))
 		if err != nil {
-			return diag.Errorf("error updating the BMS metadata: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -534,7 +759,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("tags") {
-		err = utils.UpdateResourceTags(bmsClient, d, "baremetalservers", instanceId)
+		err = utils.UpdateResourceTags(client, d, "baremetalservers", instanceId)
 		if err != nil {
 			return diag.Errorf("error updating tags of bms server: %s", err)
 		}
@@ -543,7 +768,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// Security group parammeters are missing in the network card, this is a legacy feature.
 	// The first network card can not be deleted, api error message:{"error": {"message": "primary port can not be deleted.", "code":"BMS.0222"}}
 	if d.HasChange("nics") {
-		err = updateInstanceNics(ctx, d, bmsClient, schema.TimeoutUpdate)
+		err = updateInstanceNics(ctx, d, client, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.Errorf("error updating NICs: %s", err)
 		}
@@ -563,7 +788,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	// if power_action is changed from ON to OFF/REBOOT, the instance should be close/restart at the end
 	if d.HasChanges("power_action") && (powerAction == "OFF" || powerAction == "REBOOT") {
-		if err = updatePowerAction(ctx, d, bmsClient, powerAction, schema.TimeoutUpdate); err != nil {
+		if err = updatePowerAction(ctx, d, client, powerAction, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -875,6 +1100,75 @@ func buildRebootInstanceBodyParams(d *schema.ResourceData) map[string]interface{
 	}
 }
 
+func updateInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateInstanceNameBodyParams(d)
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating BMS instance name: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceNameBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name": d.Get("name"),
+	}
+	return map[string]interface{}{
+		"server": bodyParams,
+	}
+}
+
+func updateInstanceMetadata(d *schema.ResourceData, client *golangsdk.ServiceClient, bodyParams interface{}) error {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}/metadata"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = bodyParams
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceAgencyNameBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"agency_name": d.Get("agency_name"),
+	}
+	return map[string]interface{}{
+		"metadata": bodyParams,
+	}
+}
+
+func buildUpdateInstanceMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"metadata": d.Get("metadata"),
+	}
+	return bodyParams
+}
+
 // Get the list of new and to-be-deleted network cards.
 func getDiffNics(d *schema.ResourceData) (addList []interface{}, removeList []interface{}) {
 	oldNics, newNics := d.GetChange("nics")
@@ -924,10 +1218,16 @@ func getDiffNics(d *schema.ResourceData) (addList []interface{}, removeList []in
 func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	bmsClient, err := cfg.BmsV1Client(region)
+
+	var (
+		product    = "bms"
+		eipProduct = "vpc"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating compute client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
+
 	serverID := d.Id()
 	publicIP := d.Get("public_ip").(string)
 	diskIds := d.Get("disk_ids").([]interface{})
@@ -944,17 +1244,17 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// unsubscribe the eip if necessary
 	if _, ok := d.GetOk("iptype"); ok && publicIP != "" && d.Get("eip_charge_mode").(string) == "prePaid" {
-		eipClient, err := cfg.NetworkingV1Client(region)
+		eipClient, err := cfg.NewServiceClient(eipProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating networking client: %s", err)
 		}
 
-		epsID := "all_granted_eps"
-		var eipID string
-		if eipID, err = common.GetEipIDbyAddress(eipClient, publicIP, epsID); err != nil {
-			return diag.Errorf("error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
+		eipId, err := getEipIdByAddress(eipClient, publicIP)
+		if err != nil {
+			return diag.FromErr(err)
 		}
-		resourceIDs = append(resourceIDs, eipID)
+
+		resourceIDs = append(resourceIDs, eipId)
 	}
 
 	if err := common.UnsubscribePrePaidResource(d, cfg, resourceIDs); err != nil {
@@ -964,7 +1264,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting", "ACTIVE", "SHUTOFF"},
 		Target:       []string{"DELETED"},
-		Refresh:      waitForBmsInstanceDelete(bmsClient, d.Id()),
+		Refresh:      waitForBmsInstanceDelete(client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -975,117 +1275,50 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error deleting BMS instance: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func resourceBmsInstanceNicsV1(d *schema.ResourceData) []baremetalservers.Nic {
-	var nicRequests []baremetalservers.Nic
+func getEipIdByAddress(client *golangsdk.ServiceClient, address string) (string, error) {
+	var (
+		httpUrl = "v3/{project_id}/eip/publicips"
+	)
 
-	nics := d.Get("nics").([]interface{})
-	for i := range nics {
-		nic := nics[i].(map[string]interface{})
-		nicRequest := baremetalservers.Nic{
-			SubnetId:  nic["subnet_id"].(string),
-			IpAddress: nic["ip_address"].(string),
-		}
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildGetEipByAddressQueryParams(address)
 
-		nicRequests = append(nicRequests, nicRequest)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	return nicRequests
-}
-
-func resourceBmsInstanceDataVolumesV1(d *schema.ResourceData) []baremetalservers.DataVolume {
-	var volRequests []baremetalservers.DataVolume
-
-	vols := d.Get("data_disks").([]interface{})
-	for i := range vols {
-		vol := vols[i].(map[string]interface{})
-		volRequest := baremetalservers.DataVolume{
-			VolumeType: vol["type"].(string),
-			Size:       vol["size"].(int),
-		}
-		volRequests = append(volRequests, volRequest)
-	}
-	return volRequests
-}
-
-func resourceBmsInstanceSecGroupsV1(d *schema.ResourceData) []baremetalservers.SecurityGroup {
-	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
-	secgroups := make([]baremetalservers.SecurityGroup, len(rawSecGroups))
-	for i, raw := range rawSecGroups {
-		secgroups[i] = baremetalservers.SecurityGroup{
-			ID: raw.(string),
-		}
-	}
-	return secgroups
-}
-
-func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
-	addresses map[string][]baremetalservers.Address) []map[string]interface{} {
-	cfg := meta.(*config.Config)
-	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		log.Printf("Error creating networking client: %s", err)
+		return "", fmt.Errorf("error retrieving EIP by address(%s): %s", address, err)
+	}
+	getRestBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return "", err
 	}
 
-	var network string
-	var nics []map[string]interface{}
-	// Loop through all networks and addresses.
-	for _, addrs := range addresses {
-		for _, addr := range addrs {
-			// Skip if not fixed ip
-			if addr.Type != "fixed" {
-				continue
-			}
-
-			p, err := ports.Get(networkingClient, addr.PortID).Extract()
-			if err != nil {
-				network = ""
-				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
-			} else {
-				network = p.NetworkID
-			}
-
-			v := map[string]interface{}{
-				"subnet_id":   network,
-				"ip_address":  addr.Addr,
-				"mac_address": addr.MacAddr,
-				"port_id":     addr.PortID,
-			}
-			nics = append(nics, v)
-		}
+	eipId := utils.PathSearch("publicips[0].id", getRestBody, nil)
+	if eipId == nil {
+		return "", fmt.Errorf("error retrieving EIP by address(%s)", address)
 	}
 
-	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
-	return nics
+	return eipId.(string), nil
 }
 
-func bmsPublicIP(server *baremetalservers.CloudServer) string {
-	var publicIP string
-
-	for _, addresses := range server.Addresses {
-		for _, addr := range addresses {
-			if addr.Type == "floating" {
-				publicIP = addr.Addr
-				break
-			}
-		}
-	}
-
-	return publicIP
+func buildGetEipByAddressQueryParams(address string) string {
+	return fmt.Sprintf("?enterprise_project_id=all_granted_eps&public_ip_address=%s", address)
 }
 
-func waitForBmsInstanceDelete(bmsClient *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
+func waitForBmsInstanceDelete(client *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete BMS instance %s", serverId)
-
-		r, err := baremetalservers.Get(bmsClient, serverId).Extract()
-
+		getRespBody, err := getInstance(client, serverId)
 		if err != nil {
-			return r, "Deleting", err
+			return getRespBody, "Deleting", err
 		}
+		status := utils.PathSearch("server.status", getRespBody, "").(string)
 
-		return r, r.Status, nil
+		return getRespBody, status, nil
 	}
 }
