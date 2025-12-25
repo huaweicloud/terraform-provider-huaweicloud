@@ -1543,6 +1543,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_billing_version":                            hss.DataSourceBillingVersion(),
 			"huaweicloud_hss_security_check_config":                      hss.DataSourceSecurityCheckConfig(),
 			"huaweicloud_hss_baseline_security_checks_directories":       hss.DataSourceBaselineSecurityChecksDirectories(),
+			"huaweicloud_hss_baseline_security_checks_default_policy":    hss.DataSourceBaselineSecurityChecksDefaultPolicy(),
 			"huaweicloud_hss_configs":                                    hss.DataSourceConfigs(),
 			"huaweicloud_hss_container_kubernetes_mciuc":                 hss.DataSourceHssContainerKubernetesMciuc(),
 			"huaweicloud_hss_operational_report_notification":            hss.DataSourceOperationalReportNotification(),
