@@ -43,7 +43,7 @@ resource "huaweicloud_obs_bucket_policy" "test" {
     }
   ]
 }
-POLICY
+  POLICY
 }
 
 resource "huaweicloud_oms_migration_task_group" "test" {

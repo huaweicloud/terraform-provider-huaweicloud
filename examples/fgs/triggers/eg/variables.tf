@@ -233,7 +233,7 @@ def get_obs_obj_info(record):
         obs_info = record['obs']
         return obs_info['bucket']['name'], obs_info['object']['key']
 
-EOT
+  EOT
 }
 
 variable "function_description" {
