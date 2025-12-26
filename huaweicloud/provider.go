@@ -1983,6 +1983,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_configuration_dictionaries":   secmaster.DataSourceConfigurationDictionaries(),
 			"huaweicloud_secmaster_data_class_fields":            secmaster.DataSourceSecmasterDataClassFields(),
 			"huaweicloud_secmaster_data_classes":                 secmaster.DataSourceSecmasterDataClasses(),
+			"huaweicloud_secmaster_dataspaces":                   secmaster.DataSourceDataspaces(),
 			"huaweicloud_secmaster_incidents":                    secmaster.DataSourceIncidents(),
 			"huaweicloud_secmaster_indicators":                   secmaster.DataSourceIndicators(),
 			"huaweicloud_secmaster_installation_scripts":         secmaster.DataSourceSecmasterInstallationScripts(),
