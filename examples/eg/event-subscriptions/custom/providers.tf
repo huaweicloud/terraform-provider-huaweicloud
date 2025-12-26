@@ -1,10 +1,14 @@
 terraform {
-  required_providers {
-    required_version = ">= 0.14.0"
+  required_version = ">= 0.14.0"
 
+  required_providers {
     huaweicloud = {
       source  = "huaweicloud/huaweicloud"
-      version = ">= 1.77.4"
+      version = ">= 1.77.5"
+    }
+    time        = {
+      source  = "hashicorp/time"
+      version = "~> 0.13"
     }
   }
 }

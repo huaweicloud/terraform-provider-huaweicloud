@@ -21,7 +21,6 @@ variable "volume_availability_zone" {
   description = "The availability zone for the volume"
   type        = string
   default     = ""
-
   nullable    = false
 }
 

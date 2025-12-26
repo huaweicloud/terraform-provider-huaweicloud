@@ -105,12 +105,12 @@ variable "policy_assignment_policy_filter" {
   description = "The configuration used to filter resources"
 
   type = list(object({
-    region  = string
+    region            = string
     resource_provider = string
-    resource_type = string
-    resource_id = string
-    tag_key = string
-    tag_value = string
+    resource_type     = string
+    resource_id       = string
+    tag_key           = string
+    tag_value         = string
   }))
 
   default = []
@@ -119,7 +119,7 @@ variable "policy_assignment_policy_filter" {
 variable "policy_assignment_parameters" {
   description = "The parameters of the policy assignment"
   type        = map(string)
-  default = {
+  default     = {
     "tagKeys" = "[\"Owner\",\"Env\"]"
   }
 }
@@ -127,7 +127,7 @@ variable "policy_assignment_parameters" {
 variable "policy_assignment_tags" {
   description = "The tags of the policy assignment"
   type        = map(string)
-  default = {
+  default     = {
     "Owner" = "terraform"
     "Env"   = "test"
   }

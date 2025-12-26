@@ -85,6 +85,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   image_id          = var.desktop_image_id == "" ? try(data.huaweicloud_images_images.test[0].images[0].id, null) : var.desktop_image_id
   availability_zone = var.availability_zone == "" ? try(data.huaweicloud_availability_zones.test[0].names[0], null) : var.availability_zone
   vpc_id            = data.huaweicloud_workspace_service.test.status != "CLOSED" ? data.huaweicloud_workspace_service.test.vpc_id : try(huaweicloud_vpc.test[0].id, null)
+  # ST.005 Disable
   security_groups   = data.huaweicloud_workspace_service.test.status != "CLOSED" ? concat(
     data.huaweicloud_workspace_service.test.desktop_security_group[*].id,
     data.huaweicloud_workspace_service.test.infrastructure_security_group[*].id,
@@ -94,6 +95,7 @@ resource "huaweicloud_workspace_desktop" "test" {
     try(huaweicloud_workspace_service.test[0].infrastructure_security_group[*].id, []),
     try(huaweicloud_networking_secgroup.test[0].id, []),
   )
+  # ST.005 Enable
 
   dynamic "nic" {
     for_each = data.huaweicloud_workspace_service.test.status != "CLOSED" ? data.huaweicloud_workspace_service.test.network_ids : try([huaweicloud_vpc_subnet.test[0].id], [])

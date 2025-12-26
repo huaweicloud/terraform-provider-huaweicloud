@@ -25,8 +25,8 @@ pvc_name              = "tf-test-pvc-obs"
 deployment_name       = "tf-test-deployment"
 deployment_containers = [
   {
-    name          = "container-1"
-    image         = "nginx:latest"
+    name  = "container-1"
+    image = "nginx:latest"
 
     volume_mounts = [
       {

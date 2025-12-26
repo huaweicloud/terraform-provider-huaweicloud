@@ -54,14 +54,14 @@ resource "huaweicloud_fgs_function_trigger" "test" {
   cascade_delete_eg_subscription = true
   status                         = var.trigger_status
   event_data                     = jsonencode({
-    "channel_id"           = try(data.huaweicloud_eg_event_channels.test.channels[0].id, "")
-    "channel_name"         = try(data.huaweicloud_eg_event_channels.test.channels[0].name, "")
-    "source_name"          = "HC.OBS.DWR"
-    "trigger_name"         = var.trigger_name_suffix
-    "agency"               = var.trigger_agency_name
-    "bucket"               = var.source_bucket_name
-    "event_types"          = ["OBS:DWR:ObjectCreated:PUT", "OBS:DWR:ObjectCreated:POST"]
-    "Key_encode"           = true
+    "channel_id"   = try(data.huaweicloud_eg_event_channels.test.channels[0].id, "")
+    "channel_name" = try(data.huaweicloud_eg_event_channels.test.channels[0].name, "")
+    "source_name"  = "HC.OBS.DWR"
+    "trigger_name" = var.trigger_name_suffix
+    "agency"       = var.trigger_agency_name
+    "bucket"       = var.source_bucket_name
+    "event_types"  = ["OBS:DWR:ObjectCreated:PUT", "OBS:DWR:ObjectCreated:POST"]
+    "Key_encode"   = true
   })
 
   lifecycle {

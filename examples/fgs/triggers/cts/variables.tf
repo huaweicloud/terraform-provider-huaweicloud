@@ -82,7 +82,7 @@ def handler (event, context):
     trace_name = event["cts"]["resource_name"]
     timeinfo = event["cts"]["time"]
     print(timeinfo+' '+trace_name)
-EOT
+  EOT
 }
 
 variable "function_description" {

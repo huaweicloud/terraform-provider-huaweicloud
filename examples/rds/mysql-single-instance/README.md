@@ -104,6 +104,6 @@ The following variables need to be configured:
 
 | Name | Version |
 | ---- | ---- |
-| terraform | >= 0.12.0 |
-| huaweicloud | >= 1.54.0 |
+| terraform | >= 0.14.0 |
+| huaweicloud | >= 1.47.0 |
 | random | >= 3.0.0 |

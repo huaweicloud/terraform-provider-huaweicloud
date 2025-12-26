@@ -48,7 +48,7 @@ variable "enterprise_project_id" {
 variable "global_gateway_tags" {
   description = "The tags of the global gateway"
   type        = map(string)
-  default = {
+  default     = {
     "Owner" = "terraform"
     "Env"   = "test"
   }

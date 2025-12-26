@@ -55,8 +55,7 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = length(var.availability_zones) > 0 ? var.availability_zones : var.instance_mode == "ha" ? try(
-    slice(data.huaweicloud_availability_zones.test[0].names, 0, 2), []) : try(slice(data.huaweicloud_availability_zones.test[0].names, 0, 1), [])
+  availability_zone   = length(var.availability_zones) > 0 ? var.availability_zones : var.instance_mode == "ha" ? try(slice(data.huaweicloud_availability_zones.test[0].names, 0, 2), []) : try(slice(data.huaweicloud_availability_zones.test[0].names, 0, 1), [])
   ha_replication_mode = var.instance_mode == "ha" ? var.ha_replication_mode : null
 
   db {

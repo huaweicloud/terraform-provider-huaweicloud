@@ -54,7 +54,7 @@ def handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Hello, FunctionGraph!')
     }
-EOT
+  EOT
 }
 
 variable "function_description" {

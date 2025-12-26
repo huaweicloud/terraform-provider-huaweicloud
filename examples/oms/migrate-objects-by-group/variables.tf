@@ -151,10 +151,10 @@ variable "group_enable_failed_object_recording" {
 variable "target_bucket_configuration" {
   description = "The target bucket configuration to be migrated"
   type        = object({
-    region      = optional(string, "")
-    bucket      = string
-    access_key  = optional(string, "")
-    secret_key  = optional(string, "")
+    region     = optional(string, "")
+    bucket     = string
+    access_key = optional(string, "")
+    secret_key = optional(string, "")
   })
 }
 

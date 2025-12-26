@@ -99,35 +99,35 @@ variable "instance_password" {
 
 variable "instance_backup_policy" {
   description = "The backup policy of the Redis instance"
-  type = object({
+  type        = object({
     backup_type = optional(string, "auto")
     backup_at   = list(number)
     begin_at    = string
     save_days   = optional(number, null)
     period_type = optional(string, null)
   })
-  default = null
+  default     = null
 }
 
 variable "instance_whitelists" {
   description = "The whitelists of the Redis instance"
-  type = list(object({
+  type        = list(object({
     group_name = string
     ip_address = list(string)
   }))
-  default  = []
-  nullable = false
+  default     = []
+  nullable    = false
 }
 
 variable "instance_parameters" {
   description = "The parameters of the Redis instance"
-  type = list(object({
+  type        = list(object({
     id    = string
     name  = string
     value = string
   }))
-  default  = []
-  nullable = false
+  default     = []
+  nullable    = false
 }
 
 variable "instance_tags" {

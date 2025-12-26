@@ -13,7 +13,7 @@ script_content      = <<EOF
 echo "hello $${name}!"
 sleep 2m
 EOF
-script_parameters = [
+script_parameters   = [
   {
     name        = "name"
     value       = "world"
@@ -26,14 +26,16 @@ script_parameters = [
     sensitive   = true
   }
 ]
-script_execute_timeout = 600
-script_execute_user    = "root"
+
+script_execute_timeout    = 600
+script_execute_user       = "root"
 script_execute_parameters = [
   {
     name  = "name"
     value = "somebody"
   }
 ]
+
 script_order_operation_batch_index = 1
 script_order_operation_instance_id = 1
 script_order_operation_type        = "CANCEL_ORDER"

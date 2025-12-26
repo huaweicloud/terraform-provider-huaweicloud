@@ -78,7 +78,7 @@ variable "instance_flavors_filter" {
   ]
 
   validation {
-    condition = length(var.instance_flavors_filter) == 2 && length(setintersection([for o in var.instance_flavors_filter : lookup(o, "instance_mode", "")], ["ha", "replica"])) == 2
+    condition     = length(var.instance_flavors_filter) == 2 && length(setintersection([for o in var.instance_flavors_filter : lookup(o, "instance_mode", "")], ["ha", "replica"])) == 2
     error_message = "The instance_flavors_filter must contain at least two elements and must have both 'ha' and 'replica'."
   }
 }

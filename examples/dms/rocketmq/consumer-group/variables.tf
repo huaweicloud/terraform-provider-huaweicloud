@@ -151,11 +151,11 @@ variable "instance_tls_mode" {
 
 variable "instance_configs" {
   description = "The configs of the RocketMQ instance"
-  type = list(object({
+  type        = list(object({
     name  = string
     value = string
   }))
-  default = []
+  default     = []
 }
 
 variable "consumer_group_brokers" {

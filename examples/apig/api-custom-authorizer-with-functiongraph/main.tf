@@ -52,6 +52,7 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
 
   dynamic "identity" {
     for_each = var.custom_authorizer_identity
+
     content {
       name       = identity.value.name
       location   = identity.value.location
@@ -67,6 +68,7 @@ resource "huaweicloud_apig_response" "test" {
 
   dynamic "rule" {
     for_each = var.response_rules
+
     content {
       error_type  = rule.value["error_type"]
       body        = rule.value["body"]
@@ -104,6 +106,7 @@ resource "huaweicloud_apig_api" "test" {
 
   dynamic "backend_params" {
     for_each = var.api_backend_params
+
     content {
       type              = backend_params.value["type"]
       name              = backend_params.value["name"]

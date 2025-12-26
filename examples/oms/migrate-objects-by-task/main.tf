@@ -1,4 +1,3 @@
-
 resource "huaweicloud_kms_key" "test" {
   count = var.bucket_encryption && var.bucket_encryption_key_id == "" ? 1 : 0
 
@@ -44,7 +43,7 @@ resource "huaweicloud_obs_bucket_policy" "test" {
     }
   ]
 }
-POLICY
+  POLICY
 }
 
 resource "huaweicloud_oms_migration_task" "test" {

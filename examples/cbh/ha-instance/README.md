@@ -88,5 +88,5 @@ This example provides best practice code for using Terraform to create a high-av
 
 | Name        | Version   |
 |-------------|-----------|
-| terraform   | >= 1.1.0 |
+| terraform   | >= 0.14.0 |
 | huaweicloud | >= 1.64.3 |

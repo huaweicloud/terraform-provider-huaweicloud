@@ -109,7 +109,7 @@ variable "enable_nqa" {
 variable "virtual_interface_tags" {
   description = "The tags of the virtual interface"
   type        = map(string)
-  default = {
+  default     = {
     "Owner" = "terraform"
     "Env"   = "test"
   }

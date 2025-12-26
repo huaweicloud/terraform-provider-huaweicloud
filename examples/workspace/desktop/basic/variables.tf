@@ -132,11 +132,11 @@ variable "desktop_root_volume_size" {
 
 variable "desktop_data_volumes" {
   description = "The storage configuration of data disks"
-  type = list(object({
+  type        = list(object({
     type = string
     size = number
   }))
-  default = [
+  default     = [
     {
       type = "SSD",
       size = 100,
