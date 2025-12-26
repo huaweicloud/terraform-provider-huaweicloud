@@ -43,6 +43,7 @@ resource "huaweicloud_secmaster_playbook_rule" "test" {
 
   dynamic "conditions" {
     for_each = var.rule_conditions
+
     content {
       name   = conditions.value.name
       detail = conditions.value.detail

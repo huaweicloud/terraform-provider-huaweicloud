@@ -66,6 +66,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
   dynamic "policy" {
     for_each = var.enable_policy ? [1] : []
+
     content {
       id = huaweicloud_cbr_policy.test[0].id
     }

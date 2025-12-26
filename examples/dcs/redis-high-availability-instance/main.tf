@@ -36,6 +36,7 @@ resource "huaweicloud_dcs_instance" "test" {
 
   dynamic "backup_policy" {
     for_each = var.instance_backup_policy != null ? [var.instance_backup_policy] : []
+
     content {
       backup_type = lookup(backup_policy.value, "backup_type", null)
       save_days   = lookup(backup_policy.value, "save_days", null)
@@ -47,6 +48,7 @@ resource "huaweicloud_dcs_instance" "test" {
 
   dynamic "whitelists" {
     for_each = var.instance_whitelists
+
     content {
       group_name = whitelists.value["group_name"]
       ip_address = whitelists.value["ip_address"]
@@ -55,6 +57,7 @@ resource "huaweicloud_dcs_instance" "test" {
 
   dynamic "parameters" {
     for_each = var.instance_parameters
+
     content {
       id    = parameters.value["id"]
       name  = parameters.value["name"]

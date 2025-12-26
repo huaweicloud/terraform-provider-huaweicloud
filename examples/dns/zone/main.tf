@@ -11,6 +11,7 @@ resource "huaweicloud_dns_zone" "test" {
 
   dynamic "router" {
     for_each = var.dns_public_zone_router
+
     content {
       router_id     = router.value.router_id
       router_region = router.value.router_region

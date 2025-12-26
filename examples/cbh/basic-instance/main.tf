@@ -4,7 +4,8 @@ data "huaweicloud_cbh_availability_zones" "test" {
 
 data "huaweicloud_cbh_flavors" "test" {
   count = var.instance_flavor_id == "" ? 1 : 0
-  type  = var.instance_flavor_type
+
+  type = var.instance_flavor_type
 }
 
 resource "huaweicloud_vpc" "test" {
