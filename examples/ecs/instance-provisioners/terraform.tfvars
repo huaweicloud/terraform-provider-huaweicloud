@@ -1,4 +1,3 @@
-
 vpc_name            = "tf_test-vpc"
 subnet_name         = "tf_test-subnet"
 security_group_name = "tf_test-security-group"
