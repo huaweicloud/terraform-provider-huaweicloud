@@ -1221,7 +1221,7 @@ func flattenSmsSourceServerCurrentTask(param interface{}) interface{} {
 			"project_name":        utils.PathSearch("project_name", param, nil),
 			"project_id":          utils.PathSearch("project_id", param, nil),
 			"target_server": flattenSmsSourceServerCurrentTaskTargetServer(
-				utils.PathSearch("target_server", param, make([]interface{}, 0)).([]interface{})),
+				utils.PathSearch("target_server", param, nil)),
 			"log_collect_status": utils.PathSearch("log_collect_status", param, nil),
 			"exist_server":       utils.PathSearch("exist_server", param, nil),
 			"use_public_ip":      utils.PathSearch("use_public_ip", param, nil),

@@ -193,8 +193,18 @@ The following arguments are supported:
   `bandwidth_charge_mode`, `bandwidth_size`.
 
 * `l4_flavor_id` - (Optional, String) The L4 flavor id of the load balancer.
+  + If neither `l4_flavor_id` nor `l7_flavor_id` is specified, the default flavor is used. The default flavor varies by
+    site.
+  + If the flavor type is **L4**, the load balancer uses the fixed flavors and will be billed by the flavor you select.
+  + If the flavor type is **L4_elastic_max**, the load balancer uses the elastic flavors and will be billed by how many
+    LCUs you use.
 
 * `l7_flavor_id` - (Optional, String) The L7 flavor id of the load balancer.
+  + If neither `l4_flavor_id` nor `l7_flavor_id` is specified, the default flavor is used. The default flavor varies by
+    site.
+  + If the flavor type is **L7**, the load balancer uses the fixed flavors and will be billed by the flavor you select.
+  + If the flavor type is **L7_elastic_max**, the load balancer uses the elastic flavors and will be billed by how many
+    LCUs you use.
 
 * `gw_flavor_id` - (Optional, String) The flavor ID of the gateway load balancer.
 

@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -322,9 +323,10 @@ func ResourceDcsInstance() *schema.Resource {
 				Computed: true,
 			},
 			"transparent_client_ip_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -678,7 +680,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	if !d.Get("transparent_client_ip_enable").(bool) {
+	if v, ok := d.GetOk("transparent_client_ip_enable"); ok && v.(string) == "false" {
 		err = updateTransparentClientIpEnable(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
@@ -970,7 +972,8 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("cpu_type", utils.PathSearch("cpu_type", instance, nil)),
 		d.Set("readonly_domain_name", utils.PathSearch("readonly_domain_name", instance, nil)),
 		d.Set("replica_count", utils.PathSearch("replica_count", instance, nil)),
-		d.Set("transparent_client_ip_enable", utils.PathSearch("transparent_client_ip_enable", instance, nil)),
+		d.Set("transparent_client_ip_enable", strconv.FormatBool(utils.PathSearch("transparent_client_ip_enable",
+			instance, false).(bool))),
 		d.Set("bandwidth_info", flattenInstanceBandWidth(instance)),
 		d.Set("product_type", utils.PathSearch("product_type", instance, nil)),
 		d.Set("sharding_count", utils.PathSearch("sharding_count", instance, nil)),
@@ -1747,8 +1750,9 @@ func updateTransparentClientIpEnable(ctx context.Context, d *schema.ResourceData
 }
 
 func buildUpdateTransparentClientIpEnableBodyParams(d *schema.ResourceData) map[string]interface{} {
+	transparentClientIpEnable, _ := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
 	bodyParams := map[string]interface{}{
-		"transparent_client_ip_enable": d.Get("transparent_client_ip_enable"),
+		"transparent_client_ip_enable": transparentClientIpEnable,
 	}
 	return bodyParams
 }

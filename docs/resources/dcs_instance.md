@@ -222,7 +222,8 @@ The following arguments are supported:
 * `expire_key_scan_keys_count` - (Optional, Int) Specifies the number of keys scanned in iteration for expire key. It is
   mandatory when `expire_key_enable_auto_scan` is set to **true**.
 
-* `transparent_client_ip_enable` - (Optional, Bool) Specifies whether client IP pass-through is enabled.
+* `transparent_client_ip_enable` - (Optional, String) Specifies whether client IP pass-through is enabled.
+  Value options: **true**, **false**.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
