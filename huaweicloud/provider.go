@@ -2997,6 +2997,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_consumer_group":                    kafka.ResourceDmsKafkaConsumerGroup(),
 			"huaweicloud_dms_kafka_instance_batch_action":             kafka.ResourceInstanceBatchAction(),
 			"huaweicloud_dms_kafka_instance":                          kafka.ResourceDmsKafkaInstance(),
+			"huaweicloud_dms_kafka_instance_public_access_switch":     kafka.ResourcePublicAccessSwitch(),
 			"huaweicloud_dms_kafka_instance_upgrade":                  kafka.ResourceInstanceUpgrade(),
 			"huaweicloud_dms_kafka_instance_rebalance_log":            kafka.ResourceInstanceRebalanceLog(),
 			"huaweicloud_dms_kafka_instance_restart":                  kafka.ResourceDmsKafkaInstanceRestart(),
