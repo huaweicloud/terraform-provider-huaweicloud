@@ -36,6 +36,10 @@ func ResourceAppServerAction() *schema.Resource {
 
 		CustomizeDiff: config.FlexibleForceNew(appServerActionNonUpdatableParams),
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,

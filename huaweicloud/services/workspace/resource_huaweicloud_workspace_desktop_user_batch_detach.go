@@ -18,9 +18,17 @@ import (
 
 var desktopUserBatchDetachNonUpdatableParams = []string{
 	"desktops",
+	"desktops.*.desktop_id",
+	"desktops.*.is_detach_all_users",
+	"desktops.*.detach_user_infos",
+	"desktops.*.detach_user_infos.*.type",
+	"desktops.*.detach_user_infos.*.user_id",
+	"desktops.*.detach_user_infos.*.user_name",
+	"desktops.*.detach_user_infos.*.user_group",
 }
 
 // @API Workspace POST /v2/{project_id}/desktops/batch-detach
+// @API Workspace GET /v2/{project_id}/workspace-sub-jobs
 func ResourceDesktopUserBatchDetach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDesktopUserBatchDetachCreate,

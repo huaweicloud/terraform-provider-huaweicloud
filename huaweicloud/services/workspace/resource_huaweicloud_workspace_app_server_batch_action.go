@@ -50,6 +50,10 @@ func ResourceAppServerBatchAction() *schema.Resource {
 
 		CustomizeDiff: config.FlexibleForceNew(appServerBatchActionNonUpdatableParams),
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,

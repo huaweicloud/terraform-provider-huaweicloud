@@ -19,6 +19,10 @@ var applicationBatchAutoInstallNonUpdatableParams = []string{
 	"app_ids",
 	"assign_scope",
 	"users",
+	"users.*.account",
+	"users.*.account_type",
+	"users.*.domain",
+	"users.*.platform_type",
 }
 
 // @API Workspace POST /v1/{project_id}/app-center/apps/actions/batch-auto-install

@@ -36,7 +36,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the scaling policy is located.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `server_group_id` - (Required, String) Specifies the ID of the server group to which the scaling policy belongs.
+* `server_group_id` - (Required, String, NonUpdatable) Specifies the ID of the server group to which the scaling
+  policy belongs.
 
 * `max_scaling_amount` - (Required, Int) Specifies the maximum number of instances that can be scaled out.
   The valid value is range from `1` to `100`.

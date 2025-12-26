@@ -17,9 +17,21 @@ import (
 
 var desktopUserBatchAttachNonUpdatableParams = []string{
 	"desktops",
+	"desktops.*.desktop_id",
+	"desktops.*.computer_name",
+	"desktops.*.user_name",
+	"desktops.*.user_group",
+	"desktops.*.user_email",
+	"desktops.*.is_clear_data",
+	"desktops.*.attach_user_infos",
+	"desktops.*.attach_user_infos.*.type",
+	"desktops.*.attach_user_infos.*.user_id",
+	"desktops.*.attach_user_infos.*.user_name",
+	"desktops.*.attach_user_infos.*.user_group",
 }
 
 // @API Workspace POST /v2/{project_id}/desktops/attach
+// @API Workspace GET /v2/{project_id}/workspace-sub-jobs
 func ResourceDesktopUserBatchAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDesktopUserBatchAttachCreate,

@@ -31,7 +31,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the server group is located.  
   Changing this creates a new resource.
 
-* `server_group_id` - (Required, String) Specifies the ID of the server group to disassociate all application groups.
+* `server_group_id` - (Required, String, NonUpdatable) Specifies the ID of the server group to disassociate
+  all application groups.
 
 ## Attribute Reference
 
