@@ -712,18 +712,33 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_supported_areas":                              cc.DataSourceCcSupportedAreas(),
 			"huaweicloud_cc_supported_regions":                            cc.DataSourceCcSupportedRegions(),
 
-			"huaweicloud_cce_addon_template":         cce.DataSourceAddonTemplate(),
-			"huaweicloud_cce_cluster":                cce.DataSourceCCEClusterV3(),
-			"huaweicloud_cce_clusters":               cce.DataSourceCCEClusters(),
-			"huaweicloud_cce_cluster_certificate":    cce.DataSourceCCEClusterCertificate(),
-			"huaweicloud_cce_cluster_openid_jwks":    cce.DataSourceCCEClusterOpenIDJWKS(),
-			"huaweicloud_cce_node":                   cce.DataSourceNode(),
-			"huaweicloud_cce_nodes":                  cce.DataSourceNodes(),
-			"huaweicloud_cce_node_pool":              cce.DataSourceCCENodePoolV3(),
-			"huaweicloud_cce_charts":                 cce.DataSourceCCECharts(),
-			"huaweicloud_cce_cluster_configurations": cce.DataSourceClusterConfigurations(),
-			"huaweicloud_cce_addons":                 cce.DataSourceCceAddons(),
-			"huaweicloud_cce_cluster_upgrade_info":   cce.DataSourceCceClusterUpgradeInfo(),
+			"huaweicloud_cce_access_policies":               cce.DataSourceCCEAccessPolicies(),
+			"huaweicloud_cce_image_caches":                  cce.DataSourceCCEImageCaches(),
+			"huaweicloud_cce_addon_template":                cce.DataSourceAddonTemplate(),
+			"huaweicloud_cce_cluster":                       cce.DataSourceCCEClusterV3(),
+			"huaweicloud_cce_clusters":                      cce.DataSourceCCEClusters(),
+			"huaweicloud_cce_cluster_certificate":           cce.DataSourceCCEClusterCertificate(),
+			"huaweicloud_cce_cluster_openid_jwks":           cce.DataSourceCCEClusterOpenIDJWKS(),
+			"huaweicloud_cce_flavor_specifications":         cce.DataSourceCCEFlavorSpecifications(),
+			"huaweicloud_cce_cluster_configuration_details": cce.DataSourceClusterConfigurationDetails(),
+			"huaweicloud_cce_node":                          cce.DataSourceNode(),
+			"huaweicloud_cce_nodes":                         cce.DataSourceNodes(),
+			"huaweicloud_cce_node_pool":                     cce.DataSourceCCENodePoolV3(),
+			"huaweicloud_cce_charts":                        cce.DataSourceCCECharts(),
+			"huaweicloud_cce_cluster_configurations":        cce.DataSourceClusterConfigurations(),
+			"huaweicloud_cce_addons":                        cce.DataSourceCceAddons(),
+			"huaweicloud_cce_releases":                      cce.DataSourceCCEReleases(),
+			"huaweicloud_cce_chart_values":                  cce.DataSourceCCEShowChartValues(),
+			"huaweicloud_cce_cluster_upgrade_info":          cce.DataSourceCceClusterUpgradeInfo(),
+
+			"huaweicloud_cce_autopilot_addon_templates":      cceautopilot.DataSourceCceAutopilotAddonTemplates(),
+			"huaweicloud_cce_autopilot_clusters":             cceautopilot.DataSourceCceAutopilotClusters(),
+			"huaweicloud_cce_autopilot_cluster_certificate":  cceautopilot.DataSourceCceAutopilotClusterCertificate(),
+			"huaweicloud_cce_autopilot_cluster_upgrade_info": cceautopilot.DataSourceCceAutopilotClusterUpgradeInfo(),
+			"huaweicloud_cce_autopilot_releases":             cceautopilot.DataSourceCCEAutopilotReleases(),
+			"huaweicloud_cce_autopilot_cluster_log_configs":  cceautopilot.DataSourceCceAutopilotClusterLogConfigs(),
+			"huaweicloud_cce_autopilot_charts":               cceautopilot.DataSourceCceAutopilotCharts(),
+			"huaweicloud_cce_autopilot_addons":               cceautopilot.DataSourceCceAutopilotAddons(),
 
 			"huaweicloud_cci_namespaces":                 cci.DataSourceCciNamespaces(),
 			"huaweicloud_cciv2_namespaces":               cci.DataSourceV2Namespaces(),
@@ -2396,11 +2411,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdm_flavors_v1": cdm.DataSourceCdmFlavors(),
 
-			"huaweicloud_cce_autopilot_addon_templates":     cceautopilot.DataSourceCceAutopilotAddonTemplates(),
-			"huaweicloud_cce_autopilot_clusters":            cceautopilot.DataSourceCceAutopilotClusters(),
-			"huaweicloud_cce_autopilot_cluster_certificate": cceautopilot.DataSourceCceAutopilotClusterCertificate(),
-			"huaweicloud_cce_cluster_v3":                    cce.DataSourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":                       cce.DataSourceNode(),
+			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":    cce.DataSourceNode(),
+
+			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
+			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
 
 			"huaweicloud_dcs_maintainwindow_v1": dcs.DataSourceDcsMaintainWindow(),
 
@@ -2421,9 +2436,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dds_flavors_v3": dds.DataSourceDDSFlavorV3(),
 
-			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
-			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
-			"huaweicloud_dms_rocketmq_broker":   rocketmq.DataSourceBrokers(),
+			"huaweicloud_dms_rocketmq_broker": rocketmq.DataSourceBrokers(),
 
 			"huaweicloud_identity_role_v3":             iam.DataSourceIdentityRole(),
 			"huaweicloud_identity_virtual_mfa_devices": iam.DataSourceIamIdentityVirtualMfaDevices(),
