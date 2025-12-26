@@ -3715,6 +3715,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook_version":            secmaster.ResourcePlaybookVersion(),
 			"huaweicloud_secmaster_playbook":                    secmaster.ResourcePlaybook(),
 			"huaweicloud_secmaster_post_paid_order":             secmaster.ResourcePostPaidOrder(),
+			"huaweicloud_secmaster_soc_mapping_clone":           secmaster.ResourceSocMappingClone(),
 			"huaweicloud_secmaster_soc_mapping_delete":          secmaster.ResourceSocMappingDelete(),
 			"huaweicloud_secmaster_workflow_action":             secmaster.ResourceWorkflowAction(),
 			"huaweicloud_secmaster_workflow_version":            secmaster.ResourceWorkflowVersion(),
