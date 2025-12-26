@@ -31,8 +31,6 @@ data "huaweicloud_elb_flavors" "flavors" {
 * `type` - (Optional, String) Specifies the flavor type. Values options:
   + **L4**: indicates Layer-4 flavor.
   + **L7**: indicates Layer-7 flavor.
-  + **L4_elastic**: indicates minimum Layer-4 flavor for elastic scaling.
-  + **L7_elastic**: indicates minimum Layer-7 flavor for elastic scaling.
   + **L4_elastic_max**: indicates maximum Layer-4 flavor for elastic scaling.
   + **L7_elastic_max**: indicates maximum Layer-7 flavor for elastic scaling
 
