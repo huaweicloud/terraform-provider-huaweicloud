@@ -80,5 +80,5 @@ single ECS instance.
 
 | Name        | Version    |
 | ----------- | ---------- |
-| terraform   | >= 1.3.0   |
-| huaweicloud | >= 1.70.1  |
+| terraform   | >= 0.14.0  |
+| huaweicloud | >= 1.57.0  |

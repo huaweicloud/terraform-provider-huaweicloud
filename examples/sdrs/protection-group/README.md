@@ -81,4 +81,4 @@ The following variables need to be configured:
 | Name | Version   |
 | ---- |-----------|
 | terraform | >= 1.9.0  |
-| huaweicloud | >= 1.77.0 |
+| huaweicloud | >= 1.51.0 |

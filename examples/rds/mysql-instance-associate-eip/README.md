@@ -136,6 +136,6 @@ associate_eip_address = "your_existing_eip_address"
 
 | Name | Version |
 | ---- | ---- |
-| terraform | >= 0.12.0 |
-| huaweicloud | >= 1.54.0 |
+| terraform | >= 1.9.0 |
+| huaweicloud | >= 1.40.0 |
 | random | >= 3.0.0 |

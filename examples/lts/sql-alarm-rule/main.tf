@@ -48,7 +48,7 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
   }
 
   notification_save_rule {
-    template_name = var.notification_template_name!= "" ? var.notification_template_name : try([for v in data.huaweicloud_lts_notification_templates.test.templates[*].name :v if v == "sql_template"][0], null)
+    template_name = var.notification_template_name!= "" ? var.notification_template_name : try([for v in data.huaweicloud_lts_notification_templates.test[0].templates[*].name :v if v == "sql_template"][0], null)
     user_name     = var.alarm_rule_notification_user_name
     language      = var.alarm_rule_notification_language
 
