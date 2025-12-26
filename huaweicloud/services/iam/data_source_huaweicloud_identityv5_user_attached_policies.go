@@ -3,8 +3,8 @@ package iam
 import (
 	"context"
 	"fmt"
-	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,13 +15,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IAM GET /v5/groups/{group_id}/attached-policies
-func DataSourceIdentityV5GroupAttachedPolicies() *schema.Resource {
+// @API IAM GET /v5/users/{user_id}/attached-policies
+func DataSourceIdentityV5UserAttachedPolicies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5GroupAttachedPoliciesRead,
+		ReadContext: dataSourceIdentityV5UserAttachedPoliciesRead,
 
 		Schema: map[string]*schema.Schema{
-			"group_id": {
+			"user_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -53,7 +53,7 @@ func DataSourceIdentityV5GroupAttachedPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIdentityV5UserAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam", region)
@@ -61,15 +61,14 @@ func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	groupId := d.Get("group_id").(string)
-
 	var allPolicies []interface{}
 	var marker string
 	var path string
 
+	userID := d.Get("user_id").(string)
+
 	for {
-		path = client.Endpoint + "v5/groups/{group_id}/attached-policies" + buildListAttachedPoliciesV5Params(marker)
-		path = strings.ReplaceAll(path, "{group_id}", groupId)
+		path = client.Endpoint + "v5/users/" + userID + "/attached-policies" + buildListAttachedUserPoliciesV5Params(marker)
 		reqOpt := &golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
@@ -81,7 +80,8 @@ func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		policies := flattenListAttachedPoliciesV5Response(resp)
+
+		policies := flattenListAttachedUserPoliciesV5Response(resp)
 		allPolicies = append(allPolicies, policies...)
 
 		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
@@ -90,18 +90,25 @@ func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.
 		}
 	}
 
-	id, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	id, _ := uuid.GenerateUUID()
 	d.SetId(id)
-	if err = d.Set("attached_policies", allPolicies); err != nil {
-		return diag.FromErr(err)
-	}
-	return nil
+
+	mErr := multierror.Append(nil,
+		d.Set("attached_policies", allPolicies),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenListAttachedPoliciesV5Response(resp interface{}) []interface{} {
+func buildListAttachedUserPoliciesV5Params(marker string) string {
+	res := "?limit=100"
+	if marker != "" {
+		res = fmt.Sprintf("%s&marker=%v", res, marker)
+	}
+	return res
+}
+
+func flattenListAttachedUserPoliciesV5Response(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
@@ -110,19 +117,11 @@ func flattenListAttachedPoliciesV5Response(resp interface{}) []interface{} {
 	result := make([]interface{}, len(policies))
 	for i, policy := range policies {
 		result[i] = map[string]interface{}{
-			"policy_name": utils.PathSearch("policy_name", policy, nil),
-			"policy_id":   utils.PathSearch("policy_id", policy, nil),
-			"urn":         utils.PathSearch("urn", policy, nil),
 			"attached_at": utils.PathSearch("attached_at", policy, nil),
+			"policy_id":   utils.PathSearch("policy_id", policy, nil),
+			"policy_name": utils.PathSearch("policy_name", policy, nil),
+			"urn":         utils.PathSearch("urn", policy, nil),
 		}
 	}
 	return result
-}
-
-func buildListAttachedPoliciesV5Params(marker string) string {
-	res := "?limit=100"
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-	return res
 }

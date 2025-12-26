@@ -29,6 +29,10 @@ The following arguments are supported:
 
 * `only_attached` - (Optional, Bool) Whether to list only policies that are attached to entities.
 
+* `language` - (Optional, String) The language.
+
+* `policy_id` - (Optional, String) The policy ID.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

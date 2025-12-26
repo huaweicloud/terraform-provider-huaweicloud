@@ -3,6 +3,7 @@ package iam
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -11,32 +12,40 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// DataSourceIdentityV5Policies
 // @API IAM GET /v5/policies
+// @API IAM GET /v5/policies/{policy_id}
 func DataSourceIdentityV5Policies() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityV5PoliciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"policy_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The type of identity policy, can be \"custom\" or \"system\".",
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"path_prefix": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The resource path prefix.",
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"only_attached": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Whether to list only policies that are attached to entities.",
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
+			"language": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"policy_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"policy_type", "path_prefix", "only_attached"},
+			},
+
 			"policies": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -44,54 +53,44 @@ func DataSourceIdentityV5Policies() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"attachment_count": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "The number of entities attached to the policy.",
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 						"default_version_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The ID of the default version of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"path": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The path of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"policy_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The ID of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"policy_name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"policy_type": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The type of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"updated_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The time when the default version of the policy was last updated.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"urn": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URN of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"created_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The time when the policy was created.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"description": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The description of the policy.",
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -111,25 +110,45 @@ func dataSourceIdentityV5PoliciesRead(_ context.Context, d *schema.ResourceData,
 	var allPolicies []interface{}
 	var marker string
 	var path string
-	for {
-		path = client.Endpoint + "v5/policies" + buildListPoliciesV5Params(d, marker)
-		reqOpt := &golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
+	reqOpt := &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"X-Language": d.Get("language").(string)},
+	}
+	if policyId := d.Get("policy_id").(string); policyId != "" {
+		path = client.Endpoint + "v5/policies/{policy_id}"
+		path = strings.ReplaceAll(path, "{policy_id}", policyId)
 		r, err := client.Request("GET", path, reqOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving policies")
+			return diag.Errorf("error retrieving policies: %s", err)
 		}
 		resp, err := utils.FlattenResponse(r)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		policies := flattenListPoliciesV5Response(resp)
-		allPolicies = append(allPolicies, policies...)
+		policy := utils.PathSearch("policy", resp, map[string]interface{}{}).(map[string]interface{})
+		policies := map[string]interface{}{
+			"policies": []interface{}{policy},
+		}
+		allPolicies = append(allPolicies, flattenListPoliciesV5Response(policies)...)
+	} else {
+		for {
+			path = client.Endpoint + "v5/policies" + buildListPoliciesV5Params(d, marker)
 
-		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
-		if marker == "" {
-			break
+			r, err := client.Request("GET", path, reqOpt)
+			if err != nil {
+				return diag.Errorf("error retrieving policies: %s", err)
+			}
+			resp, err := utils.FlattenResponse(r)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			policies := flattenListPoliciesV5Response(resp)
+			allPolicies = append(allPolicies, policies...)
+
+			marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
+			if marker == "" {
+				break
+			}
 		}
 	}
 
