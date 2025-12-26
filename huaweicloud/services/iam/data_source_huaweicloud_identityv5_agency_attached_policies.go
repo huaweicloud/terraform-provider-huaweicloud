@@ -2,7 +2,6 @@ package iam
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-uuid"
@@ -15,13 +14,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IAM GET /v5/groups/{group_id}/attached-policies
-func DataSourceIdentityV5GroupAttachedPolicies() *schema.Resource {
+// DataSourceIdentityV5AgencyAttachedPolicies
+// @API IAM GET /v5/agencies/{agency_id}/attached-policies
+func DataSourceIdentityV5AgencyAttachedPolicies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5GroupAttachedPoliciesRead,
+		ReadContext: dataSourceIdentityV5AgencyAttachedPoliciesRead,
 
 		Schema: map[string]*schema.Schema{
-			"group_id": {
+			"agency_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -53,7 +53,7 @@ func DataSourceIdentityV5GroupAttachedPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceIdentityV5AgencyAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam", region)
@@ -61,18 +61,14 @@ func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	groupId := d.Get("group_id").(string)
-
+	agencyId := d.Get("agency_id").(string)
 	var allPolicies []interface{}
 	var marker string
 	var path string
-
 	for {
-		path = client.Endpoint + "v5/groups/{group_id}/attached-policies" + buildListAttachedPoliciesV5Params(marker)
-		path = strings.ReplaceAll(path, "{group_id}", groupId)
-		reqOpt := &golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
+		path = client.Endpoint + "v5/agencies/{agency_id}/attached-policies" + buildListAttachedPoliciesV5Params(marker)
+		path = strings.ReplaceAll(path, "{agency_id}", agencyId)
+		reqOpt := &golangsdk.RequestOpts{KeepResponseBody: true}
 		r, err := client.Request("GET", path, reqOpt)
 		if err != nil {
 			return diag.Errorf("error retrieving attached policies: %s", err)
@@ -99,30 +95,4 @@ func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.
 		return diag.FromErr(err)
 	}
 	return nil
-}
-
-func flattenListAttachedPoliciesV5Response(resp interface{}) []interface{} {
-	if resp == nil {
-		return nil
-	}
-
-	policies := utils.PathSearch("attached_policies", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
-			"policy_name": utils.PathSearch("policy_name", policy, nil),
-			"policy_id":   utils.PathSearch("policy_id", policy, nil),
-			"urn":         utils.PathSearch("urn", policy, nil),
-			"attached_at": utils.PathSearch("attached_at", policy, nil),
-		}
-	}
-	return result
-}
-
-func buildListAttachedPoliciesV5Params(marker string) string {
-	res := "?limit=100"
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-	return res
 }
