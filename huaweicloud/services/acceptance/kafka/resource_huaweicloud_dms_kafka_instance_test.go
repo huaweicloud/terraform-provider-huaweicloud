@@ -145,6 +145,12 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "node_num"),
 					resource.TestCheckResourceAttrSet(resourceName, "pod_connect_address"),
 					resource.TestCheckResourceAttr(resourceName, "type", "cluster"),
+					// Check cluster attributes.
+					resource.TestCheckResourceAttrSet(resourceName, "cluster.0.brokers.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "cluster.0.brokers.0.health"),
+					resource.TestCheckResourceAttrSet(resourceName, "cluster.0.brokers.0.host"),
+					resource.TestCheckResourceAttrSet(resourceName, "cluster.0.brokers.0.port"),
+					resource.TestCheckResourceAttrSet(resourceName, "cluster.0.brokers.0.broker_id"),
 				),
 			},
 			{
