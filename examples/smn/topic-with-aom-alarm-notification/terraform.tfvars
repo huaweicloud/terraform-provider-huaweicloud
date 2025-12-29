@@ -1,0 +1,6 @@
+smn_topic_name              = "tf_test_topic"
+lts_group_name              = "tf_test_group"
+lts_stream_name             = "tf_test_stream"
+alarm_action_rule_name      = "tf_test_action_rule"
+alarm_action_rule_user_name = "your_operation_user_name"
+alarm_action_rule_type      = "1"
