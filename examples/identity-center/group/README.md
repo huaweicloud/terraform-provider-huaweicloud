@@ -45,16 +45,8 @@ The following variables need to be configured:
 * Create a `terraform.tfvars` file and fill in the required variables:
 
   ```hcl
-  group_name = "your_group_name"
+  group_name        = "your_group_name"
   group_description = "Your group description"
-  ```
-
-* Create an `authentication.auto.tfvars` file (or use environment variables) for authentication:
-
-  ```hcl
-  access_key  = "your_access_key"
-  secret_key  = "your_secret_key"
-  region_name = "cn-north-4"
   ```
 
 * Initialize Terraform:
@@ -94,9 +86,9 @@ This is the default scenario. The example will:
 Set the following variables:
 
 ```hcl
-is_instance_create     = true
+is_instance_create      = true
 is_region_need_register = true
-group_name             = "my_test_group"
+group_name              = "my_test_group"
 ```
 
 ### Scenario 2: Create a Group in an Existing Instance
