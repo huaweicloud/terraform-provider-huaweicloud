@@ -64,9 +64,9 @@ variable "dns_public_zone_dnssec" {
 
 variable "dns_public_zone_router" {
   description = "The list of the router of the zone"
-  type = list(object({
+  type        = list(object({
     router_id     = string
     router_region = string
   }))
-  default = []
+  default     = []
 }

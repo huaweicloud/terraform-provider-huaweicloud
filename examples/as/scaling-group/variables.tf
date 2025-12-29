@@ -110,7 +110,7 @@ variable "configuration_disks" {
 variable "configuration_public_eip_settings" {
   description = "The public IP settings for the scaling configuration instances"
   type        = list(object({
-    ip_type = string
+    ip_type   = string
     bandwidth = object({
       size          = number
       share_type    = string

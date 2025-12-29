@@ -8,7 +8,8 @@ def main():
 if __name__ == "__main__":
     main()
 EOT
-target_bucket_configuration = {
+
+target_bucket_configuration     = {
   bucket = "tf-test-obs-bucket-target"
 }
 bandwidth_policy_configurations = [

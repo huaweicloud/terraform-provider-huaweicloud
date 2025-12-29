@@ -14,7 +14,7 @@ website_configurations = {
     <p>This is the homepage.</p>
   </body>
 </html>
-EOT
+    EOT
   }
   error = {
     file_name = "error.html"
@@ -29,6 +29,6 @@ EOT
     <p> This is the 404 error page.</p>
   </body>
 </html>
-EOT
+    EOT
   }
 }

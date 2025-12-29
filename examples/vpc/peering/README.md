@@ -99,4 +99,4 @@ Each VPC configuration in the list should contain:
 | Name | Version |
 | ---- | ---- |
 | terraform | >= 1.3.0 |
-| huaweicloud | >= 1.52.1 |
+| huaweicloud | >= 1.19.1 |

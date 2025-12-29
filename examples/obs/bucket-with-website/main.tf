@@ -55,7 +55,7 @@ resource "huaweicloud_obs_bucket_policy" "test" {
     }
   ]
 }
-POLICY
+  POLICY
 }
 
 resource "huaweicloud_obs_bucket_object" "test" {

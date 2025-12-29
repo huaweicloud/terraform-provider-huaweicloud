@@ -63,13 +63,7 @@ resource "huaweicloud_dms_kafka_topic" "test" {
 }
 
 locals {
-  kafka_connect_with_port = join(
-    ",",
-    formatlist(
-      "%s:${huaweicloud_dms_kafka_instance.test.port}",
-      split(",", huaweicloud_dms_kafka_instance.test.connect_address)
-    )
-  )
+  kafka_connect_with_port = join(",", formatlist("%s:${huaweicloud_dms_kafka_instance.test.port}", split(",", huaweicloud_dms_kafka_instance.test.connect_address)))
 }
 
 resource "huaweicloud_eg_connection" "test" {

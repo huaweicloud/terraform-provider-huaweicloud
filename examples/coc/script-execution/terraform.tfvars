@@ -12,16 +12,17 @@ script_content      = <<EOF
 #! /bin/bash
 echo "hello world!"
 EOF
-script_parameters = [
+script_parameters   = [
   {
     name        = "name"
     value       = "world"
     description = "the parameter"
   }
 ]
+
 script_execute_timeout      = 600
 script_execute_execute_user = "root"
-script_execute_parameters = [
+script_execute_parameters   = [
   {
     name  = "name"
     value = "somebody"

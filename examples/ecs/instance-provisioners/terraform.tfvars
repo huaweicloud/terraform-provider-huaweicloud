@@ -1,4 +1,3 @@
-
 vpc_name            = "tf_test-vpc"
 subnet_name         = "tf_test-subnet"
 security_group_name = "tf_test-security-group"
@@ -10,6 +9,7 @@ instance_user_data  = <<EOF
 #!/bin/bash
 echo "Hello, World!" > /home/test.txt
 EOF
+
 instance_remote_exec_inline = [
   "cat /home/test.txt"
 ]

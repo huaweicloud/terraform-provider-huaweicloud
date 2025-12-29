@@ -127,7 +127,7 @@ variable "system_disk_size" {
 # EVS volumes variables
 variable "volume_configuration" {
   description = "List of volume configurations to attach to the ECS instance."
-  type = list(object({
+  type        = list(object({
     name        = string
     size        = number
     volume_type = string
@@ -171,7 +171,7 @@ variable "incremental" {
 variable "tags" {
   description = "The key/value pairs to associate with the snapshot group."
   type        = map(string)
-  default = {
+  default     = {
     environment = "test"
     created_by  = "terraform"
   }
