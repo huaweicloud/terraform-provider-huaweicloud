@@ -1,4 +1,4 @@
-# Using NAT Gateway and VPC Peering for Cross-VPC Internet Access
+# Create a ESW connection example
 
 This example provides best practice code for using Terraform to create a connection in HuaweiCloud ESW service.
 

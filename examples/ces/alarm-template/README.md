@@ -1,4 +1,4 @@
-# Using NAT Gateway and VPC Peering for Cross-VPC Internet Access
+# Create a CES alarm template example
 
 This example provides best practice code for using Terraform to create an alarm template in HuaweiCloud CES service.
 
@@ -24,6 +24,22 @@ The following variables need to be configured:
 
 * `name` - The name of the CES alarm template.
 * `policies` - The policy list of the CES alarm template.
+  + `namespace` - The namespace of the service.
+  + `metric_name` - The alarm metric name.
+  + `period` - The judgment period of alarm condition.
+  + `filter` - The data rollup methods.
+  + `comparison_operator` - The comparison conditions for alarm threshold.
+  + `count` - The number of consecutive alarm triggering times.
+  + `suppress_duration` - The alarm suppression cycle.
+  + `value` - The alarm threshold.
+  + `hierarchical_value` - The multiple levels of alarm thresholds.
+    - `critical` - The threshold for the critical level.
+    - `major` - The threshold for the major level.
+    - `minor` - The threshold for the minor level.
+    - `info` - The threshold for the info level.
+  + `alarm_level` - The alarm level.
+  + `unit` - The unit string of the alarm threshold.
+  + `dimension_name` - The resource dimension.
 
 #### Optional Variables
 
