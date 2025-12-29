@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_ces_resource_group"
+subnet_name         = "tf_test_ces_resource_group"
+security_group_name = "tf_test_ces_resource_group"
+ecs_instance_name   = "tf_test_ces_resource_group"
+resource_group_name = "tf_test_ces_resource_group"
