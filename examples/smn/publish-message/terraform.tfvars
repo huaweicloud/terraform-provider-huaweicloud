@@ -1,0 +1,5 @@
+topic_name                 = "tf_test_topic"
+subscription_protocol      = "sms"
+subscription_endpoint      = "18629199536"
+pulblish_subject           = "tf_test_subject"
+pulblish_message_structure = "{\"default\":\"Dear user, this is a default message.\",\"sms\":\"Dear user, this is an SMS message.\"}"
