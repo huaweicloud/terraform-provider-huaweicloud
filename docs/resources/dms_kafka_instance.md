@@ -317,7 +317,7 @@ In addition to all arguments above, the following attributes are exported:
 * `resource_spec_code` - Indicates a resource specifications identifier.
 * `type` - Indicates the DMS Kafka instance type.
 * `user_id` - Indicates the ID of the user who created the DMS Kafka instance
-* `user_name` - Indicates the name of the user who created the DMS Kafka instance
+* `user_name` - Indicates the name of the user who created the DMS Kafka instance.
 * `connect_address` - Indicates the IP address of the DMS Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC.
   The [cross_vpc_accesses](#attr_cross_vpc_accesses) structure is documented below.
@@ -340,6 +340,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `port_protocol` - Indicates instance connection address. The structure is documented below.
   The [port_protocol](#dms_instance_port_protocol_attr) structure is documented below.
+
+* `cluster` - The cluster information of the DMS Kafka instance.  
+  The [cluster](#dms_kafka_instance_cluster_attr) structure is documented below.
 
 <a name="attr_cross_vpc_accesses"></a>
 The `cross_vpc_accesses` block supports:
@@ -374,6 +377,23 @@ The `port_protocols` block supports:
 * `public_sasl_plaintext_address` - The public sasl plaintext address.
 
 * `public_sasl_plaintext_domain_name` - The public sasl plaintext domain name.
+
+<a name="dms_kafka_instance_cluster_attr"></a>
+The `cluster` block supports:
+
+* `brokers` - The list of broker nodes in the cluster.  
+  The [brokers](#dms_kafka_instance_brokers_attr) structure is documented below.
+
+<a name="dms_kafka_instance_brokers_attr"></a>
+The `brokers` block supports:
+
+* `health` - Whether the broker is healthy.
+
+* `host` - The host of the broker.
+
+* `port` - The port of the broker.
+
+* `broker_id` - The ID of the broker.
 
 ## Timeouts
 
