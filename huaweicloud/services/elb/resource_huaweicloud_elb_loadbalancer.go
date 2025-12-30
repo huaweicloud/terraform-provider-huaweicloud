@@ -670,13 +670,19 @@ func buildUpdateLoadBalancerParamsBodyParams(d *schema.ResourceData) map[string]
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           d.Get("description"),
-		"l4_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l4_flavor_id")),
-		"l7_flavor_id":          utils.ValueIgnoreEmpty(d.Get("l7_flavor_id")),
-		"gw_flavor_id":          utils.ValueIgnoreEmpty(d.Get("gw_flavor_id")),
 		"protection_status":     utils.ValueIgnoreEmpty(d.Get("protection_status")),
 		"protection_reason":     d.Get("protection_reason"),
 		"waf_failure_action":    utils.ValueIgnoreEmpty(d.Get("waf_failure_action")),
 		"ipv6_vip_virsubnet_id": utils.ValueIgnoreEmpty(d.Get("ipv6_network_id")),
+	}
+	if d.HasChange("l4_flavor_id") {
+		params["l4_flavor_id"] = d.Get("l4_flavor_id")
+	}
+	if d.HasChange("l7_flavor_id") {
+		params["l7_flavor_id"] = d.Get("l7_flavor_id")
+	}
+	if d.HasChange("gw_flavor_id") {
+		params["gw_flavor_id"] = d.Get("gw_flavor_id")
 	}
 	if d.HasChange("ipv4_address") {
 		params["vip_address"] = d.Get("ipv4_address")
