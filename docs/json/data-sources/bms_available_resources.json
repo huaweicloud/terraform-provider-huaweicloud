@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_bms_available_resources": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "available_resource": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "flavors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "flavor_id": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "BMS",
+            "name": "Bare Metal Server",
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

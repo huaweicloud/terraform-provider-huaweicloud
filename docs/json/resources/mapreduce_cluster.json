@@ -67,6 +67,13 @@
                 "type": "string",
                 "computed": true
               },
+              "mrs_ecs_default_agency": {
+                "type": "string",
+                "description": "The default agency name to be bound to the cluster node.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "required": true

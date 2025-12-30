@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_service_linked_agency": {
+          "block": {
+            "attributes": {
+              "agency_id": {
+                "type": "string",
+                "computed": true
+              },
+              "agency_name": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_session_duration": {
+                "type": "number",
+                "computed": true
+              },
+              "path": {
+                "type": "string",
+                "computed": true
+              },
+              "service_principal": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "trust_policy": {
+                "type": "string",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_releases": {
+          "block": {
+            "attributes": {
+              "chart_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "releases": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "chart_name": "string",
+                      "chart_public": "bool",
+                      "chart_version": "string",
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "create_at": "string",
+                      "description": "string",
+                      "name": "string",
+                      "namespace": "string",
+                      "parameters": "string",
+                      "resources": "string",
+                      "status": "string",
+                      "status_description": "string",
+                      "update_at": "string",
+                      "values": "string",
+                      "version": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

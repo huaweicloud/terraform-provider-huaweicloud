@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_autopilot_cluster_upgrade": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "current_version": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_postcheck": {
+                "type": "bool",
+                "optional": true
+              },
+              "is_snapshot": {
+                "type": "bool",
+                "optional": true
+              },
+              "node_order": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "nodepool_order": {
+                "type": [
+                  "map",
+                  "number"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "target_version": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "addons": {
+                "block": {
+                  "attributes": {
+                    "addon_template_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "operation": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "values": {
+                      "block": {
+                        "attributes": {
+                          "basic_json": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "custom_json": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "flavor_json": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "strategy": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "in_place_rolling_update": {
+                      "block": {
+                        "attributes": {
+                          "user_defined_step": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

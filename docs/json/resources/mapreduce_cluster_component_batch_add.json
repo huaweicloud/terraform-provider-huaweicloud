@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_cluster_component_batch_add": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The ID of the MRS cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the components to be added are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "components_install_mode": {
+                "block": {
+                  "attributes": {
+                    "component": {
+                      "type": "string",
+                      "description": "The name of the component.",
+                      "required": true
+                    },
+                    "component_default_password": {
+                      "type": "string",
+                      "description": "The password for the component default user.",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "component_user_password": {
+                      "type": "string",
+                      "description": "The password for the component user.",
+                      "optional": true,
+                      "sensitive": true
+                    }
+                  },
+                  "block_types": {
+                    "node_groups": {
+                      "block": {
+                        "attributes": {
+                          "assigned_roles": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The list of roles to be assigned to this node group.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the node group.",
+                            "required": true
+                          }
+                        },
+                        "description": "The node groups where the component roles will be deployed."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The list of components to be added."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,30 +2,22 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_secmaster_dataspace": {
+        "huaweicloud_cce_autopilot_chart": {
           "block": {
             "attributes": {
-              "create_by": {
+              "chart_url": {
                 "type": "string",
                 "computed": true
               },
-              "create_time": {
-                "type": "number",
-                "computed": true
-              },
-              "dataspace_name": {
+              "content": {
                 "type": "string",
                 "required": true
               },
-              "dataspace_type": {
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
               "description": {
-                "type": "string",
-                "required": true
-              },
-              "domain_id": {
                 "type": "string",
                 "computed": true
               },
@@ -33,34 +25,54 @@
                 "type": "string",
                 "computed": true
               },
-              "project_id": {
+              "instruction": {
                 "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "parameters": {
+                "type": "string",
+                "optional": true
+              },
+              "public": {
+                "type": "bool",
                 "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "update_by": {
+              "source": {
                 "type": "string",
                 "computed": true
               },
-              "update_time": {
-                "type": "number",
+              "translate": {
+                "type": "string",
                 "computed": true
               },
-              "workspace_id": {
+              "updated_at": {
                 "type": "string",
-                "required": true
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
               }
             }
           },
           "product": {
-            "short": "SecMaster",
-            "name": "SecMaster",
-            "catalog": "Security & Compliance",
-            "name_cn": "安全云脑",
-            "catalog_cn": "安全与合规"
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
           }
         }
       }

@@ -45,6 +45,59 @@
                 ],
                 "computed": true
               },
+              "extension_scale_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "uid": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "autoscaling": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enable": "bool",
+                                  "extension_priority": "number",
+                                  "max_node_count": "number",
+                                  "min_node_count": "number"
+                                }
+                              ]
+                            ],
+                            "az": "string",
+                            "capacity_reservation_specification": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "preference": "string"
+                                }
+                              ]
+                            ],
+                            "flavor": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "computed": true

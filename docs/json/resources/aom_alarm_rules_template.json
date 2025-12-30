@@ -352,6 +352,10 @@
                                         "type": "string",
                                         "optional": true
                                       },
+                                      "query_param": {
+                                        "type": "string",
+                                        "optional": true
+                                      },
                                       "thresholds": {
                                         "type": [
                                           "map",

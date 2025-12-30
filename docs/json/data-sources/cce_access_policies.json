@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_access_policies": {
+          "block": {
+            "attributes": {
+              "access_policy_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "clusters": [
+                        "list",
+                        "string"
+                      ],
+                      "create_time": "string",
+                      "name": "string",
+                      "policy_id": "string",
+                      "policy_type": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

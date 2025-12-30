@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_batch_create_ip_reputation_rules": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "policy_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "action": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

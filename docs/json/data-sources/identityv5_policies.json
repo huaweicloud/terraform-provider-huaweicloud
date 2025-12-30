@@ -9,14 +9,16 @@
                 "type": "string",
                 "computed": true
               },
+              "language": {
+                "type": "string",
+                "optional": true
+              },
               "only_attached": {
                 "type": "bool",
-                "description": "Whether to list only policies that are attached to entities.",
                 "optional": true
               },
               "path_prefix": {
                 "type": "string",
-                "description": "The resource path prefix.",
                 "optional": true
               },
               "policies": {
@@ -41,9 +43,12 @@
                 "description": "The list of IAM policies.",
                 "computed": true
               },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
               "policy_type": {
                 "type": "string",
-                "description": "The type of identity policy, can be \"custom\" or \"system\".",
                 "optional": true
               }
             }

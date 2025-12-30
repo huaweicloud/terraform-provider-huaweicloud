@@ -168,6 +168,7 @@
                                               "promql_expr": "string",
                                               "promql_for": "string",
                                               "query_match": "string",
+                                              "query_param": "string",
                                               "thresholds": [
                                                 "map",
                                                 "string"

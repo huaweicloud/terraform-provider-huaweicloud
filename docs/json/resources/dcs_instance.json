@@ -298,7 +298,7 @@
                 "forcenew": true
               },
               "transparent_client_ip_enable": {
-                "type": "bool",
+                "type": "string",
                 "optional": true,
                 "computed": true
               },

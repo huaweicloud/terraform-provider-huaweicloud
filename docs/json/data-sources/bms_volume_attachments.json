@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_bms_volume_attachments": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the BMS ID.",
+                "required": true
+              },
+              "volume_attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "device": "string",
+                      "id": "string",
+                      "server_id": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates disks attached to a BMS.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "BMS",
+            "name": "Bare Metal Server",
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

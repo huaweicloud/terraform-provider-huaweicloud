@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_agency_attached_policies": {
+          "block": {
+            "attributes": {
+              "agency_id": {
+                "type": "string",
+                "required": true
+              },
+              "attached_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attached_at": "string",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

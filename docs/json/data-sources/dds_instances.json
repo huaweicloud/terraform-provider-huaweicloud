@@ -51,13 +51,14 @@
                               [
                                 "object",
                                 {
+                                  "availability_zone": "string",
                                   "id": "string",
                                   "name": "string",
                                   "private_ip": "string",
                                   "public_ip": "string",
                                   "role": "string",
-                                  "status": "string",
-                                  "type": "string"
+                                  "spec_code": "string",
+                                  "status": "string"
                                 }
                               ]
                             ],
@@ -76,13 +77,14 @@
                         [
                           "object",
                           {
+                            "availability_zone": "string",
                             "id": "string",
                             "name": "string",
                             "private_ip": "string",
                             "public_ip": "string",
                             "role": "string",
-                            "status": "string",
-                            "type": "string"
+                            "spec_code": "string",
+                            "status": "string"
                           }
                         ]
                       ],

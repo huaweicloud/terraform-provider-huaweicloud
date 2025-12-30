@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_bms_quotas": {
+          "block": {
+            "attributes": {
+              "absolute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "max_image_meta": "number",
+                      "max_personality": "number",
+                      "max_personality_size": "number",
+                      "max_security_group_rules": "number",
+                      "max_security_groups": "number",
+                      "max_server_group_members": "number",
+                      "max_server_groups": "number",
+                      "max_server_meta": "number",
+                      "max_total_cores": "number",
+                      "max_total_floating_ips": "number",
+                      "max_total_instances": "number",
+                      "max_total_keypairs": "number",
+                      "max_total_ram_size": "number",
+                      "total_cores_used": "number",
+                      "total_floating_ips_used": "number",
+                      "total_instances_used": "number",
+                      "total_ram_used": "number",
+                      "total_security_groups_used": "number",
+                      "total_server_groups_used": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates tenant quotas.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "BMS",
+            "name": "Bare Metal Server",
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

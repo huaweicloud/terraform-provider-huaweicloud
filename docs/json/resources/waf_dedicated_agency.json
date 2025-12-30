@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_dedicated_agency": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "description": "The domain ID.",
+                "computed": true
+              },
+              "duration": {
+                "type": "string",
+                "description": "The agent existence time period.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_valid": {
+                "type": "bool",
+                "description": "Whether the agency is legal.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The agency name.",
+                "computed": true
+              },
+              "purged": {
+                "type": "bool",
+                "description": "Specifies whether to delete delegates synchronously.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "role_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "catalog": "string",
+                      "description": "string",
+                      "display_name": "string",
+                      "id": "string",
+                      "is_granted": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "role_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of dedicated engine agent policy names to create.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -41,6 +41,30 @@
                 "computed": true,
                 "forcenew": true
               },
+              "cluster": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "brokers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "broker_id": "string",
+                            "health": "bool",
+                            "host": "string",
+                            "port": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The cluster information of the DMS Kafka instance.",
+                "computed": true
+              },
               "connect_address": {
                 "type": "string",
                 "computed": true

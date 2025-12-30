@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_policy_user_attach": {
+          "block": {
+            "attributes": {
+              "attached_at": {
+                "type": "string",
+                "description": "The time when the identity policy was attached to the user, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "The ID of the identity policy to be attached.",
+                "required": true
+              },
+              "policy_name": {
+                "type": "string",
+                "description": "The name of the identity policy associated with the user.",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "The URN of the attached identity policy.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The ID of the IAM user associated with the identity policy.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

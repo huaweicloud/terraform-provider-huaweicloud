@@ -1,0 +1,28 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_policy_default_version": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "The ID of the identity policy.",
+                "required": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "The version ID of the identity policy to be set as default.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

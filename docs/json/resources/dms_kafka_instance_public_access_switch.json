@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_instance_public_access_switch": {
+          "block": {
+            "attributes": {
+              "eip_address": {
+                "type": "string",
+                "description": "The elastic IP address of the Kafka instance.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the Kafka instance.",
+                "required": true
+              },
+              "public_boundwidth": {
+                "type": "number",
+                "description": "The public bandwidth of the Kafka instance.",
+                "optional": true
+              },
+              "publicip_id": {
+                "type": "string",
+                "description": "The public IP ID of the Kafka instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the public access switch are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

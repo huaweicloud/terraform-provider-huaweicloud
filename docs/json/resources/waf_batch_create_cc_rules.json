@@ -1,0 +1,169 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_batch_create_cc_rules": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "domain_aggregation": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "limit_num": {
+                "type": "number",
+                "required": true
+              },
+              "limit_period": {
+                "type": "number",
+                "required": true
+              },
+              "lock_time": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "policy_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "region_aggregation": {
+                "type": "bool",
+                "optional": true
+              },
+              "tag_index": {
+                "type": "string",
+                "optional": true
+              },
+              "tag_type": {
+                "type": "string",
+                "required": true
+              },
+              "unlock_num": {
+                "type": "number",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "action": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "detail": {
+                      "block": {
+                        "block_types": {
+                          "response": {
+                            "block": {
+                              "attributes": {
+                                "content": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "content_type": {
+                                  "type": "string",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "contents": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "index": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "logic_operation": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value_list_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "tag_condition": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "contents": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

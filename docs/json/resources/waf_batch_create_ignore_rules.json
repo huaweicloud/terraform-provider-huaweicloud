@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_batch_create_ignore_rules": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "domain": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "rule": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "advanced": {
+                "block": {
+                  "attributes": {
+                    "contents": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "index": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "check_all_indexes_logic": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "contents": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "index": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "logic_operation": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

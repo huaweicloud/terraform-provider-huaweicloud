@@ -50,6 +50,8 @@
                       "connect_address": "string",
                       "created_at": "string",
                       "description": "string",
+                      "disk_encrypted_enable": "bool",
+                      "disk_encrypted_key": "string",
                       "engine": "string",
                       "engine_version": "string",
                       "enterprise_project_id": "string",

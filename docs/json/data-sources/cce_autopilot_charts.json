@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_charts": {
+          "block": {
+            "attributes": {
+              "charts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "chart_url": "string",
+                      "create_at": "string",
+                      "description": "string",
+                      "icon_url": "string",
+                      "id": "string",
+                      "instruction": "string",
+                      "name": "string",
+                      "public": "bool",
+                      "source": "string",
+                      "translate": "string",
+                      "update_at": "string",
+                      "values": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_cluster_configuration_details": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_version": {
+                "type": "string",
+                "optional": true
+              },
+              "configurations": {
+                "type": "string",
+                "description": "The configurations of the cce cluster.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "network_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

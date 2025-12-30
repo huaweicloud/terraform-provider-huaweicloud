@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_web_basic_protection_rules": {
+          "block": {
+            "attributes": {
+              "application_type_names": {
+                "type": "string",
+                "description": "Specifies the application type.",
+                "optional": true
+              },
+              "cve_number": {
+                "type": "string",
+                "description": "Specifies the CVE ID.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "from": {
+                "type": "number",
+                "description": "Specifies the start time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_type": "string",
+                      "create_time": "number",
+                      "cve_number": "string",
+                      "description": "string",
+                      "effective_time": "number",
+                      "id": "string",
+                      "protection_type": "string",
+                      "risk_level": "number",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The array of built-in basic web protection rules.",
+                "computed": true
+              },
+              "level": {
+                "type": "number",
+                "description": "Specifies the protection level of the rule set.",
+                "optional": true
+              },
+              "protection_type_names": {
+                "type": "string",
+                "description": "Specifies the protection type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "risk_level": {
+                "type": "number",
+                "description": "Specifies the risk severity.",
+                "optional": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the rule ID.",
+                "optional": true
+              },
+              "to": {
+                "type": "number",
+                "description": "Specifies the end time.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

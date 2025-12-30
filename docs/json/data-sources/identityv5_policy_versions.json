@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_policy_versions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "required": true
+              },
+              "version_id": {
+                "type": "string",
+                "optional": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "document": "string",
+                      "is_default": "bool",
+                      "version_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

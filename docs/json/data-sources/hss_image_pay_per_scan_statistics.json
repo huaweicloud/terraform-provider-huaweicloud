@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_image_pay_per_scan_statistics": {
+          "block": {
+            "attributes": {
+              "already_given": {
+                "type": "bool",
+                "computed": true
+              },
+              "cicd_scan_num": {
+                "type": "number",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "free_quota_num": {
+                "type": "number",
+                "computed": true
+              },
+              "has_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cicd": "number",
+                      "local": "number",
+                      "registriy": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "high_risk": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cicd": "number",
+                      "local": "number",
+                      "registriy": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_free_quota": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository_scan_num": {
+                "type": "number",
+                "computed": true
+              },
+              "total": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cicd": "number",
+                      "local": "number",
+                      "registriy": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "unscan": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cicd": "number",
+                      "local": "number",
+                      "registriy": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

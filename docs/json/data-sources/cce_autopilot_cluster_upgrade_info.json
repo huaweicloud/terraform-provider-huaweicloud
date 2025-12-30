@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_cluster_upgrade_info": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metadata": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "uid": "string",
+                      "update_timestamp": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "spec": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "last_upgrade_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "completion_time": "string",
+                            "phase": "string",
+                            "progress": "string"
+                          }
+                        ]
+                      ],
+                      "upgrade_feature_gates": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "support_upgrade_page_v4": "bool"
+                          }
+                        ]
+                      ],
+                      "version_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "patch": "string",
+                            "release": "string",
+                            "suggest_patch": "string",
+                            "target_versions": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "completion_time": "string",
+                      "phase": "string",
+                      "progress": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

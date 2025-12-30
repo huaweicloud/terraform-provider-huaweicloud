@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_cluster_node_batch_expand": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The ID of the cluster to which the nodes to be expanded belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_count": {
+                "type": "number",
+                "description": "The number of nodes to be expanded.",
+                "required": true
+              },
+              "node_group_name": {
+                "type": "string",
+                "description": "The name of the node group to which the nodes to be expanded belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the MRS cluster is located.",
+                "computed": true
+              },
+              "scale_without_start": {
+                "type": "bool",
+                "description": "Whether to start the components on the node after it has been expanded.",
+                "optional": true
+              },
+              "skip_bootstrap_scripts": {
+                "type": "bool",
+                "description": "Whether to skip bootstrap scripts.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}
