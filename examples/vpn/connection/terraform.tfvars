@@ -1,0 +1,12 @@
+vpn_gateway_az_flavor          = "tf_test_vpn_connection"
+vpn_gateway_az_attachment_type = "tf_test_vpn_connection"
+vpc_name                       = "tf_test_vpn_connection"
+subnet_name                    = "tf_test_vpn_connection"
+vpn_gateway_name               = "tf_test_vpn_connection"
+vpn_customer_gateway_name      = "tf_test_vpn_connection"
+vpn_customer_gateway_id_value  = "tf_test_vpn_connection"
+vpn_connection_name            = "tf_test_vpn_connection"
+vpn_connection_peer_subnets    = ["tf_test_vpn_connection"]
+vpn_connection_vpn_type        = "tf_test_vpn_connection"
+vpn_connection_psk             = "tf_test_vpn_connection"
+vpn_connection_enable_nqa      = true
