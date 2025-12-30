@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_batch_create_custom_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/rule/custom:
+        POST:
+            tag: WAF

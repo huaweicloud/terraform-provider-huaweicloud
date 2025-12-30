@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_identity_user_info
+    title: resource_huaweicloud_identityv5_service_linked_agency
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3.0/OS-USER/users/{user_id}/info:
+    /v5/service-linked-agencies:
         PUT:
             tag: IAM

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_mapreduce_cluster_node_batch_expand
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: MRS
+paths:
+    /v1.1/{project_id}/cluster_infos/{cluster_id}:
+        GET:
+            tag: MRS
+    /v2/{project_id}/clusters/{cluster_id}/expand:
+        POST:
+            tag: MRS

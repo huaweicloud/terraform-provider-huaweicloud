@@ -11,3 +11,6 @@ paths:
     /v5/policies:
         GET:
             tag: IAM
+    /v5/policies/{policy_id}:
+        GET:
+            tag: IAM

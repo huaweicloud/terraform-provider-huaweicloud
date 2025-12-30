@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_batch_create_whiteblackip_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/rule/whiteblackip:
+        POST:
+            tag: WAF

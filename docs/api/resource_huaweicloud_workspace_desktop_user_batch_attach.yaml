@@ -11,3 +11,6 @@ paths:
     /v2/{project_id}/desktops/attach:
         POST:
             tag: Workspace
+    /v2/{project_id}/workspace-sub-jobs:
+        GET:
+            tag: Workspace

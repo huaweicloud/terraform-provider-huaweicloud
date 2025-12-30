@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_batch_delete_alarm_notifications
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v2/{project_id}/waf/alert/batch-delete:
+        POST:
+            tag: WAF

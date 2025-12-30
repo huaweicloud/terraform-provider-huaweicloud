@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_release
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE
+    /cce/cam/v3/clusters/{cluster_id}/releases:
+        POST:
+            tag: CCE

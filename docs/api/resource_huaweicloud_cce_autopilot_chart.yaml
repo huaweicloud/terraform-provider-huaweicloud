@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_autopilot_chart
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /autopilot/v2/charts:
+        POST:
+            tag: CCE
+    /autopilot/v2/charts/{chart_id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE

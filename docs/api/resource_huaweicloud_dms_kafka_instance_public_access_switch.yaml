@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_instance_public_access_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v1/{project_id}/instances/{instance_id}/public-boundwidth:
+        POST:
+            tag: Kafka

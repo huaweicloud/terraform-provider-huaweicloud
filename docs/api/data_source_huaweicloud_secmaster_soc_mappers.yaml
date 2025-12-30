@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_secmaster_soc_mappers
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Secmaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/mappers/search:
+        POST:
+            tag: Secmaster

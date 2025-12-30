@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_secmaster_dataspace
+    title: resource_huaweicloud_secmaster_workflow
     description: ""
 schemes:
     - https
@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: SecMaster
 paths:
-    /v1/{project_id}/workspaces/{workspace_id}/siem/dataspaces:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/workflows:
         POST:
             tag: SecMaster
-    /v1/{project_id}/workspaces/{workspace_id}/siem/dataspaces/{dataspace_id}:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/workflows/{workflow_id}:
         DELETE:
             tag: SecMaster
         GET:

@@ -20,11 +20,11 @@ paths:
     /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck:
         POST:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck/tasks/{task_id}:
-        GET:
-            tag: CCE
     /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck:
         POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}:
+        GET:
             tag: CCE
     /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade:
         POST:

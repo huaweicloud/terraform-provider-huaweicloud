@@ -38,6 +38,9 @@ paths:
     /v2/{project_id}/volumes:
         POST:
             tag: Workspace
+    /v2/{project_id}/volumes/batch-modify-qos:
+        PUT:
+            tag: Workspace
     /v2/{project_id}/volumes/expand:
         POST:
             tag: Workspace

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cce_releases
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /cce/cam/v3/clusters/{cluster_id}/releases:
+        GET:
+            tag: CCE

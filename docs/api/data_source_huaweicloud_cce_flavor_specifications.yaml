@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cce_flavor_specifications
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v2/flavor/specifications:
+        GET:
+            tag: CCE
