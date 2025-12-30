@@ -1,0 +1,6 @@
+deh_instance_name       = "tf_test_deh_instance"
+vpc_name                = "tf_test_vpc"
+subnet_name             = "tf_test_subnet"
+security_group_name     = "tf_test_security_group"
+ecs_instance_name       = "tf_test_ecs_instance"
+ecs_instance_admin_pass = "YourPassword@12!"
