@@ -48,7 +48,7 @@ In addition to all arguments above, the following attributes are exported:
   The [records](#records_struct) structure is documented below.
 
 <a name="records_struct"></a>
-The `data` block supports:
+The `records` block supports:
 
 * `dataspace_id` - The dataspace ID.
 

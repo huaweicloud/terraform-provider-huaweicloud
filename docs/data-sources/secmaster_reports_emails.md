@@ -45,7 +45,7 @@ In addition to all arguments above, the following attributes are exported:
   The [emails](#email_status_struct) structure is documented below.
 
 <a name="email_status_struct"></a>
-The `email` block supports:
+The `emails` block supports:
 
 * `report_address` - The email address.
 

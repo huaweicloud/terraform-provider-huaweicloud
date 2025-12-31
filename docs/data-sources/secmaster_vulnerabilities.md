@@ -17,7 +17,7 @@ variable "workspace_id" {}
 variable "from_date" {}
 variable "to_date" {}
 
-data "huaweicloud_secmaster_vulnerabilities" "example" {
+data "huaweicloud_secmaster_vulnerabilities" "test" {
   workspace_id = var.workspace_id
   from_date    = var.from_date
   to_date      = var.to_date
