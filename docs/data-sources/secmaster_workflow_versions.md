@@ -36,8 +36,6 @@ The following arguments are supported:
 * `status` - (Optional, String) Specifies the workflow version status.
   The value can be **pending_submit**, **pending_approval**, **not_activated**, **activated** or **rejected**.
 
-activated,pending_approval,not_activated，pending_submit，rejected
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

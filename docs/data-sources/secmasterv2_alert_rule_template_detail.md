@@ -13,9 +13,12 @@ Use this data source to query a specific alert rule template (v2) detail.
 ## Example Usage
 
 ```hcl
+variable "workspace_id" {}
+variable "template_id" {}
+
 data "huaweicloud_secmasterv2_alert_rule_template_detail" "test" {
-  workspace_id = "your_workspace_id"
-  template_id  = "your_template_id"
+  workspace_id = var.workspace_id
+  template_id  = var.template_id
 }
 ```
 
@@ -58,10 +61,10 @@ In addition to all arguments above, the following attributes are exported:
   + **SEARCH**: Search.
 
 * `job_mode_setting` - The job mode setting.
-  The [job_mode_setting](#job_mode_setting_attr) structure is documented below.
+  The [job_mode_setting](#job_mode_setting_struct) structure is documented below.
 
 * `job_output_setting` - The job output setting.
-  The [job_output_setting](#job_output_setting_attr) structure is documented below.
+  The [job_output_setting](#job_output_setting_struct) structure is documented below.
 
 * `process_error` - The process error.
 
@@ -80,7 +83,7 @@ In addition to all arguments above, the following attributes are exported:
 * `table_name` - The table name.
 
 * `triggers` - The triggers information.
-  The [triggers](#triggers_attr) structure is documented below.
+  The [triggers](#triggers_struct) structure is documented below.
 
 * `create_by` - The ID of the creator.
 
@@ -90,7 +93,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `update_time` - The update time, in milliseconds timestamp.
 
-<a name="job_mode_setting_attr"></a>
+<a name="job_mode_setting_struct"></a>
 The `job_mode_setting` block supports:
 
 * `batch_overtime_strategy_interval` - The batch processing strategy overtime interval.
@@ -135,7 +138,7 @@ The `job_mode_setting` block supports:
 * `streaming_state_ttl_unit` - The streaming state TTL time unit.
   The value can be **MINUTE**, **HOUR**, **DAY** or **MONTH**.
 
-<a name="job_output_setting_attr"></a>
+<a name="job_output_setting_struct"></a>
 The `job_output_setting` block supports:
 
 * `alert_custom_properties` - The alert custom properties.
@@ -161,7 +164,7 @@ The `job_output_setting` block supports:
 
 * `field_mapping` - The field mapping.
 
-<a name="triggers_attr"></a>
+<a name="triggers_struct"></a>
 The `triggers` block supports:
 
 * `accumulated_times` - The cumulative number of times.

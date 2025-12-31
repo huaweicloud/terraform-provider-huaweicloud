@@ -16,7 +16,7 @@ Use this data source to get the data consumption configuration of a specified ta
 variable "workspace_id" {}
 variable "table_id" {}
 
-data "huaweicloud_secmaster_table_consumption" "example" {
+data "huaweicloud_secmaster_table_consumption" "test" {
   workspace_id = var.workspace_id
   table_id     = var.table_id
 }
