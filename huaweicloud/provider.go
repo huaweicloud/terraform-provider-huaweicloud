@@ -1563,6 +1563,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_baseline_security_checks_default_policy":    hss.DataSourceBaselineSecurityChecksDefaultPolicy(),
 			"huaweicloud_hss_configs":                                    hss.DataSourceConfigs(),
 			"huaweicloud_hss_container_kubernetes_mciuc":                 hss.DataSourceHssContainerKubernetesMciuc(),
+			"huaweicloud_hss_container_kubernetes_mcan":                  hss.DataSourceContainerKubernetesMCAN(),
 			"huaweicloud_hss_operational_report_notification":            hss.DataSourceOperationalReportNotification(),
 			"huaweicloud_hss_resource_locked_status":                     hss.DataSourceResourceLockedStatus(),
 			"huaweicloud_hss_honeypot_port_default_config":               hss.DataSourceHoneypotPortDefaultConfig(),
