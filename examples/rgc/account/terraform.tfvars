@@ -1,0 +1,7 @@
+account_name                    = "tf-test-account"
+account_email                   = "tf-test-account@terraform.com"
+account_phone                   = "13123456789"
+identity_store_user_name        = "tf-test-account"
+identity_store_email            = "tf-test-account@terraform.com"
+parent_organizational_unit_name = "your-org-unit-name"
+parent_organizational_unit_id   = "your-org-unit-id"
