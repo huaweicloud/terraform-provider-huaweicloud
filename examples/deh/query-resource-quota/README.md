@@ -104,5 +104,5 @@ host_type = "s6"
 
 | Name | Version |
 | ---- | ---- |
-| terraform | >= 1.1.0 |
+| terraform | >= 0.14.0 |
 | huaweicloud | >= 1.82.0 |
