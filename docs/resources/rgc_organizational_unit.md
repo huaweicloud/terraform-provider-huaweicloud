@@ -6,7 +6,7 @@ description: |-
   Manages an RGC organizational unit resource within HuaweiCloud.
 ---
 
-# huaweicloud_rgc_account_enroll
+# huaweicloud_rgc_organizational_unit
 
 Manages an RGC organizational unit resource within HuaweiCloud.
 
@@ -18,7 +18,7 @@ Manages an RGC organizational unit resource within HuaweiCloud.
 variable "organizational_unit_name" {}
 variable "parent_organizational_unit_id" {}
 
-resource "huaweicloud_rgc_account_enroll" "test"{
+resource "huaweicloud_rgc_organizational_unit" "test"{
   organizational_unit_name      = var.organizational_unit_name
   parent_organizational_unit_id = var.parent_organizational_unit_id
 }
