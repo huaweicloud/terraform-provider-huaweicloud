@@ -235,6 +235,8 @@ data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_bms_flavors" "test" {
   cpu_arch          = "x86_64"
+  vcpus             = 56
+  memory            = 192
   availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), "")
 }
 
