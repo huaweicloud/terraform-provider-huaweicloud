@@ -2,8 +2,10 @@ package bms
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -509,38 +511,9 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// Security group parammeters are missing in the network card, this is a legacy feature.
 	// The first network card can not be deleted, api error message:{"error": {"message": "primary port can not be deleted.", "code":"BMS.0222"}}
 	if d.HasChange("nics") {
-		addNics, deleteNics := getDiffNics(d)
-		if len(deleteNics) > 0 {
-			deleteNicsOps := baremetalservers.DeleteNicsOpts{
-				Nics: buildDeleteNicsParam(deleteNics),
-			}
-
-			job, err := baremetalservers.DeleteNics(bmsClient, instanceId, deleteNicsOps).ExtractJobStatus()
-			if err != nil {
-				return diag.Errorf("error deleting BMS nics: %s", err)
-			}
-			jobId := job.JobID
-			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
-				return diag.Errorf("the job (%s) is not SUCCESS while deleting BMS (%s) nics: %s", jobId,
-					instanceId, err)
-			}
-		}
-
-		if len(addNics) > 0 {
-			addNicsOps := baremetalservers.AddNicsOpts{
-				Nics: buildAddNicsParam(addNics),
-			}
-
-			job, err := baremetalservers.AddNics(bmsClient, instanceId, addNicsOps).ExtractJobStatus()
-			if err != nil {
-				return diag.Errorf("error adding BMS nics: %s", err)
-			}
-
-			jobId := job.JobID
-			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
-				return diag.Errorf("the job (%s) is not SUCCESS while adding BMS (%s) nics: %s", jobId,
-					instanceId, err)
-			}
+		err = updateInstanceNics(ctx, d, bmsClient, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.Errorf("error updating NICs: %s", err)
 		}
 	}
 
@@ -557,6 +530,129 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceBmsInstanceRead(ctx, d, meta)
+}
+
+func updateInstanceNics(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string) error {
+	addNics, deleteNics := getDiffNics(d)
+	if len(deleteNics) > 0 {
+		err := deleteInstanceNics(ctx, d, client, timeout, deleteNics)
+		if err != nil {
+			return err
+		}
+	}
+	if len(addNics) > 0 {
+		err := addInstanceNics(ctx, d, client, timeout, addNics)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func addInstanceNics(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string,
+	addNics []interface{}) error {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}/nics"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildAddInstanceNicsBodyParams(d, addNics))
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error adding nics to BMS instance: %s", err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error adding nics to BMS instance: job_id is not found in API response")
+	}
+
+	return waitForJobComplete(ctx, client, jobId, d.Timeout(timeout))
+}
+
+func buildAddInstanceNicsBodyParams(d *schema.ResourceData, addNics []interface{}) map[string]interface{} {
+	bodyParams := make([]map[string]interface{}, 0, len(addNics))
+	securityGroups := buildAddInstanceNicSecGroupsBodyParams(d)
+	for _, nic := range addNics {
+		if v, ok := nic.(map[string]interface{}); ok {
+			bodyParams = append(bodyParams, map[string]interface{}{
+				"subnet_id":       v["subnet_id"].(string),
+				"ip_address":      utils.ValueIgnoreEmpty(v["ip_address"]),
+				"security_groups": utils.ValueIgnoreEmpty(securityGroups),
+			})
+		}
+	}
+	return map[string]interface{}{
+		"nics": bodyParams,
+	}
+}
+
+func buildAddInstanceNicSecGroupsBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	segGroups := d.Get("security_groups").(*schema.Set)
+	rst := make([]map[string]interface{}, 0, segGroups.Len())
+	for _, segGroup := range segGroups.List() {
+		rst = append(rst, map[string]interface{}{
+			"id": segGroup,
+		})
+	}
+	return rst
+}
+
+func deleteInstanceNics(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string,
+	deleteNics []interface{}) error {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}/nics/delete"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildDeleteInstanceNicsBodyParams(deleteNics)
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting nics to BMS instance: %s", err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error deleting nics from BMS instance: job_id is not found in API response")
+	}
+
+	return waitForJobComplete(ctx, client, jobId, d.Timeout(timeout))
+}
+
+func buildDeleteInstanceNicsBodyParams(addNics []interface{}) interface{} {
+	bodyParams := make([]interface{}, 0, len(addNics))
+	for _, nic := range addNics {
+		if v, ok := nic.(map[string]interface{}); ok {
+			bodyParams = append(bodyParams, map[string]interface{}{
+				"id": v["port_id"].(string),
+			})
+		}
+	}
+	return map[string]interface{}{
+		"nics": bodyParams,
+	}
 }
 
 // Get the list of new and to-be-deleted network cards.
@@ -603,64 +699,6 @@ func getDiffNics(d *schema.ResourceData) (addList []interface{}, removeList []in
 		}
 	}
 	return
-}
-
-func waitBMSJobSuccess(ctx context.Context, client *golangsdk.ServiceClient, jobId string, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"RUNNING"},
-		Target:       []string{"SUCCESS"},
-		Refresh:      JobRefreshFunc(client, jobId),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return nil
-	}
-
-	return err
-}
-
-func JobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		job, err := baremetalservers.GetJobDetail(c, jobId).ExtractJobStatus()
-		if err != nil {
-			return job, "ERROR", err
-		}
-		status := job.Status
-		if status == "SUCCESS" {
-			return job, status, nil
-		}
-		if status == "FAIL" {
-			return job, status, fmt.Errorf("the BMS job (%s) status is FAIL, the fail reason is: %s",
-				jobId, job.FailReason)
-		}
-		return job, "RUNNING", nil
-	}
-}
-
-func buildDeleteNicsParam(nics []interface{}) []baremetalservers.DeleteNic {
-	rst := make([]baremetalservers.DeleteNic, len(nics))
-	for i, nic := range nics {
-		variable := nic.(map[string]interface{})
-		rst[i] = baremetalservers.DeleteNic{
-			ID: variable["port_id"].(string),
-		}
-	}
-	return rst
-}
-
-func buildAddNicsParam(nics []interface{}) []baremetalservers.Nic {
-	rst := make([]baremetalservers.Nic, len(nics))
-	for i, nic := range nics {
-		variable := nic.(map[string]interface{})
-		rst[i] = baremetalservers.Nic{
-			SubnetId:  variable["subnet_id"].(string),
-			IpAddress: variable["ip_address"].(string),
-		}
-	}
-	return rst
 }
 
 func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
