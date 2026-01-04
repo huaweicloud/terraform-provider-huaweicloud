@@ -2,6 +2,7 @@ package cbh
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -116,12 +117,13 @@ func ResourceCBHInstance() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid",
+					"postPaid",
 				}, false),
 				Description: `Specifies the charging mode of the CBH instance.`,
 			},
 			"period_unit": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"month", "year",
@@ -130,7 +132,7 @@ func ResourceCBHInstance() *schema.Resource {
 			},
 			"period": {
 				Type:        schema.TypeInt,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the charging period of the CBH instance.`,
 			},
@@ -208,6 +210,7 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		cfg                      = meta.(*config.Config)
 		region                   = cfg.GetRegion(d)
 		createCbhInstanceProduct = "cbh"
+		serverId                 string
 	)
 
 	client, err := cfg.NewServiceClient(createCbhInstanceProduct, region)
@@ -215,38 +218,49 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating CBH client: %s", err)
 	}
 
-	orderId, err := createCBHInstance(client, d, cfg)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
 
-	if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.FromErr(err)
-	}
+	if d.Get("charging_mode").(string) == "prePaid" {
+		orderId, err := createCBHInstance(client, d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("error waiting for CBH instance order %s complete: %s", orderId, err)
-	}
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.FromErr(err)
+		}
 
-	instances, err := getCBHInstanceList(client)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	expression := fmt.Sprintf("[?resource_info.resource_id == '%s']|[0].server_id", resourceId)
-	serverId := utils.PathSearch(expression, instances, "").(string)
-	if serverId == "" {
-		return diag.Errorf("unable to find the CBH instance ID from the API response")
-	}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for CBH instance order %s complete: %s", orderId, err)
+		}
 
-	d.SetId(serverId)
-	if err := waitingForCBHInstanceActive(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
+		instances, err := getCBHInstanceList(client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		expression := fmt.Sprintf("[?resource_info.resource_id == '%s']|[0].server_id", resourceId)
+		serverId = utils.PathSearch(expression, instances, "").(string)
+		if serverId == "" {
+			return diag.Errorf("unable to find the CBH instance ID from the API response")
+		}
+
+		d.SetId(serverId)
+		if err := waitingForCBHInstanceActive(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
+		}
+	} else {
+		instanceId, err := createCBHInstance(client, d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		if err := waitingForCBHInstanceActiveByInstanceID(ctx, client, instanceId, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
+		}
 	}
 
 	// After successfully creating an instance using the first security group ID, check if it is necessary to update the
@@ -295,11 +309,17 @@ func createCBHInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 		return "", err
 	}
 
-	orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
-	if orderId == "" {
-		return "", fmt.Errorf("unable to find the order ID of the CBH instance from the API response")
+	var targetId string
+	if d.Get("charging_mode").(string) == "prePaid" {
+		targetId = utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+	} else {
+		targetId = utils.PathSearch("instance_id", createInstanceRespBody, "").(string)
 	}
-	return orderId, nil
+
+	if targetId == "" {
+		return "", errors.New("unable to find the order/instance ID of the CBH instance from the API response")
+	}
+	return targetId, nil
 }
 
 func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsId string, publicIp interface{}) map[string]interface{} {
@@ -310,13 +330,15 @@ func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsI
 		"region":                region,
 		"availability_zone":     d.Get("availability_zone"),
 		"charging_mode":         buildCreateChargingModeParam(d),
-		"period_type":           buildCreatePeriodTypeParam(d),
-		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
-		"is_auto_renew":         buildCreateIsAutoRenewParam(d),
-		"is_auto_pay":           1,
 		"network":               buildCreateNetworkBodyParam(d, publicIp),
 		"attach_disk_size":      utils.ValueIgnoreEmpty(d.Get("attach_disk_size")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(epsId),
+	}
+	if d.Get("charging_mode").(string) == "prePaid" {
+		bodyParam["period_type"] = buildCreatePeriodTypeParam(d)
+		bodyParam["period_num"] = utils.ValueIgnoreEmpty(d.Get("period"))
+		bodyParam["is_auto_renew"] = buildCreateIsAutoRenewParam(d)
+		bodyParam["is_auto_pay"] = 1
 	}
 	// The default value of the field `ipv6_enable` is false
 	if d.Get("ipv6_enable").(bool) {
@@ -334,6 +356,9 @@ func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsI
 func buildCreateChargingModeParam(d *schema.ResourceData) interface{} {
 	if d.Get("charging_mode").(string) == "prePaid" {
 		return 0
+	}
+	if d.Get("charging_mode").(string) == "postPaid" {
+		return 1
 	}
 	return nil
 }
@@ -534,6 +559,48 @@ func waitingForCBHInstanceShutoff(ctx context.Context, client *golangsdk.Service
 	return err
 }
 
+func waitingForCBHInstanceActiveByInstanceID(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, d *schema.ResourceData,
+	timeout time.Duration) error {
+	expression := fmt.Sprintf("[?instance_id == '%s']|[0]", instanceId)
+	unexpectedStatus := []string{"SHUTOFF", "DELETING", "DELETED", "ERROR", "FROZEN"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			instances, err := getCBHInstanceList(client)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+			instance := utils.PathSearch(expression, instances, nil)
+			if instance == nil {
+				return nil, "ERROR", golangsdk.ErrDefault404{}
+			}
+
+			status := utils.PathSearch("status_info.status", instance, "").(string)
+			if status == "ACTIVE" {
+				serverId := utils.PathSearch("server_id", instance, "").(string)
+				d.SetId(serverId)
+				return instance, "COMPLETED", nil
+			}
+
+			if status == "" {
+				return instance, "ERROR", errors.New("status is not found in list API response")
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return instance, status, nil
+			}
+			return instance, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
 func waitingForCBHInstanceActive(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration) error {
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
@@ -557,7 +624,7 @@ func waitingForCBHInstanceActive(ctx context.Context, client *golangsdk.ServiceC
 			}
 
 			if status == "" {
-				return instance, "ERROR", fmt.Errorf("status is not found in list API response")
+				return instance, "ERROR", errors.New("status is not found in list API response")
 			}
 
 			if utils.StrSliceContains(unexpectedStatus, status) {
