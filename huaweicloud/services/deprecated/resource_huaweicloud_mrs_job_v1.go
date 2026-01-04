@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/job"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -133,7 +134,7 @@ func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobID string) resource
 
 func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
@@ -181,18 +182,19 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	client, err := config.MrsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud  MRS client: %s", err)
 	}
 
 	jobGet, err := job.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "MRS Job")
+		return common.CheckDeleted(d, err, "MRS Job")
 	}
 	logp.Printf("[DEBUG] Retrieved MRS Job %s: %#v", d.Id(), jobGet)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.SetId(jobGet.ID)
 	d.Set("job_type", jobGet.JobType)
 	d.Set("job_name", jobGet.JobName)
@@ -224,7 +226,7 @@ func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}

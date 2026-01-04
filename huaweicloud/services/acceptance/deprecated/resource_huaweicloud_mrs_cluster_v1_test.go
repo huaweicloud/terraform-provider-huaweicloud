@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -12,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -23,9 +24,9 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckMrs(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMRSV1ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV1ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMRSV1ClusterConfig_basic(rName, password),
@@ -40,8 +41,8 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 }
 
 func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud mrs: %s", err)
 	}
@@ -77,8 +78,8 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 			return fmtp.Errorf("No ID is set. ")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud mrs client: %s ", err)
 		}
