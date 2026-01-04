@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"strconv"
@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -255,7 +256,7 @@ func ResourceMRSClusterV1() *schema.Resource {
 					},
 				},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -422,7 +423,7 @@ func ClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterID string) 
 
 func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 
 	client, err := config.MrsV1Client(region)
 	if err != nil {
@@ -515,14 +516,15 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	client, err := config.MrsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
 
 	clusterGet, err := cluster.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "MRS Cluster")
+		return common.CheckDeleted(d, err, "MRS Cluster")
 	}
 	if clusterGet.Clusterstate == "terminated" {
 		logp.Printf("[WARN] The Cluster %s has been terminated.", d.Id())
@@ -532,7 +534,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	logp.Printf("[DEBUG] Retrieved Cluster %s: %#v", d.Id(), clusterGet)
 	d.SetId(clusterGet.Clusterid)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.Set("order_id", clusterGet.Orderid)
 	d.Set("available_zone_name", clusterGet.Azname)
 	d.Set("available_zone_id", clusterGet.Azid)
@@ -630,7 +632,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
@@ -646,7 +648,7 @@ func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(GetRegion(d, config))
+	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}

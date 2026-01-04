@@ -3588,9 +3588,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
 
-			"huaweicloud_mrs_cluster": ResourceMRSClusterV1(),
-			"huaweicloud_mrs_job":     ResourceMRSJobV1(),
-
 			"huaweicloud_nat_dnat_rule": nat.ResourcePublicDnatRule(),
 			"huaweicloud_nat_gateway":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule": nat.ResourcePublicSnatRule(),
@@ -4103,9 +4100,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_l7rule_v2":       lb.ResourceL7RuleV2(),
 			"huaweicloud_lb_whitelist_v2":    lb.ResourceWhitelistV2(),
 
-			"huaweicloud_mrs_cluster_v1": ResourceMRSClusterV1(),
-			"huaweicloud_mrs_job_v1":     ResourceMRSJobV1(),
-
 			"huaweicloud_networking_secgroup_v2":      vpc.ResourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroup_rule_v2": vpc.ResourceNetworkingSecGroupRule(),
 
@@ -4229,6 +4223,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_peering_connect_v1": deprecated.ResourceCsPeeringConnectV1(),
 
 			"huaweicloud_lts_structuring_configuration": lts.ResourceStructConfig(),
+
+			"huaweicloud_mrs_cluster":    deprecated.ResourceMRSClusterV1(),
+			"huaweicloud_mrs_cluster_v1": deprecated.ResourceMRSClusterV1(),
+			"huaweicloud_mrs_job":        deprecated.ResourceMRSJobV1(),
+			"huaweicloud_mrs_job_v1":     deprecated.ResourceMRSJobV1(),
 
 			"huaweicloud_sfs_access_rule":    deprecated.ResourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system":    deprecated.ResourceSFSFileSystemV2(),
