@@ -221,7 +221,7 @@ func GetWebTamperProtectionHost(client *golangsdk.ServiceClient, region, epsId, 
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving HSS web tamper protection host: %s", err)
+		return nil, err
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -231,7 +231,14 @@ func GetWebTamperProtectionHost(client *golangsdk.ServiceClient, region, epsId, 
 
 	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
 	if hostResp == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v5/{project_id}/webtamper/hosts",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the HSS web tamper protection host (%s) does not exist", hostId)),
+			},
+		}
 	}
 
 	return hostResp, nil

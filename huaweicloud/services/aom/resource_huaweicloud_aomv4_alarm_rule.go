@@ -721,10 +721,14 @@ func buildAlarmRuleMetricAlarmSpecTriggerConditions(paramsList []interface{}) in
 }
 
 func getAlarmRule(cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	getHttpUrl := "v4/{project_id}/alarm-rules?name={name}"
+	var (
+		getHttpUrl = "v4/{project_id}/alarm-rules?name={name}"
+		ruleName   = d.Id()
+	)
+
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{name}", d.Id())
+	getPath = strings.ReplaceAll(getPath, "{name}", ruleName)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      buildRequestMoreHeaders(cfg.GetEnterpriseProjectID(d)),
@@ -732,16 +736,23 @@ func getAlarmRule(cfg *config.Config, client *golangsdk.ServiceClient, d *schema
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving the alarm rule: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening the alarm rule: %s", err)
+		return nil, err
 	}
 
 	rule := utils.PathSearch("alarm_rules|[0]", getRespBody, nil)
 	if rule == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v4/{project_id}/alarm-rules",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the alarm rule (%s) does not exist", ruleName)),
+			},
+		}
 	}
 
 	return rule, nil

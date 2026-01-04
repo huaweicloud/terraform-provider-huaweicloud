@@ -364,7 +364,11 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 	// Firstly, try to ues the DNS global endpoint
 	client, err := conf.DnsV2Client(region)
 	if err != nil {
-		return nil, "", fmt.Errorf("error creating DNS client: %s", err)
+		return nil, "", golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("error creating DNS client: %s", err)),
+			},
+		}
 	}
 
 	// get zone with DNS global endpoint

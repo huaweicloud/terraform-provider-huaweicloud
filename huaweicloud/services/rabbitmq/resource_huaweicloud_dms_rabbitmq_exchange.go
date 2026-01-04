@@ -217,7 +217,7 @@ func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, nam
 		}
 		listRespBody, err := utils.FlattenResponse(listResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flattening the exchanges list: %s", err)
+			return nil, err
 		}
 
 		searchPath := fmt.Sprintf("items[?name=='%s']|[0]", name)
@@ -230,7 +230,14 @@ func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, nam
 		offset += pageLimit
 		total := utils.PathSearch("total", listRespBody, float64(0))
 		if int(total.(float64)) <= offset {
-			return nil, golangsdk.ErrDefault404{}
+			return nil, golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Method:    "GET",
+					URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges",
+					RequestId: "NONE",
+					Body:      []byte(fmt.Sprintf("the exchange (%s) does not exist", name)),
+				},
+			}
 		}
 	}
 }

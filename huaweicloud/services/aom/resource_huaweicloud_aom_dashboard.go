@@ -205,18 +205,21 @@ func getDashboard(cfg *config.Config, client *golangsdk.ServiceClient, d *schema
 	}
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving dashboard: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening dashboard: %s", err)
+		return nil, err
 	}
 
 	return getRespBody, nil
 }
 
 func filterDashboard(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	listHttpUrl := "v2/{project_id}/aom/dashboards"
+	var (
+		listHttpUrl = "v2/{project_id}/aom/dashboards"
+		dashboardId = d.Id()
+	)
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
@@ -229,17 +232,24 @@ func filterDashboard(client *golangsdk.ServiceClient, d *schema.ResourceData) er
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return fmt.Errorf("error retrieving dashboards: %s", err)
+		return err
 	}
 	listRespBody, err := utils.FlattenResponse(listResp)
 	if err != nil {
-		return fmt.Errorf("error flattening dashboards: %s", err)
+		return err
 	}
 
-	jsonPath := fmt.Sprintf("dashboards[?dashboard_id=='%s']|[0]", d.Id())
+	jsonPath := fmt.Sprintf("dashboards[?dashboard_id=='%s']|[0]", dashboardId)
 	dashboard := utils.PathSearch(jsonPath, listRespBody, nil)
 	if dashboard == nil {
-		return golangsdk.ErrDefault404{}
+		return golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/aom/dashboards",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the dashboard (%s) does not exist", dashboardId)),
+			},
+		}
 	}
 
 	return nil

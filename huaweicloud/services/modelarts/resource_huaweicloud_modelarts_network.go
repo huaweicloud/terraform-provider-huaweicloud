@@ -143,7 +143,7 @@ func resourceModelartsNetworkCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(id.(string))
 
-	err = createNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = createNetworkWaitingForStateCompleted(ctx, createNetworkClient, id.(string), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the Modelarts network (%s) creation to complete: %s", d.Id(), err)
 	}
@@ -189,15 +189,12 @@ func buildNetworkRequestBodyPeerConnection(rawParams interface{}) []map[string]i
 	return []map[string]interface{}{}
 }
 
-func createNetworkWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func createNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-
-			getModelartsNetworkRespBody, err := getModelartsNetwork(cfg, region, d.Id())
+			getModelartsNetworkRespBody, err := getModelartsNetwork(client, networkId)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -234,16 +231,17 @@ func resourceModelartsNetworkRead(_ context.Context, d *schema.ResourceData, met
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var mErr *multierror.Error
-
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
 	// getModelartsNetwork: Query the Modelarts network.
-	getModelartsNetworkRespBody, err := getModelartsNetwork(cfg, region, d.Id())
+	getModelartsNetworkRespBody, err := getModelartsNetwork(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Modelarts network")
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch(`metadata.labels."os.modelarts/name"`, getModelartsNetworkRespBody, nil)),
 		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, getModelartsNetworkRespBody, nil)),
@@ -255,19 +253,14 @@ func resourceModelartsNetworkRead(_ context.Context, d *schema.ResourceData, met
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getModelartsNetwork(cfg *config.Config, region, id string) (interface{}, error) {
+func getModelartsNetwork(client *golangsdk.ServiceClient, networkId string) (interface{}, error) {
 	var (
 		getModelartsNetworkHttpUrl = "v1/{project_id}/networks/{id}"
-		getModelartsNetworkProduct = "modelarts"
 	)
-	getModelartsNetworkClient, err := cfg.NewServiceClient(getModelartsNetworkProduct, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating ModelArts client: %s", err)
-	}
 
-	getModelartsNetworkPath := getModelartsNetworkClient.Endpoint + getModelartsNetworkHttpUrl
-	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{project_id}", getModelartsNetworkClient.ProjectID)
-	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{id}", id)
+	getModelartsNetworkPath := client.Endpoint + getModelartsNetworkHttpUrl
+	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{project_id}", client.ProjectID)
+	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{id}", networkId)
 
 	getModelartsNetworkOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -277,7 +270,7 @@ func getModelartsNetwork(cfg *config.Config, region, id string) (interface{}, er
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	}
 
-	getModelartsNetworkResp, err := getModelartsNetworkClient.Request("GET", getModelartsNetworkPath, &getModelartsNetworkOpt)
+	getModelartsNetworkResp, err := client.Request("GET", getModelartsNetworkPath, &getModelartsNetworkOpt)
 
 	if err != nil {
 		return nil, err
@@ -307,8 +300,15 @@ func flattenGetNetworkResponseBodyPeerConnection(resp interface{}) []interface{}
 }
 
 func resourceModelartsNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		networkId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
 
 	updateNetworkChanges := []string{
 		"peer_connections",
@@ -316,18 +316,11 @@ func resourceModelartsNetworkUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChanges(updateNetworkChanges...) {
 		// updateNetwork: update the ModelArts network.
-		var (
-			updateNetworkHttpUrl = "v1/{project_id}/networks/{id}"
-			updateNetworkProduct = "modelarts"
-		)
-		updateNetworkClient, err := cfg.NewServiceClient(updateNetworkProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating ModelArts client: %s", err)
-		}
+		updateNetworkHttpUrl := "v1/{project_id}/networks/{id}"
 
-		updateNetworkPath := updateNetworkClient.Endpoint + updateNetworkHttpUrl
-		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", updateNetworkClient.ProjectID)
-		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{id}", d.Id())
+		updateNetworkPath := client.Endpoint + updateNetworkHttpUrl
+		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", client.ProjectID)
+		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{id}", networkId)
 
 		updateNetworkOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -338,11 +331,12 @@ func resourceModelartsNetworkUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 
 		updateNetworkOpt.JSONBody = buildUpdateNetworkBodyParams(d)
-		_, err = updateNetworkClient.Request("PATCH", updateNetworkPath, &updateNetworkOpt)
+		_, err = client.Request("PATCH", updateNetworkPath, &updateNetworkOpt)
 		if err != nil {
 			return diag.Errorf("error updating Modelarts network: %s", err)
 		}
-		err = updateNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = updateNetworkWaitingForStateCompleted(ctx, client, networkId, d.Get("peer_connections").([]interface{}),
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("error waiting for the Modelarts network (%s) update to complete: %s", d.Id(), err)
 		}
@@ -361,48 +355,43 @@ func buildUpdateNetworkBodyParams(d *schema.ResourceData) map[string]interface{}
 	return bodyParams
 }
 
-func updateNetworkWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func updateNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, peerConnections []interface{},
+	t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-
-			getModelartsNetworkRespBody, err := getModelartsNetwork(cfg, region, d.Id())
+			getModelartsNetworkRespBody, err := getModelartsNetwork(client, networkId)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			if rawArray, ok := d.Get("peer_connections").([]interface{}); ok {
-				// if peer_connections is empty, then check status.connectionStatus.peerConnectionStatus is empty
-				if len(rawArray) == 0 {
-					searchJsonPath := `length(status.connectionStatus.peerConnectionStatus)`
-					if utils.PathSearch(searchJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
-						return getModelartsNetworkRespBody, "PENDING", nil
-					}
-
-					return getModelartsNetworkRespBody, "COMPLETED", nil
+			// if peer_connections is empty, then check status.connectionStatus.peerConnectionStatus is empty
+			if len(peerConnections) == 0 {
+				if utils.PathSearch(`length(status.connectionStatus.peerConnectionStatus)`, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
+					return getModelartsNetworkRespBody, "PENDING", nil
 				}
 
-				// if peer_connections is not empty, then check those connections are all
-				// in `status.connectionStatus.peerConnectionStatus` and the status is `Active`
-				for _, v := range rawArray {
-					raw := v.(map[string]interface{})
-					peerVpcId := utils.ValueIgnoreEmpty(raw["vpc_id"])
-					peerSubnetId := utils.ValueIgnoreEmpty(raw["subnet_id"])
+				return getModelartsNetworkRespBody, "COMPLETED", nil
+			}
 
-					searchAbnormalJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
+			// if peer_connections is not empty, then check those connections are all
+			// in `status.connectionStatus.peerConnectionStatus` and the status is `Active`
+			for _, v := range peerConnections {
+				raw := v.(map[string]interface{})
+				peerVpcId := utils.ValueIgnoreEmpty(raw["vpc_id"])
+				peerSubnetId := utils.ValueIgnoreEmpty(raw["subnet_id"])
+
+				searchAbnormalJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
                      && peerSubnetId=='%s' && phase=='Abnormal'])`, peerVpcId, peerSubnetId)
-					if utils.PathSearch(searchAbnormalJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
-						return nil, "ERROR", fmt.Errorf("error updating peer_connections, vpc_id: %s, subnet_id: %s", peerVpcId, peerSubnetId)
-					}
+				if utils.PathSearch(searchAbnormalJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
+					return nil, "ERROR", fmt.Errorf("error updating peer_connections, vpc_id: %s, subnet_id: %s", peerVpcId, peerSubnetId)
+				}
 
-					searchActiveJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
+				searchActiveJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
                      && peerSubnetId=='%s' && phase=='Active'])`, peerVpcId, peerSubnetId)
-					if utils.PathSearch(searchActiveJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) == 0 {
-						return getModelartsNetworkRespBody, "PENDING", nil
-					}
+				if utils.PathSearch(searchActiveJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) == 0 {
+					return getModelartsNetworkRespBody, "PENDING", nil
 				}
 			}
 
@@ -417,14 +406,15 @@ func updateNetworkWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 }
 
 func resourceModelartsNetworkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	// deleteNetwork: delete Modelarts network
 	var (
 		deleteNetworkHttpUrl = "v1/{project_id}/networks/{id}"
 		deleteNetworkProduct = "modelarts"
+		cfg                  = meta.(*config.Config)
+		region               = cfg.GetRegion(d)
+		networkId            = d.Id()
 	)
+
 	deleteNetworkClient, err := cfg.NewServiceClient(deleteNetworkProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts client: %s", err)
@@ -432,7 +422,7 @@ func resourceModelartsNetworkDelete(ctx context.Context, d *schema.ResourceData,
 
 	deleteNetworkPath := deleteNetworkClient.Endpoint + deleteNetworkHttpUrl
 	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{project_id}", deleteNetworkClient.ProjectID)
-	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{id}", d.Id())
+	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{id}", networkId)
 
 	deleteNetworkOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -447,21 +437,19 @@ func resourceModelartsNetworkDelete(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error deleting Modelarts network: %s", err)
 	}
 
-	err = deleteNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = deleteNetworkWaitingForStateCompleted(ctx, deleteNetworkClient, networkId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts network (%s) deletion to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the Modelarts network (%s) deletion to complete: %s", networkId, err)
 	}
 	return nil
 }
 
-func deleteNetworkWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func deleteNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-			_, err := getModelartsNetwork(cfg, region, d.Id())
+			_, err := getModelartsNetwork(client, networkId)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					var obj = map[string]string{"code": "COMPLETED"}

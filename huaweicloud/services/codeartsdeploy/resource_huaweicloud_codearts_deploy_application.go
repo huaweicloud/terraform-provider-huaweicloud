@@ -562,9 +562,12 @@ func resourceDeployApplicationRead(_ context.Context, d *schema.ResourceData, me
 }
 
 func getDeployApplication(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	httpUrl := "v1/applications/{app_id}/info"
+	var (
+		httpUrl       = "v1/applications/{app_id}/info"
+		applicationId = d.Id()
+	)
 	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{app_id}", d.Id())
+	getPath = strings.ReplaceAll(getPath, "{app_id}", applicationId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
@@ -584,7 +587,14 @@ func getDeployApplication(client *golangsdk.ServiceClient, d *schema.ResourceDat
 
 	resultRespBody := utils.PathSearch("result", getRespBody, nil)
 	if resultRespBody == nil {
-		return nil, fmt.Errorf("error retrieving CodeArts deploy application: result is not found in API response")
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/applications/{app_id}/info",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationId)),
+			},
+		}
 	}
 
 	return resultRespBody, nil

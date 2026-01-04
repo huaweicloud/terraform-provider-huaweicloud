@@ -161,11 +161,11 @@ func getRabbitmqExchangeAssociate(client *golangsdk.ServiceClient, d *schema.Res
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving the exchange association infos: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening the exchanges association infos: %s", err)
+		return nil, err
 	}
 
 	// Queue or queue are all available for destination_type when creating,
@@ -183,7 +183,14 @@ func getRabbitmqExchangeAssociate(client *golangsdk.ServiceClient, d *schema.Res
 		}
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the exchange (%s) has no association", d.Get("exchange").(string))),
+		},
+	}
 }
 
 func resourceDmsRabbitmqExchangeAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

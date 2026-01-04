@@ -243,7 +243,7 @@ func resourceOneClickAlarmRead(_ context.Context, d *schema.ResourceData, meta i
 
 	alarm, err := GetOneClickAlarm(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "no CES one-click alarm found")
+		return common.CheckDeletedDiag(d, err, "error retrieve CES one-click alarm")
 	}
 
 	mErr = multierror.Append(
@@ -267,7 +267,7 @@ func GetOneClickAlarm(client *golangsdk.ServiceClient, id string) (interface{}, 
 	}
 	getOneClickAlarmResp, err := client.Request("GET", getOneClickAlarmPath, &getOneClickAlarmOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieve CES one-click alarm: %s", err)
+		return nil, err
 	}
 
 	getOneClickAlarmRespBody, err := utils.FlattenResponse(getOneClickAlarmResp)
@@ -278,7 +278,14 @@ func GetOneClickAlarm(client *golangsdk.ServiceClient, id string) (interface{}, 
 	findAlarmStr := fmt.Sprintf("one_click_alarms[?one_click_alarm_id=='%s']|[0]", id)
 	alarm := utils.PathSearch(findAlarmStr, getOneClickAlarmRespBody, nil)
 	if alarm == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/one-click-alarms",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the one-click alarm (%s) does not exist", id)),
+			},
+		}
 	}
 
 	return alarm, nil

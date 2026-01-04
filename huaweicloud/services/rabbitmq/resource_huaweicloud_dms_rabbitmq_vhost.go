@@ -125,11 +125,11 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 		currentPath := listPath + fmt.Sprintf("&offset=%d", offset)
 		listResp, err := client.Request("GET", currentPath, &listOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving the vhosts list: %s", err)
+			return nil, err
 		}
 		listRespBody, err := utils.FlattenResponse(listResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flattening the vhosts list: %s", err)
+			return nil, err
 		}
 
 		searchPath := fmt.Sprintf("items[?name=='%s']|[0]", name)
@@ -142,7 +142,14 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 		offset += pageLimit
 		total := utils.PathSearch("total", listRespBody, float64(0))
 		if int(total.(float64)) <= offset {
-			return nil, golangsdk.ErrDefault404{}
+			return nil, golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Method:    "GET",
+					URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts",
+					RequestId: "NONE",
+					Body:      []byte(fmt.Sprintf("the vhost (%s) does not exist", name)),
+				},
+			}
 		}
 	}
 }

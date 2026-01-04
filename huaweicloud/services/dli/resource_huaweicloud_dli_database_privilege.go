@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -153,9 +154,9 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 		KeepResponseBody: true,
 	}
 
-	requestResp, err := client.Request("GET", getPath, &getOpts)
+	var requestResp *http.Response
+	requestResp, err = client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		err = common.ConvertExpected400ErrInto404Err(err, "error_code", errCodeDbNotFound)
 		return
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
@@ -164,7 +165,14 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 	}
 
 	if !utils.PathSearch("is_success", respBody, true).(bool) {
-		err = fmt.Errorf("unable to query the privileges: %s", utils.PathSearch("message", respBody, "Message Not Found"))
+		err = golangsdk.ErrDefault500{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/{project_id}/authorization/privileges",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("unable to query the privileges: %s", utils.PathSearch("message", respBody, "Message Not Found"))),
+			},
+		}
 		return
 	}
 	filterExpression = fmt.Sprintf("privileges[?user_name=='%s']|[0]", userName)
@@ -178,7 +186,14 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 			objectResp = fmt.Sprintf("databases.%v", utils.PathSearch("object_name", respBody, "object_not_found"))
 		}
 	} else {
-		err = golangsdk.ErrDefault404{}
+		err = golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/{project_id}/authorization/privileges",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the privileges not found for the object (%s) and user (%s)", object, userName)),
+			},
+		}
 	}
 	return
 }
@@ -197,7 +212,8 @@ func resourceDatabasePrivilegeRead(_ context.Context, d *schema.ResourceData, me
 
 	objectResp, privilege, err := GetObjectPrivilegesForSpecifiedUser(client, object, userName)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving privileges")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", errCodeDbNotFound),
+			"error retrieving privileges")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

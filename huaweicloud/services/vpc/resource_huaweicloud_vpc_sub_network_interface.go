@@ -156,15 +156,8 @@ func resourceSubNetworkInterfaceCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceSubNetworkInterfaceRead(ctx, d, meta)
 }
 
-func getSubNetworkInterfaceInfo(d *schema.ResourceData, meta interface{}) (*http.Response, error) {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("vpcv3", region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating VPC v3 client: %s", err)
-	}
-
-	getSubNetworkInterfaceHttpUrl := "vpc/sub-network-interfaces/" + d.Id()
+func getSubNetworkInterfaceInfo(client *golangsdk.ServiceClient, subNetworkInterfaceId string) (*http.Response, error) {
+	getSubNetworkInterfaceHttpUrl := "vpc/sub-network-interfaces/" + subNetworkInterfaceId
 	getSubNetworkInterfacePath := client.ResourceBaseURL() + getSubNetworkInterfaceHttpUrl
 
 	getSubNetworkInterfaceOpt := golangsdk.RequestOpts{
@@ -183,7 +176,14 @@ func getSubNetworkInterfaceInfo(d *schema.ResourceData, meta interface{}) (*http
 }
 
 func resourceSubNetworkInterfaceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	getSubNetworkInterfaceResp, err := getSubNetworkInterfaceInfo(d, meta)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("vpcv3", region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
+	}
+
+	getSubNetworkInterfaceResp, err := getSubNetworkInterfaceInfo(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "VPC supplementary network interface")
 	}
@@ -193,8 +193,6 @@ func resourceSubNetworkInterfaceRead(_ context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
 	mErr := multierror.Append(
 		nil,
 		d.Set("region", region),

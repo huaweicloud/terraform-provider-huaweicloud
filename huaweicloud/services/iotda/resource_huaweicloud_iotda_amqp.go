@@ -109,7 +109,7 @@ func ReadAmqpById(client *golangsdk.ServiceClient, queueId string) (interface{},
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving IoTDA AMQP queue: %s", err)
+		return nil, err
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -121,7 +121,14 @@ func ReadAmqpById(client *golangsdk.ServiceClient, queueId string) (interface{},
 	// For this situation, a `404` status code needs to be returned for subsequent checkDeleted logic processing.
 	queueIdResp := utils.PathSearch("queue_id", getRespBody, "").(string)
 	if queueIdResp == "" {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v5/iot/{project_id}/amqp-queues/{queue_id}",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the IoTDA AMQP queue (%s) does not exist", queueId)),
+			},
+		}
 	}
 
 	return getRespBody, nil

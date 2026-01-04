@@ -248,7 +248,11 @@ func setRAMShareInstance(client *golangsdk.ServiceClient, d *schema.ResourceData
 		return golangsdk.ErrDefault404{}
 	}
 	if len(curArray) > 1 {
-		return fmt.Errorf("except retrieving one RAM share, but got %d", len(curArray))
+		return golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("except retrieving one RAM share, but got %d", len(curArray))),
+			},
+		}
 	}
 
 	resourceShare := curArray[0]

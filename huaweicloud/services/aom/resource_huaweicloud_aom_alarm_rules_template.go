@@ -698,10 +698,13 @@ func resourceAlarmRulesTemplateRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func getAlarmRulesTemplate(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	getHttpUrl := "v4/{project_id}/alarm-rules-template?id={id}"
+	var (
+		getHttpUrl = "v4/{project_id}/alarm-rules-template?id={id}"
+		templateId = d.Id()
+	)
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{id}", d.Id())
+	getPath = strings.ReplaceAll(getPath, "{id}", templateId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
@@ -712,16 +715,23 @@ func getAlarmRulesTemplate(client *golangsdk.ServiceClient, d *schema.ResourceDa
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving alarm rules template: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening alarm rules template: %s", err)
+		return nil, err
 	}
 
 	template := utils.PathSearch("[]|[0]", getRespBody, nil)
 	if template == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v4/{project_id}/alarm-rules-template",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the alarm rules template (%s) does not exist", templateId)),
+			},
+		}
 	}
 
 	return template, nil

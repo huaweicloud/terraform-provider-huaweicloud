@@ -1481,7 +1481,7 @@ func GetSourceServer(client *golangsdk.ServiceClient, sourceServerId string) (in
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening source server: %s", err)
+		return nil, err
 	}
 
 	return getRespBody, nil

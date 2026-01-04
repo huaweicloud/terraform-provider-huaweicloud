@@ -142,7 +142,7 @@ func ListAppPersonalFolders(client *golangsdk.ServiceClient, storageId string) (
 		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
 		requestResp, err := client.Request("GET", listPathWithOffset, &listOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error getting list of personal folders: %s", err)
+			return nil, err
 		}
 		respBody, err := utils.FlattenResponse(requestResp)
 		if err != nil {

@@ -300,12 +300,19 @@ func GetGroup(client *golangsdk.ServiceClient, componentID string, groupID strin
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening group: %s", err)
+		return nil, err
 	}
 
 	group := utils.PathSearch("data|[0]", getRespBody, nil)
 	if group == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/groups",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the group (%s) does not exist", groupID)),
+			},
+		}
 	}
 
 	return group, nil

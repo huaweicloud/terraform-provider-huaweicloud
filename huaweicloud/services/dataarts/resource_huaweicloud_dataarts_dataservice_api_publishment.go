@@ -25,6 +25,7 @@ var exclusiveApiNotPublishErrors = []string{
 }
 
 // @API DataArtsStudio POST /v1/{project_id}/service/apis/{api_id}/instances/{instance_id}/publish
+// @API DataArtsStudio GET /v1/{project_id}/service/apis/{api_id}/publish-info
 func ResourceDataServiceApiPublishment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataServiceApiPublishmentCreate,
@@ -169,12 +170,23 @@ func QueryApiPublishInfoByInstanceId(client *golangsdk.ServiceClient, workspaceI
 	if apiStatus == "" || apiStatus == "API_STATUS_OFFLINE" {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the API has been unpublished (%s)", apiId)),
-			}}
+				Method:    "GET",
+				URL:       "/v1/{project_id}/service/apis/{api_id}/publish-info",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the API has been unpublished (%s)", apiId)),
+			},
+		}
 	}
 	if apiStatus != "API_STATUS_PUBLISHED" {
-		return nil, fmt.Errorf("the API status is not in expect, want 'API_STATUS_PUBLISHED', "+
-			"but got '%s'", apiStatus)
+		return nil, golangsdk.ErrDefault500{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/service/apis/{api_id}/publish-info",
+				RequestId: "NONE",
+				Body: []byte(fmt.Sprintf("the API status is not in expect, want 'API_STATUS_PUBLISHED', "+
+					"but got '%s'", apiStatus)),
+			},
+		}
 	}
 	return publishRecord, nil
 }

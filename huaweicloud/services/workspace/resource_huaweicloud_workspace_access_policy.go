@@ -103,11 +103,19 @@ func buildAccessPolicyObjects(objects *schema.Set) []accesspolicies.AccessPolicy
 func GetAccessPolicyByPolicyName(client *golangsdk.ServiceClient, policyName string) (*accesspolicies.AccessPolicyDetailInfo, error) {
 	policies, err := accesspolicies.List(client)
 	if err != nil {
-		return nil, fmt.Errorf("error getting Workspace access policies: %s", err)
+		return nil, err
 	}
 	if len(policies) < 1 {
-		return nil, fmt.Errorf("resource not found, please check in the console")
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/access-policy",
+				RequestId: "NONE",
+				Body:      []byte("all access policies have been deleted"),
+			},
+		}
 	}
+
 	for _, policy := range policies {
 		if policy.PolicyName == policyName {
 			return &policy, nil
@@ -115,7 +123,10 @@ func GetAccessPolicyByPolicyName(client *golangsdk.ServiceClient, policyName str
 	}
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte(fmt.Sprintf("no resource of name '%s' found", policyName)),
+			Method:    "GET",
+			URL:       "/v2/{project_id}/access-policy",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("no access policy matched the name '%s'", policyName)),
 		},
 	}
 }

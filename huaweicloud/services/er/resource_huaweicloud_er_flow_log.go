@@ -3,7 +3,6 @@ package er
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -124,9 +123,12 @@ func buildCreateFlowLogBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func resourceFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ErV3Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		instanceId = d.Get("instance_id").(string)
+	)
+
+	client, err := cfg.ErV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ER v3 client: %s", err)
 	}
@@ -159,7 +161,7 @@ func resourceFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(flowLogId)
 
-	err = flowLogWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = flowLogWaitingForStateCompleted(ctx, client, instanceId, flowLogId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the create of flow log (%s) to complete: %s", d.Id(), err)
 	}
@@ -171,7 +173,7 @@ func resourceFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.FromErr(err)
 		}
 
-		err = flowLogWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = flowLogWaitingForStateCompleted(ctx, client, instanceId, flowLogId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error waiting for the update of flow log (%s) to complete: %s", d.Id(), err)
 		}
@@ -180,18 +182,11 @@ func resourceFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceFlowLogRead(ctx, d, meta)
 }
 
-func getFlowLogInfo(d *schema.ResourceData, meta interface{}) (*http.Response, error) {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ErV3Client(region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating ER v3 client: %s", err)
-	}
-
+func getFlowLogInfo(client *golangsdk.ServiceClient, instanceId, flowLogId string) (interface{}, error) {
 	getFlowLogHttpUrl := "enterprise-router/{er_id}/flow-logs/{flow_log_id}"
 	getFlowLogPath := client.ResourceBaseURL() + getFlowLogHttpUrl
-	getFlowLogPath = strings.ReplaceAll(getFlowLogPath, "{er_id}", d.Get("instance_id").(string))
-	getFlowLogPath = strings.ReplaceAll(getFlowLogPath, "{flow_log_id}", d.Id())
+	getFlowLogPath = strings.ReplaceAll(getFlowLogPath, "{er_id}", instanceId)
+	getFlowLogPath = strings.ReplaceAll(getFlowLogPath, "{flow_log_id}", flowLogId)
 	getFlowLogOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -203,39 +198,39 @@ func getFlowLogInfo(d *schema.ResourceData, meta interface{}) (*http.Response, e
 		return nil, err
 	}
 
-	return resp, nil
+	return utils.FlattenResponse(resp)
 }
 
 func resourceFlowLogRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	getFlowLogResp, err := getFlowLogInfo(d, meta)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ErV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating ER v3 client: %s", err)
+	}
+
+	respBody, err := getFlowLogInfo(client, d.Get("instance_id").(string), d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "ER flow log")
 	}
 
-	getFlowLogRespBody, err := utils.FlattenResponse(getFlowLogResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
 	mErr := multierror.Append(
 		nil,
 		d.Set("region", region),
-		d.Set("log_store_type", utils.PathSearch("flow_log.log_store_type", getFlowLogRespBody, nil)),
-		d.Set("log_group_id", utils.PathSearch("flow_log.log_group_id", getFlowLogRespBody, nil)),
-		d.Set("log_stream_id", utils.PathSearch("flow_log.log_stream_id", getFlowLogRespBody, nil)),
-		d.Set("name", utils.PathSearch("flow_log.name", getFlowLogRespBody, nil)),
-		d.Set("description", utils.PathSearch("flow_log.description", getFlowLogRespBody, nil)),
-		d.Set("resource_type", utils.PathSearch("flow_log.resource_type", getFlowLogRespBody, nil)),
-		d.Set("resource_id", utils.PathSearch("flow_log.resource_id", getFlowLogRespBody, nil)),
-		d.Set("state", utils.PathSearch("flow_log.state", getFlowLogRespBody, nil)),
+		d.Set("log_store_type", utils.PathSearch("flow_log.log_store_type", respBody, nil)),
+		d.Set("log_group_id", utils.PathSearch("flow_log.log_group_id", respBody, nil)),
+		d.Set("log_stream_id", utils.PathSearch("flow_log.log_stream_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("flow_log.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("flow_log.description", respBody, nil)),
+		d.Set("resource_type", utils.PathSearch("flow_log.resource_type", respBody, nil)),
+		d.Set("resource_id", utils.PathSearch("flow_log.resource_id", respBody, nil)),
+		d.Set("state", utils.PathSearch("flow_log.state", respBody, nil)),
 		// The time results are not the time in RF3339 format without milliseconds.
 		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("flow_log.created_at",
-			getFlowLogRespBody, "").(string))/1000, false)),
+			respBody, "").(string))/1000, false)),
 		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("flow_log.updated_at",
-			getFlowLogRespBody, "").(string))/1000, false)),
-		d.Set("enabled", utils.PathSearch("flow_log.enabled", getFlowLogRespBody, nil)),
+			respBody, "").(string))/1000, false)),
+		d.Set("enabled", utils.PathSearch("flow_log.enabled", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -270,9 +265,13 @@ func buildUpdateFlowLogBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func resourceFlowLogUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ErV3Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		instanceId = d.Get("instance_id").(string)
+		flowLogId  = d.Id()
+	)
+
+	client, err := cfg.ErV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ER v3 Client: %s", err)
 	}
@@ -280,8 +279,8 @@ func resourceFlowLogUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChanges("name", "description") {
 		updateFlowLogHttpUrl := "enterprise-router/{er_id}/flow-logs/{flow_log_id}"
 		updateFlowLogPath := client.ResourceBaseURL() + updateFlowLogHttpUrl
-		updateFlowLogPath = strings.ReplaceAll(updateFlowLogPath, "{er_id}", d.Get("instance_id").(string))
-		updateFlowLogPath = strings.ReplaceAll(updateFlowLogPath, "{flow_log_id}", d.Id())
+		updateFlowLogPath = strings.ReplaceAll(updateFlowLogPath, "{er_id}", instanceId)
+		updateFlowLogPath = strings.ReplaceAll(updateFlowLogPath, "{flow_log_id}", flowLogId)
 
 		updateFlowLogOpts := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -295,9 +294,9 @@ func resourceFlowLogUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.Errorf("error updating ER flow log: %s", err)
 		}
 
-		err = flowLogWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = flowLogWaitingForStateCompleted(ctx, client, instanceId, flowLogId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the update of flow log (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the update of flow log (%s) to complete: %s", flowLogId, err)
 		}
 	}
 
@@ -312,9 +311,9 @@ func resourceFlowLogUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		err = flowLogWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = flowLogWaitingForStateCompleted(ctx, client, instanceId, flowLogId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the update of flow log (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the update of flow log (%s) to complete: %s", flowLogId, err)
 		}
 	}
 
@@ -322,17 +321,21 @@ func resourceFlowLogUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceFlowLogDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ErV3Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		instanceId = d.Get("instance_id").(string)
+		flowLogId  = d.Id()
+	)
+
+	client, err := cfg.ErV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ER v3 Client: %s", err)
 	}
 
 	deleteFlowLogHttpUrl := "enterprise-router/{er_id}/flow-logs/{flow_log_id}"
 	deleteFlowLogPath := client.ResourceBaseURL() + deleteFlowLogHttpUrl
-	deleteFlowLogPath = strings.ReplaceAll(deleteFlowLogPath, "{er_id}", d.Get("instance_id").(string))
-	deleteFlowLogPath = strings.ReplaceAll(deleteFlowLogPath, "{flow_log_id}", d.Id())
+	deleteFlowLogPath = strings.ReplaceAll(deleteFlowLogPath, "{er_id}", instanceId)
+	deleteFlowLogPath = strings.ReplaceAll(deleteFlowLogPath, "{flow_log_id}", flowLogId)
 
 	deleteFlowLogOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -348,7 +351,7 @@ func resourceFlowLogDelete(ctx context.Context, d *schema.ResourceData, meta int
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
-		Refresh:      flowLogStatusRefreshFunc(d, meta, true),
+		Refresh:      flowLogStatusRefreshFunc(client, instanceId, flowLogId, true),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -361,20 +364,15 @@ func resourceFlowLogDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func flowLogStatusRefreshFunc(d *schema.ResourceData, meta interface{}, isDelete bool) resource.StateRefreshFunc {
+func flowLogStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, flowLogId string, isDelete bool) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := getFlowLogInfo(d, meta)
+		respBody, err := getFlowLogInfo(client, instanceId, flowLogId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && isDelete {
 				// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
 				return "Resource Not Found", "DELETED", nil
 			}
 
-			return nil, "ERROR", err
-		}
-
-		respBody, err := utils.FlattenResponse(resp)
-		if err != nil {
 			return nil, "ERROR", err
 		}
 
@@ -392,11 +390,11 @@ func flowLogStatusRefreshFunc(d *schema.ResourceData, meta interface{}, isDelete
 	}
 }
 
-func flowLogWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func flowLogWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceId, flowLogId string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      flowLogStatusRefreshFunc(d, meta, false),
+		Refresh:      flowLogStatusRefreshFunc(client, instanceId, flowLogId, false),
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,

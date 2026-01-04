@@ -3,7 +3,6 @@ package cc
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -109,7 +108,7 @@ func resourceCentralNetworkConnectionBandwidthAssociateCreateOrUpdate(ctx contex
 		timeOut = schema.TimeoutCreate
 	}
 
-	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, d, meta, d.Timeout(timeOut))
+	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, client, cfg, d, d.Timeout(timeOut))
 	if err != nil {
 		return diag.Errorf("error waiting for the central network connection bandwidth associate creation to complete: %s", err)
 	}
@@ -126,21 +125,18 @@ func buildCreateCentralNetworkConnectionBandwidthAssociateBodyParams(d *schema.R
 		},
 	}
 }
+
 func centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx context.Context,
-	d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			resp, err := readCentralNetworkConnection(meta, d)
+			respBody, err := getCentralNetworkConnectionById(client, cfg.DomainID, d.Get("central_network_id").(string), d.Id())
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			respBody, err := utils.FlattenResponse(resp)
-			if err != nil {
-				return nil, "ERROR", err
-			}
 			status := utils.PathSearch(`central_network_connections[0].state`, respBody, nil)
 			if status == nil {
 				return nil, "ERROR", fmt.Errorf("error parsing state from response body")
@@ -169,14 +165,14 @@ func resourceCentralNetworkConnectionBandwidthAssociateRead(_ context.Context, d
 	region := cfg.GetRegion(d)
 	var mErr *multierror.Error
 
-	resp, err := readCentralNetworkConnection(meta, d)
+	client, err := cfg.NewServiceClient("cc", region)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving central network connection: %s")
+		return diag.Errorf("error creating CC client: %s", err)
 	}
 
-	respBody, err := utils.FlattenResponse(resp)
+	respBody, err := getCentralNetworkConnectionById(client, cfg.DomainID, d.Get("central_network_id").(string), d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving central network connection: %s")
 	}
 
 	connection := utils.PathSearch("central_network_connections", respBody, make([]interface{}, 0))
@@ -201,29 +197,23 @@ func resourceCentralNetworkConnectionBandwidthAssociateRead(_ context.Context, d
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func readCentralNetworkConnection(meta interface{}, d *schema.ResourceData) (*http.Response, error) {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var (
-		httpUrl = "v3/{domain_id}/gcn/central-network/{central_network_id}/connections"
-		product = "cc"
-	)
-	client, err := cfg.NewServiceClient(product, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating CC client: %s", err)
-	}
-
+func getCentralNetworkConnectionById(client *golangsdk.ServiceClient, domainId string, centralNetworkId string,
+	connectionId string) (interface{}, error) {
+	httpUrl := "v3/{domain_id}/gcn/central-network/{central_network_id}/connections?id={connection_id}"
 	path := client.Endpoint + httpUrl
-	path = strings.ReplaceAll(path, "{domain_id}", cfg.DomainID)
-	path = strings.ReplaceAll(path, "{central_network_id}", d.Get("central_network_id").(string))
-	path += "?id=" + d.Id()
+	path = strings.ReplaceAll(path, "{domain_id}", domainId)
+	path = strings.ReplaceAll(path, "{central_network_id}", centralNetworkId)
+	path = strings.ReplaceAll(path, "{connection_id}", connectionId)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	return client.Request("GET", path, &opt)
+	requestResp, err := client.Request("GET", path, &opt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceCentralNetworkConnectionBandwidthAssociateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -257,7 +247,7 @@ func resourceCentralNetworkConnectionBandwidthAssociateDelete(ctx context.Contex
 			"error deleting central network connection bandwidth associate")
 	}
 
-	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, client, cfg, d, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("error waiting for the central network connection bandwidth associate deletion to complete: %s", err)
 	}

@@ -133,19 +133,26 @@ func GetMemberByObjectId(cfg *config.Config, region, workspaceId, permissionSetI
 	}
 	resp, err := client.Request("GET", getPath, &getPermissionSetMemberOpt)
 	if err != nil {
-		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLS.6036")
+		return nil, err
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DataArts Security permission set member: %s", err)
+		return nil, err
 	}
 
 	if member := utils.PathSearch(fmt.Sprintf("permission_set_members|[?member_id=='%s']|[0]", objectId), respBody, nil); member != nil {
 		return member, nil
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1/{project_id}/security/permission-sets/{permission_set_id}/members",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("unable to find the member using object ID (%s) in the permission set", objectId)),
+		},
+	}
 }
 
 func resourceSecurityPermissionSetMemberRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -157,7 +164,8 @@ func resourceSecurityPermissionSetMemberRead(_ context.Context, d *schema.Resour
 	)
 	resp, err := GetMemberByObjectId(cfg, region, workspaceId, permissionSetId, d.Get("object_id").(string))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DataArts Security permission set member")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLS.6036"),
+			"error retrieving DataArts Security permission set member")
 	}
 
 	mErr := multierror.Append(nil,

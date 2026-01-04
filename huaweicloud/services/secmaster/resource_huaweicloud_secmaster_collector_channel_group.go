@@ -125,7 +125,7 @@ func GetCollectorChannelGroupByName(client *golangsdk.ServiceClient, workspaceId
 
 	resp, err := client.Request("GET", listPath, &listOpts)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving colloector channel group: %s", err)
+		return nil, err
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -140,7 +140,14 @@ func GetCollectorChannelGroupByName(client *golangsdk.ServiceClient, workspaceId
 	}
 
 	// When the collector channel group does not exist, the status code is `200`.
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1/{project_id}/workspaces/{workspace_id}/collector/channels/groups",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the collector channel group (%s) does not exist", groupName)),
+		},
+	}
 }
 
 func resourceCollectorChannelGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

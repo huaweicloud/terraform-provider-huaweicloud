@@ -189,18 +189,21 @@ func getDeployApplicationGroup(client *golangsdk.ServiceClient, d *schema.Resour
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving application groups: %s", err)
+		return nil, err
 	}
 	listRespBody, err := utils.FlattenResponse(listResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening application groups: %s", err)
+		return nil, err
 	}
 
 	groups := utils.PathSearch("result", listRespBody, make([]interface{}, 0)).([]interface{})
 	if len(groups) == 0 {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte("error retrieving application groups, empty list"),
+				Method:    "GET",
+				URL:       "/v1/projects/{project_id}/applications/groups",
+				RequestId: "NONE",
+				Body:      []byte("the application groups does not exist, the result field is empty"),
 			},
 		}
 	}

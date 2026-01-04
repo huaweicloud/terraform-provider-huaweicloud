@@ -212,7 +212,7 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving cache detail: %s", err)
+		return nil, err
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -231,7 +231,14 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 	// Return a `404` status code for handling this scenario.
 	errorCode := utils.PathSearch("error.error_code", getRespBody, "").(string)
 	if errorCode == "CDN.0108" {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/cdn/historytasks/{history_tasks_id}/detail",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the cache detail (%s) does not exist", id)),
+			},
+		}
 	}
 
 	return getRespBody, nil

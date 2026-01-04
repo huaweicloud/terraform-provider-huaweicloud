@@ -295,25 +295,37 @@ func GetPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 	// If the storage of listOpts is not set, the list method will search for all PVCs of evs type.
 	storageType, ok := volumeTypeForList[volumeType]
 	if !ok {
-		return nil, fmt.Errorf("the volume type (%s) is not available", volumeType)
+		return nil, golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the volume type (%s) is not available", volumeType)),
+			},
+		}
 	}
+
 	listOpts := persistentvolumeclaims.ListOpts{
 		StorageType: storageType,
 	}
 	pages, err := persistentvolumeclaims.List(client, listOpts, ns).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("error finding the PVCs from the server: %s", err)
+		return nil, err
 	}
 	responses, err := persistentvolumeclaims.ExtractPersistentVolumeClaims(pages)
 	if err != nil {
-		return nil, fmt.Errorf("error extracting CCI PVC list: %s", err)
+		return nil, err
 	}
 	for _, v := range responses {
 		if v.PersistentVolumeClaim.Metadata.UID == id {
 			return &v, nil
 		}
 	}
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/api/v1/namespaces/{ns}/extended-persistentvolumeclaims",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the PVC (%s) does not exist", id)),
+		},
+	}
 }
 
 func resourcePersistentVolumeClaimV1ImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

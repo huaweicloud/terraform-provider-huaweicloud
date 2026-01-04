@@ -436,7 +436,14 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 	if queueList, ok := body.(*queues.ListResult); ok {
 		log.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
 		if !queueList.IsSuccess {
-			return nil, fmt.Errorf("unable to query the queue list: %s", queueList.Message)
+			return nil, golangsdk.ErrDefault500{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Method:    "GET",
+					URL:       "/v1.0/{project_id}/queues",
+					RequestId: "NONE",
+					Body:      []byte(fmt.Sprintf("unable to query the queue list: %s", queueList.Message)),
+				},
+			}
 		}
 
 		for _, v := range queueList.Queues {
@@ -444,11 +451,24 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 				return &v, nil
 			}
 		}
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/{project_id}/queues",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the queue (%s) does not exist", queueName)),
+			},
+		}
 	}
 
-	return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
-		body)
+	return nil, golangsdk.ErrDefault500{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1.0/{project_id}/queues",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the response type of sdk-client is wrong, want '*queues.ListResult', but got '%T'", body)),
+		},
+	}
 }
 
 func getQueueScalingPoliciesByName(client *golangsdk.ServiceClient, poolName, queueName string) ([]elasticresourcepool.QueueScalingPolicy, error) {

@@ -138,14 +138,28 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 		Keyword: dbName, // Fuzzy matching.
 	})
 	if err != nil {
-		return databases.Database{}, fmt.Errorf("error getting database: %s", err)
+		return databases.Database{}, err
 	}
 	if !resp.IsSuccess {
-		return databases.Database{}, fmt.Errorf("unable to query the database: %s", resp.Message)
+		return databases.Database{}, golangsdk.ErrDefault500{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/{project_id}/databases",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("unable to query the database: %s", resp.Message)),
+			},
+		}
 	}
 
 	if len(resp.Databases) < 1 {
-		return databases.Database{}, golangsdk.ErrDefault404{}
+		return databases.Database{}, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1.0/{project_id}/databases",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("no database matched the keyword: %s", dbName)),
+			},
+		}
 	}
 	for _, db := range resp.Databases {
 		if db.Name == dbName {
@@ -153,7 +167,14 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 		}
 	}
 
-	return databases.Database{}, golangsdk.ErrDefault404{}
+	return databases.Database{}, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1.0/{project_id}/databases",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the database (%s) does not exist", dbName)),
+		},
+	}
 }
 
 func resourceDliSQLDatabaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

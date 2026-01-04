@@ -180,11 +180,11 @@ func GetPrometheusInstanceById(client *golangsdk.ServiceClient, isntanceId strin
 	}
 	requestResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving AOM prometheus instance: %s", err)
+		return nil, err
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening AOM prometheus instance: %s", err)
+		return nil, err
 	}
 
 	instance := utils.PathSearch("prometheus[0]", respBody, nil)

@@ -3,7 +3,6 @@ package sms
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -209,7 +208,7 @@ func GetMigrationProject(client *golangsdk.ServiceClient, migrationProjectId str
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening migration project: %s", err)
+		return nil, err
 	}
 
 	return getRespBody, nil

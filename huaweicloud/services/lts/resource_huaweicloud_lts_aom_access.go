@@ -262,10 +262,21 @@ func resourceAOMAccessRead(_ context.Context, d *schema.ResourceData, meta inter
 func parseGetResponseBody(getRespBody interface{}) (interface{}, error) {
 	arrayBody, ok := getRespBody.([]interface{})
 	if !ok {
-		return nil, fmt.Errorf("the API response is not array")
+		return nil, golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte("the API response is not array"),
+			},
+		}
 	}
 	if len(arrayBody) == 0 {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/lts/aom-mapping/{rule_id}",
+				RequestId: "NONE",
+				Body:      []byte(`the AOM to LTS log mapping rule (%s) does not exist`),
+			},
+		}
 	}
 	return arrayBody[0], nil
 }
