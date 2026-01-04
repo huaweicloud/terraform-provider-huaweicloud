@@ -27,6 +27,7 @@ import (
 // @API BMS PUT /v1/{project_id}/baremetalservers/{server_id}
 // @API BMS POST /v1/{project_id}/baremetalservers
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics
+// @API BMS POST /v1/{project_id}/baremetalservers/action
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics/delete
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/tags/action
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/metadata
@@ -238,6 +239,13 @@ func ResourceBmsInstance() *schema.Resource {
 					},
 				},
 			},
+			"power_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"ON", "OFF", "REBOOT",
+				}, false),
+			},
 			"charging_mode": common.SchemaChargingMode([]string{}),
 			"period_unit":   common.SchemaPeriodUnit([]string{}),
 			"period":        common.SchemaPeriod([]string{}),
@@ -389,6 +397,13 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error updating the BMS metadata: %s", err)
 		}
 	}
+
+	if action, ok := d.GetOk("power_action"); ok && action == "OFF" {
+		err = updatePowerAction(ctx, d, bmsClient, action.(string), schema.TimeoutCreate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceBmsInstanceRead(ctx, d, meta)
 }
 
@@ -464,6 +479,14 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	instanceId := d.Id()
 
+	// if power_action is changed from OFF to ON, the instance should be start first
+	powerAction := d.Get("power_action").(string)
+	if d.HasChanges("power_action") && powerAction == "ON" {
+		if err = updatePowerAction(ctx, d, bmsClient, powerAction, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("name") {
 		var updateOpts baremetalservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
@@ -525,6 +548,13 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 			ProjectId:    cfg.GetProjectID(region),
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// if power_action is changed from ON to OFF/REBOOT, the instance should be close/restart at the end
+	if d.HasChanges("power_action") && (powerAction == "OFF" || powerAction == "REBOOT") {
+		if err = updatePowerAction(ctx, d, bmsClient, powerAction, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -652,6 +682,93 @@ func buildDeleteInstanceNicsBodyParams(addNics []interface{}) interface{} {
 	}
 	return map[string]interface{}{
 		"nics": bodyParams,
+	}
+}
+
+func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction, timeout string) error {
+	var bodyParams interface{}
+	var action string
+	switch powerAction {
+	case "ON":
+		bodyParams = buildStartupInstanceBodyParams(d)
+		action = "starting"
+	case "OFF":
+		bodyParams = buildShutdownInstanceBodyParams(d)
+		action = "stopping"
+	case "REBOOT":
+		bodyParams = buildRebootInstanceBodyParams(d)
+		action = "rebooting"
+	default:
+		return fmt.Errorf("the value of power_action(%s) is error, it should be in [ON, OFF, BEBOOT]", powerAction)
+	}
+
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/action"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = bodyParams
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error %s BMS instance: %s", action, err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("error %s BMS instance: job_id is not found in API response", action)
+	}
+
+	return waitForJobComplete(ctx, client, jobId, d.Timeout(timeout))
+}
+
+func buildStartupInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"servers": []map[string]interface{}{
+			{
+				"id": d.Id(),
+			},
+		},
+	}
+	return map[string]interface{}{
+		"os-start": bodyParams,
+	}
+}
+
+func buildShutdownInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"type": "HARD",
+		"servers": []map[string]interface{}{
+			{
+				"id": d.Id(),
+			},
+		},
+	}
+	return map[string]interface{}{
+		"os-stop": bodyParams,
+	}
+}
+
+func buildRebootInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"type": "HARD",
+		"servers": []map[string]interface{}{
+			{
+				"id": d.Id(),
+			},
+		},
+	}
+	return map[string]interface{}{
+		"reboot": bodyParams,
 	}
 }
 

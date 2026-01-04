@@ -2,17 +2,56 @@ package bms
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+func getResourceInstance(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}"
+		product = "bms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating RDS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{server_id}", state.Primary.ID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	status := utils.PathSearch("server.status", getRespBody, "").(string)
+	if status == "DELETED" {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return getRespBody, nil
+}
 
 func TestAccBmsInstance_basic(t *testing.T) {
 	var instance baremetalservers.CloudServer
@@ -189,6 +228,57 @@ func TestAccBmsInstance_updateWithEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBmsInstance_power_action(t *testing.T) {
+	var instance interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_bms_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getResourceInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUserId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBmsInstance_power_action(rName, "OFF"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				Config: testAccBmsInstance_power_action(rName, "ON"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccBmsInstance_power_action(rName, "REBOOT"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccBmsInstance_power_action(rName, "OFF"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
 				),
 			},
 		},
@@ -516,4 +606,43 @@ resource "huaweicloud_bms_instance" "test" {
   auto_renew    = "true"
 }
 `, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, epsId)
+}
+
+func testAccBmsInstance_power_action(rName, powerAction string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = try(local.x86_images[0], "")
+  name              = "%[2]s"
+  user_id           = "%[3]s"
+  power_action      = "%[4]s"
+  system_disk_type  = "GPSSD"
+  system_disk_size  = 150
+
+  user_data = <<EOF
+#!/bin/bash 
+sudo mkdir /example
+EOF
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  metadata = {
+    foo1 = "bar1"
+    key1 = "value1"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "false"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, powerAction)
 }
