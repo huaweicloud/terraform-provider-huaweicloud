@@ -530,6 +530,7 @@ var (
 	// The SecMaster alert rule template ID
 	HW_SECMASTER_TEMPLATE_ID = os.Getenv("HW_SECMASTER_TEMPLATE_ID")
 	HW_SECMASTER_MAPPING_ID  = os.Getenv("HW_SECMASTER_MAPPING_ID")
+	HW_SECMASTER_PIPE_ID     = os.Getenv("HW_SECMASTER_PIPE_ID")
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL                  = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD                  = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
@@ -3004,6 +3005,13 @@ func TestAccPreCheckSecMasterTemplateId(t *testing.T) {
 func TestAccPreCheckSecMasterMappingId(t *testing.T) {
 	if HW_SECMASTER_MAPPING_ID == "" {
 		t.Skip("HW_SECMASTER_MAPPING_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterPipeId(t *testing.T) {
+	if HW_SECMASTER_PIPE_ID == "" {
+		t.Skip("HW_SECMASTER_PIPE_ID must be set for SecMaster acceptance tests")
 	}
 }
 
