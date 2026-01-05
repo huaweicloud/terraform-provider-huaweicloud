@@ -640,6 +640,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instances":                       bms.DataSourceBmsInstances(),
 			"huaweicloud_bms_volume_attachments":              bms.DataSourceBmsVolumeAttachments(),
 			"huaweicloud_bms_instance_password":               bms.DataSourceBmsInstancePassword(),
+			"huaweicloud_bms_interface_attachments":           bms.DataSourceBmsInterfaceAttachments(),
 			"huaweicloud_bms_instance_remotely_login_address": bms.DataSourceInstanceRemotelyLoginAddress(),
 
 			"huaweicloud_cae_applications":       cae.DataSourceApplications(),
