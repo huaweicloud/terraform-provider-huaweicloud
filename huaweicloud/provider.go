@@ -2633,6 +2633,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_asm_mesh": asm.ResourceAsmMesh(),
 
 			"huaweicloud_bms_instance":                 bms.ResourceBmsInstance(),
+			"huaweicloud_bms_instance_restart":         bms.ResourceInstanceRestart(),
 			"huaweicloud_bms_volume_attach":            bms.ResourceVolumeAttach(),
 			"huaweicloud_bms_instance_password_reset":  bms.ResourceInstancePasswordReset(),
 			"huaweicloud_bms_instance_password_delete": bms.ResourceInstancePasswordDelete(),
