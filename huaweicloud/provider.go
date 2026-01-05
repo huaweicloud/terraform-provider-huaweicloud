@@ -3915,6 +3915,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_batch_create_antileakage_rules":      waf.ResourceWafBatchCreateAntileakageRules(),
 			"huaweicloud_waf_batch_create_cc_rules":               waf.ResourceWafBatchCreateCcRules(),
 			"huaweicloud_waf_batch_create_custom_rules":           waf.ResourceWafBatchCreateCustomRules(),
+			"huaweicloud_waf_batch_create_geoip_rules":            waf.ResourceWafBatchCreateGeoipRules(),
 			"huaweicloud_waf_batch_create_ignore_rules":           waf.ResourceWafBatchCreateIgnoreRules(),
 			"huaweicloud_waf_batch_create_ip_reputation_rules":    waf.ResourceWafBatchCreateIpReputationRules(),
 			"huaweicloud_waf_batch_delete_alarm_notifications":    waf.ResourceWafBatchDeleteAlarmNotifications(),
