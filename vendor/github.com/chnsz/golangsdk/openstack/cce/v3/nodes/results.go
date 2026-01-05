@@ -135,8 +135,6 @@ type Status struct {
 	Reason string `json:"reason"`
 	// Details of the node transitioning to the current state
 	Message string `json:"message"`
-	//The status of each component in the Node
-	Conditions Conditions `json:"conditions"`
 }
 
 type LoginSpec struct {
@@ -202,15 +200,6 @@ type BandwidthOpts struct {
 	ChargeMode string `json:"chargemode,omitempty"`
 	Size       int    `json:"size,omitempty"`
 	ShareType  string `json:"sharetype,omitempty"`
-}
-
-type Conditions struct {
-	//The type of component
-	Type string `json:"type"`
-	//The state of the component
-	Status string `json:"status"`
-	//The reason that the component becomes current
-	Reason string `json:"reason"`
 }
 
 type StorageSpec struct {
