@@ -162,19 +162,8 @@ type Status struct {
 	JobID string `json:"jobID"`
 	//Reasons for the cluster to become current
 	Reason string `json:"reason"`
-	//The status of each component in the cluster
-	Conditions Conditions `json:"conditions"`
 	//Kube-apiserver access address in the cluster
 	Endpoints []Endpoints `json:"-"`
-}
-
-type Conditions struct {
-	//The type of component
-	Type string `json:"type"`
-	//The state of the component
-	Status string `json:"status"`
-	//The reason that the component becomes current
-	Reason string `json:"reason"`
 }
 
 type Endpoints struct {
