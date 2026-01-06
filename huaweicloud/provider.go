@@ -3808,6 +3808,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_task_consistency_result_report":      sms.ResourceTaskConsistencyResultReport(),
 			"huaweicloud_sms_task_network_check_info_report":      sms.ResourceTaskNetworkCheckInfoReport(),
 
+			"huaweicloud_swr_agency":                   swr.ResourceSwrAgency(),
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),
 			"huaweicloud_swr_repository":               swr.ResourceSWRRepository(),
