@@ -375,8 +375,8 @@ The following arguments are supported:
   characters, which may consist of letters, digits, underscores (_) and hyphens (-).
 
 * `version` - (Required, String, ForceNew) Specifies the MapReduce cluster version.  
-Changing this will create a new MapReduce cluster resource.  
-For the versions supported by the cluster, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/bulletin-mrs/mrs_13_000014.html#section3).
+  Changing this will create a new MapReduce cluster resource.  
+  For the versions supported by the cluster, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/bulletin-mrs/mrs_13_000014.html#section3).
 
 * `component_list` - (Required, List, ForceNew) Specifies the list of component names. For the components supported by
   the cluster, please following [reference](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
@@ -485,8 +485,8 @@ The EIP must have been created and must be in the same region as the cluster.
   The [object](#BootstrapScripts) structure is documented below.
   Changing this will create a new MapReduce cluster resource.
 
-* `smn_notify` - (Optional, List, ForceNew) Specifies the alarm configuration of the cluster. The [smn_notify](#SMNNotify)
-  structure is documented below.
+* `smn_notify` - (Optional, List, ForceNew) Specifies the alarm configuration of the cluster.  
+  The [smn_notify](#SMNNotify) block is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `mrs_ecs_default_agency` - (Optional, String, ForceNew) Specifies the default agency name bound to the cluster node.  
@@ -609,10 +609,14 @@ The `analysis_core_nodes` and `streaming_core_nodes` blocks support:
 
 * `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
   of each node are as follows:
-  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
   
@@ -648,7 +652,8 @@ The `analysis_core_nodes` and `streaming_core_nodes` blocks support:
 * `resource_ids` - (Optional, List) Specifies the resource node IDs to be shrunk.  
   Only ECS nodes with abnormal status can be deleted.
 
-  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in each node group is invalid.
+  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in
+     each node group is invalid.
 
 * `skip_bootstrap_scripts` - (Optional, Bool) Specifies whether to skip bootstrap scripts when the cluster
   is expanded.  
@@ -700,10 +705,14 @@ The `analysis_task_nodes` and `streaming_task_nodes` blocks support:
 
 * `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
   of each node are as follows:
-  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
+  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of
+    the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
   
@@ -739,7 +748,8 @@ The `analysis_task_nodes` and `streaming_task_nodes` blocks support:
 * `resource_ids` - (Optional, List) Specifies the resource node IDs to be shrunk.  
   Only ECS nodes with abnormal status can be deleted.
 
-  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in each node group is invalid.
+  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in
+     each node group is invalid.
 
 * `skip_bootstrap_scripts` - (Optional, Bool) Specifies whether to skip bootstrap scripts when the cluster
   is expanded.  
@@ -806,7 +816,8 @@ The `custom_nodes` block supports:
 * `resource_ids` - (Optional, List) Specifies the resource node IDs to be shrunk.  
   Only ECS nodes with abnormal status can be deleted.
 
-  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in each node group is invalid.
+  -> When the `resource_ids` parameter is specified for shrinking, the `node_count` parameter in
+     each node group is invalid.
 
 * `skip_bootstrap_scripts` - (Optional, Bool) Specifies whether to skip bootstrap scripts when the cluster
   is expanded.  
@@ -864,7 +875,8 @@ The `configs` block supports:
 <a name="ExternalDatasources"></a>
 The `external_datasources` block supports:
 
-* `component_name` - (Required, String, ForceNew) Specifies the component name. The valid values are `Hive` and `Ranger`.
+* `component_name` - (Required, String, ForceNew) Specifies the component name.  
+  The valid values are `Hive` and `Ranger`.  
   Changing this will create a new MapReduce cluster resource.
 
 * `role_type` - (Required, String, ForceNew) Specifies the component role type.

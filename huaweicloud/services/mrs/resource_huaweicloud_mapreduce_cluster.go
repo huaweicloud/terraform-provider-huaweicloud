@@ -335,7 +335,7 @@ func nodeGroupSchemaResource(groupName string) *schema.Resource {
 				ForceNew: true,
 			},
 			"assigned_roles": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Schema{
@@ -646,7 +646,8 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 		nodeGroup.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
 		// This parameter is mandatory when the cluster type is CUSTOM. Specifies the roles deployed in a node group.
 		if clusterType := d.Get("type").(string); clusterType == typeCustom {
-			for _, v := range opts["assigned_roles"].([]interface{}) {
+			assignedRoles := utils.PathSearch("assigned_roles", opts, schema.NewSet(schema.HashString, nil)).(*schema.Set)
+			for _, v := range assignedRoles.List() {
 				nodeGroup.AssignedRoles = append(nodeGroup.AssignedRoles, v.(string))
 			}
 		}
