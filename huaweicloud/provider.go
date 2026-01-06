@@ -2111,6 +2111,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo_quotas":      sfsturbo.DataSourceSfsTurboQuotas(),
 			"huaweicloud_sfs_turbo_mounted_ips": sfsturbo.DataSourceSfsTurboMountedIps(),
 
+			"huaweicloud_swr_sync_regions":              swr.DataSourceSyncRegions(),
 			"huaweicloud_swr_organizations":             swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":              swr.DataSourceRepositories(),
 			"huaweicloud_swrv3_repositories":            swr.DataSourceSwrv3Repositories(),
