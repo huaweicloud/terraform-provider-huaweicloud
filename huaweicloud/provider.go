@@ -3879,6 +3879,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_service":                   vpcep.ResourceVPCEndpointService(),
 			"huaweicloud_vpcep_service_upgrade":           vpcep.ResourceVPCServiceUpgrade(),
 			"huaweicloud_vpcep_service_connection_update": vpcep.ResourceVPCEndpointServiceConnectionUpdate(),
+			"huaweicloud_vpcep_service_resource_attach":   vpcep.ResourceEndpointServiceResourceAttach(),
 
 			"huaweicloud_vpn_access_policy":                     vpn.ResourceAccessPolicy(),
 			"huaweicloud_vpn_gateway":                           vpn.ResourceGateway(),
