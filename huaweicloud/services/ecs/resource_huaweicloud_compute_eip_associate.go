@@ -380,7 +380,7 @@ func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP, epsID s
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve EIP: %s ", err)
+		return nil, err
 	}
 
 	if len(allEips) != 1 {

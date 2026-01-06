@@ -355,21 +355,35 @@ func GetCloudImage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 	}
 	allPages, err := cloudimages.List(client, listOpts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("unable to query images: %s", err)
+		return nil, err
 	}
 
 	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve images: %s", err)
+		return nil, err
 	}
 
 	if len(allImages) < 1 {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/cloudimages",
+				RequestId: "NONE",
+				Body:      []byte("all cloud images have been deleted"),
+			},
+		}
 	}
 
 	img := allImages[0]
 	if img.ID != id {
-		return nil, fmt.Errorf("unexpected images ID")
+		return nil, golangsdk.ErrDefault500{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/cloudimages",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("unexpected image result (image ID is not matched, expected: %s, actual: %s)", id, img.ID)),
+			},
+		}
 	}
 	log.Printf("[DEBUG] Retrieved Image %s: %#v", id, img)
 	return &img, nil

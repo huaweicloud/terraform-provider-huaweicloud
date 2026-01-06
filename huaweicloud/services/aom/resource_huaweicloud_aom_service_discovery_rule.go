@@ -337,17 +337,24 @@ func GetServiceDiscoveryRule(client *golangsdk.ServiceClient, name string) (inte
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error getting the service discovery rule: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening the response: %s", err)
+		return nil, err
 	}
 
 	searchPath := fmt.Sprintf("appRules[?name=='%s']|[0]", name)
 	rule := utils.PathSearch(searchPath, getRespBody, nil)
 	if rule == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/inv/servicediscoveryrules",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the service discovery rule (%s) does not exist", name)),
+			},
+		}
 	}
 
 	return rule, nil

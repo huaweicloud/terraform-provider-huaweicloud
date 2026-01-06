@@ -173,7 +173,7 @@ func resourceScanTaskCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating CSS cluster scan task: %s", err)
 	}
 
-	id, err := refreshScanTaskID(d, region, conf)
+	id, err := refreshScanTaskID(createScanTaskClient, clusterID, d.Get("name").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -182,7 +182,7 @@ func resourceScanTaskCreate(ctx context.Context, d *schema.ResourceData, meta in
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{ClusterScanTaskRunning},
 		Target:       []string{ClusterScanTaskCompleted, ClusterScanTaskFailed},
-		Refresh:      scanTaskStateRefreshFunc(d, region, conf),
+		Refresh:      scanTaskStateRefreshFunc(createScanTaskClient, clusterID, d.Get("name").(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        60 * time.Second,
 		PollInterval: 60 * time.Second,
@@ -198,9 +198,12 @@ func resourceScanTaskCreate(ctx context.Context, d *schema.ResourceData, meta in
 func resourceScanTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	var mErr *multierror.Error
+	client, err := conf.NewServiceClient("css", region)
+	if err != nil {
+		return diag.Errorf("error creating CSS client: %s", err)
+	}
 
-	scanTask, err := getScanTaskByName(d, region, conf)
+	scanTask, err := getScanTaskByName(client, d.Get("cluster_id").(string), d.Get("name").(string))
 	if err != nil {
 		// "CSS.0015": The cluster does not exist. Status code is 403.
 		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
@@ -209,8 +212,7 @@ func resourceScanTaskRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	createdAt := utils.PathSearch("create_time", scanTask, float64(0)).(float64) / 1000
 	status := int(utils.PathSearch("status", scanTask, float64(0)).(float64))
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", scanTask, nil)),
 		d.Set("description", utils.PathSearch("desc", scanTask, nil)),
@@ -280,8 +282,8 @@ func buildcreateScanTaskAlarmBodyParams(rawParams interface{}) map[string]interf
 	return nil
 }
 
-func refreshScanTaskID(d *schema.ResourceData, region string, conf *config.Config) (string, error) {
-	scanTask, err := getScanTaskByName(d, region, conf)
+func refreshScanTaskID(client *golangsdk.ServiceClient, clusterId, taskName string) (string, error) {
+	scanTask, err := getScanTaskByName(client, clusterId, taskName)
 	if err != nil {
 		return "", err
 	}
@@ -290,12 +292,12 @@ func refreshScanTaskID(d *schema.ResourceData, region string, conf *config.Confi
 	return id, nil
 }
 
-func scanTaskStateRefreshFunc(d *schema.ResourceData, region string, conf *config.Config) resource.StateRefreshFunc {
+func scanTaskStateRefreshFunc(client *golangsdk.ServiceClient, clusterId, taskName string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		scanTask, err := getScanTaskByName(d, region, conf)
+		scanTask, err := getScanTaskByName(client, clusterId, taskName)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault400); ok {
-				return nil, ClusterScanTaskCompleted, nil
+				return "RESOURCE_NOT_FOUND", ClusterScanTaskCompleted, nil
 			}
 			return scanTask, "ERROR", err
 		}
@@ -304,17 +306,12 @@ func scanTaskStateRefreshFunc(d *schema.ResourceData, region string, conf *confi
 	}
 }
 
-func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Config) (interface{}, error) {
+func getScanTaskByName(client *golangsdk.ServiceClient, clusterId, taskName string) (interface{}, error) {
 	getScanTaskHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/ai-ops"
-	getScanTaskProduct := "css"
-	getScanTaskClient, err := conf.NewServiceClient(getScanTaskProduct, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating CSS client: %s", err)
-	}
 
-	getScanTaskPath := getScanTaskClient.Endpoint + getScanTaskHttpUrl
-	getScanTaskPath = strings.ReplaceAll(getScanTaskPath, "{project_id}", getScanTaskClient.ProjectID)
-	getScanTaskPath = strings.ReplaceAll(getScanTaskPath, "{cluster_id}", d.Get("cluster_id").(string))
+	getScanTaskPath := client.Endpoint + getScanTaskHttpUrl
+	getScanTaskPath = strings.ReplaceAll(getScanTaskPath, "{project_id}", client.ProjectID)
+	getScanTaskPath = strings.ReplaceAll(getScanTaskPath, "{cluster_id}", clusterId)
 
 	getScanTaskPathOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -324,7 +321,7 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 	currentTotal := 0
 	for {
 		currentPath := fmt.Sprintf("%s?limit=10&start=%d", getScanTaskPath, currentTotal)
-		getScanTaskResp, err := getScanTaskClient.Request("GET", currentPath, &getScanTaskPathOpt)
+		getScanTaskResp, err := client.Request("GET", currentPath, &getScanTaskPathOpt)
 		if err != nil {
 			return getScanTaskResp, err
 		}
@@ -333,7 +330,7 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 			return nil, err
 		}
 		scanTasks := utils.PathSearch("aiops_list", getScanTaskRespBody, make([]interface{}, 0)).([]interface{})
-		findAiopsList := fmt.Sprintf("aiops_list | [?name=='%s'] | [0]", d.Get("name"))
+		findAiopsList := fmt.Sprintf("aiops_list | [?name=='%s'] | [0]", taskName)
 		scanTask := utils.PathSearch(findAiopsList, getScanTaskRespBody, nil)
 		if scanTask != nil {
 			return scanTask, nil
@@ -344,7 +341,14 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 			break
 		}
 	}
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1.0/{project_id}/clusters/{cluster_id}/ai-ops",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the scan task (%s) does not exist", taskName)),
+		},
+	}
 }
 
 func flattenScanTaskSummaryResponse(resp interface{}) []interface{} {
@@ -403,7 +407,11 @@ func resourceScanTaskImportState(_ context.Context, d *schema.ResourceData, meta
 	d.Set("cluster_id", parts[0])
 	d.Set("name", parts[1])
 
-	scanTask, err := getScanTaskByName(d, region, conf)
+	cssClient, err := conf.NewServiceClient("css", region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CSS client: %s", err)
+	}
+	scanTask, err := getScanTaskByName(cssClient, parts[0], parts[1])
 	if err != nil {
 		return []*schema.ResourceData{d}, err
 	}

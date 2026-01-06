@@ -259,7 +259,7 @@ func getGaussDBBackup(client *golangsdk.ServiceClient, backupID string) (interfa
 	getResp, err := client.Request("GET", getPath, &getOpt)
 
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving GaussDB MySQL backup: %s", err)
+		return nil, err
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -268,7 +268,14 @@ func getGaussDBBackup(client *golangsdk.ServiceClient, backupID string) (interfa
 	}
 	backup := utils.PathSearch("backups|[0]", getRespBody, nil)
 	if backup == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v3/{project_id}/backups",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the GaussDB MySQL backup (%s) does not exist", backupID)),
+			},
+		}
 	}
 	return backup, nil
 }

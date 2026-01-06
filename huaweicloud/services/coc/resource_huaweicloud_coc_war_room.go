@@ -411,12 +411,19 @@ func GetWarRoom(client *golangsdk.ServiceClient, warRoomNum string) (interface{}
 	}
 	readWarRoomRespBody, err := utils.FlattenResponse(readWarRoomResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening war room: %s", err)
+		return nil, err
 	}
 
 	warRoomRespBody := utils.PathSearch(fmt.Sprintf("data.list[?war_room_num=='%s']|[0]", warRoomNum), readWarRoomRespBody, nil)
 	if warRoomRespBody == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "POST",
+				URL:       "/v1/external/warrooms/list",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the war room (%s) does not exist", warRoomNum)),
+			},
+		}
 	}
 	return warRoomRespBody, nil
 }

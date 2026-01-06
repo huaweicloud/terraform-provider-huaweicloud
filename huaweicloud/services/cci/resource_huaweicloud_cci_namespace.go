@@ -298,18 +298,25 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 	var response *namespaces.Namespace
 	pages, err := namespaces.List(c, namespaces.ListOpts{}).AllPages()
 	if err != nil {
-		return response, fmt.Errorf("error finding the namespaces from the server: %s", err)
+		return response, err
 	}
 	responses, err := namespaces.ExtractNamespaces(pages)
 	if err != nil {
-		return response, fmt.Errorf("error extracting CCI namespaces: %s", err)
+		return response, err
 	}
 	for _, v := range responses {
 		if v.Metadata.UID == id {
 			return &v, nil
 		}
 	}
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/api/v1/namespaces",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the namespace (%s) does not exist", id)),
+		},
+	}
 }
 
 func resourceCciNamespaceImportState(_ context.Context, d *schema.ResourceData,

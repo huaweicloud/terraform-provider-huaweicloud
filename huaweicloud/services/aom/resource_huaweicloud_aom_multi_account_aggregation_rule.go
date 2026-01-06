@@ -199,7 +199,10 @@ func resourceMultiAccountAggregationRuleRead(_ context.Context, d *schema.Resour
 }
 
 func getMultiAccountAggregationRule(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	listHttpUrl := "v1/{project_id}/aom/aggr-config"
+	var (
+		listHttpUrl = "v1/{project_id}/aom/aggr-config"
+		ruleId      = d.Id()
+	)
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
@@ -211,17 +214,24 @@ func getMultiAccountAggregationRule(client *golangsdk.ServiceClient, d *schema.R
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving multi account aggregation rule: %s", err)
+		return nil, err
 	}
 	listRespBody, err := utils.FlattenResponse(listResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening multi account aggregation rule: %s", err)
+		return nil, err
 	}
 
-	jsonPath := fmt.Sprintf("[?dest_prometheus_id=='%s']|[0]", d.Id())
+	jsonPath := fmt.Sprintf("[?dest_prometheus_id=='%s']|[0]", ruleId)
 	rule := utils.PathSearch(jsonPath, listRespBody, nil)
 	if rule == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/aom/aggr-config",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the multi account aggregation rule (%s) does not exist", ruleId)),
+			},
+		}
 	}
 
 	return rule, nil

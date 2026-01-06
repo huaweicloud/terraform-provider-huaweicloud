@@ -347,29 +347,39 @@ func resourcePipelinePluginVersionRead(_ context.Context, d *schema.ResourceData
 }
 
 func getPipelinePluginBasicInfos(client *golangsdk.ServiceClient, d *schema.ResourceData, domainID string) (interface{}, error) {
-	getHttpUrl := "v1/{domain_id}/agent-plugin/query-all?limit=1&offset=0"
+	var (
+		getHttpUrl = "v1/{domain_id}/agent-plugin/query-all?limit=1&offset=0"
+		pluginName = d.Get("plugin_name")
+	)
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{domain_id}", domainID)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"plugin_name":   d.Get("plugin_name"),
+			"plugin_name":   pluginName,
 			"business_type": []string{"Build", "Gate", "Deploy", "Test", "Normal"},
 		},
 	}
 
 	getResp, err := client.Request("POST", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving pipeline plugin: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flatten response: %s", err)
+		return nil, err
 	}
 
 	plugin := utils.PathSearch("data[0]", getRespBody, nil)
 	if plugin == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "POST",
+				URL:       "/v1/{domain_id}/agent-plugin/query-all",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the pipeline plugin (%s) does not exist", pluginName)),
+			},
+		}
 	}
 
 	return plugin, nil

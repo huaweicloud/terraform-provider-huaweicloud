@@ -2,7 +2,6 @@ package coc
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -312,7 +311,7 @@ func GetDocumentExecution(client *golangsdk.ServiceClient, executionID string) (
 	}
 	readDocumentExecutionRespBody, err := utils.FlattenResponse(readDocumentExecutionResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening document execution: %s", err)
+		return nil, err
 	}
 	return readDocumentExecutionRespBody, nil
 }

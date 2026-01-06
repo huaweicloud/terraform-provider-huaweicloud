@@ -95,7 +95,14 @@ func getAuthorizationByName(c *golangsdk.ServiceClient, name string) (*repositor
 			return &auth, nil
 		}
 	}
-	return nil, fmt.Errorf("unable to find the authorization (%s)", name)
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1/{project_id}/git/auths",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the authorization (%s) does not exist", name)),
+		},
+	}
 }
 
 func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

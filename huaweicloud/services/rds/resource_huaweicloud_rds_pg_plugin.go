@@ -107,26 +107,40 @@ func queryPluginDetail(client *golangsdk.ServiceClient, instanceId, databaseName
 		&pagination.QueryOpts{MarkerField: ""})
 	if err != nil {
 		if errCode := parseErrCode(resp); errCode == "DBS.280238" || errCode == "DBS.200823" {
-			return nil, golangsdk.ErrDefault404{}
+			return nil, golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Method:    "GET",
+					URL:       "/v3/{project_id}/instances/{instance_id}/extensions",
+					RequestId: "NONE",
+					Body:      []byte(fmt.Sprintf("the PostgreSQL plugin (%s) does not exist", name)),
+				},
+			}
 		}
-		return nil, fmt.Errorf("error retrieving PostgreSQL plugin: %s", err)
+		return nil, err
 	}
 	bodyBytes, err := json.Marshal(resp)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling RDS PostgreSQL plugin: %s", err)
+		return nil, err
 	}
 
 	var bodyJson interface{}
 	err = json.Unmarshal(bodyBytes, &bodyJson)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshal PostgreSQL plugin: %s", err)
+		return nil, err
 	}
 
 	log.Printf("[DEBUG] Reading RDS PostgreSQL plugin response: %#v", bodyJson)
 
 	pluginDetail := utils.PathSearch(fmt.Sprintf("extensions[?name=='%s']|[?created]|[0]", name), bodyJson, nil)
 	if pluginDetail == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v3/{project_id}/instances/{instance_id}/extensions",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the PostgreSQL plugin (%s) does not exist or its creation status is not created", name)),
+			},
+		}
 	}
 
 	return pluginDetail, nil

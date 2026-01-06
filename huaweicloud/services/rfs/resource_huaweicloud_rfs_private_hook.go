@@ -209,8 +209,13 @@ func queryPrivateHookByName(client *golangsdk.ServiceClient, name string) (inter
 	// Generate a random UUID as the RFS request ID.
 	requestId, err := uuid.GenerateUUID()
 	if err != nil {
-		return nil, fmt.Errorf("unable to generate RFS request ID: %s", err)
+		return nil, golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("unable to generate RFS request ID: %s", err)),
+			},
+		}
 	}
+
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{hook_name}", name)
 

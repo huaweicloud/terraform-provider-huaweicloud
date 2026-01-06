@@ -206,7 +206,7 @@ func getLtsLog(client *golangsdk.ServiceClient, id string) (interface{}, error) 
 	}
 	resp, err := client.Request("GET", path, &opt)
 	if err != nil {
-		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005")
+		return nil, err
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -216,7 +216,14 @@ func getLtsLog(client *golangsdk.ServiceClient, id string) (interface{}, error) 
 
 	configuration := utils.PathSearch("data", respBody, nil)
 	if configuration == nil {
-		return nil, fmt.Errorf("error parsing data from response= %#v", respBody)
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/cfw/logs/configuration",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the LTS log configuration (%s) does not exist, the data field is empty", id)),
+			},
+		}
 	}
 
 	return configuration, nil
@@ -267,7 +274,8 @@ func resourceLtsLogDelete(_ context.Context, d *schema.ResourceData, meta interf
 	id := d.Id()
 	configuration, err := getLtsLog(client, id)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CFW lts log configuration")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving CFW lts log configuration")
 	}
 
 	ltsEnable := utils.PathSearch("lts_enable", configuration, float64(0)).(float64)

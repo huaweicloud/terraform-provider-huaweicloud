@@ -160,7 +160,7 @@ func GetAppNasStorageById(client *golangsdk.ServiceClient, storageId string) (in
 
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving NAS storage (%s): %s", storageId, err)
+		return nil, err
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
@@ -170,7 +170,10 @@ func GetAppNasStorageById(client *golangsdk.ServiceClient, storageId string) (in
 	if storageConfig == nil {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte("the NAS storage has been removed from the Workspace APP service"),
+				Method:    "GET",
+				URL:       "/v1/{project_id}/persistent-storages",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the NAS storage (%s) has been removed from the Workspace APP service", storageId)),
 			},
 		}
 	}

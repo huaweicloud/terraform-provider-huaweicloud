@@ -101,7 +101,7 @@ func getEnterpriseProjectCollection(client *golangsdk.ServiceClient, collectionI
 	getResp, err := client.Request("GET", getPath, &getOpt)
 
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving COC enterprise project collections: %s", err)
+		return nil, err
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -111,7 +111,14 @@ func getEnterpriseProjectCollection(client *golangsdk.ServiceClient, collectionI
 
 	enterpriseProjectCollection := utils.PathSearch("data[0]", getRespBody, nil)
 	if enterpriseProjectCollection == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/enterprise-project-collect",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the enterprise project collection (%s) does not exist", collectionID)),
+			},
+		}
 	}
 
 	return enterpriseProjectCollection, nil

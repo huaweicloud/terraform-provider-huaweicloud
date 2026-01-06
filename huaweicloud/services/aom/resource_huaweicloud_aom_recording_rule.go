@@ -107,7 +107,7 @@ func GetRecordingRuleByInstanceId(client *golangsdk.ServiceClient, instanceId st
 
 	respBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return "", fmt.Errorf("error flattening the response: %s", err)
+		return "", err
 	}
 
 	return respBody, nil

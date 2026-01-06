@@ -1209,7 +1209,11 @@ func queryResourcePool(cfg *config.Config, region string, d *schema.ResourceData
 	)
 	getModelartsResourcePoolClient, err := cfg.NewServiceClient(getModelartsResourcePoolProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ModelArts client: %s", err)
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("error creating ModelArts client: %s", err)),
+			},
+		}
 	}
 
 	getModelartsResourcePoolPath := getModelartsResourcePoolClient.Endpoint + getModelartsResourcePoolHttpUrl

@@ -176,12 +176,19 @@ func GetApplication(client *golangsdk.ServiceClient, applicationID string) (inte
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening application: %s", err)
+		return nil, err
 	}
 
 	application := utils.PathSearch("data[0]", getRespBody, nil)
 	if application == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/applications",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationID)),
+			},
+		}
 	}
 
 	return application, nil

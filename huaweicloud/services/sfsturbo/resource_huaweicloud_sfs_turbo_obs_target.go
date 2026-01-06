@@ -3,7 +3,6 @@ package sfsturbo
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -250,8 +249,12 @@ func bulidAttributeMode(str string) interface{} {
 }
 
 func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		shareId = d.Get("share_id").(string)
+	)
+
 	client, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
@@ -259,7 +262,7 @@ func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	createObsTargetHttpUrl := "sfs-turbo/shares/{share_id}/targets"
 	createObsTargetPath := client.ResourceBaseURL() + createObsTargetHttpUrl
-	createObsTargetPath = strings.ReplaceAll(createObsTargetPath, "{share_id}", d.Get("share_id").(string))
+	createObsTargetPath = strings.ReplaceAll(createObsTargetPath, "{share_id}", shareId)
 
 	createObsTargetOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -282,7 +285,7 @@ func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	d.SetId(targetId)
 
-	err = obsTargetWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = obsTargetWaitingForStateCompleted(ctx, client, shareId, targetId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the creation of OBS target (%s) to complete: %s", d.Id(), err)
 	}
@@ -290,49 +293,42 @@ func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceOBSTargetRead(ctx, d, meta)
 }
 
-func getOBSTargetInfo(d *schema.ResourceData, meta interface{}) (*http.Response, error) {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.SfsV1Client(region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating SFS v1 client: %s", err)
-	}
-
+func getOBSTargetInfo(client *golangsdk.ServiceClient, shareId, targetId string) (interface{}, error) {
 	getObsTargetHttpUrl := "sfs-turbo/shares/{share_id}/targets/{target_id}"
 	getObsTargetPath := client.ResourceBaseURL() + getObsTargetHttpUrl
-	getObsTargetPath = strings.ReplaceAll(getObsTargetPath, "{share_id}", d.Get("share_id").(string))
-	getObsTargetPath = strings.ReplaceAll(getObsTargetPath, "{target_id}", d.Id())
+	getObsTargetPath = strings.ReplaceAll(getObsTargetPath, "{share_id}", shareId)
+	getObsTargetPath = strings.ReplaceAll(getObsTargetPath, "{target_id}", targetId)
 	getObsTargetOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	resp, err := client.Request("GET", getObsTargetPath, &getObsTargetOpts)
+	requestResp, err := client.Request("GET", getObsTargetPath, &getObsTargetOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceOBSTargetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	getObsTargetResp, err := getOBSTargetInfo(d, meta)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.SfsV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating SFS v1 client: %s", err)
+	}
+
+	respBody, err := getOBSTargetInfo(client, d.Get("share_id").(string), d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "SFS Turbo OBS target")
 	}
 
-	getObsTargetRespBody, err := utils.FlattenResponse(getObsTargetResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
 	mErr := multierror.Append(
 		nil,
 		d.Set("region", region),
-		d.Set("file_system_path", utils.PathSearch("file_system_path", getObsTargetRespBody, nil)),
-		d.Set("obs", flattenGetOBSDataResponseBody(utils.PathSearch("obs", getObsTargetRespBody, nil))),
-		d.Set("status", utils.PathSearch("lifecycle", getObsTargetRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("creation_time", getObsTargetRespBody, nil)),
+		d.Set("file_system_path", utils.PathSearch("file_system_path", respBody, nil)),
+		d.Set("obs", flattenGetOBSDataResponseBody(utils.PathSearch("obs", respBody, nil))),
+		d.Set("status", utils.PathSearch("lifecycle", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("creation_time", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -504,8 +500,12 @@ func updateAttributesBodyParams(d *schema.ResourceData) map[string]interface{} {
 }
 
 func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		shareId = d.Get("share_id").(string)
+	)
+
 	client, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 Client: %s", err)
@@ -531,7 +531,7 @@ func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
-		Refresh:      obsTargetStatusRefreshFunc(d, meta, true),
+		Refresh:      obsTargetStatusRefreshFunc(client, shareId, d.Id(), true),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -544,11 +544,11 @@ func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func obsTargetWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func obsTargetWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, shareId, targetId string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      obsTargetStatusRefreshFunc(d, meta, false),
+		Refresh:      obsTargetStatusRefreshFunc(client, shareId, targetId, false),
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -557,19 +557,14 @@ func obsTargetWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDa
 	return err
 }
 
-func obsTargetStatusRefreshFunc(d *schema.ResourceData, meta interface{}, isDelete bool) resource.StateRefreshFunc {
+func obsTargetStatusRefreshFunc(client *golangsdk.ServiceClient, shareId, targetId string, isDelete bool) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := getOBSTargetInfo(d, meta)
+		respBody, err := getOBSTargetInfo(client, shareId, targetId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && isDelete {
 				return "Resource Not Found", "DELETED", nil
 			}
 
-			return nil, "ERROR", err
-		}
-
-		respBody, err := utils.FlattenResponse(resp)
-		if err != nil {
 			return nil, "ERROR", err
 		}
 

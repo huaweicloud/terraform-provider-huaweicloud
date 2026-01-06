@@ -271,11 +271,11 @@ func filterKafkaMessageDiagnosisTaskFromList(client *golangsdk.ServiceClient, in
 		currentPath := listPath + fmt.Sprintf("&offset=%d", offset)
 		listResp, err := client.Request("GET", currentPath, &listOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving the message diagnosis tasks list: %s", err)
+			return nil, err
 		}
 		listRespBody, err := utils.FlattenResponse(listResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flattening the message diagnosis tasks list: %s", err)
+			return nil, err
 		}
 
 		searchPath := fmt.Sprintf("report_list[?report_id=='%s']|[0]", reportID)
@@ -344,11 +344,11 @@ func GetKafkaMessageDiagnosisTaskReport(client *golangsdk.ServiceClient, instanc
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving the message diagnosis task report: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening the message diagnosis task report: %s", err)
+		return nil, err
 	}
 
 	return getRespBody, nil

@@ -412,12 +412,7 @@ func GetServerGroupById(client *golangsdk.ServiceClient, serverGroupId string) (
 		return nil, err
 	}
 
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parsing server group from API response: %s", err)
-	}
-
-	return respBody, nil
+	return utils.FlattenResponse(requestResp)
 }
 
 func flattenAppServerGroupFlavorLinks(links []interface{}) []map[string]interface{} {

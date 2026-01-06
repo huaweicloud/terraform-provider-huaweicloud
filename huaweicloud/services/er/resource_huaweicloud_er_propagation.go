@@ -154,7 +154,11 @@ func QueryPropagationById(client *golangsdk.ServiceClient, instanceId, routeTabl
 	log.Printf("[DEBUG] The result filtered by resource ID (%s) is: %#v", propagationId, result)
 	association, ok := result[0].(propagations.Propagation)
 	if !ok {
-		return nil, fmt.Errorf("the element type of filter result is incorrect, want 'propagations.Propagation', but got '%T'", result[0])
+		return nil, golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the element type of filter result is incorrect, want 'propagations.Propagation', but got '%T'", result[0])),
+			},
+		}
 	}
 
 	return &association, nil

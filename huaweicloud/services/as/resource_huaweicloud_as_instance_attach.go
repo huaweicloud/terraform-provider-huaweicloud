@@ -21,8 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action
-// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/action
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list
 func ResourceASInstanceAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceAttachCreate,
@@ -310,7 +310,7 @@ func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID s
 
 	allInstances, err := page.(instances.InstancePage).Extract()
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetching instances in AS group %s: %s", groupID, err)
+		return nil, err
 	}
 
 	for _, ins := range allInstances {
@@ -319,7 +319,14 @@ func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID s
 		}
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("the instance (%s) does not exist in AS group (%s)", instanceID, groupID)),
+		},
+	}
 }
 
 func waitASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID, instanceID string, timeout time.Duration) error {

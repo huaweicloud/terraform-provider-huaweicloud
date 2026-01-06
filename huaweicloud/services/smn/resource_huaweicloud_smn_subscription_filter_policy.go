@@ -215,7 +215,11 @@ func GetSubscriptionFilterPolicies(client *golangsdk.ServiceClient, subscription
 	// subscription_urn "urn:smn:cn-south-1:09f960944c80f4802f85c003e0ed1d18:test_topic:699830a8eed442fa93ab41c6bd1fee11"
 	index := strings.LastIndex(subscriptionUrn, ":")
 	if index == -1 {
-		return nil, fmt.Errorf("this is not a subscription URN")
+		return nil, golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("the format of the subscription URN (%s) is incorrect", subscriptionUrn)),
+			},
+		}
 	}
 	topicUrn := subscriptionUrn[:index]
 
@@ -239,7 +243,7 @@ func GetSubscriptionFilterPolicies(client *golangsdk.ServiceClient, subscription
 		}
 		getFilterPolicyRespBody, err := utils.FlattenResponse(getFilterPolicyResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flattening the subscription filter policy: %s", err)
+			return nil, err
 		}
 		curSubscriptions := utils.PathSearch("subscriptions", getFilterPolicyRespBody,
 			make([]interface{}, 0)).([]interface{})
@@ -257,7 +261,14 @@ func GetSubscriptionFilterPolicies(client *golangsdk.ServiceClient, subscription
 
 	filterPolicies := utils.PathSearch("filter_polices", subscription, make([]interface{}, 0)).([]interface{})
 	if len(filterPolicies) == 0 {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/notifications/topics/{topicUrn}/subscriptions",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the subscription filter policy (%s) does not exist", subscriptionUrn)),
+			},
+		}
 	}
 
 	return filterPolicies, nil

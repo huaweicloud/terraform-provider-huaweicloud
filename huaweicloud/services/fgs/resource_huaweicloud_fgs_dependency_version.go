@@ -188,7 +188,7 @@ func GetDependencyVersionById(client *golangsdk.ServiceClient, resourceId string
 
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error querying dependency package version (%s): %s", dependVersion, err)
+		return nil, err
 	}
 	return utils.FlattenResponse(requestResp)
 }

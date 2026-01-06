@@ -230,7 +230,7 @@ func GetPipelineUesrPermissions(client *golangsdk.ServiceClient, projectId, pipe
 		}
 		getRespBody, err := utils.FlattenResponse(getResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flatten response: %s", err)
+			return nil, err
 		}
 		if err := checkResponseError(getRespBody, projectNotFoundError2); err != nil {
 			return nil, err
@@ -244,7 +244,14 @@ func GetPipelineUesrPermissions(client *golangsdk.ServiceClient, projectId, pipe
 
 		users := utils.PathSearch("users", getRespBody, make([]interface{}, 0)).([]interface{})
 		if len(users) == 0 {
-			return nil, golangsdk.ErrDefault404{}
+			return nil, golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Method:    "GET",
+					URL:       "/v5/{project_id}/api/pipeline-permissions/{pipeline_id}/user-permission",
+					RequestId: "NONE",
+					Body:      []byte(fmt.Sprintf("the user permission (user_id: %s) does not exist", userId)),
+				},
+			}
 		}
 
 		offset += 10
@@ -266,7 +273,7 @@ func GetPipelineRolePermissions(client *golangsdk.ServiceClient, projectId, pipe
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flatten response: %s", err)
+		return nil, err
 	}
 	if err := checkResponseError(getRespBody, projectNotFoundError2); err != nil {
 		return nil, err
@@ -275,7 +282,14 @@ func GetPipelineRolePermissions(client *golangsdk.ServiceClient, projectId, pipe
 	expression := fmt.Sprintf("roles[?role_id==`%v`]|[0]", roleId)
 	role := utils.PathSearch(expression, getRespBody, nil)
 	if role == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the role permission (role_id: %s) does not exist", roleId)),
+			},
+		}
 	}
 
 	return role, nil

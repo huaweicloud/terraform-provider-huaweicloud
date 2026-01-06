@@ -122,16 +122,30 @@ func GetForwardRuleFromServer(client *golangsdk.ServiceClient, instanceId, advan
 	port int) (*rules.Rule, error) {
 	resp, err := rules.List(client, instanceId, advancedIp)
 	if err != nil {
-		return nil, fmt.Errorf("error getting Advanced Anti-DDoS advanced rules: %s", err)
+		return nil, err
 	}
 
 	if len(resp) == 0 {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/aad/instances/{instance_id}/{ip}/rules",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the Advanced Anti-DDoS forward rule (%s/%s) does not exist", instanceId, advancedIp)),
+			},
+		}
 	}
 	if result := filterForwardRuleFromList(resp, protocol, port); result != nil {
 		return result, nil
 	}
-	return nil, golangsdk.ErrDefault404{}
+	return nil, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v1/aad/instances/{instance_id}/{ip}/rules",
+			RequestId: "NONE",
+			Body:      []byte(fmt.Sprintf("no Advanced Anti-DDoS forward rule matched the given protocol (%s) and (or) port (%d)", protocol, port)),
+		},
+	}
 }
 
 func resourceForwardRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

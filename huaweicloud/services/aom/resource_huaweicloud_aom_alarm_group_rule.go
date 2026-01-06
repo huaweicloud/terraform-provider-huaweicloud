@@ -237,17 +237,24 @@ func GetAlarmGroupRule(client *golangsdk.ServiceClient, name string) (interface{
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving alarm group rule: %s", err)
+		return nil, err
 	}
 	listRespBody, err := utils.FlattenResponse(listResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening alarm group rule: %s", err)
+		return nil, err
 	}
 
 	jsonPath := fmt.Sprintf("[?name=='%s']|[0]", name)
 	rule := utils.PathSearch(jsonPath, listRespBody, nil)
 	if rule == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/alert/group-rules",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the alarm group rule (%s) does not exist", name)),
+			},
+		}
 	}
 
 	return rule, nil

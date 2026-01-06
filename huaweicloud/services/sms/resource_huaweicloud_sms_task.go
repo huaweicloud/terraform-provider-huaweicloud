@@ -776,7 +776,7 @@ func GetSmsTask(client *golangsdk.ServiceClient, taskID string) (interface{}, er
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening task: %s", err)
+		return nil, err
 	}
 
 	return getRespBody, nil

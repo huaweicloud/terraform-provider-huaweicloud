@@ -242,19 +242,26 @@ func GetAppPublishedApplicationByName(client *golangsdk.ServiceClient, appGroupI
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving published application: %s", err)
+		return nil, err
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parsing application from API response: %s", err)
+		return nil, err
 	}
 
 	express := fmt.Sprintf("items[?name=='%s']|[0]", appName)
 	application := utils.PathSearch(express, respBody, nil)
 	// When the application or application group does not exist, the status code is `200`.
 	if application == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/app-groups/{app_group_id}/apps",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", appName)),
+			},
+		}
 	}
 	return application, nil
 }

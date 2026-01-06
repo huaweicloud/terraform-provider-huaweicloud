@@ -50,7 +50,7 @@ var cesAlarmActions = schema.Schema{
 // @API CES POST /v2/{project_id}/alarms/action
 // @API CES POST /v2/{project_id}/alarms/{id}/resources/{operation}
 // @API CES POST /v2/{project_id}/alarms/batch-delete
-// @API CES GET /V1.0/{project_id}/alarms/{id}
+// @API CES GET /V1.0/{project_id}/alarms/{alarm_id}
 // @API CES PUT /V1.0/{project_id}/alarms/{id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 // @API CES PUT /v2/{project_id}/alarms/{alarm_id}/notifications
@@ -651,10 +651,10 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func getAlarmV1(client *golangsdk.ServiceClient, alarmId string) (interface{}, error) {
-	getHttpUrl := "V1.0/{project_id}/alarms/{id}"
+	getHttpUrl := "V1.0/{project_id}/alarms/{alarm_id}"
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{id}", alarmId)
+	getPath = strings.ReplaceAll(getPath, "{alarm_id}", alarmId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
@@ -668,10 +668,20 @@ func getAlarmV1(client *golangsdk.ServiceClient, alarmId string) (interface{}, e
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+		return nil, err
 	}
 
 	alarm := utils.PathSearch("metric_alarms|[0]", getRespBody, nil)
+	if alarm == nil {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/V1.0/{project_id}/alarms/{alarm_id}",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the (v1) alarm rule (%s) does not exist", alarmId)),
+			},
+		}
+	}
 
 	return alarm, nil
 }
@@ -694,12 +704,19 @@ func getAlarmV2(client *golangsdk.ServiceClient, alarmId string) (interface{}, e
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+		return nil, err
 	}
 
 	alarm := utils.PathSearch("alarms|[0]", getRespBody, nil)
 	if alarm == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/alarms",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the (v2) alarm rule (%s) does not exist", alarmId)),
+			},
+		}
 	}
 
 	return alarm, nil
@@ -723,7 +740,7 @@ func getAlarmResourcesV2(client *golangsdk.ServiceClient, alarmId string) (inter
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+		return nil, err
 	}
 
 	return getRespBody, nil

@@ -178,7 +178,7 @@ func GetWarehouseApplicationById(client *golangsdk.ServiceClient, applicationId 
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving application (%s) from warehouse: %s", applicationId, err)
+		return nil, err
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)
@@ -188,7 +188,14 @@ func GetWarehouseApplicationById(client *golangsdk.ServiceClient, applicationId 
 
 	application := utils.PathSearch("items|[0]", respBody, nil)
 	if application == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/app-warehouse/apps",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationId)),
+			},
+		}
 	}
 	return application, nil
 }

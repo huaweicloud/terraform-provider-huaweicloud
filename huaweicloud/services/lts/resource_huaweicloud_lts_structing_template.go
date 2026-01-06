@@ -238,12 +238,19 @@ func queryStructConfigDetail(client *golangsdk.ServiceClient, d *schema.Resource
 
 	rawString, isString := getRespBody.(string)
 	if !isString {
-		return nil, fmt.Errorf("the detail API response is not string")
+		return nil, err
 	}
 
 	if rawString == "" {
 		// the structuring configuration is not exist
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/lts/struct/template",
+				RequestId: "NONE",
+				Body:      []byte(`the structuring configuration is not exist`),
+			},
+		}
 	}
 
 	var rst map[string]interface{}

@@ -147,11 +147,15 @@ func resourceCloudServiceAccessRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func getCloudServiceAccesss(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) (interface{}, error) {
-	getHttpUrl := "v1/{project_id}/prometheus/{prom_instance_id}/cloud-service/{provider}"
+	var (
+		getHttpUrl = "v1/{project_id}/prometheus/{prom_instance_id}/cloud-service/{provider}"
+		instanceId = d.Get("instance_id").(string)
+		service    = d.Get("service").(string)
+	)
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{prom_instance_id}", d.Get("instance_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{provider}", d.Get("service").(string))
+	getPath = strings.ReplaceAll(getPath, "{prom_instance_id}", instanceId)
+	getPath = strings.ReplaceAll(getPath, "{provider}", service)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
@@ -162,16 +166,23 @@ func getCloudServiceAccesss(client *golangsdk.ServiceClient, d *schema.ResourceD
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving cloud service access: %s", err)
+		return nil, err
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return nil, fmt.Errorf("error flattening cloud service access: %s", err)
+		return nil, err
 	}
 
 	// API will return 200 and nil if `instance_id` and `servcie` is invalid
 	if getRespBody == nil {
-		return nil, golangsdk.ErrDefault404{}
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/{project_id}/prometheus/{prom_instance_id}/cloud-service/{provider}",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the cloud service access (%s/%s) does not exist", instanceId, service)),
+			},
+		}
 	}
 
 	return getRespBody, nil
