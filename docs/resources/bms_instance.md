@@ -86,14 +86,15 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name for the instance. The name consists of 1 to 63 characters,
   including letters, digits, underscores (_), hyphens (-), and periods (.).
 
-* `image_id` - (Required, String, ForceNew) Specifies the image ID of the desired image for the instance. Changing this
-  creates a new instance.
+* `image_id` - (Required, String) Specifies the image ID of the desired image for the instance. Only a stopped BMS or a
+  BMS on which changing the OS failed supports changing OS. And when changing this parameter, the instance will be
+  shutdown first if the `power_action` is not **OFF**.
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID of the desired flavor for the instance. Changing
   this creates a new instance.
 
-* `user_id` - (Required, String, ForceNew) Specifies the user ID. You can obtain the user ID from My Credential on the
-  management console. Changing this creates a new instance.
+* `user_id` - (Required, String) Specifies the user ID. You can obtain the user ID from My Credential on the management
+  console. It can only be modified when `image_id` is modified.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone in which to create the instance.
   Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?BMS)
@@ -105,21 +106,21 @@ The following arguments are supported:
 * `nics` - (Required, List) Specifies an array of one or more networks to attach to the instance. The network
   object structure is documented below.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the login password of the administrator for logging in to the
-  BMS using password authentication. Changing this creates a new instance. The password must meet the following
+* `admin_pass` - (Optional, String) Specifies the login password of the administrator for logging in to the BMS using
+  password authentication. It can only be modified when `image_id` is modified. The password must meet the following
   complexity requirements:
   + Contains 8 to 26 characters.
   + Contains at least three of the following character types: uppercase letters, lowercase letters, digits, and special
     characters !@$%^-_=+[{}]:,./?
   + Cannot contain the username or the username in reverse.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair for logging in to the BMS using key pair
+* `key_pair` - (Optional, String) Specifies the name of a key pair for logging in to the BMS using key pair
   authentication. The key pair must already be created and associated with the tenant's account. The parameter is
-  required when using a Windows image to create a BMS. Changing this creates a new instance.
+  required when using a Windows image to create a BMS. It can only be modified when `image_id` is modified.
 
-* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation. Text
-  and text files can be injected. `user_data` can come from a variety of sources: inline, read in from the *file*
-  function. The content of `user_data` can be plaint text or encoded with base64. Changing this creates a new instance.
+* `user_data` - (Optional, String) Specifies the user data to be injected during the instance creation. Text and text
+  files can be injected. `user_data` can come from a variety of sources: inline, read in from the **file** function. The
+  content of `user_data` can be plaint text or encoded with base64. It can only be modified when `image_id` is modified.
 
 -> **NOTE:** 1. If the `user_data` field is specified for a Linux BMS that is created using an image with Cloud-Init
   installed, the `admin_pass` field becomes invalid.
@@ -243,5 +244,5 @@ The `nics_struct` block supports:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minutes.
-* `update` - Default is 30 minutes.
+* `update` - Default is 60 minutes.
 * `delete` - Default is 30 minutes.

@@ -2,6 +2,7 @@ package bms
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -26,6 +27,7 @@ import (
 // @API BMS GET /v1/{project_id}/baremetalservers/{server_id}
 // @API BMS PUT /v1/{project_id}/baremetalservers/{server_id}
 // @API BMS POST /v1/{project_id}/baremetalservers
+// @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/changeos
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics
 // @API BMS POST /v1/{project_id}/baremetalservers/action
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics/delete
@@ -48,7 +50,7 @@ func ResourceBmsInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -68,7 +70,6 @@ func ResourceBmsInstance() *schema.Resource {
 			"image_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,
@@ -78,7 +79,6 @@ func ResourceBmsInstance() *schema.Resource {
 			"user_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"nics": {
 				Type:     schema.TypeList,
@@ -120,7 +120,6 @@ func ResourceBmsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				// just stash the hash for state & diff comparisons
 				StateFunc:        utils.HashAndHexEncode,
 				DiffSuppressFunc: utils.SuppressUserData,
@@ -128,13 +127,11 @@ func ResourceBmsInstance() *schema.Resource {
 			"admin_pass": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				ForceNew:  true,
 				Sensitive: true,
 			},
 			"key_pair": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"security_groups": {
 				Type:     schema.TypeSet,
@@ -442,7 +439,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", server.Name),
-		d.Set("image_id", server.Image.ID),
+		d.Set("image_id", server.Metadata.ImageID),
 		d.Set("flavor_id", server.Flavor.ID),
 		d.Set("host_id", server.HostID),
 		d.Set("nics", nics),
@@ -479,10 +476,22 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	instanceId := d.Id()
 
+	err = checkImageIdUpdate(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	// if power_action is changed from OFF to ON, the instance should be start first
 	powerAction := d.Get("power_action").(string)
 	if d.HasChanges("power_action") && powerAction == "ON" {
 		if err = updatePowerAction(ctx, d, bmsClient, powerAction, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("image_id") {
+		err = updateInstanceImage(ctx, d, bmsClient)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -560,6 +569,100 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceBmsInstanceRead(ctx, d, meta)
+}
+
+func checkImageIdUpdate(d *schema.ResourceData) error {
+	if d.HasChange("image_id") {
+		return nil
+	}
+	for _, v := range []string{"admin_pass", "key_pair", "user_id", "user_data"} {
+		if d.HasChange(v) {
+			return fmt.Errorf("%s can only be modified when image_id is modified", v)
+		}
+	}
+	return nil
+}
+
+func updateInstanceImage(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	powerAction := d.Get("power_action").(string)
+	// Only a stopped BMS or a BMS on which changing the OS failed supports changing OS
+	if powerAction != "OFF" {
+		if err := updatePowerAction(ctx, d, client, "OFF", schema.TimeoutUpdate); err != nil {
+			return err
+		}
+	}
+	err := updateInstanceImageId(ctx, d, client)
+	if err != nil {
+		return err
+	}
+	// the instance will be started when changing OS, so it should be stop if power_action is OFF
+	if powerAction == "OFF" {
+		if err = updatePowerAction(ctx, d, client, "OFF", schema.TimeoutUpdate); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func updateInstanceImageId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v1/{project_id}/baremetalservers/{server_id}/changeos"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceImageIdBodyParams(d))
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating BMS instance image ID: %s", err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("jobId", updateRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error updating BMS instance image ID: jobId is not found in API response")
+	}
+
+	return waitForJobComplete(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+}
+
+func buildUpdateInstanceImageIdBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"imageid":   d.Get("image_id"),
+		"adminpass": utils.ValueIgnoreEmpty(d.Get("admin_pass")),
+		"keyname":   utils.ValueIgnoreEmpty(d.Get("key_pair")),
+		"userid":    utils.ValueIgnoreEmpty(d.Get("user_id")),
+		"metadata":  buildUpdateInstanceImageIdMetadataBodyParams(d),
+	}
+
+	return map[string]interface{}{
+		"os-change": bodyParams,
+	}
+}
+
+func buildUpdateInstanceImageIdMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	v, ok := d.GetOk("user_data")
+	if !ok {
+		return nil
+	}
+	userData := v.(string)
+	if _, err := base64.StdEncoding.DecodeString(userData); err != nil {
+		userData = base64.StdEncoding.EncodeToString([]byte(userData))
+	}
+	bodyParams := map[string]interface{}{
+		"user_data": userData,
+	}
+
+	return bodyParams
 }
 
 func updateInstanceNics(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string) error {
