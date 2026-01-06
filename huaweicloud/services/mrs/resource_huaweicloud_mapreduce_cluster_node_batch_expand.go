@@ -2,6 +2,7 @@ package mrs
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -104,7 +105,6 @@ func resourceClusterNodeBatchExpandCreate(ctx context.Context, d *schema.Resourc
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
-		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/expand"
 		clusterId = d.Get("cluster_id").(string)
 	)
 
@@ -117,6 +117,28 @@ func resourceClusterNodeBatchExpandCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
+
+	err = expandClusterNodes(ctx, client, bssClient, clusterId, buildClusterNodeBatchExpandBodyParams(d), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error expanding nodes for the cluster (%s): %s", clusterId, err)
+	}
+
+	randUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate resource ID: %s", err)
+	}
+	d.SetId(randUUID)
+
+	return nil
+}
+
+func expandClusterNodes(ctx context.Context, client, bssClient *golangsdk.ServiceClient, clusterId string, params map[string]interface{},
+	timeout time.Duration) error {
+	httpUrl := "v2/{project_id}/clusters/{cluster_id}/expand"
 	expandPath := client.Endpoint + httpUrl
 	expandPath = strings.ReplaceAll(expandPath, "{project_id}", client.ProjectID)
 	expandPath = strings.ReplaceAll(expandPath, "{cluster_id}", clusterId)
@@ -126,46 +148,35 @@ func resourceClusterNodeBatchExpandCreate(ctx context.Context, d *schema.Resourc
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=UTF-8",
 		},
-		JSONBody: buildClusterNodeBatchExpandBodyParams(d),
+		JSONBody: utils.RemoveNil(params),
 	}
 
 	resp, err := client.Request("POST", expandPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error expanding nodes for the cluster (%s): %s", clusterId, err)
+		return err
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
-
-	randUUID, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate resource ID: %s", err)
-	}
-	d.SetId(randUUID)
 
 	orderId := utils.PathSearch("order_id", respBody, "").(string)
 	if orderId != "" {
-		bssClient, err := cfg.NewServiceClient("bssv2", cfg.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating BSS client: %s", err)
-		}
-
 		// The expand nodes interface does not support auto-payment, so the CBC side interface is called to pay for the order.
 		if err := cbc.PaySubscriptionOrder(bssClient, orderId); err != nil {
-			return diag.Errorf("error paying for expansion order (%s) of cluster (%s): %s", orderId, clusterId, err)
+			return fmt.Errorf("error paying for expansion order (%s) of cluster (%s): %s", orderId, clusterId, err)
 		}
 
-		if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return diag.FromErr(err)
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, timeout); err != nil {
+			return err
 		}
 	}
 
 	// The order for scaling nodes is not a primary resource, therefore the `common.WaitOrderResourceComplete` method cannot be used.
-	err = waitForClusterStatusCompleted(ctx, client, clusterId, d.Timeout(schema.TimeoutCreate))
+	err = waitForClusterStatusCompleted(ctx, client, clusterId, timeout)
 	if err != nil {
-		return diag.Errorf("error waiting for the cluster expansion to complete: %s", err)
+		return err
 	}
 
 	return nil

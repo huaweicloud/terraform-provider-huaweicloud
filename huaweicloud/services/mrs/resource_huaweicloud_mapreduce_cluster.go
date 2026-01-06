@@ -58,7 +58,8 @@ type stateRefresh struct {
 // @API MRS PUT /v2/{project_id}/clusters/{cluster_id}/cluster-name
 // @API MRS POST /v1.1/{project_id}/{resourceType}/{id}/tags/action
 // @API MRS GET /v1.1/{project_id}/cluster_infos/{cluster_id}
-// @API MRS PUT /v1.1/{project_id}/cluster_infos/{cluster_id}
+// @API MRS POST /v2/{project_id}/clusters/{cluster_id}/expand
+// @API MRS POST /v2/{project_id}/clusters/{cluster_id}/shrink
 // @API EIP GET /v1/{project_id}/publicips
 // @API VPC GET /v1/{project_id}/vpcs
 // @API VPC GET /v1/{project_id}/subnets
@@ -190,41 +191,41 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("master_node_default_group", false),
+				Elem:     nodeGroupSchemaResource("master_node_default_group"),
 			},
 			"analysis_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("core_node_analysis_group", true),
+				Elem:     nodeGroupSchemaResource("core_node_analysis_group"),
 			},
 			"streaming_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("core_node_streaming_group", true),
+				Elem:     nodeGroupSchemaResource("core_node_streaming_group"),
 			},
 			"analysis_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("task_node_analysis_group", true),
+				Elem:     nodeGroupSchemaResource("task_node_analysis_group"),
 			},
 			"streaming_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("task_node_streaming_group", true),
+				Elem:     nodeGroupSchemaResource("task_node_streaming_group"),
 			},
 			"custom_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     nodeGroupSchemaResource("", false),
+				Elem:     nodeGroupSchemaResource(""),
 			},
 			"component_configs": {
 				Type:     schema.TypeList,
@@ -300,7 +301,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 /*
 when custom node,the groupName should been empty
 */
-func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resource {
+func nodeGroupSchemaResource(groupName string) *schema.Resource {
 	nodeResource := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -340,7 +341,7 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resour
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, _, _ string, d *schema.ResourceData) bool {
 					if clusterType := d.Get("type").(string); clusterType != typeCustom {
 						return true
 					}
@@ -354,6 +355,21 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resour
 					Type: schema.TypeString,
 				},
 			},
+			"node_number": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The number of nodes in the node group.`,
+			},
+			"skip_bootstrap_scripts": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to skip bootstrap scripts when the cluster is expanded.`,
+			},
+			"scale_without_start": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to start the components on the node after it has been expanded.`,
+			},
 		},
 	}
 
@@ -361,19 +377,6 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resour
 	if groupName == "" {
 		nodeResource.Schema["group_name"] = &schema.Schema{
 			Type:     schema.TypeString,
-			Required: true,
-			ForceNew: true,
-		}
-	}
-
-	if nodeScalable {
-		nodeResource.Schema["node_number"] = &schema.Schema{
-			Type:     schema.TypeInt,
-			Required: true,
-		}
-	} else {
-		nodeResource.Schema["node_number"] = &schema.Schema{
-			Type:     schema.TypeInt,
 			Required: true,
 			ForceNew: true,
 		}
@@ -397,6 +400,16 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resour
 			ValidateFunc: validation.IntBetween(1, 9),
 		}
 		nodeResource.Schema["auto_renew"] = common.SchemaAutoRenewUpdatable(nil)
+	}
+
+	// Master node group does not support shrinking.
+	if groupName != masterGroup {
+		nodeResource.Schema["resource_ids"] = &schema.Schema{
+			Type:        schema.TypeList,
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
+			Description: `The list of resource node IDs to be shrunk.`,
+		}
 	}
 
 	return &nodeResource
@@ -1176,88 +1189,6 @@ func resourceMRSClusterV2Read(_ context.Context, d *schema.ResourceData, meta in
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resizeMRSClusterCoreNodes is a method which used to resize core node for each cluster type.
-// The resizeCount is a number of the group size changing, nagetive means scale in group.
-func resizeMRSClusterCoreNodes(ctx context.Context, client *golangsdk.ServiceClient, id, groupType string, resizeCount int) error {
-	var isScaleOut = "scale_out"
-	if resizeCount < 0 {
-		isScaleOut = "scale_in"
-		resizeCount = -resizeCount
-	}
-	opts := cluster.UpdateOpts{
-		Parameters: cluster.ResizeParameters{
-			ScaleType: isScaleOut,
-			NodeGroup: &groupType,
-			NodeId:    "node_orderadd",
-			Instances: strconv.Itoa(resizeCount),
-		},
-	}
-	_, err := cluster.Update(client, id, opts).Extract()
-	if err != nil {
-		return fmt.Errorf("error resizing core node")
-	}
-	refresh := stateRefresh{
-		Pending:      []string{"scaling-out", "scaling-in"},
-		Target:       []string{"running"},
-		Delay:        2 * time.Minute,
-		Timeout:      1 * time.Hour,
-		PollInterval: 15 * time.Second,
-	}
-	if err = waitForMrsClusterStateCompleted(ctx, client, id, refresh); err != nil {
-		return fmt.Errorf("error waiting for MRS cluster resize to be complated: %s", err)
-	}
-	return nil
-}
-
-// resizeMRSClusterTaskNodes is a method which use to scale out/in the (analysis/streaming) nodes.
-func resizeMRSClusterTaskNodes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	groupType, nodeType string) error {
-	oldRaws, newRaws := d.GetChange(nodeType)
-	oldList := oldRaws.([]interface{})
-	newList := newRaws.([]interface{})
-	resizeCount := getNodeResizeNumber(oldList, newList)
-
-	var isScaleOut = "scale_out"
-	newRaw := newList[0].(map[string]interface{})
-
-	if resizeCount < 0 {
-		isScaleOut = "scale_in"
-		resizeCount = -resizeCount
-	}
-	params := cluster.ResizeParameters{
-		ScaleType: isScaleOut,
-		NodeGroup: &groupType,
-		NodeId:    "node_orderadd", // Fixed value of resize request
-		Instances: strconv.Itoa(resizeCount),
-	}
-	if len(oldList) == 0 {
-		params.TaskNodeInfo = &cluster.TaskNodeInfo{
-			NodeSize:        newRaw["flavor"].(string),
-			DataVolumeType:  newRaw["data_volume_type"].(string),
-			DataVolumeSize:  newRaw["data_volume_size"].(int),
-			DataVolumeCount: newRaw["data_volume_count"].(int),
-		}
-	}
-	opts := cluster.UpdateOpts{
-		Parameters: params,
-	}
-	_, err := cluster.Update(client, d.Id(), opts).Extract()
-	if err != nil {
-		return fmt.Errorf("error resizing task node")
-	}
-	refresh := stateRefresh{
-		Pending:      []string{"scaling-out", "scaling-in"},
-		Target:       []string{"running"},
-		Delay:        2 * time.Minute,
-		Timeout:      1 * time.Hour,
-		PollInterval: 15 * time.Second,
-	}
-	if err = waitForMrsClusterStateCompleted(ctx, client, d.Id(), refresh); err != nil {
-		return fmt.Errorf("error waiting for MRS cluster resize to be complated: %s", err)
-	}
-	return nil
-}
-
 // the getNodeResizeNumber is a method which use to calculate the number of the group resize option.
 func getNodeResizeNumber(oldList, newList []interface{}) int {
 	newNode := newList[0].(map[string]interface{})
@@ -1272,68 +1203,139 @@ func getNodeResizeNumber(oldList, newList []interface{}) int {
 }
 
 // calculate the number of the custom group resize option. Dont support add new nodeGroup
-func parseCustomNodeResize(oldList, newList []interface{}) map[string]int {
-	var rst = make(map[string]int)
+func parseCustomNodeResize(oldList, newList []interface{}, d *schema.ResourceData) map[string]interface{} {
+	var (
+		rst       = make(map[string]interface{})
+		rawConfig = d.GetRawConfig()
+	)
 
 	for newIndex := 0; newIndex < len(oldList); newIndex++ {
 		newNode := newList[newIndex].(map[string]interface{})
-
-		groupName := newNode["group_name"].(string)
-		newSize := newNode["node_number"].(int)
-
-		oldNode := oldList[newIndex].(map[string]interface{})
-		oldSize := oldNode["node_number"].(int)
+		groupName := utils.PathSearch("group_name", newNode, "").(string)
+		newSize := utils.PathSearch("node_number", newNode, 0).(int)
+		oldSize := utils.PathSearch("node_number", oldList[newIndex], 0).(int)
 
 		// Distinguish scale out and scale in by positive and negative
-		rst[groupName] = newSize - oldSize
+		rst[groupName] = map[string]interface{}{
+			"resize_count": newSize - oldSize,
+			"resource_ids": utils.PathSearch("resource_ids", newNode, nil),
+			"scale_without_start": utils.GetNestedObjectFromRawConfig(rawConfig,
+				fmt.Sprintf("custom_nodes.%d.scale_without_start", newIndex)),
+			"skip_bootstrap_scripts": utils.GetNestedObjectFromRawConfig(rawConfig,
+				fmt.Sprintf("custom_nodes.%d.skip_bootstrap_scripts", newIndex)),
+		}
 	}
+
 	return rst
 }
 
-func updateMRSClusterNodes(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	clusterType := d.Get("type").(string)
-	if clusterType == typeAnalysis || clusterType == typeHybrid {
-		if d.HasChange("analysis_core_nodes") {
-			oldRaws, newRaws := d.GetChange("analysis_core_nodes")
-			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), analysisCoreGroup, num)
-			if err != nil {
-				return err
-			}
-		}
-		if d.HasChange("analysis_task_nodes") {
-			err := resizeMRSClusterTaskNodes(ctx, client, d, analysisTaskGroup, "analysis_task_nodes")
-			if err != nil {
-				return err
-			}
+func buildClusterNodeExpandBodyParams(nodeGroupName string, nodeGroup interface{}) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"node_group_name":        nodeGroupName,
+		"count":                  utils.PathSearch("resize_count", nodeGroup, nil),
+		"scale_without_start":    utils.PathSearch("scale_without_start", nodeGroup, nil),
+		"skip_bootstrap_scripts": utils.PathSearch("skip_bootstrap_scripts", nodeGroup, nil),
+	}
+
+	return bodyParams
+}
+
+func buildClusterNodeShrinkBodyParams(nodeGroupName string, v interface{}) map[string]interface{} {
+	if resourceIds := utils.PathSearch("resource_ids", v, make([]interface{}, 0)).([]interface{}); len(resourceIds) > 0 {
+		return map[string]interface{}{
+			"node_group_name": nodeGroupName,
+			"resource_ids":    resourceIds,
 		}
 	}
-	if clusterType == typeStream || clusterType == typeHybrid {
-		if d.HasChange("streaming_core_nodes") {
-			oldRaws, newRaws := d.GetChange("streaming_core_nodes")
-			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), streamingCoreGroup, num)
-			if err != nil {
-				return err
-			}
+
+	shrinkCount := utils.PathSearch("resize_count", v, 0).(int)
+	return map[string]interface{}{
+		"node_group_name": nodeGroupName,
+		"count":           -shrinkCount,
+	}
+}
+
+func parseScalingNodeGroups(groupName string, nodeGroup interface{}, expandNodeGroups, shrinkNodeGroups map[string]interface{}) {
+	resizeCount := utils.PathSearch("resize_count", nodeGroup, 0).(int)
+	if resizeCount > 0 {
+		expandNodeGroups[groupName] = map[string]interface{}{
+			"resize_count":           resizeCount,
+			"scale_without_start":    utils.PathSearch("scale_without_start", nodeGroup, nil),
+			"skip_bootstrap_scripts": utils.PathSearch("skip_bootstrap_scripts", nodeGroup, nil),
 		}
-		if d.HasChange("streaming_task_nodes") {
-			err := resizeMRSClusterTaskNodes(ctx, client, d, streamingTaskGroup, "streaming_task_nodes")
+	}
+
+	resourceIds := utils.PathSearch("resource_ids", nodeGroup, make([]interface{}, 0)).([]interface{})
+	if len(resourceIds) > 0 || resizeCount < 0 {
+		shrinkNodeGroups[groupName] = map[string]interface{}{
+			"resource_ids": resourceIds,
+			"resize_count": resizeCount,
+		}
+	}
+}
+
+func scalingClusterNodes(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient, timeout time.Duration) error {
+	var (
+		clusterId  = d.Id()
+		nodeGroups = map[string]string{
+			"master_nodes":         masterGroup,
+			"analysis_core_nodes":  analysisCoreGroup,
+			"analysis_task_nodes":  analysisTaskGroup,
+			"streaming_core_nodes": streamingCoreGroup,
+			"streaming_task_nodes": streamingTaskGroup,
+		}
+		expandNodeGroupsMap = make(map[string]interface{})
+		shrinkNodeGroupsMap = make(map[string]interface{})
+	)
+
+	// For non-custom node groups.
+	for key, groupName := range nodeGroups {
+		if d.HasChange(fmt.Sprintf("%s.0.node_number", key)) {
+			var (
+				oldRaws, newRaws = d.GetChange(key)
+				newList          = newRaws.([]interface{})
+				rawConfig        = d.GetRawConfig()
+			)
+			parseScalingNodeGroups(groupName,
+				map[string]interface{}{
+					"resize_count":           getNodeResizeNumber(oldRaws.([]interface{}), newList),
+					"resource_ids":           utils.PathSearch("[0].resource_ids", newList, nil),
+					"scale_without_start":    utils.GetNestedObjectFromRawConfig(rawConfig, fmt.Sprintf("%s.0.scale_without_start", key)),
+					"skip_bootstrap_scripts": utils.GetNestedObjectFromRawConfig(rawConfig, fmt.Sprintf("%s.0.skip_bootstrap_scripts", key)),
+				},
+				expandNodeGroupsMap,
+				shrinkNodeGroupsMap,
+			)
+		}
+	}
+
+	// For custom node groups.
+	if d.HasChange("custom_nodes") {
+		oldRaws, newRaws := d.GetChange("custom_nodes")
+		scaleMap := parseCustomNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}), d)
+		for groupName, v := range scaleMap {
+			parseScalingNodeGroups(groupName, v, expandNodeGroupsMap, shrinkNodeGroupsMap)
+		}
+	}
+
+	log.Printf("[DEBUG] Expand node groups are: %#v", expandNodeGroupsMap)
+	log.Printf("[DEBUG] Shrink node groups are: %#v", shrinkNodeGroupsMap)
+	if len(expandNodeGroupsMap) > 0 {
+		for key, v := range expandNodeGroupsMap {
+			err := expandClusterNodes(ctx, client, bssClient, clusterId, buildClusterNodeExpandBodyParams(key, v), timeout)
 			if err != nil {
-				return err
+				// To avoid interrupting other node group expanding process, use log to record errors.
+				log.Printf("[ERROR] error expanding nodes for the node group (%s) of the cluster (%s): %s", key, clusterId, err)
 			}
 		}
 	}
 
-	if clusterType == typeCustom {
-		if d.HasChange("custom_nodes") {
-			oldRaws, newRaws := d.GetChange("custom_nodes")
-			scaleMap := parseCustomNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}))
-			for k, num := range scaleMap {
-				err := resizeMRSClusterCoreNodes(ctx, client, d.Id(), k, num)
-				if err != nil {
-					return err
-				}
+	if len(shrinkNodeGroupsMap) > 0 {
+		for key, v := range shrinkNodeGroupsMap {
+			err := shrinkClusterNodes(ctx, client, clusterId, timeout, buildClusterNodeShrinkBodyParams(key, v))
+			if err != nil {
+				// To avoid interrupting other node group shrinking process, use log to record errors.
+				log.Printf("[ERROR] error shrinking nodes for the node group (%s) of the cluster (%s): %s", key, clusterId, err)
 			}
 		}
 	}
@@ -1418,21 +1420,20 @@ func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	// lintignore:R019
-	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes",
-		"streaming_task_nodes", "custom_nodes") {
-		err = updateMRSClusterNodes(ctx, d, client)
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS V2 client: %s", err)
+	}
+
+	if d.HasChanges("master_nodes", "analysis_core_nodes", "analysis_task_nodes", "streaming_core_nodes", "streaming_task_nodes",
+		"custom_nodes") {
+		err = scalingClusterNodes(ctx, d, client, bssClient, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
-		}
-
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", clusterId, err)
 		}
