@@ -3288,6 +3288,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_event_alarm_white_list_delete":                  hss.ResourceEventAlarmWhiteListDelete(),
 			"huaweicloud_hss_event_login_white_list":                         hss.ResourceEventLoginWhiteList(),
 			"huaweicloud_hss_image_batch_scan":                               hss.ResourceImageBatchScan(),
+			"huaweicloud_hss_image_baseline_change_ewp":                      hss.ResourceImageBaselineChangeEWP(),
 			"huaweicloud_hss_login_common_location":                          hss.ResourceLoginCommonLocation(),
 			"huaweicloud_hss_login_white_ip":                                 hss.ResourceLoginWhiteIp(),
 			"huaweicloud_hss_change_host_ignore_status":                      hss.ResourceChangeHostIgnoreStatus(),
