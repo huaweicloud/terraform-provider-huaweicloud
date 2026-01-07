@@ -3,6 +3,7 @@ package swrenterprise
 
 import (
 	"context"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -168,7 +169,7 @@ func (w *RepositoryTagsDSWrapper) ListInstanceTags() (*gjson.Result, error) {
 	uri := "/v2/instances/{instance_id}/namespaces/{namespace_name}/repositories/{repository_name}/tags"
 	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
 	uri = strings.ReplaceAll(uri, "{namespace_name}", w.Get("namespace_name").(string))
-	uri = strings.ReplaceAll(uri, "{repository_name}", w.Get("repository_name").(string))
+	uri = strings.ReplaceAll(uri, "{repository_name}", url.PathEscape(strings.ReplaceAll(w.Get("repository_name").(string), "/", "%2F")))
 	params := map[string]any{
 		"is_accessory": w.Get("is_accessory"),
 	}
