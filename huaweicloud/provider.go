@@ -1997,6 +1997,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_baseline_checkitems":           secmaster.DataSourceBaselineCheckitems(),
 			"huaweicloud_secmaster_catalogues_search":             secmaster.DataSourceSecmasterCataloguesSearch(),
 			"huaweicloud_secmaster_catalogues":                    secmaster.DataSourceSecmasterCatalogues(),
+			"huaweicloud_secmaster_cloud_log_resources":           secmaster.DataSourceCloudLogResources(),
 			"huaweicloud_secmaster_collector_channel_groups":      secmaster.DataSourceCollectorChannelGroups(),
 			"huaweicloud_secmaster_collector_channel_instances":   secmaster.DataSourceCollectorChannelInstances(),
 			"huaweicloud_secmaster_collector_cloudlog_regions":    secmaster.DataSourceCollectorCloudlogRegions(),
