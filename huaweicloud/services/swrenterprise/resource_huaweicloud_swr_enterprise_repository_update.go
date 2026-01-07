@@ -2,6 +2,7 @@ package swrenterprise
 
 import (
 	"context"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -68,7 +69,7 @@ func ResourceSwrEnterpriseRepositoryUpdate() *schema.Resource {
 	}
 }
 
-func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("swr", region)
@@ -85,7 +86,7 @@ func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(_ context.Context, d *s
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", instanceId)
 	updatePath = strings.ReplaceAll(updatePath, "{namespace_name}", namespaceName)
-	updatePath = strings.ReplaceAll(updatePath, "{repository_name}", repositoryName)
+	updatePath = strings.ReplaceAll(updatePath, "{repository_name}", url.PathEscape(strings.ReplaceAll(repositoryName, "/", "%2F")))
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
@@ -102,7 +103,7 @@ func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(_ context.Context, d *s
 		d.SetId(instanceId + "/" + namespaceName + "/" + repositoryName)
 	}
 
-	return nil
+	return resourceSwrEnterpriseRepositoryUpdateRead(ctx, d, meta)
 }
 
 func resourceSwrEnterpriseRepositoryUpdateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -118,7 +119,7 @@ func resourceSwrEnterpriseRepositoryUpdateRead(_ context.Context, d *schema.Reso
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
 	getPath = strings.ReplaceAll(getPath, "{namespace_name}", d.Get("namespace_name").(string))
-	getPath = strings.ReplaceAll(getPath, "{repository_name}", d.Get("repository_name").(string))
+	getPath = strings.ReplaceAll(getPath, "{repository_name}", url.PathEscape(strings.ReplaceAll(d.Get("repository_name").(string), "/", "%2F")))
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}

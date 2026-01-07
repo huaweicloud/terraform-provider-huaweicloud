@@ -2,6 +2,7 @@ package swrenterprise
 
 import (
 	"context"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -77,7 +78,7 @@ func resourceSwrEnterpriseRepositoryDeleteCreate(_ context.Context, d *schema.Re
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceId)
 	deletePath = strings.ReplaceAll(deletePath, "{namespace_name}", namespaceName)
-	deletePath = strings.ReplaceAll(deletePath, "{repository_name}", repositoryName)
+	deletePath = strings.ReplaceAll(deletePath, "{repository_name}", url.PathEscape(strings.ReplaceAll(repositoryName, "/", "%2F")))
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
