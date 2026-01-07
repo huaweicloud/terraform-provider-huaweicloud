@@ -3088,6 +3088,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_private_zone_associate":    dns.ResourceDNSPrivateZoneAssociate(),
 			"huaweicloud_dns_endpoint_assignment":       dns.ResourceEndpointAssignment(),
 			"huaweicloud_dns_endpoint":                  dns.ResourceDNSEndpoint(),
+			"huaweicloud_dns_resolver_access_log":       dns.ResourceResolverAccessLog(),
 			"huaweicloud_dns_resolver_rule":             dns.ResourceResolverRule(),
 			"huaweicloud_dns_resolver_rule_associate":   dns.ResourceResolverRuleAssociate(),
 			"huaweicloud_dns_line_group":                dns.ResourceLineGroup(),
