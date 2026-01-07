@@ -2,6 +2,7 @@ package bms
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -11,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -301,6 +303,46 @@ func flattenListBMSInstances(d *schema.ResourceData, meta interface{}, bmsClient
 		}
 	}
 	return servers
+}
+
+func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
+	addresses map[string][]baremetalservers.Address) []map[string]interface{} {
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
+	if err != nil {
+		log.Printf("Error creating networking client: %s", err)
+	}
+
+	var network string
+	var nics []map[string]interface{}
+	// Loop through all networks and addresses.
+	for _, addrs := range addresses {
+		for _, addr := range addrs {
+			// Skip if not fixed ip
+			if addr.Type != "fixed" {
+				continue
+			}
+
+			p, err := ports.Get(networkingClient, addr.PortID).Extract()
+			if err != nil {
+				network = ""
+				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
+			} else {
+				network = p.NetworkID
+			}
+
+			v := map[string]interface{}{
+				"subnet_id":   network,
+				"ip_address":  addr.Addr,
+				"mac_address": addr.MacAddr,
+				"port_id":     addr.PortID,
+			}
+			nics = append(nics, v)
+		}
+	}
+
+	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
+	return nics
 }
 
 func faltternBmsTags(instanceId string, bmsClient *golangsdk.ServiceClient) map[string]string {
