@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/job"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -18,9 +19,9 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 	var jobGet job.Job
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckMrs(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMRSV1JobDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV1JobDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: TestAccMRSV1JobConfig_basic,
@@ -35,8 +36,8 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 }
 
 func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud mrs: %s", err)
 	}
@@ -73,8 +74,8 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 			return fmtp.Errorf("No ID is set. ")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud mrs client: %s ", err)
 		}
@@ -133,4 +134,4 @@ resource "huaweicloud_mrs_job_v1" "job1" {
   output = "s3a://tf-mrs/output/"
   job_log = "s3a://tf-mrs/joblog/"
   arguments = "wordcount"
-}`, HW_REGION_NAME, HW_VPC_ID, HW_NETWORK_ID)
+}`, acceptance.HW_REGION_NAME, acceptance.HW_VPC_ID, acceptance.HW_NETWORK_ID)
