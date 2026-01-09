@@ -21,7 +21,7 @@ jobs:
 
       - name: Error Format Tracing for CheckDeletedDiag Error Input
         id: check-error-format
-        uses: Lance52259/errors-format-tracing@v1
+        uses: chnsz/checkdeleted-input-errors-formating@v1
         with:
           directory: 'huaweicloud/services'
           show-progress: 'false'
