@@ -2,7 +2,7 @@
 
 ## 1.84.0 (January 9, 2026)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_bms_instance_restart` [GH-8778]
   + `huaweicloud_bms_os_reinstall` [GH-8790]
   + `huaweicloud_dns_resolver_access_log` [GH-8795]
@@ -37,7 +37,7 @@
 
 ## 1.83.0 (December 27, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_bms_instance_password_delete` [GH-8656]
   + `huaweicloud_bms_instance_password_reset` [GH-8656]
   + `huaweicloud_cce_autopilot_chart` [GH-8709]
@@ -106,7 +106,7 @@
 
 ## 1.82.4 (December 17, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_bms_volume_attach` [GH-8633]
   + `huaweicloud_dc_vif_peer_detection` [GH-8609]
   + `huaweicloud_workspace_desktop_user_batch_attach` [GH-8549]
@@ -122,7 +122,7 @@ BUG FIXES:
 
 ## 1.82.3 (December 12, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cce_access_policy` [GH-8541]
   + `huaweicloud_identity_temporary_access_key` [GH-8619]
   + `huaweicloud_identityv5_asymmetric_signature_switch` [GH-8619]
@@ -154,7 +154,7 @@ BUG FIXES:
 
 ## 1.82.2 (December 11, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_hss_rasp_protection_policy` [GH-8583]
   + `huaweicloud_imsv21_image_export` [GH-8566]
   + `huaweicloud_secmaster_layout_field` [GH-7680]
@@ -181,7 +181,7 @@ BUG FIXES:
 
 ## 1.82.1 (December 5, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_elb_recycle_bin_loadbalancer_recover` [GH-8548]
   + `huaweicloud_secmaster_operation_connection` [GH-7717]
   + `huaweicloud_workspace_app_repo_bucket_assign` [GH-8554]
@@ -198,7 +198,7 @@ BUG FIXES:
 
 ## 1.82.0 (December 4, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cdn_domain_template_apply` [GH-8487]
   + `huaweicloud_cdn_statistic_subscription_task` [GH-8468]
   + `huaweicloud_dns_zone_retrieval_verify` [GH-8523]
@@ -280,7 +280,7 @@ BUG FIXES:
 
 ## 1.81.0 (November 30, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cdn_cache_sharing_group` [GH-8431]
   + `huaweicloud_cdn_domain_template` [GH-8448]
   + `huaweicloud_cdn_statistic_configuration` [GH-8434]
@@ -316,7 +316,7 @@ BUG FIXES:
 
 ## 1.80.5 (November 26, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cdn_rule_engine_rule` [GH-8416]
   + `huaweicloud_cdn_share_cache_group` [GH-8422]
   + `huaweicloud_hss_container_network_cluster_sync` [GH-8403]
@@ -347,7 +347,7 @@ BUG FIXES:
 
 ## 1.80.4 (November 21, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_aom_recording_rule` [GH-8345]
   + `huaweicloud_cbh_change_instance_type` [GH-8322]
   + `huaweicloud_cdn_domain_owner_verify` [GH-8328]
@@ -457,7 +457,7 @@ BUG FIXES:
 
 ## 1.80.3 (November 14, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_aom_event_report` [GH-8237]
   + `huaweicloud_aom_uniagent_batch_install` [GH-8212]
   + `huaweicloud_aom_uniagent_batch_upgrade` [GH-8300]
@@ -502,7 +502,7 @@ BUG FIXES:
 
 ## 1.80.2 (November 10, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_aom_alarm_inhibit_rule` [GH-8232]
   + `huaweicloud_cciv2_observability_configuration` [GH-8261]
   + `huaweicloud_cpcs_app_download_access_key` [GH-8231]
@@ -549,7 +549,7 @@ BUG FIXES:
 
 ## 1.80.1 (October 31, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cpcs_app_cluster_association` [GH-8181]
   + `huaweicloud_identity_provider_protocol` [GH-8200]
   + `huaweicloud_identity_token_with_id_token` [GH-8200]
@@ -624,7 +624,7 @@ BUG FIXES:
 
 ## 1.80.0 (October 30, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_coc_cloud_vendor_account` [GH-8158]
   + `huaweicloud_coc_cloud_vendor_user_resources_sync` [GH-8163]
   + `huaweicloud_csms_agency` [GH-8139]
@@ -675,7 +675,7 @@ BUG FIXES:
 
 ## 1.79.2 (October 22, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_cdn_certificate_associate_domains` [GH-8061]
   + `huaweicloud_cdn_domain_batch_copy` [GH-8076]
   + `huaweicloud_compute_instance_redeploy` [GH-8100]
@@ -730,7 +730,7 @@ BUG FIXES:
 
 ## 1.79.1 (October 14, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_compute_password_delete` [GH-8011]
   + `huaweicloud_dms_kafka_topic_quota` [GH-8021]
   + `huaweicloud_hss_modify_webtamper_rasp_path` [GH-8049]
@@ -776,7 +776,7 @@ BUG FIXES:
 
 ## 1.79.0 (September 29, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_apig_channel_member_batch_action` [GH-7977]
   + `huaweicloud_apig_global_certificate_batch_domains_associate` [GH-7923]
   + `huaweicloud_ces_resource_group_alarm_template_async_associate` [GH-7978]
@@ -839,7 +839,7 @@ BUG FIXES:
 
 ## 1.78.5 (September 22, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_apig_api_batch_plugins_associate` [GH-7873]
   + `huaweicloud_apig_certificate_batch_domains_associate` [GH-7873]
   + `huaweicloud_apig_channel_member` [GH-7808]
@@ -877,7 +877,7 @@ BUG FIXES:
 
 ## 1.78.4 (September 16, 2025)
 
-* **New Resource Source:**
+* **New Resource:**
   + `huaweicloud_apig_channel_member_group` [GH-7801]
   + `huaweicloud_apig_plugin_batch_apis_associate` [GH-7870]
   + `huaweicloud_coc_diagnosis_task_retry` [GH-7824]
