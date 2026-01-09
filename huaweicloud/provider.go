@@ -3688,6 +3688,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_wal_log_replay_switch":          rds.ResourceRdsWalLogReplaySwitch(),
 			"huaweicloud_rds_restore_read_replica_database":  rds.ResourceRdsRestoreReadReplicaDatabase(),
 			"huaweicloud_rds_notify_replace_node":            rds.ResourceNotifyReplaceNode(),
+			"huaweicloud_rds_distribution":                   rds.ResourceDistribution(),
 
 			"huaweicloud_rgc_account":                      rgc.ResourceAccount(),
 			"huaweicloud_rgc_account_enroll":               rgc.ResourceAccountEnroll(),
