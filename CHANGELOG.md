@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## 1.84.0 (January 9, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_bms_instance_restart` [GH-8778]
+  + `huaweicloud_bms_os_reinstall` [GH-8790]
+  + `huaweicloud_dns_resolver_access_log` [GH-8795]
+  + `huaweicloud_hss_image_baseline_change_ewp` [GH-8784]
+  + `huaweicloud_identity_provider_mapping` [GH-8811]
+  + `huaweicloud_secmaster_workflow_version_approval` [GH-8779]
+  + `huaweicloud_secmaster_workflow_version_validation` [GH-8786]
+  + `huaweicloud_swr_agency` [GH-8783]
+  + `huaweicloud_swr_enterprise_instance_artifact_manual_scan` [GH-8805]
+  + `huaweicloud_waf_batch_create_antitamper_rules` [GH-8787]
+  + `huaweicloud_waf_batch_create_geoip_rules` [GH-8780]
+  + `huaweicloud_waf_batch_create_privacy_rules` [GH-8782]
+  + `huaweicloud_waf_batch_update_whiteblackip_rules` [GH-8798]
+
+* **New Data Source:**
+  + `huaweicloud_bms_instance_remotely_login_address` [GH-8775]
+  + `huaweicloud_bms_interface_attachments` [GH-8777]
+  + `huaweicloud_hss_container_kubernetes_mcan` [GH-8753]
+  + `huaweicloud_hss_event_operations` [GH-8748]
+  + `huaweicloud_hss_host_manual_detection_status` [GH-8776]
+  + `huaweicloud_hss_image_apps` [GH-8799]
+  + `huaweicloud_hss_image_baseline_ewp` [GH-8794]
+  + `huaweicloud_hss_vulnerability_host_hosts` [GH-8773]
+  + `huaweicloud_secmaster_cloud_log_resources` [GH-8792]
+  + `huaweicloud_secmaster_collector_cloudlog_regions` [GH-8770]
+  + `huaweicloud_secmaster_collector_module_restrictions` [GH-8763]
+  + `huaweicloud_secmaster_collector_module_templates` [GH-8763]
+  + `huaweicloud_secmaster_component_detail` [GH-8763]
+  + `huaweicloud_secmaster_search_conditions` [GH-8772]
+  + `huaweicloud_swr_enterprise_instance_artifact_vulnerabilities` [GH-8805]
+  + `huaweicloud_swr_sync_regions` [GH-8785]
+
 ## 1.83.0 (December 27, 2025)
 
 * **New Resource Source:**
