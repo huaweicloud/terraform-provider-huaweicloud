@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_batch_update_whiteblackip_rules": {
+          "block": {
+            "attributes": {
+              "addr": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "start": {
+                "type": "number",
+                "optional": true
+              },
+              "terminal": {
+                "type": "number",
+                "optional": true
+              },
+              "time_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "white": {
+                "type": "number",
+                "required": true
+              }
+            },
+            "block_types": {
+              "policy_rule_ids": {
+                "block": {
+                  "attributes": {
+                    "policy_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "rule_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_resolver_access_log": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_group_id": {
+                "type": "string",
+                "description": "The ID of the log group.",
+                "required": true
+              },
+              "lts_topic_id": {
+                "type": "string",
+                "description": "The ID of the log stream.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resolver access log is located.",
+                "computed": true
+              },
+              "vpc_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of VPC IDs associated with the resolver access log.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

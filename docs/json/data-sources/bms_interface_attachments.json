@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_bms_interface_attachments": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface_attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "driver_mode": "string",
+                      "fixed_ips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_address": "string",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "mac_addr": "string",
+                      "net_id": "string",
+                      "pci_address": "string",
+                      "port_id": "string",
+                      "port_state": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the BMS NICs.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the BMS ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "BMS",
+            "name": "Bare Metal Server",
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

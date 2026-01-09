@@ -181,7 +181,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -226,6 +226,7 @@
                     },
                     "node_number": {
                       "type": "number",
+                      "description": "The number of nodes in the node group.",
                       "required": true
                     },
                     "period": {
@@ -238,6 +239,14 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "resource_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of resource node IDs to be shrunk.",
+                      "optional": true
+                    },
                     "root_volume_size": {
                       "type": "number",
                       "required": true,
@@ -247,6 +256,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },
@@ -259,7 +278,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -294,7 +313,16 @@
                     },
                     "node_number": {
                       "type": "number",
+                      "description": "The number of nodes in the node group.",
                       "required": true
+                    },
+                    "resource_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of resource node IDs to be shrunk.",
+                      "optional": true
                     },
                     "root_volume_size": {
                       "type": "number",
@@ -305,6 +333,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },
@@ -428,7 +466,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -478,8 +516,8 @@
                     },
                     "node_number": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "description": "The number of nodes in the node group.",
+                      "required": true
                     },
                     "period": {
                       "type": "number",
@@ -491,6 +529,14 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "resource_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of resource node IDs to be shrunk.",
+                      "optional": true
+                    },
                     "root_volume_size": {
                       "type": "number",
                       "required": true,
@@ -500,6 +546,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },
@@ -539,7 +595,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -584,8 +640,8 @@
                     },
                     "node_number": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "description": "The number of nodes in the node group.",
+                      "required": true
                     },
                     "period": {
                       "type": "number",
@@ -606,6 +662,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },
@@ -640,7 +706,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -685,6 +751,7 @@
                     },
                     "node_number": {
                       "type": "number",
+                      "description": "The number of nodes in the node group.",
                       "required": true
                     },
                     "period": {
@@ -697,6 +764,14 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "resource_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of resource node IDs to be shrunk.",
+                      "optional": true
+                    },
                     "root_volume_size": {
                       "type": "number",
                       "required": true,
@@ -706,6 +781,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },
@@ -718,7 +803,7 @@
                   "attributes": {
                     "assigned_roles": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
@@ -753,7 +838,16 @@
                     },
                     "node_number": {
                       "type": "number",
+                      "description": "The number of nodes in the node group.",
                       "required": true
+                    },
+                    "resource_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of resource node IDs to be shrunk.",
+                      "optional": true
                     },
                     "root_volume_size": {
                       "type": "number",
@@ -764,6 +858,16 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "scale_without_start": {
+                      "type": "bool",
+                      "description": "Whether to start the components on the node after it has been expanded.",
+                      "optional": true
+                    },
+                    "skip_bootstrap_scripts": {
+                      "type": "bool",
+                      "description": "Whether to skip bootstrap scripts when the cluster is expanded.",
+                      "optional": true
                     }
                   }
                 },

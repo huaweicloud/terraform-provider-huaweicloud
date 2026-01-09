@@ -8,7 +8,6 @@
               "admin_pass": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
                 "sensitive": true
               },
               "agency_name": {
@@ -82,8 +81,7 @@
               },
               "image_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "image_name": {
                 "type": "string",
@@ -96,8 +94,7 @@
               },
               "key_pair": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "metadata": {
                 "type": [
@@ -119,6 +116,10 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "power_action": {
+                "type": "string",
+                "optional": true
               },
               "public_ip": {
                 "type": "string",
@@ -167,13 +168,11 @@
               "user_data": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "user_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "vpc_id": {
                 "type": "string",
