@@ -35,13 +35,13 @@ data "huaweicloud_swr_enterprise_repositories" "test" {
 data "huaweicloud_swr_enterprise_instance_artifacts" "test" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].namespace_name
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[1].name
+  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
 }
 
 resource "huaweicloud_swr_enterprise_instance_artifact_manual_scan" "test" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].namespace_name
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[1].name
+  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
   reference       = data.huaweicloud_swr_enterprise_instance_artifacts.test.artifacts[0].digest
 }`
 }
