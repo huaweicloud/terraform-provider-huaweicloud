@@ -2,6 +2,7 @@ package mrs
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -91,7 +92,6 @@ func resourceClusterNodeBatchShrinkCreate(ctx context.Context, d *schema.Resourc
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
-		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/shrink"
 		clusterId = d.Get("cluster_id").(string)
 	)
 
@@ -104,26 +104,9 @@ func resourceClusterNodeBatchShrinkCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
-	shrinkPath := client.Endpoint + httpUrl
-	shrinkPath = strings.ReplaceAll(shrinkPath, "{project_id}", client.ProjectID)
-	shrinkPath = strings.ReplaceAll(shrinkPath, "{cluster_id}", clusterId)
-
-	createOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-		JSONBody: utils.RemoveNil(buildClusterNodeBatchShrinkBodyParams(d)),
-	}
-
-	_, err = client.Request("POST", shrinkPath, &createOpt)
+	err = shrinkClusterNodes(ctx, client, clusterId, d.Timeout(schema.TimeoutCreate), buildClusterNodeBatchShrinkBodyParams(d))
 	if err != nil {
 		return diag.Errorf("error shrinking nodes for the cluster (%s): %s", clusterId, err)
-	}
-
-	err = waitForClusterStatusCompleted(ctx, client, clusterId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("error waiting for the cluster shrink to complete: %s", err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()
@@ -131,6 +114,34 @@ func resourceClusterNodeBatchShrinkCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("unable to generate resource ID: %s", err)
 	}
 	d.SetId(randUUID)
+
+	return nil
+}
+
+func shrinkClusterNodes(ctx context.Context, client *golangsdk.ServiceClient, clusterId string, timeout time.Duration,
+	params map[string]interface{}) error {
+	httpUrl := "v2/{project_id}/clusters/{cluster_id}/shrink"
+	shrinkPath := client.Endpoint + httpUrl
+	shrinkPath = strings.ReplaceAll(shrinkPath, "{project_id}", client.ProjectID)
+	shrinkPath = strings.ReplaceAll(shrinkPath, "{cluster_id}", clusterId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+		JSONBody: utils.RemoveNil(params),
+	}
+
+	_, err := client.Request("POST", shrinkPath, &opt)
+	if err != nil {
+		return fmt.Errorf("error shrinking nodes for the cluster (%s): %s", clusterId, err)
+	}
+
+	err = waitForClusterStatusCompleted(ctx, client, clusterId, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for the cluster shrink to complete: %s", err)
+	}
 
 	return nil
 }
