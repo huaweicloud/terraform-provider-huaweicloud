@@ -3734,6 +3734,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_asset":                       secmaster.ResourceAsset(),
 			"huaweicloud_secmaster_catalogue":                   secmaster.ResourceCatalogue(),
 			"huaweicloud_secmaster_clone_playbook_version":      secmaster.ResourceClonePlaybookAndVersion(),
+			"huaweicloud_secmaster_cloud_log_resource":          secmaster.ResourceCloudLogResource(),
 			"huaweicloud_secmaster_collector_channel_group":     secmaster.ResourceCollectorChannelGroup(),
 			"huaweicloud_secmaster_data_object_relations":       secmaster.ResourceDataObjectRelations(),
 			"huaweicloud_secmaster_dataspace":                   secmaster.ResourceDataspace(),
