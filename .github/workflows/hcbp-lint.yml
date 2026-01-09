@@ -38,7 +38,7 @@ jobs:
 
       - name: Lint Terraform Examples
         id: terraform-lint
-        uses: Lance52259/hcbp-scripts-lint@v2
+        uses: chnsz/hcbp-scripts-lint@v3
         with:
           directory: 'examples'
           fail-on-error: 'true'
