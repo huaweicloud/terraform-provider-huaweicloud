@@ -8,9 +8,10 @@ host: huaweicloud.com
 tags:
     - name: CES
 paths:
-    /V1.0/{project_id}/alarms/{id}:
+    /V1.0/{project_id}/alarms/{alarm_id}:
         GET:
             tag: CES
+    /V1.0/{project_id}/alarms/{id}:
         PUT:
             tag: CES
     /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:

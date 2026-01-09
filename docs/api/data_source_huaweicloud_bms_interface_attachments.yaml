@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_bms_interface_attachments
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BMS
+paths:
+    /v1/{project_id}/baremetalservers/{server_id}/os-interface:
+        GET:
+            tag: BMS

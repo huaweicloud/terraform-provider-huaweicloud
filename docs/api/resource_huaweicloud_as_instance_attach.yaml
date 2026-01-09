@@ -8,9 +8,9 @@ host: huaweicloud.com
 tags:
     - name: AS
 paths:
-    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action:
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/action:
         POST:
             tag: AS
-    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list:
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list:
         GET:
             tag: AS

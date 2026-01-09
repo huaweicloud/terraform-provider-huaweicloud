@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_workflow_version_validation
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/workflows/validation:
+        POST:
+            tag: SecMaster

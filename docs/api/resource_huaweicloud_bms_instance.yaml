@@ -19,6 +19,9 @@ paths:
             tag: BMS
         PUT:
             tag: BMS
+    /v1/{project_id}/baremetalservers/{server_id}/changeos:
+        POST:
+            tag: BMS
     /v1/{project_id}/baremetalservers/{server_id}/metadata:
         POST:
             tag: BMS
@@ -32,6 +35,9 @@ paths:
         GET:
             tag: BMS
     /v1/{project_id}/baremetalservers/{server_id}/tags/action:
+        POST:
+            tag: BMS
+    /v1/{project_id}/baremetalservers/action:
         POST:
             tag: BMS
     /v1/{project_id}/jobs/{job_id}:

@@ -20,8 +20,6 @@ paths:
     /v1.1/{project_id}/cluster_infos/{cluster_id}:
         GET:
             tag: MRS
-        PUT:
-            tag: MRS
     /v1.1/{project_id}/clusters/{cluster_id}:
         DELETE:
             tag: MRS
@@ -42,4 +40,10 @@ paths:
             tag: MRS
     /v2/{project_id}/clusters/{cluster_id}/cluster-name:
         PUT:
+            tag: MRS
+    /v2/{project_id}/clusters/{cluster_id}/expand:
+        POST:
+            tag: MRS
+    /v2/{project_id}/clusters/{cluster_id}/shrink:
+        POST:
             tag: MRS

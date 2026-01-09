@@ -11,3 +11,6 @@ paths:
     /v1/{project_id}/service/apis/{api_id}/instances/{instance_id}/publish:
         POST:
             tag: DataArtsStudio
+    /v1/{project_id}/service/apis/{api_id}/publish-info:
+        GET:
+            tag: DataArtsStudio

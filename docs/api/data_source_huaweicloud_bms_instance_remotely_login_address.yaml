@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_bms_instance_remotely_login_address
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BMS
+paths:
+    /v1/{project_id}/baremetalservers/{server_id}/remote_console:
+        POST:
+            tag: BMS

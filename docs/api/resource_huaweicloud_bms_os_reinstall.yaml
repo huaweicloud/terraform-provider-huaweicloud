@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_bms_os_reinstall
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BMS
+paths:
+    /v1/{project_id}/baremetalservers/{server_id}/reinstallos:
+        POST:
+            tag: BMS
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: BMS
