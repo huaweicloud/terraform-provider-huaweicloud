@@ -1542,6 +1542,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_vulnerability_host_hosts":                   hss.DataSourceVulnerabilityHostHosts(),
 			"huaweicloud_hss_vulnerability_task_statistics":              hss.DataSourceHssVulnerabilityTaskStatistics(),
 			"huaweicloud_hss_vulnerability_urgent_vulnerabilities":       hss.DataSourceVulnerabilityUrgentVulnerabilities(),
+			"huaweicloud_hss_vulnerability_whitelist_options":            hss.DataSourceVulnerabilityWhiteListOptions(),
 			"huaweicloud_hss_webtamper_hosts":                            hss.DataSourceWebTamperHosts(),
 			"huaweicloud_hss_webtamper_host_management_hosts":            hss.DataSourceWebTamperHostManagementHosts(),
 			"huaweicloud_hss_webtamper_protection_statistics":            hss.DataSourceWebtamperProtectionStatistics(),
