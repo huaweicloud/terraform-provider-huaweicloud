@@ -1472,6 +1472,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_event_system_user_white_lists":              hss.DataSourceEventSystemUserWhiteLists(),
 			"huaweicloud_hss_event_login_white_lists":                    hss.DataSourceEventLoginWhiteLists(),
 			"huaweicloud_hss_event_alarm_white_lists":                    hss.DataSourceEventAlarmWhiteLists(),
+			"huaweicloud_hss_event_types":                                hss.DataSourceEventTypes(),
 			"huaweicloud_hss_event_unblock_ips":                          hss.DataSourceEventUnblockIps(),
 			"huaweicloud_hss_files_change_hosts":                         hss.DataSourceFilesChangeHosts(),
 			"huaweicloud_hss_files_statistic":                            hss.DataSourceFilesStatistic(),
