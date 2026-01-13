@@ -1488,6 +1488,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_whitelists":                           hss.DataSourceImageWhitelists(),
 			"huaweicloud_hss_image_apps":                                 hss.DataSourceImageApps(),
 			"huaweicloud_hss_image_local_apps":                           hss.DataSourceImageLocalApps(),
+			"huaweicloud_hss_image_non_compliant_app":                    hss.DataSourceImageNonCompliantApp(),
 			"huaweicloud_hss_image_files_statistics":                     hss.DataSourceImageFilesStatistics(),
 			"huaweicloud_hss_kubernetes_services":                        hss.DataSourceKubernetesServices(),
 			"huaweicloud_hss_malware_collect_status":                     hss.DataSourceHssMalwareCollectStatus(),
