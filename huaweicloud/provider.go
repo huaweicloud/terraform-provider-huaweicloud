@@ -529,6 +529,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_instance_domains":            aad.DataSourceInstanceDomains(),
 			"huaweicloud_aad_source_ips":                  aad.DataSourceAadSourceIps(),
 			"huaweicloud_aad_domain_certificate":          aad.DataSourceAadDomainCertificate(),
+			"huaweicloud_aad_domain_global_config":        aad.DataSourceAadDomainGlobalConfig(),
 			"huaweicloud_aad_policy_black_white_lists":    aad.DataSourcePolicyBlackWhiteLists(),
 			"huaweicloud_aad_bandwidth_curve":             aad.DataSourceBandwidthCurve(),
 			"huaweicloud_aad_custom_rules":                aad.DataSourceCustomRules(),
