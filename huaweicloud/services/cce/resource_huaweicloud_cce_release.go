@@ -64,22 +64,12 @@ func ResourceRelease() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"values": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"image_pull_policy": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"image_tag": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
+			"values_json": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"values_json", "values"},
+				ValidateFunc: validation.StringIsJSON,
+				Description:  "schema: Required",
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -130,6 +120,27 @@ func ResourceRelease() *schema.Resource {
 					},
 				},
 			},
+			"values": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"image_pull_policy": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"image_tag": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+				Description: utils.SchemaDesc(``,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -172,7 +183,7 @@ func ResourceRelease() *schema.Resource {
 	}
 }
 
-func buildCreateReleaseBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateReleaseBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
 	bodyParams := map[string]interface{}{
 		"chart_id":    d.Get("chart_id"),
 		"name":        d.Get("name"),
@@ -183,7 +194,15 @@ func buildCreateReleaseBodyParams(d *schema.ResourceData) map[string]interface{}
 		"parameters":  buildReleaseParametersParams(d),
 	}
 
-	return bodyParams
+	if v, ok := d.GetOk("values_json"); ok {
+		valuesJson := utils.StringToJson(v.(string))
+		if valuesJson == nil {
+			return nil, errors.New("unable to convert the JSON string of values_json to the map object")
+		}
+		bodyParams["values"] = valuesJson
+	}
+
+	return bodyParams, nil
 }
 
 func buildReleaseValuesParams(d *schema.ResourceData) map[string]interface{} {
@@ -230,7 +249,11 @@ func resourceReleaseCreate(ctx context.Context, d *schema.ResourceData, meta int
 		KeepResponseBody: true,
 	}
 
-	createReleaseOpt.JSONBody = utils.RemoveNil(buildCreateReleaseBodyParams(d))
+	bodyParams, err := buildCreateReleaseBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	createReleaseOpt.JSONBody = utils.RemoveNil(bodyParams)
 	_, err = createReleaseClient.Request("POST", createReleasePath, &createReleaseOpt)
 	if err != nil {
 		return diag.Errorf("error creating CCE release: %s", err)
@@ -292,7 +315,7 @@ func resourceReleaseRead(_ context.Context, d *schema.ResourceData, meta interfa
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildUpdateReleaseBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateReleaseBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
 	bodyParams := map[string]interface{}{
 		"chart_id":   d.Get("chart_id"),
 		"action":     d.Get("action"),
@@ -300,7 +323,14 @@ func buildUpdateReleaseBodyParams(d *schema.ResourceData) map[string]interface{}
 		"parameters": buildReleaseParametersParams(d),
 	}
 
-	return bodyParams
+	if v, ok := d.GetOk("values_json"); ok {
+		valuesJson := utils.StringToJson(v.(string))
+		if valuesJson == nil {
+			return nil, errors.New("unable to convert the JSON string of values_json to the map object")
+		}
+		bodyParams["values"] = valuesJson
+	}
+	return bodyParams, nil
 }
 
 func resourceReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -325,7 +355,11 @@ func resourceReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		KeepResponseBody: true,
 	}
 
-	updateReleaseOpt.JSONBody = utils.RemoveNil(buildUpdateReleaseBodyParams(d))
+	bodyParams, err := buildUpdateReleaseBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	updateReleaseOpt.JSONBody = utils.RemoveNil(bodyParams)
 	_, err = updateReleaseClient.Request("PUT", updateReleasePath, &updateReleaseOpt)
 	if err != nil {
 		return diag.Errorf("error updating CCE release: %s", err)

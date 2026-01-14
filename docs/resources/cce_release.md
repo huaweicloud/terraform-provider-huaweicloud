@@ -26,10 +26,17 @@ resource "huaweicloud_cce_release" "test" {
   namespace  = "default"
   version    = "4.9.0"
 
-  values {
-    image_tag         = "v1"
-    image_pull_policy = "IfNotPresent"
-  }
+  values_json = jsonencode({
+    "key1" : ["value1"]
+    "key2" : "value2"
+    "key3" : {
+      "key1" : "value1",
+      "key2" : {
+        "sub_key1" : "sub_value1",
+        "sub_key2" : "sub_value2"
+      }
+    }
+  })
 
   description = "created by terraform"
 
@@ -56,8 +63,7 @@ The following arguments are supported:
 
 * `version` - (Required, String) Specifies the release version.
 
-* `values` - (Required, List) Specifies the release value.
-  The [values](#cce_release_values) structure is documented below.
+* `values_json` - (Required, String) Specifies the release value. It's a JSON string.
 
 * `description` - (Optional, String) Specifies the release description.
 
@@ -66,13 +72,6 @@ The following arguments are supported:
 
 * `action` - (Optional, String) Specifies the release updating action, only works when updating the release.
   The value can be: **upgrade** or **rollback**.
-
-<a name="cce_release_values"></a>
-The `values` block supports:
-
-* `image_pull_policy` - (Optional, String) Specifies the image pull policy.
-
-* `image_tag` - (Optional, String) Specifies the image tag.
 
 <a name="cce_release_parameters"></a>
 The `parameters` block supports:
@@ -126,7 +125,7 @@ $ terraform import huaweicloud_cce_release.test <cluster_id>/<namespace>/<chart_
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`version`, `values`, `chart_id`, `description`, `parameters` and `action`. It is generally recommended running
+`version`, `values_json`, `chart_id`, `description`, `parameters` and `action`. It is generally recommended running
 `terraform plan` after importing an CCE release. You can then decide if changes should be applied to the release,
 or the resource definition should be updated to align with the release. Also you can ignore changes as below.
 
