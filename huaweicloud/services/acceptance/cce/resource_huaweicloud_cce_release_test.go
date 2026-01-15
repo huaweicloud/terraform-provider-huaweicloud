@@ -89,7 +89,7 @@ func TestAccRelease_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCEReleaseImportStateIdFunc("default", name),
 				ImportStateVerifyIgnore: []string{
-					"version", "values", "chart_id", "description", "parameters",
+					"version", "values_json", "chart_id", "description", "parameters",
 				},
 			},
 		},
@@ -122,10 +122,19 @@ resource "huaweicloud_cce_release" "test" {
   namespace  = "default"
   version    = "4.9.0"
 
-  values {
-    image_tag         = "v1"
-    image_pull_policy = "IfNotPresent"
-  }
+  values_json = jsonencode({
+    "key1" : ["value1"]
+    "key2" : "value2"
+    "key3" : "value3"
+    "key4" : {
+      "key1" : "value1",
+      "key2" : "value2",
+      "key3" : {
+         "sub_key1" : "sub_value1",
+         "sub_key2" : "sub_value2"
+      }
+    }
+  })
 
   description = "created by terraform"
 
