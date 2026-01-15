@@ -1186,6 +1186,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_nameservers":                  dns.DataSourceNameservers(),
 			"huaweicloud_dns_quotas":                       dns.DataSourceQuotas(),
 			"huaweicloud_dns_recordsets":                   dns.DataSourceRecordsets(),
+			"huaweicloud_dns_resolver_access_logs":         dns.DataSourceResolverAccessLogs(),
 			"huaweicloud_dns_resolver_rules":               dns.DataSourceDNSResolverRules(),
 			"huaweicloud_dns_system_lines":                 dns.DataSourceSystemLines(),
 			"huaweicloud_dns_zones":                        dns.DataSourceZones(),
