@@ -1193,6 +1193,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zone_nameservers":             dns.DataSourceZoneNameservers(),
 			"huaweicloud_dns_public_zone_detection_status": dns.DataSourcePublicZoneDetectionStatus(),
 			"huaweicloud_dns_public_zone_lines":            dns.DataSourceDNSPublicZoneLines(),
+			"huaweicloud_dns_public_zone_recordsets":       dns.DataSourcePublicZoneRecordsets(),
 			"huaweicloud_dns_tags":                         dns.DataSourceDNSTags(),
 			"huaweicloud_dns_tags_filter":                  dns.DataSourceDNSTagsFilter(),
 			"huaweicloud_dns_endpoints":                    dns.DataSourceDNSEndpoints(),
