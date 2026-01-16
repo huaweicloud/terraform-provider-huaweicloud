@@ -239,7 +239,7 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "Whether to perform Base64 encoding on the body for interaction with FunctionGraph.",
 			},
 			"request_params": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 50,
@@ -561,7 +561,7 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The web backend details.",
 			},
 			"mock_policy": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				MaxItems:      5,
 				Optional:      true,
 				ConflictsWith: []string{"func_graph", "web", "func_graph_policy", "web_policy"},
@@ -617,7 +617,7 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The mock policy backends.",
 			},
 			"func_graph_policy": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				MaxItems:      5,
 				Optional:      true,
 				ConflictsWith: []string{"mock", "web", "mock_policy", "web_policy"},
@@ -719,7 +719,7 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The policy backends of the FunctionGraph function.",
 			},
 			"web_policy": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				MaxItems:      5,
 				Optional:      true,
 				ConflictsWith: []string{"mock", "func_graph", "mock_policy", "func_graph_policy"},
@@ -828,6 +828,92 @@ func ResourceApigAPIV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the API.",
+			},
+
+			// Internal attributes.
+			"request_params_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the request parameter.",
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of request parameters that used to reorder the 'request_params' parameter.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"func_graph_policy_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the function graph policy.",
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of function graph policies that used to reorder the 'func_graph_policy' parameter.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"web_policy_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the web policy.",
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of web policies that used to reorder the 'web_policy' parameter.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"mock_policy_order": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the mock policy.",
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The origin list of mock policies that used to reorder the 'mock_policy' parameter.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -1031,13 +1117,13 @@ func buildWebStructure(webs []interface{}) *apis.Web {
 	return &webResp
 }
 
-func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
-	if requests.Len() < 1 {
+func buildRequestParameters(requests []interface{}) []apis.ReqParamBase {
+	if len(requests) < 1 {
 		return nil
 	}
 
-	result := make([]apis.ReqParamBase, requests.Len())
-	for i, v := range requests.List() {
+	result := make([]apis.ReqParamBase, 0, len(requests))
+	for _, v := range requests {
 		paramMap := v.(map[string]interface{})
 		paramType := paramMap["type"].(string)
 		param := apis.ReqParamBase{
@@ -1061,7 +1147,7 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 			param.MaxSize = utils.Int(paramMap["maximum"].(int))
 			param.MinSize = utils.Int(paramMap["minimum"].(int))
 		}
-		result[i] = param
+		result = append(result, param)
 	}
 	return result
 }
@@ -1142,19 +1228,19 @@ func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
 	return result
 }
 
-func buildMockPolicy(policies *schema.Set) ([]apis.PolicyMock, error) {
-	if policies.Len() < 1 {
+func buildMockPolicy(policies []interface{}) ([]apis.PolicyMock, error) {
+	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyMock, policies.Len())
-	for i, policy := range policies.List() {
+	result := make([]apis.PolicyMock, 0, len(policies))
+	for _, policy := range policies {
 		pm := policy.(map[string]interface{})
 		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
 		if err != nil {
 			return nil, err
 		}
-		result[i] = apis.PolicyMock{
+		result = append(result, apis.PolicyMock{
 			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
 			Name:          pm["name"].(string),
 			StatusCode:    pm["status_code"].(int),
@@ -1162,7 +1248,7 @@ func buildMockPolicy(policies *schema.Set) ([]apis.PolicyMock, error) {
 			EffectMode:    pm["effective_mode"].(string),
 			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
 			BackendParams: params,
-		}
+		})
 	}
 	return result, nil
 }
@@ -1175,19 +1261,19 @@ func buildInvocationType(invocationType, invocationMode string) string {
 	return invocationType
 }
 
-func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) {
-	if policies.Len() < 1 {
+func buildFuncGraphPolicy(policies []interface{}) ([]apis.PolicyFuncGraph, error) {
+	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyFuncGraph, policies.Len())
-	for i, policy := range policies.List() {
+	result := make([]apis.PolicyFuncGraph, 0, len(policies))
+	for _, policy := range policies {
 		pm := policy.(map[string]interface{})
 		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
 		if err != nil {
 			return nil, err
 		}
-		result[i] = apis.PolicyFuncGraph{
+		result = append(result, apis.PolicyFuncGraph{
 			AuthorizerId:     utils.String(pm["authorizer_id"].(string)),
 			Name:             pm["name"].(string),
 			FunctionUrn:      pm["function_urn"].(string),
@@ -1200,18 +1286,18 @@ func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) 
 			Version:          pm["version"].(string),
 			Conditions:       buildPolicyConditions(pm["conditions"].(*schema.Set)),
 			BackendParams:    params,
-		}
+		})
 	}
 	return result, nil
 }
 
-func buildApigAPIWebPolicy(policies *schema.Set) ([]apis.PolicyWeb, error) {
-	if policies.Len() < 1 {
+func buildApigAPIWebPolicy(policies []interface{}) ([]apis.PolicyWeb, error) {
+	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyWeb, policies.Len())
-	for i, policy := range policies.List() {
+	result := make([]apis.PolicyWeb, 0, len(policies))
+	for _, policy := range policies {
 		pm := policy.(map[string]interface{})
 		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
 		if err != nil {
@@ -1241,7 +1327,7 @@ func buildApigAPIWebPolicy(policies *schema.Set) ([]apis.PolicyWeb, error) {
 				wp.VpcChannelStatus = strBoolDisabled
 			}
 		}
-		result[i] = wp
+		result = append(result, wp)
 	}
 	return result, nil
 }
@@ -1264,7 +1350,7 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		ResultNormalSample:  utils.String(d.Get("success_response").(string)),
 		ResultFailureSample: utils.String(d.Get("failure_response").(string)),
 		ResponseId:          d.Get("response_id").(string),
-		ReqParams:           buildRequestParameters(d.Get("request_params").(*schema.Set)),
+		ReqParams:           buildRequestParameters(d.Get("request_params").([]interface{})),
 		Tags:                utils.ExpandToStringListBySet(d.Get("tags").((*schema.Set))),
 		ContentType:         d.Get("content_type").(string),
 		IsSendFgBodyBase64:  utils.Bool(d.Get("is_send_fg_body_base64").(bool)),
@@ -1301,7 +1387,7 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		}
 		opt.BackendParams = params
 		opt.MockInfo = buildMockStructure(m.([]interface{}))
-		policy, err := buildMockPolicy(d.Get("mock_policy").(*schema.Set))
+		policy, err := buildMockPolicy(d.Get("mock_policy").([]interface{}))
 		if err != nil {
 			return opt, err
 		}
@@ -1314,7 +1400,7 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		}
 		opt.BackendParams = params
 		opt.FuncInfo = buildFuncGraphStructure(fg.([]interface{}))
-		policy, err := buildFuncGraphPolicy(d.Get("func_graph_policy").(*schema.Set))
+		policy, err := buildFuncGraphPolicy(d.Get("func_graph_policy").([]interface{}))
 		if err != nil {
 			return opt, err
 		}
@@ -1327,7 +1413,7 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		}
 		opt.BackendParams = params
 		opt.WebInfo = buildWebStructure(d.Get("web").([]interface{}))
-		policy, err := buildApigAPIWebPolicy(d.Get("web_policy").(*schema.Set))
+		policy, err := buildApigAPIWebPolicy(d.Get("web_policy").([]interface{}))
 		if err != nil {
 			return opt, err
 		}
@@ -1338,9 +1424,54 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 	return opt, nil
 }
 
+func buildSliceParamOrderByElementName(requestParams []interface{}) []interface{} {
+	if len(requestParams) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(requestParams))
+	for _, v := range requestParams {
+		name := utils.PathSearch("name", v, "").(string)
+		if name != "" {
+			result = append(result, map[string]interface{}{
+				"name": name,
+			})
+		}
+	}
+	return result
+}
+
+func updateAllOriginParameters(d *schema.ResourceData) error {
+	var (
+		rawConfig            = d.GetRawConfig()
+		requestParamsOrigin  = buildSliceParamOrderByElementName(utils.GetNestedObjectFromRawConfig(rawConfig, "request_params").([]interface{}))
+		funcGraphPolicyOrder = buildSliceParamOrderByElementName(utils.GetNestedObjectFromRawConfig(rawConfig, "func_graph_policy").([]interface{}))
+		webPolicyOrder       = buildSliceParamOrderByElementName(utils.GetNestedObjectFromRawConfig(rawConfig, "web_policy").([]interface{}))
+		mockPolicyOrder      = buildSliceParamOrderByElementName(utils.GetNestedObjectFromRawConfig(rawConfig, "mock_policy").([]interface{}))
+	)
+
+	if len(requestParamsOrigin) > 0 {
+		d.Set("request_params_order", requestParamsOrigin)
+	}
+	if len(funcGraphPolicyOrder) > 0 {
+		d.Set("func_graph_policy_order", funcGraphPolicyOrder)
+	}
+	if len(webPolicyOrder) > 0 {
+		d.Set("web_policy_order", webPolicyOrder)
+	}
+	if len(mockPolicyOrder) > 0 {
+		d.Set("mock_policy_order", mockPolicyOrder)
+	}
+	return nil
+}
+
 func resourceApiCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
+	)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -1349,12 +1480,15 @@ func resourceApiCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("unable to build the API create opts: %s", err)
 	}
-	instanceId := d.Get("instance_id").(string)
 	resp, err := apis.Create(client, instanceId, opt).Extract()
 	if err != nil {
 		return diag.Errorf("error creating API: %s", err)
 	}
 	d.SetId(resp.ID)
+
+	if err = updateAllOriginParameters(d); err != nil {
+		log.Printf("[ERROR] error updating all origin parameters: %s", err)
+	}
 
 	return resourceApiRead(ctx, d, meta)
 }
@@ -1458,13 +1592,42 @@ func parseObjectEnabled(objStatus int) bool {
 	return false
 }
 
-func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interface{} {
+func orderRequestParamsByRequestParamsOrder(reqParams []apis.ReqParamResp, requestParamsOrigin []interface{}) []apis.ReqParamResp {
+	if len(requestParamsOrigin) < 1 {
+		return reqParams
+	}
+
+	sortedReqParams := make([]apis.ReqParamResp, 0, len(reqParams))
+	requestParamsCopy := reqParams
+
+	for _, requestParamOrigin := range requestParamsOrigin {
+		nameOrigin := utils.PathSearch("name", requestParamOrigin, "").(string)
+		for index, requestParam := range requestParamsCopy {
+			if requestParam.Name != nameOrigin {
+				continue
+			}
+			// Add the found request parameter to the sorted request parameters list.
+			sortedReqParams = append(sortedReqParams, requestParamsCopy[index])
+			// Remove the processed request parameter from the original request parameters array.
+			requestParamsCopy = append(requestParamsCopy[:index], requestParamsCopy[index+1:]...)
+		}
+	}
+	// Add any remaining unsorted request parameters to the end of the sorted list.
+	sortedReqParams = append(sortedReqParams, requestParamsCopy...)
+	return sortedReqParams
+}
+
+func flattenApiRequestParams(reqParams []apis.ReqParamResp, requestParamsOrder []interface{}) []map[string]interface{} {
 	if len(reqParams) < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(reqParams))
-	for i, v := range reqParams {
+	if len(requestParamsOrder) > 0 {
+		reqParams = orderRequestParamsByRequestParamsOrder(reqParams, requestParamsOrder)
+	}
+
+	result := make([]map[string]interface{}, 0, len(reqParams))
+	for _, v := range reqParams {
 		param := map[string]interface{}{
 			"name":           v.Name,
 			"location":       v.Location,
@@ -1486,7 +1649,7 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 			param["maximum"] = v.MaxSize
 			param["minimum"] = v.MinSize
 		}
-		result[i] = param
+		result = append(result, param)
 	}
 	return result
 }
@@ -1572,27 +1735,43 @@ func flattenPolicyConditions(conditions []apis.APIConditionBase) []map[string]in
 	return result
 }
 
-func flattenMockPolicy(policies []apis.PolicyMockResp) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
-			"name":           policy.Name,
-			"status_code":    policy.StatusCode,
-			"response":       policy.ResultContent,
-			"effective_mode": policy.EffectMode,
-			"authorizer_id":  policy.AuthorizerId,
-			"backend_params": flattenBackendParameters(policy.BackendParams),
-			"conditions":     flattenPolicyConditions(policy.Conditions),
-		}
+func orderFuncGraphPolicyByFuncGraphPolicyOrder(policies []apis.PolicyFuncGraphResp, funcGraphPolicyOrigin []interface{}) []apis.PolicyFuncGraphResp {
+	if len(funcGraphPolicyOrigin) < 1 {
+		return policies
 	}
 
-	return result
+	sortedPolicies := make([]apis.PolicyFuncGraphResp, 0, len(policies))
+	funcGraphPolicyCopy := policies
+
+	for _, funcGraphPolicyOrigin := range funcGraphPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", funcGraphPolicyOrigin, "").(string)
+		for index, funcGraphPolicy := range funcGraphPolicyCopy {
+			if funcGraphPolicy.Name != nameOrigin {
+				continue
+			}
+			// Add the found func graph policy to the sorted func graph policies list.
+			sortedPolicies = append(sortedPolicies, funcGraphPolicyCopy[index])
+			// Remove the processed func graph policy from the original func graph policies array.
+			funcGraphPolicyCopy = append(funcGraphPolicyCopy[:index], funcGraphPolicyCopy[index+1:]...)
+		}
+	}
+	// Add any remaining unsorted func graph policies to the end of the sorted list.
+	sortedPolicies = append(sortedPolicies, funcGraphPolicyCopy...)
+	return sortedPolicies
 }
 
-func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
+func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp, funcGraphPolicyOrder []interface{}) []map[string]interface{} {
+	if len(policies) < 1 {
+		return nil
+	}
+
+	if len(funcGraphPolicyOrder) > 0 {
+		policies = orderFuncGraphPolicyByFuncGraphPolicyOrder(policies, funcGraphPolicyOrder)
+	}
+
+	result := make([]map[string]interface{}, 0, len(policies))
+	for _, policy := range policies {
+		result = append(result, map[string]interface{}{
 			"name":               policy.Name,
 			"function_urn":       policy.FunctionUrn,
 			"function_alias_urn": policy.FunctionAliasUrn,
@@ -1605,13 +1784,43 @@ func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp) []map[string]in
 			"authorizer_id":      policy.AuthorizerId,
 			"backend_params":     flattenBackendParameters(policy.BackendParams),
 			"conditions":         flattenPolicyConditions(policy.Conditions),
-		}
+		})
 	}
 
 	return result
 }
 
-func flattenWebPolicy(policies []apis.PolicyWebResp) []map[string]interface{} {
+func orderWebPolicyByWebPolicyOrder(policies []apis.PolicyWebResp, webPolicyOrigin []interface{}) []apis.PolicyWebResp {
+	if len(webPolicyOrigin) < 1 {
+		return policies
+	}
+
+	sortedPolicies := make([]apis.PolicyWebResp, 0, len(policies))
+	webPolicyCopy := policies
+
+	for _, webPolicyOrigin := range webPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", webPolicyOrigin, "").(string)
+		for index, webPolicy := range webPolicyCopy {
+			if webPolicy.Name != nameOrigin {
+				continue
+			}
+			sortedPolicies = append(sortedPolicies, webPolicyCopy[index])
+			webPolicyCopy = append(webPolicyCopy[:index], webPolicyCopy[index+1:]...)
+		}
+	}
+	sortedPolicies = append(sortedPolicies, webPolicyCopy...)
+	return sortedPolicies
+}
+
+func flattenWebPolicy(policies []apis.PolicyWebResp, webPolicyOrder []interface{}) []map[string]interface{} {
+	if len(policies) < 1 {
+		return nil
+	}
+
+	if len(webPolicyOrder) > 0 {
+		policies = orderWebPolicyByWebPolicyOrder(policies, webPolicyOrder)
+	}
+
 	result := make([]map[string]interface{}, len(policies))
 	for i, policy := range policies {
 		retryCount := policy.RetryCount
@@ -1641,12 +1850,66 @@ func flattenWebPolicy(policies []apis.PolicyWebResp) []map[string]interface{} {
 	return result
 }
 
+func orderMockPolicyByMockPolicyOrder(policies []apis.PolicyMockResp, mockPolicyOrigin []interface{}) []apis.PolicyMockResp {
+	if len(mockPolicyOrigin) < 1 {
+		return policies
+	}
+
+	sortedPolicies := make([]apis.PolicyMockResp, 0, len(policies))
+	mockPolicyCopy := policies
+
+	for _, mockPolicyOrigin := range mockPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", mockPolicyOrigin, "").(string)
+		for index, mockPolicy := range mockPolicyCopy {
+			if mockPolicy.Name != nameOrigin {
+				continue
+			}
+			// Add the found mock policy to the sorted mock policies list.
+			sortedPolicies = append(sortedPolicies, mockPolicyCopy[index])
+			// Remove the processed mock policy from the original mock policies array.
+			mockPolicyCopy = append(mockPolicyCopy[:index], mockPolicyCopy[index+1:]...)
+		}
+	}
+	// Add any remaining unsorted mock policies to the end of the sorted list.
+	sortedPolicies = append(sortedPolicies, mockPolicyCopy...)
+	return sortedPolicies
+}
+
+func flattenMockPolicy(policies []apis.PolicyMockResp, mockPolicyOrigin []interface{}) []map[string]interface{} {
+	if len(policies) < 1 {
+		return nil
+	}
+
+	if len(mockPolicyOrigin) > 0 {
+		policies = orderMockPolicyByMockPolicyOrder(policies, mockPolicyOrigin)
+	}
+
+	result := make([]map[string]interface{}, 0, len(policies))
+	for _, policy := range policies {
+		result = append(result, map[string]interface{}{
+			"name":           policy.Name,
+			"status_code":    policy.StatusCode,
+			"response":       policy.ResultContent,
+			"effective_mode": policy.EffectMode,
+			"authorizer_id":  policy.AuthorizerId,
+			"backend_params": flattenBackendParameters(policy.BackendParams),
+			"conditions":     flattenPolicyConditions(policy.Conditions),
+		})
+	}
+
+	return result
+}
+
 func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		instanceId = d.Get("instance_id").(string)
-		apiId      = d.Id()
+		cfg                   = meta.(*config.Config)
+		region                = cfg.GetRegion(d)
+		instanceId            = d.Get("instance_id").(string)
+		apiId                 = d.Id()
+		requestParamsOrigin   = d.Get("request_params_order").([]interface{})
+		funcGraphPolicyOrigin = d.Get("func_graph_policy_order").([]interface{})
+		webPolicyOrigin       = d.Get("web_policy_order").([]interface{})
+		mockPolicyOrigin      = d.Get("mock_policy_order").([]interface{})
 	)
 	client, err := cfg.ApigV2Client(region)
 	if err != nil {
@@ -1677,16 +1940,16 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("failure_response", resp.ResultFailureSample),
 		d.Set("response_id", resp.ResponseId),
 		d.Set("type", analyseApiType(resp.Type)),
-		d.Set("request_params", flattenApiRequestParams(resp.ReqParams)),
+		d.Set("request_params", flattenApiRequestParams(resp.ReqParams, requestParamsOrigin)),
 		d.Set("backend_params", flattenBackendParameters(resp.BackendParams)),
 		d.Set("matching", analyseApiMatchMode(resp.MatchMode)),
 		d.Set("simple_authentication", analyseAppSimpleAuth(resp.AuthOpt)),
 		d.Set("mock", flattenMockStructure(resp.MockInfo)),
-		d.Set("mock_policy", flattenMockPolicy(resp.PolicyMocks)),
 		d.Set("func_graph", flattenFuncGraphStructure(resp.FuncInfo)),
-		d.Set("func_graph_policy", flattenFuncGraphPolicy(resp.PolicyFunctions)),
+		d.Set("func_graph_policy", flattenFuncGraphPolicy(resp.PolicyFunctions, funcGraphPolicyOrigin)),
 		d.Set("web", flattenWebStructure(resp.WebInfo, d.Get("web.0.ssl_enable").(bool))),
-		d.Set("web_policy", flattenWebPolicy(resp.PolicyWebs)),
+		d.Set("web_policy", flattenWebPolicy(resp.PolicyWebs, webPolicyOrigin)),
+		d.Set("mock_policy", flattenMockPolicy(resp.PolicyMocks, mockPolicyOrigin)),
 		d.Set("registered_at", resp.RegisterTime),
 		d.Set("updated_at", resp.UpdateTime),
 	)
@@ -1697,16 +1960,17 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 }
 
 func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
+		apiId      = d.Id()
+	)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		instanceId = d.Get("instance_id").(string)
-		apiId      = d.Id()
-	)
 	opt, err := buildApiCreateOpts(d)
 	if err != nil {
 		return diag.Errorf("unable to build the API updateOpts: %s", err)
@@ -1714,6 +1978,10 @@ func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	_, err = apis.Update(client, instanceId, apiId, opt).Extract()
 	if err != nil {
 		return diag.Errorf("error updating API (%s): %s", apiId, err)
+	}
+
+	if err = updateAllOriginParameters(d); err != nil {
+		log.Printf("[ERROR] error updating all origin parameters: %s", err)
 	}
 
 	return resourceApiRead(ctx, d, meta)

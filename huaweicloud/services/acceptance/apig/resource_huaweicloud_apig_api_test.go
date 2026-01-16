@@ -72,20 +72,20 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "description", "Created by script"),
 					resource.TestCheckResourceAttr(webBackend, "tags.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "tags.0", "foo"),
-					resource.TestCheckResourceAttr(webBackend, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.name", "X-Service-Num"),
-					resource.TestCheckResourceAttr(webBackend, "request_params.0.type", "STRING"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.0.type", "NUMBER"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.location", "HEADER"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.maximum", "20"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.minimum", "10"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.example", "TERRAFORM01"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.passthrough", "true"),
 					resource.TestCheckResourceAttr(webBackend, "request_params.0.valid_enable", "1"),
-					resource.TestCheckResourceAttr(webBackend, "backend_params.#", "1"),
-					resource.TestCheckResourceAttr(webBackend, "backend_params.0.type", "REQUEST"),
-					resource.TestCheckResourceAttr(webBackend, "backend_params.0.name", "SerivceNum"),
-					resource.TestCheckResourceAttr(webBackend, "backend_params.0.location", "HEADER"),
-					resource.TestCheckResourceAttr(webBackend, "backend_params.0.value", "X-Service-Num"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.1.name", "X-Service-Name"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.1.type", "STRING"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.1.location", "HEADER"),
+					resource.TestCheckResourceAttr(webBackend, "request_params.1.required", "true"),
+					resource.TestCheckResourceAttr(webBackend, "backend_params.#", "2"),
 					resource.TestCheckResourceAttr(webBackend, "web.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.path", "/web/test/backend"),
 					resource.TestCheckResourceAttrPair(webBackend, "web.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
@@ -134,8 +134,9 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "request_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "backend_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.#", "1"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.version", "huaweicloud_fgs_function.test.1", "versions.0.name"),
+					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph.0.function_urn"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.function_alias_urn",
+						"huaweicloud_apig_custom_authorizer.backend", "function_alias_uri"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.network_type", "V2"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "5000"),
@@ -143,9 +144,9 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.name", name+"_fgs_policy"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.version",
-						"huaweicloud_fgs_function.test.1", "versions.0.name"),
+					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph_policy.0.function_urn"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_alias_urn",
+						"huaweicloud_apig_custom_authorizer.backend", "function_alias_uri"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.network_type", "V2"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.timeout", "5000"),
@@ -286,8 +287,9 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "request_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "backend_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.#", "1"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
-					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph.0.function_alias_urn"),
+					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph.0.function_urn"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.function_alias_urn",
+						"huaweicloud_apig_custom_authorizer.backend", "function_alias_uri"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.network_type", "V2"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "6000"),
@@ -295,8 +297,9 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.name", updateName+"_fgs_policy"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
-					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph_policy.0.function_alias_urn"),
+					resource.TestCheckResourceAttrSet(fgsBackend, "func_graph_policy.0.function_urn"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_alias_urn",
+						"huaweicloud_apig_custom_authorizer.backend", "function_alias_uri"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.network_type", "V2"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.timeout", "6000"),
@@ -357,18 +360,30 @@ func TestAccApi_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccApiResourceImportStateFunc(webBackend),
+				ImportStateVerifyIgnore: []string{
+					"request_params_order",
+					"web_policy_order",
+				},
 			},
 			{
 				ResourceName:      fgsBackend,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccApiResourceImportStateFunc(fgsBackend),
+				ImportStateVerifyIgnore: []string{
+					"request_params_order",
+					"func_graph_policy_order",
+				},
 			},
 			{
 				ResourceName:      mockBackend,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccApiResourceImportStateFunc(mockBackend),
+				ImportStateVerifyIgnore: []string{
+					"request_params_order",
+					"mock_policy_order",
+				},
 			},
 		},
 	})
@@ -471,16 +486,23 @@ resource "huaweicloud_apig_channel" "test" {
   }
 }
 
+locals {
+  front_function_urn_parts             = split(":", huaweicloud_fgs_function.test[0].urn)
+  front_function_urn_without_version   = join(":", slice(local.front_function_urn_parts, 0, length(local.front_function_urn_parts)-1))
+  backend_function_urn_parts           = split(":", huaweicloud_fgs_function.test[0].urn)
+  backend_function_urn_without_version = join(":", slice(local.backend_function_urn_parts, 0, length(local.backend_function_urn_parts)-1))
+}
+
 resource "huaweicloud_apig_custom_authorizer" "front" {
   instance_id        = local.instance_id
   name               = "%[2]s_front"
-  function_urn       = huaweicloud_fgs_function.test[0].urn
-  function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn,
-    tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
+  function_urn       = format("%%s:%%s", local.front_function_urn_without_version,
+    try(tolist(huaweicloud_fgs_function.test[0].versions)[0].name, "latest"))
+  function_alias_uri = format("%%s:!%%s", local.front_function_urn_without_version,
+    try(tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name, "NOT_FOUND"))
   network_type       = "V2"
   type               = "FRONTEND"
   is_body_send       = true
-  user_data          = "Demo"
   cache_age          = 15
 
   identity {
@@ -492,13 +514,13 @@ resource "huaweicloud_apig_custom_authorizer" "front" {
 resource "huaweicloud_apig_custom_authorizer" "backend" {
   instance_id        = local.instance_id
   name               = "%[2]s_backend"
-  function_urn       = huaweicloud_fgs_function.test[0].urn
-  function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn,
-    tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
+  function_urn       = format("%%s:%%s", local.backend_function_urn_without_version,
+    try(tolist(huaweicloud_fgs_function.test[0].versions)[0].name, "latest"))
+  function_alias_uri = format("%%s:!%%s", local.backend_function_urn_without_version,
+    try(tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name, "NOT_FOUND"))
   network_type       = "V2"
   type               = "BACKEND"
   is_body_send       = true
-  user_data          = "Demo"
   cache_age          = 15
 }
 `, common.TestBaseComputeResources(name), name, acceptance.HW_FGS_AGENCY_NAME,
@@ -528,7 +550,7 @@ resource "huaweicloud_apig_api" "web" {
 
   request_params {
     name         = "X-Service-Num"
-    type         = "STRING"
+    type         = "NUMBER"
     location     = "HEADER"
     maximum      = 20
     minimum      = 10
@@ -536,12 +558,26 @@ resource "huaweicloud_apig_api" "web" {
     passthrough  = true
     valid_enable = 1 # enable
   }
+  request_params {
+    name     = "X-Service-Name"
+    type     = "STRING"
+    location = "HEADER"
+    required = true
+  }
 
   backend_params {
-    type     = "REQUEST"
-    name     = "SerivceNum"
-    location = "HEADER"
-    value    = "X-Service-Num"
+    type              = "REQUEST"
+    name              = "SerivceNum"
+    location          = "HEADER"
+    value             = "X-Service-Num"
+    system_param_type = "backend"
+  }
+  backend_params {
+    type              = "REQUEST"
+    name              = "SerivceName"
+    location          = "HEADER"
+    value             = "X-Service-Name"
+    system_param_type = "backend"
   }
 
   web {
@@ -596,25 +632,25 @@ resource "huaweicloud_apig_api" "func_graph" {
   description             = "Created by script"
 
   func_graph {
-    function_urn     = huaweicloud_fgs_function.test[1].urn
-    version          = tolist(huaweicloud_fgs_function.test[1].versions)[0].name
-    network_type     = "V2"
-    request_protocol = "GRPCS"
-    timeout          = 5000
-    invocation_type  = "sync"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+    function_urn       = local.backend_function_urn_without_version
+    function_alias_urn = huaweicloud_apig_custom_authorizer.backend.function_alias_uri
+    network_type       = "V2"
+    request_protocol   = "GRPCS"
+    timeout            = 5000
+    invocation_type    = "sync"
+    authorizer_id      = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   func_graph_policy {
-    name             = "%[2]s_fgs_policy"
-    function_urn     = huaweicloud_fgs_function.test[1].urn
-    version          = tolist(huaweicloud_fgs_function.test[1].versions)[0].name
-    network_type     = "V2"
-    request_protocol = "GRPCS"
-    timeout          = 5000
-    invocation_type  = "sync"
-    effective_mode   = "ANY"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+    name               = "%[2]s_fgs_policy"
+    function_urn       = local.backend_function_urn_without_version
+    function_alias_urn = huaweicloud_apig_custom_authorizer.backend.function_alias_uri
+    network_type       = "V2"
+    request_protocol   = "GRPCS"
+    timeout            = 5000
+    invocation_type    = "sync"
+    effective_mode     = "ANY"
+    authorizer_id      = huaweicloud_apig_custom_authorizer.backend.id
 
     conditions {
       source      = "cookie"
@@ -756,9 +792,8 @@ resource "huaweicloud_apig_api" "func_graph" {
   matching                = "Exact"
 
   func_graph {
-    function_urn       = huaweicloud_fgs_function.test[1].urn
-    function_alias_urn = format("%%s:!%%s", huaweicloud_fgs_function.test[1].urn,
-	  tolist(huaweicloud_fgs_function.test[1].versions)[0].aliases[0].name)
+    function_urn       = local.backend_function_urn_without_version
+    function_alias_urn = huaweicloud_apig_custom_authorizer.backend.function_alias_uri
     network_type       = "V2"
     request_protocol   = "GRPCS"
     timeout            = 6000
@@ -768,9 +803,8 @@ resource "huaweicloud_apig_api" "func_graph" {
 
   func_graph_policy {
     name               = "%[2]s_fgs_policy"
-    function_urn       = huaweicloud_fgs_function.test[1].urn
-    function_alias_urn = format("%%s:!%%s", huaweicloud_fgs_function.test[1].urn,
-	  tolist(huaweicloud_fgs_function.test[1].versions)[0].aliases[0].name)
+    function_urn       = local.backend_function_urn_without_version
+    function_alias_urn = huaweicloud_apig_custom_authorizer.backend.function_alias_uri
     network_type       = "V2"
     request_protocol   = "GRPCS"
     timeout            = 6000
