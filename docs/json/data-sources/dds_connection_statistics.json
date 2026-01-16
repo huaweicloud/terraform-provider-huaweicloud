@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_connection_statistics": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inner_connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true
+              },
+              "outer_connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_connections": {
+                "type": "number",
+                "computed": true
+              },
+              "total_inner_connections": {
+                "type": "number",
+                "computed": true
+              },
+              "total_outer_connections": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

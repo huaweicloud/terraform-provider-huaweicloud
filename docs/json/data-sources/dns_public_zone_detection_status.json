@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_public_zone_detection_status": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "The name of the record set to be detected.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the domain detection.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the record set to be detected.",
+                "optional": true
+              },
+              "zone_id": {
+                "type": "string",
+                "description": "The ID of the public zone.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

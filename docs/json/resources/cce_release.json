@@ -69,6 +69,10 @@
                 "type": "string",
                 "computed": true
               },
+              "values_json": {
+                "type": "string",
+                "required": true
+              },
               "version": {
                 "type": "string",
                 "required": true
@@ -126,10 +130,10 @@
                       "type": "string",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Deprecated\":true};"
                 },
                 "nesting_mode": "list",
-                "min_items": 1,
                 "max_items": 1
               }
             }

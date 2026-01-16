@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_system_lines": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "father_id": "string",
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of system lines that match the filter parameters.",
+                "computed": true
+              },
+              "locale": {
+                "type": "string",
+                "description": "The display language.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the system lines are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

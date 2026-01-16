@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cci_agency": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "computed": true
+              },
+              "duration": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "need_update": {
+                "type": "string",
+                "computed": true
+              },
+              "trust_domain_id": {
+                "type": "string",
+                "computed": true
+              },
+              "trust_domain_name": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCI",
+            "name": "Cloud Container Instance",
+            "catalog": "Containers",
+            "name_cn": "云容器实例",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

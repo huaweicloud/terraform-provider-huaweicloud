@@ -1,0 +1,176 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instance_artifact_details": {
+          "block": {
+            "attributes": {
+              "artifact_id": {
+                "type": "number",
+                "description": "Indicates the artifact ID.",
+                "computed": true
+              },
+              "digest": {
+                "type": "string",
+                "description": "Indicates the digest.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "manifest_media_type": {
+                "type": "string",
+                "description": "Indicates the manifest media type.",
+                "computed": true
+              },
+              "media_type": {
+                "type": "string",
+                "description": "Indicates the media type.",
+                "computed": true
+              },
+              "namespace_id": {
+                "type": "number",
+                "description": "Indicates the namespace ID.",
+                "computed": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "pull_time": {
+                "type": "string",
+                "description": "Indicates the last pull time.",
+                "computed": true
+              },
+              "push_time": {
+                "type": "string",
+                "description": "Indicates the last push time.",
+                "computed": true
+              },
+              "reference": {
+                "type": "string",
+                "description": "Specifies the artifact digest.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository_id": {
+                "type": "number",
+                "description": "Indicates the repository ID.",
+                "computed": true
+              },
+              "repository_name": {
+                "type": "string",
+                "description": "Specifies the repository name.",
+                "required": true
+              },
+              "scan_overview": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "overview": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "complete_percent": "number",
+                            "duration": "number",
+                            "end_time": "string",
+                            "report_id": "string",
+                            "scan_status": "string",
+                            "scanner": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "vendor": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "severity": "string",
+                            "start_time": "string",
+                            "summary": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "fixable": "number",
+                                  "summary": [
+                                    "map",
+                                    "number"
+                                  ],
+                                  "total": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the report scan overview.",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the artifact size, unit is byte.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "artifact_id": "number",
+                      "id": "number",
+                      "name": "string",
+                      "pull_time": "string",
+                      "push_time": "string",
+                      "repository_id": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the artifact version tags.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the artifact type.",
+                "computed": true
+              },
+              "with_scan_overview": {
+                "type": "string",
+                "description": "Specifies whether to return the scan overview infos.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

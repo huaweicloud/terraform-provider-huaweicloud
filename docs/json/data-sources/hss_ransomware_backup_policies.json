@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_ransomware_backup_policies": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enabled": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "operation_definition": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "day_backups": "number",
+                            "max_backups": "number",
+                            "month_backups": "number",
+                            "retention_duration_days": "number",
+                            "timezone": "string",
+                            "week_backups": "number",
+                            "year_backups": "number"
+                          }
+                        ]
+                      ],
+                      "operation_type": "string",
+                      "trigger": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "pattern": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "start_time": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
