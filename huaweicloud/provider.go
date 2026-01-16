@@ -1487,6 +1487,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_files_statistic":                            hss.DataSourceFilesStatistic(),
 			"huaweicloud_hss_honeypot_port_hosts":                        hss.DataSourceHoneypotPortHosts(),
 			"huaweicloud_hss_honeypot_port_policies":                     hss.DataSourceHoneypotPortPolicies(),
+			"huaweicloud_hss_honeypot_port_support_list":                 hss.DataSourceHoneypotPortSupportList(),
 			"huaweicloud_hss_host_groups":                                hss.DataSourceHostGroups(),
 			"huaweicloud_hss_host_statistics":                            hss.DataSourceHostStatistics(),
 			"huaweicloud_hss_host_vulnerabilities":                       hss.DataSourceHssHostVulnerabilities(),
