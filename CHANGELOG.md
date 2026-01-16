@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## 1.85.0 (January 16, 2026)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_release: add `values_json` argument accepting a JSON-formatted string,
+  `values_json` takes precedence over `values`. [GH-8821]
+
+* **New Resource Source:**
+  + `huaweicloud_cci_agency` [GH-8826]
+  + `huaweicloud_rds_distribution` [GH-8274]
+  + `huaweicloud_secmaster_cloud_log_resource` [GH-8792]
+  + `huaweicloud_secmaster_pipe_consumption` [GH-8829]
+  + `huaweicloud_secmaster_search_condition` [GH-8772]
+
+* **New Data Source:**
+  + `huaweicloud_aad_alarm_config` [GH-8819]
+  + `huaweicloud_aad_domain_global_config` [GH-8823]
+  + `huaweicloud_aad_source_ip_list` [GH-8824]
+  + `huaweicloud_dds_connection_statistics` [GH-8825]
+  + `huaweicloud_dds_instance_disk_usage` [GH-8830]
+  + `huaweicloud_dns_public_zone_detection_status` [GH-8806]
+  + `huaweicloud_dns_public_zone_recordsets` [GH-8807]
+  + `huaweicloud_dns_resolver_access_logs` [GH-8800]
+  + `huaweicloud_dns_system_lines` [GH-8801]
+  + `huaweicloud_hss_event_types` [GH-8820]
+  + `huaweicloud_hss_honeypot_port_support_list` [GH-8827]
+  + `huaweicloud_hss_image_local_apps` [GH-8802]
+  + `huaweicloud_hss_image_non_compliant_app` [GH-8818]
+  + `huaweicloud_hss_ransomware_backup_policies` [GH-8815]
+  + `huaweicloud_hss_vulnerability_statistics_affected` [GH-8832]
+  + `huaweicloud_hss_vulnerability_urgent_vulnerabilities` [GH-8808]
+  + `huaweicloud_hss_vulnerability_whitelist_options` [GH-8817]
+  + `huaweicloud_swr_enterprise_instance_artifact_details` [GH-8814]
+
 ## 1.84.0 (January 9, 2026)
 
 * **New Resource:**
