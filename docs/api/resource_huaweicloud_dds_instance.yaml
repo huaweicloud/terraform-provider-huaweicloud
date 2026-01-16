@@ -25,11 +25,8 @@ paths:
             tag: DDS
         POST:
             tag: DDS
-    /v3/{project_id}/instances/{id}/tags:
-        GET:
-            tag: DDS
-    /v3/{project_id}/instances/{id}/tags/action:
-        POST:
+    /v3/{project_id}/instances/{instance_id}:
+        DELETE:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         GET:
@@ -66,10 +63,10 @@ paths:
         PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/modify-port:
-        PUT:
+        POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/modify-security-group:
-        PUT:
+        POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch:
         GET:
@@ -100,10 +97,13 @@ paths:
         GET:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/switch-ssl:
-        PUT:
+        POST:
             tag: DDS
-    /v3/{project_id}/instances/{serverID}:
-        DELETE:
+    /v3/{project_id}/instances/{instance_id}/tags:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/tags/action:
+        POST:
             tag: DDS
     /v3/{project_id}/jobs:
         GET:

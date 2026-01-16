@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dns_resolver_access_logs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2/resolver/queryloggingconfig:
+        GET:
+            tag: DNS

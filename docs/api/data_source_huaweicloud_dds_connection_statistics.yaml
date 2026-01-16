@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dds_connection_statistics
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/instances/{instance_id}/conn-statistics:
+        GET:
+            tag: DDS

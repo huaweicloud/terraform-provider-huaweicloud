@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dns_public_zone_recordsets
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2.1/zones/{zone_id}/email-recordsets:
+        GET:
+            tag: DNS
+    /v2.1/zones/{zone_id}/website-recordsets:
+        GET:
+            tag: DNS
