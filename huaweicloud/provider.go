@@ -1522,6 +1522,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_ransomware_backup_vaults":                   hss.DataSourceRansomwareBackupVaults(),
 			"huaweicloud_hss_ransomware_backup_policies":                 hss.DataSourceRansomwareBackupPolicies(),
 			"huaweicloud_hss_ransomware_backups":                         hss.DataSourceRansomwareBackups(),
+			"huaweicloud_hss_ransomware_backup_detail":                   hss.DataSourceRansomwareBackupDetail(),
 			"huaweicloud_hss_ransomware_protection_policies":             hss.DataSourceRansomwareProtectionPolicies(),
 			"huaweicloud_hss_ransomware_protection_servers":              hss.DataSourceRansomwareProtectionServers(),
 			"huaweicloud_hss_rasp_events":                                hss.DataSourceRaspEvents(),
