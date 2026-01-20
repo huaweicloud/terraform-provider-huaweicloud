@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -460,31 +459,40 @@ func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec 
 }
 
 func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScaleGroups {
-	if v, ok := d.GetOk("extension_scale_groups"); ok {
-		groups := v.([]interface{})
-		res := make([]nodepools.ExtensionScaleGroups, len(groups))
-		for i, v := range groups {
-			if group, ok := v.(map[string]interface{}); ok {
-				res[i] = nodepools.ExtensionScaleGroups{
-					Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, nil)),
-					Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, nil)),
-				}
-			}
-		}
-
-		return res
+	_, ok := d.GetOk("extension_scale_groups")
+	if !ok {
+		return nil
 	}
 
-	return nil
+	oldRaw, newRaw := d.GetChange("extension_scale_groups")
+	oldGroups := oldRaw.([]interface{})
+	oldGroupsMap := make(map[string]string)
+	for _, oldGroup := range oldGroups {
+		name := utils.PathSearch("metadata[0].name", oldGroup, "").(string)
+		uid := utils.PathSearch("metadata[0].uid", oldGroup, "").(string)
+		oldGroupsMap[name] = uid
+	}
+	newGroups := newRaw.([]interface{})
+	res := make([]nodepools.ExtensionScaleGroups, len(newGroups))
+	for i, newGroup := range newGroups {
+		if group, ok := newGroup.(map[string]interface{}); ok {
+			res[i] = nodepools.ExtensionScaleGroups{
+				Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, nil), oldGroupsMap),
+				Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, nil)),
+			}
+		}
+	}
+
+	return res
 }
 
-func buildExtensionScaleGroupsMetadata(metadata interface{}) *nodepools.ExtensionScaleGroupsMetadata {
+func buildExtensionScaleGroupsMetadata(metadata interface{}, oldGroupsMap map[string]string) *nodepools.ExtensionScaleGroupsMetadata {
 	if len(metadata.([]interface{})) == 0 {
 		return nil
 	}
 
 	res := nodepools.ExtensionScaleGroupsMetadata{
-		Uid:  utils.PathSearch("[0].uid", metadata, "").(string),
+		Uid:  oldGroupsMap[utils.PathSearch("[0].name", metadata, "").(string)],
 		Name: utils.PathSearch("[0].name", metadata, "").(string),
 	}
 
@@ -664,8 +672,8 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 		Target:       []string{"COMPLETED"},
 		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, d.Id(), []string{""}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        120 * time.Second,
-		PollInterval: 20 * time.Second,
+		Delay:        30 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
@@ -725,7 +733,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("subnet_list", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetList),
 		d.Set("extend_params", flattenExtendParams(s.Spec.NodeTemplate.ExtendParam)),
 		d.Set("taints", flattenResourceNodeTaints(s.Spec.NodeTemplate.Taints)),
-		d.Set("extension_scale_groups", flattenExtensionScaleGroups(s.Spec.ExtensionScaleGroups)),
+		d.Set("extension_scale_groups", sortExtensionScaleGroups(d, flattenExtensionScaleGroups(s.Spec.ExtensionScaleGroups))),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -769,6 +777,32 @@ func flattenExtensionScaleGroups(extensionScaleGroups []nodepools.ExtensionScale
 		}
 	}
 
+	return res
+}
+
+func sortExtensionScaleGroups(d *schema.ResourceData, groups []map[string]interface{}) []map[string]interface{} {
+	groupsRaw, ok := d.GetOk("extension_scale_groups")
+	if !ok {
+		return groups
+	}
+	groupsMap := make(map[string]map[string]interface{})
+	for _, group := range groups {
+		groupName := utils.PathSearch("metadata[0].name", group, "").(string)
+		groupsMap[groupName] = group
+	}
+
+	res := make([]map[string]interface{}, 0, len(groups))
+	for _, groupRaw := range groupsRaw.([]interface{}) {
+		groupName := utils.PathSearch("metadata[0].name", groupRaw, "").(string)
+		if group, exist := groupsMap[groupName]; exist {
+			res = append(res, group)
+			delete(groupsMap, groupName)
+		}
+	}
+
+	for _, group := range groupsMap {
+		res = append(res, group)
+	}
 	return res
 }
 
@@ -943,7 +977,7 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		Target:       []string{"COMPLETED"},
 		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, []string{""}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        60 * time.Second,
+		Delay:        30 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -974,8 +1008,8 @@ func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta in
 		Target:       []string{"COMPLETED"},
 		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
-		Delay:        60 * time.Second,
-		PollInterval: 20 * time.Second,
+		Delay:        30 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
