@@ -48,7 +48,7 @@ func TestAccAlarmNotification_basic(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAlarmNotification_basic(name),

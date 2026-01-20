@@ -20,6 +20,7 @@ import (
 // @API WAF POST /v2/{project_id}/waf/alert
 // @API WAF PUT /v2/{project_id}/waf/alert/{alert_id}
 // @API WAF GET /v2/{project_id}/waf/alerts
+// @API WAF DELETE /v2/{project_id}/waf/alert/{alert_id}
 func ResourceWafAlarmNotification() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafAlarmNotificationCreate,
@@ -329,15 +330,35 @@ func resourceWafAlarmNotificationUpdate(ctx context.Context, d *schema.ResourceD
 	return resourceWafAlarmNotificationRead(ctx, d, meta)
 }
 
-func resourceWafAlarmNotificationDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `Deleting this resource will not destroy the WAF alert notice configuration,
-	but will only remove the resource information from the tfstate file.`
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
+func resourceWafAlarmNotificationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/waf/alert/{alert_id}"
+	)
+
+	client, err := cfg.NewServiceClient("waf", region)
+	if err != nil {
+		return diag.Errorf("error creating WAF client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{alert_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+			"X-Language":   "en-us",
 		},
 	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error deleting WAF alert notice configuration: %s", err)
+	}
+
+	return nil
 }
 
 func resourceWafAlarmNotificationImportState(_ context.Context, d *schema.ResourceData,
