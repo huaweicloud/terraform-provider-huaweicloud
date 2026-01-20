@@ -1103,6 +1103,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_ssl_cert_download_links":                 dds.DataSourceDdsSslCertDownloadLinks(),
 			"huaweicloud_dds_instant_tasks":                           dds.DataSourceDdsInstantTasks(),
 			"huaweicloud_dds_scheduled_tasks":                         dds.DataSourceDdsScheduledTasks(),
+			"huaweicloud_dds_tags":                                    dds.DataSourceInstanceTags(),
 
 			"huaweicloud_deh_types":             deh.DataSourceDehTypes(),
 			"huaweicloud_deh_quotas":            deh.DataSourceDehQuotas(),
