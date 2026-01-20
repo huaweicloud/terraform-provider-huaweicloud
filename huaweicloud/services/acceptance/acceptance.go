@@ -781,6 +781,7 @@ var (
 	HW_DDS_RECYCLE_INSTANCES_ENABLED       = os.Getenv("HW_DDS_RECYCLE_INSTANCES_ENABLED")
 	HW_DDS_SCHEDULED_TASKS_ENABLED         = os.Getenv("HW_DDS_SCHEDULED_TASKS_ENABLED")
 	HW_DDS_NODE_ID                         = os.Getenv("HW_DDS_NODE_ID")
+	HW_DDS_SESSION_ID                      = os.Getenv("HW_DDS_SESSION_ID")
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
 	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
@@ -4174,6 +4175,13 @@ func TestAccPreCheckDDSRecycleInstancesEnabled(t *testing.T) {
 func TestAccPreCheckDDSNodeId(t *testing.T) {
 	if HW_DDS_NODE_ID == "" {
 		t.Skip("HW_DDS_NODE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDDSSessionId(t *testing.T) {
+	if HW_DDS_SESSION_ID == "" {
+		t.Skip("HW_DDS_SESSION_ID must be set for the acceptance test")
 	}
 }
 
