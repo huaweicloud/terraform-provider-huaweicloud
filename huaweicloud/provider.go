@@ -2310,6 +2310,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_dedicated_domains":                    waf.DataSourceWafDedicatedDomains(),
 			"huaweicloud_waf_dedicated_instance_tags":              waf.DataSourceWafDedicatedInstanceTags(),
 			"huaweicloud_waf_dedicated_instances":                  waf.DataSourceWafDedicatedInstances(),
+			"huaweicloud_waf_dns_domains":                          waf.DataSourceDNSDomains(),
 			"huaweicloud_waf_domain_status":                        waf.DataSourceWafDomainStatus(),
 			"huaweicloud_waf_domains":                              waf.DataSourceWafDomains(),
 			"huaweicloud_waf_event_logs":                           waf.DataSourceWafEventLogs(),
