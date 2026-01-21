@@ -627,7 +627,7 @@ func getResourcePoolOrdersByResourcePoolId(client *golangsdk.ServiceClient, reso
 	// Currently, the maximum total number of orders is 500.
 	// The query results are sorted in descending order according to the order creation time.
 	var (
-		httpUrl = "v1/{project_id}/orders?limit=10"
+		httpUrl = "v1/{project_id}/orders?limit=500"
 		getOpt  = golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
@@ -636,6 +636,10 @@ func getResourcePoolOrdersByResourcePoolId(client *golangsdk.ServiceClient, reso
 	httpUrl = client.Endpoint + httpUrl
 	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
 	httpUrl = fmt.Sprintf("%s&involvedName=%s", httpUrl, resourcePoolId)
+	// Sometimes, the database may prioritize historical orders and push the latest orders out of the list, resulting
+	// in inaccurate query results.
+	// TODO: Using `since` parameter and `until` parameter to limit the number of results returned.
+
 	resp, err := client.Request("GET", httpUrl, &getOpt)
 	if err != nil {
 		return nil, err
