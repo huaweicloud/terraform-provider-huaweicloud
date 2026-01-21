@@ -218,6 +218,30 @@ func TestAccNode_storage(t *testing.T) {
 	})
 }
 
+func TestAccNode_without_data_volumes(t *testing.T) {
+	var node nodes.Nodes
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_cce_node.test"
+	// clusterName here is used to provide the cluster id to fetch cce node.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNodeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNode_without_data_volumes(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNodeExists(resourceName, clusterName, &node),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckNodeDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
@@ -765,4 +789,48 @@ resource "huaweicloud_cce_node" "test" {
   }
 }
 `, testAccNode_Base(rName), rName, rName)
+}
+
+func testAccNode_without_data_volumes(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[2]s"
+  pending_days = "7"
+}
+
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%[2]s"
+  os                = "Huawei Cloud EulerOS 2.0"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  key_pair          = huaweicloud_kps_keypair.test.name
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+
+  storage {
+    selectors {
+      name = "cceUse"
+      type = "system"
+    }
+
+    groups {
+      name           = "vgpaas"
+      selector_names = ["cceUse"]
+      cce_managed    = true
+
+      virtual_spaces {
+        name        = "user"
+        size        = "100%%"
+        lvm_lv_type = "linear"
+      }
+    }
+  }
+}
+`, testAccNode_Base(rName), rName)
 }
