@@ -68,6 +68,7 @@ func TestAccIdentityV5AccessKey_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "inactive"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "access_key_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "secret_access_key"),
 				),
 			},

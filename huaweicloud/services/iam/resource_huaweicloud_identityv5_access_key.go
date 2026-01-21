@@ -148,6 +148,7 @@ func resourceIdentityV5AccessKeyRead(_ context.Context, d *schema.ResourceData, 
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 	mErr := multierror.Append(nil,
+		d.Set("access_key_id", utils.PathSearch("access_key_id", accessKey, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", accessKey, "").(string)),
 		d.Set("status", utils.PathSearch("status", accessKey, "").(string)),
 	)
