@@ -1452,6 +1452,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_pay_per_scan_statistics":              hss.DataSourceImagePayPerScanStatistics(),
 			"huaweicloud_hss_image_baseline_risk_configs":                hss.DataSourceImageBaselineRiskConfigs(),
 			"huaweicloud_hss_image_baseline_ewp":                         hss.DataSourceImageBaselineEWP(),
+			"huaweicloud_hss_image_baseline_statistic":                   hss.DataSourceImageBaselineStatistic(),
 			"huaweicloud_hss_container_clusters_policy_templates":        hss.DataSourceContainerClustersPolicyTemplates(),
 			"huaweicloud_hss_container_clusters_policy_template":         hss.DataSourceContainerClustersPolicyTemplate(),
 			"huaweicloud_hss_common_task_statistics":                     hss.DataSourceCommonTaskStatistics(),
