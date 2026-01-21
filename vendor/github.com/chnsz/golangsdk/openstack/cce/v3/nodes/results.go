@@ -208,15 +208,6 @@ type BandwidthOpts struct {
 	ShareType  string `json:"sharetype,omitempty"`
 }
 
-type Conditions struct {
-	//The type of component
-	Type string `json:"type"`
-	//The state of the component
-	Status string `json:"status"`
-	//The reason that the component becomes current
-	Reason string `json:"reason"`
-}
-
 type StorageSpec struct {
 	// Disk selection. Matched disks are managed according to matchLabels and storageType
 	StorageSelectors []StorageSelectorsSpec `json:"storageSelectors" required:"true"`
