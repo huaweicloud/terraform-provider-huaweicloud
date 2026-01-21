@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.8 (January 21, 2026)
+
+BUG FIXES:
+
+* resource/huaweicloud_modelarts_resource_pool: increase the page limit to 500 to ensure that orders can be retrieved. [GH-8853]
+
 ## 1.77.7 (Aug 29, 2025)
 
 ENHANCEMENTS:
