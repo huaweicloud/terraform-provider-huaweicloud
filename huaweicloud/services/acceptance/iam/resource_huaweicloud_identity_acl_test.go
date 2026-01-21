@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getAclResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -44,14 +44,15 @@ func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState)
 	return nil, nil
 }
 
-func TestAccIdentitACL_basic(t *testing.T) {
-	var object acl.ACLPolicy
-	resourceName := "huaweicloud_identity_acl.test"
+func TestAccAcl_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentitACLResourceFunc,
+		aclByConsole = "huaweicloud_identity_acl.test.0"
+		rcByConsole  = acceptance.InitResourceCheck(aclByConsole, &obj, getAclResourceFunc)
+
+		aclByApi = "huaweicloud_identity_acl.test.1"
+		rcByApi  = acceptance.InitResourceCheck(aclByApi, &obj, getAclResourceFunc)
 	)
 
 	// the runner public IP must by set
@@ -63,107 +64,91 @@ func TestAccIdentitACL_basic(t *testing.T) {
 			acceptance.TestAccPreCheckRunnerPublicIP(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcByConsole.CheckResourceDestroy(),
+			rcByApi.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityACL_basic("console"),
+				Config: testAccAcl_basic_step1(),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "type", "console"),
-					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "1"),
+					rcByConsole.CheckResourceExists(),
+					resource.TestCheckResourceAttr(aclByConsole, "type", "console"),
+					resource.TestCheckResourceAttr(aclByConsole, "ip_ranges.#", "1"),
+					resource.TestCheckResourceAttr(aclByConsole, "ip_cidrs.#", "1"),
+					rcByApi.CheckResourceExists(),
+					resource.TestCheckResourceAttr(aclByApi, "type", "api"),
+					resource.TestCheckResourceAttr(aclByApi, "ip_ranges.#", "1"),
+					resource.TestCheckResourceAttr(aclByApi, "ip_cidrs.#", "1"),
 				),
 			},
 			{
-				Config: testAccIdentityACL_update("console"),
+				Config: testAccAcl_basic_step2(),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "type", "console"),
-					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
+					rcByConsole.CheckResourceExists(),
+					resource.TestCheckResourceAttr(aclByConsole, "type", "console"),
+					resource.TestCheckResourceAttr(aclByConsole, "ip_ranges.#", "2"),
+					resource.TestCheckResourceAttr(aclByConsole, "ip_cidrs.#", "1"),
+					rcByApi.CheckResourceExists(),
+					resource.TestCheckResourceAttr(aclByApi, "type", "api"),
+					resource.TestCheckResourceAttr(aclByApi, "ip_ranges.#", "2"),
+					resource.TestCheckResourceAttr(aclByApi, "ip_cidrs.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIdentitACL_apiAccess(t *testing.T) {
-	var object acl.ACLPolicy
-	resourceName := "huaweicloud_identity_acl.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentitACLResourceFunc,
-	)
-
-	// the runner public IP must by set
-	// otherwise, when the ACL is applied, you can't access your account
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-			acceptance.TestAccPreCheckRunnerPublicIP(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityACL_basic("api"),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "type", "api"),
-					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "1"),
-				),
-			},
-			{
-				Config: testAccIdentityACL_update("api"),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "type", "api"),
-					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
-				),
-			},
-		},
-	})
-}
-
-func testAccIdentityACL_basic(aclType string) string {
+func testAccAcl_basic_step1() string {
 	return fmt.Sprintf(`
+variable "acl_types" {
+  type    = list(string)
+  default = ["console", "api"]
+}
+
 resource "huaweicloud_identity_acl" "test" {
-  type = "%[1]s"
+  count = 2
+
+  type = var.acl_types[count.index]
 
   ip_ranges {
     range       = "172.16.0.0-172.16.255.255"
-    description = "This is a basic ip range for %[1]s access"
+    description = "This is a basic ip range for ${var.acl_types[count.index]} access"
   }
 
   ip_cidrs {
-    cidr        = "%[2]s/32"
-    description = "This is a basic ip address for %[1]s access"
+    cidr        = "%[1]s/32"
+    description = "This is a basic ip address for ${var.acl_types[count.index]} access"
   }
 }
-`, aclType, acceptance.HW_CODEARTS_PUBLIC_IP_ADDRESS)
+`, acceptance.HW_RUNNER_PUBLIC_IP)
 }
 
-func testAccIdentityACL_update(aclType string) string {
+func testAccAcl_basic_step2() string {
 	return fmt.Sprintf(`
+variable "acl_types" {
+  type    = list(string)
+  default = ["console", "api"]
+}
+
 resource "huaweicloud_identity_acl" "test" {
-  type = "%[1]s"
+  count = 2
+
+  type = var.acl_types[count.index]
 
   ip_ranges {
     range       = "172.16.0.0-172.16.255.255"
-    description = "This is a update ip range 1 for %[1]s access"
+    description = "This is a update ip range 1 for ${var.acl_types[count.index]} access"
   }
   ip_ranges {
     range       = "192.168.0.0-192.168.255.255"
-    description = "This is a update ip range 2 for %[1]s access"
+    description = "This is a update ip range 2 for ${var.acl_types[count.index]} access"
   }
 
   ip_cidrs {
-    cidr        = "%[2]s/32"
-    description = "This is a update ip address for %[1]s access"
+    cidr        = "%[1]s/32"
+    description = "This is a update ip address for ${var.acl_types[count.index]} access"
   }
 }
-`, aclType, acceptance.HW_CODEARTS_PUBLIC_IP_ADDRESS)
+`, acceptance.HW_RUNNER_PUBLIC_IP)
 }
