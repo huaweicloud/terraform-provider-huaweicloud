@@ -2,6 +2,7 @@ package iam
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getIdentityAccessKeyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getAccessKeyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	iamClient, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -30,15 +31,15 @@ func getIdentityAccessKeyResourceFunc(c *config.Config, state *terraform.Resourc
 	return found, nil
 }
 
-func TestAccIdentityAccessKey_basic(t *testing.T) {
-	var cred credentials.Credential
-	var userName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_access_key.key_1"
+func TestAccAccessKey_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&cred,
-		getIdentityAccessKeyResourceFunc,
+		resourceName = "huaweicloud_identity_access_key.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getAccessKeyResourceFunc)
+
+		name       = acceptance.RandomAccResourceNameWithDash()
+		updateName = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -47,38 +48,97 @@ func TestAccIdentityAccessKey_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityAccessKey_basic(userName),
+				Config: testAccAccessKey_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
-					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform"),
-					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestMatchResourceAttr(resourceName, "create_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
 					resource.TestCheckNoResourceAttr(resourceName, "secret"),
 				),
 			},
 			{
-				Config: testAccIdentityAccessKey_update(userName),
+				Config: testAccAccessKey_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "inactive"),
-					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform updated"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
+					resource.TestMatchResourceAttr(resourceName, "create_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIdentityAccessKey_secret(t *testing.T) {
-	var cred credentials.Credential
-	var userName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_access_key.key_1"
+func testAccAccessKey_basic_base(name string) string {
+	return fmt.Sprintf(`
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
+}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&cred,
-		getIdentityAccessKeyResourceFunc,
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[1]s"
+  password    = random_string.test.result
+  enabled     = true
+  description = "Created by terraform script"
+}
+`, name)
+}
+
+func testAccAccessKey_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identity_access_key" "test" {
+  user_id     = huaweicloud_identity_user.test.id
+  description = "Created by terraform script"
+  secret_file = abspath("./credentials.csv")
+}
+`, testAccAccessKey_basic_base(name))
+}
+
+func testAccAccessKey_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identity_access_key" "test" {
+  user_id     = huaweicloud_identity_user.test.id	
+  description = "Updated by terraform script"
+  secret_file = abspath("./credentials.csv")
+  status      = "inactive"
+
+  # Clean up the credentials.csv file (created by huaweicloud_identity_access_key resource) after the test is completed.
+  provisioner "local-exec" {
+    command = "rm credentials.csv"
+    when    = destroy
+  }
+}
+`, testAccAccessKey_basic_base(name))
+}
+
+func TestAccAccessKey_withoutSecretFileInput(t *testing.T) {
+	var (
+		obj interface{}
+
+		resourceName = "huaweicloud_identity_access_key.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getAccessKeyResourceFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -87,70 +147,138 @@ func TestAccIdentityAccessKey_secret(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityAccessKey_secret(userName),
+				Config: testAccAccessKey_withoutSecretFileInput_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
-					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform"),
-					resource.TestCheckResourceAttrSet(resourceName, "secret"),
-					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestMatchResourceAttr(resourceName, "create_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
+					resource.TestCheckNoResourceAttr(resourceName, "secret"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityAccessKey_basic(userName string) string {
+func testAccAccessKey_withoutSecretFileInput_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "%s"
-  password    = "password123@!"
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
+}
+
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[1]s"
+  password    = random_string.test.result
   enabled     = true
-  description = "tested by terraform"
+  description = "Created by terraform script"
+}
+`, name)
 }
 
-resource "huaweicloud_identity_access_key" "key_1" {
-  user_id     = huaweicloud_identity_user.user_1.id
-  description = "access key by terraform"
-  secret_file = "./credentials.csv"
-}
-`, userName)
-}
-
-func testAccIdentityAccessKey_update(userName string) string {
+func testAccAccessKey_withoutSecretFileInput_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "%s"
-  password    = "password123@!"
-  enabled     = true
-  description = "tested by terraform"
+%[1]s
+
+resource "huaweicloud_identity_access_key" "test" {
+  user_id     = huaweicloud_identity_user.test.id
+  description = "Created by terraform script"
+
+  # Clean up the credential file (created by huaweicloud_identity_access_key resource and with a default name) after the
+  # test is completed.
+  # -f option is used to force the removal of the file (ignoring the error if the file does not exist, which is expected
+  # in the acceptance test workflow because the credentials.csv file will be created in current execution directory).
+  provisioner "local-exec" {
+    command = format("rm -f %%s", abspath("./credentials-${self.user_name}.csv"))
+    when    = destroy
+  }
+}
+`, testAccAccessKey_withoutSecretFileInput_base(name), name)
 }
 
-resource "huaweicloud_identity_access_key" "key_1" {
-  user_id     = huaweicloud_identity_user.user_1.id
-  description = "access key by terraform updated"
-  secret_file = "./credentials.csv"
-  status      = "inactive"
-}
-`, userName)
+func TestAccAccessKey_withIncorrectSecretFileInput(t *testing.T) {
+	var (
+		obj interface{}
+
+		resourceName = "huaweicloud_identity_access_key.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getAccessKeyResourceFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessKey_withIncorrectSecretFileInput_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestMatchResourceAttr(resourceName, "create_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
+					resource.TestMatchResourceAttr(resourceName, "secret", regexp.MustCompile(`^[A-Za-z0-9]{40}$`)),
+				),
+			},
+		},
+	})
 }
 
-func testAccIdentityAccessKey_secret(userName string) string {
+func testAccAccessKey_withIncorrectSecretFileInput_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "%s"
-  password    = "password123@!"
-  enabled     = true
-  description = "tested by terraform"
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
 }
 
-resource "huaweicloud_identity_access_key" "key_1" {
-  user_id     = huaweicloud_identity_user.user_1.id
-  description = "access key by terraform"
-  secret_file = "/null/credentials.csv"
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[1]s"
+  password    = random_string.test.result
+  enabled     = true
+  description = "Created by terraform script"
 }
-`, userName)
+`, name)
+}
+
+func testAccAccessKey_withIncorrectSecretFileInput_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+# Using an invalid storage path will cause the credentials.csv file to fail to generate, but the service will return
+# the secret key information through the secret attribute.
+resource "huaweicloud_identity_access_key" "test" {
+  user_id     = huaweicloud_identity_user.test.id
+  description = "Created by terraform script"
+  secret_file = "/null/credentials.csv" # Invalid storage path
+}
+`, testAccAccessKey_withIncorrectSecretFileInput_base(name))
 }
