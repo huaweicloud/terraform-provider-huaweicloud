@@ -369,43 +369,40 @@ func datasourceExtendAttributeSchema() *schema.Resource {
 }
 
 func resourceDCVirtualInterfacesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// listVirtualInterfaces: Query the List of DC virtual interfaces.
 	var (
-		listVirtualInterfacesHttpUrl = "v3/{project_id}/dcaas/virtual-interfaces"
-		listVirtualInterfacesProduct = "dc"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		httpUrl = "v3/{project_id}/dcaas/virtual-interfaces"
+		product = "dc"
 	)
-	listVirtualInterfacesClient, err := cfg.NewServiceClient(listVirtualInterfacesProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DC client: %s", err)
 	}
 
-	listVirtualInterfacesPath := listVirtualInterfacesClient.Endpoint + listVirtualInterfacesHttpUrl
-	listVirtualInterfacesPath = strings.ReplaceAll(listVirtualInterfacesPath, "{project_id}", listVirtualInterfacesClient.ProjectID)
-
-	listVirtualInterfacesQueryParams := buildListVirtualInterfacesQueryParams(d, cfg.GetEnterpriseProjectID(d))
-	listVirtualInterfacesPath += listVirtualInterfacesQueryParams
-
-	listVirtualInterfacesResp, err := pagination.ListAllItems(
-		listVirtualInterfacesClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListVirtualInterfacesQueryParams(d, epsId)
+	requestResp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listVirtualInterfacesPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving DC virtual interfaces: %s", err)
 	}
 
-	listVirtualInterfacesRespJson, err := json.Marshal(listVirtualInterfacesResp)
+	respJson, err := json.Marshal(requestResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listVirtualInterfacesRespBody interface{}
-	err = json.Unmarshal(listVirtualInterfacesRespJson, &listVirtualInterfacesRespBody)
+
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -414,22 +411,24 @@ func resourceDCVirtualInterfacesRead(_ context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("virtual_interfaces", filterListVirtualInterfacesBody(
-			flattenListVirtualInterfacesBody(listVirtualInterfacesRespBody), d)),
+		d.Set("virtual_interfaces", filterVirtualInterfaces(
+			flattenVirtualInterfaces(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenListVirtualInterfacesBody(resp interface{}) []interface{} {
+func flattenVirtualInterfaces(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
+
 	curJson := utils.PathSearch("virtual_interfaces", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
@@ -471,6 +470,7 @@ func flattenVifPeersAttributes(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
+
 	curJson := utils.PathSearch("vif_peers", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
@@ -496,6 +496,7 @@ func flattenVifPeersAttributes(resp interface{}) []interface{} {
 			"remote_ep_group":   utils.PathSearch("remote_ep_group", v, nil),
 		})
 	}
+
 	return rst
 }
 
@@ -503,6 +504,7 @@ func flattenExtendAttributes(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
+
 	extendResp := utils.PathSearch("extend_attribute", resp, nil)
 	if extendResp == nil {
 		return nil
@@ -523,7 +525,7 @@ func flattenExtendAttributes(resp interface{}) []interface{} {
 	return []interface{}{extendAttribute}
 }
 
-func filterListVirtualInterfacesBody(all []interface{}, d *schema.ResourceData) []interface{} {
+func filterVirtualInterfaces(all []interface{}, d *schema.ResourceData) []interface{} {
 	name := d.Get("name").(string)
 	if name == "" {
 		return all
@@ -537,6 +539,7 @@ func filterListVirtualInterfacesBody(all []interface{}, d *schema.ResourceData) 
 
 		rst = append(rst, v)
 	}
+
 	return rst
 }
 
@@ -565,5 +568,6 @@ func buildListVirtualInterfacesQueryParams(d *schema.ResourceData, enterprisePro
 	if res != "" {
 		res = "?" + res[1:]
 	}
+
 	return res
 }

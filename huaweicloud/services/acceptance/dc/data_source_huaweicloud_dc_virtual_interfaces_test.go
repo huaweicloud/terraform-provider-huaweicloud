@@ -10,10 +10,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceDCVirtualInterface_basic(t *testing.T) {
-	name := acceptance.RandomAccResourceName()
-	rName := "data.huaweicloud_dc_virtual_interfaces.test"
-	dc := acceptance.InitDataSourceCheck(rName)
+func TestAccDatasourceVirtualInterface_basic(t *testing.T) {
+	var (
+		name  = acceptance.RandomAccResourceName()
+		rName = "data.huaweicloud_dc_virtual_interfaces.test"
+		dc    = acceptance.InitDataSourceCheck(rName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -23,7 +25,7 @@ func TestAccDatasourceDCVirtualInterface_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDCVirtualInterfaces_basic(name),
+				Config: testDatasourceVirtualInterfaces_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "virtual_interfaces.0.id"),
@@ -63,7 +65,53 @@ func TestAccDatasourceDCVirtualInterface_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDCVirtualInterfaces_basic(name string) string {
+func testDatasourceVirtualInterfaces_base(name string, vlan int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_dc_virtual_gateway" "test" {
+  vpc_id      = huaweicloud_vpc.test.id
+  name        = "%[1]s"
+  description = "Created by acc test"
+
+  local_ep_group = [
+    huaweicloud_vpc.test.cidr,
+  ]
+}
+
+resource "huaweicloud_dc_virtual_interface" "test" {
+  direct_connect_id = "%[2]s"
+  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
+  name              = "%[1]s"
+  description       = "Created by acc test"
+  type              = "private"
+  route_mode        = "static"
+  vlan              = %[3]d
+  bandwidth         = 5
+  priority          = "low"
+  enable_bfd        = true
+  enable_nqa        = false
+
+  remote_ep_group = [
+    "1.1.1.0/30",
+  ]
+
+  address_family       = "ipv4"
+  local_gateway_v4_ip  = "1.1.1.1/30"
+  remote_gateway_v4_ip = "1.1.1.2/30"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, name, acceptance.HW_DC_DIRECT_CONNECT_ID, vlan)
+}
+
+func testDatasourceVirtualInterfaces_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -157,5 +205,5 @@ output "enterprise_project_id_filter_is_useful" {
   enterprise_project_id : v == local.enterprise_project_id]
   )
 }
-`, testAccVirtualInterface_basic(name, acctest.RandIntRange(1, 3999)))
+`, testDatasourceVirtualInterfaces_base(name, acctest.RandIntRange(1, 3999)))
 }
