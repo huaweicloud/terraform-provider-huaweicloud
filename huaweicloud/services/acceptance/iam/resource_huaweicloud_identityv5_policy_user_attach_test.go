@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getIdentityV5PolicyUserAttachResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV5PolicyUserAttachResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -22,29 +22,30 @@ func getIdentityV5PolicyUserAttachResourceFunc(cfg *config.Config, state *terraf
 	return iam.GetUserAttachedIdentityV5Policy(client, state.Primary.Attributes["user_id"], state.Primary.Attributes["policy_id"])
 }
 
-func TestAccIdentityV5PolicyUserAttach_basic(t *testing.T) {
+// Please ensure that the user executing the acceptance test has 'admin' permission.
+func TestAccV5PolicyUserAttach_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
 		obj   interface{}
 		rName = "huaweicloud_identityv5_policy_user_attach.test"
-		rc    = acceptance.InitResourceCheck(rName, &obj, getIdentityV5PolicyUserAttachResourceFunc)
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5PolicyUserAttachResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV5PolicyUserAttach_basic(name),
+				Config: testAccV5PolicyUserAttach_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_identity_policy.test", "id"),
-					resource.TestCheckResourceAttr(rName, "user_id", acceptance.HW_USER_ID),
+					resource.TestCheckResourceAttrPair(rName, "user_id", "huaweicloud_identityv5_user.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "policy_name", "huaweicloud_identity_policy.test", "name"),
 					resource.TestCheckResourceAttrPair(rName, "urn", "huaweicloud_identity_policy.test", "urn"),
 					resource.TestMatchResourceAttr(rName, "attached_at",
@@ -55,14 +56,18 @@ func TestAccIdentityV5PolicyUserAttach_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityV5PolicyUserAttachImportState(rName),
+				ImportStateIdFunc: testAccV5PolicyUserAttachImportState(rName),
 			},
 		},
 	})
 }
 
-func testAccIdentityV5PolicyUserAttach_basic(name string) string {
+func testAccV5PolicyUserAttach_basic(name string) string {
 	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_user" "test" {
+  name = "%[1]s"
+}
+
 resource "huaweicloud_identity_policy" "test" {
   name            = "%[1]s"
   description     = "test policy for terraform"
@@ -81,12 +86,12 @@ resource "huaweicloud_identity_policy" "test" {
 
 resource "huaweicloud_identityv5_policy_user_attach" "test" {
   policy_id = huaweicloud_identity_policy.test.id
-  user_id   = "%[2]s"
+  user_id   = huaweicloud_identityv5_user.test.id
 }
-`, name, acceptance.HW_USER_ID)
+`, name)
 }
 
-func testAccIdentityV5PolicyUserAttachImportState(rName string) resource.ImportStateIdFunc {
+func testAccV5PolicyUserAttachImportState(rName string) resource.ImportStateIdFunc {
 	return func(state *terraform.State) (string, error) {
 		rs, ok := state.RootModule().Resources[rName]
 		if !ok {
