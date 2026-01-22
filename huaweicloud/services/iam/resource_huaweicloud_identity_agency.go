@@ -88,9 +88,8 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				DiffSuppressFunc: suppressDurationDiffs,
 			},
 			"project_role": {
-				Type:         schema.TypeSet,
-				Optional:     true,
-				AtLeastOneOf: []string{"project_role", "domain_roles", "all_resources_roles", "enterprise_project_roles"},
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project": {
@@ -358,26 +357,30 @@ func resourceIAMAgencyV3Create(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	rawRoles := d.Get("project_role").(*schema.Set)
-	pRoles := buildProjectRoles(rawRoles)
-	if err := attachProjectRoles(iamClient, identityClient, allRoleIDs, pRoles, domainID, agencyID); err != nil {
-		return diag.FromErr(err)
+	if rawRoles := d.Get("project_role").(*schema.Set); rawRoles.Len() > 0 {
+		pRoles := buildProjectRoles(rawRoles)
+		if err := attachProjectRoles(iamClient, identityClient, allRoleIDs, pRoles, domainID, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	domainRoles := utils.ExpandToStringListBySet(d.Get("domain_roles").(*schema.Set))
-	if err := attachDomainRoles(iamClient, allRoleIDs, domainRoles, domainID, agencyID); err != nil {
-		return diag.FromErr(err)
+	if domainRoles := d.Get("domain_roles").(*schema.Set); domainRoles.Len() > 0 {
+		if err := attachDomainRoles(iamClient, allRoleIDs, utils.ExpandToStringListBySet(domainRoles), domainID, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	inheritedRoles := utils.ExpandToStringListBySet(d.Get("all_resources_roles").(*schema.Set))
-	if err := attachAllResourcesRoles(iamClient, allRoleIDs, inheritedRoles, domainID, agencyID); err != nil {
-		return diag.FromErr(err)
+	if inheritedRoles := d.Get("all_resources_roles").(*schema.Set); inheritedRoles.Len() > 0 {
+		if err := attachAllResourcesRoles(iamClient, allRoleIDs, utils.ExpandToStringListBySet(inheritedRoles), domainID, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	epRawRoles := d.Get("enterprise_project_roles").(*schema.Set)
-	epRoles := buildEnterpriseProjectRoles(epRawRoles)
-	if err = attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, epRoles, agencyID); err != nil {
-		return diag.FromErr(err)
+	if epRawRoles := d.Get("enterprise_project_roles").(*schema.Set); epRawRoles.Len() > 0 {
+		epRoles := buildEnterpriseProjectRoles(epRawRoles)
+		if err = attachEnterpriseProjectRoles(iamClient, epsClient, allRoleIDs, epRoles, agencyID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceIAMAgencyV3Read(ctx, d, meta)
