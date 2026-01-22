@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceHuaweiCloudCceFlavorSpecifications_basic(t *testing.T) {
+func TestAccDataSourceCceFlavorSpecifications_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_cce_flavor_specifications.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -19,22 +19,25 @@ func TestAccDataSourceHuaweiCloudCceFlavorSpecifications_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceHuaweiCloudCceFlavorSpecifications_basic,
+				Config: testDataSourceCceFlavorSpecifications_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckOutput("is_results_not_empty", "true"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.node_capacity"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.is_sold_out"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.is_support_multi_az"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.available_master_flavors.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.available_master_flavors.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "cluster_flavor_specs.0.available_master_flavors.0.azs.#"),
 				),
 			},
 		},
 	})
 }
 
-const testDataSourceHuaweiCloudCceFlavorSpecifications_basic = `
+const testDataSourceCceFlavorSpecifications_basic = `
 data "huaweicloud_cce_flavor_specifications" "test" {
   cluster_type = "VirtualMachine"
-}
-
-output "is_results_not_empty" {
-  value = length(data.huaweicloud_cce_flavor_specifications.test.cluster_flavor_specs) > 0
 }
 `
