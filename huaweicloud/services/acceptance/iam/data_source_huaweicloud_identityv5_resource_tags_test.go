@@ -32,15 +32,33 @@ func TestAccDataSourceIdentityv5ResourceTags_basic(t *testing.T) {
 	})
 }
 
+func testAccDataV5Tags_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_user" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_identityv5_resource_tag" "test" {
+  resource_type = "user"
+  resource_id   = huaweicloud_identityv5_user.test.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, name)
+}
+
 func testDataSourceIdentityv5Tags_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_identityv5_resource_tags" "test" {
   resource_type = "user"
-  resource_id   = huaweicloud_identityv5_user.user_1.id
+  resource_id   = huaweicloud_identityv5_user.test.id
   
   depends_on = [huaweicloud_identityv5_resource_tag.test]
 }
-`, testAccV5ResourceTag_basic(name))
+`, testAccDataV5Tags_base(name))
 }

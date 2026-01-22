@@ -15,8 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityResourceTagResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.IAMNoVersionClient(acceptance.HW_REGION_NAME)
+func getV5ResourceTagResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
@@ -32,14 +32,14 @@ func getIdentityResourceTagResourceFunc(cfg *config.Config, state *terraform.Res
 	return utils.FlattenResponse(getResourceTagResp)
 }
 
+// Please ensure that the user executing the acceptance test has 'admin' permission.
 func TestAccV5ResourceTag_basic(t *testing.T) {
-	username := acceptance.RandomAccResourceName()
-	var object interface{}
-	resourceName := "huaweicloud_identityv5_resource_tag.test"
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentityResourceTagResourceFunc,
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		obj   interface{}
+		rName = "huaweicloud_identityv5_resource_tag.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5ResourceTagResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -51,27 +51,27 @@ func TestAccV5ResourceTag_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccV5ResourceTag_basic(username),
+				Config: testAccV5ResourceTag_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "resource_type", "user"),
-					resource.TestCheckResourceAttrSet(resourceName, "resource_id"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "resource_type", "user"),
+					resource.TestCheckResourceAttrSet(rName, "resource_id"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
 			},
 			{
-				Config: testAccV5ResourceTag_update(username),
+				Config: testAccV5ResourceTag_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "resource_type", "user"),
-					resource.TestCheckResourceAttrSet(resourceName, "resource_id"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(rName, "resource_type", "user"),
+					resource.TestCheckResourceAttrSet(rName, "resource_id"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(rName, "tags.key1", "value"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,32 +79,42 @@ func TestAccV5ResourceTag_basic(t *testing.T) {
 	})
 }
 
-func testAccV5ResourceTag_basic(username string) string {
+func testAccV5ResourceTag_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_user" "test" {
+  name = "%[1]s"
+}
+`, name)
+}
+
+func testAccV5ResourceTag_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_identityv5_resource_tag" "test" {
   resource_type = "user"
-  resource_id   = huaweicloud_identityv5_user.user_1.id
+  resource_id   = huaweicloud_identityv5_user.test.id
+
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, testAccIdentityV5User_basic(username))
+`, testAccV5ResourceTag_base(name))
 }
 
-func testAccV5ResourceTag_update(username string) string {
+func testAccV5ResourceTag_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_identityv5_resource_tag" "test" {
   resource_type = "user"
-  resource_id   = huaweicloud_identityv5_user.user_1.id
+  resource_id   = huaweicloud_identityv5_user.test.id
+
   tags = {
     foo  = "bar1"
     key1 = "value"
   }
 }
-`, testAccIdentityV5User_basic(username))
+`, testAccV5ResourceTag_base(name))
 }
