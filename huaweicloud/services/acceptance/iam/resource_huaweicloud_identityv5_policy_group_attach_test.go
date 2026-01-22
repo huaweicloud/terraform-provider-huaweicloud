@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getIdentityV5PolicyGroupAttachResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV5PolicyGroupAttachResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -22,13 +22,13 @@ func getIdentityV5PolicyGroupAttachResourceFunc(cfg *config.Config, state *terra
 	return iam.GetGroupAttachedIdentityV5Policy(client, state.Primary.Attributes["group_id"], state.Primary.Attributes["policy_id"])
 }
 
-func TestAccIdentityV5PolicyGroupAttach_basic(t *testing.T) {
+func TestAccV5PolicyGroupAttach_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
 		obj   interface{}
 		rName = "huaweicloud_identityv5_policy_group_attach.test"
-		rc    = acceptance.InitResourceCheck(rName, &obj, getIdentityV5PolicyGroupAttachResourceFunc)
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5PolicyGroupAttachResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -39,7 +39,7 @@ func TestAccIdentityV5PolicyGroupAttach_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV5PolicyGroupAttach_basic(name),
+				Config: testAccV5PolicyGroupAttach_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_identity_policy.test", "id"),
@@ -54,13 +54,13 @@ func TestAccIdentityV5PolicyGroupAttach_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityV5PolicyGroupAttachImportState(rName),
+				ImportStateIdFunc: testAccV5PolicyGroupAttachImportState(rName),
 			},
 		},
 	})
 }
 
-func testAccIdentityV5PolicyGroupAttach_basic(rName string) string {
+func testAccV5PolicyGroupAttach_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_policy" "test" {
   name            = "%[1]s"
@@ -88,7 +88,7 @@ resource "huaweicloud_identityv5_policy_group_attach" "test" {
 `, rName)
 }
 
-func testAccIdentityV5PolicyGroupAttachImportState(rName string) resource.ImportStateIdFunc {
+func testAccV5PolicyGroupAttachImportState(rName string) resource.ImportStateIdFunc {
 	return func(state *terraform.State) (string, error) {
 		rs, ok := state.RootModule().Resources[rName]
 		if !ok {
