@@ -2,7 +2,8 @@
 subcategory: "Direct Connect (DC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dc_virtual_interfaces"
-description: ""
+description: |-
+  Use this data source to get the list of DC virtual interfaces.
 ---
 
 # huaweicloud_dc_virtual_interfaces
@@ -32,11 +33,12 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the status of the virtual interface.
 
-* `direct_connect_id` - (Optional, String) Specifies the ID of the direct connection associated with the virtual interface.
+* `direct_connect_id` - (Optional, String) Specifies the ID of the direct connection associated with the virtual
+  interface.
 
 * `vgw_id` - (Optional, String) Specifies the ID of the virtual gateway for the virtual interface.
 
-* `enterprise_project_id` - (Optional, String) Indicates the ID of the enterprise project
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project
   that the virtual interface belongs to.
 
 ## Attribute Reference
@@ -57,7 +59,7 @@ The `virtual_interfaces` block supports:
 
 * `bandwidth` - The bandwidth of the virtual interface.
 
-* `created_at` - The create time of the virtual interface.
+* `created_at` - The creation time of the virtual interface.
 
 * `description` - The description of the virtual interface.
 
