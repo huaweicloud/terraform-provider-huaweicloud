@@ -25,23 +25,9 @@ func DataSourceAssociatedResources() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"region_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"resource_type": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-
-			// Attributes.
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -54,136 +40,162 @@ func DataSourceAssociatedResources() *schema.Resource {
 			"associated_resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"eip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Elem:     buildAssociatedResourcesSchema(),
 			},
 			"errors": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"project_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"error_code": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"error_msg": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Elem:     buildErrorsSchema(),
+			},
+			// Deprecated
+			"project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: utils.SchemaDesc("No project ID configuration required.", utils.SchemaDescInput{Deprecated: true}),
+			},
+			"region_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: utils.SchemaDesc("No region ID configuration required.", utils.SchemaDescInput{Deprecated: true}),
 			},
 		},
 	}
 }
 
+func buildErrorsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"error_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"error_msg": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func buildAssociatedResourcesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"eip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func buildQueryAssociatedResourcesProjectId(cfg *config.Config, region string, d *schema.ResourceData) string {
+	if projectId := d.Get("project_id").(string); projectId != "" {
+		return projectId
+	}
+	return cfg.GetProjectID(region)
+}
+
+func buildQueryAssociatedResourcesRegionId(region string, d *schema.ResourceData) string {
+	if regionId := d.Get("region_id").(string); regionId != "" {
+		return regionId
+	}
+	return region
+}
+
 func dataSourceAssociatedResourcesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v1.0/associated-resources/{resource_id}"
+		projectId    = buildQueryAssociatedResourcesProjectId(cfg, region, d)
+		regionId     = buildQueryAssociatedResourcesRegionId(region, d)
+		resourceType = d.Get("resource_type").(string)
+		resourceId   = d.Get("resource_id").(string)
 	)
 	client, err := cfg.NewServiceClient("eps", region)
 	if err != nil {
 		return diag.Errorf("error creating EPS client: %s", err)
 	}
 
-	showPath := client.Endpoint + buildAssociatedResourcesQueryParameter(d)
-
-	opt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_id}", resourceId)
+	requestPath += fmt.Sprintf("?project_id=%s&region_id=%s&resource_type=%s", projectId, regionId, resourceType)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
 	}
 
-	requestResp, err := client.Request("GET", showPath, &opt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving EPS associated resources: %s", err)
 	}
-	respBody, err := utils.FlattenResponse(requestResp)
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(utils.PathSearch("id", respBody, "").(string))
-	mErr := multierror.Append(nil,
+	d.SetId(resourceId)
+	mErr := multierror.Append(
 		d.Set("name", utils.PathSearch("name", respBody, nil)),
 		d.Set("type", utils.PathSearch("type", respBody, nil)),
-		d.Set("associated_resources", flattenListAssociatedResourcesResponseBody(respBody)),
-		d.Set("errors", flattenListErrorsResponseBody(respBody)),
+		d.Set("associated_resources", flattenListAssociatedResources(respBody)),
+		d.Set("errors", flattenListErrors(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildAssociatedResourcesQueryParameter(d *schema.ResourceData) string {
-	httpUrl := "v1.0/associated-resources/{resource_id}"
-
-	httpUrl = strings.ReplaceAll(httpUrl, "{resource_id}", d.Get("resource_id").(string))
-	httpUrl += fmt.Sprintf("?project_id=%s", d.Get("project_id"))
-	httpUrl += fmt.Sprintf("&region_id=%s", d.Get("region_id"))
-	httpUrl += fmt.Sprintf("&resource_type=%s", d.Get("resource_type"))
-
-	return httpUrl
-}
-
-func flattenListAssociatedResourcesResponseBody(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenListAssociatedResources(respBody interface{}) []interface{} {
+	respArray := utils.PathSearch("associated_resources", respBody, make([]interface{}, 0)).([]interface{})
+	if len(respArray) == 0 {
 		return nil
 	}
-	curJson := utils.PathSearch("associated_resources", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	res := make([]interface{}, 0)
-	for _, v := range curArray {
-		res = append(res, map[string]interface{}{
+
+	rst := make([]interface{}, 0, len(respArray))
+	for _, v := range respArray {
+		rst = append(rst, map[string]interface{}{
 			"id":            utils.PathSearch("id", v, nil),
 			"name":          utils.PathSearch("name", v, nil),
 			"eip":           utils.PathSearch("eip", v, nil),
 			"resource_type": utils.PathSearch("resource_type", v, nil),
 		})
 	}
-	return res
+	return rst
 }
 
-func flattenListErrorsResponseBody(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenListErrors(resp interface{}) []interface{} {
+	respArray := utils.PathSearch("errors", resp, make([]interface{}, 0)).([]interface{})
+	if len(respArray) == 0 {
 		return nil
 	}
-	curJson := utils.PathSearch("errors", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	res := make([]interface{}, 0)
-	for _, v := range curArray {
-		res = append(res, map[string]interface{}{
+
+	rst := make([]interface{}, 0, len(respArray))
+	for _, v := range respArray {
+		rst = append(rst, map[string]interface{}{
 			"project_id":    utils.PathSearch("project_id", v, nil),
 			"resource_type": utils.PathSearch("resource_type", v, nil),
 			"resource_id":   utils.PathSearch("resource_id", v, nil),
@@ -191,5 +203,5 @@ func flattenListErrorsResponseBody(resp interface{}) []interface{} {
 			"error_msg":     utils.PathSearch("error_msg", v, nil),
 		})
 	}
-	return res
+	return rst
 }
