@@ -15,8 +15,47 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+func getLoginPolicyResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
+	}
+
+	httpUrl := "v3.0/OS-SECURITYPOLICY/domains/{domain_id}/login-policy"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{domain_id}", cfg.DomainID)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	requestResp, err := client.Request("GET", getPath, &opt)
+	if err != nil {
+		return nil, err
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return nil, err
+	}
+
+	if utils.PathSearch("login_policy.account_validity_period", respBody, float64(0)).(float64) == 0 &&
+		utils.PathSearch("login_policy.custom_info_for_login", respBody, "").(string) == "" &&
+		utils.PathSearch("login_policy.lockout_duration", respBody, float64(0)).(float64) == 15 &&
+		utils.PathSearch("login_policy.login_failed_times", respBody, float64(0)).(float64) == 5 &&
+		utils.PathSearch("login_policy.period_with_login_failures", respBody, float64(0)).(float64) == 15 &&
+		utils.PathSearch("login_policy.session_timeout", respBody, float64(0)).(float64) == 60 &&
+		!utils.PathSearch("login_policy.show_recent_login_info", respBody, false).(bool) {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return respBody, nil
+}
+
 func TestAccLoginPolicy_basic(t *testing.T) {
-	resourceName := "huaweicloud_identity_login_policy.test"
+	var (
+		obj interface{}
+
+		resourceName = "huaweicloud_identity_login_policy.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getLoginPolicyResourceFunc)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,12 +63,12 @@ func TestAccLoginPolicy_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckLoginPolicyDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoginPolicy_basic(),
+				Config: testAccLoginPolicy_basic_step1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoginPolicyExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "account_validity_period", "20"),
 					resource.TestCheckResourceAttr(resourceName, "lockout_duration", "30"),
 					resource.TestCheckResourceAttr(resourceName, "login_failed_times", "10"),
@@ -40,8 +79,9 @@ func TestAccLoginPolicy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLoginPolicy_update(),
+				Config: testAccLoginPolicy_basic_step2,
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "account_validity_period", "0"),
 					resource.TestCheckResourceAttr(resourceName, "lockout_duration", "20"),
 					resource.TestCheckResourceAttr(resourceName, "login_failed_times", "6"),
@@ -60,87 +100,7 @@ func TestAccLoginPolicy_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckLoginPolicyExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("resource ID is not set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		region := acceptance.HW_REGION_NAME
-		getLoginPolicyProduct := "iam"
-		getLoginPolicyClient, err := cfg.NewServiceClient(getLoginPolicyProduct, region)
-		if err != nil {
-			return fmt.Errorf("error creating IAM Client: %s", err)
-		}
-
-		getLoginPolicyHttpUrl := "v3.0/OS-SECURITYPOLICY/domains/{domain_id}/login-policy"
-		getLoginPolicyPath := getLoginPolicyClient.Endpoint + getLoginPolicyHttpUrl
-		getLoginPolicyPath = strings.ReplaceAll(getLoginPolicyPath, "{domain_id}", cfg.DomainID)
-		getLoginPolicyOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-
-		_, err = getLoginPolicyClient.Request("GET", getLoginPolicyPath, &getLoginPolicyOpt)
-		if err != nil {
-			return fmt.Errorf("error retrieving IAM login policy: %s", err)
-		}
-		return err
-	}
-}
-
-func testAccCheckLoginPolicyDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	region := acceptance.HW_REGION_NAME
-	getLoginPolicyProduct := "iam"
-	getLoginPolicyClient, err := cfg.NewServiceClient(getLoginPolicyProduct, region)
-	if err != nil {
-		return fmt.Errorf("error creating IAM Client: %s", err)
-	}
-
-	getLoginPolicyHttpUrl := "v3.0/OS-SECURITYPOLICY/domains/{domain_id}/login-policy"
-	getLoginPolicyPath := getLoginPolicyClient.Endpoint + getLoginPolicyHttpUrl
-	getLoginPolicyPath = strings.ReplaceAll(getLoginPolicyPath, "{domain_id}", cfg.DomainID)
-	getLoginPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_login_policy" {
-			continue
-		}
-
-		getLoginPolicyResp, err := getLoginPolicyClient.Request("GET", getLoginPolicyPath, &getLoginPolicyOpt)
-		if err != nil {
-			return fmt.Errorf("error retrieving IAM login policy: %s", err)
-		}
-
-		getLoginPolicyRespBody, err := utils.FlattenResponse(getLoginPolicyResp)
-		if err != nil {
-			return err
-		}
-
-		if utils.PathSearch("login_policy.account_validity_period", getLoginPolicyRespBody, float64(0)).(float64) != 0 ||
-			utils.PathSearch("login_policy.custom_info_for_login", getLoginPolicyRespBody, "").(string) != "" ||
-			utils.PathSearch("login_policy.lockout_duration", getLoginPolicyRespBody, float64(0)).(float64) != 15 ||
-			utils.PathSearch("login_policy.login_failed_times", getLoginPolicyRespBody, float64(0)).(float64) != 5 ||
-			utils.PathSearch("login_policy.period_with_login_failures", getLoginPolicyRespBody, float64(0)).(float64) != 15 ||
-			utils.PathSearch("login_policy.session_timeout", getLoginPolicyRespBody, float64(0)).(float64) != 60 ||
-			utils.PathSearch("login_policy.show_recent_login_info", getLoginPolicyRespBody, false).(bool) {
-			return fmt.Errorf("the login policy failed to reset to defaults")
-		}
-	}
-
-	return nil
-}
-
-func testAccLoginPolicy_basic() string {
-	return `
+const testAccLoginPolicy_basic_step1 = `
 resource "huaweicloud_identity_login_policy" "test" {
   account_validity_period    = 20
   lockout_duration           = 30
@@ -151,10 +111,8 @@ resource "huaweicloud_identity_login_policy" "test" {
   custom_info_for_login      = "hello Terraform"
 }
 `
-}
 
-func testAccLoginPolicy_update() string {
-	return `
+const testAccLoginPolicy_basic_step2 = `
 resource "huaweicloud_identity_login_policy" "test" {
   account_validity_period    = 0
   lockout_duration           = 20
@@ -165,4 +123,3 @@ resource "huaweicloud_identity_login_policy" "test" {
   custom_info_for_login      = ""
 }
 `
-}
