@@ -48,6 +48,17 @@ The `image_caches` block supports:
 
 * `retention_days` - The retention days in image caches.
 
+* `building_config` - The configuration for creating an image cache.
+  The [building_config](#building_config_struct) is documented below.
+
 * `status` - The image caches status.
 
 * `message` - The messages in image caches.
+
+<a name="building_config_struct"></a>
+The `building_config` block supports:
+
+* `cluster` - The ID of a CCE Autopilot cluster where a temporary pod is started for creating an image cache.
+
+* `image_pull_secrets` - The list of access credentials for downloading the images to be cached. If no access credential
+  is specified or no valid credential is available, only public images can be downloaded.
