@@ -79,7 +79,6 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"duration": {
 				Type:             schema.TypeString,
