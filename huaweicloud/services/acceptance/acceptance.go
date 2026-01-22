@@ -56,9 +56,11 @@ var (
 	HW_SECURITY_GROUP_ID             = os.Getenv("HW_SECURITY_GROUP_ID")
 	HW_ENTERPRISE_PROJECT_ID         = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ENTERPRISE_PROJECT_NAME       = os.Getenv("HW_ENTERPRISE_PROJECT_NAME")
-	HW_ADMIN                         = os.Getenv("HW_ADMIN")
-	HW_IAM_V5                        = os.Getenv("HW_IAM_V5")
-	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")
+
+	HW_ADMIN                               = os.Getenv("HW_ADMIN")
+	HW_IAM_V5                              = os.Getenv("HW_IAM_V5")
+	HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL = os.Getenv("HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL")
+	HW_RUNNER_PUBLIC_IP                    = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
 	// CBR environment
 	HW_CBR_ECS_BACKUP_ID          = os.Getenv("HW_CBR_ECS_BACKUP_ID")          // The ECS backup ID.
@@ -1628,6 +1630,13 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 func TestAccPreCheckIAMV5(t *testing.T) {
 	if HW_IAM_V5 == "" {
 		t.Skip("This environment does not support IAM v5 tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckServiceLinkedAgencyPrincipal(t *testing.T) {
+	if HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL == "" {
+		t.Skip("HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL must be set for this acceptance test")
 	}
 }
 

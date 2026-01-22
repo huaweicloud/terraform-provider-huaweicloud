@@ -15,8 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NewServiceClient("iam_no_version", acceptance.HW_REGION_NAME)
+func getV5ServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
@@ -33,49 +33,50 @@ func getIdentityServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terra
 	return utils.FlattenResponse(getAgencyResp)
 }
 
-func TestAccIdentityV5ServiceLinkedService_basic(t *testing.T) {
-	var object interface{}
-	var servicePrincipal = "service.CBH"
-	var description = "test"
-	resourceName := "huaweicloud_identityv5_service_linked_agency.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentityServiceLinkedAgencyResourceFunc,
+// Please ensure that the user executing the acceptance test has 'admin' permission.
+func TestAccV5ServiceLinkedService_basic(t *testing.T) {
+	var (
+		obj   interface{}
+		rName = "huaweicloud_identityv5_service_linked_agency.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5ServiceLinkedAgencyResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheckServiceLinkedAgencyPrincipal(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		// This resource has no delete logic.
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityServiceLinkedServiceV5_basic(servicePrincipal, description),
+				Config: testAccV5ServiceLinkedService_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttrSet(resourceName, "trust_policy"),
-					resource.TestCheckResourceAttrSet(resourceName, "agency_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "agency_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttr(resourceName, "path", "service-linked-agency/"+servicePrincipal+"/"),
-					resource.TestCheckResourceAttr(resourceName, "description", description),
-					resource.TestCheckResourceAttr(resourceName, "max_session_duration", "3600"),
+					resource.TestCheckResourceAttr(rName, "service_principal", acceptance.HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL),
+					resource.TestCheckResourceAttr(rName, "description", "Create by terraform script"),
+					// Check attributes.
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttrSet(rName, "trust_policy"),
+					resource.TestCheckResourceAttrSet(rName, "agency_id"),
+					resource.TestCheckResourceAttrSet(rName, "agency_name"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttr(rName, "path",
+						"service-linked-agency/"+acceptance.HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL+"/"),
+					resource.TestCheckResourceAttr(rName, "max_session_duration", "3600"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityServiceLinkedServiceV5_basic(servicePrincipal, description string) string {
+func testAccV5ServiceLinkedService_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identityv5_service_linked_agency" "test" {
   service_principal = "%s"
-  description       = "%s"
+  description       = "Create by terraform script"
 }
-`, servicePrincipal, description)
+`, acceptance.HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL)
 }
