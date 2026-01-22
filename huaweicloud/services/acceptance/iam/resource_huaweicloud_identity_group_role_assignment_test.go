@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/eps_permissions"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -16,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getIdentityGroupRoleAssignmentResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getGroupRoleAssignmentResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	identityClient, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM v3 client: %s", err)
@@ -56,140 +55,23 @@ func getIdentityGroupRoleAssignmentResourceFunc(c *config.Config, state *terrafo
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func TestAccIdentityGroupRoleAssignment_basic(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_group_role_assignment.test"
-	var role roles.Role
+func TestAccGroupRoleAssignment_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityGroupRoleAssignmentResourceFunc,
-	)
+		applyForDomain   = "huaweicloud_identity_group_role_assignment.apply_for_domain"
+		rcApplyForDomain = acceptance.InitResourceCheck(applyForDomain, &obj, getGroupRoleAssignmentResourceFunc)
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-			acceptance.TestAccPrecheckDomainId(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityGroupRoleAssignment_domain(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "group_id",
-						"huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "role_id",
-						"huaweicloud_identity_role.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "domain_id",
-						acceptance.HW_DOMAIN_ID),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityGroupRoleAssignmentDomainImportStateFunc(resourceName),
-			},
-		},
-	})
-}
+		applyForProject   = "huaweicloud_identity_group_role_assignment.apply_for_project"
+		rcApplyForProject = acceptance.InitResourceCheck(applyForProject, &obj, getGroupRoleAssignmentResourceFunc)
 
-func TestAccIdentityGroupRoleAssignment_project(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_group_role_assignment.test"
-	var role roles.Role
+		applyForAllProjects   = "huaweicloud_identity_group_role_assignment.apply_for_all_projects"
+		rcApplyForAllProjects = acceptance.InitResourceCheck(applyForAllProjects, &obj, getGroupRoleAssignmentResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityGroupRoleAssignmentResourceFunc,
-	)
+		applyForEpsID   = "huaweicloud_identity_group_role_assignment.apply_for_eps_id"
+		rcApplyForEpsID = acceptance.InitResourceCheck(applyForEpsID, &obj, getGroupRoleAssignmentResourceFunc)
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-			acceptance.TestAccPreCheckProjectID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityGroupRoleAssignment_project(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-
-					resource.TestCheckResourceAttrPair(resourceName, "group_id",
-						"huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "role_id",
-						"huaweicloud_identity_role.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "project_id",
-						acceptance.HW_PROJECT_ID),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityGroupRoleAssignmentProjectImportStateFunc(resourceName),
-			},
-		},
-	})
-}
-
-func TestAccIdentityGroupRoleAssignment_allProjects(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_group_role_assignment.test"
-	var role roles.Role
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityGroupRoleAssignmentResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityGroupRoleAssignment_allProjects(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "project_id", "all"),
-					resource.TestCheckResourceAttrPair(resourceName, "group_id",
-						"huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "role_id",
-						"huaweicloud_identity_role.test", "id"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityGroupRoleAssignmentProjectImportStateFunc(resourceName),
-			},
-		},
-	})
-}
-
-func TestAccIdentityGroupRoleAssignment_epsID(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_group_role_assignment.test"
-	var role eps_permissions.Role
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityGroupRoleAssignmentResourceFunc,
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -197,76 +79,70 @@ func TestAccIdentityGroupRoleAssignment_epsID(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityGroupRoleAssignment_epsID(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "group_id",
-						"huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "role_id",
-						"huaweicloud_identity_role.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityGroupRoleAssignmentEpsImportStateFunc(resourceName),
-			},
-		},
-	})
-}
-
-// test whether the old resource huaweicloud_identity_role_assignment works
-func TestAccIdentityGroupRoleAssignment_old(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_role_assignment.test"
-	var role roles.Role
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityGroupRoleAssignmentResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPrecheckDomainId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcApplyForDomain.CheckResourceDestroy(),
+			rcApplyForProject.CheckResourceDestroy(),
+			rcApplyForAllProjects.CheckResourceDestroy(),
+			rcApplyForEpsID.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityGroupRoleAssignment_old(rName),
+				Config: testAccGroupRoleAssignment_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "group_id",
-						"huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "role_id",
-						"huaweicloud_identity_role.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "domain_id",
-						acceptance.HW_DOMAIN_ID),
+					// Assign role to a specified domain
+					rcApplyForDomain.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(applyForDomain, "group_id", "huaweicloud_identity_group.test", "id"),
+					resource.TestCheckResourceAttrPair(applyForDomain, "role_id", "huaweicloud_identity_role.test.0", "id"),
+					resource.TestCheckResourceAttr(applyForDomain, "domain_id", acceptance.HW_DOMAIN_ID),
+					// Assign role to a specified project
+					rcApplyForProject.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(applyForProject, "group_id", "huaweicloud_identity_group.test", "id"),
+					resource.TestCheckResourceAttrPair(applyForProject, "role_id", "huaweicloud_identity_role.test.1", "id"),
+					resource.TestCheckResourceAttrPair(applyForProject, "project_id", "data.huaweicloud_identity_projects.test", "projects.0.id"),
+					// Assign role to all projects
+					rcApplyForAllProjects.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(applyForAllProjects, "group_id", "huaweicloud_identity_group.test", "id"),
+					resource.TestCheckResourceAttrPair(applyForAllProjects, "role_id", "huaweicloud_identity_role.test.2", "id"),
+					resource.TestCheckResourceAttr(applyForAllProjects, "project_id", "all"),
+					// Assign role to a specified enterprise project
+					rcApplyForEpsID.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(applyForEpsID, "group_id", "huaweicloud_identity_group.test", "id"),
+					resource.TestCheckResourceAttrPair(applyForEpsID, "role_id", "huaweicloud_identity_role.test.3", "id"),
+					resource.TestCheckResourceAttr(applyForEpsID, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      applyForDomain,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccIdentityGroupRoleAssignmentDomainImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccGroupRoleAssignmentDomainImportStateFunc(applyForDomain),
+			},
+			{
+				ResourceName:      applyForProject,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupRoleAssignmentProjectImportStateFunc(applyForProject),
+			},
+			{
+				ResourceName:      applyForAllProjects,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupRoleAssignmentProjectImportStateFunc(applyForAllProjects),
+			},
+			{
+				ResourceName:      applyForEpsID,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupRoleAssignmentEpsImportStateFunc(applyForEpsID),
 			},
 		},
 	})
 }
 
-func testAccIdentityGroupRoleAssignmentDomainImportStateFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccGroupRoleAssignmentDomainImportStateFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -284,7 +160,7 @@ func testAccIdentityGroupRoleAssignmentDomainImportStateFunc(resourceName string
 	}
 }
 
-func testAccIdentityGroupRoleAssignmentProjectImportStateFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccGroupRoleAssignmentProjectImportStateFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -302,7 +178,7 @@ func testAccIdentityGroupRoleAssignmentProjectImportStateFunc(resourceName strin
 	}
 }
 
-func testAccIdentityGroupRoleAssignmentEpsImportStateFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccGroupRoleAssignmentEpsImportStateFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -320,19 +196,35 @@ func testAccIdentityGroupRoleAssignmentEpsImportStateFunc(resourceName string) r
 	}
 }
 
-func testAccIdentityGroupRoleAssignment_base(rName string) string {
+func testAccGroupRoleAssignment_basic_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_role" test {
-  name        = "%[1]s"
-  description = "created by terraform"
+data "huaweicloud_identity_projects" "test" {
+  name = "%[1]s"
+}
+
+variable "obs_role_privileges" {
+  type    = list(string)
+  default = [
+	"obs:bucket:CreateBucket",
+	"obs:bucket:GetBucketAcl",
+	"obs:bucket:ListBucket",
+	"obs:bucket:HeadBucket",
+  ]
+}
+
+resource "huaweicloud_identity_role" "test" {
+  count = length(var.obs_role_privileges)
+
+  name        = format("%[2]s_%%s", count.index)
+  description = "Created by terraform script"
   type        = "AX"
-  policy      = <<EOF
+  policy      = <<EOT
 {
   "Version": "1.1",
   "Statement": [
     {
       "Action": [
-        "obs:bucket:GetBucketAcl"
+         "${var.obs_role_privileges[count.index]}"
       ],
       "Effect": "Allow",
       "Resource": [
@@ -341,71 +233,44 @@ resource "huaweicloud_identity_role" test {
     }
   ]
 }
-EOF
+EOT
 }
 
 resource "huaweicloud_identity_group" "test" {
-  name        = "%[1]s"
-  description = "A test group"
-}`, rName)
+  name        = "%[2]s"
+  description = "Created by terraform script"
+}
+`, acceptance.HW_REGION_NAME, name)
 }
 
-func testAccIdentityGroupRoleAssignment_domain(rName string) string {
+func testAccGroupRoleAssignment_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_identity_group_role_assignment" "test" {
+resource "huaweicloud_identity_group_role_assignment" "apply_for_domain" {
   group_id  = huaweicloud_identity_group.test.id
-  role_id   = huaweicloud_identity_role.test.id
-  domain_id = "%s"
-}
-`, testAccIdentityGroupRoleAssignment_base(rName), acceptance.HW_DOMAIN_ID)
+  role_id   = huaweicloud_identity_role.test[0].id
+  domain_id = "%[2]s"
 }
 
-func testAccIdentityGroupRoleAssignment_project(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_identity_group_role_assignment" "test" {
+resource "huaweicloud_identity_group_role_assignment" "apply_for_project" {
   group_id   = huaweicloud_identity_group.test.id
-  role_id    = huaweicloud_identity_role.test.id
-  project_id = "%s"
-}
-`, testAccIdentityGroupRoleAssignment_base(rName), acceptance.HW_PROJECT_ID)
+  role_id    = huaweicloud_identity_role.test[1].id
+  project_id = try(data.huaweicloud_identity_projects.test.projects[0].id, "NOT_FOUND")
 }
 
-func testAccIdentityGroupRoleAssignment_allProjects(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_identity_group_role_assignment" "test" {
+resource "huaweicloud_identity_group_role_assignment" "apply_for_all_projects" {
   group_id   = huaweicloud_identity_group.test.id
-  role_id    = huaweicloud_identity_role.test.id
+  role_id    = huaweicloud_identity_role.test[2].id
   project_id = "all"
 }
-`, testAccIdentityGroupRoleAssignment_base(rName))
-}
 
-func testAccIdentityGroupRoleAssignment_epsID(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_identity_group_role_assignment" "test" {
+resource "huaweicloud_identity_group_role_assignment" "apply_for_eps_id" {
   group_id              = huaweicloud_identity_group.test.id
-  role_id               = huaweicloud_identity_role.test.id
-  enterprise_project_id = "%s"
+  role_id               = huaweicloud_identity_role.test[3].id
+  enterprise_project_id = "%[3]s"
 }
-`, testAccIdentityGroupRoleAssignment_base(rName), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccIdentityGroupRoleAssignment_old(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_identity_role_assignment" "test" {
-  group_id  = huaweicloud_identity_group.test.id
-  role_id   = huaweicloud_identity_role.test.id
-  domain_id = "%s"
-}
-`, testAccIdentityGroupRoleAssignment_base(rName), acceptance.HW_DOMAIN_ID)
+`, testAccGroupRoleAssignment_basic_base(name),
+		acceptance.HW_DOMAIN_ID,
+		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
