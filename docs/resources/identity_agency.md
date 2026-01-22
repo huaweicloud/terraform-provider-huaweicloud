@@ -63,11 +63,6 @@ The following arguments are supported:
 * `enterprise_project_roles` - (Optional, List) Specifies an array of one or more roles and enterprise projects which
   are used to grant permissions to agency on project. The structure is documented below.
 
--> **NOTE**
-At least one of `project_role`, `domain_roles`, `all_resources_roles` and `enterprise_project_roles` must be specified
-when creating an agency. We can get all **System-Defined Roles** from
-[HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
-
 The `project_role` block supports:
 
 * `project` - (Required, String) Specifies the name of project.

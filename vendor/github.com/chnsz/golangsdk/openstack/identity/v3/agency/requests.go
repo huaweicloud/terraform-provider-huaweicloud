@@ -35,7 +35,8 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 
 type UpdateOpts struct {
 	DelegatedDomain string `json:"trust_domain_name,omitempty"`
-	Description     string `json:"description,omitempty"`
+	// The description of the agency, which supports update with an empty string.
+	Description string `json:"description"`
 	// the duration can be string("FOREVER", "ONEDAY") or specific days in int(1, 2, 3...)
 	Duration interface{} `json:"duration,omitempty"`
 }

@@ -48,6 +48,16 @@ func TestAccIdentityTemporaryAccessKey_basic(t *testing.T) {
 	})
 }
 
+func testAccTemporaryAccessKey_basic_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_agency" "test" {
+  name                  = "%[1]s_create_with_role_assignments"
+  description           = "Created by terraform acceptance test"
+  delegated_domain_name = "%[2]s"
+}
+`, name, acceptance.HW_DOMAIN_NAME)
+}
+
 func AccIdentityTemporaryAccessKeyByAgency(agencyName, userName, initPassword string) string {
 	policy := "{\"Version\":\"1.1\",\"Statement\":[{\"Effect\":\"Allow\"," +
 		"\"Action\":[\"obs:object:GetObject\"],\"Resource\":[\"OBS:*:*:object:*\"]}]}"
@@ -63,7 +73,7 @@ resource "huaweicloud_identity_temporary_access_key" "test" {
   domain_name = huaweicloud_identity_agency.test.delegated_domain_name
   policy      = "%[3]s"
 }
-`, testAccIdentityAgency_domain(agencyName), testAccIdentityUserToken_basic(userName, initPassword), policy)
+`, testAccTemporaryAccessKey_basic_base(agencyName), testAccIdentityUserToken_basic(userName, initPassword), policy)
 }
 
 func AccIdentityTemporaryAccessKeyByToken(userName, initPassword string) string {
