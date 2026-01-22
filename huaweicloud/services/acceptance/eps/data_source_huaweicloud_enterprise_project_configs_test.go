@@ -9,8 +9,10 @@ import (
 )
 
 func TestAccDataEnterpriseProjectConfigs_basic(t *testing.T) {
-	all := "data.huaweicloud_enterprise_project_configs.test"
-	dc := acceptance.InitDataSourceCheck(all)
+	var (
+		dataSourceName = "data.huaweicloud_enterprise_project_configs.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -20,7 +22,8 @@ func TestAccDataEnterpriseProjectConfigs_basic(t *testing.T) {
 				Config: testAccDataEnterpriseProjectConfigs_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckOutput("huaweicloud_enterprise_project_configs", "true"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "support_item_attribute.0.delete_ep_support_attribute"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "support_item.delete_ep_support"),
 				),
 			},
 		},
@@ -29,8 +32,4 @@ func TestAccDataEnterpriseProjectConfigs_basic(t *testing.T) {
 
 const testAccDataEnterpriseProjectConfigs_basic = `
 data "huaweicloud_enterprise_project_configs" "test" {}
-
-output "huaweicloud_enterprise_project_configs" {
-  value = data.huaweicloud_enterprise_project_configs.test.support_item.delete_ep_support == true
-}
 `
