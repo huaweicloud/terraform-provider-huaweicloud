@@ -9,40 +9,49 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityV5AccessKey_basic(t *testing.T) {
-	resourceName := "data.huaweicloud_identityv5_access_key.test"
-	userName := acceptance.RandomAccResourceName()
+// Please ensure that the user executing the acceptance test has 'admin' permission.
+func TestAccDataV5AccessKey_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		dcName = "data.huaweicloud_identityv5_access_key.test"
+		dc     = acceptance.InitDataSourceCheck(dcName)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIdentityV5AccessKey_basic(userName),
+				Config: testAccDataV5AccessKey_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(resourceName, "user_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "access_key_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "status"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(dcName, "user_id", "huaweicloud_identityv5_user.test", "id"),
+					resource.TestCheckResourceAttrPair(dcName, "access_key_id", "huaweicloud_identityv5_access_key.test", "access_key_id"),
+					resource.TestCheckResourceAttr(dcName, "status", "inactive"),
+					resource.TestCheckResourceAttrPair(dcName, "created_at", "huaweicloud_identityv5_access_key.test", "created_at"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIdentityV5AccessKey_basic(username string) string {
+func testAccDataV5AccessKey_basic(username string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identityv5_user" "user_1" {
+resource "huaweicloud_identityv5_user" "test" {
   name = "%[1]s"
 }
 
-resource "huaweicloud_identityv5_access_key" "key_1" {
-  user_id = huaweicloud_identityv5_user.user_1.id
+resource "huaweicloud_identityv5_access_key" "test" {
+  user_id = huaweicloud_identityv5_user.test.id
   status  = "inactive"
 }
 
 data "huaweicloud_identityv5_access_key" "test" {
-  user_id = huaweicloud_identityv5_access_key.key_1.user_id
+  user_id = huaweicloud_identityv5_access_key.test.user_id
 }
 `, username)
 }
