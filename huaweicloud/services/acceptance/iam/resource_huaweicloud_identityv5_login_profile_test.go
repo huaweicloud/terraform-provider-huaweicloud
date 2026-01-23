@@ -9,15 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityLoginProfileResourceFuncV5(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NewServiceClient("iam_no_version", acceptance.HW_REGION_NAME)
+func getV5LoginProfileFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
@@ -34,16 +33,14 @@ func getIdentityLoginProfileResourceFuncV5(cfg *config.Config, state *terraform.
 	return utils.FlattenResponse(getLoginProfileResp)
 }
 
-func TestAccIdentityV5LoginProfile_basic(t *testing.T) {
-	var user users.User
-	userName := acceptance.RandomAccResourceName()
+// Please ensure that the user executing the acceptance test has 'admin' permission.
+func TestAccV5LoginProfile_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	resourceName := "huaweicloud_identityv5_login_profile.login_profile_11"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&user,
-		getIdentityLoginProfileResourceFuncV5,
+		obj   interface{}
+		rName = "huaweicloud_identityv5_login_profile.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5LoginProfileFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -52,60 +49,82 @@ func TestAccIdentityV5LoginProfile_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV5LoginProfile_basic(userName),
+				Config: testAccV5LoginProfile_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "password_reset_required"),
+					resource.TestCheckResourceAttrPair(rName, "user_id", "huaweicloud_identityv5_user.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "password", "random_string.test.0", "result"),
+					resource.TestCheckResourceAttr(rName, "password_reset_required", "true"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
+				Config: testAccV5LoginProfile_basic_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrPair(rName, "password", "random_string.test.1", "result"),
+					resource.TestCheckResourceAttr(rName, "password_reset_required", "false"),
+				),
+			},
+			{
+				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
-			},
-			{
-				Config: testAccIdentityV5LoginProfile_update(userName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "password_reset_required"),
-				),
 			},
 		},
 	})
 }
 
-func testAccIdentityV5LoginProfile_basic(name string) string {
+func testAccV5LoginProfile_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identityv5_user" "user" {
+resource "huaweicloud_identityv5_user" "test" {
  name = "%[1]s"
 }
 
-resource "huaweicloud_identityv5_login_profile" "login_profile_11" {
-  user_id                 = huaweicloud_identityv5_user.user.id
-  password                = "default8881"
-  password_reset_required = false
+resource "random_string" "test" {
+  count = 2
+
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
 }
 `, name)
 }
 
-func testAccIdentityV5LoginProfile_update(name string) string {
+func testAccV5LoginProfile_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identityv5_user" "user" {
- name = "%[1]s"
+%[1]s
+
+resource "huaweicloud_identityv5_login_profile" "test" {
+  user_id                 = huaweicloud_identityv5_user.test.id
+  password                = random_string.test[0].result
+  password_reset_required = true
+}
+`, testAccV5LoginProfile_base(name))
 }
 
-resource "huaweicloud_identityv5_login_profile" "login_profile_11" {
-  user_id                 = huaweicloud_identityv5_user.user.id
-  password                = "default8881"
+func testAccV5LoginProfile_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identityv5_login_profile" "test" {
+  user_id                 = huaweicloud_identityv5_user.test.id
+  password                = random_string.test[1].result
   password_reset_required = false
 }
-`, name)
+`, testAccV5LoginProfile_base(name))
 }
