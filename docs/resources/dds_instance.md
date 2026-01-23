@@ -16,6 +16,7 @@ variable "dds_password" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
+
   datastore {
     type           = "DDS-Community"
     version        = "4.0"
@@ -24,7 +25,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   availability_zone = "{{ availability_zone }}"
   vpc_id            = "{{ vpc_id }}"
-  subnet_id         = "{{ subnet_network_id }}}"
+  subnet_id         = "{{ subnet_network_id }}"
   security_group_id = "{{ security_group_id }}"
   password          = var.dds_password
   mode              = "Sharding"
@@ -36,6 +37,7 @@ resource "huaweicloud_dds_instance" "instance" {
     num       = 2
     spec_code = "dds.mongodb.c3.medium.4.mongos"
   }
+
   flavor {
     type      = "shard"
     num       = 2
@@ -43,6 +45,7 @@ resource "huaweicloud_dds_instance" "instance" {
     size      = 20
     spec_code = "dds.mongodb.c3.medium.4.shard"
   }
+
   flavor {
     type      = "config"
     num       = 1
@@ -50,6 +53,7 @@ resource "huaweicloud_dds_instance" "instance" {
     size      = 20
     spec_code = "dds.mongodb.c3.large.2.config"
   }
+
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
@@ -64,6 +68,7 @@ variable "dds_password" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
+
   datastore {
     type           = "DDS-Community"
     version        = "4.0"
@@ -72,10 +77,11 @@ resource "huaweicloud_dds_instance" "instance" {
 
   availability_zone = "{{ availability_zone }}"
   vpc_id            = "{{ vpc_id }}"
-  subnet_id         = "{{ subnet_network_id }}}"
+  subnet_id         = "{{ subnet_network_id }}"
   security_group_id = "{{ security_group_id }}"
   password          = var.dds_password
   mode              = "ReplicaSet"
+
   flavor {
     type      = "replica"
     num       = 3
@@ -168,6 +174,20 @@ The following arguments are supported:
 
 -> It's only for **Sharding** mode. DDS 4.0 and later DB instances do not support to set balancer configuration.
   The UTC time is used. Please convert the local time based on the time zone.
+
+* `policy` - (Optional, List) Specifies the autoscaling policy information.
+  The [policy](#auto_scaling_policy) structure is documented below.
+
+* `switch_option` - (Optional, String) Specifies whether to enable autoscaling.
+  The valid values are as follows:
+  + **on** (Default value)
+  + **off**
+
+-> 1. The parameters `policy` and `switch_option` are available on when you need to set volume auto enlarge policy,
+  and the `policy` is required.
+  <br/>2. For yearly/monthly instances, the system bills new storage space automatically by default. Autoscaling is
+  available only when your account balance is sufficient.
+  <br/>3. Replica set and cluster instances with read replicas do not support auto enlarge policy.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
   The valid values are as follows:
@@ -268,6 +288,28 @@ The `backup_strategy` block supports:
     backed up on each day every week.
   + If you set the `keep_days` between 7 and 732 days, set the parameter value to at least one day of every week.
     For example: **1**, **3,5**.
+
+<a name="auto_scaling_policy"></a>
+The `policy` block supports:
+
+* `threshold` - (Required, Int) Specifies the threshold to trigger autoscaling.
+  The value only can be **80**, **85**, or **90**.
+  If the used storage exceeds this threshold, autoscaling is triggered.
+  This parameter of a cluster instance applies to each shard in the instance.
+
+* `step` - (Required, Int) Specifies the autoscaling increment (s%).
+  The value only can be **10**, **15**, or **20**.
+  After autoscaling is triggered, your storage will automatically scale up by s% (in increments of 10 GB) of
+  your allocated storage.
+  If your account balance is insufficient, autoscaling will fail.
+
+* `size` - (Optional, Int) Specifies the maximum capacity of autoscaling.
+  The value must be an integer multiple of `10`.
+  When the maximum capacity is reached, auto scaling is not triggered.
+  The minimum value is the storage space of the current instance plus `10` GB. If an instance has fewer than `8` vCPUs,
+  the maximum storage is `5,000` GB. If an instance has `8` or more vCPUs, the maximum storage is `10,000` GB.
+  If an instance has fewer than `8` vCPUs, the default value is `5,000`.
+  If an instance has `8` or more vCPUs, the default value is `10,000`.
 
 ## Attribute Reference
 

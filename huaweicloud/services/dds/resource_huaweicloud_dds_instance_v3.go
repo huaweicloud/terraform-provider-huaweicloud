@@ -58,6 +58,8 @@ type ctxType string
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/client-network
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/client-network
+// @API DDS PUT /v3/{project_id}/instances/auto-enlarge-volume-policies
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/auto-enlarge-volume-policy
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -286,6 +288,33 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"threshold": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"step": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"switch_option": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -639,6 +668,14 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	// setting auto enlarge policy
+	if _, ok := d.GetOk("policy"); ok {
+		err = settingAutoEnlargePolicy(client, d)
+		if err != nil {
+			return diag.Errorf("error setting volume auto enlarge policy: %s", err)
+		}
+	}
+
 	return resourceDdsInstanceV3Read(ctx, d, meta)
 }
 
@@ -868,6 +905,55 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
+func settingAutoEnlargePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v3/{project_id}/instances/auto-enlarge-volume-policies"
+	reqPath := client.Endpoint + httpUrl
+	reqPath = strings.ReplaceAll(reqPath, "{project_id}", client.ProjectID)
+
+	validationOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildAutoEnlargePolicyBodyParams(d)),
+	}
+
+	_, err := client.Request("PUT", reqPath, &validationOpt)
+
+	return err
+}
+
+func buildAutoEnlargePolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"policies":      buildPolicyInfoBodyParams(d.Get("policy").([]interface{}), d.Id()),
+		"switch_option": utils.ValueIgnoreEmpty(d.Get("switch_option")),
+	}
+
+	return params
+}
+
+func buildPolicyInfoBodyParams(policyInfo []interface{}, instanceId string) []map[string]interface{} {
+	if len(policyInfo) == 0 {
+		return nil
+	}
+
+	policy := make([]map[string]interface{}, 0, len(policyInfo))
+	for _, v := range policyInfo {
+		raw, ok := v.(map[string]interface{})
+		if !ok {
+			return nil
+		}
+
+		params := map[string]interface{}{
+			"instance_id": instanceId,
+			"threshold":   utils.PathSearch("threshold", raw, nil),
+			"step":        utils.PathSearch("step", raw, nil),
+			"size":        utils.ValueIgnoreEmpty(utils.PathSearch("size", raw, nil)),
+		}
+
+		policy = append(policy, params)
+	}
+
+	return policy
+}
+
 func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
@@ -1025,6 +1111,17 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 	}
 	mErr = multierror.Append(mErr, d.Set("slow_log_desensitization", slowLog.Status))
 
+	// set auto enlarge policy parameters
+	policy, err := getPolicyInfo(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(mErr,
+		d.Set("switch_option", utils.PathSearch("switch_option", policy, nil)),
+		d.Set("policy", flattenPolicyInfo(utils.PathSearch("policy", policy, nil))),
+	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting dds instance fields: %s", err)
 	}
@@ -1040,6 +1137,40 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return nil
+}
+
+func getPolicyInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/instances/{instance_id}/auto-enlarge-volume-policy"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func flattenPolicyInfo(policyInfo interface{}) []map[string]interface{} {
+	if policyInfo == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{
+		"threshold": utils.PathSearch("threshold", policyInfo, nil),
+		"step":      utils.PathSearch("step", policyInfo, nil),
+		"size":      utils.PathSearch("size", policyInfo, nil),
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
@@ -1391,6 +1522,13 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+		}
+	}
+
+	if d.HasChanges("policy", "switch_option") {
+		err = settingAutoEnlargePolicy(client, d)
+		if err != nil {
+			return diag.Errorf("error updating volume auto enlarge policy: %s", err)
 		}
 	}
 
