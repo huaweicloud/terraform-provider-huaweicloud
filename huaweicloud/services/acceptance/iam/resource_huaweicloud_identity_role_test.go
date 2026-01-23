@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -14,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getIdentityRoleResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getRoleResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -22,16 +21,17 @@ func getIdentityRoleResourceFunc(c *config.Config, state *terraform.ResourceStat
 	return policies.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityRole_basic(t *testing.T) {
-	var role policies.Role
-	var roleName = acceptance.RandomAccResourceName()
-	var roleNameUpdate = roleName + "update"
-	resourceName := "huaweicloud_identity_role.test"
+func TestAccRole_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityRoleResourceFunc,
+		normalAssign       = "huaweicloud_identity_role.normal"
+		rcNormalAssign     = acceptance.InitResourceCheck(normalAssign, &obj, getRoleResourceFunc)
+		assumeAgencyAssign = "huaweicloud_identity_role.assume_agency"
+		rcAssumeRoleAssign = acceptance.InitResourceCheck(assumeAgencyAssign, &obj, getRoleResourceFunc)
+
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,65 +40,50 @@ func TestAccIdentityRole_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source:            "hashicorp/random",
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcNormalAssign.CheckResourceDestroy(),
+			rcAssumeRoleAssign.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityRole_basic(roleName),
+				Config: testAccRole_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", roleName),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
+					rcNormalAssign.CheckResourceExists(),
+					resource.TestCheckResourceAttr(normalAssign, "name", name+"_normal"),
+					resource.TestCheckResourceAttr(normalAssign, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(normalAssign, "type", "AX"),
+					rcAssumeRoleAssign.CheckResourceExists(),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "name", name+"_assume_agency"),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "type", "AX"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				Config: testAccRole_basic_step2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rcNormalAssign.CheckResourceExists(),
+					resource.TestCheckResourceAttr(normalAssign, "name", updateName+"_normal"),
+					resource.TestCheckResourceAttr(normalAssign, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(normalAssign, "type", "AX"),
+					rcAssumeRoleAssign.CheckResourceExists(),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "name", updateName+"_assume_agency"),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(assumeAgencyAssign, "type", "AX"),
+				),
+			},
+			{
+				ResourceName:      normalAssign,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIdentityRole_update(roleNameUpdate),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", roleNameUpdate),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccIdentityRole_agency(t *testing.T) {
-	var role policies.Role
-	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_identity_role.agency"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&role,
-		getIdentityRoleResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityRole_agency(roleName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", roleName),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
+				ResourceName:      assumeAgencyAssign,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -106,11 +91,15 @@ func TestAccIdentityRole_agency(t *testing.T) {
 	})
 }
 
-func testAccIdentityRole_basic(roleName string) string {
+func testAccRole_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_role" test {
-  name        = "%s"
-  description = "created by terraform"
+resource "random_uuid" "test" {
+  count = 3
+}
+
+resource "huaweicloud_identity_role" "normal" {
+  name        = "%[1]s_normal"
+  description = "Created by terraform script"
   type        = "AX"
   policy      = <<EOF
 {
@@ -129,15 +118,44 @@ resource "huaweicloud_identity_role" test {
 }
 EOF
 }
-`, roleName)
+
+resource "huaweicloud_identity_role" "assume_agency" {
+  name        = "%[1]s_assume_agency"
+  type        = "AX"
+  description = "Created by terraform script"
+  policy      = <<EOF
+{
+  "Version": "1.1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:agencies:assume"
+      ],
+      "Resource": {
+        "uri": [
+          "/iam/agencies/${random_uuid.test[0].result}",
+          "/iam/agencies/${random_uuid.test[1].result}"
+        ]
+      }
+    }
+  ]
+}
+EOF
+}
+`, name)
 }
 
-func testAccIdentityRole_update(roleName string) string {
+func testAccRole_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_role" test {
-  name        = "%s"
-  description = "created by terraform"
+resource "random_uuid" "test" {
+  count = 3
+}
+
+resource "huaweicloud_identity_role" "normal" {
+  name        = "%[1]s_normal"
   type        = "AX"
+  description = "Updated by terraform script"
   policy      = <<EOF
 {
   "Version": "1.1",
@@ -153,7 +171,7 @@ resource "huaweicloud_identity_role" test {
       "Condition": {
         "StringStartWith": {
           "g:ProjectName": [
-            "%s"
+            "%[2]s"
           ]
         }
       }
@@ -162,15 +180,11 @@ resource "huaweicloud_identity_role" test {
 }
 EOF
 }
-`, roleName, acceptance.HW_REGION_NAME)
-}
 
-func testAccIdentityRole_agency(roleName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_role" agency {
-  name        = "%s"
-  description = "created by terraform"
+resource "huaweicloud_identity_role" "assume_agency" {
+  name        = "%[1]s_assume_agency"
   type        = "AX"
+  description = "Updated by terraform script"
   policy      = <<EOF
 {
   "Version": "1.1",
@@ -182,8 +196,8 @@ resource "huaweicloud_identity_role" agency {
       ],
       "Resource": {
         "uri": [
-          "/iam/agencies/07805aca-ba80-0fdd-4fbd-c00b8f888c7c",
-          "/iam/agencies/16d4d672-8665-496e-a0b5-71a8ad7f2fe8"
+          "/iam/agencies/${random_uuid.test[1].result}",
+          "/iam/agencies/${random_uuid.test[2].result}"
         ]
       }
     }
@@ -191,5 +205,5 @@ resource "huaweicloud_identity_role" agency {
 }
 EOF
 }
-`, roleName)
+`, name, acceptance.HW_REGION_NAME)
 }
