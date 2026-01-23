@@ -3,12 +3,14 @@ subcategory: "Cloud Container Engine (CCE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_cluster_configuration_details"
 description: |-
-  Use this data source to get the configuration details within HuaweiCloud.
+  Use this data source to get the detailed configuration items supported by a cluster based on factors like the cluster
+  version or type
 ---
 
 # huaweicloud_cce_cluster_configuration_details
 
-Use this data source to get the configurations of a CCE cluster within HuaweiCloud.
+Use this data source to get the detailed configuration items supported by a cluster based on factors like the cluster
+version or type.
 
 ## Example Usage
 
@@ -29,7 +31,7 @@ The following arguments are supported:
 
 * `cluster_id` - (Optional, String) Specifies the cluster ID.
 
-* `network_mode` - (Optional, String) Specifies the  network mode.
+* `network_mode` - (Optional, String) Specifies the network mode.
 
 ## Attribute Reference
 
@@ -37,4 +39,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `configurations` - The data of configurations.
+* `configurations` - The configuration items supported by a cluster.
