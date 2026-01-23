@@ -22,10 +22,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `support_item` - The configurations of EPS.
-  The [configuration](#eps_config) structure is documented below.
+* `support_item_attribute` - The configurations of EPS.
+  The [support_item_attribute](#support_item_attribute_struct) structure is documented below.
 
-<a name="eps_config"></a>
-The `configuration` block supports:
+<a name="support_item_attribute_struct"></a>
+The `support_item_attribute` block supports:
 
-* `delete_ep_support` - Whether enterprise projects can be deleted.
+* `delete_ep_support_attribute` - Whether enterprise projects can be deleted.

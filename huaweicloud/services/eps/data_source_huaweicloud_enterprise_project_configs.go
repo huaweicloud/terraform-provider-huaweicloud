@@ -20,11 +20,32 @@ func DataSourceConfigs() *schema.Resource {
 		ReadContext: dataSourceConfigsRead,
 
 		Schema: map[string]*schema.Schema{
-			// Attributes.
+			"support_item_attribute": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"delete_ep_support_attribute": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether enterprise projects can be deleted.`,
+						},
+					},
+				},
+				Description: `The list of configurations.`,
+			},
+			// The structure of attribute field `support_item` is flawed; it should be deprecated and the field
+			// `support_item_attribute` should be used instead.
 			"support_item": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeBool},
+				Description: utils.SchemaDesc(
+					"Refer to the attribute field delete_ep_support_attribute.",
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}
@@ -32,33 +53,26 @@ func DataSourceConfigs() *schema.Resource {
 
 func dataSourceConfigsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/enterprise-projects/configs"
 	)
 	client, err := cfg.NewServiceClient("eps", region)
 	if err != nil {
 		return diag.Errorf("error creating EPS client: %s", err)
 	}
 
-	return ShowEpConfigs(client, d)
-}
-
-func ShowEpConfigs(client *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
-	httpUrl := "v1/enterprise-projects/configs"
-	showPath := client.Endpoint + httpUrl
-
-	opt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
 	}
 
-	requestResp, err := client.Request("GET", showPath, &opt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving EPS configs: %s", err)
 	}
-	respBody, err := utils.FlattenResponse(requestResp)
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -69,11 +83,28 @@ func ShowEpConfigs(client *golangsdk.ServiceClient, d *schema.ResourceData) diag
 	}
 	d.SetId(randUUID)
 
-	mErr := multierror.Append(nil,
-		d.Set("support_item", map[string]interface{}{
-			"delete_ep_support": utils.PathSearch("support_item.delete_ep_support", respBody, nil).(bool),
-		}),
+	mErr := multierror.Append(
+		d.Set("support_item_attribute", flattenSupportItemAttribute(utils.PathSearch("support_item", respBody, nil))),
+		d.Set("support_item", flattenSupportItem(utils.PathSearch("support_item.delete_ep_support", respBody, false).(bool))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenSupportItem(respBool bool) map[string]interface{} {
+	return map[string]interface{}{
+		"delete_ep_support": respBool,
+	}
+}
+
+func flattenSupportItemAttribute(respBody interface{}) []interface{} {
+	if respBody == nil {
+		return nil
+	}
+
+	return []interface{}{
+		map[string]interface{}{
+			"delete_ep_support_attribute": utils.PathSearch("delete_ep_support", respBody, nil),
+		},
+	}
 }
