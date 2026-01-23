@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings"
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -24,24 +23,26 @@ func getProviderConversionFunc(c *config.Config, state *terraform.ResourceState)
 	return mappings.Get(client, conversionID)
 }
 
-func TestAccIdentityProviderConversion_basic(t *testing.T) {
-	var provider providers.Provider
-	var name = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_provider_conversion.conversion"
+func TestAccProviderConversion_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&provider,
-		getProviderConversionFunc,
+		resourceName = "huaweicloud_identity_provider_conversion.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getProviderConversionFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProviderConversion_conf(name),
+				Config: testAccProviderConversion_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "conversion_rules.#", "1"),
@@ -49,7 +50,7 @@ func TestAccIdentityProviderConversion_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccIdentityProviderConversion_update(name),
+				Config: testAccProviderConversion_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "conversion_rules.#", "2"),
@@ -67,15 +68,15 @@ func TestAccIdentityProviderConversion_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityProviderConversion_conf(name string) string {
+func testAccProviderConversion_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
+resource "huaweicloud_identity_provider" "test" {
+  name     = "%[1]s"
   protocol = "oidc"
 }
 
-resource "huaweicloud_identity_provider_conversion" "conversion" {
-  provider_id = huaweicloud_identity_provider.provider_1.id
+resource "huaweicloud_identity_provider_conversion" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
 
   conversion_rules {
     local {
@@ -89,15 +90,15 @@ resource "huaweicloud_identity_provider_conversion" "conversion" {
 `, name)
 }
 
-func testAccIdentityProviderConversion_update(name string) string {
+func testAccProviderConversion_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
+resource "huaweicloud_identity_provider" "test" {
+  name     = "%[1]s"
   protocol = "oidc"
 }
 
-resource "huaweicloud_identity_provider_conversion" "conversion" {
-  provider_id = huaweicloud_identity_provider.provider_1.id
+resource "huaweicloud_identity_provider_conversion" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
 
   conversion_rules {
     local {
@@ -106,6 +107,7 @@ resource "huaweicloud_identity_provider_conversion" "conversion" {
     local {
       username = "federateduser"
     }
+
     remote {
       attribute = "Tom"
     }
@@ -118,6 +120,7 @@ resource "huaweicloud_identity_provider_conversion" "conversion" {
     local {
       username = "Jams"
     }
+
     remote {
       attribute = "username"
       condition = "any_one_of"

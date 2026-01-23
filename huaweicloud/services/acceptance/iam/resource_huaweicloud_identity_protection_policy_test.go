@@ -7,14 +7,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/security"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getProtectionPolicyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
+	}
+
+	policy, err := security.GetProtectPolicy(client, state.Primary.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if policy.Protection || !policy.AllowUser.ManageAccesskey || !policy.AllowUser.ManagePassword ||
+		!policy.AllowUser.ManageEmail || !policy.AllowUser.ManageMobile {
+		return policy, nil
+	}
+
+	return nil, golangsdk.ErrDefault404{}
+}
+
 func TestAccProtectionPolicy_basic(t *testing.T) {
-	resourceName := "huaweicloud_identity_protection_policy.test"
+	var (
+		object interface{}
+
+		resourceName = "huaweicloud_identity_protection_policy.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &object, getProtectionPolicyResourceFunc)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,20 +47,21 @@ func TestAccProtectionPolicy_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckProtectionPolicyDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProtectPolicy_basic(),
+				Config: testAccProtectPolicy_basic_step1(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProtectionPolicyExists(resourceName),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "protection_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "self_verification", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "self_management.#"),
 				),
 			},
 			{
-				Config: testAccProtectPolicy_email(),
+				Config: testAccProtectPolicy_basic_step2(),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "protection_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "self_verification", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "verification_email"),
@@ -48,8 +74,9 @@ func TestAccProtectionPolicy_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccProtectPolicy_update(),
+				Config: testAccProtectPolicy_basic_step3(),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "protection_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "self_management.0.access_key", "true"),
 					resource.TestCheckResourceAttr(resourceName, "self_management.0.password", "true"),
@@ -61,59 +88,7 @@ func TestAccProtectionPolicy_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckProtectionPolicyExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("resource ID is not set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := cfg.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating IAM client: %s", err)
-		}
-
-		_, err = security.GetProtectPolicy(client, rs.Primary.ID)
-		return err
-	}
-}
-
-func testAccCheckProtectionPolicyDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := cfg.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating IAM client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_protection_policy" {
-			continue
-		}
-
-		policy, err := security.GetProtectPolicy(client, rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("error fetching the IAM account password policy")
-		}
-
-		if policy.Protection {
-			return fmt.Errorf("the operation protection failed to reset to defaults")
-		}
-
-		if !policy.AllowUser.ManageAccesskey || !policy.AllowUser.ManagePassword ||
-			!policy.AllowUser.ManageEmail || !policy.AllowUser.ManageMobile {
-			return fmt.Errorf("the self-management failed to reset to defaults")
-		}
-	}
-
-	return nil
-}
-
-func testAccProtectPolicy_basic() string {
+func testAccProtectPolicy_basic_step1() string {
 	return `
 resource "huaweicloud_identity_protection_policy" "test" {
   protection_enabled = true
@@ -122,7 +97,7 @@ resource "huaweicloud_identity_protection_policy" "test" {
 }
 
 // verification by email
-func testAccProtectPolicy_email() string {
+func testAccProtectPolicy_basic_step2() string {
 	return `
 resource "huaweicloud_identity_protection_policy" "test" {
   protection_enabled = true
@@ -132,10 +107,11 @@ resource "huaweicloud_identity_protection_policy" "test" {
 }
 
 // disable the operation protection and update self_management
-func testAccProtectPolicy_update() string {
+func testAccProtectPolicy_basic_step3() string {
 	return `
 resource "huaweicloud_identity_protection_policy" "test" {
   protection_enabled = false
+
   self_management {
     access_key = true
     password   = true

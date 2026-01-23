@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -33,37 +32,39 @@ func getProviderMappingFunc(cfg *config.Config, state *terraform.ResourceState) 
 
 	getMappingResp, err := client.Request("GET", getMappingPath, &getMappingOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving identity provider mapping: %s", err)
+		return nil, err
 	}
 
 	return utils.FlattenResponse(getMappingResp)
 }
 
-func TestAccIdentityProviderMapping_basic(t *testing.T) {
-	var provider providers.Provider
-	var name = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_provider_mapping.mapping"
+func TestAccProviderMapping_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&provider,
-		getProviderMappingFunc,
+		resourceName = "huaweicloud_identity_provider_mapping.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getProviderMappingFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProviderMapping_basic(name),
+				Config: testAccProviderMapping_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					// nothing to check
 				),
 			},
 			{
-				Config: testAccIdentityProviderMapping_update(name),
+				Config: testAccProviderMapping_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					// nothing to check
@@ -78,15 +79,15 @@ func TestAccIdentityProviderMapping_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityProviderMapping_basic(name string) string {
+func testAccProviderMapping_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
+resource "huaweicloud_identity_provider" "test" {
+  name     = "%[1]s"
   protocol = "oidc"
 }
 
-resource "huaweicloud_identity_provider_mapping" "mapping" {
-  provider_id = huaweicloud_identity_provider.provider_1.id
+resource "huaweicloud_identity_provider_mapping" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
 
   mapping_rules = <<RULES
     [
@@ -122,15 +123,15 @@ resource "huaweicloud_identity_provider_mapping" "mapping" {
 `, name)
 }
 
-func testAccIdentityProviderMapping_update(name string) string {
+func testAccProviderMapping_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
+resource "huaweicloud_identity_provider" "test" {
+  name     = "%[1]s"
   protocol = "oidc"
 }
 
-resource "huaweicloud_identity_provider_mapping" "mapping" {
-  provider_id = huaweicloud_identity_provider.provider_1.id
+resource "huaweicloud_identity_provider_mapping" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
 
   mapping_rules = <<RULES
     [
