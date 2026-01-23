@@ -9,15 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityGroupResourceFuncV5(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NewServiceClient("iam_no_version", acceptance.HW_REGION_NAME)
+func getV5GroupFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
@@ -34,15 +33,15 @@ func getIdentityGroupResourceFuncV5(cfg *config.Config, state *terraform.Resourc
 	return utils.FlattenResponse(getGroupResp)
 }
 
-func TestAccIdentityV5Group_basic(t *testing.T) {
-	var group groups.Group
+// Please ensure that the user executing the acceptance test has 'admin' permission.
+func TestAccV5Group_basic(t *testing.T) {
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 
-	resourceName := "huaweicloud_identityv5_group.group"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&group,
-		getIdentityGroupResourceFuncV5,
+		obj   interface{}
+		rName = "huaweicloud_identityv5_group.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getV5GroupFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,63 +53,64 @@ func TestAccIdentityV5Group_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV5Group_basic,
+				Config: testAccV5Group_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttr(resourceName, "description", "kkkkkstring"),
-					resource.TestCheckResourceAttr(resourceName, "group_name", "kkkkk4"),
+					resource.TestCheckResourceAttr(rName, "group_name", name),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				Config: testAccV5Group_basic_step2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "group_name", updateName),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
+				),
+			},
+			{
+				Config: testAccV5Group_basic_step3(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "group_name", updateName),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+				),
+			},
+			{
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config: testAccIdentityV5Group_update,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttr(resourceName, "description", "kkkkkstringupdate"),
-					resource.TestCheckResourceAttr(resourceName, "group_name", "kkkkkupdate"),
-				),
-			},
-			{
-				Config: testAccIdentityV5Group_noDescription,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "urn"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "group_name", "kkkkkupdate1"),
-				),
 			},
 		},
 	})
 }
 
-const testAccIdentityV5Group_basic = `
-resource "huaweicloud_identityv5_group" "group" {
-  group_name  = "kkkkk4"
-  description = "kkkkkstring"
+func testAccV5Group_basic_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_group" "test" {
+  group_name  = "%[1]s"
+  description = "Created by terraform script"
 }
-`
+`, name)
+}
 
-const testAccIdentityV5Group_update = `
-resource "huaweicloud_identityv5_group" "group" {
-  group_name  = "kkkkkupdate"
-  description = "kkkkkstringupdate"
+func testAccV5Group_basic_step2(updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_group" "test" {
+  group_name  = "%[1]s"
+  description = "Updated by terraform script"
 }
-`
+`, updateName)
+}
 
-const testAccIdentityV5Group_noDescription = `
-resource "huaweicloud_identityv5_group" "group" {
-  group_name  = "kkkkkupdate1"
+func testAccV5Group_basic_step3(updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identityv5_group" "test" {
+  group_name = "%[1]s"
 }
-`
+`, updateName)
+}
