@@ -37,31 +37,11 @@ func DataSourcePermissionVersions() *schema.Resource {
 func permissionVersionsSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"default_version": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"is_resource_type_default": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"permission_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"permission_urn": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -69,7 +49,11 @@ func permissionVersionsSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status": {
+			"is_resource_type_default": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -77,8 +61,24 @@ func permissionVersionsSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"permission_urn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"permission_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"default_version": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"version": {
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -88,43 +88,42 @@ func permissionVersionsSchema() *schema.Resource {
 }
 
 func dataSourcePermissionVersionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	permissionId := d.Get("permission_id").(string)
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		permissionId = d.Get("permission_id").(string)
+		httpUrl      = "v1/permissions/{permission_id}/versions"
+		product      = "ram"
+		marker       string
+		result       []interface{}
+	)
 
-	listPermissionVersionsHttpUrl := "v1/permissions/{permission_id}/versions"
-	listPermissionVersionsProduct := "ram"
-	listPermissionVersionsClient, err := cfg.NewServiceClient(listPermissionVersionsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ram client: %s", err)
 	}
 
-	listPermissionVersionsPath := listPermissionVersionsClient.Endpoint + listPermissionVersionsHttpUrl
-	listPermissionVersionsPath = strings.ReplaceAll(listPermissionVersionsPath, "{permission_id}", permissionId)
-
-	listPermissionVersionsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{permission_id}", permissionId)
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var permissionVersions []interface{}
-	var marker string
-	var queryPath string
-
 	for {
-		queryPath = listPermissionVersionsPath + buildListPermissionVersionsQueryParams(marker)
-		listPermissionVersionsResp, err := listPermissionVersionsClient.Request("GET", queryPath, &listPermissionVersionsOpt)
+		requestPathWithMarker := requestPath + buildListPermissionVersionsQueryParams(marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
 			return diag.Errorf("error retrieving RAM permission versions: %s", err)
 		}
 
-		listPermissionVersionsRespBody, err := utils.FlattenResponse(listPermissionVersionsResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePagePermissionVersions := FlattenPermissionVersionsResp(listPermissionVersionsRespBody)
-		permissionVersions = append(permissionVersions, onePagePermissionVersions...)
-		marker = utils.PathSearch("page_info.next_marker", listPermissionVersionsRespBody, "").(string)
+		permissionsResp := utils.PathSearch("permissions", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, permissionsResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
@@ -134,18 +133,19 @@ func dataSourcePermissionVersionsRead(_ context.Context, d *schema.ResourceData,
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("permissions", permissionVersions),
+		d.Set("permissions", flattenPermissionVersionsResp(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func buildListPermissionVersionsQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
+	// The default value of limit is `2000`
+	res := "?limit=2000"
 
 	if marker != "" {
 		res = fmt.Sprintf("%s&marker=%v", res, marker)
@@ -154,28 +154,27 @@ func buildListPermissionVersionsQueryParams(marker string) string {
 	return res
 }
 
-func FlattenPermissionVersionsResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenPermissionVersionsResp(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	curJson := utils.PathSearch("permissions", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
-			"created_at":               utils.PathSearch("created_at", v, nil),
-			"default_version":          utils.PathSearch("default_version", v, nil),
 			"id":                       utils.PathSearch("id", v, nil),
-			"is_resource_type_default": utils.PathSearch("is_resource_type_default", v, nil),
 			"name":                     utils.PathSearch("name", v, nil),
-			"permission_type":          utils.PathSearch("permission_type", v, nil),
-			"permission_urn":           utils.PathSearch("permission_urn", v, nil),
 			"resource_type":            utils.PathSearch("resource_type", v, nil),
-			"status":                   utils.PathSearch("status", v, nil),
+			"is_resource_type_default": utils.PathSearch("is_resource_type_default", v, nil),
+			"created_at":               utils.PathSearch("created_at", v, nil),
 			"updated_at":               utils.PathSearch("updated_at", v, nil),
+			"permission_urn":           utils.PathSearch("permission_urn", v, nil),
+			"permission_type":          utils.PathSearch("permission_type", v, nil),
+			"default_version":          utils.PathSearch("default_version", v, nil),
 			"version":                  utils.PathSearch("version", v, nil),
+			"status":                   utils.PathSearch("status", v, nil),
 		})
 	}
+
 	return rst
 }
