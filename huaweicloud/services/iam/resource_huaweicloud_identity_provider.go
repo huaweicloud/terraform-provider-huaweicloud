@@ -61,10 +61,10 @@ func ResourceIdentityProvider() *schema.Resource {
 				ForceNew: true,
 			},
 			"protocol": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{protocolSAML, protocolOIDC}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"sso_type": {
 				Type:     schema.TypeString,
@@ -213,44 +213,46 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 
 	d.SetId(provider.ID)
 
-	// Create default mapping and protocol
-	err = createProtocol(client, d)
-	if err != nil {
-		return diag.Errorf("error creating provider protocol: %s", err)
-	}
-
-	// Import metadata, metadata only worked on saml protocol providers
-	protocol := d.Get("protocol").(string)
-	if protocol == protocolSAML {
-		err = importMetadata(conf, d)
+	if d.HasChange("protocol") {
+		// Create default mapping and protocol
+		err = createProtocol(client, d)
 		if err != nil {
-			return diag.Errorf("error importing matedata into identity provider: %s", err)
-		}
-	} else if ac, ok := d.GetOk("access_config"); ok {
-		// Create access config for oidc provider.
-		accessConfigArr := ac.([]interface{})
-		accessConfig := accessConfigArr[0].(map[string]interface{})
-
-		accessType := accessConfig["access_type"].(string)
-		createAccessTypeOpts := oidcconfig.CreateOpts{
-			AccessMode: accessType,
-			IdpURL:     accessConfig["provider_url"].(string),
-			ClientID:   accessConfig["client_id"].(string),
-			SigningKey: accessConfig["signing_key"].(string),
+			return diag.Errorf("error creating provider protocol: %s", err)
 		}
 
-		if accessType == "program_console" {
-			scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
-			createAccessTypeOpts.Scope = strings.Join(scopes, scopeSpilt)
-			createAccessTypeOpts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
-			createAccessTypeOpts.ResponseType = accessConfig["response_type"].(string)
-			createAccessTypeOpts.ResponseMode = accessConfig["response_mode"].(string)
-		}
+		// Import metadata, metadata only worked on saml protocol providers
+		protocol := d.Get("protocol").(string)
+		if protocol == protocolSAML {
+			err = importMetadata(conf, d)
+			if err != nil {
+				return diag.Errorf("error importing matedata into identity provider: %s", err)
+			}
+		} else if ac, ok := d.GetOk("access_config"); ok {
+			// Create access config for oidc provider.
+			accessConfigArr := ac.([]interface{})
+			accessConfig := accessConfigArr[0].(map[string]interface{})
 
-		log.Printf("[DEBUG] Create access type of provider: %#v", opts)
-		_, err = oidcconfig.Create(client, provider.ID, createAccessTypeOpts)
-		if err != nil {
-			return diag.Errorf("error creating the provider access config: %s", err)
+			accessType := accessConfig["access_type"].(string)
+			createAccessTypeOpts := oidcconfig.CreateOpts{
+				AccessMode: accessType,
+				IdpURL:     accessConfig["provider_url"].(string),
+				ClientID:   accessConfig["client_id"].(string),
+				SigningKey: accessConfig["signing_key"].(string),
+			}
+
+			if accessType == "program_console" {
+				scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
+				createAccessTypeOpts.Scope = strings.Join(scopes, scopeSpilt)
+				createAccessTypeOpts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
+				createAccessTypeOpts.ResponseType = accessConfig["response_type"].(string)
+				createAccessTypeOpts.ResponseMode = accessConfig["response_mode"].(string)
+			}
+
+			log.Printf("[DEBUG] Create access type of provider: %#v", opts)
+			_, err = oidcconfig.Create(client, provider.ID, createAccessTypeOpts)
+			if err != nil {
+				return diag.Errorf("error creating the provider access config: %s", err)
+			}
 		}
 	}
 
