@@ -3,12 +3,12 @@ subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_quotas"
 description: |-
-  Use this data source to list quotas in Resource Access Manager.
+  Use this data source to get the list of quotas in Resource Access Manager.
 ---
 
 # huaweicloud_ram_quotas
 
-Use this data source to list quotas in Resource Access Manager.
+Use this data source to get the list of quotas in Resource Access Manager.
 
 ## Example Usage
 
@@ -28,24 +28,24 @@ In addition to all arguments above, the following attributes are exported:
 
 * `quotas` - The list of quotas.
 
-  The [quotas](#quotas) structure is documented below.
+  The [quotas](#quotas_struct) structure is documented below.
 
-<a name="quotas"></a>
+<a name="quotas_struct"></a>
 The `quotas` block supports:
 
 * `resources` - The list of resources.
 
-  The [resources](#resources) structure is documented below.
+  The [resources](#resources_struct) structure is documented below.
 
-<a name="resources"></a>
+<a name="resources_struct"></a>
 The `resources` block supports:
 
-* `type` - The type of resource quota.
+* `type` - The type of quota.
 
-* `quota` - The available quota of the resource.
+* `quota` - The total number quotas.
 
-* `min` - The minimum quota of the resource.
+* `min` - The minimum quota.
 
-* `max` - The maximum quota of the resource.
+* `max` - The maximum quota.
 
-* `used` - The used quota of the resource.
+* `used` - The number of quotas already used

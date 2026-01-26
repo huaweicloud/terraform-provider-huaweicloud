@@ -2,7 +2,6 @@ package ram
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -67,44 +66,31 @@ func quotasSchema() *schema.Resource {
 }
 
 func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/resource-shares/quotas"
+		product = "ram"
+	)
 
-	listQuotasHttpUrl := "v1/resource-shares/quotas"
-	listQuotasProduct := "ram"
-	listQuotasClient, err := cfg.NewServiceClient(listQuotasProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	listQuotasPath := listQuotasClient.Endpoint + listQuotasHttpUrl
-
-	listQuotasOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var quotas []interface{}
-	var marker string
-	var queryPath string
+	resp, err := client.Request("GET", requestPath, &requestOpts)
+	if err != nil {
+		return diag.Errorf("error retrieving RAM quotas, %s", err)
+	}
 
-	for {
-		queryPath = listQuotasPath + buildListQuotasQueryParams(marker)
-		listQuotasResp, err := listQuotasClient.Request("GET", queryPath, &listQuotasOpt)
-		if err != nil {
-			return diag.Errorf("error retrieving RAM quotas, %s", err)
-		}
-
-		listQuotasRespBody, err := utils.FlattenResponse(listQuotasResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		onePageQuotas := flattenQuotasResp(listQuotasRespBody)
-		quotas = append(quotas, onePageQuotas...)
-		marker = utils.PathSearch("page_info.next_marker", listQuotasRespBody, "").(string)
-		if marker == "" {
-			break
-		}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -114,52 +100,41 @@ func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interf
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("quotas", quotas),
+		d.Set("quotas", flattenQuotas(utils.PathSearch("quotas", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListQuotasQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
-
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-
-	return res
-}
-
-func flattenQuotasResp(resp interface{}) []interface{} {
+func flattenQuotas(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
 
-	quotas := make([]interface{}, 0)
+	quotaMap, ok := resp.(map[string]interface{})
+	if !ok {
+		return nil
+	}
 
-	curJson := utils.PathSearch("quotas", resp, make([]interface{}, 0))
-	curMap := curJson.(map[string]interface{})
-	if resources, ok := curMap["resources"]; ok {
-		childArray := resources.([]interface{})
-		rst := make([]interface{}, 0, len(childArray))
-		for _, v := range childArray {
-			rst = append(rst, map[string]interface{}{
-				"type":  utils.PathSearch("type", v, nil),
-				"quota": utils.PathSearch("quota", v, nil),
-				"min":   utils.PathSearch("min", v, nil),
-				"max":   utils.PathSearch("max", v, nil),
-				"used":  utils.PathSearch("used", v, nil),
-			})
-		}
-		quotas = append(quotas, map[string]interface{}{
-			"resources": rst,
-		})
-	} else {
-		quotas = append(quotas, map[string]interface{}{
-			"resources": []interface{}{},
+	resources, ok := quotaMap["resources"].([]interface{})
+	if !ok {
+		return nil
+	}
+
+	resourcesRst := make([]interface{}, 0, len(resources))
+	for _, v := range resources {
+		resourcesRst = append(resourcesRst, map[string]interface{}{
+			"type":  utils.PathSearch("type", v, nil),
+			"quota": utils.PathSearch("quota", v, nil),
+			"min":   utils.PathSearch("min", v, nil),
+			"max":   utils.PathSearch("max", v, nil),
+			"used":  utils.PathSearch("used", v, nil),
 		})
 	}
 
-	return quotas
+	return []interface{}{
+		map[string]interface{}{
+			"resources": resourcesRst,
+		},
+	}
 }
