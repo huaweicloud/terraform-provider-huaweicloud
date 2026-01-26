@@ -17,19 +17,25 @@ specified in `huaweicloud_identity_provider_protocol`, it will try to update the
 ## Example Usage
 
 ```hcl
-variable "provider_id" {}
-variable "mapping_id" {}
+variable "provider_name" {}
 
-resource "huaweicloud_identity_provider_protocol" "protocol" {
-  provider_id = var.provider_id
-  protocol_id = "saml"
-  mapping_id  = var.mapping_id
+# Without protocol setting
+resource "huaweicloud_identity_provider" "test" {
+  name = var.provider_name
 }
 
-resource "huaweicloud_identity_provider_protocol" "protocol" {
-  provider_id = var.provider_id
+resource "huaweicloud_identity_provider_conversion" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
+
+  conversion_rules {
+    ...
+  }
+}
+
+resource "huaweicloud_identity_provider_protocol" "test" {
+  provider_id = huaweicloud_identity_provider.test.id
   protocol_id = "saml"
-  mapping_id  = var.mapping_id
+  mapping_id  = huaweicloud_identity_provider_conversion.conversion.id
 }
 ```
 

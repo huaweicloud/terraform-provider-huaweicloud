@@ -66,8 +66,11 @@ The following arguments are supported:
   The name is unique, it is recommended to include domain name information.
   Changing this creates a new resource.
 
-* `protocol` - (Required, String, ForceNew) Specifies the protocol of the identity provider.
+* `protocol` - (Optional, String, ForceNew) Specifies the protocol of the identity provider.
   Valid values are **saml** and **oidc**. Changing this creates a new resource.
+  This parameter can be omitted during creation and using `huaweicloud_identity_provider_conversion` and
+  `huaweicloud_identity_provider_protocol` resources to manage it. At the same time, please use
+  `lifecycle.ignore_changes` to ignore changes to `conversion_rules` under this management way.
 
 * `status` - (Optional, Bool) Enabled status for the identity provider. Defaults to true.
 
