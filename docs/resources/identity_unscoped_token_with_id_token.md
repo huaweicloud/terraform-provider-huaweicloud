@@ -30,15 +30,17 @@ resource "huaweicloud_identity_unscoped_token_with_id_token" "test" {
 
 * `idp_id` - (Required, String, ForceNew) Specifies the identity provider id.
 
-* `protocol_id` - (Required, String, ForceNew) Specifies the protocol id.
+* `protocol_id` - (Required, String, ForceNew) Specifies the protocol id.  
+  The valid value is **oidc**.
 
-* `id_token` - (Required, String, ForceNew) Specify ID Token of the OpenID Connect Identity Provider.
+* `id_token` - (Required, String, ForceNew) The security token of the OpenID Connect Identity Provider,
+  format is Bearer {ID Token}.
 
 ## Attribute Reference
 
 * `id` - Indicates the resource ID in format `<idp_id>:<username>`.
 
-* `token` - Indicates the token. Validity period is 24 hours.
+* `token` - Indicates the details of the obtained token. The valid period is `24` hours.
 
 * `username` - Indicates the user of token.
 
