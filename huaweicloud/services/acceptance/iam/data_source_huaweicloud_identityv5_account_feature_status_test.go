@@ -8,27 +8,29 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityV5AccountFeatureStatus_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identityv5_account_feature_status.test"
+func TestAccDataAccountFeatureStatus_basic(t *testing.T) {
+	var (
+		dcName = "data.huaweicloud_identityv5_account_feature_status.test"
+		dc     = acceptance.InitDataSourceCheck(dcName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIdentityV5AccountFeatureStatus_basic(),
+				Config: testAccDataV5AccountFeatureStatus_basic,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(dataSourceName, "feature_status"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dcName, "feature_status"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIdentityV5AccountFeatureStatus_basic() string {
-	return `
+const testAccDataV5AccountFeatureStatus_basic = `
 data "huaweicloud_identityv5_account_feature_status" "test" {
-	feature_name = "v5_console"
+  feature_name = "v5_console"
 }
 `
-}
