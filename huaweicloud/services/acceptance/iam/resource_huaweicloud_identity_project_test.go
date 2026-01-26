@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getIdentityProjectResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getProjectResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IdentityV3ExtClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -21,33 +21,32 @@ func getIdentityProjectResourceFunc(c *config.Config, state *terraform.ResourceS
 	return projects.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityProject_basic(t *testing.T) {
-	var project projects.Project
-	var projectName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_project.project_1"
+func TestAccProject_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&project,
-		getIdentityProjectResourceFunc,
+		resourceName = "huaweicloud_identity_project.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getProjectResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
-			acceptance.TestAccPreCheckProject(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		// Currently, the DELETE method is not publicly available.
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProject_basic(projectName),
+				Config: testAccIdentityProject_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_REGION_NAME+"_"+name),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
-					resource.TestCheckResourceAttr(resourceName, "description", "A project"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "parent_id"),
 				),
@@ -58,12 +57,12 @@ func TestAccIdentityProject_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIdentityProject_update(projectName),
+				Config: testAccIdentityProject_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_REGION_NAME+"_"+name),
 					resource.TestCheckResourceAttr(resourceName, "status", "suspended"),
-					resource.TestCheckResourceAttr(resourceName, "description", "An updated project"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "parent_id"),
 				),
@@ -72,21 +71,21 @@ func TestAccIdentityProject_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityProject_basic(projectName string) string {
+func testAccIdentityProject_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_project" "project_1" {
-  name        = "%s_%s"
-  description = "A project"
+resource "huaweicloud_identity_project" "test" {
+  name        = "%[1]s_%[2]s"
+  description = "Created by terraform script"
 }
-`, acceptance.HW_REGION_NAME, projectName)
+`, acceptance.HW_REGION_NAME, name)
 }
 
-func testAccIdentityProject_update(projectName string) string {
+func testAccIdentityProject_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_project" "project_1" {
-  name        = "%s_%s"
+resource "huaweicloud_identity_project" "test" {
+  name        = "%[1]s_%[2]s"
   status      = "suspended"
-  description = "An updated project"
+  description = "Updated by terraform script"
 }
-`, acceptance.HW_REGION_NAME, projectName)
+`, acceptance.HW_REGION_NAME, name)
 }

@@ -21,41 +21,75 @@ func getProviderResourceFunc(c *config.Config, state *terraform.ResourceState) (
 	return providers.Get(client, state.Primary.ID)
 }
 
-func TestAccIdentityProvider_basic(t *testing.T) {
-	var provider providers.Provider
-	var name = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_provider.provider_1"
+func TestAccProvider_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&provider,
-		getProviderResourceFunc,
+		protocolSaml   = "huaweicloud_identity_provider.protocol_saml"
+		rcProtocolSaml = acceptance.InitResourceCheck(protocolSaml, &obj, getProviderResourceFunc)
+
+		protocolOidc   = "huaweicloud_identity_provider.protocol_oidc"
+		rcProtocolOidc = acceptance.InitResourceCheck(protocolOidc, &obj, getProviderResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcProtocolSaml.CheckResourceDestroy(),
+			rcProtocolOidc.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProvider_saml(name),
+				Config: testAccProvider_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "protocol", "saml"),
+					rcProtocolSaml.CheckResourceExists(),
+					resource.TestCheckResourceAttr(protocolSaml, "name", name+"_saml"),
+					resource.TestCheckResourceAttr(protocolSaml, "protocol", "saml"),
+					rcProtocolOidc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(protocolOidc, "name", name+"_oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.access_type", "program_console"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.client_id", name+"_step1"),
 				),
 			},
 			{
-				Config: testAccIdentityProvider_saml_update(name),
+				Config: testAccProvider_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "protocol", "saml"),
-					resource.TestCheckResourceAttr(resourceName, "status", "false"),
+					rcProtocolSaml.CheckResourceExists(),
+					resource.TestCheckResourceAttr(protocolSaml, "name", name+"_saml"),
+					resource.TestCheckResourceAttr(protocolSaml, "protocol", "saml"),
+					resource.TestCheckResourceAttr(protocolSaml, "status", "false"),
+					rcProtocolOidc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(protocolOidc, "name", name+"_oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.access_type", "program_console"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.client_id", name+"_step2"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				Config: testAccProvider_basic_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcProtocolOidc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(protocolOidc, "name", name+"_oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(protocolOidc, "status", "false"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.access_type", "program"),
+					resource.TestCheckResourceAttr(protocolOidc, "access_config.0.client_id", name+"_step3"),
+				),
+			},
+			{
+				ResourceName:      protocolSaml,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      protocolOidc,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -63,87 +97,60 @@ func TestAccIdentityProvider_basic(t *testing.T) {
 	})
 }
 
-func TestAccIdentityProvider_oidc(t *testing.T) {
-	var provider providers.Provider
-	var name = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_provider.provider_1"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&provider,
-		getProviderResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityProvider_oidc(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program_console"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example1"),
-				),
-			},
-			{
-				Config: testAccIdentityProvider_oidc_update_1(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program_console"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example2"),
-				),
-			},
-			{
-				Config: testAccIdentityProvider_oidc_update_2(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
-					resource.TestCheckResourceAttr(resourceName, "status", "false"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example3"),
-				),
-			},
-		},
-	})
+func testAccProvider_basic_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_provider" "protocol_saml" {
+  name     = "%[1]s_saml"
+  protocol = "saml"
 }
 
-func testAccIdentityProvider_saml(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
-  protocol = "saml"
+resource "huaweicloud_identity_provider" "protocol_oidc" {
+  name        = "%[1]s_oidc"
+  protocol    = "oidc"
+  description = "unit test"
+
+  access_config {
+    access_type            = "program_console"
+    provider_url           = "https://accounts.example.com"
+    client_id              = "%[1]s_step1"
+    authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
+    scopes                 = ["openid"]
+    signing_key            = jsonencode(
+    {
+      keys = [
+        {
+          alg = "RS256"
+          e   = "AQAB"
+          kid = "d05ef20c4512645vv1..."
+          kty = "RSA"
+          n   = "cws_cnjiwsbvweolwn_-vnl..."
+          use = "sig"
+        },
+      ]
+    }
+    )
+  }
 }
 `, name)
 }
 
-func testAccIdentityProvider_saml_update(name string) string {
+func testAccProvider_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "%s"
+resource "huaweicloud_identity_provider" "protocol_saml" {
+  name     = "%[1]s_saml"
   protocol = "saml"
   status   = false
 }
-`, name)
-}
 
-func testAccIdentityProvider_oidc(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name        = "%s"
+resource "huaweicloud_identity_provider" "protocol_oidc" {
+  name        = "%[1]s_oidc"
   protocol    = "oidc"
   description = "unit test"
 
   access_config {
     access_type            = "program_console"
     provider_url           = "https://accounts.example.com"
-    client_id              = "client_id_example1"
+    client_id              = "%[1]s_step2"
     authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
     scopes                 = ["openid"]
     signing_key            = jsonencode(
@@ -165,42 +172,16 @@ resource "huaweicloud_identity_provider" "provider_1" {
 `, name)
 }
 
-func testAccIdentityProvider_oidc_update_1(name string) string {
+func testAccProvider_basic_step3(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name        = "%s"
-  protocol    = "oidc"
-  description = "unit test"
-
-  access_config {
-    access_type            = "program_console"
-    provider_url           = "https://accounts.example.com"
-    client_id              = "client_id_example2"
-    authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
-    scopes                 = ["openid"]
-    signing_key            = jsonencode(
-    {
-      keys = [
-        {
-          alg = "RS256"
-          e   = "AQAB"
-          kid = "d05ef20c4512645vv1..."
-          kty = "RSA"
-          n   = "cws_cnjiwsbvweolwn_-vnl..."
-          use = "sig"
-        },
-      ]
-    }
-    )
-  }
-}
-`, name)
+resource "huaweicloud_identity_provider" "protocol_saml" {
+  name     = "%[1]s_saml"
+  protocol = "saml"
+  status   = false
 }
 
-func testAccIdentityProvider_oidc_update_2(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider_1" {
-  name        = "%s"
+resource "huaweicloud_identity_provider" "protocol_oidc" {
+  name        = "%[1]s_oidc"
   protocol    = "oidc"
   status      = false
   description = "unit test"
@@ -208,7 +189,7 @@ resource "huaweicloud_identity_provider" "provider_1" {
   access_config {
     access_type  = "program"
     provider_url = "https://accounts.example.com"
-    client_id    = "client_id_example3"
+    client_id    = "%[1]s_step3"
     signing_key  = jsonencode(
     {
       keys = [
