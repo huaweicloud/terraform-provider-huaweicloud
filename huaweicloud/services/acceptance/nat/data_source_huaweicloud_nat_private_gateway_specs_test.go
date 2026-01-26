@@ -8,10 +8,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceNatPrivateGatewaySpecs_basic(t *testing.T) {
+func TestAccDataSourcePrivateGatewaySpecs_basic(t *testing.T) {
 	var (
-		natGatewaySpecs = "data.huaweicloud_nat_private_gateway_specs.test"
-		dcTags          = acceptance.InitDataSourceCheck(natGatewaySpecs)
+		datasourceName = "data.huaweicloud_nat_private_gateway_specs.test"
+		dc             = acceptance.InitDataSourceCheck(datasourceName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,12 +21,19 @@ func TestAccDataSourceNatPrivateGatewaySpecs_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceNatPrivateGatewaySpecs_basic,
+				Config: testDataSourcePrivateGatewaySpecs_basic,
 				Check: resource.ComposeTestCheckFunc(
-					dcTags.CheckResourceExists(),
+					dc.CheckResourceExists(),
 
-					resource.TestCheckResourceAttrSet(natGatewaySpecs, "specs.#"),
-					resource.TestCheckOutput("specs_contains_any", "true"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.#"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.name"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.code"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.cbc_code"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.rule_max"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.sess_max"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.bps_max"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.pps_max"),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.0.qps_max"),
 				),
 			},
 		},
@@ -34,19 +41,4 @@ func TestAccDataSourceNatPrivateGatewaySpecs_basic(t *testing.T) {
 	)
 }
 
-const testDataSourceNatPrivateGatewaySpecs_basic = `
-data "huaweicloud_nat_private_gateway_specs" "test" {
-}
-
-output "specs_contains_any" {
-  value = length(data.huaweicloud_nat_private_gateway_specs.test.specs) > 0 && anytrue([
-    for v in data.huaweicloud_nat_private_gateway_specs.test.specs : (
-		(v.name == "Small" && v.code == "1" && v.cbc_code == "privatenat_small") ||
-		(v.name == "Medium" && v.code == "2" && v.cbc_code == "privatenat_medium") ||
-		(v.name == "Large" && v.code == "3" && v.cbc_code == "privatenat_large") ||
-		(v.name == "Extra-large" && v.code == "4" && v.cbc_code == "privatenat_xlarge")
-	)
-  ])
-}
-
-`
+const testDataSourcePrivateGatewaySpecs_basic = `data "huaweicloud_nat_private_gateway_specs" "test" {}`

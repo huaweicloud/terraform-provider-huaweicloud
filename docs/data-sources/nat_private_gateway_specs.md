@@ -3,12 +3,12 @@ subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_gateway_specs"
 description: |-
-  Use this data source to get NAT Private Gateway specs within HuaweiCloud.
+  Use this data source to get the list of NAT private gateway specifications within HuaweiCloud.
 ---
 
 # huaweicloud_nat_private_gateway_specs
 
-Use this data source to get NAT Private Gateway specs within HuaweiCloud.
+Use this data source to get the list of NAT private gateway specifications within HuaweiCloud.
 
 ## Example Usage
 
@@ -27,32 +27,27 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `specs` - The spec list.
+`id` - The data source ID.
+
+* `specs` - The specification list.
 
   The [specs](#specs_struct) structure is documented below.
 
 <a name="specs_struct"></a>
 The `specs` block supports:
 
-* `name` - The spec name.
-* `code` - The spec code.
-  The values can be:
-  + **1**: cbc type privatenat_small.
-  + **2**: cbc type privatenat_medium.
-  + **3**: cbc type privatenat_large.
-  + **4**: cbc type privatenat_xlarge.
-  + **5**: cbc type privatenat_xxlarge.
-  + **6**: cbc type private-nat.basic (traffic billing specifications).
-* `cbc_code` - The spec cbc code.
-  The values can be:
-  + **privatenat_small**: corresponding code 1, small-sized.
-  + **privatenat_medium**: corresponding code 2, medium-sized.
-  + **privatenat_large**: corresponding code 3, large-sized.
-  + **privatenat_xlarge**: corresponding code 4, .
-  + **privatenat_xxlarge**: corresponding code 5, xxlarge-sized.
-  + **private-nat.basic**: corresponding code 6 (traffic billing specifications).
+* `name` - The specification name.
+
+* `code` - The specification code.
+
+* `cbc_code` - The specification code on Cloud Business Center (CBC).
+
 * `rule_max` - The maximum number of rules.
+
 * `sess_max` - The maximum number of connections.
-* `bps_max` - The maximum bits per second.
-* `pps_max` - The maximum packets per second.
-* `qps_max` - The maximum queries per second.
+
+* `bps_max` - The maximum bandwidth in bit/s.
+
+* `pps_max` - The maximum PPS.
+
+* `qps_max` - The maximum QPS.

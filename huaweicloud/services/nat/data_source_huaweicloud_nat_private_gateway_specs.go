@@ -16,9 +16,9 @@ import (
 )
 
 // @API NAT GET /v3/{project_id}/private-nat/specs
-func DataSourceNatPrivateGatewaySpecs() *schema.Resource {
+func DataSourcePrivateGatewaySpecs() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceNatPrivateGatewaySpecsRead,
+		ReadContext: dataSourcePrivateGatewaySpecsRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -69,24 +69,29 @@ func DataSourceNatPrivateGatewaySpecs() *schema.Resource {
 	}
 }
 
-func flattenPrivateNatSpecs(specs []interface{}) []map[string]interface{} {
+func flattenPrivateGatewaySpecs(specs []interface{}) []map[string]interface{} {
+	if len(specs) == 0 {
+		return nil
+	}
+
 	rst := make([]map[string]interface{}, 0, len(specs))
-	for _, tag := range specs {
+	for _, v := range specs {
 		rst = append(rst, map[string]interface{}{
-			"name":     utils.PathSearch("name", tag, nil),
-			"code":     utils.PathSearch("code", tag, nil),
-			"cbc_code": utils.PathSearch("cbc_code", tag, nil),
-			"rule_max": utils.PathSearch("rule_max", tag, nil),
-			"sess_max": utils.PathSearch("sess_max", tag, nil),
-			"bps_max":  utils.PathSearch("bps_max", tag, nil),
-			"pps_max":  utils.PathSearch("pps_max", tag, nil),
-			"qps_max":  utils.PathSearch("qps_max", tag, nil),
+			"name":     utils.PathSearch("name", v, nil),
+			"code":     utils.PathSearch("code", v, nil),
+			"cbc_code": utils.PathSearch("cbc_code", v, nil),
+			"rule_max": utils.PathSearch("rule_max", v, nil),
+			"sess_max": utils.PathSearch("sess_max", v, nil),
+			"bps_max":  utils.PathSearch("bps_max", v, nil),
+			"pps_max":  utils.PathSearch("pps_max", v, nil),
+			"qps_max":  utils.PathSearch("qps_max", v, nil),
 		})
 	}
+
 	return rst
 }
 
-func dataSourceNatPrivateGatewaySpecsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourcePrivateGatewaySpecsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -127,7 +132,7 @@ func dataSourceNatPrivateGatewaySpecsRead(_ context.Context, d *schema.ResourceD
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("specs", flattenPrivateNatSpecs(utils.PathSearch("specs", respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("specs", flattenPrivateGatewaySpecs(utils.PathSearch("specs", respBody, make([]interface{}, 0)).([]interface{}))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

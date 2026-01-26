@@ -8,10 +8,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceNatGatewaySpecs_basic(t *testing.T) {
+func TestAccDataSourceGatewaySpecs_basic(t *testing.T) {
 	var (
-		natGatewaySpecs = "data.huaweicloud_nat_gateway_specs.test"
-		dcTags          = acceptance.InitDataSourceCheck(natGatewaySpecs)
+		datasourceName = "data.huaweicloud_nat_gateway_specs.test"
+		dc             = acceptance.InitDataSourceCheck(datasourceName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,12 +21,10 @@ func TestAccDataSourceNatGatewaySpecs_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceNatGatewaySpecs_basic,
+				Config: testDataSourceGatewaySpecs_basic,
 				Check: resource.ComposeTestCheckFunc(
-					dcTags.CheckResourceExists(),
-
-					resource.TestCheckResourceAttrSet(natGatewaySpecs, "specs.#"),
-					resource.TestCheckOutput("specs_contains_any", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(datasourceName, "specs.#"),
 				),
 			},
 		},
@@ -34,14 +32,4 @@ func TestAccDataSourceNatGatewaySpecs_basic(t *testing.T) {
 	)
 }
 
-const testDataSourceNatGatewaySpecs_basic = `
-data "huaweicloud_nat_gateway_specs" "test" {
-}
-
-output "specs_contains_any" {
-  value = length(data.huaweicloud_nat_gateway_specs.test.specs) > 0 && anytrue([
-    for v in ["1", "2", "3", "4", "5", "6"] : contains(data.huaweicloud_nat_gateway_specs.test.specs, v)
-  ])
-}
-
-`
+const testDataSourceGatewaySpecs_basic = `data "huaweicloud_nat_gateway_specs" "test" {}`

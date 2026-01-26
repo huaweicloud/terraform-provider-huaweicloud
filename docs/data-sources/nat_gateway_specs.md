@@ -3,12 +3,12 @@ subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_gateway_specs"
 description: |-
-  Use this data source to get NAT Gateway specs within HuaweiCloud.
+  Use this data source to get NAT gateway specifications within HuaweiCloud.
 ---
 
 # huaweicloud_nat_gateway_specs
 
-Use this data source to get NAT Gateway specs within HuaweiCloud.
+Use this data source to get NAT gateway specifications within HuaweiCloud.
 
 ## Example Usage
 
@@ -27,12 +27,12 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `specs` - The list of the NAT Gateway specs.
+`id` - The data source ID.
+
+* `specs` - The list of the NAT Gateway specifications.
   The valid values are as follows::
-  + **0**: natgateway_xsmall.
-  + **1**: natgateway_small.
-  + **2**: natgateway_middle.
-  + **3**: natgateway_large.
-  + **4**: natgateway_xlarge.
-  + **5**: natgateway_xxlarge.
-  + **6**: public-nat.basic (traffic billing specifications).
+  + **1**: Small, which supports up to 10,000 SNAT connections.
+  + **2**: Medium, which supports up to 50,000 SNAT connections.
+  + **3**: Large, which supports up to 200,000 SNAT connections.
+  + **4**: Extra large, which supports up to 1,000,000 SNAT connections.
+  + **5**: Enterprise-class, which supports up to 10,000,000 SNAT connections.

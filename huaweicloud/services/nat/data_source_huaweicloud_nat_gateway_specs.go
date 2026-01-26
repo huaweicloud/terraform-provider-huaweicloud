@@ -16,9 +16,9 @@ import (
 )
 
 // @API NAT GET /v2/{project_id}/nat_gateway_specs
-func DataSourceNatGatewaySpecs() *schema.Resource {
+func DataSourceGatewaySpecs() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceNatGatewaySpecsRead,
+		ReadContext: dataSourceGatewaySpecsRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -36,7 +36,7 @@ func DataSourceNatGatewaySpecs() *schema.Resource {
 	}
 }
 
-func dataSourceNatGatewaySpecsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceGatewaySpecsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
