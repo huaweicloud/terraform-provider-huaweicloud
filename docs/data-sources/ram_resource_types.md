@@ -1,14 +1,14 @@
 ---
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_ram_types"
+page_title: "HuaweiCloud: huaweicloud_ram_resource_types"
 description: |-
-  Use this data source to list resource types in Resource Access Manager.
+  Use this data source to get the list of resource types in Resource Access Manager.
 ---
 
-# huaweicloud_ram_types
+# huaweicloud_ram_resource_types
 
-Use this data source to list resource types in Resource Access Manager.
+Use this data source to get the list of resource types in Resource Access Manager.
 
 ## Example Usage
 
@@ -28,11 +28,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `resource_types` - The list of resource types.
 
-  The [resource_types](#resource_types) structure is documented below.
+  The [resource_types](#resource_types_struct) structure is documented below.
 
-<a name="resource_types"></a>
+<a name="resource_types_struct"></a>
 The `resource_types` block supports:
 
 * `region_id` - The ID of region.
 
-* `resource_type` - The type of resource.
+* `resource_type` - The resource type name.

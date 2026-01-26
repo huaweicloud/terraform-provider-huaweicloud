@@ -23,13 +23,13 @@ func DataSourceResourceTypes() *schema.Resource {
 			"resource_types": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     ResourceTypesSchema(),
+				Elem:     resourceTypesSchema(),
 			},
 		},
 	}
 }
 
-func ResourceTypesSchema() *schema.Resource {
+func resourceTypesSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"region_id": {
@@ -47,41 +47,40 @@ func ResourceTypesSchema() *schema.Resource {
 }
 
 func dataSourceResourceTypesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/resource-types"
+		product = "ram"
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
 
-	listResourceTypesHttpUrl := "v1/resource-types"
-	listResourceTypesProduct := "ram"
-	listResourceTypesClient, err := cfg.NewServiceClient(listResourceTypesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	listResourceTypesPath := listResourceTypesClient.Endpoint + listResourceTypesHttpUrl
-
-	listResourceTypesOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var resourceTypes []interface{}
-	var marker string
-	var queryPath string
-
 	for {
-		queryPath = listResourceTypesPath + buildListResourceTypesQueryParams(marker)
-		listResourceTypesResp, err := listResourceTypesClient.Request("GET", queryPath, &listResourceTypesOpt)
+		requestPathWithMarker := requestPath + buildListResourceTypesQueryParams(marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
 			return diag.Errorf("error retrieving RAM resource types: %s", err)
 		}
 
-		listResourceTypesRespBody, err := utils.FlattenResponse(listResourceTypesResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePageResourceTypes := flattenResourceTypesResp(listResourceTypesRespBody)
-		resourceTypes = append(resourceTypes, onePageResourceTypes...)
-		marker = utils.PathSearch("page_info.next_marker", listResourceTypesRespBody, "").(string)
+		typesResp := utils.PathSearch("resource_types", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, typesResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
@@ -91,39 +90,39 @@ func dataSourceResourceTypesRead(_ context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("resource_types", resourceTypes),
+		d.Set("resource_types", flattenResourceTypes(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func buildListResourceTypesQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
+	// the default value of limit is `2000`
+	queryParams := "?limit=2000"
 
 	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
+		queryParams = fmt.Sprintf("%s&marker=%v", queryParams, marker)
 	}
 
-	return res
+	return queryParams
 }
 
-func flattenResourceTypesResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenResourceTypes(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	curJson := utils.PathSearch("resource_types", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
 			"region_id":     utils.PathSearch("region_id", v, nil),
 			"resource_type": utils.PathSearch("resource_type", v, nil),
 		})
 	}
+
 	return rst
 }
