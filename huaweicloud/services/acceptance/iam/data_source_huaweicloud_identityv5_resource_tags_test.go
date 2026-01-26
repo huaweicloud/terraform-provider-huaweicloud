@@ -9,23 +9,29 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityv5ResourceTags_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identityv5_resource_tags.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataV5ResourceTags_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		all = "data.huaweicloud_identityv5_resource_tags.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceIdentityv5Tags_basic(rName),
+				Config: testAccDataV5Tags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "resource_id"),
-					resource.TestCheckResourceAttr(dataSourceName, "resource_type", "user"),
-					resource.TestCheckResourceAttr(dataSourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(dataSourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(all, "resource_id"),
+					resource.TestCheckResourceAttr(all, "resource_type", "user"),
+					resource.TestCheckResourceAttr(all, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(all, "tags.key", "value"),
 				),
 			},
 		},
@@ -50,7 +56,7 @@ resource "huaweicloud_identityv5_resource_tag" "test" {
 `, name)
 }
 
-func testDataSourceIdentityv5Tags_basic(name string) string {
+func testAccDataV5Tags_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 

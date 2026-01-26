@@ -1,6 +1,7 @@
 package iam_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,35 +9,45 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityV5AuthorizationSchema_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identityv5_authorization_schema.schema"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-	resource.Test(t, resource.TestCase{
+func TestAccDataV5AuthorizationSchema_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_identityv5_authorization_schema.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIdentityV5AuthorizationSchema_basic(),
+				Config: testAccDataV5AuthorizationSchema_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_identityv5_authorization_schema.schema", "actions.#"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_identityv5_authorization_schema.schema", "conditions.#"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_identityv5_authorization_schema.schema", "operations.#"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_identityv5_authorization_schema.schema", "resources.#"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_identityv5_authorization_schema.schema", "version"),
+					resource.TestMatchResourceAttr(all, "actions.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "actions.0.name"),
+					resource.TestCheckResourceAttrSet(all, "actions.0.access_level"),
+					resource.TestMatchResourceAttr(all, "actions.0.description.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestMatchResourceAttr(all, "conditions.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "conditions.0.key"),
+					resource.TestCheckResourceAttrSet(all, "conditions.0.value_type"),
+					resource.TestCheckResourceAttrSet(all, "conditions.0.multi_valued"),
+					resource.TestMatchResourceAttr(all, "conditions.0.description.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestMatchResourceAttr(all, "operations.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "operations.0.operation_action"),
+					resource.TestCheckResourceAttrSet(all, "operations.0.operation_id"),
+					resource.TestMatchResourceAttr(all, "resources.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "resources.0.urn_template"),
+					resource.TestCheckResourceAttrSet(all, "resources.0.type_name"),
+					resource.TestCheckResourceAttrSet(all, "version"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIdentityV5AuthorizationSchema_basic() string {
-	return `
-data "huaweicloud_identityv5_authorization_schema" "schema" {
-	service_code = "iam"	
+const testAccDataV5AuthorizationSchema_basic = `
+data "huaweicloud_identityv5_authorization_schema" "test" {
+  service_code = "iam"
 }
 `
-}
