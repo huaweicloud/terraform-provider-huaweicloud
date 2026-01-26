@@ -22,17 +22,19 @@ The following arguments are supported:
 
 * `locale` - (Optional, String) Specifies the display language.
 
-* `service` - (Optional, String) Specifies the cloud service name.  
+* `service` - (Optional, String) Specifies the cloud service name.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `services` - Indicates the cloud services.
-  The [service](#service) structure is documented below.
+* `id` - The data source ID.
 
-<a name="service"></a>
-The `service` block supports:
+* `services` - Indicates the cloud services.
+  The [services](#service_struct) structure is documented below.
+
+<a name="service_struct"></a>
+The `services` block supports:
 
 * `service` - Indicates the cloud service name.
 
@@ -40,16 +42,16 @@ The `service` block supports:
   locale parameter.
 
 * `resource_types` - Indicates the resource type list.
-  The [resource type](#resource_type) structure is documented below.
+  The [resource_types](#resource_types_struct) structure is documented below.
 
-<a name="resource_type"></a>
-The `resource type` block supports:
+<a name="resource_types_struct"></a>
+The `resource_types` block supports:
 
 * `resource_type` - Indicates the name of the resource type.
 
 * `resource_type_i18n_display_name` - Indicates the display name of the resource type. You can set the language by
   setting the locale parameter.
 
-* `global` - Specifies whether the resource is a global resource.
+* `global` - Whether the resource is a global resource.
 
 * `regions` - Indicates regions supported.
