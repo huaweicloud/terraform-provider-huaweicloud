@@ -9,14 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityServiceAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getServiceAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam_no_version", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -34,51 +33,49 @@ func getIdentityServiceAgencyResourceFunc(cfg *config.Config, state *terraform.R
 	return utils.FlattenResponse(getAgencyResp)
 }
 
-func TestAccIdentityServiceAgency_basic(t *testing.T) {
-	var object agency.Agency
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_service_agency.test"
+func TestAccServiceAgency_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentityServiceAgencyResourceFunc,
+		resourceName = "huaweicloud_identity_service_agency.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getServiceAgencyResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
-			acceptance.TestAccPreCheckIAMV5(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityServiceAgency_basic(rName),
+				Config: testAccServiceAgency_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "service.APIG"),
 					resource.TestCheckResourceAttr(resourceName, "policy_names.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttrSet(resourceName, "trust_policy"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
-				Config: testAccIdentityServiceAgency_update(rName),
+				Config: testAccServiceAgency_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "policy_names.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "7200"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.new_key", "new_value"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
 				),
 			},
 			{
@@ -90,35 +87,35 @@ func TestAccIdentityServiceAgency_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityServiceAgency_basic(rName string) string {
+func testAccServiceAgency_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_service_agency" "test" {
-  name                   = "%s"
+  name                   = "%[1]s"
   delegated_service_name = "service.APIG"
   policy_names           = ["NATReadOnlyPolicy"]
-  description            = "test for terraform"
+  description            = "Created by terraform script"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName)
+`, name)
 }
 
-func testAccIdentityServiceAgency_update(rName string) string {
+func testAccServiceAgency_basic_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_service_agency" "test" {
-  name                   = "%s"
+  name                   = "%[1]s"
   delegated_service_name = "service.APIG"
   policy_names           = ["NATReadOnlyPolicy", "RDSReadOnlyPolicy"]
   duration               = 7200
-  description            = "test for terraform update"
+  description            = "Updated by terraform script"
 
   tags = {
-    foo1 = "bar1"
-    key1 = "value1"
+    foo     = "baar"
+    new_key = "new_value"
   }
 }
-`, rName)
+`, name)
 }
