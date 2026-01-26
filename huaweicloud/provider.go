@@ -3353,7 +3353,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_app_whitelist_policy_process":                   hss.ResourceAppWhitelistPolicyProcess(),
 			"huaweicloud_hss_associated_asset_importance":                    hss.ResourceAssociatedAssetImportance(),
 
-			"huaweicloud_identity_access_key":                   iam.ResourceIdentityKey(),
+			"huaweicloud_identity_access_key":                   iam.ResourceAccessKey(),
 			"huaweicloud_identity_acl":                          iam.ResourceIdentityACL(),
 			"huaweicloud_identity_agency":                       iam.ResourceIAMAgencyV3(),
 			"huaweicloud_identity_service_agency":               iam.ResourceIAMServiceAgency(),
