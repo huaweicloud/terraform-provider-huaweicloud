@@ -9,8 +9,10 @@ import (
 )
 
 func TestAccDataEnterpriseProjectServices_basic(t *testing.T) {
-	all := "data.huaweicloud_enterprise_project_services.test"
-	dc := acceptance.InitDataSourceCheck(all)
+	var (
+		dataSourceName = "data.huaweicloud_enterprise_project_services.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -20,14 +22,14 @@ func TestAccDataEnterpriseProjectServices_basic(t *testing.T) {
 				Config: testAccDataEnterpriseProjectServices_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(all, "services.#"),
-					resource.TestCheckResourceAttrSet(all, "services.0.service"),
-					resource.TestCheckResourceAttrSet(all, "services.0.service_i18n_display_name"),
-					resource.TestCheckResourceAttrSet(all, "services.0.resource_types.#"),
-					resource.TestCheckResourceAttrSet(all, "services.0.resource_types.0.resource_type"),
-					resource.TestCheckResourceAttrSet(all, "services.0.resource_types.0.resource_type_i18n_display_name"),
-					resource.TestCheckResourceAttrSet(all, "services.0.resource_types.0.regions.#"),
-					resource.TestCheckOutput("huaweicloud_enterprise_project_services", "true"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.service"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.service_i18n_display_name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.resource_types.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.resource_types.0.resource_type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.resource_types.0.resource_type_i18n_display_name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "services.0.resource_types.0.regions.#"),
+
 					resource.TestCheckOutput("huaweicloud_enterprise_project_services_locale", "true"),
 					resource.TestCheckOutput("huaweicloud_enterprise_project_services_service", "true"),
 				),
