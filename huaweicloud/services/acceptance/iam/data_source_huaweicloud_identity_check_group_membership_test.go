@@ -9,15 +9,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityCheckGroupMembership_basic(t *testing.T) {
+func TestAccDataCheckGroupMembership_basic(t *testing.T) {
 	var (
-		groupName      = acceptance.RandomAccResourceName()
-		userName1      = acceptance.RandomAccResourceName()
-		userName2      = acceptance.RandomAccResourceName()
-		password       = acceptance.RandomPassword()
-		dataSourceName = "data.huaweicloud_identity_check_group_membership.test"
+		groupName     = acceptance.RandomAccResourceName()
+		userName      = acceptance.RandomAccResourceName()
+		otherUserName = acceptance.RandomAccResourceName()
+		password      = acceptance.RandomPassword()
+
+		check = "data.huaweicloud_identity_check_group_membership.test"
+		dc    = acceptance.InitDataSourceCheck(check)
 	)
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -27,64 +28,62 @@ func TestAccIdentityCheckGroupMembership_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityCheckGroupMembership(groupName, userName1, password),
+				Config: testAccDataCheckGroupMembership_basic_step1(groupName, userName, password),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "result", "true"),
+					resource.TestCheckResourceAttr(check, "result", "true"),
 				),
 			},
 			{
-				Config: testAccIdentityCheckGroupMembershipNot(groupName, userName2, password),
+				Config: testAccDataCheckGroupMembership_basic_step2(groupName, otherUserName, password),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "result", "false"),
+					resource.TestCheckResourceAttr(check, "result", "false"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityCheckGroupMembership(groupName, userName, password string) string {
+func testAccDataCheckGroupMembership_base(groupName, userName, password string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
+resource "huaweicloud_identity_group" "test" {
+  name = "%[1]s"
 }
 
-resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
-  password = "%s"
+resource "huaweicloud_identity_user" "test" {
+  name     = "%[2]s"
+  password = "%[3]s"
   enabled  = true
-}
-   
-resource "huaweicloud_identity_group_membership" "membership_1" {
-  group = huaweicloud_identity_group.group_1.id
-  users = [huaweicloud_identity_user.user_1.id]
-}
-
-data "huaweicloud_identity_check_group_membership" "test" {
-  group_id = huaweicloud_identity_group.group_1.id
-  user_id  = huaweicloud_identity_user.user_1.id
-
-  depends_on = [huaweicloud_identity_group_membership.membership_1]
 }
 `, groupName, userName, password)
 }
 
-func testAccIdentityCheckGroupMembershipNot(groupName, userName, password string) string {
+func testAccDataCheckGroupMembership_basic_step1(groupName, userName, password string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
-}
+%[1]s
 
-resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
-  password = "%s"
-  enabled  = true
+resource "huaweicloud_identity_group_membership" "test" {
+  group = huaweicloud_identity_group.test.id
+  users = [huaweicloud_identity_user.test.id]
 }
 
 data "huaweicloud_identity_check_group_membership" "test" {
-  group_id = huaweicloud_identity_group.group_1.id
-  user_id  = huaweicloud_identity_user.user_1.id
+  group_id = huaweicloud_identity_group.test.id
+  user_id  = huaweicloud_identity_user.test.id
+
+  depends_on = [huaweicloud_identity_group_membership.test]
 }
-`, groupName, userName, password)
+`, testAccDataCheckGroupMembership_base(groupName, userName, password))
+}
+
+func testAccDataCheckGroupMembership_basic_step2(groupName, userName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identity_check_group_membership" "test" {
+  group_id = huaweicloud_identity_group.test.id
+  user_id  = huaweicloud_identity_user.test.id
+}
+`, testAccDataCheckGroupMembership_base(groupName, userName, password))
 }
