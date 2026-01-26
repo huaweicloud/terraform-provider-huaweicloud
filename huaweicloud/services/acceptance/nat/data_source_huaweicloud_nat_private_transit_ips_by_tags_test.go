@@ -7,16 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccDataSourceNatPrivateTransitIpsByTags_basic(t *testing.T) {
+func TestAccDataSourcePrivateTransitIpsByTags_basic(t *testing.T) {
 	var (
-		filterByTagsAll    = "data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_tags"
-		dcTags             = acceptance.InitDataSourceCheck(filterByTagsAll)
-		filterByMatchesAll = "data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_matches"
-		dcMatches          = acceptance.InitDataSourceCheck(filterByMatchesAll)
-		testName           = acceptance.RandomAccResourceName()
-		ipAddress          = "192.168.0.251"
+		dataSourceName = "data.huaweicloud_nat_private_transit_ips_by_tags.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		name           = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -26,31 +24,21 @@ func TestAccDataSourceNatPrivateTransitIpsByTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceNatPrivateTransitIpsByTags_basic(testName, ipAddress),
+				Config: testDataSourcePrivateTransitIpsByTags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					dcTags.CheckResourceExists(),
-					dcMatches.CheckResourceExists(),
+					dc.CheckResourceExists(),
 
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.0.resource_id"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.resource_name", ipAddress),
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.0.key", "foo0"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.0.value", "bar0"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.1.key", "foo1"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.1.value", "bar1"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.resource_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.resource_name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.tags.#"),
 
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.0.resource_id"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.resource_name", ipAddress),
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.0.key", "foo0"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.0.value", "bar0"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.1.key", "foo1"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.1.value", "bar1"),
-
-					resource.TestCheckOutput("tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("count_filter_is_useful", "true"),
 					resource.TestCheckOutput("matches_filter_is_useful", "true"),
+					resource.TestCheckOutput("tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("not_tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("tags_any_filter_is_useful", "true"),
+					resource.TestCheckOutput("not_tags_any_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -58,94 +46,105 @@ func TestAccDataSourceNatPrivateTransitIpsByTags_basic(t *testing.T) {
 	)
 }
 
-func testDataSourceNatPrivateTransitIpsByTags_base(name string, ipAddress string) string {
+func testDataSourcePrivateTransitIpsByTags_base(name string) string {
 	return fmt.Sprintf(`
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/20"
-  vpc_id     = resource.huaweicloud_vpc.test.id
-  gateway_ip = "192.168.0.1"
-}
+%s
 
 resource "huaweicloud_nat_private_transit_ip" "test" {
-  subnet_id             = resource.huaweicloud_vpc_subnet.test.id
-  enterprise_project_id = "0"
-  ip_address            = "%[2]s"
+  subnet_id  = huaweicloud_vpc_subnet.test.id
+  ip_address = "192.168.0.68"
 
   tags = {
-    "foo0" = "bar0"
-    "foo1" = "bar1"
+    foo = "bar"
+    key = "value"
+    tf  = "test"
+    acc = "abc"
   }
 }
-
-`, name, ipAddress)
+`, common.TestVpc(name))
 }
 
-func testDataSourceNatPrivateTransitIpsByTags_basic(name string, ipAddress string) string {
+func testDataSourcePrivateTransitIpsByTags_basic(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
 
-data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_tags" {
+data "huaweicloud_nat_private_transit_ips_by_tags" "test" {
   depends_on = [huaweicloud_nat_private_transit_ip.test]
   action     = "filter"
-
-  tags {
-    key    = "foo0"
-    values = ["bar0"]
-  }
-
-  tags {
-    key    = "foo1"
-    values = ["bar1"]
-  }
 }
 
-locals {
-  tag_key   = "foo0"
-  tag_value = "bar0"
-}
-
-output "tags_filter_is_useful" {
-  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_tags.resources) > 0 && alltrue(
-    [for v in data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_tags.resources[*].tags : anytrue(
-    [for vv in v[*].key : vv == local.tag_key]) && anytrue([for vv in v[*].value : vv == local.tag_value])]
-  )
+data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_count" {
+  depends_on = [huaweicloud_nat_private_transit_ip.test]
+  action     = "count"
 }
 
 data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_matches" {
-  depends_on = [huaweicloud_nat_private_transit_ip.test]
-  action     = "filter"
-
-  tags {
-    key    = "foo0"
-    values = ["bar0"]
-  }
-
-  tags {
-    key    = "foo1"
-    values = ["bar1"]
-  }
+  action = "filter"
 
   matches {
-    key    = "resource_name"
-    value  = "%[2]s"
+    key   = "resource_name"
+    value = data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.resource_name
   }
 }
 
-locals {
-  match_key   = "resource_name"
-  match_value = "%[2]s"
-}
-	
-output "matches_filter_is_useful" {
-  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_matches.resources) > 0
+data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_tags" {
+  action = "filter"
+
+  tags {
+    key    = data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.0.key
+    values = [data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.0.value]
+  }
 }
 
-`, testDataSourceNatPrivateTransitIpsByTags_base(name, ipAddress), ipAddress)
+data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_not_tags" {
+  action = "filter"
+
+  not_tags {
+    key    = data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.1.key
+    values = [data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.1.value]
+  }
+}
+
+data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_tags_any" {
+  action = "filter"
+
+  tags_any {
+    key    = data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.2.key
+    values = [data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.2.value]
+  }
+}
+
+data "huaweicloud_nat_private_transit_ips_by_tags" "filter_by_not_tags_any" {
+  action = "filter"
+
+  not_tags_any {
+    key    = data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.3.key
+    values = [data.huaweicloud_nat_private_transit_ips_by_tags.test.resources.0.tags.3.value]
+  }
+}
+
+output "count_filter_is_useful" {
+  value = data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_count.total_count == 1
+}
+
+output "matches_filter_is_useful" {
+  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_matches.resources) == 1
+}
+
+output "tags_filter_is_useful" {
+  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_tags.resources) == 1
+}
+
+output "not_tags_filter_is_useful" {
+  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_not_tags.resources) == 0
+}
+
+output "tags_any_filter_is_useful" {
+  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_tags_any.resources) == 1
+}
+
+output "not_tags_any_filter_is_useful" {
+  value = length(data.huaweicloud_nat_private_transit_ips_by_tags.filter_by_not_tags_any.resources) == 0
+}
+`, testDataSourcePrivateTransitIpsByTags_base(name))
 }

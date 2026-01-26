@@ -3,32 +3,20 @@ subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_transit_ips_by_tags"
 description: |-
-  Use this data source to get NAT Private Gateways filtered by tags within HuaweiCloud.
+  Use this data source to get the list of transit IPs by tags within HuaweiCloud.
 ---
 
 # huaweicloud_nat_private_transit_ips_by_tags
 
-Use this data source to get NAT Private Transit Ips filtered by tags within HuaweiCloud.
+Use this data source to get the list of transit IPs by tags within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_nat_private_transit_ips_by_tags" "test" {
-  action = "filter"
-  
-  tags = [
-    {
-      key    = "key_string"
-      values = ["value_string"]
-    }
-  ]
+variable "action" {}
 
-  matches = [
-    {
-      key   = "resource_name"
-      value = "shared01"
-    }
-  ]
+data "huaweicloud_nat_private_transit_ips_by_tags" "test" {
+  action = var.action
 }
 ```
 
@@ -39,60 +27,54 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `action` - (Required, String) Specifies the action name. Possible values are **count** and **filter**.
-  + **count**: querying count of data filtered by tags.
-  + **filter**: querying details of data filtered by tags.
+* `action` - (Required, String) Specifies the action name.
+  The valid values are **filter** and **count**.
+  If `action` set to **filter**, indicates query the transit IP based on tags filtering conditions.
+  If `action` set to **count**, indicates only query the total number of transit IPs.
 
-* `tags` - (Optional, List) Specifies the list of included tags. Backups with these tags will be filtered.
+* `tags` - (Optional, List) Specifies the resources to be queried contain tags list.
+  
   The [tags](#tags_struct) structure is documented below.
 
-* `tags_any` - (Optional, List) Specifies the list of tags. Backups with any tags in this list will be filtered.
+* `tags_any` - (Optional, List) Specifies the resources to be queried contain any tag list.
   The [tags_any](#tags_struct) structure is documented below.
 
-* `not_tags` - (Optional, List) Specifies the list of excluded tags. Backups without these tags will be filtered.
+* `not_tags` - (Optional, List) Specifies the resources to be queried do not contain tags list.
   The [not_tags](#tags_struct) structure is documented below.
 
-* `not_tags_any` - (Optional, List) Specifies the list of tags. Backups without any tags in this list will be filtered.
+* `not_tags_any` - (Optional, List) Specifies the resources to be queried do not contain any tag list.
   The [not_tags_any](#tags_struct) structure is documented below.
 
 -> For arguments above, include `tags`, `tags_any`, `not_tags`, `not_tags_any` have limits as follows:
-  <br/>1. This list cannot be an empty list.
-  <br/>2. The list can contain up to `10` keys.
-  <br/>3. Keys in this list must be unique.
-  <br/>4. If no tag filtering condition is specified, full data is returned.
+  <br/>1. Each resource to be queried contains a maximum of `20` keys. Each tag key can have a maximum of `20`
+  tag values. Each tag key must be unique, and each tag value in a tag must be unique.
+  <br/>2. The structure body cannot be missing, and the key cannot be left blank or set to an empty string.
+  <br/>3. Keys are in AND relationship (`tags`,`not_tags), and values in a tag are in OR relationship.
+  <br/>4. Keys are in OR relationship (`tags_any`,`not_tags_any`), and values in a tag are in OR relationship.
 
-* `matches` - (Optional, List) Specifies the matches supported by resources. Keys in this list must be unique.
-  Only one key is supported currently. Multiple-key support will be available later.
+* `matches` - (Optional, List) Specifies the search field.
+  The tag `key` is the field to be matched, the value only can be **resource_name**.
+  The tag `value` indicates the matched value.
+
   The [matches](#matches_struct) structure is documented below.
 
 <a name="tags_struct"></a>
 The `tags` block supports:
 
-* `key` - (Required, String) Specifies the key of the resource tag. It contains a maximum of `127` unicode characters.
-  A tag key cannot be an empty string. Spaces before and after a key will be deprecated.
+* `key` - (Required, String) Specifies the tags key.
+  The `key` cannot be left blank or be an empty string.
+  The `key` cannot contain spaces.
 
-* `values` - (Required, List) Specifies the list of values corresponding to the key.
-
-  -> The field has the following restrictions:
-    <br/>1. The list can contain up to `10` values.
-    <br/>2. A tag value contains up to `255` unicode characters. Spaces before and after a key will be deprecated.
-    <br/>3. Values in this list must be unique.
-    <br/>4. Values in this list are in an OR relationship.
-    <br/>5. This list can be empty and each value can be an empty character string.
-    <br/>6. If this list is left blank, it indicates that all values are included.
-    <br/>7. The asterisk (*) is a reserved character in the system.
-    If the value starts with (*), it indicates that fuzzy match is performed based on the value following (*).
-    The value cannot contain only asterisks.
+* `values` - (Required, List) Specifies the list of tags values.
+  The value can be an empty array but cannot be left blank. If values is an empty array, any value can be queried.
+  The values are in the OR relationship.
 
 <a name="matches_struct"></a>
 The `matches` block supports:
 
-* `key` - (Required, String) Specifies the key of the resource tag.
-  A key can only be set to **resource_name**, indicating the resource name.
+* `key` - (Required, String) Specifies the tag key used to search for resources.
 
-* `value` - (Required, String) Specifies the value of the resource tag.
-  A value consists of up to `255` characters.
-  If key is **resource_name**, an empty string indicates exact match and any non-empty string indicates fuzzy match.
+* `value` - (Required, String) Specifies the tag value used to search for resources.
 
 ## Attribute Reference
 
@@ -100,25 +82,25 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `total_count` - The total number of matched resources.
+* `total_count` - The total number of transit IPs.
 
-* `resources` - List of matched resources.
-  The [resources](#nat_private_transit_ips_resources) structure is documented below.
+* `resources` - The list of transit IPs.
+  The [resources](#transit_ips_struct) structure is documented below.
 
-<a name="nat_private_transit_ips_resources"></a>
+<a name="transit_ips_struct"></a>
 The `resources` block supports:
 
 * `resource_id` - The resource ID.
 
-* `resource_name` - The resource name.
+* `resource_name` - The resource name (Also is the transit IP address).
 
-* `resource_detail` - The detail of the matched resources. The value is a resource object used for extension.
-  This parameter is left blank by default.
+* `resource_detail` - The detail of the matched resources.
+  The value is a resource object used for extension and is left blank by default.
 
-* `tags` - The tag list.
-  The [tags](#nat_private_transit_ips_tags) structure is documented below.
+* `tags` - The tags list.
+  The [tags](#transit_ips_tags_struct) structure is documented below.
 
-<a name="nat_private_transit_ips_tags"></a>
+<a name="transit_ips_tags_struct"></a>
 The `tags` block supports:
 
 * `key` - The tag key.
