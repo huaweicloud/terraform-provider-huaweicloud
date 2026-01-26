@@ -9,15 +9,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityCheckGroupMembership_basic(t *testing.T) {
+func TestAccDataCheckGroupMembership_basic(t *testing.T) {
 	var (
-		groupName      = acceptance.RandomAccResourceName()
-		userName1      = acceptance.RandomAccResourceName()
-		userName2      = acceptance.RandomAccResourceName()
-		password       = acceptance.RandomPassword()
-		dataSourceName = "data.huaweicloud_identity_check_group_membership.test"
+		name = acceptance.RandomAccResourceName()
+
+		check = "data.huaweicloud_identity_check_group_membership.test"
+		dc    = acceptance.InitDataSourceCheck(check)
 	)
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -25,66 +23,79 @@ func TestAccIdentityCheckGroupMembership_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityCheckGroupMembership(groupName, userName1, password),
+				Config: testAccDataCheckGroupMembership_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "result", "true"),
+					resource.TestCheckResourceAttr(check, "result", "false"),
 				),
 			},
 			{
-				Config: testAccIdentityCheckGroupMembershipNot(groupName, userName2, password),
+				Config: testAccDataCheckGroupMembership_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "result", "false"),
+					resource.TestCheckResourceAttr(check, "result", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityCheckGroupMembership(groupName, userName, password string) string {
+func testAccDataCheckGroupMembership_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
 }
 
-resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
-  password = "%s"
+resource "huaweicloud_identity_group" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_identity_user" "test" {
+  name     = "%[1]s"
+  password = random_string.test.result
   enabled  = true
 }
-   
-resource "huaweicloud_identity_group_membership" "membership_1" {
-  group = huaweicloud_identity_group.group_1.id
-  users = [huaweicloud_identity_user.user_1.id]
+`, name)
+}
+
+func testAccDataCheckGroupMembership_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identity_check_group_membership" "test" {
+  group_id = huaweicloud_identity_group.test.id
+  user_id  = huaweicloud_identity_user.test.id
+}
+`, testAccDataCheckGroupMembership_base(name))
+}
+
+func testAccDataCheckGroupMembership_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identity_group_membership" "test" {
+  group = huaweicloud_identity_group.test.id
+  users = [huaweicloud_identity_user.test.id]
 }
 
 data "huaweicloud_identity_check_group_membership" "test" {
-  group_id = huaweicloud_identity_group.group_1.id
-  user_id  = huaweicloud_identity_user.user_1.id
+  group_id = huaweicloud_identity_group.test.id
+  user_id  = huaweicloud_identity_user.test.id
 
-  depends_on = [huaweicloud_identity_group_membership.membership_1]
+  depends_on = [huaweicloud_identity_group_membership.test]
 }
-`, groupName, userName, password)
-}
-
-func testAccIdentityCheckGroupMembershipNot(groupName, userName, password string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
-}
-
-resource "huaweicloud_identity_user" "user_1" {
-  name     = "%s"
-  password = "%s"
-  enabled  = true
-}
-
-data "huaweicloud_identity_check_group_membership" "test" {
-  group_id = huaweicloud_identity_group.group_1.id
-  user_id  = huaweicloud_identity_user.user_1.id
-}
-`, groupName, userName, password)
+`, testAccDataCheckGroupMembership_base(name))
 }
