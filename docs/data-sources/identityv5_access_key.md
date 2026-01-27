@@ -3,27 +3,20 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_access_key"
 description: |-
-  Use this data source to get the list of access key in the Identity and Access Management V5 service.
+  Use this data source to get the first available access key under the specified user within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_access_key
 
-Use this data source to get the list of access key in the Identity and Access Management V5 service.
+Use this data source to get the first available access key under the specified user within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identityv5_user" "user_1" {
-  name = "Test_accessKey"
-}
-
-resource "huaweicloud_identityv5_access_key" "key_1" {
-  user_id = huaweicloud_identityv5_user.user_1.id
-  status  = "inactive"
-}
+variable "user_id" {}
 
 data "huaweicloud_identityv5_access_key" "test" {
-  user_id = huaweicloud_identityv5_access_key.key_1.user_id
+  user_id = var.user_id
 }
 ```
 
@@ -37,10 +30,14 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `access_key_id` - Indicates the ID of the access key.
+* `id` - The ID of the data source.
 
-* `status` - Indicates the status of the access key. The value can be `active` or `inactive`.
+* `access_key_id` - The ID of the access key.
 
-* `created_at` - Indicates the time when the access key was created.
+* `status` - The status of the access key.  
+  + **active**
+  + **inactive**
 
-* `last_used_at` - Indicates the time when the access key was last used.
+* `created_at` - The creation time of the access key.
+
+* `last_used_at` - The time when the access key was last used.
