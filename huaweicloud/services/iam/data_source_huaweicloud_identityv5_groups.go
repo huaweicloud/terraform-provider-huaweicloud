@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,48 +15,107 @@ import (
 )
 
 // @API IAM GET /v5/groups
-func DataSourceIdentityV5Groups() *schema.Resource {
+func DataSourceV5Groups() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5GroupsRead,
+		ReadContext: dataSourceV5GroupsRead,
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the user.`,
 			},
 			"groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"group_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the user group.`,
+						},
 						"group_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the user group.`,
 						},
 						"urn": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name of the user group.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the user group.`,
 						},
-						"group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the user group.`,
 						},
 					},
+					Description: `The list of user groups that match the filter parameters.`,
 				},
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5GroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func buildV5GroupsQueryParams(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("user_id"); ok {
+		return fmt.Sprintf("&user_id=%v", v)
+	}
+
+	return ""
+}
+
+func listV5Groups(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v5/groups"
+		limit   = 100
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = fmt.Sprintf("%s?limit=%d", listPath, limit)
+	listPath += buildV5GroupsQueryParams(d)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker += fmt.Sprintf("&marker=%s", marker)
+		}
+		resp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		groups := utils.PathSearch("groups", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, groups...)
+		if len(groups) < limit {
+			break
+		}
+
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+	return result, nil
+}
+
+func dataSourceV5GroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam", region)
@@ -65,69 +123,34 @@ func dataSourceIdentityV5GroupsRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	var allGroups []interface{}
-	var marker string
-	var path string
-
-	for {
-		path = client.Endpoint + "v5/groups" + buildListGroupsV5Params(d, marker)
-		reqOpt := &golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		r, err := client.Request("GET", path, reqOpt)
-		if err != nil {
-			return diag.Errorf("error retrieving groups: %s", err)
-		}
-		resp, err := utils.FlattenResponse(r)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		groups := flattenListGroupsV5Response(resp)
-		allGroups = append(allGroups, groups...)
-
-		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
-		if marker == "" {
-			break
-		}
+	groups, err := listV5Groups(client, d)
+	if err != nil {
+		return diag.Errorf("error retrieving groups: %s", err)
 	}
 
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	randomId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
 
-	mErr := multierror.Append(nil,
-		d.Set("groups", allGroups),
-	)
+	d.SetId(randomId)
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	return diag.FromErr(d.Set("groups", flattenV5Groups(groups)))
 }
 
-func buildListGroupsV5Params(d *schema.ResourceData, marker string) string {
-	res := "?limit=100"
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-	if v, ok := d.GetOk("user_id"); ok {
-		res = fmt.Sprintf("%s&user_id=%v", res, v)
-	}
-	return res
-}
-
-func flattenListGroupsV5Response(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenV5Groups(groups []interface{}) []interface{} {
+	if len(groups) == 0 {
 		return nil
 	}
-
-	groups := utils.PathSearch("groups", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(groups))
-	for i, group := range groups {
-		result[i] = map[string]interface{}{
+	result := make([]interface{}, 0, len(groups))
+	for _, group := range groups {
+		result = append(result, map[string]interface{}{
 			"group_name":  utils.PathSearch("group_name", group, nil),
 			"urn":         utils.PathSearch("urn", group, nil),
 			"created_at":  utils.PathSearch("created_at", group, nil),
 			"description": utils.PathSearch("description", group, nil),
 			"group_id":    utils.PathSearch("group_id", group, nil),
-		}
+		})
 	}
 	return result
 }

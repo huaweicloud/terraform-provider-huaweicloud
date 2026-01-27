@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5GroupFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,17 +17,8 @@ func getV5GroupFunc(cfg *config.Config, state *terraform.ResourceState) (interfa
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getGroupHttpUrl := "v5/groups/{group_id}"
-	getGroupPath := client.Endpoint + getGroupHttpUrl
-	getGroupPath = strings.ReplaceAll(getGroupPath, "{group_id}", state.Primary.ID)
-	getGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getGroupResp, err := client.Request("GET", getGroupPath, &getGroupOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM group: %s", err)
-	}
-	return utils.FlattenResponse(getGroupResp)
+
+	return iam.GetV5GroupById(client, state.Primary.ID)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
