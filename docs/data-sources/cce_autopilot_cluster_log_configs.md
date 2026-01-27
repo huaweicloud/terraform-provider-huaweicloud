@@ -29,13 +29,16 @@ The following arguments are supported:
 
 * `cluster_id` - (Required, String) Specifies the cluster ID.
 
-* `type` - (Optional, String) Specifies the type of log config.
+* `type` - (Optional, String) Specifies the type of log config. Value options:
+  + **control**: specifies the logs of the control plane components.
+  + **audit**: specifies the audit logs on the control plane.
+  + **system-addon**: s ecifies the logs of the system add-ons.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `ttl_in_days` - The Storage duration.
+* `ttl_in_days` - The storage duration.
 
 * `log_configs` - Log config information.
 
@@ -46,6 +49,6 @@ The `log_configs` block supports:
 
 * `name` - Last config server name.
 
-* `enable` - Collected or not.
+* `enable` - Whether to enable log collection.
 
 * `type` - The type of log config.
