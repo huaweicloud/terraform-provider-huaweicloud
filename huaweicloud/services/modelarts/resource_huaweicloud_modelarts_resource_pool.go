@@ -627,30 +627,46 @@ func getResourcePoolOrdersByResourcePoolId(client *golangsdk.ServiceClient, reso
 	// Currently, the maximum total number of orders is 500.
 	// The query results are sorted in descending order according to the order creation time.
 	var (
-		httpUrl = "v1/{project_id}/orders?limit=500"
+		httpUrl = "v1/{project_id}/orders?limit={limit}"
 		getOpt  = golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
+		limit     = 500
+		offset    = 0
+		now       = time.Now()
+		sinceTime = now.Add(-time.Hour).UnixMilli() // One hour ago
+		result    = make([]interface{}, 0)
 	)
 
 	httpUrl = client.Endpoint + httpUrl
 	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
+	httpUrl = strings.ReplaceAll(httpUrl, "{limit}", strconv.Itoa(limit))
 	httpUrl = fmt.Sprintf("%s&involvedName=%s", httpUrl, resourcePoolId)
 	// Sometimes, the database may prioritize historical orders and push the latest orders out of the list, resulting
 	// in inaccurate query results.
-	// TODO: Using `since` parameter and `until` parameter to limit the number of results returned.
+	// Query orders within the last hour to avoid interference from too many historical orders.
+	httpUrl = fmt.Sprintf("%s&since=%d", httpUrl, sinceTime)
 
-	resp, err := client.Request("GET", httpUrl, &getOpt)
-	if err != nil {
-		return nil, err
+	for {
+		httpUrlWithOffset := fmt.Sprintf("%s&offset=%d", httpUrl, offset)
+		resp, err := client.Request("GET", httpUrlWithOffset, &getOpt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		items := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, items...)
+		if len(items) < limit {
+			break
+		}
+		offset += len(items)
 	}
 
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{}), nil
+	return result, nil
 }
 
 func refreshResourcePoolOrderStatus(client *golangsdk.ServiceClient, resourcePoolId, orderName string, targets []string) resource.StateRefreshFunc {
