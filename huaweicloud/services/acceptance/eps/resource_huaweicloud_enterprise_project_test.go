@@ -92,8 +92,21 @@ func TestAccEnterpriseProject_delete(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc_delete.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceDeleteName, "name", deleteName),
+					resource.TestCheckResourceAttr(resourceDeleteName, "type", "prod"),
 					resource.TestCheckResourceAttr(resourceDeleteName, "description", "terraform test delete"),
+					resource.TestCheckResourceAttr(resourceDeleteName, "status", "2"),
+					resource.TestCheckResourceAttr(resourceDeleteName, "enable", "false"),
+				),
+			},
+			{
+				Config: testAccEnterpriseProject_delete_update(deleteName),
+				Check: resource.ComposeTestCheckFunc(
+					rc_delete.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceDeleteName, "name", fmt.Sprintf("%s_update", deleteName)),
+					resource.TestCheckResourceAttr(resourceDeleteName, "type", "prod"),
+					resource.TestCheckResourceAttr(resourceDeleteName, "description", "terraform test delete update"),
 					resource.TestCheckResourceAttr(resourceDeleteName, "status", "1"),
+					resource.TestCheckResourceAttr(resourceDeleteName, "enable", "true"),
 				),
 			},
 			{
@@ -149,7 +162,20 @@ func testAccEnterpriseProject_delete(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_enterprise_project" "test_delete" {
   name        = "%s"
+  type        = "prod"
   description = "terraform test delete"
+  enable      = false
+  delete_flag = true
+}`, rName)
+}
+
+func testAccEnterpriseProject_delete_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_enterprise_project" "test_delete" {
+  name        = "%s_update"
+  type        = "prod"
+  description = "terraform test delete update"
+  enable      = true
   delete_flag = true
 }`, rName)
 }

@@ -2,12 +2,16 @@ package eps
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -16,6 +20,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API EPS POST /v1.0/enterprise-projects
@@ -106,6 +111,12 @@ func resourceEnterpriseProjectCreate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(project.ID)
 
+	if !d.Get("enable").(bool) {
+		if err := updateEnterpriseProjectEnable(epsClient, d); err != nil {
+			return diag.Errorf("error disabling Enterprise Project in create: %s", err)
+		}
+	}
+
 	return resourceEnterpriseProjectRead(ctx, d, meta)
 }
 
@@ -144,6 +155,18 @@ func resourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
+func updateEnterpriseProjectEnable(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var actionOpts enterpriseprojects.ActionOpts
+	if d.Get("enable").(bool) {
+		actionOpts.Action = "enable"
+	} else {
+		actionOpts.Action = "disable"
+	}
+
+	_, err := enterpriseprojects.Action(client, actionOpts, d.Id()).Extract()
+	return err
+}
+
 func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
@@ -153,16 +176,8 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("enable") {
-		var actionOpts enterpriseprojects.ActionOpts
-		if d.Get("enable").(bool) {
-			actionOpts.Action = "enable"
-		} else {
-			actionOpts.Action = "disable"
-		}
-
-		_, err = enterpriseprojects.Action(epsClient, actionOpts, d.Id()).Extract()
-		if err != nil {
-			return diag.Errorf("error enabling/disabling Enterprise Project: %s", err)
+		if err := updateEnterpriseProjectEnable(epsClient, d); err != nil {
+			return diag.Errorf("error enabling/disabling Enterprise Project in update: %s", err)
 		}
 	}
 
@@ -183,7 +198,7 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceEnterpriseProjectRead(ctx, d, meta)
 }
 
-func resourceEnterpriseProjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEnterpriseProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
 
@@ -206,20 +221,45 @@ func resourceEnterpriseProjectDelete(_ context.Context, d *schema.ResourceData, 
 	}
 
 	if d.Get("delete_flag").(bool) {
-		return resourceEnterpriseProjectDeleteFlag(d, meta)
+		return resourceEnterpriseProjectDeleteFlag(ctx, d, meta)
 	}
 
-	errorMsg := "Deleting enterprise projects is not supported. The project is only disabled and " +
-		"removed from the state, but it remains in the cloud."
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
-			Summary:  errorMsg,
+			Summary:  "The project is only disabled and removed from the state, but it remains in the cloud.",
 		},
 	}
 }
 
-func resourceEnterpriseProjectDeleteFlag(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func handleProjectDeleteError(err error) (interface{}, string, error) {
+	if err == nil {
+		return "success", "COMPLETED", nil
+	}
+
+	var errCode404 golangsdk.ErrDefault404
+	if errors.As(err, &errCode404) {
+		return "deleted", "COMPLETED", nil
+	}
+
+	var errCode400 golangsdk.ErrDefault400
+	if errors.As(err, &errCode400) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
+			return nil, "ERROR", fmt.Errorf("error unmarshaling the deletion enterprise project response body: %s", jsonErr)
+		}
+
+		// EPS.0086: The enterprise project is checking resources. Please try again later.
+		errCode := utils.PathSearch("error.error_code", apiError, "").(string)
+		if errCode == "EPS.0086" {
+			return "retry", "PENDING", nil
+		}
+	}
+
+	return nil, "ERROR", err
+}
+
+func resourceEnterpriseProjectDeleteFlag(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("eps", cfg.Region)
 	if err != nil {
@@ -236,17 +276,20 @@ func resourceEnterpriseProjectDeleteFlag(d *schema.ResourceData, meta interface{
 		},
 	}
 
-	maxRetryTime := 6
-	for i := 1; i <= maxRetryTime; i++ {
-		// lintignore:R018
-		time.Sleep(20 * time.Second)
-		_, err := client.Request("DELETE", deletePath, &opt)
-		if err == nil {
-			return nil
-		}
-		if i == maxRetryTime {
-			return diag.Errorf("error delete Enterprise Project: %s", err)
-		}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			_, err := client.Request("DELETE", deletePath, &opt)
+			return handleProjectDeleteError(err)
+		},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for Enterprise Project (%s) to be deleted: %s", d.Id(), err)
 	}
 
 	return nil
