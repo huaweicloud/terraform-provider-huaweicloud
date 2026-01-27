@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5AccessKeyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,26 +17,8 @@ func getV5AccessKeyResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getAccessKeyHttpUrl := "v5/users/{user_id}/access-keys"
-	getAccessKeyPath := client.Endpoint + getAccessKeyHttpUrl
-	getAccessKeyPath = strings.ReplaceAll(getAccessKeyPath, "{user_id}", state.Primary.Attributes["user_id"])
-	getAccessKeyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccessKeyResp, err := client.Request("GET", getAccessKeyPath, &getAccessKeyOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM access key: %s", err)
-	}
-	getAccessKeyRespBody, err := utils.FlattenResponse(getAccessKeyResp)
-	if err != nil {
-		return nil, err
-	}
 
-	accessKey := utils.PathSearch(fmt.Sprintf("access_keys[?access_key_id=='%s']|[0]", state.Primary.ID), getAccessKeyRespBody, nil)
-	if accessKey == nil {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return accessKey, nil
+	return iam.GetV5AccessKeyById(client, state.Primary.Attributes["user_id"], state.Primary.ID)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
