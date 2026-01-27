@@ -16,7 +16,7 @@ Use this datasource to get the list of CCE Autopilot Addon Instances.
 variable "cluster_id" {}
 
 data "huaweicloud_cce_autopilot_addons" "test" {
-  cluster_id = var.cluster_id  # Required
+  cluster_id = var.cluster_id
 }
 ```
 
@@ -43,6 +43,10 @@ In addition to all arguments above, the following attributes are exported:
 
 <a name="items_struct"></a>
 The `items` block supports:
+
+* `kind` - The API type.
+
+* `api_version` - The API version.
 
 * `metadata` - The metadata of the add-on instance.
 

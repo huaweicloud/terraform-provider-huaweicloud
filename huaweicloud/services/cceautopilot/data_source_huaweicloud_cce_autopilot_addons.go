@@ -2,6 +2,7 @@ package cceautopilot
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -21,26 +22,31 @@ func DataSourceCceAutopilotAddons() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"cluster_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The ID of the cluster.`,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"addon_template_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The template name of addon.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"items": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"kind": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"api_version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"metadata": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -110,7 +116,7 @@ func DataSourceCceAutopilotAddons() *schema.Resource {
 										Computed: true,
 									},
 									"values": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeMap,
 										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
@@ -271,7 +277,6 @@ func (w *AddonsDSWrapper) ListAutopilotAddons() (*gjson.Result, error) {
 		Method("GET").
 		URI(uri).
 		Query(params).
-		OffsetPager("instances", "offset", "limit", 100).
 		Request().
 		Result()
 }
@@ -283,7 +288,9 @@ func (w *AddonsDSWrapper) listAutopilotAddonsToSchema(body *gjson.Result) error 
 		d.Set("items", schemas.SliceToList(body.Get("items"),
 			func(items gjson.Result) any {
 				return map[string]any{
-					"metadata": schemas.SliceToList(items.Get("metadata"),
+					"kind":        items.Get("kind").Value(),
+					"api_version": items.Get("apiVersion").Value(),
+					"metadata": schemas.ObjectToList(items.Get("metadata"),
 						func(metadata gjson.Result) any {
 							return map[string]any{
 								"alias":              metadata.Get("alias").Value(),
@@ -296,7 +303,7 @@ func (w *AddonsDSWrapper) listAutopilotAddonsToSchema(body *gjson.Result) error 
 							}
 						},
 					),
-					"spec": schemas.SliceToList(items.Get("spec"),
+					"spec": schemas.ObjectToList(items.Get("spec"),
 						func(spec gjson.Result) any {
 							return map[string]any{
 								"addon_template_labels": schemas.SliceToStrList(spec.Get("addonTemplateLabels")),
@@ -305,12 +312,15 @@ func (w *AddonsDSWrapper) listAutopilotAddonsToSchema(body *gjson.Result) error 
 								"addon_template_type":   spec.Get("addonTemplateType").Value(),
 								"cluster_id":            spec.Get("clusterID").Value(),
 								"description":           spec.Get("description").Value(),
-								"values":                schemas.SliceToStrList(spec.Get("values")),
-								"version":               spec.Get("version").Value(),
+								"values": schemas.MapConverter(spec.Get("values"), func(val gjson.Result) any {
+									values, _ := json.Marshal(val)
+									return string(values)
+								}),
+								"version": spec.Get("version").Value(),
 							}
 						},
 					),
-					"status": schemas.SliceToList(items.Get("status"),
+					"status": schemas.ObjectToList(items.Get("status"),
 						func(status gjson.Result) any {
 							return map[string]any{
 								"reason":           status.Get("Reason").Value(),
@@ -335,8 +345,11 @@ func (*AddonsDSWrapper) setIteStaCurVersion(status gjson.Result) any {
 	return schemas.SliceToList(status.Get("currentVersion"), func(currentVersion gjson.Result) any {
 		return map[string]any{
 			"creation_timestamp": currentVersion.Get("creationTimestamp").Value(),
-			"input":              currentVersion.Get("input").Value(),
-			"stable":             currentVersion.Get("stable").Value(),
+			"input": schemas.MapConverter(currentVersion.Get("input"), func(val gjson.Result) any {
+				values, _ := json.Marshal(val)
+				return string(values)
+			}),
+			"stable": currentVersion.Get("stable").Value(),
 			"support_versions": schemas.SliceToList(currentVersion.Get("supportVersions"),
 				func(supportVersions gjson.Result) any {
 					return map[string]any{
@@ -346,7 +359,10 @@ func (*AddonsDSWrapper) setIteStaCurVersion(status gjson.Result) any {
 					}
 				},
 			),
-			"translate":        currentVersion.Get("translate").Value(),
+			"translate": schemas.MapConverter(currentVersion.Get("translate"), func(val gjson.Result) any {
+				values, _ := json.Marshal(val)
+				return string(values)
+			}),
 			"update_timestamp": currentVersion.Get("updateTimestamp").Value(),
 			"version":          currentVersion.Get("version").Value(),
 		}
