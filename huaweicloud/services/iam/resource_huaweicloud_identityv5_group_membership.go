@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,19 +17,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IAM POST /v5/groups/{group_id}/remove-user
+var v5GroupMembershipNonUpdatableParams = []string{"group_id"}
+
 // @API IAM POST /v5/groups/{group_id}/add-user
 // @API IAM GET /v5/users
-var groupMembershipNonUpdatableParams = []string{"group_id"}
-
-func ResourceIdentityV5GroupMembership() *schema.Resource {
+// @API IAM POST /v5/groups/{group_id}/remove-user
+func ResourceV5GroupMembership() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5GroupMembershipCreate,
-		ReadContext:   resourceIdentityV5GroupMembershipRead,
-		UpdateContext: resourceIdentityV5GroupMembershipUpdate,
-		DeleteContext: resourceIdentityV5GroupMembershipDelete,
+		CreateContext: resourceV5GroupMembershipCreate,
+		ReadContext:   resourceV5GroupMembershipRead,
+		UpdateContext: resourceV5GroupMembershipUpdate,
+		DeleteContext: resourceV5GroupMembershipDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(groupMembershipNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5GroupMembershipNonUpdatableParams),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -36,56 +37,73 @@ func ResourceIdentityV5GroupMembership() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"group_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the user group.`,
 			},
-
 			"user_id_list": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of user IDs to associate with the group.`,
 			},
+			// Attributes.
 			"users": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+						"user_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the user.`,
 						},
 						"user_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the user.`,
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the user is enabled.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the user.`,
 						},
 						"is_root_user": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the user is a root user.`,
 						},
 						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"user_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the user.`,
 						},
 						"urn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name of the user.`,
 						},
 					},
 				},
+				Description: `The list of users associated with the group.`,
+			},
+			// Internal parameter(s).
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
 }
 
-func resourceIdentityV5GroupMembershipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5GroupMembershipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -94,16 +112,15 @@ func resourceIdentityV5GroupMembershipCreate(ctx context.Context, d *schema.Reso
 
 	groupID := d.Get("group_id").(string)
 	userList := utils.ExpandToStringList(d.Get("user_id_list").(*schema.Set).List())
-
-	if err := addUsersToGroupV5(iamClient, groupID, userList); err != nil {
+	if err := v5AddUsersToGroup(iamClient, groupID, userList); err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId(groupID)
-	return resourceIdentityV5GroupMembershipRead(ctx, d, meta)
+	return resourceV5GroupMembershipRead(ctx, d, meta)
 }
 
-func resourceIdentityV5GroupMembershipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5GroupMembershipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -118,31 +135,29 @@ func resourceIdentityV5GroupMembershipRead(_ context.Context, d *schema.Resource
 	var marker string
 	var path string
 	for {
-		path = iamClient.Endpoint + getGroupHttpUrl + buildQueryGroupParamPath(d.Id(), marker)
+		path = iamClient.Endpoint + getGroupHttpUrl + v5BuildQueryGroupUsersParams(d.Id(), marker)
 		getGroupResp, err := iamClient.Request("GET", path, &getGroupOpt)
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "error getting IAM group")
 		}
+
 		getGroupRespBody, err := utils.FlattenResponse(getGroupResp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+
 		users := utils.PathSearch("users", getGroupRespBody, make([]interface{}, 0)).([]interface{})
 		allUsers = append(allUsers, users...)
-
 		marker = utils.PathSearch("page_info.next_marker", getGroupRespBody, "").(string)
 		if marker == "" {
 			break
 		}
 	}
-	if err := d.Set("users", allUsers); err != nil {
-		return diag.Errorf("error setting users fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(d.Set("users", allUsers))
 }
 
-func resourceIdentityV5GroupMembershipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5GroupMembershipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -156,35 +171,36 @@ func resourceIdentityV5GroupMembershipUpdate(ctx context.Context, d *schema.Reso
 		addSet := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
 
 		removeList := utils.ExpandToStringListBySet(rmSet)
-		if err := removeUsersFromGroupV5(iamClient, groupID, removeList); err != nil {
-			return diag.Errorf("error updating membership: %s", err)
+		if err := v5RemoveUsersFromGroup(iamClient, groupID, removeList); err != nil {
+			return diag.FromErr(err)
 		}
 
 		addList := utils.ExpandToStringListBySet(addSet)
-		if err := addUsersToGroupV5(iamClient, groupID, addList); err != nil {
-			return diag.Errorf("error updating membership: %s", err)
+		if err := v5AddUsersToGroup(iamClient, groupID, addList); err != nil {
+			return diag.FromErr(err)
 		}
 	}
-	return resourceIdentityV5GroupMembershipRead(ctx, d, meta)
+
+	return resourceV5GroupMembershipRead(ctx, d, meta)
 }
 
-func resourceIdentityV5GroupMembershipDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5GroupMembershipDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	groupID := d.Get("group_id").(string)
 	allUsers := utils.ExpandToStringList(d.Get("user_id_list").(*schema.Set).List())
-
-	if err := removeUsersFromGroupV5(iamClient, groupID, allUsers); err != nil {
+	if err := v5RemoveUsersFromGroup(iamClient, groupID, allUsers); err != nil {
 		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func addUsersToGroupV5(iamClient *golangsdk.ServiceClient, groupID string, userList []string) error {
+func v5AddUsersToGroup(iamClient *golangsdk.ServiceClient, groupID string, userList []string) error {
 	addGroupMembershipHttpUrl := "v5/groups/{group_id}/add-user"
 	addGroupMembershipPath := iamClient.Endpoint + addGroupMembershipHttpUrl
 	addGroupMembershipPath = strings.ReplaceAll(addGroupMembershipPath, "{group_id}", groupID)
@@ -195,15 +211,16 @@ func addUsersToGroupV5(iamClient *golangsdk.ServiceClient, groupID string, userL
 				"user_id": u,
 			},
 		}
-		addGroupMembershipResp, err := iamClient.Request("POST", addGroupMembershipPath, &addGroupMembershipOpt)
+		_, err := iamClient.Request("POST", addGroupMembershipPath, &addGroupMembershipOpt)
 		if err != nil {
-			return fmt.Errorf("error adding user %s to group %s: %v ", u, groupID, addGroupMembershipResp)
+			return fmt.Errorf("error adding user (%s) to group (%s): %s ", u, groupID, err)
 		}
 	}
+
 	return nil
 }
 
-func removeUsersFromGroupV5(iamClient *golangsdk.ServiceClient, groupID string, userList []string) error {
+func v5RemoveUsersFromGroup(iamClient *golangsdk.ServiceClient, groupID string, userList []string) error {
 	removeGroupMembershipHttpUrl := "v5/groups/{group_id}/remove-user"
 	removeGroupMembershipPath := iamClient.Endpoint + removeGroupMembershipHttpUrl
 	removeGroupMembershipPath = strings.ReplaceAll(removeGroupMembershipPath, "{group_id}", groupID)
@@ -214,23 +231,25 @@ func removeUsersFromGroupV5(iamClient *golangsdk.ServiceClient, groupID string, 
 				"user_id": u,
 			},
 		}
-		removeGroupMembershipResp, err := iamClient.Request("POST", removeGroupMembershipPath, &removeGroupMembershipOpt)
+		_, err := iamClient.Request("POST", removeGroupMembershipPath, &removeGroupMembershipOpt)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[WARN] the user %s is not exist, ignore to remove it from the group", u)
+				log.Printf("[WARN] the user (%s) is not exist, ignore to remove it from the group", u)
 				continue
 			}
-			return fmt.Errorf("error removing user %s from group %s: %v ", u, groupID, removeGroupMembershipResp)
+			return fmt.Errorf("error removing user (%s) from group (%s): %s ", u, groupID, err)
 		}
 	}
+
 	return nil
 }
 
-func buildQueryGroupParamPath(groupId string, marker string) string {
+func v5BuildQueryGroupUsersParams(groupId string, marker string) string {
 	res := "?limit=100"
 	if groupId != "" {
 		res = fmt.Sprintf("%s&group_id=%s", res, groupId)
 	}
+
 	if marker != "" {
 		res = fmt.Sprintf("%s&marker=%s", res, marker)
 	}
