@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceRAMDistinctSharedPrincipals_basic(t *testing.T) {
+func TestAccDataSourceDistinctSharedPrincipals_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_ram_distinct_shared_principals.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
@@ -21,7 +21,7 @@ func TestAccDatasourceRAMDistinctSharedPrincipals_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceRAMDistinctSharedPrincipals_base(),
+				Config: testDataSourceDistinctSharedPrincipals_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "distinct_shared_principals.0.id"),
@@ -32,10 +32,10 @@ func TestAccDatasourceRAMDistinctSharedPrincipals_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceRAMDistinctSharedPrincipals_base() string {
+func testDataSourceDistinctSharedPrincipals_basic() string {
 	return `
 data "huaweicloud_ram_distinct_shared_principals" "test" {
-  resource_owner = "self"
+  resource_owner = "other-accounts"
 }
 `
 }
