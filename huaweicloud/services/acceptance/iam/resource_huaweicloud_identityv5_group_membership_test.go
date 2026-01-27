@@ -7,58 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
-
-func listV5Users(client *golangsdk.ServiceClient, queryParams ...string) ([]interface{}, error) {
-	var (
-		limit   = 100
-		httpUrl = client.Endpoint + fmt.Sprintf("v5/users?limit=%d", limit)
-		marker  = ""
-		result  = make([]interface{}, 0)
-	)
-
-	if len(queryParams) > 0 && queryParams[0] != "" {
-		httpUrl += queryParams[0]
-	}
-
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	for {
-		if marker != "" {
-			httpUrl += fmt.Sprintf("&marker=%s", marker)
-		}
-
-		resp, err := client.Request("GET", httpUrl, &listOpt)
-		if err != nil {
-			return nil, err
-		}
-
-		respBody, err := utils.FlattenResponse(resp)
-		if err != nil {
-			return nil, err
-		}
-
-		users := utils.PathSearch("users", respBody, make([]interface{}, 0)).([]interface{})
-		result = append(result, users...)
-		if len(users) < limit {
-			break
-		}
-
-		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
-		if marker == "" {
-			break
-		}
-	}
-
-	return result, nil
-}
 
 func getV5GroupMembershipFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
@@ -66,23 +18,7 @@ func getV5GroupMembershipFunc(cfg *config.Config, state *terraform.ResourceState
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	users, err := listV5Users(client, fmt.Sprintf("&group_id=%s", state.Primary.ID))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(users) == 0 {
-		return nil, golangsdk.ErrDefault404{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Method:    "GET",
-				URL:       "v5/users",
-				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the users in group (%s) does not exist", state.Primary.ID)),
-			},
-		}
-	}
-
-	return users, nil
+	return iam.GetV5GroupassociateUsers(client, state.Primary.ID)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
@@ -136,10 +72,9 @@ func TestAccV5GroupMembership_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"group_id", "user_id_list"},
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
