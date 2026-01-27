@@ -178,6 +178,7 @@ func (w *ReleasesDSWrapper) listAutopilotReleasesToSchema(body *gjson.Result) er
 			func(release gjson.Result) any {
 				return map[string]any{
 					"chart_name":         release.Get("chart_name").Value(),
+					"chart_public":       release.Get("chart_public").Value(),
 					"chart_version":      release.Get("chart_version").Value(),
 					"cluster_id":         release.Get("cluster_id").Value(),
 					"cluster_name":       release.Get("cluster_name").Value(),
@@ -191,6 +192,7 @@ func (w *ReleasesDSWrapper) listAutopilotReleasesToSchema(body *gjson.Result) er
 					"status_description": release.Get("status_description").Value(),
 					"update_at":          release.Get("update_at").Value(),
 					"values":             release.Get("values").Value(),
+					"version":            release.Get("version").Value(),
 				}
 			},
 		)),
