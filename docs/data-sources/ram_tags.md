@@ -3,12 +3,12 @@ subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_tags"
 description: |-
-  Use this data source to list tags in Resource Access Manager.
+  Use this data source to get the list of tags that have been used in Resource Access Manager.
 ---
 
-# huaweicloud_ram_types
+# huaweicloud_ram_tags
 
-Use this data source to list tags in Resource Access Manager.
+Use this data source to get the list of tags that have been used in Resource Access Manager.
 
 ## Example Usage
 
@@ -28,9 +28,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `tags` - The list of tags.
 
-  The [tags](#tags) structure is documented below.
+  The [tags](#tags_struct) structure is documented below.
 
-<a name="tags"></a>
+<a name="tags_struct"></a>
 The `tags` block supports:
 
 * `key` - The key of tags.

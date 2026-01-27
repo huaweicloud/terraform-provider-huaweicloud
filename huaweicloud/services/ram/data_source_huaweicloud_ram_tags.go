@@ -39,9 +39,7 @@ func tagsSchema() *schema.Resource {
 			"values": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -50,41 +48,40 @@ func tagsSchema() *schema.Resource {
 }
 
 func dataSourceTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/resource-shares/tags"
+		product = "ram"
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
 
-	listTagsHttpUrl := "v1/resource-shares/tags"
-	listTagsProduct := "ram"
-	listTagsClient, err := cfg.NewServiceClient(listTagsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	listTagsPath := listTagsClient.Endpoint + listTagsHttpUrl
-
-	listTagsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var tags []interface{}
-	var marker string
-	var queryPath string
-
 	for {
-		queryPath = listTagsPath + buildListTagsQueryParams(marker)
-		listTagsResp, err := listTagsClient.Request("GET", queryPath, &listTagsOpt)
+		requestPathWithMarker := requestPath + buildListTagsQueryParams(marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
 			return diag.Errorf("error retrieving RAM tags: %s", err)
 		}
 
-		listTagsRespBody, err := utils.FlattenResponse(listTagsResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePageTags := FlattenTagsResp(listTagsRespBody)
-		tags = append(tags, onePageTags...)
-		marker = utils.PathSearch("page_info.next_marker", listTagsRespBody, "").(string)
+		tagsResp := utils.PathSearch("tags", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, tagsResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
@@ -94,39 +91,40 @@ func dataSourceTagsRead(_ context.Context, d *schema.ResourceData, meta interfac
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("tags", tags),
+		d.Set("tags", flattenTags(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func buildListTagsQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
+	// The default value of limit is `2000`.
+	queryParams := "?limit=2000"
 
 	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
+		queryParams = fmt.Sprintf("%s&marker=%v", queryParams, marker)
 	}
 
-	return res
+	return queryParams
 }
 
-func FlattenTagsResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenTags(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	curJson := utils.PathSearch("tags", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
-			"key":    utils.PathSearch("key", v, nil),
-			"values": utils.PathSearch("values", v, nil),
+			"key": utils.PathSearch("key", v, nil),
+			"values": utils.ExpandToStringList(
+				utils.PathSearch("values", v, make([]interface{}, 0)).([]interface{})),
 		})
 	}
+
 	return rst
 }

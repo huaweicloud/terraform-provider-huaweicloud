@@ -8,9 +8,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceRAMListTags_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_ram_tags.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+func TestAccDataSourceTags_basic(t *testing.T) {
+	var (
+		dataSource = "data.huaweicloud_ram_tags.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -19,7 +21,7 @@ func TestAccDataSourceRAMListTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceRAMListTags_basic(),
+				Config: testDataSourceTags_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "tags.#"),
@@ -31,7 +33,7 @@ func TestAccDataSourceRAMListTags_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceRAMListTags_basic() string {
+func testDataSourceTags_basic() string {
 	return `
   data "huaweicloud_ram_tags" "test" {}
 `
