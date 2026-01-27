@@ -2,22 +2,57 @@
 subcategory: "Enterprise Project Management Service (EPS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_enterprise_project"
-description: ""
+description: |-
+  Use this resource to manage an enterprise project within HuaweiCloud.
 ---
 
 # huaweicloud_enterprise_project
 
 Use this resource to manage an enterprise project within HuaweiCloud.
 
--> **NOTE:** Deleting enterprise projects is not support. If you destroy a resource of enterprise project,
-  the project is only disabled and removed from the state, but it remains in the cloud
+-> **NOTE:** This resource can be used in three ways during the destroy operation, please read the examples and field
+  descriptions in the documentation carefully before use. As follows:
+  <br/> 1. No operations are performed on the project during deletion.
+  <br/> 2. Disable the project during deletion.
+  <br/> 3. Delete the project during deletion.
 
 ## Example Usage
 
+### No operations are performed on the project during deletion
+
 ```hcl
+variable "name" {}
+variable "description" {}
+
 resource "huaweicloud_enterprise_project" "test" {
-  name        = "test"
-  description = "example project"
+  name                    = var.name
+  description             = var.description
+  skip_disable_on_destroy = true
+}
+```
+
+### Disable the project during deletion
+
+```hcl
+variable "name" {}
+variable "description" {}
+
+resource "huaweicloud_enterprise_project" "test" {
+  name        = var.name
+  description = var.description
+}
+```
+
+### Delete the project during deletion
+
+```hcl
+variable "name" {}
+variable "description" {}
+
+resource "huaweicloud_enterprise_project" "test" {
+  name        = var.name
+  description = var.description
+  delete_flag = true
 }
 ```
 
@@ -25,7 +60,7 @@ resource "huaweicloud_enterprise_project" "test" {
 
 * `name` - (Required, String) Specifies the name of the enterprise project.
   This parameter can contain `1` to `64` characters. Only English letters, Chinese characters, digits, underscores (_),
-  and hyphens (-) are allowed.  
+  and hyphens (-) are allowed.
   The name must be unique in the domain and cannot include any form of the word "default" ("deFaulT", for instance).
 
 * `description` - (Optional, String) Specifies the description of the enterprise project.
@@ -35,10 +70,12 @@ resource "huaweicloud_enterprise_project" "test" {
 
 * `enable` - (Optional, Bool) Specifies whether to enable the enterprise project. Defaults to **true**.
 
+  -> The **poc** type enterprise project does not support disabling operation.
+
 * `skip_disable_on_destroy` - (Optional, Bool) Specifies whether to skip disable the enterprise project on destroy.
   Defaults to **false**.
 
-* `delete_flag` - (Optional, Bool) Specifies whether to delete enterprise project.
+* `delete_flag` - (Optional, Bool) Specifies whether to delete enterprise project on destroy.
   Defaults to **false**.
 
 ## Attribute Reference
@@ -72,9 +109,10 @@ $ terraform import huaweicloud_enterprise_project.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `delete_flag`. It is generally
-recommended running **terraform plan** after importing an enterprise project. You can then decide if changes should be
-applied to the enterprise project, or the resource definition should be updated to align with the enterprise project.
+API response, security or some other reason. The missing attributes include: `delete_flag`, `skip_disable_on_destroy`.
+It is generally recommended running **terraform plan** after importing an enterprise project. You can then decide if
+changes should be applied to the enterprise project, or the resource definition should be updated to align with the
+enterprise project.
 Also you can ignore changes as below.
 
 ```hcl
@@ -83,7 +121,8 @@ resource "huaweicloud_enterprise_project" "test" {
 
   lifecycle {
     ignore_changes = [
-      delete_flag
+      delete_flag,
+      skip_disable_on_destroy
     ]
   }
 }
