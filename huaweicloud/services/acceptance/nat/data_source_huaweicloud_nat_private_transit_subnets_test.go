@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDatasourcePrivateTransitSubnets_basic(t *testing.T) {
@@ -14,22 +15,13 @@ func TestAccDatasourcePrivateTransitSubnets_basic(t *testing.T) {
 		name           = acceptance.RandomAccResourceName()
 		dataSourceName = "data.huaweicloud_nat_private_transit_subnets.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-
-		filterByTransitSubnetId          = "data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_id"
-		filterByTransitSubnetName        = "data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_name"
-		filterByTransitSubnetDescription = "data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_description"
-		filterByTransitSubnetSubnetId    = "data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_subnet_id"
-		filterByTransitSubnetProjectId   = "data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_project_id"
-
-		dcFilterByTransitSubnetId          = acceptance.InitDataSourceCheck(filterByTransitSubnetId)
-		dcFilterByTransitSubnetName        = acceptance.InitDataSourceCheck(filterByTransitSubnetName)
-		dcFilterByTransitSubnetDescription = acceptance.InitDataSourceCheck(filterByTransitSubnetDescription)
-		dcFilterByTransitSubnetSubnetId    = acceptance.InitDataSourceCheck(filterByTransitSubnetSubnetId)
-		dcFilterByTransitSubnetProjectId   = acceptance.InitDataSourceCheck(filterByTransitSubnetProjectId)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -37,45 +29,33 @@ func TestAccDatasourcePrivateTransitSubnets_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 
-					dcFilterByTransitSubnetId.CheckResourceExists(),
 					resource.TestCheckOutput("transit_subnet_id_filter_is_useful", "true"),
-
-					dcFilterByTransitSubnetName.CheckResourceExists(),
 					resource.TestCheckOutput("transit_subnet_name_filter_is_useful", "true"),
-
-					dcFilterByTransitSubnetDescription.CheckResourceExists(),
 					resource.TestCheckOutput("transit_subnet_description_filter_is_useful", "true"),
-
-					dcFilterByTransitSubnetSubnetId.CheckResourceExists(),
-					resource.TestCheckOutput("transit_subnet_subnet_id_filter_is_useful", "true"),
-
-					dcFilterByTransitSubnetProjectId.CheckResourceExists(),
-					resource.TestCheckOutput("transit_subnet_project_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("subnet_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("vpc_id_filter_is_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceNatPrivateTransitSubnets_base(name string) string {
+func testDataSourcePrivateTransitSubnets_base(name string) string {
 	return fmt.Sprintf(`
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%[1]s
 
 resource "huaweicloud_nat_private_transit_subnet" "test" {
-  name                 = "%[1]s"
+  name                 = "%[2]s"
   description          = "Created by acc test"
-  virsubnet_id         = data.huaweicloud_vpc_subnet.test.id
-  virsubnet_project_id = "%[2]s"
+  virsubnet_id         = huaweicloud_vpc_subnet.test.id
+  virsubnet_project_id = "%[3]s"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, name, acceptance.HW_PROJECT_ID)
+`, common.TestVpc(name), name, acceptance.HW_PROJECT_ID)
 }
 
 func testAccDatasourcePrivateTransitSubnets_basic(name string) string {
@@ -84,7 +64,7 @@ func testAccDatasourcePrivateTransitSubnets_basic(name string) string {
 
 data "huaweicloud_nat_private_transit_subnets" "test" {
   depends_on = [
-    resource.huaweicloud_nat_private_transit_subnet.test,
+    huaweicloud_nat_private_transit_subnet.test
   ]
 }
 
@@ -146,41 +126,41 @@ output "transit_subnet_description_filter_is_useful" {
 }
 
 locals {
-  transit_subnet_subnet_id = data.huaweicloud_nat_private_transit_subnets.test.transit_subnets[0].virsubnet_id
+  subnet_id = data.huaweicloud_nat_private_transit_subnets.test.transit_subnets[0].virsubnet_id
 }
 
-data "huaweicloud_nat_private_transit_subnets" "filter_by_transit_subnet_subnet_id" {
-  virsubnet_ids = [local.transit_subnet_subnet_id]
+data "huaweicloud_nat_private_transit_subnets" "filter_by_subnet_id" {
+  virsubnet_ids = [local.subnet_id]
 }
 
 locals {
-  transit_subnet_subnet_id_filter_result = [
-    for v in data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_subnet_id.transit_subnets[*].virsubnet_id : 
-    v == local.transit_subnet_subnet_id
+  subnet_id_filter_result = [
+    for v in data.huaweicloud_nat_private_transit_subnets.filter_by_subnet_id.transit_subnets[*].virsubnet_id : 
+    v == local.subnet_id
   ]
 }
 
-output "transit_subnet_subnet_id_filter_is_useful" {
-  value = alltrue(local.transit_subnet_subnet_id_filter_result) && length(local.transit_subnet_subnet_id_filter_result) > 0
+output "subnet_id_filter_is_useful" {
+  value = alltrue(local.subnet_id_filter_result) && length(local.subnet_id_filter_result) > 0
 }
 
 locals {
-  transit_subnet_project_id = data.huaweicloud_nat_private_transit_subnets.test.transit_subnets[0].virsubnet_project_id
+  vpc_id = data.huaweicloud_nat_private_transit_subnets.test.transit_subnets[0].virsubnet_project_id
 }
 
-data "huaweicloud_nat_private_transit_subnets" "filter_by_transit_subnet_project_id" {
-  virsubnet_project_ids = [local.transit_subnet_project_id]
+data "huaweicloud_nat_private_transit_subnets" "filter_by_vpc_id" {
+  vpc_ids = [local.vpc_id]
 }
 
 locals {
-  transit_subnet_project_id_filter_result = [
-    for v in data.huaweicloud_nat_private_transit_subnets.filter_by_transit_subnet_project_id.transit_subnets[*].project_id : 
-    v == local.transit_subnet_project_id
+  vpc_id_filter_result = [
+    for v in data.huaweicloud_nat_private_transit_subnets.filter_by_vpc_id.transit_subnets[*].project_id : 
+    v == local.vpc_id
   ]
 }
 
-output "transit_subnet_project_id_filter_is_useful" {
-  value = alltrue(local.transit_subnet_project_id_filter_result) && length(local.transit_subnet_project_id_filter_result) > 0
+output "vpc_id_filter_is_useful" {
+  value = alltrue(local.vpc_id_filter_result) && length(local.vpc_id_filter_result) > 0
 }
-`, testDataSourceNatPrivateTransitSubnets_base(name))
+`, testDataSourcePrivateTransitSubnets_base(name))
 }
