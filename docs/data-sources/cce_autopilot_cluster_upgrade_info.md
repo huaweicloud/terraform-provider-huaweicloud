@@ -3,12 +3,12 @@ subcategory: "Cloud Container Engine Autopilot (CCE Autopilot)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_autopilot_cluster_upgrade_info"
 description: |-
-  Use this data source to get  the list of CCE Autopilot clusters upgrade info within huaweicloud.
+  Use this data source to get the list of CCE Autopilot clusters upgrade info within huaweicloud.
 ---
 
 # huaweicloud_cce_autopilot_cluster_upgrade_info
 
-Use this data source to get  the list of CCE Autopilot clusters upgrade info within huaweicloud.
+Use this data source to get the list of CCE Autopilot clusters upgrade info within huaweicloud.
 
 ## Example Usage
 
@@ -34,6 +34,10 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
+
+* `kind` - The API type.
+
+* `api_version` - The API version.
 
 * `metadata` - Upgrade status information.
 
