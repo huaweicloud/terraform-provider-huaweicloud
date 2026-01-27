@@ -2,11 +2,11 @@
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_distinct_shared_resources"
-description: |
+description: |-
   Use this data source to get the list of RAM distinct shared resources.
 ---
 
-# huaweicloud_ram_shared_resources
+# huaweicloud_ram_distinct_shared_resources
 
 Use this data source to get the list of RAM distinct shared resources.
 
@@ -14,18 +14,9 @@ Use this data source to get the list of RAM distinct shared resources.
 
 ```hcl
 variable resource_owner {}
-variable resource_ids {}
-variable principle {}
-variable resource_region {}
-variable resource_urn {}
-
 
 data "huaweicloud_ram_distinct_shared_resources" "test" {
-  resource_owner  = var.resource_owner
-  resource_ids    = var.resource_ids
-  principle       = var.principle
-  resource_region = var.resource_region
-  resource_urn    = var.resource_urn
+  resource_owner = var.resource_owner
 }
 ```
 
@@ -35,8 +26,8 @@ The following arguments are supported:
 
 * `resource_owner` - (Required, String) Specifies the owner associated with the RAM share.
   Value options are as follows:
-    + **self**: Shared to other users by myself.
-    + **other-accounts**: Shared to me by other users.
+  + **self**: Shared to other users by myself.
+  + **other-accounts**: Shared to me by other users.
 
 * `resource_ids` - (Optional, List) Specifies the list of resource IDs associated with the RAM share.
 
@@ -59,16 +50,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `distinct_shared_resources` - The list of distinct shared resources.
-  The [distinct_shared_resources](#distinct_shared_resources) structure is documented below.
+* `distinct_shared_resources` - The list of information on different resources.
 
-<a name="distinct_shared_resources"></a>
+  The [distinct_shared_resources](#distinct_shared_resources_struct) structure is documented below.
+
+<a name="distinct_shared_resources_struct"></a>
 The `distinct_shared_resources` block supports:
 
-* `resource_type` - The resource type associated with the RAM share.
+* `resource_urn` - The unified resource name for resources.
 
-* `resource_urn` - The resource urn associated with the RAM share.
+* `resource_type` - The resource type.
 
-* `status` - The status of the RAM share.
-
-* `updated_at` - The latest update time of the RAM share.
+* `updated_at` - The last time the resource sharing instance was updated.
