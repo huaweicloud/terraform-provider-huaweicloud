@@ -2,7 +2,6 @@ package nat
 
 import (
 	"context"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -17,16 +16,15 @@ import (
 )
 
 // @API NAT POST /v3/{project_id}/transit-ips/resource_instances/action
-func DataSourceNatPrivateTransitIpsByTags() *schema.Resource {
+func DataSourcePrivateTransitIpsByTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceNatPrivateTransitIpsByTagsRead,
+		ReadContext: dataSourcePrivateTransitIpsByTagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"action": {
 				Type:     schema.TypeString,
@@ -129,6 +127,7 @@ func DataSourceNatPrivateTransitIpsByTags() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						// JSON format
 						"resource_detail": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -160,7 +159,7 @@ func DataSourceNatPrivateTransitIpsByTags() *schema.Resource {
 	}
 }
 
-func flattenNatPrivateTransitIpsByTagsResponseBody(resp []interface{}) []interface{} {
+func flattenPrivateTransitIpsByTags(resp []interface{}) []interface{} {
 	if len(resp) == 0 {
 		return nil
 	}
@@ -170,43 +169,86 @@ func flattenNatPrivateTransitIpsByTagsResponseBody(resp []interface{}) []interfa
 		resources[i] = map[string]interface{}{
 			"resource_name":   utils.PathSearch("resource_name", v, nil),
 			"resource_id":     utils.PathSearch("resource_id", v, nil),
-			"resource_detail": utils.PathSearch("resource_detail", v, nil),
-			"tags":            flattenNatTags(utils.PathSearch("tags", v, make([]interface{}, 0)).([]interface{})),
+			"resource_detail": utils.JsonToString(utils.PathSearch("resource_detail", v, nil)),
+			"tags":            flattenTransitIpsTagsResp(utils.PathSearch("tags", v, make([]interface{}, 0)).([]interface{})),
 		}
 	}
 	return resources
 }
 
-func buildNatPrivateTransitIpsByTagsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	body := map[string]interface{}{}
-	if v, ok := d.GetOk("action"); ok {
-		body["action"] = v.(string)
+func flattenTransitIpsTagsResp(tags []interface{}) []interface{} {
+	if len(tags) == 0 {
+		return nil
 	}
-	if v, ok := d.GetOk("tags"); ok {
-		body["tags"] = expandTags(v.([]interface{}))
+
+	rst := make([]interface{}, len(tags))
+	for i, tag := range tags {
+		rst[i] = map[string]interface{}{
+			"key":   utils.PathSearch("key", tag, nil),
+			"value": utils.PathSearch("value", tag, nil),
+		}
 	}
-	if v, ok := d.GetOk("tags_any"); ok {
-		body["tags_any"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("not_tags"); ok {
-		body["not_tags"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("not_tags_any"); ok {
-		body["not_tags_any"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("matches"); ok {
-		body["matches"] = expandMatches(v.([]interface{}))
-	}
-	return body
+	return rst
 }
 
-func dataSourceNatPrivateTransitIpsByTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func buildPrivateTransitIpsByTagsBodyParams(d *schema.ResourceData, action string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"action":       action,
+		"matches":      buildFilterMatchesBodyParams(d.Get("matches").([]interface{})),
+		"tags":         buildFilterTagsBodyParams(d.Get("tags").([]interface{})),
+		"not_tags":     buildFilterTagsBodyParams(d.Get("not_tags").([]interface{})),
+		"tags_any":     buildFilterTagsBodyParams(d.Get("tags_any").([]interface{})),
+		"not_tags_any": buildFilterTagsBodyParams(d.Get("not_tags_any").([]interface{})),
+	}
+
+	return bodyParams
+}
+
+func buildFilterMatchesBodyParams(matches []interface{}) []map[string]interface{} {
+	if len(matches) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(matches))
+	for i, matchRaw := range matches {
+		if match, ok := matchRaw.(map[string]interface{}); ok {
+			res[i] = map[string]interface{}{
+				"key":   utils.PathSearch("key", match, nil),
+				"value": utils.PathSearch("value", match, nil),
+			}
+		}
+	}
+	return res
+}
+
+func buildFilterTagsBodyParams(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(tags))
+	for i, tagRaw := range tags {
+		if tag, ok := tagRaw.(map[string]interface{}); ok {
+			res[i] = map[string]interface{}{
+				"key":    utils.PathSearch("key", tag, nil),
+				"values": utils.PathSearch("values", tag, nil),
+			}
+		}
+	}
+
+	return res
+}
+
+func dataSourcePrivateTransitIpsByTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v3/{project_id}/transit-ips/resource_instances/action"
-		product = "nat"
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v3/{project_id}/transit-ips/resource_instances/action"
+		product      = "nat"
+		tagsAction   = d.Get("action").(string)
+		offset       = 0
+		allTrasitIps = make([]interface{}, 0)
+		totalCount   int
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -214,27 +256,26 @@ func dataSourceNatPrivateTransitIpsByTagsRead(_ context.Context, d *schema.Resou
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
+	requestBody := buildPrivateTransitIpsByTagsBodyParams(d, tagsAction)
+	if tagsAction == "filter" {
+		requestBody["limit"] = "1000"
+	}
+
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
-
-	var allTrasitIps []interface{}
-	offset := 0
-	totalCount := 0
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
 
 	for {
-		requestBody := buildNatPrivateTransitIpsByTagsBodyParams(d)
-		if requestBody["action"] == "filter" {
-			requestBody["limit"] = "1000"
-			requestBody["offset"] = strconv.Itoa(offset)
+		if tagsAction == "filter" {
+			requestBody["offset"] = offset
 		}
 
-		requestOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         requestBody,
-		}
+		requestOpt.JSONBody = utils.RemoveNil(requestBody)
 		resp, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error querying Nat Private Transit Ips by tags: %s", err)
+			return diag.Errorf("error retrieving NAT private transit IPs: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -242,11 +283,16 @@ func dataSourceNatPrivateTransitIpsByTagsRead(_ context.Context, d *schema.Resou
 			return diag.FromErr(err)
 		}
 
-		transitIps := utils.PathSearch("resources", respBody, []interface{}{}).([]interface{})
 		totalCount = int(utils.PathSearch("total_count", respBody, float64(0)).(float64))
+		if tagsAction == "count" {
+			break
+		}
+
+		transitIps := utils.PathSearch("resources", respBody, []interface{}{}).([]interface{})
 		if len(transitIps) == 0 {
 			break
 		}
+
 		allTrasitIps = append(allTrasitIps, transitIps...)
 		offset += len(transitIps)
 	}
@@ -255,12 +301,12 @@ func dataSourceNatPrivateTransitIpsByTagsRead(_ context.Context, d *schema.Resou
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	d.SetId(id)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("resources", flattenNatPrivateTransitIpsByTagsResponseBody(allTrasitIps)),
+		d.Set("resources", flattenPrivateTransitIpsByTags(allTrasitIps)),
 		d.Set("total_count", totalCount),
 	)
 
