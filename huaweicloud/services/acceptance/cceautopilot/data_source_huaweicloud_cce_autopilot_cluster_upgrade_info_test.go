@@ -1,6 +1,7 @@
 package cceautopilot
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,33 +9,48 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCceAutopilotClusterUpgradeInfo_basic(t *testing.T) {
+func TestAccDataSourceClusterUpgradeInfo_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_cce_autopilot_cluster_upgrade_info.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCceClusterId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceCceAutopilotClusterUpgradeInfo_basic,
+				Config: testAccDataSourceClusterUpgradeInfo_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckOutput("is_results_not_empty", "true"),
+					resource.TestCheckResourceAttrSet(dataSource, "kind"),
+					resource.TestCheckResourceAttrSet(dataSource, "api_version"),
+					resource.TestCheckResourceAttrSet(dataSource, "metadata.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.last_upgrade_info.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.last_upgrade_info.0.phase"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.last_upgrade_info.0.completion_time"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.version_info.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.version_info.0.release"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.version_info.0.patch"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.version_info.0.suggest_patch"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.version_info.0.target_versions.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.upgrade_feature_gates.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "spec.0.upgrade_feature_gates.0.support_upgrade_page_v4"),
+					resource.TestCheckResourceAttrSet(dataSource, "status.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "status.0.phase"),
+					resource.TestCheckResourceAttrSet(dataSource, "status.0.completion_time"),
 				),
 			},
 		},
 	})
 }
 
-const testDataSourceCceAutopilotClusterUpgradeInfo_basic = `
+func testAccDataSourceClusterUpgradeInfo_basic() string {
+	return fmt.Sprintf(`
 data "huaweicloud_cce_autopilot_cluster_upgrade_info" "test" {
-  cluster_id = "83a085fe-d4f1-11f0-80d0-0255ac10178d"
+  cluster_id = "%s"
 }
-
-output "is_results_not_empty" {
-  value = length(data.huaweicloud_cce_autopilot_cluster_upgrade_info.test.spec) > 0
+`, acceptance.HW_CCE_CLUSTER_ID)
 }
-`

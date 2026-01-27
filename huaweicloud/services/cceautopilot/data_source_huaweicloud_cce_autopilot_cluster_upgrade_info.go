@@ -29,6 +29,14 @@ func DataSourceCceAutopilotClusterUpgradeInfo() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"kind": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"api_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"metadata": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -205,6 +213,8 @@ func (w *ClusterUpgradeInfoDSWrapper) showAutopilotClusterUpgradeInfoToSchema(bo
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
+		d.Set("kind", body.Get("kind").Value()),
+		d.Set("api_version", body.Get("apiVersion").Value()),
 		d.Set("metadata", schemas.SliceToList(body.Get("metadata"),
 			func(metadata gjson.Result) any {
 				return map[string]any{
@@ -223,8 +233,8 @@ func (w *ClusterUpgradeInfoDSWrapper) showAutopilotClusterUpgradeInfoToSchema(bo
 					"last_upgrade_info": schemas.SliceToList(spec.Get("lastUpgradeInfo"),
 						func(lastinfo gjson.Result) any {
 							return map[string]any{
-								"phase":           lastinfo.Get("release").Value(),
-								"progress":        lastinfo.Get("patch").Value(),
+								"phase":           lastinfo.Get("phase").Value(),
+								"progress":        lastinfo.Get("progress").Value(),
 								"completion_time": lastinfo.Get("completionTime").Value(),
 							}
 						},
