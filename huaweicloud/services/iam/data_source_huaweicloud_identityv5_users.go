@@ -125,14 +125,18 @@ func dataSourceIdentityV5UserRead(_ context.Context, d *schema.ResourceData, met
 		tags := listUserTagInfo(user)
 		userLastLogin, err := dataSourceUserRead("v5/users/{user_id}/last-login", client, userId)
 		if err != nil {
-			return diag.Errorf("error retrieving Identity V5 user last login: %s", err)
+			// To avoid the error of this interface, causing the data source to fail to use normally, use log to record the error.
+			log.Printf("[ERROR] error retrieving Identity V5 user (%s) last login: %s", userId, err)
 		}
 		getLoginProfileRespBody, err := dataSourceUserRead("v5/users/{user_id}/login-profile", client, userId)
 		if err != nil {
-			return diag.Errorf("error retrieving Identity V5 user login profile: %s", err)
+			// For new created users, if the login password is not set, this interface will report an error,
+			// so use log to record the error.
+			// The error message as follows:
+			// { "error_code": "IAM.0004", "error_msg": "Could not find login-profile: {user_id}" }
+			log.Printf("[ERROR] error retrieving Identity V5 user (%s) login profile: %s", userId, err)
 		}
-		loginProfile := utils.PathSearch("login_profile", getLoginProfileRespBody, nil)
-		users := flattenShowUserV5Response(user, tags, userLastLogin, loginProfile)
+		users := flattenShowUserV5Response(user, tags, userLastLogin, utils.PathSearch("login_profile", getLoginProfileRespBody, nil))
 		allUsers = append(allUsers, users)
 	} else {
 		for {
