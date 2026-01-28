@@ -9,9 +9,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIamIdentityProviderProtocols_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_provider_protocols.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataProviderProtocols_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		byProviderId   = "data.huaweicloud_identity_provider_protocols.filter_by_provider_id"
+		dcByProviderId = acceptance.InitDataSourceCheck(byProviderId)
+
+		byProtocolId   = "data.huaweicloud_identity_provider_protocols.filter_by_protocol_id"
+		dcByProtocolId = acceptance.InitDataSourceCheck(byProtocolId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -20,47 +27,63 @@ func TestAccDataSourceIamIdentityProviderProtocols_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceIamIdentityProviderProtocols(acceptance.RandomAccResourceName()),
+				Config: testAccDataProviderProtocols_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "protocols.#", "1"),
-				),
-			},
-			{
-				Config: testDataSourceIamIdentityProviderProtocolsWithProtocolId(acceptance.RandomAccResourceName()),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "protocols.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "protocols.0.id", "saml"),
+					dcByProviderId.CheckResourceExists(),
+					resource.TestCheckOutput("filter_by_provider_id_result", "true"),
+					dcByProtocolId.CheckResourceExists(),
+					resource.TestCheckOutput("filter_by_protocol_id_result", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceIamIdentityProviderProtocols(name string) string {
+func testAccDataProviderProtocols_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider1" {
-  name     = "%s"
-  protocol = "oidc"
+variable "provider_protocols" {
+  type    = list(string)
+  default = ["oidc", "saml"]
 }
 
-data "huaweicloud_identity_provider_protocols" "test" {
-  provider_id = huaweicloud_identity_provider.provider1.id
+resource "huaweicloud_identity_provider" "test" {
+  count = length(var.provider_protocols)
+
+  name     = format("%[1]s_%%s", var.provider_protocols[count.index])
+  protocol = var.provider_protocols[count.index]
 }
 `, name)
 }
 
-func testDataSourceIamIdentityProviderProtocolsWithProtocolId(name string) string {
+func testAccDataProviderProtocols_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_provider" "provider1" {
-  name     = "%s"
-  protocol = "saml"
+%[1]s
+
+# Filter by provider_id
+locals {
+  provider_id = try(huaweicloud_identity_provider.test[0].id, "NOT_FOUND")
 }
 
-data "huaweicloud_identity_provider_protocols" "test" {
-  provider_id = huaweicloud_identity_provider.provider1.id
-  protocol_id = "saml"
+data "huaweicloud_identity_provider_protocols" "filter_by_provider_id" {
+  provider_id = local.provider_id
 }
-`, name)
+
+output "filter_by_provider_id_result" {
+  value = length(data.huaweicloud_identity_provider_protocols.filter_by_provider_id.protocols) == 1
+}
+
+# Filter by protocol_id
+data "huaweicloud_identity_provider_protocols" "filter_by_protocol_id" {
+  provider_id = local.provider_id
+  protocol_id = "oidc"
+}
+
+locals {
+  filter_by_protocol_id_result = length(data.huaweicloud_identity_provider_protocols.filter_by_protocol_id.protocols) == 1
+}
+
+output "filter_by_protocol_id_result" {
+  value = local.filter_by_protocol_id_result
+}
+`, testAccDataProviderProtocols_base(name))
 }
