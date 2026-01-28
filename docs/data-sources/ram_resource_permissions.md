@@ -2,13 +2,13 @@
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_resource_permissions"
-description: |
-  Use this data source to get the list of RAM permissions.
+description: |-
+  Use this data source to get the list of RAM resource permissions within HuaweiCloud.
 ---
 
 # huaweicloud_ram_resource_permissions
 
-Use this data source to get the list of RAM permissions.
+Use this data source to get the list of RAM resource permissions within HuaweiCloud.
 
 ## Example Usage
 
@@ -45,12 +45,13 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID.
 
 * `permissions` - Indicates the list of the RAM permissions
-  The [permissions](#RAM_Permissions) structure is documented below.
 
-<a name="RAM_Permissions"></a>
+  The [permissions](#RAM_permissions) structure is documented below.
+
+<a name="RAM_permissions"></a>
 The `permissions` block supports:
 
-* `id` - Indicates the id of RAM permission.
+* `id` - Indicates the ID of RAM permission.
 
 * `name` - Indicates the name of RAM permission.
 
@@ -58,7 +59,7 @@ The `permissions` block supports:
 
 * `is_resource_type_default` - Whether the RAM permission resource type is default.
 
-* `created_at` - Indicates the RAM permission create time.
+* `created_at` - Indicates the RAM permission creation time.
 
 * `updated_at` - Indicates the RAM permission last update time.
 
