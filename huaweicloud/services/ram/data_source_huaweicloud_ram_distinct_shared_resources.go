@@ -26,9 +26,7 @@ func DataSourceDistinctSharedResources() *schema.Resource {
 			"resource_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"principal": {
 				Type:     schema.TypeString,
@@ -41,20 +39,18 @@ func DataSourceDistinctSharedResources() *schema.Resource {
 			"resource_urns": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"distinct_shared_resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     distinctSharedResourceSchema(),
+				Elem:     distinctSharedResourcesSchema(),
 			},
 		},
 	}
 }
 
-func distinctSharedResourceSchema() *schema.Resource {
+func distinctSharedResourcesSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"resource_urn": {
@@ -76,45 +72,42 @@ func distinctSharedResourceSchema() *schema.Resource {
 }
 
 func dataSourceDistinctSharedResourcesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		listDistinctSharedResourcesHttpUrl = "v1/shared-resources/search-distinct-resource"
-		listDistinctSharedResourcesProduct = "ram"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/shared-resources/search-distinct-resource"
+		product = "ram"
+		result  []interface{}
+		marker  string
+		limit   = 2000
 	)
-	ramClient, err := cfg.NewServiceClient(listDistinctSharedResourcesProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	listDistinctSharedResourcesHttpPath := ramClient.Endpoint + listDistinctSharedResourcesHttpUrl
-
-	var distinctSharedResources []interface{}
-	var marker string
-	var limit = 200
-
 	for {
-		listDistinctSharedResourcesHttpOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestOpts := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			JSONBody:         buildDistinctSharedResourcesBody(d, limit, marker),
+			JSONBody:         utils.RemoveNil(buildDistinctSharedResourcesBody(d, limit, marker)),
 		}
-		listDistinctSharedResourcesHttpResp, err := ramClient.Request(
-			"POST",
-			listDistinctSharedResourcesHttpPath,
-			&listDistinctSharedResourcesHttpOpt,
-		)
+
+		resp, err := client.Request("POST", requestPath, &requestOpts)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error retrieving RAM distinct shared resources: %s", err)
 		}
-		listDistinctSharedResourcesRespBody, err := utils.FlattenResponse(listDistinctSharedResourcesHttpResp)
+
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePageSearchDistinctResource := flattenDistinctSharedResourcesResp(listDistinctSharedResourcesRespBody)
-		distinctSharedResources = append(distinctSharedResources, onePageSearchDistinctResource...)
-		marker = utils.PathSearch("page_info.next_marker", onePageSearchDistinctResource, "").(string)
+		resourcesResp := utils.PathSearch(
+			"distinct_shared_resources", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, resourcesResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
@@ -124,25 +117,28 @@ func dataSourceDistinctSharedResourcesRead(_ context.Context, d *schema.Resource
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("distinct_shared_resources", distinctSharedResources),
+		d.Set("distinct_shared_resources", flattenDistinctSharedResources(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func buildDistinctSharedResourcesBody(d *schema.ResourceData, limit int, marker string) map[string]interface{} {
-	params := make(map[string]interface{})
+	params := map[string]interface{}{
+		"resource_owner": d.Get("resource_owner"),
+		"limit":          limit,
+	}
 
-	params["limit"] = limit
 	if marker != "" {
 		params["marker"] = marker
 	}
 
 	if v, ok := d.GetOk("resource_ids"); ok {
-		params["resource_ids"] = v
+		params["resource_ids"] = utils.ExpandToStringList(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("principal"); ok {
@@ -154,29 +150,25 @@ func buildDistinctSharedResourcesBody(d *schema.ResourceData, limit int, marker 
 	}
 
 	if v, ok := d.GetOk("resource_urns"); ok {
-		params["resource_urns"] = v
+		params["resource_urns"] = utils.ExpandToStringList(v.([]interface{}))
 	}
-
-	params["resource_owner"] = d.Get("resource_owner")
 
 	return params
 }
 
-func flattenDistinctSharedResourcesResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenDistinctSharedResources(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	curJson := utils.PathSearch("distinct_shared_resources", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
 			"resource_urn":  utils.PathSearch("resource_urn", v, nil),
 			"resource_type": utils.PathSearch("resource_type", v, nil),
 			"updated_at":    utils.PathSearch("updated_at", v, nil),
 		})
 	}
+
 	return rst
 }
