@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product RAM
-// ---------------------------------------------------------------
-
 package ram
 
 import (
@@ -21,9 +16,9 @@ import (
 )
 
 // @API RAM GET /v1/permissions
-func DataSourceRAMPermissions() *schema.Resource {
+func DataSourceResourcePermissions() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceRAMPermissionsRead,
+		ReadContext: dataSourceResourcePermissionsRead,
 		Schema: map[string]*schema.Schema{
 			"resource_type": {
 				Type:        schema.TypeString,
@@ -56,7 +51,7 @@ func permissionsSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the id of RAM permission.`,
+				Description: `Indicates the ID of RAM permission.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -76,7 +71,7 @@ func permissionsSchema() *schema.Resource {
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the RAM permission create time.`,
+				Description: `Indicates the RAM permission creation time.`,
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
@@ -110,34 +105,36 @@ func permissionsSchema() *schema.Resource {
 			},
 		},
 	}
+
 	return &sc
 }
 
-func buildGetRAMPermissionsQueryParams(d *schema.ResourceData, nextMarker string) string {
-	queryParam := "?limit=2000"
+func buildGetResourcePermissionsQueryParams(d *schema.ResourceData, nextMarker string) string {
+	queryParams := "?limit=2000"
 	if nextMarker != "" {
-		queryParam = fmt.Sprintf("%s&marker=%s", queryParam, nextMarker)
+		queryParams = fmt.Sprintf("%s&marker=%s", queryParams, nextMarker)
 	}
 
 	if v, ok := d.GetOk("resource_type"); ok {
-		queryParam = fmt.Sprintf("%s&resource_type=%v", queryParam, v)
+		queryParams = fmt.Sprintf("%s&resource_type=%v", queryParams, v)
 	}
 
 	if v, ok := d.GetOk("permission_type"); ok {
-		queryParam = fmt.Sprintf("%s&permission_type=%v", queryParam, v)
+		queryParams = fmt.Sprintf("%s&permission_type=%v", queryParams, v)
 	}
-	return queryParam
+
+	return queryParams
 }
 
-func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceResourcePermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg              = meta.(*config.Config)
-		region           = cfg.GetRegion(d)
-		mErr             *multierror.Error
-		httpUrl          = "v1/permissions"
-		product          = "ram"
-		nextMarker       string
-		totalPermissions []interface{}
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		mErr       *multierror.Error
+		httpUrl    = "v1/permissions"
+		product    = "ram"
+		nextMarker string
+		result     []interface{}
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -146,15 +143,15 @@ func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	requestPath := client.Endpoint + httpUrl
-	requestOpt := golangsdk.RequestOpts{
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
 	for {
-		requestPathWithQueryParam := requestPath + buildGetRAMPermissionsQueryParams(d, nextMarker)
-		resp, err := client.Request("GET", requestPathWithQueryParam, &requestOpt)
+		requestPathWithMarker := requestPath + buildGetResourcePermissionsQueryParams(d, nextMarker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
-			return diag.Errorf("error retrieving RAM permissions, %s", err)
+			return diag.Errorf("error retrieving RAM resource permissions: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -162,11 +159,8 @@ func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta 
 			return diag.FromErr(err)
 		}
 
-		permissions := utils.PathSearch("permissions", respBody, make([]interface{}, 0)).([]interface{})
-		if len(permissions) > 0 {
-			totalPermissions = append(totalPermissions, permissions...)
-		}
-
+		permissionsResp := utils.PathSearch("permissions", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, permissionsResp...)
 		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if nextMarker == "" {
 			break
@@ -177,31 +171,44 @@ func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
-	mErr = multierror.Append(
-		mErr,
-		d.Set("permissions", flattenGetPermissionsResponseBody(totalPermissions, d)),
+	mErr = multierror.Append(mErr,
+		d.Set("permissions", flattenResourcePermissions(filterResourcePermissions(result, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetPermissionsResponseBody(totalPermissions []interface{}, d *schema.ResourceData) []interface{} {
-	if len(totalPermissions) == 0 {
+func filterResourcePermissions(all []interface{}, d *schema.ResourceData) []interface{} {
+	name := d.Get("name").(string)
+	if name == "" {
+		return all
+	}
+
+	rst := make([]interface{}, 0, len(all))
+	for _, v := range all {
+		if fmt.Sprint(name) != fmt.Sprint(utils.PathSearch("name", v, "").(string)) {
+			continue
+		}
+
+		rst = append(rst, v)
+	}
+
+	return rst
+}
+
+func flattenResourcePermissions(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	name := d.Get("name").(string)
-	rst := make([]interface{}, 0, len(totalPermissions))
-	for _, v := range totalPermissions {
-		permissionName := utils.PathSearch("name", v, "").(string)
-		if name != "" && name != permissionName {
-			continue
-		}
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
 			"id":                       utils.PathSearch("id", v, nil),
-			"name":                     permissionName,
+			"name":                     utils.PathSearch("name", v, nil),
 			"resource_type":            utils.PathSearch("resource_type", v, nil),
 			"is_resource_type_default": utils.PathSearch("is_resource_type_default", v, nil),
 			"created_at":               utils.PathSearch("created_at", v, nil),
@@ -213,5 +220,6 @@ func flattenGetPermissionsResponseBody(totalPermissions []interface{}, d *schema
 			"status":                   utils.PathSearch("status", v, nil),
 		})
 	}
+
 	return rst
 }

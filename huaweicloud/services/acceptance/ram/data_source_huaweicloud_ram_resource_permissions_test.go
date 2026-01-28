@@ -8,10 +8,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
+func TestAccDataSourceResourcePermissions_basic(t *testing.T) {
 	var (
-		rName = "data.huaweicloud_ram_resource_permissions.test"
-		dc    = acceptance.InitDataSourceCheck(rName)
+		dataSource = "data.huaweicloud_ram_resource_permissions.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
 
 		byResourceType   = "data.huaweicloud_ram_resource_permissions.filter_by_resource_type"
 		dcByResourceType = acceptance.InitDataSourceCheck(byResourceType)
@@ -24,24 +24,26 @@ func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceRAMPermissions_basic(),
+				Config: testDataSourceResourcePermissions_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.id"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.name"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.resource_type"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.is_resource_type_default"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.created_at"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.updated_at"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.permission_urn"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.permission_type"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.default_version"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.version"),
-					resource.TestCheckResourceAttrSet(rName, "permissions.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.id"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.resource_type"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.is_resource_type_default"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.created_at"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.updated_at"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.permission_urn"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.permission_type"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.default_version"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.version"),
+					resource.TestCheckResourceAttrSet(dataSource, "permissions.0.status"),
 
 					dcByResourceType.CheckResourceExists(),
 					resource.TestCheckOutput("is_resource_type_filter_useful", "true"),
@@ -57,12 +59,11 @@ func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceRAMPermissions_basic() string {
+func testDataSourceResourcePermissions_basic() string {
 	return `
-data "huaweicloud_ram_resource_permissions" "test" {
-}
+data "huaweicloud_ram_resource_permissions" "test" {}
 
-# Filter by resource_type
+# Filter by resource_type.
 locals {
   resource_type = data.huaweicloud_ram_resource_permissions.test.permissions[0].resource_type
 }
@@ -81,7 +82,7 @@ output "is_resource_type_filter_useful" {
   value = length(local.resource_type_filter_result) > 0 && alltrue(local.resource_type_filter_result)
 }
 
-# Filter by permission_type
+# Filter by permission_type.
 locals {
   permission_type = data.huaweicloud_ram_resource_permissions.test.permissions[0].permission_type
 }
@@ -100,7 +101,7 @@ output "is_permission_type_filter_useful" {
   value = length(local.permission_type_filter_result) > 0 && alltrue(local.permission_type_filter_result)
 }
 
-# Filter by name
+# Filter by name.
 locals {
   name = data.huaweicloud_ram_resource_permissions.test.permissions[0].name
 }
