@@ -20,15 +20,7 @@ func getAccessKeyResourceFunc(c *config.Config, state *terraform.ResourceState) 
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	found, err := credentials.Get(iamClient, state.Primary.ID).Extract()
-	if err != nil {
-		return nil, err
-	}
-
-	if found.AccessKey != state.Primary.ID {
-		return nil, fmt.Errorf("Access Key not found")
-	}
-	return found, nil
+	return credentials.Get(iamClient, state.Primary.ID).Extract()
 }
 
 func TestAccAccessKey_basic(t *testing.T) {
@@ -72,7 +64,7 @@ func TestAccAccessKey_basic(t *testing.T) {
 				Config: testAccAccessKey_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "inactive"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestMatchResourceAttr(resourceName, "create_time",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
 				),
@@ -117,8 +109,7 @@ func testAccAccessKey_basic_step2(name string) string {
 %[1]s
 
 resource "huaweicloud_identity_access_key" "test" {
-  user_id     = huaweicloud_identity_user.test.id	
-  description = "Updated by terraform script"
+  user_id     = huaweicloud_identity_user.test.id
   secret_file = abspath("./credentials.csv")
   status      = "inactive"
 

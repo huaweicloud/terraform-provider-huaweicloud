@@ -66,7 +66,7 @@ type UpdateOptsBuilder interface {
 
 type UpdateOpts struct {
 	Status      string `json:"status,omitempty"`
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
 }
 
 func (opts UpdateOpts) ToCredentialUpdateMap() (map[string]interface{}, error) {
