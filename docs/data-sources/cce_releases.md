@@ -6,7 +6,9 @@ description: |-
   Use this data source to get the list of CCE releases within HuaweiCloud.
 ---
 
-# `huaweicloud_cce_releases`
+# huaweicloud_cce_releases
+
+Use this data source to get the list of CCE releases within HuaweiCloud.
 
 ## Example Usage
 
@@ -29,24 +31,24 @@ The following arguments are supported:
 
 * `chart_id` - (Optional, String) Specifies the ID the chart template.
 
-* `namespace` - (Optional, String) Specifies the Namespace corresponding to the template.
+* `namespace` - (Optional, String) Specifies the namespace corresponding to the template.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Indicates a data source ID.
+* `id` - The data source ID.
 
 * `releases` - The releases data in the cce cluster.
 
-  The [object](#releases) structure is documented below.
+  The [releases](#releases_struct) structure is documented below.
 
-<a name="releases"></a>
+<a name="releases_struct"></a>
 The `releases` block supports:
 
 * `chart_name` - The chart name.
 
-* `chart_public` - The chart is public or not.
+* `chart_public` - Whether the chart is public.
 
 * `chart_version` - The chart version.
 
@@ -68,7 +70,7 @@ The `releases` block supports:
 
 * `status_description` - The release status description.
 
-* `create_at` - The create time of release.
+* `create_at` - The creation time of release.
 
 * `update_at` - The update time of release.
 
