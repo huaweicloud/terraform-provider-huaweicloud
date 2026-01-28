@@ -1843,6 +1843,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
 			"huaweicloud_ram_resource_permissions":                  ram.DataSourceResourcePermissions(),
+			"huaweicloud_ram_resource_permission":                   ram.DataSourceResourcePermission(),
 			"huaweicloud_ram_resource_share_invitations":            ram.DataSourceResourceShareInvitations(),
 			"huaweicloud_ram_shared_resources":                      ram.DataSourceRAMSharedResources(),
 			"huaweicloud_ram_shared_principals":                     ram.DataSourceRAMSharedPrincipals(),
@@ -1855,7 +1856,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_quotas":                                ram.DataSourceQuotas(),
 			"huaweicloud_ram_distinct_shared_principals":            ram.DataSourceDistinctSharedPrincipals(),
 			"huaweicloud_ram_distinct_shared_resources":             ram.DataSourceDistinctSharedResources(),
-			"huaweicloud_ram_resource_permission":                   ram.DataSourcePermission(),
 			"huaweicloud_ram_resource_instances_filter":             ram.DataSourceResourceInstancesFilter(),
 			"huaweicloud_ram_resource_instances_count":              ram.DataSourceResourceInstancesCount(),
 
