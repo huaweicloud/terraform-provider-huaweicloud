@@ -7,16 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataSourceNetworkInterfacesByTags_basic(t *testing.T) {
-	dataSource1 := "data.huaweicloud_vpc_network_interfaces_by_tags.basic"
-	dataSource2 := "data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_tags"
-	dataSource3 := "data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_matches"
+	dataSource := "data.huaweicloud_vpc_network_interfaces_by_tags.test"
 	rName := acceptance.RandomAccResourceName()
-	dc1 := acceptance.InitDataSourceCheck(dataSource1)
-	dc2 := acceptance.InitDataSourceCheck(dataSource2)
-	dc3 := acceptance.InitDataSourceCheck(dataSource3)
+	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -27,12 +24,14 @@ func TestAccDataSourceNetworkInterfacesByTags_basic(t *testing.T) {
 			{
 				Config: testDataSourceDataSourceNetworkInterfacesByTags_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					dc1.CheckResourceExists(),
-					dc2.CheckResourceExists(),
-					dc3.CheckResourceExists(),
-					resource.TestCheckOutput("is_results_not_empty", "true"),
-					resource.TestCheckOutput("is_tags_filter_useful", "true"),
-					resource.TestCheckOutput("is_matches_filter_useful", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "resources.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "resources.0.resource_name"),
+					resource.TestCheckResourceAttrSet(dataSource, "resources.0.resource_id"),
+					resource.TestCheckResourceAttrSet(dataSource, "resources.0.resource_detail"),
+					resource.TestCheckResourceAttrSet(dataSource, "resources.0.tags.%"),
+					resource.TestCheckOutput("filter_by_tags_is_useful", "true"),
+					resource.TestCheckOutput("filter_by_matches_is_useful", "true"),
 				),
 			},
 		},
@@ -41,75 +40,44 @@ func TestAccDataSourceNetworkInterfacesByTags_basic(t *testing.T) {
 
 func testDataSourceDataSourceNetworkInterfacesByTags_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s-vpc"
-  cidr = "192.168.0.0/16"
-}
-	
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id     = huaweicloud_vpc.test.id
-  name       = "%[1]s-subnet"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-}   
+%[1]s
 
-resource "huaweicloud_vpc_network_interface" "test1" {
-  name      = "%[1]s-1"
+resource "huaweicloud_vpc_network_interface" "test" {
+  name      = "%[2]s"
   subnet_id = huaweicloud_vpc_subnet.test.id
 
   tags = {
-    foo = "%[1]s"
-    key = "%[1]s_1"
-  }
-}
-
-resource "huaweicloud_vpc_network_interface" "test2" {
-  name      = "%[1]s-2"
-  subnet_id = huaweicloud_vpc_subnet.test.id
-
-  tags = {
-    foo = "%[1]s"
-    key = "%[1]s_2"
+    key   = "value"
+    owner = "terraform"
   }
 }
 
 data "huaweicloud_vpc_network_interfaces_by_tags" "basic" {
-  depends_on = [huaweicloud_vpc_network_interface.test1, huaweicloud_vpc_network_interface.test2]
+  depends_on = [huaweicloud_vpc_network_interface.test]
 }
 
 data "huaweicloud_vpc_network_interfaces_by_tags" "filter_by_tags" {
-  tags {
-    key    = "foo"
-    values = ["%[1]s"]
-  }
+  depends_on = [huaweicloud_vpc_network_interface.test]
 
   tags {
     key    = "key"
-    values = ["%[1]s_1", "%[1]s_2"]
+    values = ["value"]
   }
-
-  depends_on = [huaweicloud_vpc_network_interface.test1, huaweicloud_vpc_network_interface.test2]
+}
+output "filter_by_tags_is_useful" {
+  value = length(data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_tags) > 0
 }
 
 data "huaweicloud_vpc_network_interfaces_by_tags" "filter_by_matches" {
+  depends_on = [huaweicloud_vpc_network_interface.test]
+
   matches {
     key   = "resource_name"
-    value = "%[1]s-1"
+    value = "terraform"
   }
-
-  depends_on = [huaweicloud_vpc_network_interface.test1, huaweicloud_vpc_network_interface.test2]
 }
-
-output "is_results_not_empty" {
-  value = length(data.huaweicloud_vpc_network_interfaces_by_tags.basic.resources) > 0
+output "filter_by_matches_is_useful" {
+  value = length(data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_matches) > 0
 }
-
-output "is_tags_filter_useful" {
-  value = length(data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_tags.resources) == 2
-}
-
-output "is_matches_filter_useful" {
-  value = length(data.huaweicloud_vpc_network_interfaces_by_tags.filter_by_matches.resources) == 1
-}
-`, name)
+`, common.TestVpc(name), name)
 }
