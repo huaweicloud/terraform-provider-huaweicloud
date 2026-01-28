@@ -19,63 +19,48 @@ import (
 // @API NAT GET /v3/{project_id}/private-nat/transit-subnets
 func DataSourceNatPrivateTransitSubnets() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceNatPrivateTransitSubnetsRead,
+		ReadContext: dataSourcePrivateTransitSubnetsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"ids": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource IDs for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"names": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource names for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"descriptions": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource descriptions for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"virsubnet_project_ids": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource subnet project ids for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"vpc_ids": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource vpc ids for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"virsubnet_ids": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource subnet ids for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"status": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the resource status for querying instances.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"transit_subnets": {
 				Type:     schema.TypeList,
@@ -146,7 +131,7 @@ func DataSourceNatPrivateTransitSubnets() *schema.Resource {
 	}
 }
 
-func buildNatPrivateTransitSubnetsQueryParams(d *schema.ResourceData, marker string) string {
+func buildPrivateTransitSubnetsQueryParams(d *schema.ResourceData) string {
 	params := "?limit=2000"
 
 	id := d.Get("ids").([]interface{})
@@ -192,17 +177,12 @@ func buildNatPrivateTransitSubnetsQueryParams(d *schema.ResourceData, marker str
 			params += fmt.Sprintf("&status=%s", v)
 		}
 	}
-	if v, ok := d.GetOk("page_reverse"); ok {
-		params += fmt.Sprintf("&page_reverse=%s", v)
-	}
-	if marker != "" {
-		params += fmt.Sprintf("&marker=%s", marker)
-	}
+
 	return params
 }
 
-func flattenNatPrivateTransitSubnetsResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+func flattenPrivateTransitSubnets(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
@@ -222,19 +202,20 @@ func flattenNatPrivateTransitSubnetsResponseBody(resp []interface{}) []interface
 			"ip_count":             utils.PathSearch("ip_count", v, nil),
 			"created_at":           utils.PathSearch("created_at", v, nil),
 			"updated_at":           utils.PathSearch("updated_at", v, nil),
-			"tags":                 utils.FlattenTagsToMap(utils.PathSearch("tags", v, make([]interface{}, 0))),
+			"tags":                 utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 		})
 	}
 	return rst
 }
 
-func dataSourceNatPrivateTransitSubnetsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourcePrivateTransitSubnetsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v3/{project_id}/private-nat/transit-subnets"
-		product = "nat"
+		cfg                         = meta.(*config.Config)
+		region                      = cfg.GetRegion(d)
+		httpUrl                     = "v3/{project_id}/private-nat/transit-subnets"
+		product                     = "nat"
+		allNatPrivateTransitSubnets = make([]interface{}, 0)
+		marker                      = ""
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -244,19 +225,20 @@ func dataSourceNatPrivateTransitSubnetsRead(_ context.Context, d *schema.Resourc
 
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildPrivateTransitSubnetsQueryParams(d)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var allNatPrivateTransitSubnets []interface{}
-	var marker string
-	var getTemplatesPath string
-
 	for {
-		getTemplatesPath = requestPath + buildNatPrivateTransitSubnetsQueryParams(d, marker)
-		resp, err := client.Request("GET", getTemplatesPath, &requestOpt)
+		requestPathWithMarker := requestPath
+		if marker != "" {
+			requestPathWithMarker = fmt.Sprintf("%s&marker=%s", requestPathWithMarker, marker)
+		}
+
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error querying Nat Private Transit Subnets: %s", err)
+			return diag.Errorf("error retrieving NAT private transit subnets: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -264,11 +246,9 @@ func dataSourceNatPrivateTransitSubnetsRead(_ context.Context, d *schema.Resourc
 			return diag.FromErr(err)
 		}
 
-		transitSubnets := utils.PathSearch("transit_subnets", respBody, []interface{}{}).([]interface{})
-		if len(transitSubnets) == 0 {
-			break
-		}
+		transitSubnets := utils.PathSearch("transit_subnets", respBody, make([]interface{}, 0)).([]interface{})
 		allNatPrivateTransitSubnets = append(allNatPrivateTransitSubnets, transitSubnets...)
+
 		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
@@ -281,10 +261,9 @@ func dataSourceNatPrivateTransitSubnetsRead(_ context.Context, d *schema.Resourc
 	}
 	d.SetId(id)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("transit_subnets", flattenNatPrivateTransitSubnetsResponseBody(allNatPrivateTransitSubnets)),
+		d.Set("transit_subnets", flattenPrivateTransitSubnets(allNatPrivateTransitSubnets)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
