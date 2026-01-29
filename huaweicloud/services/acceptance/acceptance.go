@@ -402,6 +402,7 @@ var (
 	HW_IDENTITY_CENTER_IDENTITY_POLICY_ID_UPDATE       = os.Getenv("HW_IDENTITY_CENTER_IDENTITY_POLICY_ID_UPDATE")
 	HW_IDENTITY_CENTER_APPLICATION_INSTANCE_ID         = os.Getenv("HW_IDENTITY_CENTER_APPLICATION_INSTANCE_ID")
 	HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID = os.Getenv("HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID")
+	HW_IDENTITY_OIDC_IDP_ID                            = os.Getenv("HW_IDENTITY_OIDC_IDP_ID")
 
 	HW_ER_TEST_ON     = os.Getenv("HW_ER_TEST_ON")     // Whether to run the ER related tests.
 	HW_ER_INSTANCE_ID = os.Getenv("HW_ER_INSTANCE_ID") // Whether to run the ER related tests.
@@ -1145,6 +1146,14 @@ func TestAccPreCheckIdentityCenterApplicationInstanceId(t *testing.T) {
 func TestAccPreCheckIdentityCenterApplicationInstanceProfileId(t *testing.T) {
 	if HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID == "" {
 		t.Skip("HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIdentityIDPId(t *testing.T) {
+	// This ID must be the Identity Provider that uses OpenID Connect
+	if HW_IDENTITY_OIDC_IDP_ID == "" {
+		t.Skip("HW_IDENTITY_OIDC_IDP_ID must be set for acceptance tests")
 	}
 }
 
