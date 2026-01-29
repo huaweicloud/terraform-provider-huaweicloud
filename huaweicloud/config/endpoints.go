@@ -1010,6 +1010,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product:          "KooGallery",
 	},
 
+	// catalog for LakeFormation
+	"lakeformation": {
+		Name:    "lakeformation",
+		Version: "v1",
+		Product: "LakeFormation",
+	},
+
 	// catalog for MetaStudio
 	"metastudio": {
 		Name:    "metastudio",

@@ -91,6 +91,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/kafka"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/koogallery"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lakeformation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lts"
@@ -1733,6 +1734,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_upgrade_packages":           iotda.DataSourceUpgradePackages(),
 
 			"huaweicloud_koogallery_assets": koogallery.DataSourceKooGalleryAssets(),
+
+			"huaweicloud_lakeformation_specifications": lakeformation.DataSourceSpecifications(),
 
 			"huaweicloud_lb_listeners":    lb.DataSourceListeners(),
 			"huaweicloud_lb_loadbalancer": lb.DataSourceELBV2Loadbalancer(),
