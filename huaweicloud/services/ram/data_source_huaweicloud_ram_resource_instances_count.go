@@ -35,9 +35,7 @@ func DataSourceResourceInstancesCount() *schema.Resource {
 						"values": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -67,73 +65,92 @@ func DataSourceResourceInstancesCount() *schema.Resource {
 }
 
 func dataSourceResourceInstancesCountRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/resource-shares/resource-instances/count"
+		product = "ram"
+	)
 
-	var mErr *multierror.Error
-
-	var getResourceInstancesCountProduct = "ram"
-	getResourceInstancesCountClient, err := cfg.NewServiceClient(getResourceInstancesCountProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("Error creating RAM client: %s", err)
+		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	getResourceInstancesCountRespBody, err := getResourceInstancesCount(getResourceInstancesCountClient, d)
+	requestPath := client.Endpoint + httpUrl
+	requestOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildResourceInstancesCountBodyParams(d)),
+	}
 
+	resp, err := client.Request("POST", requestPath, &requestOpts)
 	if err != nil {
 		return diag.Errorf("error retrieving RAM resource instances count: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(randUUID)
 
 	mErr = multierror.Append(mErr,
-		d.Set("total_count", utils.PathSearch("total_count", getResourceInstancesCountRespBody, nil)),
+		d.Set("total_count", utils.PathSearch("total_count", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getResourceInstancesCount(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	var (
-		getResourceInstancesCountHttpUrl = "v1/resource-shares/resource-instances/count"
-	)
-	getResourceInstancesCountHttpPath := client.Endpoint + getResourceInstancesCountHttpUrl
-
-	getResourceInstancesCountHttpOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-		JSONBody: buildResourceInstancesCountFilterBody(d),
-	}
-	getResourceInstancesCountHttpResp, err := client.Request("POST", getResourceInstancesCountHttpPath, &getResourceInstancesCountHttpOpt)
-	if err != nil {
-		return nil, err
-	}
-	getResourceInstancesCountRespBody, err := utils.FlattenResponse(getResourceInstancesCountHttpResp)
-	if err != nil {
-		return nil, err
-	}
-	return getResourceInstancesCountRespBody, nil
-}
-
-func buildResourceInstancesCountFilterBody(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{}
-
-	if v, ok := d.GetOk("without_any_tag"); ok {
-		params["without_any_tag"] = v
+func buildResourceInstancesCountBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"without_any_tag": d.Get("without_any_tag"),
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
-		params["tags"] = v
+		tagsInput := v.([]interface{})
+		tags := make([]map[string]interface{}, 0, len(tagsInput))
+		for _, item := range tagsInput {
+			tag, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			m := map[string]interface{}{
+				"key": tag["key"],
+			}
+			if v, ok := tag["values"]; ok && v != nil {
+				m["values"] = utils.ExpandToStringList(v.([]interface{}))
+			}
+
+			tags = append(tags, m)
+		}
+
+		params["tags"] = tags
 	}
 
 	if v, ok := d.GetOk("matches"); ok {
-		params["matches"] = v
+		matchesInput := v.([]interface{})
+		matches := make([]map[string]interface{}, 0, len(matchesInput))
+		for _, item := range matchesInput {
+			match, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			matches = append(matches, map[string]interface{}{
+				"key":   match["key"],
+				"value": match["value"],
+			})
+		}
+
+		params["matches"] = matches
 	}
 
 	return params
