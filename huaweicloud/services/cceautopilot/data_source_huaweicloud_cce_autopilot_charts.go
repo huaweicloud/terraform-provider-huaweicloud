@@ -20,10 +20,9 @@ func DataSourceCceAutopilotCharts() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"charts": {
 				Type:     schema.TypeList,
