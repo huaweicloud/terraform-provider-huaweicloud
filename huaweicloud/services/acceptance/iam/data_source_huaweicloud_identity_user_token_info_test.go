@@ -40,7 +40,7 @@ func testAccIdentityUserTokenInfo_basic(userName, initPassword string) string {
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
+  user_name    = huaweicloud_identity_user.test.name
   password     = "%[3]s"
 }
 data "huaweicloud_identity_user_token_info" "test" {
