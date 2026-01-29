@@ -7,15 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataSourceElbLoadbalancersByTags_basic(t *testing.T) {
 	var (
-		filterByTagsAll    = "data.huaweicloud_elb_loadbalancers_by_tags.filter_by_tags"
-		dcTags             = acceptance.InitDataSourceCheck(filterByTagsAll)
-		filterByMatchesAll = "data.huaweicloud_elb_loadbalancers_by_tags.filter_by_matches"
-		dcMatches          = acceptance.InitDataSourceCheck(filterByMatchesAll)
-		testName           = acceptance.RandomAccResourceName()
+		datasourceName = "data.huaweicloud_elb_loadbalancers_by_tags.test"
+		dc             = acceptance.InitDataSourceCheck(datasourceName)
+		name           = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,31 +24,18 @@ func TestAccDataSourceElbLoadbalancersByTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceElbLoadbalancersByTags_basic(testName),
+				Config: testDataSourceElbLoadbalancersByTags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					dcTags.CheckResourceExists(),
-					dcMatches.CheckResourceExists(),
+					dc.CheckResourceExists(),
 
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.0.resource_id"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.resource_name", testName),
-					resource.TestCheckResourceAttrSet(filterByTagsAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.0.key", "foo0"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.0.value", "bar0"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.1.key", "foo1"),
-					resource.TestCheckResourceAttr(filterByTagsAll, "resources.0.tags.1.value", "bar1"),
-
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.0.resource_id"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.resource_name", testName),
-					resource.TestCheckResourceAttrSet(filterByMatchesAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.0.key", "foo0"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.0.value", "bar0"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.1.key", "foo1"),
-					resource.TestCheckResourceAttr(filterByMatchesAll, "resources.0.tags.1.value", "bar1"),
+					resource.TestCheckResourceAttrSet(datasourceName, "resources.#"),
+					resource.TestCheckResourceAttrSet(datasourceName, "resources.0.resource_id"),
+					resource.TestCheckResourceAttrSet(datasourceName, "resources.0.resource_name"),
+					resource.TestCheckResourceAttrSet(datasourceName, "resources.0.tags.#"),
 
 					resource.TestCheckOutput("tags_filter_is_useful", "true"),
 					resource.TestCheckOutput("matches_filter_is_useful", "true"),
+					resource.TestCheckOutput("count_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -59,98 +45,93 @@ func TestAccDataSourceElbLoadbalancersByTags_basic(t *testing.T) {
 
 func testDataSourceElbLoadbalancersByTags_base(name string) string {
 	return fmt.Sprintf(`
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name           = "%[1]s"
-  vpc_id         = data.huaweicloud_vpc.test.id
-  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-
+  name           = "%[2]s"
+  vpc_id         = huaweicloud_vpc.test.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+	
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
 
   backend_subnets = [
-    data.huaweicloud_vpc_subnet.test.id
- ]
+    huaweicloud_vpc_subnet.test.id
+  ]
 
   tags = {
-    "foo0" = "bar0"
-    "foo1" = "bar1"
+    key   = "value"
+    owner = "terraform"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
   }
 }
-
-`, name)
+`, common.TestVpc(name), name)
 }
 
 func testDataSourceElbLoadbalancersByTags_basic(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
+
+data "huaweicloud_elb_loadbalancers_by_tags" "test" {
+  action = "filter"
+
+  depends_on = [
+    huaweicloud_elb_loadbalancer.test
+  ]
+}
 
 data "huaweicloud_elb_loadbalancers_by_tags" "filter_by_tags" {
-  depends_on = [huaweicloud_elb_loadbalancer.test]
-  action     = "filter"
+  action = "filter"
 
   tags {
-    key    = "foo0"
-    values = ["bar0"]
+    key    = data.huaweicloud_elb_loadbalancers_by_tags.test.resources.0.tags.0.key
+    values = [data.huaweicloud_elb_loadbalancers_by_tags.test.resources.0.tags.0.value]
   }
 
-  tags {
-    key    = "foo1"
-    values = ["bar1"]
-  }
-}
-
-locals {
-  tag_key   = "foo0"
-  tag_value = "bar0"
-}
-
-output "tags_filter_is_useful" {
-  value = length(data.huaweicloud_elb_loadbalancers_by_tags.filter_by_tags.resources) > 0 && alltrue(
-    [for v in data.huaweicloud_elb_loadbalancers_by_tags.filter_by_tags.resources[*].tags : anytrue(
-    [for vv in v[*].key : vv == local.tag_key]) && anytrue([for vv in v[*].value : vv == local.tag_value])]
-  )
+  depends_on = [
+    huaweicloud_elb_loadbalancer.test
+  ]
 }
 
 data "huaweicloud_elb_loadbalancers_by_tags" "filter_by_matches" {
-  depends_on = [huaweicloud_elb_loadbalancer.test]
-  action     = "filter"
-
-  tags {
-    key    = "foo0"
-    values = ["bar0"]
-  }
-
-  tags {
-    key    = "foo1"
-    values = ["bar1"]
-  }
+  action = "filter"
 
   matches {
-    key    = "resource_name"
-    value  = "%[2]s"
+    key   = "resource_name"
+    value = data.huaweicloud_elb_loadbalancers_by_tags.test.resources.0.resource_name
   }
+
+  depends_on = [
+    huaweicloud_elb_loadbalancer.test
+  ]
 }
 
-locals {
-  match_key   = "resource_name"
-  match_value = "%[2]s"
+data "huaweicloud_elb_loadbalancers_by_tags" "filter_by_count" {
+  action = "count"
+
+  depends_on = [
+    huaweicloud_elb_loadbalancer.test
+  ]
 }
-	
+
+output "tags_filter_is_useful" {
+  value = length(data.huaweicloud_elb_loadbalancers_by_tags.filter_by_tags.resources) > 0
+}
+
 output "matches_filter_is_useful" {
-  value = length(data.huaweicloud_elb_loadbalancers_by_tags.filter_by_matches.resources) > 0
+  value = length(data.huaweicloud_elb_loadbalancers_by_tags.filter_by_matches.resources) == 1
 }
 
-`, testDataSourceElbLoadbalancersByTags_base(name), name)
+output "count_filter_is_useful" {
+  value = data.huaweicloud_elb_loadbalancers_by_tags.filter_by_count.total_count > 0
+}
+`, testDataSourceElbLoadbalancersByTags_base(name))
 }

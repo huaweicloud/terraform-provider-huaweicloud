@@ -2,7 +2,6 @@ package elb
 
 import (
 	"context"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -23,10 +22,9 @@ func DataSourceElbLoadbalancersByTags() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"action": {
 				Type:     schema.TypeString,
@@ -114,6 +112,10 @@ func DataSourceElbLoadbalancersByTags() *schema.Resource {
 }
 
 func flattenElbTags(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
 	rst := make([]map[string]interface{}, 0, len(tags))
 	for _, tag := range tags {
 		rst = append(rst, map[string]interface{}{
@@ -142,51 +144,60 @@ func flattenElbLoadbalancersByTagsResponseBody(resp []interface{}) []interface{}
 	return resources
 }
 
-func expandTags(rawTags []interface{}) []map[string]interface{} {
+func buildFilterTagsBodyParams(rawTags []interface{}) []map[string]interface{} {
+	if len(rawTags) == 0 {
+		return nil
+	}
+
 	tags := make([]map[string]interface{}, len(rawTags))
 	for i, raw := range rawTags {
-		tag := raw.(map[string]interface{})
-		tags[i] = map[string]interface{}{
-			"key":    tag["key"].(string),
-			"values": tag["values"].([]interface{}),
+		if tag, ok := raw.(map[string]interface{}); ok {
+			tags[i] = map[string]interface{}{
+				"key":    utils.PathSearch("key", tag, nil),
+				"values": utils.PathSearch("values", tag, nil),
+			}
 		}
 	}
 	return tags
 }
 
-func expandMatches(rawTags []interface{}) []map[string]interface{} {
-	tags := make([]map[string]interface{}, len(rawTags))
-	for i, raw := range rawTags {
-		tag := raw.(map[string]interface{})
-		tags[i] = map[string]interface{}{
-			"key":   tag["key"].(string),
-			"value": tag["value"].(string),
+func buildFilterMatchesBodyParams(rawMatches []interface{}) []map[string]interface{} {
+	if len(rawMatches) == 0 {
+		return nil
+	}
+
+	matches := make([]map[string]interface{}, len(rawMatches))
+	for i, raw := range rawMatches {
+		if match, ok := raw.(map[string]interface{}); ok {
+			matches[i] = map[string]interface{}{
+				"key":   utils.PathSearch("key", match, nil),
+				"value": utils.PathSearch("value", match, nil),
+			}
 		}
 	}
-	return tags
+	return matches
 }
 
 func buildElbLoadbalancersByTagsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	body := map[string]interface{}{}
-	if v, ok := d.GetOk("action"); ok {
-		body["action"] = v.(string)
+	bodyParams := map[string]interface{}{
+		"action":  d.Get("action"),
+		"matches": buildFilterMatchesBodyParams(d.Get("matches").([]interface{})),
+		"tags":    buildFilterTagsBodyParams(d.Get("tags").([]interface{})),
 	}
-	if v, ok := d.GetOk("tags"); ok {
-		body["tags"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("matches"); ok {
-		body["matches"] = expandMatches(v.([]interface{}))
-	}
-	return body
+
+	return bodyParams
 }
 
 func dataSourceElbLoadbalancersByTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v2.0/{project_id}/loadbalancers/resource_instances/action"
-		product = "elb"
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		httpUrl    = "v2.0/{project_id}/loadbalancers/resource_instances/action"
+		product    = "elb"
+		tagsAction = d.Get("action").(string)
+		offset     = 0
+		result     = make([]interface{}, 0)
+		totalCount int
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -194,27 +205,26 @@ func dataSourceElbLoadbalancersByTagsRead(_ context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
+	requestBody := buildElbLoadbalancersByTagsBodyParams(d)
+	if tagsAction == "filter" {
+		requestBody["limit"] = 1000
+	}
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
-
-	var allElb []interface{}
-	offset := 0
-	totalCount := 0
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
 
 	for {
-		requestBody := buildElbLoadbalancersByTagsBodyParams(d)
-		if requestBody["action"] == "filter" {
-			requestBody["limit"] = "1000"
-			requestBody["offset"] = strconv.Itoa(offset)
+
+		if tagsAction == "filter" {
+			requestBody["offset"] = offset
 		}
 
-		requestOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         requestBody,
-		}
+		requestOpt.JSONBody = utils.RemoveNil(requestBody)
 		resp, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error querying Elb by tags: %s", err)
+			return diag.Errorf("error retrieving loadbalancers by tags: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -222,13 +232,18 @@ func dataSourceElbLoadbalancersByTagsRead(_ context.Context, d *schema.ResourceD
 			return diag.FromErr(err)
 		}
 
-		elbs := utils.PathSearch("resources", respBody, []interface{}{}).([]interface{})
 		totalCount = int(utils.PathSearch("total_count", respBody, float64(0)).(float64))
-		if len(elbs) == 0 {
+		if tagsAction == "count" {
 			break
 		}
-		allElb = append(allElb, elbs...)
-		offset += len(elbs)
+
+		loadbalancers := utils.PathSearch("resources", respBody, make([]interface{}, 0)).([]interface{})
+		if len(loadbalancers) == 0 {
+			break
+		}
+
+		result = append(result, loadbalancers...)
+		offset += len(loadbalancers)
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -237,10 +252,9 @@ func dataSourceElbLoadbalancersByTagsRead(_ context.Context, d *schema.ResourceD
 	}
 	d.SetId(id)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("resources", flattenElbLoadbalancersByTagsResponseBody(allElb)),
+		d.Set("resources", flattenElbLoadbalancersByTagsResponseBody(result)),
 		d.Set("total_count", totalCount),
 	)
 
