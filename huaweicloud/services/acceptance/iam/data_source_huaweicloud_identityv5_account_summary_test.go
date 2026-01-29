@@ -1,6 +1,7 @@
 package iam
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,9 +9,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIamIdentityV5AccountSummary_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_identityv5_account_summary.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+func TestAccDataV5AccountSummary_basic(t *testing.T) {
+	var (
+		dcName = "data.huaweicloud_identityv5_account_summary.test"
+		dc     = acceptance.InitDataSourceCheck(dcName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -19,29 +22,29 @@ func TestAccDataSourceIamIdentityV5AccountSummary_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceIamIdentityV5AccountSummary_basic,
+				Config: testAccDataV5AccountSummary_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "agencies_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "attached_policies_per_agency_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "attached_policies_per_group_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "attached_policies_per_user_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "groups_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "policies"),
-					resource.TestCheckResourceAttrSet(dataSource, "policies_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "groups"),
-					resource.TestCheckResourceAttrSet(dataSource, "policy_size_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "root_user_mfa_enabled"),
-					resource.TestCheckResourceAttrSet(dataSource, "users"),
-					resource.TestCheckResourceAttrSet(dataSource, "users_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "versions_per_policy_quota"),
-					resource.TestCheckResourceAttrSet(dataSource, "agencies"),
+					resource.TestCheckResourceAttrSet(dcName, "agencies_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "attached_policies_per_agency_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "attached_policies_per_group_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "attached_policies_per_user_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "groups_quota"),
+					resource.TestMatchResourceAttr(dcName, "policies", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(dcName, "policies_quota"),
+					resource.TestMatchResourceAttr(dcName, "groups", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(dcName, "policy_size_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "root_user_mfa_enabled"),
+					resource.TestMatchResourceAttr(dcName, "users", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(dcName, "users_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "versions_per_policy_quota"),
+					resource.TestCheckResourceAttrSet(dcName, "agencies"),
 				),
 			},
 		},
 	})
 }
 
-const testDataSourceDataSourceIamIdentityV5AccountSummary_basic = `
+const testAccDataV5AccountSummary_basic = `
 data "huaweicloud_identityv5_account_summary" "test" {}
 `
