@@ -367,9 +367,6 @@ func resourceNodeDataVolume() *schema.Schema {
 		Type:     schema.TypeList,
 		Optional: true,
 		Computed: true,
-		Description: utils.SchemaDesc("", utils.SchemaDescInput{
-			Required: true,
-		}),
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"size": {

@@ -343,7 +343,7 @@ The following arguments are supported:
   + `throughput` - (Optional, Int, NonUpdatable) Specifies the throughput of the disk in MiB/s,
     required when `volumetype` is **GPSSD2**.
 
-* `data_volumes` - (Required, List, NonUpdatable) Specifies the configurations of the data disk.
+* `data_volumes` - (Optional, List, NonUpdatable) Specifies the configurations of the data disk.
 
   + `size` - (Required, Int, NonUpdatable) Specifies the disk size in GB.
 
