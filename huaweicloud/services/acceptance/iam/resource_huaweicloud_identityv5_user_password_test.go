@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Please ensure that the user executing the acceptance test has 'admin' permission.
 func TestAccV5UserPassword_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
@@ -17,7 +18,10 @@ func TestAccV5UserPassword_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {
