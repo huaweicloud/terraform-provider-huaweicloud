@@ -15,9 +15,7 @@ Use this data source to query the list of login protection statuses for IAM user
 ```hcl
 variable "user_id" {} 
 
-data "huaweicloud_identity_login_protects" "test1" {}
-
-data "huaweicloud_identity_login_protects" "test2" {
+data "huaweicloud_identity_login_protects" "test" {
   user_id = var.user_id
 }
 ```
@@ -28,11 +26,11 @@ data "huaweicloud_identity_login_protects" "test2" {
 
 ## Attribute Reference
 
-* `login_protects` - Indicates the login status protection information list.
-  The [login_protects](#IdentityLoginProtects_LoginProtects) structure is documented below.
+* `login_protects` - Indicates the login status protection information list.  
+  The [login_protects](#identity_login_protects_login_protects) structure is documented below.
 
-<a name="IdentityLoginProtects_LoginProtects"></a>
-The `login_protects` block contains:
+<a name="identity_login_protects_login_protects"></a>
+The `login_protects` block supports:
 
 * `user_id` - Indicates the user id.
 
