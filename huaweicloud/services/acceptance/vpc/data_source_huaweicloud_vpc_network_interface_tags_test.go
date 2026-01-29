@@ -24,7 +24,9 @@ func TestAccDataSourceVpcNetworkInterfaceTags_basic(t *testing.T) {
 				Config: testDataSourceDataSourceVpcNetworkInterfaceTags_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckOutput("is_results_not_empty", "true"),
+					resource.TestCheckResourceAttrSet(dataSource, "tags.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "tags.0.key"),
+					resource.TestCheckResourceAttrSet(dataSource, "tags.0.values.#"),
 				),
 			},
 		},
@@ -39,8 +41,5 @@ data "huaweicloud_vpc_network_interface_tags" "test" {
   depends_on = [ huaweicloud_vpc_network_interface.test ]
 }
 
-output "is_results_not_empty" {
-  value = length(data.huaweicloud_vpc_network_interface_tags.test.tags) > 0
-}
 `, testAccNetworkInterface_basic(name))
 }
