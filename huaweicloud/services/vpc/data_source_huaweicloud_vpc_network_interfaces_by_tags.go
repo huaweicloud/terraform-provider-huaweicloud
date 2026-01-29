@@ -86,6 +86,10 @@ func DataSourceNetworkInterfacesByTags() *schema.Resource {
 					},
 				},
 			},
+			"total_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -193,7 +197,6 @@ func buildInterfacesByTagsMatchesBodyParams(d *schema.ResourceData) []map[string
 
 func buildNetworkInterfacesByTagsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"action":  d.Get("action"),
 		"tags":    buildInterfacesByTagsTagsBodyParams(d),
 		"matches": buildInterfacesByTagsMatchesBodyParams(d),
 	}
