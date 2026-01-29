@@ -36,9 +36,7 @@ func DataSourceResourceInstancesFilter() *schema.Resource {
 						"values": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -109,117 +107,155 @@ func resourceInstancesFilterSchema() *schema.Resource {
 	return &sc
 }
 
-func dataSourceResourceInstancesFilterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func buildResourceInstancesFilterQueryParams(offset int) string {
+	// The limit default value is `1000`.
+	return fmt.Sprintf("?limit=1000&offset=%d", offset)
+}
 
-	listResourceInstancesFilterHttpUrl := "v1/resource-shares/resource-instances/filter"
-	listResourceInstancesFilterProduct := "ram"
-	listResourceInstancesFilterClient, err := cfg.NewServiceClient(listResourceInstancesFilterProduct, region)
+func buildResourceInstancesFilterBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"without_any_tag": d.Get("without_any_tag"),
+	}
+
+	if v, ok := d.GetOk("tags"); ok {
+		tagsInput := v.([]interface{})
+		tags := make([]map[string]interface{}, 0, len(tagsInput))
+		for _, item := range tagsInput {
+			tag, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			m := map[string]interface{}{
+				"key": tag["key"],
+			}
+			if v, ok := tag["values"]; ok && v != nil {
+				m["values"] = utils.ExpandToStringList(v.([]interface{}))
+			}
+
+			tags = append(tags, m)
+		}
+
+		params["tags"] = tags
+	}
+
+	if v, ok := d.GetOk("matches"); ok {
+		matchesInput := v.([]interface{})
+		matches := make([]map[string]interface{}, 0, len(matchesInput))
+		for _, item := range matchesInput {
+			match, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			matches = append(matches, map[string]interface{}{
+				"key":   match["key"],
+				"value": match["value"],
+			})
+		}
+
+		params["matches"] = matches
+	}
+
+	return params
+}
+
+func dataSourceResourceInstancesFilterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		httpUrl    = "v1/resource-shares/resource-instances/filter"
+		product    = "ram"
+		offset     = 0
+		result     = make([]interface{}, 0)
+		totalCount float64
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	listResourceInstancesFilterPath := listResourceInstancesFilterClient.Endpoint + listResourceInstancesFilterHttpUrl
-
-	listResourceInstancesFilterOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildResourceInstancesFilterBody(d),
+		JSONBody:         utils.RemoveNil(buildResourceInstancesFilterBodyParams(d)),
 	}
 
-	var resourceInstancesFilter []interface{}
-	var queryPath string
-	var totalCount float64
-
-	limit := 200
-	offset := 0
-
 	for {
-		queryPath = listResourceInstancesFilterPath + buildResourceInstancesFilterQueryParams(limit, offset)
-		listResourceInstancesFilterResp, err := listResourceInstancesFilterClient.Request(
-			"POST",
-			queryPath,
-			&listResourceInstancesFilterOpt,
-		)
+		requestPathWithOffset := requestPath + buildResourceInstancesFilterQueryParams(offset)
+		resp, err := client.Request("POST", requestPathWithOffset, &requestOpts)
 		if err != nil {
-			return diag.Errorf("error retrieving RAM resource instance filter: %s", err)
+			return diag.Errorf("error retrieving RAM resource instances filter: %s", err)
 		}
 
-		listResourceInstancesFilterRespBody, err := utils.FlattenResponse(listResourceInstancesFilterResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		onePageResourceInstancesFilter := flattenResourceInstancesFilterResp(listResourceInstancesFilterRespBody)
-		resourceInstancesFilter = append(resourceInstancesFilter, onePageResourceInstancesFilter...)
-
-		offset += limit
-
-		totalCount = utils.PathSearch(
-			"total_count",
-			listResourceInstancesFilterRespBody,
-			0,
-		).(float64)
-
-		if len(onePageResourceInstancesFilter) == 0 {
+		totalCount = utils.PathSearch("total_count", respBody, float64(0)).(float64)
+		resourcesResp := utils.PathSearch("resources", respBody, make([]interface{}, 0)).([]interface{})
+		if len(resourcesResp) == 0 {
 			break
 		}
+
+		result = append(result, resourcesResp...)
+		offset += len(resourcesResp)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
-		d.Set("resources", resourceInstancesFilter),
+		d.Set("resources", flattenResourceInstancesFilter(result)),
 		d.Set("total_count", totalCount),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildResourceInstancesFilterBody(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{}
-
-	if v, ok := d.GetOk("without_any_tag"); ok {
-		params["without_any_tag"] = v
-	}
-
-	if v, ok := d.GetOk("tags"); ok {
-		params["tags"] = v
-	}
-
-	if v, ok := d.GetOk("matches"); ok {
-		params["matches"] = v
-	}
-
-	return params
-}
-
-func buildResourceInstancesFilterQueryParams(limit int, offset int) string {
-	return fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
-}
-
-func flattenResourceInstancesFilterResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenResourceInstancesFilter(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
 		return nil
 	}
 
-	curJson := utils.PathSearch("resources", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		rstMap := map[string]interface{}{
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
+		resourceMap := map[string]interface{}{
 			"resource_id":   utils.PathSearch("resource_id", v, nil),
 			"resource_name": utils.PathSearch("resource_name", v, nil),
-			"tags":          utils.PathSearch("tags", v, nil),
+			"tags": flattenResourcesTags(
+				utils.PathSearch("tags", v, make([]interface{}, 0)).([]interface{})),
 		}
+
 		if detail := utils.PathSearch("resource_detail", v, nil); detail != nil {
-			rstMap["resource_detail"] = fmt.Sprintf("%v", detail)
+			resourceMap["resource_detail"] = fmt.Sprintf("%v", detail)
+		}
+
+		rst = append(rst, resourceMap)
+	}
+
+	return rst
+}
+
+func flattenResourcesTags(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
+		rstMap := map[string]interface{}{
+			"key":   utils.PathSearch("key", v, nil),
+			"value": utils.PathSearch("value", v, nil),
 		}
 		rst = append(rst, rstMap)
 	}
+
 	return rst
 }
