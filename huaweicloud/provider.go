@@ -3418,7 +3418,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_provider_conversion":          iam.ResourceIAMProviderConversion(),
 
 			"huaweicloud_identityv5_user":                        iam.ResourceV5User(),
-			"huaweicloud_identityv5_user_password":               iam.ResourceIdentityV5UserPassword(),
+			"huaweicloud_identityv5_user_password":               iam.ResourceV5UserPassword(),
 			"huaweicloud_identityv5_login_profile":               iam.ResourceV5LoginProfile(),
 			"huaweicloud_identityv5_login_policy":                iam.ResourceV5LoginPolicy(),
 			"huaweicloud_identityv5_password_policy":             iam.ResourceV5PasswordPolicy(),
@@ -3430,7 +3430,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identityv5_group_membership":            iam.ResourceV5GroupMembership(),
 			"huaweicloud_identityv5_access_key":                  iam.ResourceV5AccessKey(),
 			"huaweicloud_identityv5_resource_tag":                iam.ResourceV5ResourceTag(),
-			"huaweicloud_identityv5_service_linked_agency":       iam.ResourceIdentityv5ServiceLinkedAgency(),
+			"huaweicloud_identityv5_service_linked_agency":       iam.ResourceV5ServiceLinkedAgency(),
 			"huaweicloud_identityv5_asymmetric_signature_switch": iam.ResourceIdentityV5AsymmetricSignatureSwitch(),
 
 			"huaweicloud_identitycenter_instance":                               identitycenter.ResourceIdentityCenterInstance(),
