@@ -17,23 +17,23 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var identityV5policyGroupAttachNonUpdatableParams = []string{"policy_id", "group_id"}
+var v5PolicyGroupAttachNonUpdatableParams = []string{"policy_id", "group_id"}
 
 // @API IAM POST /v5/policies/{policy_id}/attach-group
 // @API IAM POST /v5/policies/{policy_id}/detach-group
 // @API IAM GET /v5/groups/{group_id}/attached-policies
-func ResourceIdentityV5PolicyGroupAttach() *schema.Resource {
+func ResourceV5PolicyGroupAttach() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5PolicyGroupAttachCreate,
-		ReadContext:   resourceIdentityV5PolicyGroupAttachRead,
-		UpdateContext: resourceIdentityV5PolicyGroupAttachUpdate,
-		DeleteContext: resourceIdentityV5PolicyGroupAttachDelete,
+		CreateContext: resourceV5PolicyGroupAttachCreate,
+		ReadContext:   resourceV5PolicyGroupAttachRead,
+		UpdateContext: resourceV5PolicyGroupAttachUpdate,
+		DeleteContext: resourceV5PolicyGroupAttachDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceIdentityV5PolicyGroupAttachImportState,
+			StateContext: resourceV5PolicyGroupAttachImportState,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(identityV5policyGroupAttachNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5PolicyGroupAttachNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
@@ -71,7 +71,7 @@ func ResourceIdentityV5PolicyGroupAttach() *schema.Resource {
 	}
 }
 
-func resourceIdentityV5PolicyGroupAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyGroupAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		groupId  = d.Get("group_id").(string)
@@ -98,10 +98,10 @@ func resourceIdentityV5PolicyGroupAttachCreate(ctx context.Context, d *schema.Re
 
 	d.SetId(fmt.Sprintf("%s/%s", policyId, groupId))
 
-	return resourceIdentityV5PolicyGroupAttachRead(ctx, d, meta)
+	return resourceV5PolicyGroupAttachRead(ctx, d, meta)
 }
 
-func GetGroupAttachedIdentityV5Policy(client *golangsdk.ServiceClient, groupId, policyId string) (interface{}, error) {
+func GetV5GroupAttachedPolicy(client *golangsdk.ServiceClient, groupId, policyId string) (interface{}, error) {
 	httpUrl := "v5/groups/{group_id}/attached-policies"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{group_id}", groupId)
@@ -147,7 +147,7 @@ func GetGroupAttachedIdentityV5Policy(client *golangsdk.ServiceClient, groupId, 
 	}
 }
 
-func resourceIdentityV5PolicyGroupAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyGroupAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		groupId  = d.Get("group_id").(string)
@@ -158,7 +158,7 @@ func resourceIdentityV5PolicyGroupAttachRead(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	policy, err := GetGroupAttachedIdentityV5Policy(client, groupId, policyId)
+	policy, err := GetV5GroupAttachedPolicy(client, groupId, policyId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving policy associated with group")
 	}
@@ -173,11 +173,11 @@ func resourceIdentityV5PolicyGroupAttachRead(_ context.Context, d *schema.Resour
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIdentityV5PolicyGroupAttachUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5PolicyGroupAttachUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIdentityV5PolicyGroupAttachDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyGroupAttachDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		groupId  = d.Get("group_id").(string)
@@ -205,7 +205,7 @@ func resourceIdentityV5PolicyGroupAttachDelete(_ context.Context, d *schema.Reso
 	return nil
 }
 
-func resourceIdentityV5PolicyGroupAttachImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceV5PolicyGroupAttachImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
 	if len(parts) != 2 {
