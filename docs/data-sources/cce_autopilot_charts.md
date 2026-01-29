@@ -3,12 +3,12 @@ subcategory: "Cloud Container Engine Autopilot (CCE Autopilot)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_autopilot_charts"
 description: |- 
-  Use this data source to get  the list of CCE Autopilot charts within huaweicloud.
+  Use this data source to get the list of CCE Autopilot charts within huaweicloud.
 ---
 
 # huaweicloud_cce_autopilot_charts
 
-Use this data source to get  the list of CCE Autopilot charts within huaweicloud.
+Use this data source to get the list of CCE Autopilot charts within huaweicloud.
 
 ## Example Usage
 
@@ -31,9 +31,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `charts` - The charts data in the cce cluster.
 
-  The [object](#charts) structure is documented below.
+  The [charts](#charts_struct) structure is documented below.
 
-<a name="charts"></a>
+<a name="charts_struct"></a>
 The `charts` block supports:
 
 * `id` - The chart ID.
@@ -42,7 +42,7 @@ The `charts` block supports:
 
 * `values` - The values of the chart.
 
-* `translate` - The traslate source of the chart.
+* `translate` - The translation sources of the chart.
 
 * `instruction` - The instruction of the chart.
 
@@ -58,6 +58,6 @@ The `charts` block supports:
 
 * `chart_url` - The chart URL.
 
-* `create_at` - The create time.
+* `create_at` - The creation time.
 
 * `update_at` - The update time.
