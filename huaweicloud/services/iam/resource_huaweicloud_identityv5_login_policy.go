@@ -14,15 +14,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceIdentityV5LoginPolicy
 // @API IAM PUT /v5/login-policy
 // @API IAM GET /v5/login-policy
-func ResourceIdentityV5LoginPolicy() *schema.Resource {
+func ResourceV5LoginPolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5LoginPolicyUpdate,
-		ReadContext:   resourceIdentityV5LoginPolicyRead,
-		UpdateContext: resourceIdentityV5LoginPolicyUpdate,
-		DeleteContext: resourceIdentityV5LoginPolicyDelete,
+		CreateContext: resourceV5LoginPolicyUpdate,
+		ReadContext:   resourceV5LoginPolicyRead,
+		UpdateContext: resourceV5LoginPolicyUpdate,
+		DeleteContext: resourceV5LoginPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -30,33 +29,40 @@ func ResourceIdentityV5LoginPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"user_validity_period": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The validity period to disable users, in days.`,
 			},
 			"custom_info_for_login": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The custom information that will be displayed upon successful login.`,
 			},
 			"lockout_duration": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The lockout duration after multiple failed login attempts, in minutes.`,
 			},
 			"login_failed_times": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The number of consecutive failed login attempts before the account is locked.`,
 			},
 			"period_with_login_failures": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The period to reset the account lockout counter, in minutes.`,
 			},
 			"session_timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The session timeout duration after user login, in minutes.`,
 			},
 			"show_recent_login_info": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to display the last login information.`,
 			},
 			"allow_address_netmasks": {
 				Type:     schema.TypeList,
@@ -64,15 +70,18 @@ func ResourceIdentityV5LoginPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address_netmask": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The IP address or network segment.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The description information`,
 						},
 					},
 				},
+				Description: `IP address list or network segment list that are allowed to access.`,
 			},
 			"allow_ip_ranges": {
 				Type:     schema.TypeList,
@@ -80,15 +89,18 @@ func ResourceIdentityV5LoginPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_range": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The IP address range.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The description information.`,
 						},
 					},
 				},
+				Description: `The IP address range list that are allowed to access.`,
 			},
 			"allow_ip_ranges_ipv6": {
 				Type:     schema.TypeList,
@@ -96,45 +108,49 @@ func ResourceIdentityV5LoginPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_range": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The IPv6 address range.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The description information.`,
 						},
 					},
 				},
+				Description: `The IPv6 address range list that are allowed to access.`,
 			},
 		},
 	}
 }
 
-func resourceIdentityV5LoginPolicyUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5LoginPolicyUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	createLoginPolicyHttpUrl := "v5/login-policy"
 	createLoginPolicyPath := iamClient.Endpoint + createLoginPolicyHttpUrl
 	createLoginPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildCreateLoginPolicyBodyParams(d),
+		JSONBody:         buildCreateV5LoginPolicyBodyParams(d),
 	}
 
 	_, err = iamClient.Request("PUT", createLoginPolicyPath, &createLoginPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error creating IAM login policy: %s", err)
+		return diag.Errorf("error creating login policy: %s", err)
 	}
+
 	if d.IsNewResource() {
 		d.SetId(cfg.DomainID)
 	}
 	return nil
 }
 
-func buildCreateLoginPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateV5LoginPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"user_validity_period":       d.Get("user_validity_period"),
 		"custom_info_for_login":      d.Get("custom_info_for_login"),
@@ -150,11 +166,11 @@ func buildCreateLoginPolicyBodyParams(d *schema.ResourceData) map[string]interfa
 	return bodyParams
 }
 
-func resourceIdentityV5LoginPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5LoginPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	getLoginPolicyHttpUrl := "v5/login-policy"
@@ -162,7 +178,7 @@ func resourceIdentityV5LoginPolicyRead(_ context.Context, d *schema.ResourceData
 	getLoginPolicyOpt := golangsdk.RequestOpts{KeepResponseBody: true}
 	getLoginPolicyResp, err := iamClient.Request("GET", getLoginPolicyPath, &getLoginPolicyOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IAM login policy")
+		return common.CheckDeletedDiag(d, err, "error retrieving login policy")
 	}
 	getLoginPolicyRespBody, err := utils.FlattenResponse(getLoginPolicyResp)
 	if err != nil {
@@ -182,16 +198,17 @@ func resourceIdentityV5LoginPolicyRead(_ context.Context, d *schema.ResourceData
 		d.Set("allow_ip_ranges_ipv6", utils.PathSearch("login_policy.allow_ip_ranges_ipv6", getLoginPolicyRespBody, nil)),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error saving IAM login policy resource (%s) fields: %s", d.Id(), mErr)
+		return diag.Errorf("error saving login policy resource (%s) fields: %s", d.Id(), mErr)
 	}
+
 	return nil
 }
 
-func resourceIdentityV5LoginPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5LoginPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	deleteLoginPolicyHttpUrl := "v5/login-policy"
@@ -224,7 +241,7 @@ func resourceIdentityV5LoginPolicyDelete(_ context.Context, d *schema.ResourceDa
 
 	_, err = iamClient.Request("PUT", deleteLoginPolicyPath, &deleteLoginPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IAM login policy: %s", err)
+		return diag.Errorf("error deleting login policy: %s", err)
 	}
 	return nil
 }

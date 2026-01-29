@@ -3385,8 +3385,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_identityv5_user":                        iam.ResourceIdentityV5User(),
 			"huaweicloud_identityv5_user_password":               iam.ResourceIdentityV5UserPassword(),
-			"huaweicloud_identityv5_login_profile":               iam.ResourceIdentityV5LoginProfile(),
-			"huaweicloud_identityv5_login_policy":                iam.ResourceIdentityV5LoginPolicy(),
+			"huaweicloud_identityv5_login_profile":               iam.ResourceV5LoginProfile(),
+			"huaweicloud_identityv5_login_policy":                iam.ResourceV5LoginPolicy(),
 			"huaweicloud_identityv5_password_policy":             iam.ResourceIdentityV5PasswordPolicy(),
 			"huaweicloud_identityv5_policy_default_version":      iam.ResourceIamV5PolicyDefaultVersion(),
 			"huaweicloud_identityv5_policy_group_attach":         iam.ResourceIdentityV5PolicyGroupAttach(),
