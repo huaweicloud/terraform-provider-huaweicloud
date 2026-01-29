@@ -2,6 +2,7 @@ package iam
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,94 +10,104 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityProjectsDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataSourceProjects_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		dcName = "data.huaweicloud_identity_projects.test"
+		dc     = acceptance.InitDataSourceCheck(dcName)
+
+		dcNameByName = "data.huaweicloud_identity_projects.filter_by_name"
+		dcByName     = acceptance.InitDataSourceCheck(dcNameByName)
+
+		dcNameByProjectId = "data.huaweicloud_identity_projects.filter_by_project_id"
+		dcByProjectId     = acceptance.InitDataSourceCheck(dcNameByProjectId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProjectsDataSource_basic,
+				Config: testAccDataSourceProjects_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name", "MOS"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
+					resource.TestMatchResourceAttr(dcName, "projects.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(dcName, "projects.0.id"),
+					resource.TestCheckResourceAttrSet(dcName, "projects.0.name"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccIdentityProjectsDataSource_subProject(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProjectsDataSource_subProject,
+				Config: testAccDataSourceProjects_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name", "cn-north-4_test"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
+					dcByName.CheckResourceExists(),
+					resource.TestMatchResourceAttr(dcNameByName, "projects.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccIdentityProjectsDataSource_projectId(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	projectName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProjectsDataSource_projectId(projectName),
+				Config: testAccDataSourceProjects_basic_step3(name),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name",
-						fmt.Sprintf("%s_%s", acceptance.HW_REGION_NAME, projectName)),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
+					dcByProjectId.CheckResourceExists(),
+					resource.TestMatchResourceAttr(dcNameByProjectId, "projects.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckOutput("is_project_id_filter_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-const testAccIdentityProjectsDataSource_basic string = `
-data "huaweicloud_identity_projects" "test" {
-  name = "MOS"
-}
-`
-
-const testAccIdentityProjectsDataSource_subProject string = `
-data "huaweicloud_identity_projects" "test" {
-  name = "cn-north-4_test"
-}
-`
-
-func testAccIdentityProjectsDataSource_projectId(projectName string) string {
+func testAccDataSourceProjects_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_project" "project_1" {
-  name        = "%s_%s"
+resource "huaweicloud_identity_project" "test" {
+  name        = "%[1]s_%[2]s"
   status      = "suspended"
-  description = "An updated project"
+  description = "Terraform test project"
+}
+`, acceptance.HW_REGION_NAME, name)
 }
 
-data "huaweicloud_identity_projects" "test" {
-  project_id = huaweicloud_identity_project.project_1.id
+func testAccDataSourceProjects_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identity_projects" "test" {}
+`, testAccDataSourceProjects_base(name))
 }
 
-`, acceptance.HW_REGION_NAME, projectName)
+func testAccDataSourceProjects_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identity_projects" "filter_by_name" {
+  name = "%[2]s_%[3]s"
+}
+
+locals {
+  name_filter_result = [for o in data.huaweicloud_identity_projects.filter_by_name.projects : o.name == "%[2]s_%[3]s"]
+}
+
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) >= 1 && alltrue(local.name_filter_result)
+}
+`, testAccDataSourceProjects_base(name), acceptance.HW_REGION_NAME, name)
+}
+
+func testAccDataSourceProjects_basic_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identity_projects" "filter_by_project_id" {
+  project_id = huaweicloud_identity_project.test.id
+}
+
+locals {
+  project_id_filter_result = [for o in data.huaweicloud_identity_projects.filter_by_project_id.projects : 
+    o.id == huaweicloud_identity_project.test.id]
+}
+
+output "is_project_id_filter_useful" {
+  value = length(local.project_id_filter_result) >= 1 && alltrue(local.project_id_filter_result)
+}
+`, testAccDataSourceProjects_base(name))
 }
