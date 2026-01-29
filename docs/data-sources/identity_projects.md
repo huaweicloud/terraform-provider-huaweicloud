@@ -46,7 +46,9 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the IAM project name to query.
 
-* `project_id` - (Optional, String) Specifies the IAM project id to query. This parameter conflicts with `name`.
+* `project_id` - (Optional, String) Specifies the IAM project id to query.
+  
+  ->**Note:** This parameter conflicts with `name`.
 
 ## Attribute Reference
 
@@ -54,10 +56,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `projects` - The details of the query projects. The structure is documented below.
-  The [projects](#IdentityProjects_projects) structure is documented below.
+* `projects` - The details of the query projects.  
+  The [projects](#identity_projects_projects_attr) structure is documented below.
 
-<a name="IdentityProjects_projects"></a>
+<a name="identity_projects_projects_attr"></a>
 The `projects` block supports:
 
 * `id` - The IAM project ID.
