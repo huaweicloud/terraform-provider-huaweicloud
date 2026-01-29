@@ -22,20 +22,18 @@ func DataSourceCCEShowChartValues() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"chart_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Specifies the chart template id in which to query the resource.",
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"values": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The values of the chart template.",
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -94,14 +92,12 @@ func (w *ShowChartValuesDSWrapper) showChartValuesToSchema(body *gjson.Result) e
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
-		d.Set("values", w.setChartValues(body)),
+		d.Set("values", schemas.MapConverter(*body,
+			func(r gjson.Result) any {
+				values, _ := json.Marshal(r)
+				return string(values)
+			},
+		)),
 	)
 	return mErr.ErrorOrNil()
-}
-
-func (*ShowChartValuesDSWrapper) setChartValues(data *gjson.Result) string {
-	chartValues := data.Get("values")
-	jsonBytes, _ := json.Marshal(chartValues)
-
-	return string(jsonBytes)
 }
