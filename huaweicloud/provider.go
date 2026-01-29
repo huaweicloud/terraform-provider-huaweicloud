@@ -1632,7 +1632,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_identityv5_virtual_mfa_devices":      iam.DataSourceIdentityV5VirtualMfaDevices(),
 			"huaweicloud_identityv5_registered_services":      iam.DataSourceIdentityV5RegisteredServices(),
-			"huaweicloud_identityv5_resource_tags":            iam.DataSourceIdentityv5ResourceTags(),
+			"huaweicloud_identityv5_resource_tags":            iam.DataSourceV5ResourceTags(),
 			"huaweicloud_identityv5_users":                    iam.DataSourceIdentityV5Users(),
 			"huaweicloud_identityv5_service_principals":       iam.DataSourceIdentityV5ServicePrincipals(),
 			"huaweicloud_identityv5_groups":                   iam.DataSourceIdentityV5Groups(),
@@ -3395,7 +3395,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identityv5_group":                       iam.ResourceIdentityV5Group(),
 			"huaweicloud_identityv5_group_membership":            iam.ResourceIdentityV5GroupMembership(),
 			"huaweicloud_identityv5_access_key":                  iam.ResourceIdentityAccessKey(),
-			"huaweicloud_identityv5_resource_tag":                iam.ResourceIdentityV5ResourceTag(),
+			"huaweicloud_identityv5_resource_tag":                iam.ResourceV5ResourceTag(),
 			"huaweicloud_identityv5_service_linked_agency":       iam.ResourceIdentityv5ServiceLinkedAgency(),
 			"huaweicloud_identityv5_asymmetric_signature_switch": iam.ResourceIdentityV5AsymmetricSignatureSwitch(),
 

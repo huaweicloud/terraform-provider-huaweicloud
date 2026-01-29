@@ -17,26 +17,28 @@ import (
 )
 
 // @API IAM GET /v5/{resource_type}/{resource_id}/tags
-func DataSourceIdentityv5ResourceTags() *schema.Resource {
+func DataSourceV5ResourceTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIAMIdentityv5TagsRead,
+		ReadContext: dataSourceV5TagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"resource_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource ID to be queried.`,
 			},
 			"resource_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource type to be queried.`,
 			},
 
-			"tags": common.TagsComputedSchema(),
+			"tags": common.TagsComputedSchema(`The key/value pairs associated with the resource.`),
 		},
 	}
 }
 
-func dataSourceIAMIdentityv5TagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceV5TagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -52,23 +54,26 @@ func dataSourceIAMIdentityv5TagsRead(_ context.Context, d *schema.ResourceData, 
 	getResourceTagOpt := golangsdk.RequestOpts{KeepResponseBody: true}
 	getResourceTagResp, err := iamClient.Request("GET", getResourceTagPath, &getResourceTagOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving IAM resource tag: %s", err)
+		return diag.Errorf("error retrieving resource tag: %s", err)
 	}
 
 	getResourceTagRespBody, err := utils.FlattenResponse(getResourceTagResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := uuid.GenerateUUID()
+
+	randomId, err := uuid.GenerateUUID()
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
-	mErr := multierror.Append(nil,
+	d.SetId(randomId)
+
+	mErr := multierror.Append(
 		d.Set("tags", flattenTagsToMap(utils.PathSearch("tags", getResourceTagRespBody, nil))),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting tags fields: %s", err)
 	}
+
 	return nil
 }

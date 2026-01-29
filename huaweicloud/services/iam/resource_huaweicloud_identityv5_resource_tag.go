@@ -17,34 +17,35 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var resourceTagNonUpdatableParams = []string{"resource_type", "resource_id"}
+var v5ResourceTagNonUpdatableParams = []string{"resource_type", "resource_id"}
 
-// ResourceIdentityV5ResourceTag
 // @API IAM POST /v5/{resource_type}/{resource_id}/tags/create
 // @API IAM GET /v5/{resource_type}/{resource_id}/tags
 // @API IAM DELETE /v5/{resource_type}/{resource_id}/tags/delete
-func ResourceIdentityV5ResourceTag() *schema.Resource {
+func ResourceV5ResourceTag() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5ResourceTagCreate,
-		ReadContext:   resourceIdentityV5ResourceTagRead,
-		UpdateContext: resourceIdentityV5ResourceTagUpdate,
-		DeleteContext: resourceIdentityV5ResourceTagDelete,
+		CreateContext: resourceV5ResourceTagCreate,
+		ReadContext:   resourceV5ResourceTagRead,
+		UpdateContext: resourceV5ResourceTagUpdate,
+		DeleteContext: resourceV5ResourceTagDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceIdentityV5ResourceTagImportState,
+			StateContext: resourceV5ResourceTagImportState,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(resourceTagNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5ResourceTagNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"resource_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource type to be associated with the tags.`,
 			},
 			"resource_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource ID to be associated with the tags.`,
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsSchema(`The key/value pairs to associated with the resource.`),
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -55,11 +56,11 @@ func ResourceIdentityV5ResourceTag() *schema.Resource {
 	}
 }
 
-func resourceIdentityV5ResourceTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5ResourceTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	resourceType := d.Get("resource_type").(string)
@@ -70,14 +71,14 @@ func resourceIdentityV5ResourceTagCreate(ctx context.Context, d *schema.Resource
 	}
 
 	d.SetId(resourceType + "/" + resourceId)
-	return resourceIdentityV5ResourceTagRead(ctx, d, meta)
+	return resourceV5ResourceTagRead(ctx, d, meta)
 }
 
-func resourceIdentityV5ResourceTagRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5ResourceTagRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	resourceType := d.Get("resource_type").(string)
@@ -96,17 +97,18 @@ func resourceIdentityV5ResourceTagRead(_ context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	if err = d.Set("tags", flattenTagsToMap(utils.PathSearch("tags", getResourceTagRespBody, nil))); err != nil {
 		return diag.Errorf("error saving resource tag (%s) fields: %s", d.Id(), err)
 	}
 	return nil
 }
 
-func resourceIdentityV5ResourceTagUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5ResourceTagUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	resourceType := d.Get("resource_type").(string)
@@ -128,14 +130,14 @@ func resourceIdentityV5ResourceTagUpdate(ctx context.Context, d *schema.Resource
 			}
 		}
 	}
-	return resourceIdentityV5ResourceTagRead(ctx, d, meta)
+	return resourceV5ResourceTagRead(ctx, d, meta)
 }
 
-func resourceIdentityV5ResourceTagDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5ResourceTagDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM Client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	resourceType := d.Get("resource_type").(string)
@@ -147,18 +149,16 @@ func resourceIdentityV5ResourceTagDelete(_ context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceIdentityV5ResourceTagImportState(
-	_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
+func resourceV5ResourceTagImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	importedId := d.Id()
+	parts := strings.Split(importedId, "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id: %s, id must be {resource_type}/{resource_id}", d.Id())
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<resource_type>/<resource_id>', but got '%s'", importedId)
 	}
-	mErr := multierror.Append(nil,
+
+	mErr := multierror.Append(
 		d.Set("resource_type", parts[0]),
 		d.Set("resource_id", parts[1]),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return nil, fmt.Errorf("failed to set value to state when import resource tag, %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
