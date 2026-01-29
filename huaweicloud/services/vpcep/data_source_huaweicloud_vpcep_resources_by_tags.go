@@ -2,7 +2,6 @@ package vpcep
 
 import (
 	"context"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -23,10 +22,13 @@ func DataSourceVpcepResourcesByTags() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"action": {
 				Type:     schema.TypeString,
@@ -100,16 +102,6 @@ func DataSourceVpcepResourcesByTags() *schema.Resource {
 					},
 				},
 			},
-			"resource_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Specifies the resource type.`,
-			},
-			"without_any_tag": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Specifies if the resource has no tags.`,
-			},
 			"matches": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -126,6 +118,10 @@ func DataSourceVpcepResourcesByTags() *schema.Resource {
 					},
 				},
 			},
+			"without_any_tag": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -140,8 +136,9 @@ func DataSourceVpcepResourcesByTags() *schema.Resource {
 							Computed: true,
 						},
 						"resource_detail": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 						},
 						"tags": {
 							Type:     schema.TypeList,
@@ -171,6 +168,10 @@ func DataSourceVpcepResourcesByTags() *schema.Resource {
 }
 
 func flattenVpcepTags(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
 	rst := make([]map[string]interface{}, 0, len(tags))
 	for _, tag := range tags {
 		rst = append(rst, map[string]interface{}{
@@ -197,59 +198,68 @@ func flattenVpcepResourcesByTagsResponseBody(resp []interface{}) []interface{} {
 	return resources
 }
 
-func expandTags(rawTags []interface{}) []map[string]interface{} {
-	tags := make([]map[string]interface{}, len(rawTags))
-	for i, raw := range rawTags {
-		tag := raw.(map[string]interface{})
-		tags[i] = map[string]interface{}{
-			"key":    tag["key"].(string),
-			"values": tag["values"].([]interface{}),
+func buildFilterTagsBodyParams(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(tags))
+	for i, tagRaw := range tags {
+		if tag, ok := tagRaw.(map[string]interface{}); ok {
+			res[i] = map[string]interface{}{
+				"key":    utils.PathSearch("key", tag, nil),
+				"values": utils.PathSearch("values", tag, nil),
+			}
 		}
 	}
-	return tags
+
+	return res
 }
 
-func expandMatches(rawTags []interface{}) []map[string]interface{} {
-	tags := make([]map[string]interface{}, len(rawTags))
-	for i, raw := range rawTags {
-		tag := raw.(map[string]interface{})
-		tags[i] = map[string]interface{}{
-			"key":   tag["key"].(string),
-			"value": tag["value"].(string),
+func buildFilterMatchesBodyParams(matches []interface{}) []map[string]interface{} {
+	if len(matches) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(matches))
+	for i, matchRaw := range matches {
+		if match, ok := matchRaw.(map[string]interface{}); ok {
+			res[i] = map[string]interface{}{
+				"key":   utils.PathSearch("key", match, nil),
+				"value": utils.PathSearch("value", match, nil),
+			}
 		}
 	}
-	return tags
+	return res
 }
 
 func buildVpcepResourcesByTagsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	body := map[string]interface{}{}
-	if v, ok := d.GetOk("action"); ok {
-		body["action"] = v.(string)
+	bodyParams := map[string]interface{}{
+		"action":       d.Get("action"),
+		"tags":         buildFilterTagsBodyParams(d.Get("tags").([]interface{})),
+		"tags_any":     buildFilterTagsBodyParams(d.Get("tags_any").([]interface{})),
+		"not_tags":     buildFilterTagsBodyParams(d.Get("not_tags").([]interface{})),
+		"not_tags_any": buildFilterTagsBodyParams(d.Get("not_tags_any").([]interface{})),
+		"matches":      buildFilterMatchesBodyParams(d.Get("matches").([]interface{})),
 	}
-	if v, ok := d.GetOk("tags"); ok {
-		body["tags"] = expandTags(v.([]interface{}))
+
+	if d.Get("without_any_tag").(bool) {
+		bodyParams["without_any_tag"] = true
 	}
-	if v, ok := d.GetOk("tags_any"); ok {
-		body["tags_any"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("not_tags"); ok {
-		body["not_tags"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("not_tags_any"); ok {
-		body["not_tags_any"] = expandTags(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("matches"); ok {
-		body["matches"] = expandMatches(v.([]interface{}))
-	}
-	return body
+
+	return bodyParams
 }
 
 func dataSourceVpcepResourcesByTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v1/{project_id}/{resource_type}/resource_instances/action"
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v1/{project_id}/{resource_type}/resource_instances/action"
+		resourceType = d.Get("resource_type").(string)
+		tagsAction   = d.Get("action").(string)
+		offset       = 0
+		allResources = make([]interface{}, 0)
+		totalCount   int
 	)
 
 	vpcepClient, err := cfg.VPCEPClient(region)
@@ -259,26 +269,28 @@ func dataSourceVpcepResourcesByTagsRead(_ context.Context, d *schema.ResourceDat
 
 	requestPath := vpcepClient.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", vpcepClient.ProjectID)
-	requestPath = strings.ReplaceAll(requestPath, "{resource_type}", d.Get("resource_type").(string))
+	requestPath = strings.ReplaceAll(requestPath, "{resource_type}", resourceType)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
 
-	var allVpcepResources []interface{}
-	offset := 0
-	totalCount := 0
+	requestBody := buildVpcepResourcesByTagsBodyParams(d)
+	if tagsAction == "filter" {
+		requestBody["limit"] = "1000"
+	}
 
 	for {
-		requestBody := buildVpcepResourcesByTagsBodyParams(d)
-		if requestBody["action"] == "filter" {
-			requestBody["limit"] = "1000"
-			requestBody["offset"] = strconv.Itoa(offset)
+		if tagsAction == "filter" {
+			requestBody["offset"] = offset
 		}
 
-		requestOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         requestBody,
-		}
+		requestOpt.JSONBody = utils.RemoveNil(requestBody)
 		resp, err := vpcepClient.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error querying Vpcep resources by tags: %s", err)
+			return diag.Errorf("error retrieving VPCEP resources by tags: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -286,13 +298,19 @@ func dataSourceVpcepResourcesByTagsRead(_ context.Context, d *schema.ResourceDat
 			return diag.FromErr(err)
 		}
 
-		vpcepResources := utils.PathSearch("resources", respBody, []interface{}{}).([]interface{})
 		totalCount = int(utils.PathSearch("total_count", respBody, float64(0)).(float64))
-		if len(vpcepResources) == 0 {
+		if tagsAction == "count" {
 			break
 		}
-		allVpcepResources = append(allVpcepResources, vpcepResources...)
-		offset += len(vpcepResources)
+
+		resources := utils.PathSearch("resources", respBody, make([]interface{}, 0)).([]interface{})
+
+		if len(resources) == 0 {
+			break
+		}
+
+		allResources = append(allResources, resources...)
+		offset += len(resources)
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -301,10 +319,9 @@ func dataSourceVpcepResourcesByTagsRead(_ context.Context, d *schema.ResourceDat
 	}
 	d.SetId(id)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("resources", flattenVpcepResourcesByTagsResponseBody(allVpcepResources)),
+		d.Set("resources", flattenVpcepResourcesByTagsResponseBody(allResources)),
 		d.Set("total_count", totalCount),
 	)
 

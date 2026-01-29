@@ -7,15 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataSourceVpcepResourcesByTags_basic(t *testing.T) {
 	var (
-		filterServicesByTagsAll  = "data.huaweicloud_vpcep_resources_by_tags.filter_services_by_tags"
-		dcServicesTags           = acceptance.InitDataSourceCheck(filterServicesByTagsAll)
-		filterEndpointsByTagsAll = "data.huaweicloud_vpcep_resources_by_tags.filter_endpoints_by_tags"
-		dcEndpointsTags          = acceptance.InitDataSourceCheck(filterEndpointsByTagsAll)
-		testName                 = acceptance.RandomAccResourceName()
+		dataSourceName = "data.huaweicloud_vpcep_resources_by_tags.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		name           = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,36 +24,22 @@ func TestAccDataSourceVpcepResourcesByTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceVpcepServicesByTags_basic(testName),
+				Config: testDataSourceVpcepServicesByTags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					dcServicesTags.CheckResourceExists(),
+					dc.CheckResourceExists(),
 
-					resource.TestCheckResourceAttrSet(filterServicesByTagsAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterServicesByTagsAll, "resources.0.resource_id"),
-					// 终端服务名称为region + name + 随机id拼接，暂不进行比较
-					resource.TestCheckResourceAttrSet(filterServicesByTagsAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterServicesByTagsAll, "resources.0.tags.0.key", "foo0"),
-					resource.TestCheckResourceAttr(filterServicesByTagsAll, "resources.0.tags.0.value", "bar0"),
-					resource.TestCheckResourceAttr(filterServicesByTagsAll, "resources.0.tags.1.key", "foo1"),
-					resource.TestCheckResourceAttr(filterServicesByTagsAll, "resources.0.tags.1.value", "bar1"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.resource_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.resource_name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "resources.0.tags.#"),
 
-					resource.TestCheckOutput("services_tags_filter_is_useful", "true"),
-				),
-			},
-			{
-				Config: testDataSourceVpcepEndpointsByTags_basic(testName),
-				Check: resource.ComposeTestCheckFunc(
-					dcEndpointsTags.CheckResourceExists(),
-
-					resource.TestCheckResourceAttrSet(filterEndpointsByTagsAll, "resources.#"),
-					resource.TestCheckResourceAttrSet(filterEndpointsByTagsAll, "resources.0.resource_id"),
-					resource.TestCheckResourceAttrSet(filterEndpointsByTagsAll, "resources.0.tags.#"),
-					resource.TestCheckResourceAttr(filterEndpointsByTagsAll, "resources.0.tags.0.key", "foo4"),
-					resource.TestCheckResourceAttr(filterEndpointsByTagsAll, "resources.0.tags.0.value", "bar4"),
-					resource.TestCheckResourceAttr(filterEndpointsByTagsAll, "resources.0.tags.1.key", "foo5"),
-					resource.TestCheckResourceAttr(filterEndpointsByTagsAll, "resources.0.tags.1.value", "bar5"),
-
-					resource.TestCheckOutput("endpoints_tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("count_filter_is_useful", "true"),
+					resource.TestCheckOutput("matches_filter_is_useful", "true"),
+					resource.TestCheckOutput("tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("not_tags_filter_is_useful", "true"),
+					resource.TestCheckOutput("tags_any_filter_is_useful", "true"),
+					resource.TestCheckOutput("not_tags_any_filter_is_useful", "true"),
+					resource.TestCheckOutput("without_any_tag_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -62,124 +47,128 @@ func TestAccDataSourceVpcepResourcesByTags_basic(t *testing.T) {
 	)
 }
 
-func testAccVPCResource_Precondition(rName string) string {
+func testDataSourceVpcepServicesByTags_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-data "huaweicloud_vpc" "myvpc" {
-  name = "vpc-default"
+data "huaweicloud_vpcep_public_services" "test" {
+  service_name = "dns"
 }
 
-resource "huaweicloud_compute_instance" "ecs" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id = data.huaweicloud_vpcep_public_services.test.services.0.id
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
 
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-}
-
-resource "huaweicloud_vpcep_service" "test" {
-  name        = "%[2]s"
-  server_type = "VM"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  port_id     = huaweicloud_compute_instance.ecs.network[0].port
-  approval    = false
-
-  port_mapping {
-    service_port  = 8080
-    terminal_port = 80
-  }
   tags = {
-    "foo0" = "bar0"
-    "foo1" = "bar1"
+    owner = "terraform"
+    foo   = "bar"
+    test  = "acc"
+    key   = "value" 
   }
 }
-`, testAccCompute_data, rName)
+`, common.TestVpc(name))
 }
 
 func testDataSourceVpcepServicesByTags_basic(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-data "huaweicloud_vpcep_resources_by_tags" "filter_services_by_tags" {
-  depends_on = [huaweicloud_vpcep_service.test]
-  action     = "filter"
-  resource_type = "endpoint_service"
+%s
 
-  tags {
-    key    = "foo0"
-    values = ["bar0"]
-  }
-
-  tags {
-    key    = "foo1"
-    values = ["bar1"]
-  }
-}
-
-locals {
-  tag_key   = "foo0"
-  tag_value = "bar0"
-}
-
-output "services_tags_filter_is_useful" {
-  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_services_by_tags.resources) > 0 && alltrue(
-    [for v in data.huaweicloud_vpcep_resources_by_tags.filter_services_by_tags.resources[*].tags : anytrue(
-    [for vv in v[*].key : vv == local.tag_key]) && anytrue([for vv in v[*].value : vv == local.tag_value])]
-  )
-}
-
-`, testAccVPCResource_Precondition(name))
-}
-
-func testDataSourceVpcepEndpointsByTags_basic(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-resource "huaweicloud_vpcep_endpoint" "test" {
-  service_id       = huaweicloud_vpcep_service.test.id
-  vpc_id           = data.huaweicloud_vpc.myvpc.id
-  network_id       = data.huaweicloud_vpc_subnet.test.id
-  enable_dns       = true
-  description      = "test description"
-  enable_whitelist = true
-  whitelist        = ["192.168.0.0/24"]
-
-  tags = {
-    "foo4" = "bar4"
-    "foo5" = "bar5"
-  }
-}
-
-data "huaweicloud_vpcep_resources_by_tags" "filter_endpoints_by_tags" {
-  depends_on = [huaweicloud_vpcep_endpoint.test]
-  action     = "filter"
+data "huaweicloud_vpcep_resources_by_tags" "test" {
+  depends_on    = [huaweicloud_vpcep_endpoint.test]
   resource_type = "endpoint"
+  action        = "filter"
+}
+
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_count" {
+  depends_on    = [huaweicloud_vpcep_endpoint.test]
+  resource_type = "endpoint"
+  action        = "count"
+}
+
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_matches" {
+  resource_type = "endpoint"
+  action        = "filter"
+
+  matches {
+    key   = "resource_name"
+    value = data.huaweicloud_vpcep_resources_by_tags.test.resources.0.resource_name
+  }
+}
+
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_tags" {
+  resource_type = "endpoint"
+  action        = "filter"
 
   tags {
-    key    = "foo4"
-    values = ["bar4"]
-  }
-
-  tags {
-    key    = "foo5"
-    values = ["bar5"]
+    key    = data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.0.key
+    values = [data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.0.value]
   }
 }
 
-locals {
-  tag_key   = "foo4"
-  tag_value = "bar4"
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_not_tags" {
+  resource_type = "endpoint"
+  action        = "filter"
+
+  not_tags {
+    key    = data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.1.key
+    values = [data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.1.value]
+  }
 }
 
-output "endpoints_tags_filter_is_useful" {
-  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_endpoints_by_tags.resources) > 0 && alltrue(
-    [for v in data.huaweicloud_vpcep_resources_by_tags.filter_endpoints_by_tags.resources[*].tags : anytrue(
-    [for vv in v[*].key : vv == local.tag_key]) && anytrue([for vv in v[*].value : vv == local.tag_value])]
-  )
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_tags_any" {
+  resource_type = "endpoint"
+  action        = "filter"
+
+  tags_any {
+    key    = data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.2.key
+    values = [data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.2.value]
+  }
 }
 
-`, testAccVPCResource_Precondition(name))
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_not_tags_any" {
+  resource_type = "endpoint"
+  action        = "filter"
+
+  not_tags_any {
+    key    = data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.3.key
+    values = [data.huaweicloud_vpcep_resources_by_tags.test.resources.0.tags.3.value]
+  }
+}
+
+data "huaweicloud_vpcep_resources_by_tags" "filter_by_without_any_tag" {
+  resource_type   = "endpoint"
+  action          = "filter"
+  without_any_tag = true
+  depends_on      = [huaweicloud_vpcep_endpoint.test]
+}
+
+output "count_filter_is_useful" {
+  value = data.huaweicloud_vpcep_resources_by_tags.filter_by_count.total_count > 0
+}
+
+output "matches_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_matches.resources) == 1
+}
+
+output "tags_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_tags.resources) > 0
+}
+
+output "not_tags_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_not_tags.resources) == 0
+}
+
+output "tags_any_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_tags_any.resources) > 0
+}
+
+output "not_tags_any_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_not_tags_any.resources) == 0
+}
+
+output "without_any_tag_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_resources_by_tags.filter_by_without_any_tag.resources) == 0
+}
+`, testDataSourceVpcepServicesByTags_base(name))
 }
