@@ -35,6 +35,14 @@ func DataSourceCCEAccessPolicies() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"kind": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"api_version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -48,9 +56,39 @@ func DataSourceCCEAccessPolicies() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"access_scope": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"namespaces": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
 						"policy_type": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"principal": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ids": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
 						},
 						"create_time": {
 							Type:     schema.TypeString,
@@ -126,14 +164,31 @@ func (w *AccessPoliciesDSWrapper) accessPoliciesToSchema(body *gjson.Result) err
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("access_policy_list", schemas.SliceToList(body.Get("accessPolicyList"),
-			func(accesspolicy gjson.Result) any {
+			func(accessPolicy gjson.Result) any {
 				return map[string]any{
-					"name":        accesspolicy.Get("name").Value(),
-					"policy_id":   accesspolicy.Get("policyId").Value(),
-					"policy_type": accesspolicy.Get("policyType").Value(),
-					"create_time": accesspolicy.Get("createTime").Value(),
-					"update_time": accesspolicy.Get("updateTime").Value(),
-					"clusters":    schemas.SliceToStrList(accesspolicy.Get("clusters")),
+					"kind":        accessPolicy.Get("kind").Value(),
+					"api_version": accessPolicy.Get("apiVersion").Value(),
+					"name":        accessPolicy.Get("name").Value(),
+					"policy_id":   accessPolicy.Get("policyId").Value(),
+					"clusters":    schemas.SliceToStrList(accessPolicy.Get("clusters")),
+					"access_scope": schemas.ObjectToList(accessPolicy.Get("accessScope"),
+						func(accessScope gjson.Result) any {
+							return map[string]any{
+								"namespaces": schemas.SliceToStrList(accessScope.Get("namespaces")),
+							}
+						},
+					),
+					"policy_type": accessPolicy.Get("policyType").Value(),
+					"principal": schemas.ObjectToList(accessPolicy.Get("principal"),
+						func(principal gjson.Result) any {
+							return map[string]any{
+								"type": principal.Get("type").Value(),
+								"ids":  schemas.SliceToStrList(principal.Get("ids")),
+							}
+						},
+					),
+					"create_time": accessPolicy.Get("createTime").Value(),
+					"update_time": accessPolicy.Get("updateTime").Value(),
 				}
 			},
 		)),
