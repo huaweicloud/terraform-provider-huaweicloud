@@ -33,7 +33,6 @@ func getV5ServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terraform.R
 	return utils.FlattenResponse(getAgencyResp)
 }
 
-// Please ensure that the user executing the acceptance test has 'admin' permission.
 func TestAccV5ServiceLinkedService_basic(t *testing.T) {
 	var (
 		obj   interface{}
@@ -44,7 +43,6 @@ func TestAccV5ServiceLinkedService_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPreCheckServiceLinkedAgencyPrincipal(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
