@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5ServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,20 +17,10 @@ func getV5ServiceLinkedAgencyResourceFunc(cfg *config.Config, state *terraform.R
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getAgencyHttpUrl := "v5/agencies/{agency_id}"
-	getAgencyPath := client.Endpoint + getAgencyHttpUrl
-	getAgencyPath = strings.ReplaceAll(getAgencyPath, "{agency_id}", state.Primary.ID)
-	getAgencyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAgencyResp, err := client.Request("GET", getAgencyPath, &getAgencyOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM service linked agency: %s", err)
-	}
-	return utils.FlattenResponse(getAgencyResp)
+
+	return iam.GetV5ServiceLinkedAgencyById(client, state.Primary.ID)
 }
 
-// Please ensure that the user executing the acceptance test has 'admin' permission.
 func TestAccV5ServiceLinkedService_basic(t *testing.T) {
 	var (
 		obj   interface{}
@@ -44,7 +31,6 @@ func TestAccV5ServiceLinkedService_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPreCheckServiceLinkedAgencyPrincipal(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
