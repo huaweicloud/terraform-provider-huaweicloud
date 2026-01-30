@@ -23,31 +23,35 @@ func DataSourceIdentityProjects() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the IAM project name to query",
+				Description: `The IAM project name to query.`,
 			},
 			"project_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"name"},
-				Description:   "Specifies the IAM project id to query. This parameter conflicts with `name`.",
+				Description:   `The IAM project id to query.`,
 			},
 
+			// Attributes
 			"projects": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the IAM project.`,
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the IAM project.`,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the IAM project is enabled.`,
 						},
 					},
 				},
@@ -71,6 +75,7 @@ func flattenProjectList(projectList []projects.Project) ([]map[string]interface{
 			"enabled": val.Enabled,
 		}
 	}
+
 	return result, ids
 }
 
@@ -97,12 +102,15 @@ func dataSourceIdentityProjectsRead(_ context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.Errorf("error retrieving IAM project list: %v", err)
 		}
+
 		projectList, err := projects.ExtractProjects(pages)
 		if err != nil {
 			return diag.Errorf("error fetching IAM project objects: %v", err)
 		}
+
 		result, ids = flattenProjectList(projectList)
 	}
+
 	d.SetId(hashcode.Strings(ids))
 	return diag.FromErr(d.Set("projects", result))
 }
