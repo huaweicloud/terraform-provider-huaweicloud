@@ -2,7 +2,6 @@ package ram
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -23,14 +22,14 @@ var resourceSharePermissionNonUpdatableParams = []string{"resource_share_id", "p
 // @API RAM POST /v1/resource-shares/{resource_share_id}/associate-permission
 // @API RAM POST /v1/resource-shares/{resource_share_id}/disassociate-permission
 // @API RAM GET /v1/resource-shares/{resource_share_id}/associated-permissions
-func ResourceRAMResourceSharePermission() *schema.Resource {
+func ResourceSharePermission() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRAMResourceSharePermissionCreate,
-		UpdateContext: resourceRAMResourceSharePermissionUpdate,
-		ReadContext:   resourceRAMResourceSharePermissionRead,
-		DeleteContext: resourceRAMResourceSharePermissionDelete,
+		CreateContext: resourceSharePermissionCreate,
+		UpdateContext: resourceSharePermissionUpdate,
+		ReadContext:   resourceSharePermissionRead,
+		DeleteContext: resourceSharePermissionDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceRAMResourceSharePermissionImportState,
+			StateContext: resourceSharePermissionImportState,
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(resourceSharePermissionNonUpdatableParams),
@@ -79,98 +78,103 @@ func ResourceRAMResourceSharePermission() *schema.Resource {
 	}
 }
 
-func resourceRAMResourceSharePermissionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func buildCreateResourceSharePermissionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"permission_id": d.Get("permission_id"),
+		"replace":       d.Get("replace"),
+	}
+}
 
-	resourceShareId := d.Get("resource_share_id").(string)
-	permissionId := d.Get("permission_id").(string)
+func resourceSharePermissionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		createResourceSharePermissionHttpUrl = "v1/resource-shares/{resource_share_id}/associate-permission"
-		createResourceSharePermissionProduct = "ram"
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		resourceShareId = d.Get("resource_share_id").(string)
+		permissionId    = d.Get("permission_id").(string)
+		httpUrl         = "v1/resource-shares/{resource_share_id}/associate-permission"
+		product         = "ram"
 	)
-	ramClient, err := cfg.NewServiceClient(createResourceSharePermissionProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	createResourceSharePermissionPath := ramClient.Endpoint + createResourceSharePermissionHttpUrl
-	createResourceSharePermissionPath = strings.ReplaceAll(createResourceSharePermissionPath, "{resource_share_id}", resourceShareId)
-	createResourceSharePermissionOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_share_id}", resourceShareId)
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         buildCreateResourceSharePermissionBodyParams(d),
 	}
 
-	createResourceSharePermissionOpt.JSONBody = utils.RemoveNil(buildCreateResourceSharePermissionBodyParams(d))
-	_, err = ramClient.Request("POST", createResourceSharePermissionPath, &createResourceSharePermissionOpt)
+	_, err = client.Request("POST", requestPath, &requestOpts)
 	if err != nil {
-		return diag.Errorf("error creating RAM share permission: %s", err)
+		return diag.Errorf("error binding RAM shared resource permission: %s", err)
 	}
 
 	d.SetId(resourceShareId + "/" + permissionId)
-	return resourceRAMResourceSharePermissionRead(ctx, d, meta)
+
+	return resourceSharePermissionRead(ctx, d, meta)
 }
 
-func resourceRAMResourceSharePermissionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
+func buildGetAssociatedPermissionsQueryParams(marker string) string {
+	// The default value of limit is `2000`
+	queryParams := "?limit=2000"
+	if marker != "" {
+		queryParams = fmt.Sprintf("%s&marker=%v", queryParams, marker)
+	}
+
+	return queryParams
 }
 
-func resourceRAMResourceSharePermissionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	resourceShareId := d.Get("resource_share_id").(string)
-	permissionId := d.Get("permission_id").(string)
-
+func resourceSharePermissionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		getRAMAssociatedPermissionHttpUrl = "v1/resource-shares/{resource_share_id}/associated-permissions"
-		getRAMAssociatedPermissionProduct = "ram"
+		cfg                      = meta.(*config.Config)
+		region                   = cfg.GetRegion(d)
+		mErr                     *multierror.Error
+		resourceShareId          = d.Get("resource_share_id").(string)
+		permissionId             = d.Get("permission_id").(string)
+		httpUrl                  = "v1/resource-shares/{resource_share_id}/associated-permissions"
+		product                  = "ram"
+		allAssociatedPermissions = make([]interface{}, 0)
+		marker                   string
 	)
-	getRAMAssociatedPermissionClient, err := cfg.NewServiceClient(getRAMAssociatedPermissionProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	getRAMAssociatedPermissionPath := getRAMAssociatedPermissionClient.Endpoint + getRAMAssociatedPermissionHttpUrl
-	getRAMAssociatedPermissionPath = strings.ReplaceAll(getRAMAssociatedPermissionPath, "{resource_share_id}", resourceShareId)
-	getRAMShareOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_share_id}", resourceShareId)
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var associatedPermission interface{}
-	var marker string
-	var queryPath string
-
 	for {
-		queryPath = getRAMAssociatedPermissionPath + buildGetAssociatedPermissionQueryParams(marker)
-		getRAMAssociatedPermissionResp, err := getRAMAssociatedPermissionClient.Request("GET", queryPath, &getRAMShareOpt)
+		requestPathWithMarker := requestPath + buildGetAssociatedPermissionsQueryParams(marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
-			return diag.Errorf("error retrieving associated permissions, error: %s", err)
+			return diag.Errorf("error retrieving RAM shared resource permissions: %s", err)
 		}
 
-		getRAMAssociatedPermissionRespBody, err := utils.FlattenResponse(getRAMAssociatedPermissionResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		associatedPermission = utils.PathSearch(
-			fmt.Sprintf("associated_permissions[?permission_id=='%s'&&status=='associated']|[0]", permissionId),
-			getRAMAssociatedPermissionRespBody,
-			nil,
-		)
-		if associatedPermission != nil {
-			break
-		}
-
-		marker = utils.PathSearch("page_info.next_marker", getRAMAssociatedPermissionRespBody, "").(string)
+		permissionsResp := utils.PathSearch("associated_permissions", respBody, make([]interface{}, 0)).([]interface{})
+		allAssociatedPermissions = append(allAssociatedPermissions, permissionsResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
 	}
 
+	jsonPath := fmt.Sprintf("[?permission_id=='%s'&&status=='associated']|[0]", permissionId)
+	associatedPermission := utils.PathSearch(jsonPath, allAssociatedPermissions, nil)
 	if associatedPermission == nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving associated permissions")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
 	mErr = multierror.Append(mErr,
@@ -185,70 +189,51 @@ func resourceRAMResourceSharePermissionRead(_ context.Context, d *schema.Resourc
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceRAMResourceSharePermissionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func resourceSharePermissionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
 
-	resourceShareId := d.Get("resource_share_id").(string)
+func buildDeleteResourceSharePermissionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"permission_id": d.Get("permission_id"),
+	}
+}
+
+func resourceSharePermissionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		deleteResourceSharePermissionHttpUrl = "v1/resource-shares/{resource_share_id}/disassociate-permission"
-		deleteResourceSharePermissionProduct = "ram"
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		resourceShareId = d.Get("resource_share_id").(string)
+		httpUrl         = "v1/resource-shares/{resource_share_id}/disassociate-permission"
+		product         = "ram"
 	)
-	ramClient, err := cfg.NewServiceClient(deleteResourceSharePermissionProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	deleteResourceSharePermissionPath := ramClient.Endpoint + deleteResourceSharePermissionHttpUrl
-	deleteResourceSharePermissionPath = strings.ReplaceAll(deleteResourceSharePermissionPath, "{resource_share_id}", resourceShareId)
-	deleteResourceSharePermissionOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_share_id}", resourceShareId)
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         buildDeleteResourceSharePermissionBodyParams(d),
 	}
 
-	deleteResourceSharePermissionOpt.JSONBody = utils.RemoveNil(buildDeleteResourceSharePermissionBodyParams(d))
-	_, err = ramClient.Request("POST", deleteResourceSharePermissionPath, &deleteResourceSharePermissionOpt)
+	_, err = client.Request("POST", requestPath, &requestOpts)
 	if err != nil {
-		return diag.Errorf("error delete RAM resource share permission: %s", err)
+		return diag.Errorf("error unbinding RAM shared resource permission: %s", err)
 	}
 
 	return nil
 }
 
-func buildCreateResourceSharePermissionBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := make(map[string]interface{})
-	params["permission_id"] = d.Get("permission_id").(string)
-
-	if v, ok := d.GetOk("replace"); ok {
-		params["replace"] = v
-	}
-
-	return params
-}
-
-func buildDeleteResourceSharePermissionBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := make(map[string]interface{})
-	params["permission_id"] = d.Get("permission_id").(string)
-
-	return params
-}
-
-func buildGetAssociatedPermissionQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
-
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-
-	return res
-}
-
-func resourceRAMResourceSharePermissionImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourceSharePermissionImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	parts := strings.Split(d.Id(), "/")
-
 	if len(parts) != 2 {
-		return nil, errors.New("invalid format specified for import ID, must be <resource_share_id>/<permission_id>")
+		return nil, fmt.Errorf("invalid format specified for import ID,"+
+			" must be '<resource_share_id>/<permission_id>', but got '%s'", d.Id())
 	}
 
 	mErr := multierror.Append(nil,
