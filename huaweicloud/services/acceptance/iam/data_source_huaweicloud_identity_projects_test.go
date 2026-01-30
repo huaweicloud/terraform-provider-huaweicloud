@@ -2,6 +2,7 @@ package iam
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,94 +10,99 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityProjectsDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataProjects_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		all = "data.huaweicloud_identity_projects.all"
+		dc  = acceptance.InitDataSourceCheck(all)
+
+		byName   = "data.huaweicloud_identity_projects.filter_by_name"
+		dcByName = acceptance.InitDataSourceCheck(byName)
+
+		byProjectId   = "data.huaweicloud_identity_projects.filter_by_project_id"
+		dcByProjectId = acceptance.InitDataSourceCheck(byProjectId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProjectsDataSource_basic,
+				Config: testAccDataProjects_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name", "MOS"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
+					resource.TestMatchResourceAttr(all, "projects.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "projects.0.id"),
+					resource.TestCheckResourceAttrSet(all, "projects.0.name"),
+					dcByName.CheckResourceExists(),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					dcByProjectId.CheckResourceExists(),
+					resource.TestCheckOutput("is_project_id_filter_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccIdentityProjectsDataSource_subProject(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityProjectsDataSource_subProject,
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name", "cn-north-4_test"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccIdentityProjectsDataSource_projectId(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_projects.test"
-	projectName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityProjectsDataSource_projectId(projectName),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.name",
-						fmt.Sprintf("%s_%s", acceptance.HW_REGION_NAME, projectName)),
-					resource.TestCheckResourceAttr(dataSourceName, "projects.0.enabled", "true"),
-				),
-			},
-		},
-	})
-}
-
-const testAccIdentityProjectsDataSource_basic string = `
-data "huaweicloud_identity_projects" "test" {
-  name = "MOS"
-}
-`
-
-const testAccIdentityProjectsDataSource_subProject string = `
-data "huaweicloud_identity_projects" "test" {
-  name = "cn-north-4_test"
-}
-`
-
-func testAccIdentityProjectsDataSource_projectId(projectName string) string {
+func testAccDataProjects_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_project" "project_1" {
-  name        = "%s_%s"
+resource "huaweicloud_identity_project" "test" {
+  name        = "%[1]s_%[2]s"
   status      = "suspended"
-  description = "An updated project"
+}
+`, acceptance.HW_REGION_NAME, name)
 }
 
-data "huaweicloud_identity_projects" "test" {
-  project_id = huaweicloud_identity_project.project_1.id
+func testAccDataProjects_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+# All
+data "huaweicloud_identity_projects" "all" {
+  # Waiting for the project to be created
+  depends_on = [huaweicloud_identity_project.test]
 }
 
-`, acceptance.HW_REGION_NAME, projectName)
+# Filter by name
+locals {
+  name = "%[2]s_%[3]s"
+}
+
+data "huaweicloud_identity_projects" "filter_by_name" {
+  name = local.name
+
+  # Waiting for the project to be created
+  depends_on = [huaweicloud_identity_project.test]
+}
+
+locals {
+  name_filter_result = [for o in data.huaweicloud_identity_projects.filter_by_name.projects : o.name == local.name]
+}
+
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) >= 1 && alltrue(local.name_filter_result)
+}
+
+# Filter by project ID
+locals {
+  project_id = huaweicloud_identity_project.test.id
+}
+
+data "huaweicloud_identity_projects" "filter_by_project_id" {
+  project_id = local.project_id
+
+  # Waiting for the project to be created
+  depends_on = [huaweicloud_identity_project.test]
+}
+
+locals {
+  project_id_filter_result = [for o in data.huaweicloud_identity_projects.filter_by_project_id.projects : 
+    o.id == local.project_id]
+}
+
+output "is_project_id_filter_useful" {
+  value = length(local.project_id_filter_result) >= 1 && alltrue(local.project_id_filter_result)
+}
+`, testAccDataProjects_base(name), acceptance.HW_REGION_NAME, name)
 }
