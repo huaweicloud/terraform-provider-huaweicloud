@@ -1147,3 +1147,97 @@ resource "huaweicloud_cce_node_pool" "test" {
 }
 `, baseConfig, name)
 }
+
+func TestAccNodePool_without_data_volumes(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		baseConfig = testAccNodePool_base(name)
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_without_data_volumes(name, baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_without_data_volumes(name, baseConfig string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.9"
+  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
+  initial_node_count       = 0
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "GPSSD"
+  }
+
+  storage {
+    selectors {
+      name = "cceUse"
+      type = "system"
+    }
+
+    groups {
+      name           = "vgpaas"
+      selector_names = ["cceUse"]
+      cce_managed    = true
+
+      virtual_spaces {
+        name        = "share"
+        size        = "100%%"
+        lvm_lv_type = "linear"
+      }
+    }
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "%[2]s-group1"
+    }
+
+    spec {
+      flavor = data.huaweicloud_compute_flavors.test.ids[0]
+      az     = data.huaweicloud_availability_zones.test.names[1]
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+      }
+    }
+  }
+}
+`, baseConfig, name)
+}
