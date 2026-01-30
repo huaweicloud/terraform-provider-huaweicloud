@@ -8,9 +8,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityKeystoneMetadataFile_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_keystone_metadata_file.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataKeystoneMetadataFile_basic(t *testing.T) {
+	var (
+		check = "data.huaweicloud_identity_keystone_metadata_file.test"
+		dc    = acceptance.InitDataSourceCheck(check)
+
+		byUnsigned   = "data.huaweicloud_identity_keystone_metadata_file.test_with_unsigned"
+		dcByUnsigned = acceptance.InitDataSourceCheck(byUnsigned)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -19,28 +24,22 @@ func TestAccDataSourceIdentityKeystoneMetadataFile_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testTestDataSourceIdentityKeystoneMetadataFile,
+				Config: testAccDataKeystoneMetadataFile_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "metadata_file"),
-				),
-			},
-			{
-				Config: testTestDataSourceIdentityKeystoneMetadataFileWithUnsigned,
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "metadata_file"),
+					resource.TestCheckResourceAttrSet(check, "metadata_file"),
+					dcByUnsigned.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(byUnsigned, "metadata_file"),
 				),
 			},
 		},
 	})
 }
 
-const testTestDataSourceIdentityKeystoneMetadataFile = `
+const testAccDataKeystoneMetadataFile_basic = `
 data "huaweicloud_identity_keystone_metadata_file" "test" {}
-`
-const testTestDataSourceIdentityKeystoneMetadataFileWithUnsigned = `
-data "huaweicloud_identity_keystone_metadata_file" "test" {
+
+data "huaweicloud_identity_keystone_metadata_file" "test_with_unsigned" {
   unsigned = true
 }
 `
