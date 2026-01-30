@@ -15,57 +15,50 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRAMAssociatedPermissionFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	resourceShareId := acceptance.HW_RAM_SHARE_ID
-	permissionId := acceptance.HW_RAM_PERMISSION_ID
-
+func getAssociatedPermissionFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	var (
-		getRAMAssociatedPermissionHttpUrl = "v1/resource-shares/{resource_share_id}/associated-permissions"
-		getRAMAssociatedPermissionProduct = "ram"
+		region                   = acceptance.HW_REGION_NAME
+		resourceShareId          = acceptance.HW_RAM_SHARE_ID
+		permissionId             = acceptance.HW_RAM_PERMISSION_ID
+		httpUrl                  = "v1/resource-shares/{resource_share_id}/associated-permissions"
+		product                  = "ram"
+		marker                   string
+		allAssociatedPermissions = make([]interface{}, 0)
 	)
-	getRAMAssociatedPermissionClient, err := cfg.NewServiceClient(getRAMAssociatedPermissionProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating RAM client: %s", err)
 	}
 
-	getRAMAssociatedPermissionPath := getRAMAssociatedPermissionClient.Endpoint + getRAMAssociatedPermissionHttpUrl
-	getRAMAssociatedPermissionPath = strings.ReplaceAll(getRAMAssociatedPermissionPath, "{resource_share_id}", resourceShareId)
-	getRAMShareOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_share_id}", resourceShareId)
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var associatedPermission interface{}
-	var marker string
-	var queryPath string
-
 	for {
-		queryPath = getRAMAssociatedPermissionPath + buildGetAssociatedPermissionQueryParams(marker)
-		getRAMAssociatedPermissionResp, err := getRAMAssociatedPermissionClient.Request("GET", queryPath, &getRAMShareOpt)
+		requestPathWithMarker := requestPath + buildGetAssociatedPermissionsQueryParams(marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpts)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving associated permissions: %s", err)
+			return nil, fmt.Errorf("error retrieving RAM shared resource permissions: %s", err)
 		}
 
-		getRAMAssociatedPermissionRespBody, err := utils.FlattenResponse(getRAMAssociatedPermissionResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return nil, err
 		}
 
-		associatedPermission = utils.PathSearch(
-			fmt.Sprintf("associated_permissions[?permission_id=='%s'&&status=='associated']|[0]", permissionId),
-			getRAMAssociatedPermissionRespBody,
-			nil,
-		)
-		if associatedPermission != nil {
-			break
-		}
-
-		marker = utils.PathSearch("page_info.next_marker", getRAMAssociatedPermissionRespBody, "").(string)
+		permissionsResp := utils.PathSearch("associated_permissions", respBody, make([]interface{}, 0)).([]interface{})
+		allAssociatedPermissions = append(allAssociatedPermissions, permissionsResp...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
 	}
 
+	jsonPath := fmt.Sprintf("[?permission_id=='%s'&&status=='associated']|[0]", permissionId)
+	associatedPermission := utils.PathSearch(jsonPath, allAssociatedPermissions, nil)
 	if associatedPermission == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
@@ -73,26 +66,25 @@ func getRAMAssociatedPermissionFunc(cfg *config.Config, _ *terraform.ResourceSta
 	return associatedPermission, nil
 }
 
-func buildGetAssociatedPermissionQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
-
+func buildGetAssociatedPermissionsQueryParams(marker string) string {
+	queryParams := "?limit=2000"
 	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
+		queryParams = fmt.Sprintf("%s&marker=%v", queryParams, marker)
 	}
 
-	return res
+	return queryParams
 }
 
-func TestAccRAMSharePermission_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_ram_resource_share_permission.test"
+func TestAccResourceSharePermission_basic(t *testing.T) {
+	var (
+		obj   interface{}
+		rName = "huaweicloud_ram_resource_share_permission.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getRAMAssociatedPermissionFunc,
+		getAssociatedPermissionFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -104,10 +96,16 @@ func TestAccRAMSharePermission_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRAMSharePermssion_basic(acceptance.HW_RAM_SHARE_ID, acceptance.HW_RAM_PERMISSION_ID),
+				Config: testResourceSharePermssion_basic(acceptance.HW_RAM_SHARE_ID, acceptance.HW_RAM_PERMISSION_ID),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(rName, "id"),
+					resource.TestCheckResourceAttr(rName, "resource_share_id", acceptance.HW_RAM_SHARE_ID),
+					resource.TestCheckResourceAttr(rName, "permission_id", acceptance.HW_RAM_PERMISSION_ID),
+					resource.TestCheckResourceAttrSet(rName, "permission_name"),
+					resource.TestCheckResourceAttrSet(rName, "resource_type"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
@@ -122,11 +120,12 @@ func TestAccRAMSharePermission_basic(t *testing.T) {
 	})
 }
 
-func testRAMSharePermssion_basic(resourceId string, permissionId string) string {
+func testResourceSharePermssion_basic(resourceId string, permissionId string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_ram_resource_share_permission" "test" {
   resource_share_id = "%[1]s"
   permission_id     = "%[2]s"
+  replace           = true
 }
 `, resourceId, permissionId)
 }
