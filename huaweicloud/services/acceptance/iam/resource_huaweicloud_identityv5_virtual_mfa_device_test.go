@@ -7,36 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5VirtualMFADeviceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	getMFAClient, err := conf.NewServiceClient("iam", acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM Client: %s", err)
 	}
-	getMFAHttpUrl := "v5/mfa-devices?user_id=" + state.Primary.Attributes["user_id"]
-	getMFAPath := getMFAClient.Endpoint + getMFAHttpUrl
-	getMFAOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getMFAResp, err := getMFAClient.Request("GET", getMFAPath, &getMFAOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM virtual MFA device: %s", err)
-	}
-	respBody, err := utils.FlattenResponse(getMFAResp)
-	if err != nil {
-		return nil, fmt.Errorf("error flatten IAM virtual MFA device: %s", err)
-	}
-	check := utils.PathSearch("mfa_devices[0]", respBody, nil)
-	if check == nil {
-		return nil, fmt.Errorf("error retrieving IAM virtual MFA device: %s", err)
-	}
-	return check, nil
+
+	return iam.GetV5VirtualMfaDevice(client, state.Primary.Attributes["user_id"])
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
