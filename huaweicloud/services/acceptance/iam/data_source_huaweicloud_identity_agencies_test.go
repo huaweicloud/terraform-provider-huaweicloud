@@ -2,136 +2,119 @@ package iam
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityAgenciesDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_agencies.all"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataAgencies_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityAgenciesDataSourceBasic,
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.name"),
-				),
-			},
-		},
-	})
-}
+		all = "data.huaweicloud_identity_agencies.all"
+		dc  = acceptance.InitDataSourceCheck(all)
 
-const testAccIdentityAgenciesDataSourceBasic string = `
-data "huaweicloud_identity_agencies" "all" {
-}
-`
+		byName   = "data.huaweicloud_identity_agencies.filter_by_name"
+		dcByName = acceptance.InitDataSourceCheck(byName)
 
-func TestAccIdentityAgenciesDataSource_byName(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_agencies.query_by_name"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIdentityAgenciesDataSource_byName(rName),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.name"),
-				),
-			},
-		},
-	})
-}
-
-func testAccIdentityAgenciesDataSource_byName(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_agency" "test" {
-  name                  = "%s"
-  description           = "This is a test agency"
-  delegated_domain_name = "%s"
-  duration              = "ONEDAY"
-
-  project_role {
-    project = "%s"
-    roles   = ["CCE Administrator"]
-  }
-}
-
-data "huaweicloud_identity_agencies" "query_by_name" {
-  depends_on = [
-    huaweicloud_identity_agency.test
-  ]
-  name = huaweicloud_identity_agency.test.name
-}
-`, rName, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
-}
-
-func TestAccIdentityAgenciesDataSource_byTrustDomainId(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_agencies.query_by_trust_domain_id"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
-	randUUID, _ := uuid.GenerateUUID()
+		byTrustDomainId   = "data.huaweicloud_identity_agencies.filter_by_trust_domain_id"
+		dcByTrustDomainId = acceptance.InitDataSourceCheck(byTrustDomainId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPrecheckDomainId(t)
+			acceptance.TestAccPrecheckDomainName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityAgenciesDataSource_byTrustDomainId(randUUID),
+				Config: testAccDataAgencies_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "agencies.0.name"),
+					resource.TestMatchResourceAttr(all, "agencies.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "agencies.0.id"),
+					resource.TestCheckResourceAttrSet(all, "agencies.0.name"),
+					dcByName.CheckResourceExists(),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					dcByTrustDomainId.CheckResourceExists(),
+					resource.TestCheckOutput("is_trust_domain_id_filter_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityAgenciesDataSource_byTrustDomainId(rName string) string {
+func testAccDataAgencies_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   description           = "This is a test agency"
-  delegated_domain_name = "%s"
+  delegated_domain_name = "%[2]s"
   duration              = "ONEDAY"
 
   project_role {
-    project = "%s"
+    project = "%[3]s"
     roles   = ["CCE Administrator"]
   }
 }
-
-data "huaweicloud_identity_agencies" "query_by_trust_domain_id" {
-  depends_on = [
-    huaweicloud_identity_agency.test
-  ]
-  trust_domain_id = "%s"
+`, name, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
 }
-`, rName, acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME, acceptance.HW_DOMAIN_ID)
+
+func testAccDataAgencies_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+# All
+data "huaweicloud_identity_agencies" "all" {
+  # The agency creation is not immediate, so the data source query may not get the latest agency.
+  depends_on = [huaweicloud_identity_agency.test]
+}
+
+# Filter by name
+locals {
+  name = "%[2]s"
+}
+
+data "huaweicloud_identity_agencies" "filter_by_name" {
+  name = local.name
+
+  # The agency creation is not immediate, so the data source query may not get the latest agency.
+  depends_on = [huaweicloud_identity_agency.test]
+}
+
+locals {
+  name_filter_result = [for o in data.huaweicloud_identity_agencies.filter_by_name.agencies : o.name == local.name]
+}
+
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) >= 1 && alltrue(local.name_filter_result)
+}
+
+# Filter by trust domain ID
+locals {
+  trust_domain_id = "%[3]s"
+}
+
+data "huaweicloud_identity_agencies" "filter_by_trust_domain_id" {
+  trust_domain_id = local.trust_domain_id
+
+  # The agency creation is not immediate, so the data source query may not get the latest agency.
+  depends_on = [huaweicloud_identity_agency.test]
+}
+
+locals {
+  trust_domain_id_filter_result = [for o in data.huaweicloud_identity_agencies.filter_by_trust_domain_id.agencies
+  : o.trust_domain_id == local.trust_domain_id]
+}
+
+output "is_trust_domain_id_filter_useful" {
+  value = length(local.trust_domain_id_filter_result) >= 1 && alltrue(local.trust_domain_id_filter_result)
+}
+`, testAccDataAgencies_base(name), name, acceptance.HW_DOMAIN_ID)
 }
