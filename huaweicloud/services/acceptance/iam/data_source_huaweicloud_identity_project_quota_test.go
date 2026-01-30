@@ -1,6 +1,8 @@
 package iam
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,9 +10,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityProjectQuotaDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_project_quota.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataProjectQuota_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		all = "data.huaweicloud_identity_project_quota.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -20,23 +26,28 @@ func TestAccIdentityProjectQuotaDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityProjectQuotaDataSource,
+				Config: testAccDataProjectQuota_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "resources.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "resources.0.type", "project"),
+					resource.TestMatchResourceAttr(all, "resources.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttr(all, "resources.0.type", "project"),
 				),
 			},
 		},
 	})
 }
 
-const testAccIdentityProjectQuotaDataSource = `
-data "huaweicloud_identity_projects" "test" {
-  name = "MOS"
+func testAccDataProjectQuota_basic(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_project" "test" {
+  name        = "%[1]s_%[2]s"
 }
 
 data "huaweicloud_identity_project_quota" "test" {
-  project_id = data.huaweicloud_identity_projects.test.projects[0].id
+  project_id = huaweicloud_identity_project.test.id
+  
+  # Waiting for the project to be created.
+  depends_on = [huaweicloud_identity_project.test]
 }
-`
+`, acceptance.HW_REGION_NAME, name)
+}
