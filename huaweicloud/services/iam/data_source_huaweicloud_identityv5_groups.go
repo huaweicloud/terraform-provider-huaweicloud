@@ -16,48 +16,55 @@ import (
 )
 
 // @API IAM GET /v5/groups
-func DataSourceIdentityV5Groups() *schema.Resource {
+func DataSourceV5Groups() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5GroupsRead,
+		ReadContext: dataSourceV5GroupsRead,
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the user.`,
 			},
 			"groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"group_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the user group.`,
+						},
 						"group_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the user group.`,
 						},
 						"urn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name of the user group.`,
 						},
 						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the user group.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the user group.`,
 						},
 					},
+					Description: `The list of user groups that match the filter parameters.`,
 				},
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5GroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceV5GroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam", region)
@@ -92,13 +99,16 @@ func dataSourceIdentityV5GroupsRead(_ context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	randomId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
 
-	mErr := multierror.Append(nil,
+	d.SetId(randomId)
+
+	mErr := multierror.Append(
 		d.Set("groups", allGroups),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
