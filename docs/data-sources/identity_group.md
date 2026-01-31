@@ -2,7 +2,8 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_group"
-description: ""
+description: |-
+  Use this data source to get details of the specified IAM user group.
 ---
 
 # huaweicloud_identity_group
@@ -14,8 +15,10 @@ Use this data source to get details of the specified IAM user group.
 ## Example Usage
 
 ```hcl
+variable "group_name" {}
+
 data "huaweicloud_identity_group" "group" {
-  name = "my_group"
+  name = var.group_name
 }
 ```
 
@@ -31,17 +34,19 @@ data "huaweicloud_identity_group" "group" {
 
 * `domain_id` - Indicates the domain the group belongs to.
 
-* `users` - Indicates the users the group contains. Structure is documented below.
+* `users` - Indicates the users the group contains.  
+  The [users](#identity_group_users) structure is documented below.
 
+<a name="identity_group_users"></a>
 The `users` block contains:
 
 * `id` - Indicates the ID of the IAM user.
 
-* `name` - Indicates the IAM user name.
+* `name` - Indicates the name of the IAM user.
 
 * `description` - Indicates the description of the IAM user.
 
-* `enabled` - Indicates the whether the IAM user is enabled.
+* `enabled` - Whether the IAM user is enabled.
 
 * `password_expires_at` - Indicates the time when the password will expire.
   If this value is not set, the password will not expire.
