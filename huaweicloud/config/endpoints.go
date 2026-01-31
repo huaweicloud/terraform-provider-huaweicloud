@@ -786,6 +786,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1.1",
 		Product: "CDM",
 	},
+	"lakeformation": {
+		Name:    "lakeformation",
+		Version: "v1",
+		Product: "LakeFormation",
+	},
 
 	// catalog for Application
 	"apig": {
@@ -1008,13 +1013,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 		Product:          "KooGallery",
-	},
-
-	// catalog for LakeFormation
-	"lakeformation": {
-		Name:    "lakeformation",
-		Version: "v1",
-		Product: "LakeFormation",
 	},
 
 	// catalog for MetaStudio
