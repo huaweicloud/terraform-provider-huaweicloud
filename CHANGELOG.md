@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.86.0 (January 31, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_dds_node_session_kill` [GH-8845]
+  + `huaweicloud_lakeformation_instance` [GH-8977]
+
+* **New Data Source:**
+  + `huaweicloud_lakeformation_specifications` [GH-8971]
+
 ## 1.85.0 (January 16, 2026)
 
 ENHANCEMENTS:
