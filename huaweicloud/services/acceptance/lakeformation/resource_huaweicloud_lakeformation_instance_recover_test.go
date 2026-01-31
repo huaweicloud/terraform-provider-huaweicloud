@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccLakeFormationInstanceRecover_basic(t *testing.T) {
+func TestAccInstanceRecover_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -21,13 +21,13 @@ func TestAccLakeFormationInstanceRecover_basic(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLakeFormationInstanceRecover_basic(),
+				Config: testAccInstanceRecover_basic(),
 			},
 		},
 	})
 }
 
-func testAccLakeFormationInstanceRecover_basic() string {
+func testAccInstanceRecover_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lakeformation_instance_recover" "test" {
   instance_id = "%[1]s"
