@@ -23,26 +23,31 @@ func DataSourceIdentityLoginProtects() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user id.`,
 			},
 
 			"login_protects": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The login status protection information list.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"user_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The user id.`,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether to enable login protection.`,
 						},
 						"verification_method": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The login verification method.`,
 						},
 					},
 				},
@@ -57,6 +62,7 @@ func DataSourceIdentityLoginProtectsRead(_ context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	userId := d.Get("user_id").(string)
 	if userId == "" {
 		return listLoginProtects(iamClient, d)
@@ -66,43 +72,73 @@ func DataSourceIdentityLoginProtectsRead(_ context.Context, d *schema.ResourceDa
 }
 
 func listLoginProtects(iamClient *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
-	listLoginProtectsPath := iamClient.Endpoint + "v3.0/OS-USER/login-protects"
-	options := golangsdk.RequestOpts{KeepResponseBody: true}
-	response, err := iamClient.Request("GET", listLoginProtectsPath, &options)
-	if err != nil {
-		return diag.Errorf("error listLoginProtects: %s", err)
+	var (
+		httpUrl = "v3.0/OS-USER/login-protects"
+	)
+
+	listPath := iamClient.Endpoint + httpUrl
+	listOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
+	response, err := iamClient.Request("GET", listPath, &listOpts)
+	if err != nil {
+		return diag.Errorf("error listing login protects: %s", err)
+	}
+
 	respBody, err := utils.FlattenResponse(response)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error querying login protects: %s", err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+
+	randomUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(randomUUID)
+
 	loginProtectsBody := utils.PathSearch("login_protects", respBody, make([]interface{}, 0)).([]interface{})
 	loginProtects := make([]interface{}, 0, len(loginProtectsBody))
 	for _, loginProtect := range loginProtectsBody {
 		loginProtects = append(loginProtects, flattenLoginProtect(loginProtect))
 	}
 	if err = d.Set("login_protects", loginProtects); err != nil {
-		return diag.Errorf("error setting login_protects fields: %s", err)
+		return diag.Errorf("error setting login protects fields: %s", err)
 	}
 	return nil
 }
 
 func showLoginProtect(iamClient *golangsdk.ServiceClient, userId string, d *schema.ResourceData) diag.Diagnostics {
-	showLoginProtectPath := iamClient.Endpoint + "v3.0/OS-USER/users/{user_id}/login-protect"
-	showLoginProtectPath = strings.ReplaceAll(showLoginProtectPath, "{user_id}", userId)
-	options := golangsdk.RequestOpts{KeepResponseBody: true}
-	response, err := iamClient.Request("GET", showLoginProtectPath, &options)
-	if err != nil {
-		return diag.Errorf("error showLoginProtect: %s", err)
+	var (
+		httpUrl = "v3.0/OS-USER/users/{user_id}/login-protect"
+	)
+	getPath := iamClient.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{user_id}", userId)
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
+
+	response, err := iamClient.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return diag.Errorf("error showing login protect: %s", err)
+	}
+
 	respBody, err := utils.FlattenResponse(response)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error querying login protect: %s", err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+
+	randomUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(randomUUID)
+
 	loginProtectBody := utils.PathSearch("login_protect", respBody, make([]interface{}, 0))
 	loginProtects := append(make([]interface{}, 0, 1), flattenLoginProtect(loginProtectBody))
 	if err = d.Set("login_protects", loginProtects); err != nil {
@@ -115,9 +151,10 @@ func flattenLoginProtect(loginProtectModel interface{}) map[string]interface{} {
 	if loginProtectModel == nil {
 		return nil
 	}
-	loginProtect := make(map[string]interface{})
-	loginProtect["user_id"] = utils.PathSearch("user_id", loginProtectModel, "")
-	loginProtect["enabled"] = utils.PathSearch("enabled", loginProtectModel, "")
-	loginProtect["verification_method"] = utils.PathSearch("verification_method", loginProtectModel, "")
-	return loginProtect
+
+	return map[string]interface{}{
+		"user_id":             utils.PathSearch("user_id", loginProtectModel, nil),
+		"enabled":             utils.PathSearch("enabled", loginProtectModel, nil),
+		"verification_method": utils.PathSearch("verification_method", loginProtectModel, nil),
+	}
 }

@@ -39,51 +39,61 @@ func ResourceIdentityUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the user.`,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: `The password for the user.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the user.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The email address.`,
 			},
 			"phone": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"country_code"},
+				Description:  `The mobile number.`,
 			},
 			"country_code": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"phone"},
+				Description:  `The country code.`,
 			},
 			"external_identity_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the IAM user in the external system.`,
 			},
 			"external_identity_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				RequiredWith: []string{"external_identity_id"},
+				Description:  `The type of the IAM user in the external system.`,
 			},
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether the user is enabled or disabled.`,
 			},
 			"pwd_reset": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether the password should be reset.`,
 			},
 			"access_type": {
 				Type:     schema.TypeString,
@@ -92,22 +102,29 @@ func ResourceIdentityUser() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"default", "programmatic", "console",
 				}, false),
+				Description: `The access type of the user.`,
 			},
 			"login_protect_verification_method": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The verification method of login protect.`,
 			},
+
+			// Attributes
 			"password_strength": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The password strength.`,
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the IAM user was created.`,
 			},
 			"last_login": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the IAM user last login.`,
 			},
 		},
 	}

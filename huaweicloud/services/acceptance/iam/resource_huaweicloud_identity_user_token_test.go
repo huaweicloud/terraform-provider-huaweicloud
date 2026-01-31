@@ -40,7 +40,7 @@ func testAccIdentityUserToken_basic(userName, initPassword string) string {
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
+  user_name    = huaweicloud_identity_user.test.name
   password     = "%[3]s"
 }
 `, testAccIdentityUser_basic(userName, initPassword), acceptance.HW_DOMAIN_NAME, initPassword)
@@ -77,7 +77,7 @@ func testAccIdentityUserToken_project(userName, initPassword string) string {
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
+  user_name    = huaweicloud_identity_user.test.name
   password     = "%[3]s"
   project_name = "%[4]s"
 }
