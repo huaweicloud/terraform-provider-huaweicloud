@@ -279,6 +279,8 @@ var (
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
+	HW_LAKE_FORMATION_INSTANCE_ID = os.Getenv("HW_LAKE_FORMATION_INSTANCE_ID")
+
 	HW_LTS_ENABLE_FLAG                 = os.Getenv("HW_LTS_ENABLE_FLAG")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
@@ -3202,6 +3204,13 @@ func TestAccPreCheckEgEventSubscriptionIds(t *testing.T, min int) {
 	if HW_EG_EVENT_SUBSCRIPTION_IDS == "" || len(strings.Split(HW_EG_EVENT_SUBSCRIPTION_IDS, ",")) < min {
 		t.Skipf(`At least %d subscription ID(s) must be supported during the HW_EG_EVENT_SUBSCRIPTION_IDS, separated by 
 		commas (,).`, min)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLakeFormationInstanceId(t *testing.T) {
+	if HW_LAKE_FORMATION_INSTANCE_ID == "" {
+		t.Skip("HW_LAKE_FORMATION_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 

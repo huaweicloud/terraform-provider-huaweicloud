@@ -3512,7 +3512,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_kps_export_private_key":       dew.ResourceKpsExportPrivateKey(),
 			"huaweicloud_kps_failed_task_delete":       dew.ResourceKpsFailedTaskDelete(),
 
-			"huaweicloud_lakeformation_instance": lakeformation.ResourceInstance(),
+			"huaweicloud_lakeformation_instance":         lakeformation.ResourceInstance(),
+			"huaweicloud_lakeformation_instance_recover": lakeformation.ResourceInstanceRecover(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_l7policy":     lb.ResourceL7PolicyV2(),
