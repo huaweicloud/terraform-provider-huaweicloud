@@ -15,41 +15,47 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var v5VirtualMFADeviceNonUpdatableParams = []string{"user_id", "name"}
+
 // @API IAM POST /v5/virtual-mfa-devices
 // @API IAM DELETE /v5/virtual-mfa-devices
 // @API IAM GET /v5/mfa-devices
-var virtualMFADeviceNonUpdatableParams = []string{"user_id", "name"}
-
-func ResourceIdentityV5VirtualMFADevice() *schema.Resource {
+func ResourceV5VirtualMfaDevice() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5MFACreate,
-		ReadContext:   resourceIdentityV5MFARead,
-		UpdateContext: resourceIdentityV5MFAUpdate,
-		DeleteContext: resourceIdentityV5MFADelete,
+		CreateContext: resourceV5MfaDeviceCreate,
+		ReadContext:   resourceV5MfaDeviceRead,
+		UpdateContext: resourceV5MfaDeviceUpdate,
+		DeleteContext: resourceV5MfaDeviceDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceMFAImportStateV5,
+			StateContext: resourceV5MfaDeviceImportState,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(virtualMFADeviceNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5VirtualMFADeviceNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the MFA device`,
 			},
 			"user_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the user`,
 			},
+			// Attributes.
 			"base32_string_seed": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The key information used for third-party generation of image verification codes`,
 			},
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the MFA device is enabled.`,
 			},
+			// Internal parameter(s).
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -60,108 +66,131 @@ func ResourceIdentityV5VirtualMFADevice() *schema.Resource {
 	}
 }
 
-func resourceIdentityV5MFACreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+func resourceV5MfaDeviceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		userId = d.Get("user_id").(string)
+	)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	createMFAHttpUrl := "v5/virtual-mfa-devices"
-	createMFAPath := iamClient.Endpoint + createMFAHttpUrl
+	createMFAPath := client.Endpoint + createMFAHttpUrl
 	createMFAOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
 			"virtual_mfa_device_name": d.Get("name").(string),
-			"user_id":                 d.Get("user_id").(string),
+			"user_id":                 userId,
 		},
 	}
-	createMFAResp, err := iamClient.Request("POST", createMFAPath, &createMFAOpt)
+	createMFAResp, err := client.Request("POST", createMFAPath, &createMFAOpt)
 	if err != nil {
-		return diag.Errorf("error creating IAM virtual MFA device: %s", err)
+		return diag.Errorf("error creating virtual MFA device for user (%s): %s", userId, err)
 	}
+
 	createMFARespBody, err := utils.FlattenResponse(createMFAResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id := utils.PathSearch("virtual_mfa_device.serial_number", createMFARespBody, "").(string)
-	if id == "" {
-		return diag.Errorf("error creating IAM virtual MFA device: serial_number is not found in API response")
+
+	serialNumber := utils.PathSearch("virtual_mfa_device.serial_number", createMFARespBody, "").(string)
+	if serialNumber == "" {
+		return diag.Errorf("unable to find serial number from API response")
 	}
-	d.SetId(id)
+
+	d.SetId(serialNumber)
+
 	seed := utils.PathSearch("virtual_mfa_device.base32_string_seed", createMFARespBody, "").(string)
 	if seed == "" {
-		return diag.Errorf("error creating IAM virtual MFA device: base32_string_seed is not found in API response")
+		return diag.Errorf("unable to find key information from API response")
 	}
-	err = d.Set("base32_string_seed", seed)
-	if err != nil {
-		return diag.Errorf("error set IAM MFA device field")
+
+	if err := d.Set("base32_string_seed", seed); err != nil {
+		return diag.Errorf("error setting base32_string_seed: %s", err)
 	}
-	return resourceIdentityV5MFARead(ctx, d, meta)
+
+	return resourceV5MfaDeviceRead(ctx, d, meta)
 }
 
-func resourceIdentityV5MFARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating IAM client: %s", err)
-	}
-	getMFAHttpUrl := "v5/mfa-devices?user_id=" + d.Get("user_id").(string)
-	getPath := iamClient.Endpoint + getMFAHttpUrl
-	getMFAOpt := golangsdk.RequestOpts{
+func GetV5VirtualMfaDevice(client *golangsdk.ServiceClient, userId string) (interface{}, error) {
+	getHttpUrl := fmt.Sprintf("v5/mfa-devices?user_id=%s", userId)
+	getPath := client.Endpoint + getHttpUrl
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	response, err := iamClient.Request("GET", getPath, &getMFAOpt)
+	response, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IAM virtual MFA device")
+		return nil, err
 	}
 	respBody, err := utils.FlattenResponse(response)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error flatten user MFA device")
+		return nil, err
 	}
-	mfa := utils.PathSearch("mfa_devices[0]", respBody, nil)
-	if mfa == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error")
+
+	device := utils.PathSearch("mfa_devices[0]", respBody, nil)
+	if device == nil {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v5/mfa-devices",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("there are no MFA devices under the user (%s)", userId)),
+			},
+		}
 	}
-	id := utils.PathSearch("serial_number", mfa, "").(string)
-	if id == "" {
-		return diag.Errorf("error found serial_number in the response")
-	}
-	d.SetId(id)
-	if err = d.Set("enabled", utils.PathSearch("enabled", mfa, nil)); err != nil {
-		return diag.Errorf("error setting mfa devices: %s", err)
-	}
-	return nil
+
+	return device, nil
 }
 
-func resourceIdentityV5MFAUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
-}
-
-func resourceIdentityV5MFADelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+func resourceV5MfaDeviceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		userId = d.Get("user_id").(string)
+	)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	deleteMFAHttpUrl := "v5/virtual-mfa-devices"
-	deleteMFAPath := iamClient.Endpoint + deleteMFAHttpUrl + buildDeleteMFAParamPath(d)
+	device, err := GetV5VirtualMfaDevice(client, userId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting virtual MFA device of user (%s)", userId))
+	}
+
+	serialNumber := utils.PathSearch("serial_number", device, "").(string)
+	if serialNumber == "" {
+		return diag.Errorf("unable to find serial number from API response")
+	}
+
+	d.SetId(serialNumber)
+	return diag.FromErr(d.Set("enabled", utils.PathSearch("enabled", device, nil)))
+}
+
+func resourceV5MfaDeviceUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceV5MfaDeviceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM client: %s", err)
+	}
+
+	deleteMFAHttpUrl := fmt.Sprintf("v5/virtual-mfa-devices?user_id=%s&serial_number=%s", d.Get("user_id"), d.Id())
+	deleteMFAPath := client.Endpoint + deleteMFAHttpUrl
 	deleteMFAOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	_, err = iamClient.Request("DELETE", deleteMFAPath, &deleteMFAOpt)
+	_, err = client.Request("DELETE", deleteMFAPath, &deleteMFAOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IAM virtual MFA device: %s", err)
+		return diag.Errorf("error deleting virtual MFA device of user (%s): %s", d.Get("user_id").(string), err)
 	}
 	return nil
 }
 
-func resourceMFAImportStateV5(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceV5MfaDeviceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, d.Set("user_id", d.Id())
-}
-
-func buildDeleteMFAParamPath(d *schema.ResourceData) string {
-	res := fmt.Sprintf("?user_id=%s", d.Get("user_id"))
-	res += fmt.Sprintf("&serial_number=%s", d.Id())
-	return res
 }

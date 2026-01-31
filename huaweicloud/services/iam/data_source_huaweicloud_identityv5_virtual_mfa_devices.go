@@ -11,21 +11,20 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IAM GET /v5/mfa-devices
-func DataSourceIdentityV5VirtualMfaDevices() *schema.Resource {
+func DataSourceV5VirtualMfaDevices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5VirtualMfaDevicesRead,
+		ReadContext: dataSourceV5VirtualMfaDevicesRead,
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The ID of the IAM user.",
+				Description: `The ID of the IAM user.`,
 			},
 			"devices": {
 				Type:     schema.TypeList,
@@ -33,25 +32,74 @@ func DataSourceIdentityV5VirtualMfaDevices() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the MFA device is enabled.`,
 						},
 						"serial_number": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The serial number of the MFA device.`,
 						},
 						"user_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the user.`,
 						},
 					},
 				},
+				Description: `The list of virtual MFA devices that matched filter parameters.`,
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5VirtualMfaDevicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func listV5VirtualMfaDevices(client *golangsdk.ServiceClient, d *schema.ResourceData, marker string) ([]interface{}, error) {
+	var (
+		httpUrl = "v5/mfa-devices"
+		limit   = 100
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = fmt.Sprintf("%s?limit=%v", listPath, limit)
+	listPath += buildListMfaDevicesV5Params(d)
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker = fmt.Sprintf("%s&marker=%s", listPathWithMarker, marker)
+		}
+
+		reqOpt := &golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		resp, err := client.Request("GET", listPathWithMarker, reqOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		devices := utils.PathSearch("mfa_devices", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, devices...)
+		if len(devices) < limit {
+			break
+		}
+
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func dataSourceV5VirtualMfaDevicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam", region)
@@ -59,65 +107,48 @@ func dataSourceIdentityV5VirtualMfaDevicesRead(_ context.Context, d *schema.Reso
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	var allDevices []interface{}
-	var marker string
-	var path string
-	for {
-		path = fmt.Sprintf("%sv5/mfa-devices", client.Endpoint) + buildListMfaDevicesV5Params(d, marker)
-		reqOpt := &golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		r, err := client.Request("GET", path, reqOpt)
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving virtual MFA devices")
-		}
-		resp, err := utils.FlattenResponse(r)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		devices := flattenListMfaDevicesV5Response(resp)
-		allDevices = append(allDevices, devices...)
-
-		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
-		if marker == "" {
-			break
-		}
+	devices, err := listV5VirtualMfaDevices(client, d, "")
+	if err != nil {
+		return diag.Errorf("error querying virtual MFA devices: %s", err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
-	mErr := multierror.Append(nil,
-		d.Set("devices", allDevices),
+
+	randomUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+
+	d.SetId(randomUUID)
+
+	mErr := multierror.Append(
+		d.Set("devices", flattenV5MfaDevices(devices)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting virtual MFA devices fields: %s", err)
 	}
+
 	return nil
 }
 
-func buildListMfaDevicesV5Params(d *schema.ResourceData, marker string) string {
-	res := "?limit=100"
+func buildListMfaDevicesV5Params(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("user_id"); ok {
-		res = fmt.Sprintf("%s&user_id=%v", res, v)
+		return fmt.Sprintf("&user_id=%v", v)
 	}
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-	return res
+
+	return ""
 }
 
-func flattenListMfaDevicesV5Response(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenV5MfaDevices(devices []interface{}) []interface{} {
+	if len(devices) == 0 {
 		return nil
 	}
 
-	devices := utils.PathSearch("mfa_devices", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(devices))
-	for i, device := range devices {
-		result[i] = map[string]interface{}{
+	result := make([]interface{}, 0, len(devices))
+	for _, device := range devices {
+		result = append(result, map[string]interface{}{
 			"enabled":       utils.PathSearch("enabled", device, nil),
 			"serial_number": utils.PathSearch("serial_number", device, nil),
 			"user_id":       utils.PathSearch("user_id", device, nil),
-		}
+		})
 	}
 	return result
 }
