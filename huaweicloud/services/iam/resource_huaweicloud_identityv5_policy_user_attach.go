@@ -17,23 +17,23 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var policyV5UserAttachNonUpdatableParams = []string{"policy_id", "user_id"}
+var v5PolicyUserAttachNonUpdatableParams = []string{"policy_id", "user_id"}
 
 // @API IAM POST /v5/policies/{policy_id}/attach-user
 // @API IAM POST /v5/policies/{policy_id}/detach-user
 // @API IAM GET /v5/users/{user_id}/attached-policies
-func ResourceIdentityV5PolicyUserAttach() *schema.Resource {
+func ResourceV5PolicyUserAttach() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5PolicyUserAttachCreate,
-		ReadContext:   resourceIdentityV5PolicyUserAttachRead,
-		UpdateContext: resourceIdentityV5PolicyUserAttachUpdate,
-		DeleteContext: resourceIdentityV5PolicyUserAttachDelete,
+		CreateContext: resourceV5PolicyUserAttachCreate,
+		ReadContext:   resourceV5PolicyUserAttachRead,
+		UpdateContext: resourceV5PolicyUserAttachUpdate,
+		DeleteContext: resourceV5PolicyUserAttachDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceIdentityV5PolicyUserAttachImportState,
+			StateContext: resourceV5PolicyUserAttachImportState,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(policyV5UserAttachNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5PolicyUserAttachNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
@@ -71,7 +71,7 @@ func ResourceIdentityV5PolicyUserAttach() *schema.Resource {
 	}
 }
 
-func resourceIdentityV5PolicyUserAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyUserAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		userId   = d.Get("user_id").(string)
@@ -98,10 +98,10 @@ func resourceIdentityV5PolicyUserAttachCreate(ctx context.Context, d *schema.Res
 
 	d.SetId(fmt.Sprintf("%s/%s", policyId, userId))
 
-	return resourceIdentityV5PolicyUserAttachRead(ctx, d, meta)
+	return resourceV5PolicyUserAttachRead(ctx, d, meta)
 }
 
-func GetUserAttachedIdentityV5Policy(client *golangsdk.ServiceClient, userId, policyId string) (interface{}, error) {
+func GetV5UserAttachedPolicy(client *golangsdk.ServiceClient, userId, policyId string) (interface{}, error) {
 	httpUrl := "v5/users/{user_id}/attached-policies"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{user_id}", userId)
@@ -147,7 +147,7 @@ func GetUserAttachedIdentityV5Policy(client *golangsdk.ServiceClient, userId, po
 	}
 }
 
-func resourceIdentityV5PolicyUserAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyUserAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		userId   = d.Get("user_id").(string)
@@ -158,7 +158,7 @@ func resourceIdentityV5PolicyUserAttachRead(_ context.Context, d *schema.Resourc
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	policy, err := GetUserAttachedIdentityV5Policy(client, userId, policyId)
+	policy, err := GetV5UserAttachedPolicy(client, userId, policyId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving policy associated with user")
 	}
@@ -177,11 +177,11 @@ func resourceIdentityV5PolicyUserAttachRead(_ context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceIdentityV5PolicyUserAttachUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5PolicyUserAttachUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIdentityV5PolicyUserAttachDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyUserAttachDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		userId   = d.Get("user_id").(string)
@@ -209,7 +209,7 @@ func resourceIdentityV5PolicyUserAttachDelete(_ context.Context, d *schema.Resou
 	return nil
 }
 
-func resourceIdentityV5PolicyUserAttachImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceV5PolicyUserAttachImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
 	if len(parts) != 2 {
