@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_node_sessions": {
+          "block": {
+            "attributes": {
+              "cost_time": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "plan_summary": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sessions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active": "bool",
+                      "client": "string",
+                      "cost_time": "string",
+                      "db": "string",
+                      "description": "string",
+                      "host": "string",
+                      "id": "string",
+                      "namespace": "string",
+                      "operation": "string",
+                      "plan_summary": "string",
+                      "type": "string",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

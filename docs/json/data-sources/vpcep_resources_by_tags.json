@@ -15,12 +15,10 @@
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               },
               "resource_type": {
                 "type": "string",
-                "description": "Specifies the resource type.",
                 "required": true
               },
               "resources": {
@@ -29,7 +27,6 @@
                   [
                     "object",
                     {
-                      "resource_detail": "string",
                       "resource_id": "string",
                       "resource_name": "string",
                       "tags": [
@@ -53,7 +50,6 @@
               },
               "without_any_tag": {
                 "type": "bool",
-                "description": "Specifies if the resource has no tags.",
                 "optional": true
               }
             },

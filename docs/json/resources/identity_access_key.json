@@ -7,14 +7,17 @@
             "attributes": {
               "create_time": {
                 "type": "string",
+                "description": "The creation time of the access key, in ISO-8601 UTC format.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the access key.",
                 "optional": true
               },
               "encrypted_secret": {
                 "type": "string",
+                "description": "The encrypted secret, which encoded in base64.",
                 "computed": true
               },
               "id": {
@@ -23,35 +26,42 @@
               },
               "key_fingerprint": {
                 "type": "string",
+                "description": "The fingerprint of the PGP key used to encrypt the secret.",
                 "computed": true
               },
               "pgp_key": {
                 "type": "string",
+                "description": "The PGP public key (base64 encoded) used to encrypt the storaged secret key.",
                 "optional": true,
                 "forcenew": true
               },
               "secret": {
                 "type": "string",
+                "description": "The access secret key.",
                 "computed": true,
                 "sensitive": true
               },
               "secret_file": {
                 "type": "string",
+                "description": "The file name of the credentials (CSV) that can save access key and access secret key.",
                 "optional": true,
                 "forcenew": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the access key.",
                 "optional": true,
                 "computed": true
               },
               "user_id": {
                 "type": "string",
+                "description": "The IAM user ID for which access key (AK/SK) to be created.",
                 "required": true,
                 "forcenew": true
               },
               "user_name": {
                 "type": "string",
+                "description": "The name of the IAM user.",
                 "computed": true
               }
             }

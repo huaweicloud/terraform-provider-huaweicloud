@@ -5,11 +5,19 @@
         "huaweicloud_cce_autopilot_cluster_upgrade_info": {
           "block": {
             "attributes": {
+              "api_version": {
+                "type": "string",
+                "computed": true
+              },
               "cluster_id": {
                 "type": "string",
                 "required": true
               },
               "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
                 "type": "string",
                 "computed": true
               },

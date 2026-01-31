@@ -11,14 +11,41 @@
                   [
                     "object",
                     {
+                      "access_scope": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "namespaces": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "api_version": "string",
                       "clusters": [
                         "list",
                         "string"
                       ],
                       "create_time": "string",
+                      "kind": "string",
                       "name": "string",
                       "policy_id": "string",
                       "policy_type": "string",
+                      "principal": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ids": [
+                              "list",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
                       "update_time": "string"
                     }
                   ]

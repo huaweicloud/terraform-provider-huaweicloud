@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_public_zone_servers": {
+          "block": {
+            "attributes": {
+              "all_hw_dns": {
+                "type": "bool",
+                "description": "Whether all servers are HuaweiCloud DNS servers.",
+                "computed": true
+              },
+              "dns_servers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of DNS server addresses.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The domain name of the public zone.",
+                "required": true
+              },
+              "expected_dns_servers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of expected DNS server addresses.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "include_hw_dns": {
+                "type": "bool",
+                "description": "Whether HuaweiCloud DNS servers are included.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

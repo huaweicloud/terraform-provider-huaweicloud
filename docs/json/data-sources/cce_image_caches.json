@@ -15,10 +15,26 @@
                   [
                     "object",
                     {
+                      "building_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cluster": "string",
+                            "image_pull_secrets": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
                       "created_at": "string",
                       "id": "string",
                       "image_cache_size": "number",
-                      "images": "string",
+                      "images": [
+                        "list",
+                        "string"
+                      ],
                       "message": "string",
                       "name": "string",
                       "retention_days": "number",

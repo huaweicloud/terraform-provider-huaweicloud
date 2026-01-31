@@ -10,9 +10,7 @@
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource descriptions for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -23,22 +21,17 @@
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource IDs for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "names": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource names for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               },
               "status": {
@@ -46,9 +39,7 @@
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource status for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "transit_subnets": {
                 "type": [
@@ -83,27 +74,21 @@
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource subnet ids for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "virsubnet_project_ids": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource subnet project ids for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "vpc_ids": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "description": "Specifies the resource vpc ids for querying instances.",
-                "optional": true,
-                "computed": true
+                "optional": true
               }
             }
           },

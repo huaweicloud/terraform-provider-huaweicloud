@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_ransomware_backup_detail": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "required": true
+              },
+              "children": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "image_type": "string",
+                      "name": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_size": "number",
+                      "resource_type": "string",
+                      "status": "string",
+                      "vault_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_name": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_size": {
+                "type": "number",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

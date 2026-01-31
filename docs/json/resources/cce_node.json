@@ -197,8 +197,7 @@
                       "type": "string",
                       "required": true
                     }
-                  },
-                  "description": "schema:{\"Required\":true};"
+                  }
                 },
                 "nesting_mode": "list"
               },

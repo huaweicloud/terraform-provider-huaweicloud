@@ -63,7 +63,8 @@
               },
               "protocol": {
                 "type": "string",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "sso_type": {

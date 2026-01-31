@@ -2,34 +2,41 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_enterprise_project_configs": {
+        "huaweicloud_dds_tags": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "support_item_attribute": {
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "delete_ep_support_attribute": "bool"
+                      "key": "string",
+                      "values": [
+                        "list",
+                        "string"
+                      ]
                     }
                   ]
                 ],
-                "description": "The list of configurations.",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "EPS",
-            "name": "Enterprise Project Management Service",
-            "catalog": "Management & Governance",
-            "name_cn": "企业项目管理服务",
-            "catalog_cn": "管理与监管"
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
           }
         }
       }

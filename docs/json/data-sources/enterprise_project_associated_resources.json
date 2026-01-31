@@ -44,14 +44,6 @@
                 "type": "string",
                 "computed": true
               },
-              "project_id": {
-                "type": "string",
-                "required": true
-              },
-              "region_id": {
-                "type": "string",
-                "required": true
-              },
               "resource_id": {
                 "type": "string",
                 "required": true

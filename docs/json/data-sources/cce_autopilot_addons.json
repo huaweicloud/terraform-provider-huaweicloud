@@ -7,12 +7,10 @@
             "attributes": {
               "addon_template_name": {
                 "type": "string",
-                "description": "The template name of addon.",
                 "optional": true
               },
               "cluster_id": {
                 "type": "string",
-                "description": "The ID of the cluster.",
                 "required": true
               },
               "id": {
@@ -25,6 +23,8 @@
                   [
                     "object",
                     {
+                      "api_version": "string",
+                      "kind": "string",
                       "metadata": [
                         "list",
                         [
@@ -61,7 +61,7 @@
                             "cluster_id": "string",
                             "description": "string",
                             "values": [
-                              "list",
+                              "map",
                               "string"
                             ],
                             "version": "string"
@@ -129,7 +129,6 @@
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               }
             }

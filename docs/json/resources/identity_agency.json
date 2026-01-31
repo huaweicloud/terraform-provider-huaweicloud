@@ -22,8 +22,7 @@
               },
               "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "domain_roles": {
                 "type": [

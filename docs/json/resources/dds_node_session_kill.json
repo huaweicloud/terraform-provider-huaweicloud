@@ -1,37 +1,37 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_cce_chart_values": {
+      "resource_schemas": {
+        "huaweicloud_dds_node_session_kill": {
           "block": {
             "attributes": {
-              "chart_id": {
-                "type": "string",
-                "required": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "values": {
+              "sessions": {
                 "type": [
-                  "map",
+                  "list",
                   "string"
                 ],
-                "computed": true
+                "required": true
               }
             }
           },
           "product": {
-            "short": "CCE",
-            "name": "Cloud Container Engine",
-            "catalog": "Containers",
-            "name_cn": "云容器引擎",
-            "catalog_cn": "容器"
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
           }
         }
       }

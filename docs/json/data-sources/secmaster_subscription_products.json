@@ -1,0 +1,173 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_subscription_products": {
+          "block": {
+            "attributes": {
+              "basic": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "large_screen": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "log_analysis": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "log_collection": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "log_retention": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "professional": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "soar": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "standard": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "region_id": "string",
+                      "resource_size_measure_id": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "usage_factor": "string",
+                      "usage_measure_id": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

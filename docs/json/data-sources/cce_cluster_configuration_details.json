@@ -18,8 +18,10 @@
                 "optional": true
               },
               "configurations": {
-                "type": "string",
-                "description": "The configurations of the cce cluster.",
+                "type": [
+                  "map",
+                  "string"
+                ],
                 "computed": true
               },
               "id": {

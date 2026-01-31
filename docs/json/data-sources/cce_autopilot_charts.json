@@ -35,7 +35,6 @@
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               }
             }

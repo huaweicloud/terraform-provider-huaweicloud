@@ -382,8 +382,21 @@
                   },
                   "description": "The policy backends of the FunctionGraph function."
                 },
-                "nesting_mode": "set",
+                "nesting_mode": "list",
                 "max_items": 5
+              },
+              "func_graph_policy_order": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the function graph policy.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of function graph policies that used to reorder the 'func_graph_policy' parameter."
+                },
+                "nesting_mode": "list"
               },
               "mock": {
                 "block": {
@@ -540,8 +553,21 @@
                   },
                   "description": "The mock policy backends."
                 },
-                "nesting_mode": "set",
+                "nesting_mode": "list",
                 "max_items": 5
+              },
+              "mock_policy_order": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the mock policy.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of mock policies that used to reorder the 'mock_policy' parameter."
+                },
+                "nesting_mode": "list"
               },
               "request_params": {
                 "block": {
@@ -628,8 +654,21 @@
                   },
                   "description": "The configurations of the front-end parameters."
                 },
-                "nesting_mode": "set",
+                "nesting_mode": "list",
                 "max_items": 50
+              },
+              "request_params_order": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the request parameter.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of request parameters that used to reorder the 'request_params' parameter."
+                },
+                "nesting_mode": "list"
               },
               "web": {
                 "block": {
@@ -855,8 +894,21 @@
                   },
                   "description": "The web policy backends."
                 },
-                "nesting_mode": "set",
+                "nesting_mode": "list",
                 "max_items": 5
+              },
+              "web_policy_order": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the web policy.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of web policies that used to reorder the 'web_policy' parameter."
+                },
+                "nesting_mode": "list"
               }
             }
           },

@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_ransomware_backups": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_id": "string",
+                      "backup_name": "string",
+                      "backup_status": "string",
+                      "backup_tag": "number",
+                      "create_time": "string",
+                      "os_images_data": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "image_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_days": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

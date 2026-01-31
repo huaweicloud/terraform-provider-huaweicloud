@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lakeformation_instance": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the instance, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the instance.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default": {
+                "type": "bool",
+                "description": "Whether the instance is the default instance.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the instance is located.",
+                "computed": true
+              },
+              "shared": {
+                "type": "bool",
+                "description": "Whether the instance is shared.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the instance.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the instance.",
+                "optional": true,
+                "computed": true
+              },
+              "to_recycle_bin": {
+                "type": "bool",
+                "description": "Whether to put the instance into the recycle bin when delete postpaid instance.",
+                "optional": true,
+                "default": false
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time of the instance, in RFC3339 format.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "specs": {
+                "block": {
+                  "attributes": {
+                    "product_id": {
+                      "type": "string",
+                      "description": "The product ID of the specification.",
+                      "computed": true
+                    },
+                    "spec_code": {
+                      "type": "string",
+                      "description": "The specification code.",
+                      "required": true
+                    },
+                    "stride_num": {
+                      "type": "number",
+                      "description": "The stride number of the specification.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The list of specifications."
+                },
+                "nesting_mode": "list"
+              },
+              "specs_origin": {
+                "block": {
+                  "attributes": {
+                    "product_id": {
+                      "type": "string",
+                      "description": "The product ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "spec_code": {
+                      "type": "string",
+                      "description": "The specification code.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "stride_num": {
+                      "type": "number",
+                      "description": "The stride number.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\nthe new value next time the change is made. The corresponding parameter name is 'specs'."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
