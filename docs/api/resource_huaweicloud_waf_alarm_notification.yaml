@@ -12,6 +12,8 @@ paths:
         POST:
             tag: WAF
     /v2/{project_id}/waf/alert/{alert_id}:
+        DELETE:
+            tag: WAF
         PUT:
             tag: WAF
     /v2/{project_id}/waf/alerts:

@@ -28,6 +28,9 @@ paths:
     /v3/{project_id}/instances/{instance_id}:
         DELETE:
             tag: DDS
+    /v3/{project_id}/instances/{instance_id}/auto-enlarge-volume-policy:
+        GET:
+            tag: DDS
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         GET:
             tag: DDS
@@ -104,6 +107,9 @@ paths:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/tags/action:
         POST:
+            tag: DDS
+    /v3/{project_id}/instances/auto-enlarge-volume-policies:
+        PUT:
             tag: DDS
     /v3/{project_id}/jobs:
         GET:

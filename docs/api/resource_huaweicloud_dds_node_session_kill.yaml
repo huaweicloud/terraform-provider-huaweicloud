@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dds_node_session_kill
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/nodes/{node_id}/session:
+        POST:
+            tag: DDS

@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lakeformation_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LakeFormation
+paths:
+    /v1/{project_id}/instances:
+        POST:
+            tag: LakeFormation
+    /v1/{project_id}/instances/{instance_id}:
+        DELETE:
+            tag: LakeFormation
+        GET:
+            tag: LakeFormation
+        PUT:
+            tag: LakeFormation
+    /v1/{project_id}/instances/{instance_id}/scale:
+        POST:
+            tag: LakeFormation
+    /v1/{project_id}/instances/{instance_id}/tags:
+        PUT:
+            tag: LakeFormation
