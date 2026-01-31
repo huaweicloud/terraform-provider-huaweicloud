@@ -3,27 +3,23 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_resource_tag"
 description: |-
-  Manages an IAM v5 resource tag within HuaweiCloud.
+  Manages an IAM resource tag within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_resource_tag
 
-Manages an IAM v5 resource tag within HuaweiCloud.
-
--> NOTE: You must have admin privileges to use this resource.
+Manages an IAM resource tag within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 variable "resource_id" {}
+variable "tags" {}
 
 resource "huaweicloud_identityv5_resource_tag" "test" {
   resource_type = "user"
   resource_id   = var.resource_id
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
+  tags          = var.tags
 }
 ```
 
@@ -31,17 +27,24 @@ resource "huaweicloud_identityv5_resource_tag" "test" {
 
 The following arguments are supported:
 
-* `resource_type` - (Required, String, NonUpdatable) Specifies the resource type, which can be `trust agency` or `user`.
+* `resource_type` - (Required, String, NonUpdatable) Specifies the resource type to be associated with the tags.  
+  The valid values are as follows:
+  + **agency**
+  + **user**
 
-* `resource_id` - (Required, String, NonUpdatable) Specifies the resource id, a string of 1 to 64 characters containing
-  only letters, numbers, and hyphens ("-").
+* `resource_id` - (Required, String, NonUpdatable) Specifies the resource ID to be associated with the tags.
 
-* `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
+* `tags` - (Optional, Map) Specifies the key/value pairs to be associated with the resource.
+
+## Attributes Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
 
 ## Import
 
-Resource tag can be imported using the `<resource_type>/<resource_id>`. For example,
-if you have resource_type `user` and resource_id `xxxx`, you should use `user/xxxx` to import.
+The resource can be imported using `resource_type` and `resource_id`, separated by a slash, e.g.
 
 ```bash
 $ terraform import huaweicloud_identityv5_resource_tag.test <resource_type>/<resource_id>

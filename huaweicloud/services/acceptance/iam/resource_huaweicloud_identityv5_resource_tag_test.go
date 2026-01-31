@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5ResourceTagResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,16 +17,8 @@ func getV5ResourceTagResourceFunc(cfg *config.Config, state *terraform.ResourceS
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getResourceTagHttpUrl := "v5/{resource_type}/{resource_id}/tags"
-	getResourceTagPath := client.Endpoint + getResourceTagHttpUrl
-	getResourceTagPath = strings.ReplaceAll(getResourceTagPath, "{resource_type}", state.Primary.Attributes["resource_type"])
-	getResourceTagPath = strings.ReplaceAll(getResourceTagPath, "{resource_id}", state.Primary.Attributes["resource_id"])
-	getResourceTagOpt := golangsdk.RequestOpts{KeepResponseBody: true}
-	getResourceTagResp, err := client.Request("GET", getResourceTagPath, &getResourceTagOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM resource tag: %s", err)
-	}
-	return utils.FlattenResponse(getResourceTagResp)
+
+	return iam.GetV5ResourceTagsById(client, state.Primary.Attributes["resource_type"], state.Primary.Attributes["resource_id"])
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
