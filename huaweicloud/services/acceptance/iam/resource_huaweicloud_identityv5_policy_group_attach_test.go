@@ -19,7 +19,7 @@ func getV5PolicyGroupAttachResourceFunc(cfg *config.Config, state *terraform.Res
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	return iam.GetGroupAttachedIdentityV5Policy(client, state.Primary.Attributes["group_id"], state.Primary.Attributes["policy_id"])
+	return iam.GetV5GroupAttachedPolicy(client, state.Primary.Attributes["group_id"], state.Primary.Attributes["policy_id"])
 }
 
 func TestAccV5PolicyGroupAttach_basic(t *testing.T) {

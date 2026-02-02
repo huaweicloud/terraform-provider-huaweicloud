@@ -19,7 +19,7 @@ func getV5PolicyUserAttachResourceFunc(cfg *config.Config, state *terraform.Reso
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	return iam.GetUserAttachedIdentityV5Policy(client, state.Primary.Attributes["user_id"], state.Primary.Attributes["policy_id"])
+	return iam.GetV5UserAttachedPolicy(client, state.Primary.Attributes["user_id"], state.Primary.Attributes["policy_id"])
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.

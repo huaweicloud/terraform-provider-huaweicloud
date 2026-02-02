@@ -15,17 +15,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var policyV5DefaultVersionNonUpdatableParams = []string{"policy_id", "version_id"}
+var v5PolicyDefaultVersionNonUpdatableParams = []string{"policy_id", "version_id"}
 
 // @API IAM POST /v5/policies/{policy_id}/versions/{version_id}/set-default
-func ResourceIamV5PolicyDefaultVersion() *schema.Resource {
+func ResourceV5PolicyDefaultVersion() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIamV5PolicyDefaultVersionCreate,
-		ReadContext:   resourceIamV5PolicyDefaultVersionRead,
-		UpdateContext: resourceIamV5PolicyDefaultVersionUpdate,
-		DeleteContext: resourceIamV5PolicyDefaultVersionDelete,
+		CreateContext: resourceV5PolicyDefaultVersionCreate,
+		ReadContext:   resourceV5PolicyDefaultVersionRead,
+		UpdateContext: resourceV5PolicyDefaultVersionUpdate,
+		DeleteContext: resourceV5PolicyDefaultVersionDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(policyV5DefaultVersionNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(v5PolicyDefaultVersionNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
@@ -48,7 +48,7 @@ func ResourceIamV5PolicyDefaultVersion() *schema.Resource {
 	}
 }
 
-func resourceIamV5PolicyDefaultVersionCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyDefaultVersionCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		policyId  = d.Get("policy_id").(string)
@@ -83,15 +83,15 @@ func resourceIamV5PolicyDefaultVersionCreate(_ context.Context, d *schema.Resour
 	return nil
 }
 
-func resourceIamV5PolicyDefaultVersionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5PolicyDefaultVersionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIamV5PolicyDefaultVersionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5PolicyDefaultVersionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIamV5PolicyDefaultVersionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5PolicyDefaultVersionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is a one-time action resource used to set the default version of an identity policy. Deleting this
 	resource will not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
