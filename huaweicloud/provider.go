@@ -765,6 +765,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
+			"huaweicloud_ccm_certificates_by_tags":       ccm.DataSourceCertificatesByTags(),
 			"huaweicloud_ccm_private_cas":                ccm.DataSourcePrivateCas(),
 			"huaweicloud_ccm_private_ca_export":          ccm.DataSourcePrivateCaExport(),
 			"huaweicloud_ccm_private_ca_quota":           ccm.DataSourceCcmPrivateCaQuota(),
