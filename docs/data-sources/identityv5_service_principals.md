@@ -3,10 +3,12 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_service_principals"
 description: |-
-  Use this data source to get the list of services principals in the Identity and Access Management V5 service.
+  Use this data source to get the list of services principals within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_service_principals
+
+Use this data source to get the list of services principals within HuaweiCloud.
 
 ## Example Usage
 
@@ -18,24 +20,29 @@ data "huaweicloud_identityv5_service_principals" "test" {}
 
 The following arguments are supported:
 
-* `language` - (Optional, String) Specifies select the language of the information returned by the interface,
-  which can be Chinese ("zh-cn") or English ("en-us"), with Chinese as the default.
-  Default value: zh-cn
+* `language` - (Optional, String) Specifies the language of the information returned by the interface.  
+  The valid values are as follows:
+  + **zh-cn**
+  + **en-us**
+
+  Defaults to **zh-cn**.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `service_principals` - A list of service principals. Each element contains the following attributes:
-  The [service_principals](#Identityv5_principals) structure is documented below.
+* `id` - The data source ID.
 
-<a name="Identityv5_principals"></a>
+* `service_principals` - The list of service principals.  
+  The [service_principals](#Identityv5_service_principals) structure is documented below.
+
+<a name="Identityv5_service_principals"></a>
 The `service_principals` block supports:
 
-* `service_principal` - Indicates the ID of the service principal.
+* `service_principal` - The ID of the service principal.
 
-* `description` - Indicates the description of the service principal.
+* `description` - The description of the service principal.
 
-* `display_name` - Indicates the display name of the service principal.
+* `display_name` - The display name of the service principal.
 
-* `service_catalog` - Indicates the cloud service name.
+* `service_catalog` - The cloud service name.
