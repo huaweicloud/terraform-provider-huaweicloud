@@ -3,12 +3,12 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_resource_tags"
 description: |-
-    Use this data source to query resource tag information.
+  Use this data source to query resource tag list within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_resource_tags
 
-Use this data source to query resource tag information.
+Use this data source to query resource tag list within HuaweiCloud.
 
 ## Example Usage
 
@@ -25,23 +25,17 @@ data "huaweicloud_identityv5_resource_tags" "test" {
 
 The following arguments are supported:
 
-* `resource_type` - (Required, String) Specifies the resource type, can be `trust agency` or `user`.
+* `resource_id` - (Required, String) Specifies the resource ID to be queried.
 
-* `resource_id` - (Required, String) Specifies the resource id, length is 1 to 64 characters,
-  only contains letters, numbers and `-` string.
+* `resource_type` - (Required, String) Specifies the resource type to be queried.  
+  The valid values are as follows:
+  + **agency**
+  + **user**
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `tags` - Indicates the custom tag list.
-  The [tags](#Identityv5_tags) structure is documented below.
+* `id` - The data source ID.
 
-<a name="Identityv5_tags"></a>
-The `tags` block supports:
-
-* `tag_key` - Indicates the tag key, can contain letters, numbers, spaces and any combination of symbols
-  `_`, `.`, `:`, `=`, `+`, `-`, `@`, but cannot start with space or begin with `_sys_`, length range [1,64].
-
-* `tag_value` - Indicates the tag value, can contain letters, numbers, spaces and any combination of symbols
-  `_`, `.`, `:`, `/`, `=`, `+`, `-`, `@`, can be empty string, length range [0,128].
+* `tags` - The key/value pairs associated with the resource.  
