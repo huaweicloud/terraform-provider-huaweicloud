@@ -10,9 +10,11 @@ import (
 )
 
 func TestAccDataSourceTmsResourceTags_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_tms_resource_tags.test"
-	name := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_tms_resource_tags.test"
+		name       = acceptance.RandomAccResourceName()
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -37,7 +39,7 @@ func TestAccDataSourceTmsResourceTags_basic(t *testing.T) {
 func testDataSourceTmsResourceTags_base(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_identity_projects" "test" {
-  name = "ap-southeast-1"
+  name = "cn-north-4"
 }
 
 resource "huaweicloud_vpc" "vpc_1" {
@@ -57,7 +59,6 @@ resource "huaweicloud_vpc" "vpc_2" {
     k3 = "v3"
   }
 }
-
 `, name)
 }
 
@@ -69,6 +70,7 @@ data "huaweicloud_tms_resource_tags" "test" {
   resource_types = "vpc"
   project_id     = data.huaweicloud_identity_projects.test.projects[0].id
 }
+
 output "huaweicloud_tms_resource_tags_length" {
   value = length(data.huaweicloud_tms_resource_tags.test.tags) >= 3
 }

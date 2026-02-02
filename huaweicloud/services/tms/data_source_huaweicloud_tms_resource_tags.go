@@ -39,7 +39,7 @@ func DataSourceTmsResourceTags() *schema.Resource {
 			"errors": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        tmsRessourceTagsErrorsSchema(),
+				Elem:        tmsResourceTagsErrorsSchema(),
 				Description: `Indicates the tag error.`,
 			},
 		},
@@ -63,7 +63,7 @@ func tmsResourceTagsSchema() *schema.Resource {
 	return &sc
 }
 
-func tmsRessourceTagsErrorsSchema() *schema.Resource {
+func tmsResourceTagsErrorsSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"error_code": {
