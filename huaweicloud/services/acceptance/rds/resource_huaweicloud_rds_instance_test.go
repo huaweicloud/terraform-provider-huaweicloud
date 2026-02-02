@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -921,6 +922,8 @@ func testAccRdsInstance_mysql_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
   db_version    = "8.0"
@@ -932,9 +935,9 @@ data "huaweicloud_rds_flavors" "test" {
 resource "huaweicloud_rds_instance" "test" {
   name                   = "%[2]s"
   flavor                 = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id      = data.huaweicloud_networking_secgroup.test.id
-  subnet_id              = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                 = data.huaweicloud_vpc.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable             = true  
   binlog_retention_hours = "12"
@@ -944,9 +947,9 @@ resource "huaweicloud_rds_instance" "test" {
   seconds_level_monitoring_interval = 1
 
   db {
-    type     = "MySQL"
-    version  = "8.0"
-    port     = 3306
+    type    = "MySQL"
+    version = "8.0"
+    port    = 3306
   }
 
   backup_strategy {
@@ -967,7 +970,7 @@ resource "huaweicloud_rds_instance" "test" {
     value = "2000"
   }
 }
-`, testAccRdsInstance_base(), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccRdsInstance_mysql_step2(name string) string {
@@ -975,6 +978,8 @@ func testAccRdsInstance_mysql_step2(name string) string {
 %[1]s
 
 %[2]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
@@ -987,9 +992,9 @@ data "huaweicloud_rds_flavors" "test" {
 resource "huaweicloud_rds_instance" "test" {
   name                   = "%[3]s"
   flavor                 = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id      = data.huaweicloud_networking_secgroup.test.id
-  subnet_id              = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                 = data.huaweicloud_vpc.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable             = false
   param_group_id         = huaweicloud_rds_parametergroup.test.id
@@ -1024,7 +1029,7 @@ resource "huaweicloud_rds_instance" "test" {
     value = "14"
   }
 }
-`, testAccRdsInstance_base(), testAccRdsConfig_basic(name), name)
+`, common.TestBaseNetwork(name), testAccRdsConfig_basic(name), name)
 }
 
 func testAccRdsInstance_mysql_step3(name string) string {
@@ -1032,6 +1037,8 @@ func testAccRdsInstance_mysql_step3(name string) string {
 %[1]s
 
 %[2]s
+
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
@@ -1044,9 +1051,9 @@ data "huaweicloud_rds_flavors" "test" {
 resource "huaweicloud_rds_instance" "test" {
   name                   = "%[3]s"
   flavor                 = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id      = data.huaweicloud_networking_secgroup.test.id
-  subnet_id              = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                 = data.huaweicloud_vpc.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable             = false
   param_group_id         = huaweicloud_rds_parametergroup.test.id
@@ -1072,7 +1079,7 @@ resource "huaweicloud_rds_instance" "test" {
     value = "14"
   }
 }
-`, testAccRdsInstance_base(), testAccRdsConfig_basic(name), name)
+`, common.TestBaseNetwork(name), testAccRdsConfig_basic(name), name)
 }
 
 func testAccRdsInstance_mysql_power_action(name, action string, status []string) string {

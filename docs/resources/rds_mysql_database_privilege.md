@@ -74,6 +74,8 @@ This resource provides the following timeouts configuration options:
 
 RDS database privilege can be imported using the `instance id` and `db_name`, e.g.
 
+-> **NOTE:** All authorized users of the database will be imported.
+
 ```bash
 $ terraform import huaweicloud_rds_mysql_database_privilege.test <instance_id>/<db_name>
 ```

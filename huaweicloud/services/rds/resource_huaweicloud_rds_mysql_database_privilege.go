@@ -179,7 +179,7 @@ func resourceMysqlDatabasePrivilegeRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	users := flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(getMysqlDatabasePrivilegeRespBody)
+	users := flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(d, getMysqlDatabasePrivilegeRespBody)
 	if len(users) == 0 {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
@@ -195,16 +195,29 @@ func resourceMysqlDatabasePrivilegeRead(_ context.Context, d *schema.ResourceDat
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(resp interface{}) []interface{} {
+func flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(d *schema.ResourceData, resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
+	usersRaw := d.Get("users").(*schema.Set)
+	userNames := make(map[string]bool)
+	for _, userRaw := range usersRaw.List() {
+		v := userRaw.(map[string]interface{})
+		userNames[v["name"].(string)] = true
+	}
+
 	curJson := utils.PathSearch("users", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
+		name := utils.PathSearch("name", v, "").(string)
+		// for import, all users will be imported
+		if len(userNames) > 0 && !userNames[name] {
+			continue
+		}
+
 		rst = append(rst, map[string]interface{}{
-			"name":     utils.PathSearch("name", v, nil),
+			"name":     name,
 			"readonly": utils.PathSearch("readonly", v, nil),
 		})
 	}
