@@ -15,64 +15,72 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceIdentityv5ServiceLinkedAgency
 // @API IAM PUT /v5/service-linked-agencies
-func ResourceIdentityv5ServiceLinkedAgency() *schema.Resource {
+func ResourceV5ServiceLinkedAgency() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceServiceLinkedAgencyCreate,
-		ReadContext:   resourceServiceLinkedAgencyRead,
-		DeleteContext: resourceServiceLinkedAgencyDelete,
+		CreateContext: resourceV5ServiceLinkedAgencyCreate,
+		ReadContext:   resourceV5ServiceLinkedAgencyRead,
+		DeleteContext: resourceV5ServiceLinkedAgencyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"service_principal": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The service principal of the service-linked agency.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The description of the service-linked agency.`,
 			},
-
 			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The uniform resource name of the service-linked agency.`,
 			},
 			"trust_policy": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The policy document of the service-linked agency, in JSON format.`,
 			},
 			"agency_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the service-linked agency.`,
 			},
 			"agency_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the service-linked agency.`,
 			},
 			"path": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource path of the service-linked agency, in 'service-linked-agency/<service_principal>/' format.`,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the service-linked agency.`,
 			},
 			"max_session_duration": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The maximum session duration of the service-linked agency, in seconds.`,
 			},
 		},
 	}
 }
 
-func resourceServiceLinkedAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5ServiceLinkedAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	serviceLinkedAgencyPath := client.Endpoint + "v5/service-linked-agencies"
 	options := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -83,35 +91,51 @@ func resourceServiceLinkedAgencyCreate(ctx context.Context, d *schema.ResourceDa
 	}
 	response, err := client.Request("PUT", serviceLinkedAgencyPath, &options)
 	if err != nil {
-		return diag.Errorf("error createFederationToken: %s", err)
+		return diag.Errorf("error creating service-linked agency: %s", err)
 	}
+
 	responseBody, err := utils.FlattenResponse(response)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(utils.PathSearch("agency.agency_id", responseBody, nil).(string))
-	return resourceServiceLinkedAgencyRead(ctx, d, meta)
+
+	agencyId := utils.PathSearch("agency.agency_id", responseBody, nil).(string)
+	if agencyId == "" {
+		return diag.Errorf("unable to find the agency ID from the API response")
+	}
+
+	d.SetId(agencyId)
+	return resourceV5ServiceLinkedAgencyRead(ctx, d, meta)
 }
 
-func resourceServiceLinkedAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func GetV5ServiceLinkedAgencyById(client *golangsdk.ServiceClient, agencyId string) (interface{}, error) {
+	getAgencyHttpUrl := "v5/agencies/{agency_id}"
+	getAgencyPath := client.Endpoint + getAgencyHttpUrl
+	getAgencyPath = strings.ReplaceAll(getAgencyPath, "{agency_id}", agencyId)
+	getAgencyOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getAgencyResp, err := client.Request("GET", getAgencyPath, &getAgencyOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getAgencyResp)
+}
+
+func resourceV5ServiceLinkedAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	path := client.Endpoint + "v5/agencies/{agency_id}"
-	path = strings.ReplaceAll(path, "{agency_id}", d.Id())
-	reqOpt := &golangsdk.RequestOpts{KeepResponseBody: true}
-	r, err := client.Request("GET", path, reqOpt)
+	resp, err := GetV5ServiceLinkedAgencyById(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving agency")
+		return common.CheckDeletedDiag(d, err, "error retrieving service-linked agency")
 	}
-	resp, err := utils.FlattenResponse(r)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	mErr := multierror.Append(nil,
+
+	mErr := multierror.Append(
 		d.Set("urn", utils.PathSearch("agency.urn", resp, nil)),
 		d.Set("trust_policy", utils.PathSearch("agency.trust_policy", resp, nil)),
 		d.Set("agency_id", utils.PathSearch("agency.agency_id", resp, nil)),
@@ -123,9 +147,9 @@ func resourceServiceLinkedAgencyRead(_ context.Context, d *schema.ResourceData, 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceServiceLinkedAgencyDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting service linked agency resource is not supported. The service-linked-agency is only removed " +
-		"from the state, but it remains in the cloud."
+func resourceV5ServiceLinkedAgencyDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is only a one-time action resource for creating the service-linked agency. Deleting this resource will
+not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

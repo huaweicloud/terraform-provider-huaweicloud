@@ -15,27 +15,28 @@ import (
 
 var v5UserPasswordNonUpdatableParams = []string{"new_password", "old_password"}
 
-// ResourceIdentityV5UserPassword
 // @API IAM POST /v5/caller-password
-func ResourceIdentityV5UserPassword() *schema.Resource {
+func ResourceV5UserPassword() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5UserPasswordCreate,
-		ReadContext:   resourceIdentityV5UserPasswordRead,
-		UpdateContext: resourceIdentityV5UserPasswordCreate,
-		DeleteContext: resourceIdentityV5UserPasswordDelete,
+		CreateContext: resourceV5UserPasswordCreate,
+		ReadContext:   resourceV5UserPasswordRead,
+		UpdateContext: resourceV5UserPasswordCreate,
+		DeleteContext: resourceV5UserPasswordDelete,
 
 		CustomizeDiff: config.FlexibleForceNew(v5UserPasswordNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"new_password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: `The new password of the user.`,
 			},
 			"old_password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: `The old password of the user.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -47,7 +48,7 @@ func ResourceIdentityV5UserPassword() *schema.Resource {
 	}
 }
 
-func resourceIdentityV5UserPasswordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5UserPasswordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -56,7 +57,6 @@ func resourceIdentityV5UserPasswordCreate(_ context.Context, d *schema.ResourceD
 
 	changePasswordPath := iamClient.Endpoint + "v5/caller-password"
 	options := golangsdk.RequestOpts{
-		OkCodes: []int{200},
 		JSONBody: map[string]interface{}{
 			"new_password": d.Get("new_password").(string),
 			"old_password": d.Get("old_password").(string),
@@ -64,22 +64,26 @@ func resourceIdentityV5UserPasswordCreate(_ context.Context, d *schema.ResourceD
 	}
 	_, err = iamClient.Request("POST", changePasswordPath, &options)
 	if err != nil {
-		return diag.Errorf("error change password: %s", err)
+		return diag.Errorf("error changing user password: %s", err)
 	}
+
 	userId, err := getUserId(cfg)
 	if err != nil {
-		return diag.Errorf("error retrieving user id: %s", err)
+		return diag.Errorf("error retrieving current user ID: %s", err)
 	}
+
 	d.SetId(userId)
+
 	return nil
 }
 
-func resourceIdentityV5UserPasswordRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV5UserPasswordRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIdentityV5UserPasswordDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting password is not supported. The password is only removed from the state, but it remains in the cloud."
+func resourceV5UserPasswordDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is only a one-time action resource for changing user password. Deleting this resource will
+not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
