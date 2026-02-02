@@ -764,14 +764,15 @@ var (
 	HW_HSS_HOST_ID1                           = os.Getenv("HW_HSS_HOST_ID1")
 	HW_HSS_HOST_ID2                           = os.Getenv("HW_HSS_HOST_ID2")
 	// The vulnerability ID
-	HW_HSS_VUL_ID      = os.Getenv("HW_HSS_VUL_ID")
-	HW_HSS_POLICY_ID   = os.Getenv("HW_HSS_POLICY_ID")
-	HW_HSS_DOMAIN      = os.Getenv("HW_HSS_DOMAIN")
-	HW_HSS_IAC_FILE_ID = os.Getenv("HW_HSS_IAC_FILE_ID")
-	HW_HSS_TASK_ID     = os.Getenv("HW_HSS_TASK_ID")
-	HW_HSS_AGENT_ID    = os.Getenv("HW_HSS_AGENT_ID")
-	HW_HSS_IMAGE_ID    = os.Getenv("HW_HSS_IMAGE_ID")
-	HW_HSS_BACKUP_ID   = os.Getenv("HW_HSS_BACKUP_ID")
+	HW_HSS_VUL_ID        = os.Getenv("HW_HSS_VUL_ID")
+	HW_HSS_POLICY_ID     = os.Getenv("HW_HSS_POLICY_ID")
+	HW_HSS_DOMAIN        = os.Getenv("HW_HSS_DOMAIN")
+	HW_HSS_IAC_FILE_ID   = os.Getenv("HW_HSS_IAC_FILE_ID")
+	HW_HSS_TASK_ID       = os.Getenv("HW_HSS_TASK_ID")
+	HW_HSS_AGENT_ID      = os.Getenv("HW_HSS_AGENT_ID")
+	HW_HSS_IMAGE_ID      = os.Getenv("HW_HSS_IMAGE_ID")
+	HW_HSS_BACKUP_ID     = os.Getenv("HW_HSS_BACKUP_ID")
+	HW_HSS_CHECK_RULE_ID = os.Getenv("HW_HSS_CHECK_RULE_ID")
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
@@ -4130,6 +4131,13 @@ func TestAccPreCheckHSSImageId(t *testing.T) {
 func TestAccPreCheckHSSBackupId(t *testing.T) {
 	if HW_HSS_BACKUP_ID == "" {
 		t.Skip("HW_HSS_BACKUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSCheckRuleId(t *testing.T) {
+	if HW_HSS_CHECK_RULE_ID == "" {
+		t.Skip("HW_HSS_CHECK_RULE_ID must be set for the acceptance test")
 	}
 }
 
