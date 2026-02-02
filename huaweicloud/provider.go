@@ -1643,10 +1643,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_identityv5_policies":                 iam.DataSourceIdentityV5Policies(),
 			"huaweicloud_identityv5_policy_versions":          iam.DataSourceIdentityV5PolicyVersions(),
 			"huaweicloud_identityv5_policy_attached_entities": iam.DataSourceIdentityV5PolicyAttachedEntities(),
-			"huaweicloud_identityv5_agency_attached_policies": iam.DataSourceIdentityV5AgencyAttachedPolicies(),
-			"huaweicloud_identityv5_group_attached_policies":  iam.DataSourceIdentityV5GroupAttachedPolicies(),
+			"huaweicloud_identityv5_agency_attached_policies": iam.DataSourceV5AgencyAttachedPolicies(),
+			"huaweicloud_identityv5_group_attached_policies":  iam.DataSourceV5GroupAttachedPolicies(),
 			"huaweicloud_identityv5_authorization_schema":     iam.DataSourceIdentityV5AuthorizationSchema(),
-			"huaweicloud_identityv5_user_attached_policies":   iam.DataSourceIdentityV5UserAttachedPolicies(),
+			"huaweicloud_identityv5_user_attached_policies":   iam.DataSourceV5UserAttachedPolicies(),
 			"huaweicloud_identityv5_access_key":               iam.DataSourceIdentityV5AccessKey(),
 
 			"huaweicloud_identitycenter_access_control_attribute_configurations": identitycenter.DataSourceAccessControlAttributeConfigurations(),
