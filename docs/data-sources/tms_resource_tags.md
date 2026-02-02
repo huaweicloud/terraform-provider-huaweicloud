@@ -13,9 +13,12 @@ Use this data source to get the list of tags by resource type.
 ## Example Usage
 
 ```hcl
+variable "resource_types" {}
+variable "project_id" {}
+
 data "huaweicloud_tms_resource_tags" "test" {
-  resource_types = "test_resource_type"
-  project_id     = "test_project_id"
+  resource_types = var.resource_types
+  project_id     = var.project_id
 }
 ```
 
@@ -32,10 +35,12 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `tags` - Indicates the list of tags.
-The [tags](#tags_struct) structure is documented below.
+
+  The [tags](#tags_struct) structure is documented below.
 
 * `errors` - Indicates the list of errors.
-The [errors](#errors_struct) structure is documented below.
+
+  The [errors](#errors_struct) structure is documented below.
 
 <a name="tags_struct"></a>
 The `tags` block supports:
