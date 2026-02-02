@@ -60,7 +60,7 @@ var (
 	HW_ADMIN                               = os.Getenv("HW_ADMIN")
 	HW_IAM_V5                              = os.Getenv("HW_IAM_V5")
 	HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL = os.Getenv("HW_IAM_SERVICE_LINKED_AGENCY_PRINCIPAL")
-	HW_RUNNER_PUBLIC_IP                    = os.Getenv("HW_RUNNER_PUBLIC_IP")
+	HW_RUNNER_PUBLIC_IPS                   = os.Getenv("HW_RUNNER_PUBLIC_IPS")
 
 	// CBR environment
 	HW_CBR_ECS_BACKUP_ID          = os.Getenv("HW_CBR_ECS_BACKUP_ID")          // The ECS backup ID.
@@ -1644,9 +1644,9 @@ func TestAccPreCheckServiceLinkedAgencyPrincipal(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckRunnerPublicIP(t *testing.T) {
-	if HW_RUNNER_PUBLIC_IP == "" {
-		t.Skip("HW_RUNNER_PUBLIC_IP must be set for this acceptance test.")
+func TestAccPreCheckRunnerPublicIPs(t *testing.T, min int) {
+	if HW_RUNNER_PUBLIC_IPS == "" || len(strings.Split(HW_RUNNER_PUBLIC_IPS, ",")) < min {
+		t.Skipf(`At least %d public IP(s) must be supported during the HW_RUNNER_PUBLIC_IPS, separated by commas (,).`, min)
 	}
 }
 
