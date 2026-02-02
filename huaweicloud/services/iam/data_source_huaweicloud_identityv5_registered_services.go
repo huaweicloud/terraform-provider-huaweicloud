@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,9 +15,9 @@ import (
 )
 
 // @API IAM GET /v5/authorization-schemas/registered-services
-func DataSourceIdentityV5RegisteredServices() *schema.Resource {
+func DataSourceV5RegisteredServices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5RegisteredServicesRead,
+		ReadContext: dataSourceV5RegisteredServicesRead,
 
 		Schema: map[string]*schema.Schema{
 			"service_codes": {
@@ -27,39 +26,47 @@ func DataSourceIdentityV5RegisteredServices() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: `The list of service codes.`,
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5RegisteredServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceV5RegisteredServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam", region)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	var allServices []interface{}
-	var marker string
-	var path string
-
+	var (
+		httpUrl     = "v5/authorization-schemas/registered-services"
+		allServices = make([]interface{}, 0)
+		// Default limit is 100, maximum is 200.
+		limit  = 200
+		marker = ""
+	)
+	listPath := client.Endpoint + fmt.Sprintf("%s?limit=%d", httpUrl, limit)
 	for {
-		path = client.Endpoint + "v5/authorization-schemas/registered-services" + buildListRegisteredServicesV5Params(marker)
+		listPathWithMarker := listPath + buildV5RegisteredServicesQueryParams(marker)
 		reqOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
-		r, err := client.Request("GET", path, &reqOpt)
+		r, err := client.Request("GET", listPathWithMarker, &reqOpt)
 		if err != nil {
 			return diag.Errorf("error retrieving registered services: %s", err)
 		}
+
 		resp, err := utils.FlattenResponse(r)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		services := flattenListRegisteredServicesV5Response(resp)
+		services := utils.PathSearch("service_codes", resp, make([]interface{}, 0)).([]interface{})
 		allServices = append(allServices, services...)
+		if len(services) < limit {
+			break
+		}
 
 		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
 		if marker == "" {
@@ -67,31 +74,19 @@ func dataSourceIdentityV5RegisteredServicesRead(_ context.Context, d *schema.Res
 		}
 	}
 
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	randomId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
 
-	mErr := multierror.Append(nil,
-		d.Set("service_codes", allServices),
-	)
+	d.SetId(randomId)
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	return diag.FromErr(d.Set("service_codes", allServices))
 }
 
-func buildListRegisteredServicesV5Params(marker string) string {
-	res := "?limit=100"
+func buildV5RegisteredServicesQueryParams(marker string) string {
 	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
+		return fmt.Sprintf("&marker=%v", marker)
 	}
-	return res
-}
-
-func flattenListRegisteredServicesV5Response(resp interface{}) []interface{} {
-	if resp == nil {
-		return nil
-	}
-
-	serviceCodes := utils.PathSearch("service_codes", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(serviceCodes))
-	copy(result, serviceCodes)
-	return result
+	return ""
 }

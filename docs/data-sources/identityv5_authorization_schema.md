@@ -13,7 +13,7 @@ Use this data source to get the list of IAM authorization schemas within HuaweiC
 ## Example Usage
 
 ```hcl
-data "huaweicloud_identityv5_authorization_schema" "schema" {
+data "huaweicloud_identityv5_authorization_schema" "test" {
   service_code = "iam"
 }
 ```
@@ -22,98 +22,94 @@ data "huaweicloud_identityv5_authorization_schema" "schema" {
 
 The following arguments are supported:
 
-* `service_code` - (Required, String) Specifies the service name abbreviation.
+* `service_code` - (Required, String) Specifies the service name abbreviation to be queried.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `actions` - Indicates the list of authorization items supported by the cloud service.
-  The [actions](#Authorization_action) structure is documented below.
+* `id` - The data source ID.
 
-* `conditions` - Indicates the list of condition keys supported by the cloud service.
-  The [conditions](#Authorization_condition) structure is documented below.
+* `actions` - The list of authorization items supported by the cloud service.  
+  The [actions](#v5_authorization_schema_actions) structure is documented below.
 
-* `operations` - Indicates the list of operations supported by the cloud service.
-  The [operations](#Authorization_operation) structure is documented below.
+* `conditions` - The list of condition keys supported by the cloud service.  
+  The [conditions](#v5_authorization_schema_conditions) structure is documented below.
 
-* `resources` - Indicates the list of resources supported by the cloud service.
-  The [resources](#Authorization_op_resource) structure is documented below.
+* `operations` - The list of operations supported by the cloud service.  
+  The [operations](#v5_authorization_schema_operations) structure is documented below.
 
-* `version` - Indicates version number of the service authorization summary.
+* `resources` - The list of resources supported by the cloud service.  
+  The [resources](#v5_authorization_schema_resources) structure is documented below.
 
-<a name="Authorization_action"></a>
+* `version` - The version number of the service authorization summary.
+
+<a name="v5_authorization_schema_actions"></a>
 The `actions` block supports:
 
-* `name` - Indicates the authorization item name.
+* `name` - The authorization item name.
 
-* `permission_only` - Indicates whether the authorization item is only used as a permission point and does not
+* `permission_only` - Whether the authorization item is only used as a permission point and does not
   correspond to any operation.
 
-* `resources` - Indicates the list of resources associated with the authorization item, used to define resource-level
-  permissions for the authorization item.
-  The [resources](#Authorization_resource) structure is documented below.
+* `resources` - The list of resources associated with the authorization item, used to define resource-level
+  permissions for the authorization item.  
+  The [resources](#v5_authorization_schema_actions_resources) structure is documented below.
 
-* `condition_keys` - Indicates service custom condition attributes and some global attributes for the authorization
-  item and resource, which only take effect when both the authorization item and resource match.
+* `access_level` - The access level granted when using this authorization item in a policy.
 
-* `access_level` - Indicates access level granted when using this authorization item in a policy.
+* `aliases` - The list of authorization item aliases.  
+  It is used to accommodate scenarios where authorization items are renamed or split into new authorization items.
 
-* `aliases` - Indicates list of authorization item aliases, used to accommodate scenarios where authorization items
-  are renamed or split into new authorization items.
+* `condition_keys` - The service custom conditional attribute list and some global attribute list supported by the
+  authorization items and are independent of the resources.
 
-* `condition_keys` - Indicates service custom condition attributes and some global attributes supported by the
-  authorization item, which are unrelated to resources.
+* `description` - The description of the authorization item.  
+  The [description](#v5_authorization_schema_description) structure is documented below.
 
-* `description` - Indicates description of the authorization item.
-  The [description](#Authorization_description) structure is documented below.
-
-<a name="Authorization_condition"></a>
+<a name="v5_authorization_schema_conditions"></a>
 The `conditions` block supports:
 
-* `description` - Indicates description of the condition key.
-  The [description](#Authorization_condition_description) structure is documented below.
+* `description` - The description of the condition key.  
+  The [description](#v5_authorization_schema_description) structure is documented below.
 
-* `key` - Indicates the condition key name.
+* `key` - The condition key name.
 
-* `multi_valued` - Indicates whether the condition value is multi-valued.
+* `multi_valued` - Whether the condition value is multi-valued.
 
-* `value_type` - Indicates data type of the condition value.
+* `value_type` - The data type of the condition value.
 
-<a name="Authorization_operation"></a>
+<a name="v5_authorization_schema_operations"></a>
 The `operations` block supports:
 
-* `dependent_actions` - Indicates other authorization items that this operation may require.
+* `dependent_actions` - The other authorization item list that this operation may require.
 
-* `operation_action` - Indicates the action of the operation.
+* `operation_action` - The action of the operation.
 
-* `operation_id` - Indicates OpenAPI operation identifier.
+* `operation_id` - The OpenAPI operation identifier.
 
-<a name="Authorization_op_resource"></a>
+<a name="v5_authorization_schema_resources"></a>
 The `resources` block supports:
 
-* `urn_template` - Indicates the uniform resource name template for the resource.
+* `urn_template` - The uniform resource name template for the resource.
 
-* `type_name` - Indicates the type name of the resource.
+* `type_name` - The type name of the resource.
 
-<a name="Authorization_resource"></a>
+<a name="v5_authorization_schema_actions_resources"></a>
 The `resources` block supports:
 
-* `required` - Indicates identifies whether the resource type is mandatory for this authorization item,
-  meaning the authorization item definitely involves operations on this type of resource.
+* `condition_keys` - The service custom conditional attribute list and some global attribute list supported
+  by the authorization item and resource.  
+  It only takes effect when both the authorization item and resource match.
 
-* `urn_template` - Indicates the uniform resource name template for the resource.
+* `required` - Whether the resource type is mandatory for this authorization item.  
+  It means the authorization item definitely involves operations on this type of resource.
 
-<a name="Authorization_description"></a>
+* `urn_template` - The uniform resource name template for the resource.
+
+<a name="v5_authorization_schema_description"></a>
 The `description` block supports:
 
-* `en_us` - Indicates English description.
+* `en_us` - The English description.
 
-* `zh_cn` - Indicates Chinese description.
-
-<a name="Authorization_condition_description"></a>
-The `description` block supports:
-
-* `en_us` - Indicates English description.
-
-* `zh_cn` - Indicates Chinese description.
+* `zh_cn` - The Chinese description.
