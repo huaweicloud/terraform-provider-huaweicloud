@@ -411,6 +411,7 @@ func TestAccDDSV3Instance_withAutoEnlargePolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "policy.0.threshold", "80"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.step", "10"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.size", "50"),
+					testAccCheckDDSV3InstanceFlavor(&instance, "replica", "num", 5),
 				),
 			},
 			{
@@ -422,6 +423,14 @@ func TestAccDDSV3Instance_withAutoEnlargePolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "policy.0.threshold", "90"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.step", "15"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.size", "500"),
+					testAccCheckDDSV3InstanceFlavor(&instance, "replica", "num", 5),
+				),
+			},
+			{
+				Config: testAccInstanceNodeDelete_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					testAccCheckDDSV3InstanceFlavor(&instance, "replica", "num", 3),
 				),
 			},
 			{
@@ -1396,8 +1405,8 @@ resource "huaweicloud_dds_instance" "test" {
   flavor {
     type      = "replica"
     storage   = "ULTRAHIGH"
-    num       = 3
-    size      = 20
+    num       = 5
+    size      = 10
     spec_code = "dds.mongodb.s6.large.2.repset"
   }
 
@@ -1436,8 +1445,48 @@ resource "huaweicloud_dds_instance" "test" {
   flavor {
     type      = "replica"
     storage   = "ULTRAHIGH"
+    num       = 5
+    size      = 10
+    spec_code = "dds.mongodb.s6.large.2.repset"
+  }
+
+  switch_option = "off"
+
+  policy {
+    threshold = 90
+    step      = 15
+    size      = 500
+  }
+}`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccInstanceNodeDelete_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "test" {
+  name                  = "%[2]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "ReplicaSet"
+  enterprise_project_id = "%[3]s"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "4.0"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "replica"
+    storage   = "ULTRAHIGH"
     num       = 3
-    size      = 20
+    size      = 10
     spec_code = "dds.mongodb.s6.large.2.repset"
   }
 

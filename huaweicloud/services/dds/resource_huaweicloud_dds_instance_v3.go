@@ -2,8 +2,10 @@ package dds
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"sort"
 	"strconv"
@@ -61,6 +63,8 @@ type ctxType string
 // @API DDS PUT /v3/{project_id}/instances/auto-enlarge-volume-policies
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/auto-enlarge-volume-policy
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
+// @API DDS DELETE /v3/{project_id}/instances/{instance_id}/nodes
+// @API DDS DELETE /v3/{project_id}/instances/{instance_id}/mongos-node
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -202,6 +206,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						"spec_code": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+						"node_list": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -1754,7 +1763,22 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 	oldNum := oldNumRaw.(int)
 	newNum := newNumRaw.(int)
 	if newNum < oldNum {
-		return fmt.Errorf("error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
+		// Delete replicaset or mongos nodes
+		nodeList := fmt.Sprintf("flavor.%d.node_list", i)
+		nodes := utils.ExpandToStringList(d.Get(nodeList).([]interface{}))
+		number := oldNum - newNum
+
+		respBody, err := deleteInstanceNodes(ctx, client, d, nodes, groupType, number)
+		if err != nil {
+			return nil
+		}
+
+		err = waitForDeleteInstanceNodesCompleted(ctx, conf, client, d, respBody)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	var numUpdateOpts []instances.UpdateOpt
@@ -1799,6 +1823,105 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func deleteInstanceNodes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	nodelist []string, nodeType string, nodeNum int) (interface{}, error) {
+	var (
+		httpUrl     = ""
+		requestBody = buildDeleteInstanceNodesBodyParams(nodelist)
+	)
+
+	if nodeType == "replica" {
+		httpUrl = "v3/{project_id}/instances/{instance_id}/nodes"
+		requestBody["num"] = nodeNum
+	}
+	if nodeType == "mongos" {
+		httpUrl = "v3/{project_id}/instances/{instance_id}/mongos-node"
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{instance_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(requestBody),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		requestResp, err := client.Request("DELETE", requestPath, &requestOpt)
+		retry, err := handleMultiOperationsError(err)
+		return requestResp, retry, err
+	}
+
+	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error deleting instance nodes: %s", err)
+	}
+
+	return utils.FlattenResponse(resp.(*http.Response))
+}
+
+func buildDeleteInstanceNodesBodyParams(nodelist []string) map[string]interface{} {
+	return map[string]interface{}{
+		"node_list": utils.ValueIgnoreEmpty(nodelist),
+	}
+}
+
+func waitForDeleteInstanceNodesCompleted(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	respBody interface{}) error {
+	region := cfg.GetRegion(d)
+	chareMode := d.Get("charging_mode").(string)
+
+	if chareMode == "prePaid" {
+		orderId := utils.PathSearch("order_id", respBody, "").(string)
+		if orderId == "" {
+			return errors.New("error deleting DDS instance node: unable to find order ID from the API response")
+		}
+
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	} else {
+		jobId := utils.PathSearch("job_id", respBody, "").(string)
+		if jobId == "" {
+			return errors.New("error deleting DDS instance node: unable to find job ID from the API response")
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"Running"},
+			Target:       []string{"Completed"},
+			Refresh:      JobStateRefreshFunc(client, jobId),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Delay:        60 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+
+		_, err := stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return fmt.Errorf("error waiting for the job (%s) completed: %s ", jobId, err)
+		}
+	}
+
 	return nil
 }
 
