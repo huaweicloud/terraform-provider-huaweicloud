@@ -9,9 +9,11 @@ import (
 )
 
 func TestAccIdentityRoleDataSource_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_role.role_1"
+	var (
+		all = "data.huaweicloud_identity_role.test"
 
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+		dc = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,24 +26,33 @@ func TestAccIdentityRoleDataSource_basic(t *testing.T) {
 				Config: testAccIdentityRoleDataSource_by_name,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "name", "system_all_64"),
-					resource.TestCheckResourceAttr(dataSourceName, "display_name", "OBS ReadOnlyAccess"),
+					resource.TestCheckResourceAttr(all, "name", "system_all_64"),
+					resource.TestCheckResourceAttr(all, "display_name", "OBS ReadOnlyAccess"),
+					resource.TestCheckResourceAttrSet(all, "catalog"),
+					resource.TestCheckResourceAttrSet(all, "type"),
+					resource.TestCheckResourceAttrSet(all, "policy"),
 				),
 			},
 			{
 				Config: testAccIdentityRoleDataSource_by_displayname,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "name", "kms_adm"),
-					resource.TestCheckResourceAttr(dataSourceName, "display_name", "KMS Administrator"),
+					resource.TestCheckResourceAttr(all, "name", "kms_adm"),
+					resource.TestCheckResourceAttr(all, "display_name", "KMS Administrator"),
+					resource.TestCheckResourceAttrSet(all, "catalog"),
+					resource.TestCheckResourceAttrSet(all, "type"),
+					resource.TestCheckResourceAttrSet(all, "policy"),
 				),
 			},
 			{
 				Config: testAccIdentityRoleDataSource_by_roleid,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "name", "kms_adm"),
-					resource.TestCheckResourceAttr(dataSourceName, "display_name", "KMS Administrator"),
+					resource.TestCheckResourceAttr(all, "name", "kms_adm"),
+					resource.TestCheckResourceAttr(all, "display_name", "KMS Administrator"),
+					resource.TestCheckResourceAttrSet(all, "catalog"),
+					resource.TestCheckResourceAttrSet(all, "type"),
+					resource.TestCheckResourceAttrSet(all, "policy"),
 				),
 			},
 		},
@@ -49,23 +60,23 @@ func TestAccIdentityRoleDataSource_basic(t *testing.T) {
 }
 
 const testAccIdentityRoleDataSource_by_name = `
-data "huaweicloud_identity_role" "role_1" {
+data "huaweicloud_identity_role" "test" {
   # OBS ReadOnlyAccess
   name = "system_all_64"
 }
 `
 const testAccIdentityRoleDataSource_by_displayname = `
-data "huaweicloud_identity_role" "role_1" {
+data "huaweicloud_identity_role" "test" {
   display_name = "KMS Administrator"
 }
 `
 
 const testAccIdentityRoleDataSource_by_roleid = `
-data "huaweicloud_identity_role" "role_3" {
+data "huaweicloud_identity_role" "test_by_roleid" {
   display_name = "KMS Administrator"
 }
 
-data "huaweicloud_identity_role" "role_1" {
-  role_id = data.huaweicloud_identity_role.role_3.id
+data "huaweicloud_identity_role" "test" {
+  role_id = data.huaweicloud_identity_role.test_by_roleid.id
 }
 `
