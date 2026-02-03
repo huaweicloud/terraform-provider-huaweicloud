@@ -10,8 +10,8 @@ resource "huaweicloud_vpc" "test" {
 resource "huaweicloud_vpc_subnet" "test" {
   vpc_id     = huaweicloud_vpc.test.id
   name       = var.subnet_name
-  cidr       = var.subnet_cidr == "" ? cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0) : var.subnet_cidr
-  gateway_ip = var.subnet_gateway_ip == "" ? cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1) : var.subnet_gateway_ip
+  cidr       = var.subnet_cidr != "" ? var.subnet_cidr : cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)
+  gateway_ip = var.subnet_gateway_ip != "" ? var.subnet_gateway_ip : cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1)
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
@@ -25,17 +25,17 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
   type               = var.instance_flavor_type
   flavor_id          = var.instance_flavor_id
   storage_spec_code  = var.instance_storage_spec_code
-  availability_zones = length(var.availability_zones) == 0 ? try(slice(data.huaweicloud_availability_zones.test[0].names, 0, var.availability_zone_number), null) : var.availability_zones
+  availability_zones = length(var.availability_zones) != 0 ? var.availability_zones : try(slice(data.huaweicloud_availability_zones.test[0].names, 0, var.availability_zone_number), null)
 }
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name                  = var.instance_name
   engine_version        = var.instance_engine_version
-  flavor_id             = var.instance_flavor_id == "" ? try(data.huaweicloud_dms_rabbitmq_flavors.test[0].flavors[0].id, null) : var.instance_flavor_id
+  flavor_id             = var.instance_flavor_id != "" ? var.instance_flavor_id : try(data.huaweicloud_dms_rabbitmq_flavors.test[0].flavors[0].id, null)
   vpc_id                = huaweicloud_vpc.test.id
   network_id            = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
-  availability_zones    = length(var.availability_zones) == 0 ? try(slice(data.huaweicloud_availability_zones.test[0].names, 0, var.availability_zone_number), null) : var.availability_zones
+  availability_zones    = length(var.availability_zones) != 0 ? var.availability_zones : try(slice(data.huaweicloud_availability_zones.test[0].names, 0, var.availability_zone_number), null)
   broker_num            = var.instance_broker_num
   storage_space         = var.instance_storage_space
   storage_spec_code     = var.instance_storage_spec_code

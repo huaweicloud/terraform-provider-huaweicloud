@@ -42,13 +42,15 @@ variable "subnet_name" {
 variable "subnet_cidr" {
   description = "The CIDR block of the subnet"
   type        = string
-  default     = ""
+  default     = "192.168.0.0/24"
+  nullable    = false
 }
 
 variable "subnet_gateway_ip" {
   description = "The gateway IP of the subnet"
   type        = string
-  default     = ""
+  default     = "192.168.0.1"
+  nullable    = false
 }
 
 variable "security_group_name" {
@@ -60,6 +62,7 @@ variable "instance_flavor_id" {
   description = "The flavor ID of the RabbitMQ instance"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "instance_flavor_type" {
@@ -88,7 +91,7 @@ variable "instance_name" {
 variable "instance_engine_version" {
   description = "The engine version of the RabbitMQ instance"
   type        = string
-  default     = "3.12.13"
+  default     = "3.8.35"
 }
 
 variable "instance_broker_num" {
