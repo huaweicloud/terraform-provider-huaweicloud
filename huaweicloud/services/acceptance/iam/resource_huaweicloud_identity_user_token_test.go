@@ -10,9 +10,11 @@ import (
 )
 
 func TestAccIdentityUserToken_basic(t *testing.T) {
-	userName := acceptance.RandomAccResourceName()
-	initPassword := acceptance.RandomPassword()
-	resourceName := "huaweicloud_identity_user_token.test"
+	var (
+		resourceName = "huaweicloud_identity_user_token.test"
+
+		userName = acceptance.RandomAccResourceName()
+	)
 
 	// Avoid CheckDestroy because the token can not be destroyed.
 	// lintignore:AT001
@@ -22,9 +24,16 @@ func TestAccIdentityUserToken_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUserToken_basic(userName, initPassword),
+				Config: testAccIdentityUserToken_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "token"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
@@ -34,22 +43,24 @@ func TestAccIdentityUserToken_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityUserToken_basic(userName, initPassword string) string {
+func testAccIdentityUserToken_basic(userName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
-  password     = "%[3]s"
+  user_name    = huaweicloud_identity_user.test.name
+  password     = random_string.test.result
 }
-`, testAccIdentityUser_basic(userName, initPassword), acceptance.HW_DOMAIN_NAME, initPassword)
+`, testAccIdentityUser_basic(userName), acceptance.HW_DOMAIN_NAME)
 }
 
 func TestAccIdentityUserToken_project(t *testing.T) {
-	userName := acceptance.RandomAccResourceName()
-	initPassword := acceptance.RandomPassword()
-	resourceName := "huaweicloud_identity_user_token.test"
+	var (
+		resourceName = "huaweicloud_identity_user_token.test"
+
+		userName = acceptance.RandomAccResourceName()
+	)
 
 	// Avoid CheckDestroy because the token can not be destroyed.
 	// lintignore:AT001
@@ -59,9 +70,16 @@ func TestAccIdentityUserToken_project(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUserToken_project(userName, initPassword),
+				Config: testAccIdentityUserToken_project(userName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "token"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
@@ -71,15 +89,15 @@ func TestAccIdentityUserToken_project(t *testing.T) {
 	})
 }
 
-func testAccIdentityUserToken_project(userName, initPassword string) string {
+func testAccIdentityUserToken_project(userName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
-  password     = "%[3]s"
-  project_name = "%[4]s"
+  user_name    = huaweicloud_identity_user.test.name
+  password     = random_string.test.result
+  project_name = "%[3]s"
 }
-`, testAccIdentityUser_basic(userName, initPassword), acceptance.HW_DOMAIN_NAME, initPassword, acceptance.HW_REGION_NAME)
+`, testAccIdentityUser_basic(userName), acceptance.HW_DOMAIN_NAME, acceptance.HW_REGION_NAME)
 }

@@ -28,10 +28,10 @@ import (
 // @API IAM GET /v3.0/OS-USER/users/{user_id}/login-protect
 func ResourceIdentityUser() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityUserCreate,
-		ReadContext:   resourceIdentityUserRead,
-		UpdateContext: resourceIdentityUserUpdate,
-		DeleteContext: resourceIdentityUserDelete,
+		CreateContext: resourceUserCreate,
+		ReadContext:   resourceUserRead,
+		UpdateContext: resourceUserUpdate,
+		DeleteContext: resourceUserDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -39,51 +39,61 @@ func ResourceIdentityUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the user.`,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: `The password for the user.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the user.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The email address.`,
 			},
 			"phone": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"country_code"},
+				Description:  `The mobile number.`,
 			},
 			"country_code": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"phone"},
+				Description:  `The country code.`,
 			},
 			"external_identity_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the IAM user in the external system.`,
 			},
 			"external_identity_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				RequiredWith: []string{"external_identity_id"},
+				Description:  `The type of the IAM user in the external system.`,
 			},
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether the user is enabled or disabled.`,
 			},
 			"pwd_reset": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether the password should be reset.`,
 			},
 			"access_type": {
 				Type:     schema.TypeString,
@@ -92,22 +102,29 @@ func ResourceIdentityUser() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"default", "programmatic", "console",
 				}, false),
+				Description: `The access type of the user.`,
 			},
 			"login_protect_verification_method": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The verification method of login protect.`,
 			},
+
+			// Attributes
 			"password_strength": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The password strength.`,
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the IAM user was created.`,
 			},
 			"last_login": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the IAM user last login.`,
 			},
 		},
 	}
@@ -127,7 +144,7 @@ func buildExternalIdentityType(d *schema.ResourceData) string {
 	return "TenantIdp"
 }
 
-func resourceIdentityUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
@@ -173,7 +190,7 @@ func resourceIdentityUserCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	return resourceIdentityUserRead(ctx, d, meta)
+	return resourceUserRead(ctx, d, meta)
 }
 
 func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) error {
@@ -195,7 +212,7 @@ func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) 
 	return nil
 }
 
-func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
@@ -250,7 +267,7 @@ func normalizePhoneNumber(raw string) string {
 	return phone
 }
 
-func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
@@ -329,10 +346,10 @@ func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	return resourceIdentityUserRead(ctx, d, meta)
+	return resourceUserRead(ctx, d, meta)
 }
 
-func resourceIdentityUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
