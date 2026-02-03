@@ -1,6 +1,8 @@
 package iam
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,28 +10,71 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentityV5GroupAttachedPolicies_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identityv5_group_attached_policies.test"
+func TestAccDataV5GroupAttachedPolicies_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		all = "data.huaweicloud_identityv5_group_attached_policies.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIdentityV5GroupAttachedPolicies_basic(),
+				Config: testAccDataV5GroupAttachedPolicies_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(dataSourceName, "group_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "attached_policies.#"),
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "attached_policies.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrPair(all, "attached_policies.0.policy_id", "huaweicloud_identity_policy.test", "id"),
+					resource.TestCheckResourceAttrPair(all, "attached_policies.0.policy_name", "huaweicloud_identity_policy.test", "name"),
+					resource.TestCheckResourceAttrPair(all, "attached_policies.0.urn", "huaweicloud_identity_policy.test", "urn"),
+					resource.TestCheckResourceAttrSet(all, "attached_policies.0.attached_at"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIdentityV5GroupAttachedPolicies_basic() string {
-	return `
-data "huaweicloud_identityv5_group_attached_policies" "test" {
-  group_id = "044f2b04cea84d96841df9b4ad19d91c"
+func testAccDataV5GroupAttachedPolicies_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_policy" "test" {
+  name            = "%[1]s"
+  policy_document = jsonencode(
+    {
+      Statement = [
+        {
+          Action = ["*"]
+          Effect = "Allow"
+        }
+      ]
+      Version = "5.0"
+    }
+  )
 }
-`
+
+resource "huaweicloud_identityv5_group" "test" {
+  group_name = "%[1]s"
+}
+
+resource "huaweicloud_identityv5_policy_group_attach" "test" {
+  policy_id = huaweicloud_identity_policy.test.id
+  group_id  = huaweicloud_identityv5_group.test.id
+}
+`, name)
+}
+
+func testAccDataV5GroupAttachedPolicies_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_identityv5_group_attached_policies" "test" {
+  group_id = huaweicloud_identityv5_group.test.id
+
+  depends_on = [huaweicloud_identityv5_policy_group_attach.test]
+}
+`, testAccDataV5GroupAttachedPolicies_base(name))
 }
