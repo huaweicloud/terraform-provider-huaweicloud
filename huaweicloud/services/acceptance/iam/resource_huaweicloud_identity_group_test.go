@@ -7,26 +7,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getGroupResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
+func getV3GroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	return groups.Get(client, state.Primary.ID).Extract()
+	return iam.GetV3GroupById(client, state.Primary.ID)
 }
 
-func TestAccGroup_basic(t *testing.T) {
+func TestAccV3Group_basic(t *testing.T) {
 	var (
 		obj interface{}
 
 		resourceName = "huaweicloud_identity_group.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &obj, getGroupResourceFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getV3GroupResourceFunc)
 
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
@@ -41,7 +40,7 @@ func TestAccGroup_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroup_basic_step1(name),
+				Config: testAccV3Group_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -49,11 +48,11 @@ func TestAccGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGroup_basic_step2(updateName),
+				Config: testAccV3Group_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 				),
 			},
 			{
@@ -65,7 +64,7 @@ func TestAccGroup_basic(t *testing.T) {
 	})
 }
 
-func testAccGroup_basic_step1(name string) string {
+func testAccV3Group_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "test" {
   name        = "%[1]s"
@@ -74,11 +73,10 @@ resource "huaweicloud_identity_group" "test" {
 `, name)
 }
 
-func testAccGroup_basic_step2(name string) string {
+func testAccV3Group_basic_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "test" {
-  name        = "%[1]s"
-  description = "Updated by terraform script"
+  name = "%[1]s"
 }
 `, name)
 }
