@@ -154,6 +154,10 @@ resource "huaweicloud_identity_agency" "create_without_role_assignments" {
   name                  = "%[2]s_create_without_role_assignments"
   delegated_domain_name = "%[3]s"
   duration              = "FOREVER"
+
+  domain_roles = []
+
+  all_resources_roles = []
 }
 `, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
 		name,

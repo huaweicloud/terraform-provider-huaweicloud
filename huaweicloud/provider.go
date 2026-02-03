@@ -3364,7 +3364,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_identity_access_key":                   iam.ResourceAccessKey(),
 			"huaweicloud_identity_acl":                          iam.ResourceAcl(),
-			"huaweicloud_identity_agency":                       iam.ResourceIAMAgencyV3(),
+			"huaweicloud_identity_agency":                       iam.ResourceV3Agency(),
 			"huaweicloud_identity_service_agency":               iam.ResourceIAMServiceAgency(),
 			"huaweicloud_identity_trust_agency":                 iam.ResourceIAMTrustAgency(),
 			"huaweicloud_identity_group":                        iam.ResourceIdentityGroup(),
@@ -4194,8 +4194,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule_v2": nat.ResourcePublicSnatRule(),
 
-			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
-			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
+			"huaweicloud_iam_agency":    iam.ResourceV3Agency(),
+			"huaweicloud_iam_agency_v3": iam.ResourceV3Agency(),
 
 			"huaweicloud_vpc_bandwidth_v2":                   eip.ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         eip.ResourceVpcEIPV1(),
