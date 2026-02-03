@@ -19,7 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CCM GET /v1/private-certificates/{certificate_id}/export
+// @API CCM POST /v1/private-certificates/{certificate_id}/export
 func DataSourcePrivateCertificateExport() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: privateCertificateExport,
