@@ -8,9 +8,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceIdentitySecurityCompliance_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_identity_security_compliance.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccDataSecurityCompliance_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_identity_security_compliance.test"
+
+		dc = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -19,42 +22,42 @@ func TestAccDataSourceIdentitySecurityCompliance_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testTestDataSourceIdentitySecurityCompliance,
+				Config: testAccDataSecurityCompliance,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "password_regex", passwordRegex),
-					resource.TestCheckResourceAttr(dataSourceName, "password_regex_description", passwordRegexDescription),
+					resource.TestCheckResourceAttr(all, "password_regex", passwordRegex),
+					resource.TestCheckResourceAttr(all, "password_regex_description", passwordRegexDescription),
 				),
 			},
 			{
-				Config: testTestDataSourceIdentitySecurityComplianceByOption1,
+				Config: testAccDataSecurityComplianceByOption1,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "password_regex", passwordRegex),
+					resource.TestCheckResourceAttr(all, "password_regex", passwordRegex),
 				),
 			},
 			{
-				Config: testTestDataSourceIdentitySecurityComplianceByOption2,
+				Config: testAccDataSecurityComplianceByOption2,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "password_regex_description", passwordRegexDescription),
+					resource.TestCheckResourceAttr(all, "password_regex_description", passwordRegexDescription),
 				),
 			},
 		},
 	})
 }
 
-const testTestDataSourceIdentitySecurityCompliance = `
+const testAccDataSecurityCompliance = `
 data "huaweicloud_identity_security_compliance" "test" {}
 `
 
-const testTestDataSourceIdentitySecurityComplianceByOption1 = `
+const testAccDataSecurityComplianceByOption1 = `
 data "huaweicloud_identity_security_compliance" "test" {
   option = "password_regex"
 }
 `
 
-const testTestDataSourceIdentitySecurityComplianceByOption2 = `
+const testAccDataSecurityComplianceByOption2 = `
 data "huaweicloud_identity_security_compliance" "test" {
   option = "password_regex_description"
 }
