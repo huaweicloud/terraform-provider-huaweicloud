@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getGroupMembershipResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV3GroupMembershipResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -22,27 +22,24 @@ func getGroupMembershipResourceFunc(c *config.Config, state *terraform.ResourceS
 
 	groupId := state.Primary.ID
 
-	allPages, err := users.ListInGroup(client, groupId, nil).AllPages()
+	associatedUsers, err := iam.ListV3AssociatedUsersForGroup(client, groupId, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	allUsers, err := users.ExtractUsers(allPages)
-	if err != nil {
-		return nil, err
-	} else if len(allUsers) < 1 {
+	if len(associatedUsers) < 1 {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return allUsers, nil
+	return associatedUsers, nil
 }
 
-func TestAccGroupMembership_basic(t *testing.T) {
+func TestAccV3GroupMembership_basic(t *testing.T) {
 	var (
 		obj interface{}
 
 		resourceName = "huaweicloud_identity_group_membership.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &obj, getGroupMembershipResourceFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getV3GroupMembershipResourceFunc)
 
 		name = acceptance.RandomAccResourceName()
 	)
@@ -63,7 +60,7 @@ func TestAccGroupMembership_basic(t *testing.T) {
 		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroupMembership_basic_step1(name),
+				Config: testAccV3GroupMembership_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "group", "huaweicloud_identity_group.test", "id"),
@@ -71,7 +68,7 @@ func TestAccGroupMembership_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGroupMembership_basic_step2(name),
+				Config: testAccV3GroupMembership_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "group", "huaweicloud_identity_group.test", "id"),
@@ -79,18 +76,26 @@ func TestAccGroupMembership_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGroupMembership_basic_step3(name),
+				Config: testAccV3GroupMembership_basic_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "group", "huaweicloud_identity_group.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "users.#", "1"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"users_origin", // Only different in the acceptance test.
+				},
+			},
 		},
 	})
 }
 
-func testAccGroupMembership_basic_base(name string) string {
+func testAccV3GroupMembership_basic_base(name string) string {
 	return fmt.Sprintf(`
 resource "random_string" "test" {
   length           = 10
@@ -114,7 +119,7 @@ resource "huaweicloud_identity_user" "test" {
 `, name)
 }
 
-func testAccGroupMembership_basic_step1(name string) string {
+func testAccV3GroupMembership_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
    
@@ -122,10 +127,10 @@ resource "huaweicloud_identity_group_membership" "test" {
   group = huaweicloud_identity_group.test.id
   users = slice(huaweicloud_identity_user.test[*].id, 0, 2)
 }
-`, testAccGroupMembership_basic_base(name))
+`, testAccV3GroupMembership_basic_base(name))
 }
 
-func testAccGroupMembership_basic_step2(name string) string {
+func testAccV3GroupMembership_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
    
@@ -133,10 +138,10 @@ resource "huaweicloud_identity_group_membership" "test" {
   group = huaweicloud_identity_group.test.id
   users = slice(huaweicloud_identity_user.test[*].id, 1, 3)
 }
-`, testAccGroupMembership_basic_base(name))
+`, testAccV3GroupMembership_basic_base(name))
 }
 
-func testAccGroupMembership_basic_step3(name string) string {
+func testAccV3GroupMembership_basic_step3(name string) string {
 	return fmt.Sprintf(`
 %[1]s
    
@@ -144,5 +149,5 @@ resource "huaweicloud_identity_group_membership" "test" {
   group = huaweicloud_identity_group.test.id
   users = slice(huaweicloud_identity_user.test[*].id, 1, 2)
 }
-`, testAccGroupMembership_basic_base(name))
+`, testAccV3GroupMembership_basic_base(name))
 }

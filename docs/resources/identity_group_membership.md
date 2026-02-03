@@ -2,44 +2,27 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_group_membership"
-description: ""
+description: |-
+  Manages an IAM group membership resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_group_membership
 
 Manages an IAM group membership resource within HuaweiCloud.
 
--> **NOTE:** You *must* have admin privileges to use this resource.
+-> **NOTE:** You **must** have admin privileges to use this resource.
 
 ## Example Usage
 
 ```hcl
-variable "user_1_password" {}
-variable "user_2_password" {}
-
-resource "huaweicloud_identity_group" "group_1" {
-  name        = "group1"
-  description = "This is a test group"
+variable "group_id" {}
+variable "user_ids" {
+  type = list(string)
 }
 
-resource "huaweicloud_identity_user" "user_1" {
-  name     = "user1"
-  enabled  = true
-  password = var.user_1_password
-}
-
-resource "huaweicloud_identity_user" "user_2" {
-  name     = "user2"
-  enabled  = true
-  password = var.user_2_password
-}
-
-resource "huaweicloud_identity_group_membership" "membership_1" {
-  group = huaweicloud_identity_group.group_1.id
-  users = [
-    huaweicloud_identity_user.user_1.id,
-    huaweicloud_identity_user.user_2.id
-  ]
+resource "huaweicloud_identity_group_membership" "test" {
+  group = var.group_id
+  users = var.user_ids
 }
 ```
 
@@ -47,12 +30,22 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 
 The following arguments are supported:
 
-* `group` - (Required, String, ForceNew) Specifies the group ID of this membership.
+* `group` - (Required, String, NonUpdatable) Specifies the ID of the group to which the users belong.
 
-* `users` - (Required, List) Specifies a list of IAM user IDs to associate to the group.
+* `users` - (Required, List) Specifies the list of user IDs associated with the group.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
+
+## Import
+
+The memberships of group can be imported using group ID (`id`), e.g.
+
+```bash
+$ terraform import huaweicloud_identity_agency.test <id>
+```
+
+~> During the import process, all memberships managed remotely will be synchronized to the `terraform.tfstate` file.
