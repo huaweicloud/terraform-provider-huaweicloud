@@ -8,7 +8,7 @@ This example provides best practice code for using Terraform to create a DMS Rab
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 
@@ -32,22 +32,24 @@ The following variables need to be configured:
 #### Optional Variables
 
 * `availability_zones` - The availability zones to which the RabbitMQ instance belongs (default: [])  
-  If this parameter is not specified, the availability zone is automatically assigned based on the value of `availability_zone_number`
-* `availability_zone_number` - The number of availability zones to which the RabbitMQ instance belongs, and this value
-  must be `1` or `3`  (default: 1)  
+  If this parameter is not specified, the availability zone is automatically assigned based on
+  the value of `availability_zone_number`
 * `vpc_cidr` - The CIDR block of the VPC (default: "192.168.0.0/16")
-* `subnet_cidr` - The CIDR block of the subnet (default: "")
-* `subnet_gateway_ip` - The gateway IP of the subnet (default: "")
+* `subnet_cidr` - The CIDR block of the subnet (default: "192.168.0.0/24")
+* `subnet_gateway_ip` - The gateway IP of the subnet (default: "192.168.0.1")
 * `instance_flavor_id` - The flavor ID of the RabbitMQ instance (default: "")
 * `instance_flavor_type` - The flavor type of the RabbitMQ instance (default: "cluster")  
   The valid values are as follows:
   - **single** - The RabbitMQ single instance
   - **cluster** - The RabbitMQ cluster instance
-* `instance_storage_spec_code` - The storage specification code of the RabbitMQ instance (default: "dms.physical.storage.ultra.v2")
+* `instance_storage_spec_code` - The storage specification code of the RabbitMQ instance
+  (default: "dms.physical.storage.ultra.v2")
+* `availability_zone_number` - The number of availability zones to which the RabbitMQ instance belongs (default: 1)  
+  The valid values must be `1` or `3`
 * `instance_engine_version` - The engine version of the RabbitMQ instance (default: "3.12.13")
+* `instance_broker_num` - The number of brokers of the RabbitMQ instance (default: 3).  
+  For single instance, this value can only be `1`.
 * `instance_storage_space` - The storage space of the RabbitMQ instance (default: 600)
-* `instance_broker_num` - The number of brokers of the RabbitMQ instance (default: 3). For single instance,
-   this value can only be `1`.
 * `instance_ssl_enable` - Whether to enable SSL for the RabbitMQ instance (default: false)
 * `instance_description` - The description of the RabbitMQ instance (default: "")
 * `enterprise_project_id` - The enterprise project ID of the RabbitMQ instance (default: null)
