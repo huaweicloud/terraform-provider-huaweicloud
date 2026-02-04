@@ -34,12 +34,15 @@ func TestAccCCMCertificate_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCCMCertificate_basic,
+				Config: testCCMCertificate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "cert_brand", "GEOTRUST"),
@@ -47,6 +50,9 @@ func TestAccCCMCertificate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "domain_type", "SINGLE_DOMAIN"),
 					resource.TestCheckResourceAttr(rName, "effective_time", "1"),
 					resource.TestCheckResourceAttr(rName, "domain_numbers", "1"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(rName, "validity_period"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "order_id"),
@@ -55,24 +61,57 @@ func TestAccCCMCertificate_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testCCMCertificate_basic_update(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
+				),
+			},
+			{
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"effective_time", "single_domain_number"},
+				ImportStateVerifyIgnore: []string{"effective_time", "single_domain_number", "tags"},
 			},
 		},
 	})
 }
 
-const testCCMCertificate_basic = `
+func testCCMCertificate_basic() string {
+	return fmt.Sprintf(`
 resource "huaweicloud_ccm_certificate" "test" {
-  cert_brand     = "GEOTRUST"
-  cert_type      = "OV_SSL_CERT"
-  domain_type    = "SINGLE_DOMAIN"
-  effective_time = 1
-  domain_numbers = 1
+  cert_brand            = "GEOTRUST"
+  cert_type             = "OV_SSL_CERT"
+  domain_type           = "SINGLE_DOMAIN"
+  effective_time        = 1
+  domain_numbers        = 1
+  enterprise_project_id = "%s"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
-`
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testCCMCertificate_basic_update() string {
+	return fmt.Sprintf(`
+resource "huaweicloud_ccm_certificate" "test" {
+  cert_brand            = "GEOTRUST"
+  cert_type             = "OV_SSL_CERT"
+  domain_type           = "SINGLE_DOMAIN"
+  effective_time        = 1
+  domain_numbers        = 1
+  enterprise_project_id = "%s"
+
+  tags = {
+    foo = "bar_update"
+  }
+}
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
 
 func TestAccCCMCertificate_multiDomain(t *testing.T) {
 	var (

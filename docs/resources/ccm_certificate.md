@@ -119,6 +119,8 @@ is set to **MULTI_DOMAIN**.
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
   For enterprise users, if omitted, default enterprise project will be used.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -195,8 +197,8 @@ $ terraform import huaweicloud_ccm_certificate.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `effective_time`, `single_domain_number`.
-It is generally recommended running `terraform plan` after importing a resource.
+API response, security or some other reason. The missing attributes include: `effective_time`, `single_domain_number`,
+`tags`. It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition
 should be updated to align with the resource. Also, you can ignore changes as below.
 
