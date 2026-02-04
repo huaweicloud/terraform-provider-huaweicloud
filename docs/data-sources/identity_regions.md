@@ -13,31 +13,35 @@ Use this data source to query the region list within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_identity_regions" "test1" {}
+variable "region_id" {
+  type    = string
+  default = "cn-north-4"
+}
 
-data "huaweicloud_identity_regions" "test2" {
-  region_id = "cn-north-4"
+data "huaweicloud_identity_regions" "test" {
+  region_id = var.region_id
 }
 ```
 
 ## Argument Reference
 
-* `region_id` - (Optional, String) Specifies the region id.
+* `region_id` - (Optional, String) Specifies the id of the region to be queried.
 
 ## Attribute Reference
 
-* `regions` - Indicates the region info list.
-  The [regions](#IdentityRegions_Regions) structure is documented below.
+* `regions` - The information of region list.  
+  The [regions](#identity_regions_regions) structure is documented below.
 
-<a name="IdentityRegions_Regions"></a>
+<a name="identity_regions_regions"></a>
 The `regions` block contains:
 
-* `id` - Indicates the region id.
+* `id` - The ID of the region.
 
-* `type` - Indicates the region type.
+* `type` - The type of the region.
 
-* `description` - Indicates the region description.
+* `description` - The description of the region.
 
-* `link` - Indicates the resource link.
+* `link` - The resource link of the region.
 
-* `locales` - Indicates the map of region name.
+* `locales` - The map of localized region names, where the key is the language code and the value is the
+  region name in that language.
