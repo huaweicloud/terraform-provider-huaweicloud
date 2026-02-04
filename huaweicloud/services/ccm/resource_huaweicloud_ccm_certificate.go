@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CCM
-// ---------------------------------------------------------------
-
 package ccm
 
 import (
@@ -10,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -25,9 +21,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var mapParamKeys = []string{
+	"tags",
+}
+
 // @API CCM POST /v3/scm/certificates/buy
 // @API CCM GET /v3/scm/certificates/{certificate_id}
 // @API CCM DELETE /v3/scm/certificates/{cert_id}/unsubscribe
+// @API CCM POST /v3/scm/{resource_id}/tags/action
+// @API CCM GET /v3/scm/{resource_id}/tags
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 func ResourceCCMCertificate() *schema.Resource {
 	return &schema.Resource{
@@ -108,6 +110,29 @@ func ResourceCCMCertificate() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the enterprise project ID.`,
+			},
+			"tags": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressMapDiffs(),
+			},
+			// Internal attributes.
+			"tags_origin": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for
+					comparison with the new value next time the change is made. The corresponding parameter name is
+					'tags'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"validity_period": {
 				Type:        schema.TypeInt,
@@ -288,7 +313,42 @@ func resourceCCMCertificateCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error waiting for CCM certificate (%s) creation to PAID: %s", d.Id(), err)
 	}
 
+	tagsRaw := d.Get("tags").(map[string]interface{})
+	if err := createOrUpdateCCMCertificateTags(client, d, "create", tagsRaw); err != nil {
+		return diag.Errorf("error creating CCM certificate tags in create operation: %s", err)
+	}
+
+	// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshObjectParamOriginValues(d, mapParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
 	return resourceCCMCertificateRead(ctx, d, meta)
+}
+
+// createOrUpdateCCMCertificateTags The valid value of action is "create" or "delete".
+func createOrUpdateCCMCertificateTags(client *golangsdk.ServiceClient, d *schema.ResourceData, action string,
+	tagRaw map[string]interface{}) error {
+	if len(tagRaw) == 0 {
+		return nil
+	}
+
+	requestPath := client.Endpoint + "v3/scm/{resource_id}/tags/action"
+	requestPath = strings.ReplaceAll(requestPath, "{resource_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"action": action,
+			"tags":   utils.ExpandResourceTags(tagRaw),
+		},
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	return err
 }
 
 func buildCreateCCMCertificateBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
@@ -355,6 +415,33 @@ func ReadCCMCertificate(client *golangsdk.ServiceClient, certID string) (interfa
 	return utils.FlattenResponse(getResp)
 }
 
+func setCCMCertificateTagsToState(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v3/scm/{resource_id}/tags"
+	requestPath = strings.ReplaceAll(requestPath, "{resource_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		log.Printf("[WARN] Error fetching tags of %s: %s", d.Id(), err)
+		return nil
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		log.Printf("[WARN] Error flattening response tags of %s: %s", d.Id(), err)
+		return nil
+	}
+
+	tagsList := utils.PathSearch("tags", respBody, make([]interface{}, 0)).([]interface{})
+	if len(tagsList) == 0 {
+		return nil
+	}
+
+	return d.Set("tags", utils.FlattenTagsToMap(tagsList))
+}
+
 func resourceCCMCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -398,6 +485,7 @@ func resourceCCMCertificateRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("sans", utils.PathSearch("sans", getRespBody, nil)),
 		d.Set("fingerprint", utils.PathSearch("fingerprint", getRespBody, nil)),
 		d.Set("authentification", flattenAuthentification(getRespBody)),
+		setCCMCertificateTagsToState(client, d),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -418,6 +506,33 @@ func resourceCCMCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		client, err := cfg.NewServiceClient("scm", region)
+		if err != nil {
+			return diag.Errorf("error creating CCM client: %s", err)
+		}
+
+		oRaw, nRaw := d.GetChange("tags")
+		// remove old tags
+		if err := createOrUpdateCCMCertificateTags(client, d, "delete", oRaw.(map[string]interface{})); err != nil {
+			return diag.Errorf("error deleting CCM certificate tags in update operation: %s", err)
+		}
+
+		// set new tags
+		if err := createOrUpdateCCMCertificateTags(client, d, "create", nRaw.(map[string]interface{})); err != nil {
+			return diag.Errorf("error creating CCM certificate tags in update operation: %s", err)
+		}
+
+		// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
+		// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+		// next updates.
+		// And whether corresponding parameters are changed, the origin values must be refreshed.
+		err = utils.RefreshObjectParamOriginValues(d, mapParamKeys)
+		if err != nil {
+			return diag.Errorf("unable to refresh the origin values: %s", err)
 		}
 	}
 	return resourceCCMCertificateRead(ctx, d, meta)
