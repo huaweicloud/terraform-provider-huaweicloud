@@ -8,68 +8,65 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
-func getGroupRoleAssignmentResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	identityClient, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
+func getV3GroupRoleAssignmentResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		err            error
+		identityClient *golangsdk.ServiceClient
+		iamClient      *golangsdk.ServiceClient
+
+		groupId   = state.Primary.Attributes["group_id"]
+		roleId    = state.Primary.Attributes["role_id"]
+		domainId  = state.Primary.Attributes["domain_id"]
+		projectId = state.Primary.Attributes["project_id"]
+		epsId     = state.Primary.Attributes["enterprise_project_id"]
+	)
+
+	identityClient, err = c.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM v3 client: %s", err)
 	}
-
-	iamClient, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	iamClient, err = c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
-	groupID := state.Primary.Attributes["group_id"]
-	roleID := state.Primary.Attributes["role_id"]
-	domainID := state.Primary.Attributes["domain_id"]
-	projectID := state.Primary.Attributes["project_id"]
-	enterpriseProjectID := state.Primary.Attributes["enterprise_project_id"]
-
-	if domainID != "" {
-		return iam.GetGroupRoleAssignmentWithDomainID(identityClient, groupID, roleID, domainID)
+	if domainId != "" {
+		err = iam.CheckV3GroupRoleAssignmentWithDomainId(identityClient, groupId, roleId, domainId)
+	}
+	if projectId != "" {
+		err = iam.CheckV3GroupRoleAssignmentWithProjectId(identityClient, groupId, roleId, c.DomainID, projectId)
+	}
+	if epsId != "" {
+		err = iam.CheckV3GroupRoleAssignmentWithEpsId(iamClient, groupId, roleId, epsId)
 	}
 
-	if projectID != "" {
-		if projectID == "all" {
-			specifiedRole := roles.Role{
-				ID: roleID,
-			}
-			err = roles.CheckAllResourcesPermission(identityClient, c.DomainID, groupID, roleID).ExtractErr()
-			return specifiedRole, err
-		}
-
-		return iam.GetGroupRoleAssignmentWithProjectID(identityClient, groupID, roleID, projectID)
+	if err != nil {
+		return nil, err
 	}
-
-	if enterpriseProjectID != "" {
-		return iam.GetGroupRoleAssignmentWithEpsID(iamClient, groupID, roleID, enterpriseProjectID)
-	}
-
-	return nil, golangsdk.ErrDefault404{}
+	return roleId, nil
 }
 
-func TestAccGroupRoleAssignment_basic(t *testing.T) {
+func TestAccV3GroupRoleAssignment_basic(t *testing.T) {
 	var (
 		obj interface{}
 
 		applyForDomain   = "huaweicloud_identity_group_role_assignment.apply_for_domain"
-		rcApplyForDomain = acceptance.InitResourceCheck(applyForDomain, &obj, getGroupRoleAssignmentResourceFunc)
+		rcApplyForDomain = acceptance.InitResourceCheck(applyForDomain, &obj, getV3GroupRoleAssignmentResourceFunc)
 
 		applyForProject   = "huaweicloud_identity_group_role_assignment.apply_for_project"
-		rcApplyForProject = acceptance.InitResourceCheck(applyForProject, &obj, getGroupRoleAssignmentResourceFunc)
+		rcApplyForProject = acceptance.InitResourceCheck(applyForProject, &obj, getV3GroupRoleAssignmentResourceFunc)
 
 		applyForAllProjects   = "huaweicloud_identity_group_role_assignment.apply_for_all_projects"
-		rcApplyForAllProjects = acceptance.InitResourceCheck(applyForAllProjects, &obj, getGroupRoleAssignmentResourceFunc)
+		rcApplyForAllProjects = acceptance.InitResourceCheck(applyForAllProjects, &obj, getV3GroupRoleAssignmentResourceFunc)
 
-		applyForEpsID   = "huaweicloud_identity_group_role_assignment.apply_for_eps_id"
-		rcApplyForEpsID = acceptance.InitResourceCheck(applyForEpsID, &obj, getGroupRoleAssignmentResourceFunc)
+		applyForEpsId   = "huaweicloud_identity_group_role_assignment.apply_for_eps_id"
+		rcApplyForEpsId = acceptance.InitResourceCheck(applyForEpsId, &obj, getV3GroupRoleAssignmentResourceFunc)
 
 		name = acceptance.RandomAccResourceName()
 	)
@@ -86,11 +83,11 @@ func TestAccGroupRoleAssignment_basic(t *testing.T) {
 			rcApplyForDomain.CheckResourceDestroy(),
 			rcApplyForProject.CheckResourceDestroy(),
 			rcApplyForAllProjects.CheckResourceDestroy(),
-			rcApplyForEpsID.CheckResourceDestroy(),
+			rcApplyForEpsId.CheckResourceDestroy(),
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroupRoleAssignment_basic_step1(name),
+				Config: testAccV3GroupRoleAssignment_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					// Assign role to a specified domain
 					rcApplyForDomain.CheckResourceExists(),
@@ -108,17 +105,42 @@ func TestAccGroupRoleAssignment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(applyForAllProjects, "role_id", "huaweicloud_identity_role.test.2", "id"),
 					resource.TestCheckResourceAttr(applyForAllProjects, "project_id", "all"),
 					// Assign role to a specified enterprise project
-					rcApplyForEpsID.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(applyForEpsID, "group_id", "huaweicloud_identity_group.test", "id"),
-					resource.TestCheckResourceAttrPair(applyForEpsID, "role_id", "huaweicloud_identity_role.test.3", "id"),
-					resource.TestCheckResourceAttr(applyForEpsID, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					rcApplyForEpsId.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(applyForEpsId, "group_id", "huaweicloud_identity_group.test", "id"),
+					resource.TestCheckResourceAttrPair(applyForEpsId, "role_id", "huaweicloud_identity_role.test.3", "id"),
+					resource.TestCheckResourceAttr(applyForEpsId, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
 				ResourceName:      applyForDomain,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupRoleAssignmentDomainImportStateFunc(applyForDomain),
+				ImportStateIdFunc: testAccV3GroupRoleAssignmentImportStateFunc(applyForDomain, "domain"),
+			},
+			{
+				ResourceName:      applyForProject,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccV3GroupRoleAssignmentImportStateFunc(applyForProject, "project"),
+			},
+			{
+				ResourceName:      applyForAllProjects,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccV3GroupRoleAssignmentImportStateFunc(applyForAllProjects, "project"),
+			},
+			{
+				ResourceName:      applyForEpsId,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccV3GroupRoleAssignmentImportStateFunc(applyForEpsId, "enterprise_project"),
+			},
+			// Legacy import
+			{
+				ResourceName:      applyForDomain,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccV3GroupRoleAssignmentDomainImportStateFunc(applyForDomain),
 			},
 			{
 				ResourceName:      applyForProject,
@@ -133,16 +155,67 @@ func TestAccGroupRoleAssignment_basic(t *testing.T) {
 				ImportStateIdFunc: testAccGroupRoleAssignmentProjectImportStateFunc(applyForAllProjects),
 			},
 			{
-				ResourceName:      applyForEpsID,
+				ResourceName:      applyForEpsId,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupRoleAssignmentEpsImportStateFunc(applyForEpsID),
+				ImportStateIdFunc: testAccGroupRoleAssignmentEpsImportStateFunc(applyForEpsId),
 			},
 		},
 	})
 }
 
-func testAccGroupRoleAssignmentDomainImportStateFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccV3GroupRoleAssignmentImportStateFunc(resourceName, assignmentType string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", resourceName, rs)
+		}
+
+		var err error
+		switch assignmentType {
+		case "domain":
+			if rs.Primary.Attributes["group_id"] == "" ||
+				rs.Primary.Attributes["role_id"] == "" || rs.Primary.Attributes["domain_id"] == "" {
+				return "", fmt.Errorf("invalid format specified for import ID,"+
+					" want '<group_id>/<role_id>/<domain_id>:domain', but got '%s/%s/%s:domain'",
+					rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+					rs.Primary.Attributes["domain_id"])
+			}
+			return fmt.Sprintf("%s/%s/%s:domain", rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+				rs.Primary.Attributes["domain_id"]), nil
+		case "project":
+			if rs.Primary.Attributes["group_id"] == "" ||
+				rs.Primary.Attributes["role_id"] == "" || rs.Primary.Attributes["project_id"] == "" {
+				return "", fmt.Errorf("invalid format specified for import ID,"+
+					" want '<group_id>/<role_id>/<project_id>:project', but got '%s/%s/%s:project'",
+					rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+					rs.Primary.Attributes["project_id"])
+			}
+			return fmt.Sprintf("%s/%s/%s:project", rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+				rs.Primary.Attributes["project_id"]), nil
+		case "enterprise_project":
+			if rs.Primary.Attributes["group_id"] == "" ||
+				rs.Primary.Attributes["role_id"] == "" || rs.Primary.Attributes["enterprise_project_id"] == "" {
+				return "", fmt.Errorf("invalid format specified for import ID,"+
+					" want '<group_id>/<role_id>/<enterprise_project_id>:enterprise_project', but got '%s/%s/%s:enterprise_project'",
+					rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+					rs.Primary.Attributes["enterprise_project_id"])
+			}
+			return fmt.Sprintf("%s/%s/%s:enterprise_project", rs.Primary.Attributes["group_id"], rs.Primary.Attributes["role_id"],
+				rs.Primary.Attributes["enterprise_project_id"]), nil
+		default:
+			err = fmt.Errorf(`invalid format specified for import ID, want these following format:
+1. <group_id>/<role_id>/<domain_id>:domain
+2. <group_id>/<role_id>/all:project
+3. <group_id>/<role_id>/<project_id>:project
+4. <group_id>/<role_id>/<domain_id>:enterprise_project
+but got '%s:%s'`, rs.Primary.ID, assignmentType)
+		}
+		return "", err
+	}
+}
+
+func testAccV3GroupRoleAssignmentDomainImportStateFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -196,7 +269,7 @@ func testAccGroupRoleAssignmentEpsImportStateFunc(resourceName string) resource.
 	}
 }
 
-func testAccGroupRoleAssignment_basic_base(name string) string {
+func testAccV3GroupRoleAssignment_basic_base(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_identity_projects" "test" {
   name = "%[1]s"
@@ -243,7 +316,7 @@ resource "huaweicloud_identity_group" "test" {
 `, acceptance.HW_REGION_NAME, name)
 }
 
-func testAccGroupRoleAssignment_basic_step1(name string) string {
+func testAccV3GroupRoleAssignment_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -270,7 +343,7 @@ resource "huaweicloud_identity_group_role_assignment" "apply_for_eps_id" {
   role_id               = huaweicloud_identity_role.test[3].id
   enterprise_project_id = "%[3]s"
 }
-`, testAccGroupRoleAssignment_basic_base(name),
+`, testAccV3GroupRoleAssignment_basic_base(name),
 		acceptance.HW_DOMAIN_ID,
 		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

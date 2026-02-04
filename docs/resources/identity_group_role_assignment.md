@@ -2,35 +2,32 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_group_role_assignment"
-description: ""
+description: |-
+  Using this resource to authorize a role to a user group and specify the scope of effect within HuaweiCloud.
 ---
 
 # huaweicloud_identity_group_role_assignment
 
-Manages an IAM user group role assignment within HuaweiCloud IAM Service.
-This is an alternative to `huaweicloud_identity_role_assignment`
+Using this resource to authorize a role to a user group and specify the scope of effect within HuaweiCloud.
 
--> **NOTE:** 1. You *must* have admin privileges to use this resource.
-  <br/>2. When the resource is created, the permissions will take effect after 15 to 30 minutes.
+-> You **must** have admin privileges to use this resource.<br>
+   When the resource is created, the permissions will take effect after `15` to `30` minutes.
 
 ## Example Usage
 
-### Assign role with project
+### Assign role with a specified project
 
 ```hcl
+variable "group_id" {}
+variable "role_name" {} # The role name can be the system name (e.g. RDS Administrator) or a custom name
 variable "project_id" {}
 
 data "huaweicloud_identity_role" "test" {
-  # RDS Administrator
-  name = "rds_adm"
-}
-
-resource "huaweicloud_identity_group" "test" {
-  name = "group_1"
+  name = var.role_name
 }
 
 resource "huaweicloud_identity_group_role_assignment" "test" {
-  group_id   = huaweicloud_identity_group.test.id
+  group_id   = var.group_id
   role_id    = data.huaweicloud_identity_role.test.id
   project_id = var.project_id
 }
@@ -39,61 +36,51 @@ resource "huaweicloud_identity_group_role_assignment" "test" {
 ### Assign role with all projects
 
 ```hcl
-variable "project_id" {}
+variable "group_id" {}
+variable "role_name" {} # The role name can be the system name (e.g. RDS Administrator) or a custom name
 
 data "huaweicloud_identity_role" "test" {
-  # RDS Administrator
-  name = "rds_adm"
+  name = var.role_name
 }
 
-resource "huaweicloud_identity_group" "test" {
-  name = "group_1"
-}
-
-resource "huaweicloud_identity_group_role_assignment" "all" {
-  group_id   = huaweicloud_identity_group.test.id
+resource "huaweicloud_identity_group_role_assignment" "test" {
+  group_id   = var.group_id
   role_id    = data.huaweicloud_identity_role.test.id
   project_id = "all"
 }
 ```
 
-### Assign role with domain
+### Assign role with a specified domain
 
 ```hcl
+variable "group_id" {}
+variable "role_name" {} # The role name can be the system name (e.g. RDS Administrator) or a custom name
 variable "domain_id" {}
 
 data "huaweicloud_identity_role" "test" {
-  # OBS Administrator
-  name = "obs_adm"
-}
-
-resource "huaweicloud_identity_group" "test" {
-  name = "group_1"
+  name = var.role_name
 }
 
 resource "huaweicloud_identity_group_role_assignment" "test" {
-  group_id  = huaweicloud_identity_group.test.id
+  group_id   = var.group_id
   role_id   = data.huaweicloud_identity_role.test.id
   domain_id = var.domain_id
 }
 ```
 
-### Assign role with enterprise project
+### Assign role with a specified enterprise project
 
 ```hcl
+variable "group_id" {}
+variable "role_name" {} # The role name can be the system name (e.g. RDS Administrator) or a custom name
 variable "enterprise_project_id" {}
 
 data "huaweicloud_identity_role" "test" {
-  # RDS Administrator
-  name = "rds_adm"
-}
-
-resource "huaweicloud_identity_group" "test" {
-  name = "group_1"
+  name = var.role_name
 }
 
 resource "huaweicloud_identity_group_role_assignment" "test" {
-  group_id              = huaweicloud_identity_group.test.id
+  group_id              = var.group_id
   role_id               = data.huaweicloud_identity_role.test.id
   enterprise_project_id = var.enterprise_project_id
 }
@@ -103,57 +90,58 @@ resource "huaweicloud_identity_group_role_assignment" "test" {
 
 The following arguments are supported:
 
-* `group_id` - (Required, String, ForceNew) Specifies the group to assign the role to.
-  Changing this parameter will create a new resource.
+* `group_id` - (Required, String, Nonupdatable) Specifies the ID of user group to which the role to be authorized
+  belongs.
 
-* `role_id` - (Required, String, ForceNew) Specifies the role to assign.
-  Changing this parameter will create a new resource.
+* `role_id` - (Required, String, Nonupdatable) Specifies the ID of role to be authorized.
 
-* `domain_id` - (Optional, String, ForceNew) Specifies the domain to assign the role in.
-  Changing this parameter will create a new resource.
+* `domain_id` - (Optional, String, Nonupdatable) Specifies the domain to assign the role in.
 
-* `project_id` - (Optional, String, ForceNew) Specifies the project to assign the role in.
+* `project_id` - (Optional, String, Nonupdatable) Specifies the project to assign the role in.
   If `project_id` is set to **all**, it means that the specified user group will be able to use all projects,
   including existing and future projects.
 
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String, Nonupdatable) Specifies the enterprise project to assign the role in.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project to assign the role in.
-  Changing this parameter will create a new resource.
-
-  ~> Exactly one of `domain_id`, `project_id` or `enterprise_project_id` must be specified.
+-> Exactly one of `domain_id`, `project_id` and `enterprise_project_id` must be specified.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID. When assign in domain, the format is `<group_id>/<role_id>/<domain_id>`;
-  when assign in project, the format is `<group_id>/<role_id>/<project_id>`;
-  when assign in enterprise project, the format is `<group_id>/<role_id>/<enterprise_project_id>`;
+* `id` - The resource ID.  
+  + When the role is assigned in domain, the format is `<group_id>/<role_id>/<domain_id>`
+  + when the role is assigned in project, the format is `<group_id>/<role_id>/<project_id>` or
+    `<group_id>/<role_id>/all`
+  + when the role is assigned in enterprise project, the format is `<group_id>/<role_id>/<enterprise_project_id>`
 
 ## Import
 
-The role assignments can be imported using the `group_id`, `role_id` and  `domain_id`, `project_id`,
-  `enterprise_project_id`, e.g.
+The role assignments can be imported using the `group_id`, `role_id`, `assignment_type` and one of `domain_id`,
+`project_id` and `enterprise_project_id` (assigned object ID), which depends on the value of assignment type, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<domain_id>
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<assigned_object_id>:<assignment_type>
 ```
 
-or
+The valid values of 'assignment_type' are as follows (and the corresponding meanings of 'assigned_object_id' are also
+explained):
+
+* **domain**: the value of 'assigned_object_id' input is domain (account) ID, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<project_id>
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<domain_id>:domain
 ```
 
-or
+* **project**: the value of 'assigned_object_id' input is project ID or **all**, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/all
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/all:project
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<project_id>:project
 ```
 
-or
+* **enterprise_project**: the value of 'assigned_object_id' input is enterprise project ID, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<enterprise_project_id>
+$ terraform import huaweicloud_identity_group_role_assignment.test <group_id>/<role_id>/<enterprise_project_id>:enterprise_project
 ```
