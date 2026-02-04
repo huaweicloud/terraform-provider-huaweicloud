@@ -1744,6 +1744,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_koogallery_assets": koogallery.DataSourceKooGalleryAssets(),
 
 			"huaweicloud_lakeformation_specifications": lakeformation.DataSourceSpecifications(),
+			"huaweicloud_lakeformation_instances":      lakeformation.DataSourceInstances(),
 
 			"huaweicloud_lb_listeners":    lb.DataSourceListeners(),
 			"huaweicloud_lb_loadbalancer": lb.DataSourceELBV2Loadbalancer(),
