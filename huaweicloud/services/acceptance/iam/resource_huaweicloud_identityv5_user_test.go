@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5UserResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,17 +17,8 @@ func getV5UserResourceFunc(cfg *config.Config, state *terraform.ResourceState) (
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getUserHttpUrl := "v5/users/{user_id}"
-	getUserPath := client.Endpoint + getUserHttpUrl
-	getUserPath = strings.ReplaceAll(getUserPath, "{user_id}", state.Primary.ID)
-	getUserOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getUserResp, err := client.Request("GET", getUserPath, &getUserOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM User: %s", err)
-	}
-	return utils.FlattenResponse(getUserResp)
+
+	return iam.GetV5UserById(client, state.Primary.ID)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
