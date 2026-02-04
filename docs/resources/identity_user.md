@@ -2,7 +2,8 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_user"
-description: ""
+description: |-
+  Manages an IAM user resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_user
@@ -14,12 +15,13 @@ Manages an IAM user resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable "user_1_password" {}
+variable "user_name" {}
+variable "password" {}
 
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "user_1"
-  description = "A user"
-  password    = var.user_1_password
+resource "huaweicloud_identity_user" "test" {
+  name        = var.user_name
+  password    = var.password
+  description = "my user information"
 }
 ```
 
@@ -41,15 +43,16 @@ The following arguments are supported:
 * `country_code` - (Optional, String) Specifies the country code. The country code of the Chinese mainland is 0086. This
   parameter must be used together with `phone`.
 
-* `password` - (Optional, String) Specifies the password for the user with `6` to `32` characters. It must contain at least
-  two of the following character types: uppercase letters, lowercase letters, digits, and special characters.
+* `password` - (Optional, String) Specifies the password for the user with `6` to `32` characters. It must contain at
+  least two of the following character types: uppercase letters, lowercase letters, digits, and special characters.
 
-* `pwd_reset` - (Optional, Bool) Specifies whether or not the password should be reset. By default, the password is asked
-   to reset at the first login.
+* `pwd_reset` - (Optional, Bool) Specifies whether the password should be reset. By default, the password is asked
+  to reset at the first login.
 
-* `enabled` - (Optional, Bool) Specifies whether the user is enabled or disabled. Valid values are **true** and **false**.
+* `enabled` - (Optional, Bool) Specifies whether the user is enabled or disabled.
 
-* `access_type` - (Optional, String) Specifies the access type of the user. Available values are:
+* `access_type` - (Optional, String) Specifies the access type of the user.  
+  The valid values are as follows:
   + **default**: support both programmatic and management console access.
   + **programmatic**: only support programmatic access.
   + **console**: only support management console access.
@@ -62,9 +65,8 @@ The following arguments are supported:
   Only **TenantIdp** is supported now. This parameter must be used together with `external_identity_id`.
 
 * `login_protect_verification_method` - (Optional, String) Specifies the verification method of login protect. If it is
-  empty, the login protection will be disabled.
-  
-  Valid values are as follows:
+  empty, the login protection will be disabled.  
+  The valid values are as follows:
   + **sms**: Use phone number to verify.
   + **email**: Use email to verify.
   + **vmfa**: Use MFA to verify.
@@ -83,16 +85,21 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Users can be imported using the `id`, e.g.
+The users can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_user.user_1 89c60255-9bd6-460c-822a-e2b959ede9d2
+$ terraform import huaweicloud_identity_user.test </id>
 ```
 
-But due to the security reason, `password` can not be imported, you can ignore it as below.
+Please add the followings if some attributes are missing when importing the resource.
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `password`.
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the resource. Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_identity_user" "user_1" {
+resource "huaweicloud_identity_user" "test" {
   ...
 
   lifecycle {

@@ -10,11 +10,12 @@ import (
 )
 
 func TestAccIdentityUserTokenInfo_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_identity_user_token_info.test"
-	userName := acceptance.RandomAccResourceName()
-	initPassword := acceptance.RandomPassword()
+	var (
+		all = "data.huaweicloud_identity_user_token_info.test"
+		dc  = acceptance.InitDataSourceCheck(all)
 
-	config := testAccIdentityUserTokenInfo_basic(userName, initPassword)
+		userName = acceptance.RandomAccResourceName()
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,31 +23,39 @@ func TestAccIdentityUserTokenInfo_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
 		Steps: []resource.TestStep{
 			{
-				Config: config,
+				Config: testAccIdentityUserTokenInfo_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSource, "methods.0", "password"),
-					resource.TestCheckResourceAttr(dataSource, "user.#", "1"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(all, "methods.0", "password"),
+					resource.TestCheckResourceAttr(all, "user.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityUserTokenInfo_basic(userName, initPassword string) string {
+func testAccIdentityUserTokenInfo_basic(userName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_identity_user_token" "test" {
   account_name = "%[2]s"
-  user_name    = huaweicloud_identity_user.user_1.name
-  password     = "%[3]s"
-}
-data "huaweicloud_identity_user_token_info" "test" {
-  token = huaweicloud_identity_user_token.test.token
-  no_catalog = "false"
+  user_name    = huaweicloud_identity_user.test.name
+  password     = random_string.test.result
 }
 
-`, testAccIdentityUser_basic(userName, initPassword), acceptance.HW_DOMAIN_NAME, initPassword)
+data "huaweicloud_identity_user_token_info" "test" {
+  token      = huaweicloud_identity_user_token.test.token
+  no_catalog = "false"
+}
+`, testAccIdentityUser_basic(userName), acceptance.HW_DOMAIN_NAME)
 }

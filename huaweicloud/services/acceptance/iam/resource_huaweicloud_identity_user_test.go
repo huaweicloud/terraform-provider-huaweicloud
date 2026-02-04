@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -22,16 +23,13 @@ func getIdentityUserResourceFunc(c *config.Config, state *terraform.ResourceStat
 }
 
 func TestAccIdentityUser_basic(t *testing.T) {
-	var user users.User
-	userName := acceptance.RandomAccResourceName()
-	initPassword := acceptance.RandomPassword()
-	newPassword := acceptance.RandomPassword()
-	resourceName := "huaweicloud_identity_user.user_1"
+	var (
+		user interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&user,
-		getIdentityUserResourceFunc,
+		resourceName = "huaweicloud_identity_user.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &user, getIdentityUserResourceFunc)
+
+		rName = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,17 +38,24 @@ func TestAccIdentityUser_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUser_basic(userName, initPassword),
+				Config: testAccIdentityUser_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", userName),
-					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
-					resource.TestCheckResourceAttr(resourceName, "email", userName+"@abc.com"),
+					resource.TestCheckResourceAttr(resourceName, "email", rName+"@abc.com"),
 					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
 					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", "email"),
 				),
@@ -64,22 +69,22 @@ func TestAccIdentityUser_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccIdentityUser_update(userName, newPassword),
+				Config: testAccIdentityUser_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", userName),
-					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "false"),
-					resource.TestCheckResourceAttr(resourceName, "email", userName+"@abcd.com"),
+					resource.TestCheckResourceAttr(resourceName, "email", rName+"@abcd.com"),
 					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", ""),
 				),
 			},
 			{
-				Config: testAccIdentityUser_no_desc(userName, newPassword),
+				Config: testAccIdentityUser_no_desc(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 				),
 			},
@@ -88,17 +93,15 @@ func TestAccIdentityUser_basic(t *testing.T) {
 }
 
 func TestAccIdentityUser_external(t *testing.T) {
-	var user users.User
-	userName := acceptance.RandomAccResourceName()
-	password := acceptance.RandomPassword()
-	initXUserID := userName + "-abcdefg"
-	newXUserID := userName + "-123456789"
-	resourceName := "huaweicloud_identity_user.user_1"
+	var (
+		user interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&user,
-		getIdentityUserResourceFunc,
+		resourceName = "huaweicloud_identity_user.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &user, getIdentityUserResourceFunc)
+
+		rName       = acceptance.RandomAccResourceName()
+		initXUserID = rName + acctest.RandString(5)
+		newXUserID  = rName + acctest.RandString(5)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -107,13 +110,20 @@ func TestAccIdentityUser_external(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUser_external(userName, password, initXUserID),
+				Config: testAccIdentityUser_external(rName, initXUserID),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "IAM user with external identity id"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
@@ -130,9 +140,9 @@ func TestAccIdentityUser_external(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccIdentityUser_external(userName, password, newXUserID),
+				Config: testAccIdentityUser_external(rName, newXUserID),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "external_identity_id", newXUserID),
 				),
 			},
@@ -140,52 +150,72 @@ func TestAccIdentityUser_external(t *testing.T) {
 	})
 }
 
-func testAccIdentityUser_basic(name, password string) string {
+func testAccIdentityUser_base() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "%[1]s"
-  password    = "%[2]s"
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
+}
+`)
+}
+
+func testAccIdentityUser_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[2]s"
+  password    = random_string.test.result
   enabled     = true
-  email       = "%[1]s@abc.com"
-  description = "tested by terraform"
+  email       = "%[2]s@abc.com"
+  description = "Created by acc test"
   
   login_protect_verification_method = "email"
 }
-`, name, password)
+`, testAccIdentityUser_base(), name)
 }
 
-func testAccIdentityUser_update(name, password string) string {
+func testAccIdentityUser_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name        = "%[1]s"
-  password    = "%[2]s"
+%[1]s
+
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[2]s"
+  password    = random_string.test.result
   pwd_reset   = false
   enabled     = false
-  email       = "%[1]s@abcd.com"
-  description = "updated by terraform"
+  email       = "%[2]s@abcd.com"
+  description = "Updated by acc test"
 }
-`, name, password)
+`, testAccIdentityUser_base(), name)
 }
 
-func testAccIdentityUser_no_desc(name, password string) string {
+func testAccIdentityUser_no_desc(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name      = "%[1]s"
-  password  = "%[2]s"
+%[1]s
+
+resource "huaweicloud_identity_user" "test" {
+  name      = "%[2]s"
+  password  = random_string.test.result
   pwd_reset = false
   enabled   = false
-  email     = "%[1]s@abcd.com"
+  email     = "%[2]s@abcd.com"
 }
-`, name, password)
+`, testAccIdentityUser_base(), name)
 }
 
-func testAccIdentityUser_external(name, password, xUserID string) string {
+func testAccIdentityUser_external(name, xUserID string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_user" "user_1" {
-  name                 = "%[1]s"
-  password             = "%[2]s"
+%[1]s
+
+resource "huaweicloud_identity_user" "test" {
+  name                 = "%[2]s"
+  password             = random_string.test.result
   description          = "IAM user with external identity id"
   external_identity_id = "%[3]s"
 }
-`, name, password, xUserID)
+`, testAccIdentityUser_base(), name, xUserID)
 }
