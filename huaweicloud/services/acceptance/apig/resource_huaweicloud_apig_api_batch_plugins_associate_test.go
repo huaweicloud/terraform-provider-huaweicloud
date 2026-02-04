@@ -16,7 +16,7 @@ import (
 )
 
 func getApiBatchPluginsAssociateFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NewServiceClient(acceptance.HW_REGION_NAME, "apig")
+	client, err := cfg.NewServiceClient("apig", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating APIG client: %s", err)
 	}

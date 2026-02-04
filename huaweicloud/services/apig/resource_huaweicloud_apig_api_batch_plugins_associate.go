@@ -145,10 +145,9 @@ func bindPluginsToApi(client *golangsdk.ServiceClient, instanceId, apiId, envId 
 
 func resourceApiBatchPluginsAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg = meta.(*config.Config)
 	)
-	client, err := cfg.NewServiceClient(region, "apig")
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
@@ -263,7 +262,7 @@ func resourceApiBatchPluginsAssociateRead(_ context.Context, d *schema.ResourceD
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
 	)
-	client, err := cfg.NewServiceClient(region, "apig")
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
@@ -360,8 +359,7 @@ func unbindPluginsFromApis(client *golangsdk.ServiceClient, instanceId, apiId, e
 
 func resourceApiBatchPluginsAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient(region, "apig")
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
@@ -433,8 +431,7 @@ func getConfiguredPluginIdsForApi(d *schema.ResourceData) []interface{} {
 
 func resourceApiBatchPluginsAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient(region, "apig")
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
