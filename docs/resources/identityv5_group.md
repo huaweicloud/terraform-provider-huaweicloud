@@ -3,19 +3,20 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_group"
 description: |-
-  Manages an IAM v5 group resource within HuaweiCloud.
+  Manages an IAM v5 user group resource within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_group
 
-Manages an IAM v5 group resource within HuaweiCloud.
+Manages an IAM v5 user group resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identityv5_group" "group" {
-  group_name  = "test_group_name"
-  description = "test description"
+variable "user_group_name" {}
+
+resource "huaweicloud_identityv5_group" "test" {
+  group_name  = var.user_group_name
 }
 ```
 
@@ -23,25 +24,27 @@ resource "huaweicloud_identityv5_group" "group" {
 
 The following arguments are supported:
 
-* `group_name` - (Required, String) Specifies the name of the group. The username consists of `1` to `128` characters.
-  It can contain only uppercase letters, lowercase letters, digits, spaces, and special characters (-_) and cannot
-  start with a digit.
+* `group_name` - (Required, String) Specifies the name of the user group.  
+  The name consists of `1` to `128` characters.  
+  Only Chinese characters, letters, digits, spaces, hyphens (-), and
+  underscores (_) are allowed.
 
-* `description` - (Optional, String) Specifies the description of the group.
+* `description` - (Optional, String) Specifies the description of the user group.  
+  The maximum length is `255` characters, cannot includes these special characters: `@#$%^&*<>\`.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - User group ID, with a length of 1 to 64 characters, consisting only of letters, numbers, and `-`.
+* `id` - The resource ID, also the user group ID.
 
-* `created_at` - Indicates the time when the IAM group was created.
+* `created_at` - The creation time of the user group.
 
-* `urn` - Indicates the uniform resource name.
+* `urn` - The uniform resource name of the user group.
 
 ## Import
 
-The IAM v5 group can be imported using the `id`, e.g:
+The IAM v5 group can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_identityv5_group.test <id>

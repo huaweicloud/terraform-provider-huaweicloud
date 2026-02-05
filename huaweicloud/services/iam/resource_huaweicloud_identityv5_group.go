@@ -19,12 +19,12 @@ import (
 // @API IAM GET /v5/groups/{group_id}
 // @API IAM PUT /v5/groups/{group_id}
 // @API IAM DELETE /v5/groups/{group_id}
-func ResourceIdentityV5Group() *schema.Resource {
+func ResourceV5Group() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityV5GroupCreate,
-		ReadContext:   resourceIdentityV5GroupRead,
-		UpdateContext: resourceIdentityV5GroupUpdate,
-		DeleteContext: resourceIdentityV5GroupDelete,
+		CreateContext: resourceV5GroupCreate,
+		ReadContext:   resourceV5GroupRead,
+		UpdateContext: resourceV5GroupUpdate,
+		DeleteContext: resourceV5GroupDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -32,54 +32,62 @@ func ResourceIdentityV5Group() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"group_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the user group.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the user group.`,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the user group.`,
 			},
 			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The uniform resource name of the user group.`,
 			},
 		},
 	}
 }
 
-func resourceIdentityV5GroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5GroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
-	createGroupHttpUrl := "v5/groups"
-	createGroupPath := iamClient.Endpoint + createGroupHttpUrl
-	createGroupOpt := golangsdk.RequestOpts{
+
+	httpUrl := "v5/groups"
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateGroupBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildV5CreateGroupBodyParams(d)),
 	}
-	createGroupResp, err := iamClient.Request("POST", createGroupPath, &createGroupOpt)
+	createGroupResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IAM group: %s", err)
 	}
+
 	createGroupBody, err := utils.FlattenResponse(createGroupResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id := utils.PathSearch("group.group_id", createGroupBody, "").(string)
-	if id == "" {
-		return diag.Errorf("error getting IAM group : group id is not found in API response")
+
+	userGroupId := utils.PathSearch("group.group_id", createGroupBody, "").(string)
+	if userGroupId == "" {
+		return diag.Errorf("unable to find the user group ID from the API response")
 	}
-	d.SetId(id)
-	return resourceIdentityV5GroupRead(ctx, d, meta)
+
+	d.SetId(userGroupId)
+	return resourceV5GroupRead(ctx, d, meta)
 }
 
-func buildCreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildV5CreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"group_name":  d.Get("group_name").(string),
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
@@ -87,32 +95,39 @@ func buildCreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return bodyParams
 }
 
-func resourceIdentityV5GroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func GetV5GroupById(client *golangsdk.ServiceClient, groupId string) (interface{}, error) {
+	httpUrl := "v5/groups/{group_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{group_id}", groupId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("group", respBody, nil), nil
+}
+
+func resourceV5GroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
-	getGroupHttpUrl := "v5/groups/{group_id}"
-	getGroupPath := iamClient.Endpoint + getGroupHttpUrl
-	getGroupPath = strings.ReplaceAll(getGroupPath, "{group_id}", d.Id())
-	getGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getGroupResp, err := iamClient.Request("GET", getGroupPath, &getGroupOpt)
+
+	group, err := GetV5GroupById(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error getting IAM group")
 	}
-	getGroupRespBody, err := utils.FlattenResponse(getGroupResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	group := utils.PathSearch("group", getGroupRespBody, nil)
-	if group == nil {
-		return common.CheckDeletedDiag(d, err, "error getting IAM group : group is not found in API response")
-	}
 
-	mErr := multierror.Append(nil,
+	mErr := multierror.Append(
 		d.Set("description", utils.PathSearch("description", group, nil)),
 		d.Set("group_name", utils.PathSearch("group_name", group, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", group, nil)),
@@ -121,55 +136,64 @@ func resourceIdentityV5GroupRead(_ context.Context, d *schema.ResourceData, meta
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIdentityV5GroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+func resourceV5GroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg         = meta.(*config.Config)
+		userGroupId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	updateChanges := []string{
 		"group_name",
 		"description",
 	}
 	if d.HasChanges(updateChanges...) {
 		updateGroupHttpUrl := "v5/groups/{group_id}"
-		updateGroupPath := iamClient.Endpoint + updateGroupHttpUrl
-		updateGroupPath = strings.ReplaceAll(updateGroupPath, "{group_id}", d.Id())
+		updateGroupPath := client.Endpoint + updateGroupHttpUrl
+		updateGroupPath = strings.ReplaceAll(updateGroupPath, "{group_id}", userGroupId)
 		updateGroupOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			JSONBody:         buildUpdateGroupBodyParams(d),
+			JSONBody:         buildV5UpdateGroupBodyParams(d),
 		}
-		_, err := iamClient.Request("PUT", updateGroupPath, &updateGroupOpt)
+		_, err := client.Request("PUT", updateGroupPath, &updateGroupOpt)
 		if err != nil {
-			return diag.Errorf("error updating IAM group: %s", err)
+			return diag.Errorf("error updating user group (%s): %s", userGroupId, err)
 		}
 	}
-	return resourceIdentityV5GroupRead(ctx, d, meta)
+
+	return resourceV5GroupRead(ctx, d, meta)
 }
 
-func buildUpdateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
+func buildV5UpdateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
 		"new_group_name":        d.Get("group_name").(string),
 		"new_group_description": d.Get("description").(string),
 	}
-	return bodyParams
 }
 
-func resourceIdentityV5GroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+func resourceV5GroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg         = meta.(*config.Config)
+		userGroupId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+
 	deleteGroupHttpUrl := "v5/groups/{group_id}"
-	deleteGroupPath := iamClient.Endpoint + deleteGroupHttpUrl
-	deleteGroupPath = strings.ReplaceAll(deleteGroupPath, "{group_id}", d.Id())
+	deleteGroupPath := client.Endpoint + deleteGroupHttpUrl
+	deleteGroupPath = strings.ReplaceAll(deleteGroupPath, "{group_id}", userGroupId)
 	deleteGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	_, err = iamClient.Request("DELETE", deleteGroupPath, &deleteGroupOpt)
+	_, err = client.Request("DELETE", deleteGroupPath, &deleteGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IAM group: %s", err)
+		return diag.Errorf("error deleting user group (%s): %s", userGroupId, err)
 	}
+
 	return nil
 }
