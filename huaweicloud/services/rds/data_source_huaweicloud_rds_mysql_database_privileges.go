@@ -44,7 +44,7 @@ func DataSourceRdsMysqlDatabasePrivileges() *schema.Resource {
 				Optional: true,
 			},
 			"users": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     usersSchema(),
 			},
