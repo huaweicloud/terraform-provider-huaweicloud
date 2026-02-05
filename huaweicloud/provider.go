@@ -1092,6 +1092,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_pt_application_records":                  dds.DataSourceDdsPtApplicationRecords(),
 			"huaweicloud_dds_pt_modification_records":                 dds.DataSourceDdsPtModificationRecords(),
 			"huaweicloud_dds_instance_disk_usage":                     dds.DataSourceInstanceDiskUsage(),
+			"huaweicloud_dds_kill_op_rules":                           dds.DataSourceKillOpRules(),
 			"huaweicloud_dds_instance_parameter_modification_records": dds.DataSourceDdsInstanceParameterModificationRecords(),
 			"huaweicloud_dds_instances_by_tags":                       dds.DataSourceInstancesByTags(),
 			"huaweicloud_dds_databases":                               dds.DataSourceDdsDatabases(),
