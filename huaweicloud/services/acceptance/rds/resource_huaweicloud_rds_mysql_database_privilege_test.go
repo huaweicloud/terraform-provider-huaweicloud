@@ -76,46 +76,50 @@ func buildGetMysqlDatabasePrivilegeQueryParams(dbName string) string {
 }
 
 func TestAccMysqlDatabasePrivilege_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_rds_mysql_database_privilege.test"
+		rName = "huaweicloud_rds_mysql_database_privilege.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getMysqlDatabasePrivilegeResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getMysqlDatabasePrivilegeResourceFunc,
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+				// The version of the random provider must be greater than 3.3.0 to support the 'numeric' parameter.
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsDatabasePrivilege_basic(name),
+				Config: testAccMysqlDatabasePrivilege_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_rds_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "db_name",
 						"huaweicloud_rds_mysql_database.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "users.0.name",
-						"huaweicloud_rds_mysql_account.test_1", "name"),
-					resource.TestCheckResourceAttr(rName, "users.0.readonly", "false"),
+					resource.TestCheckResourceAttr(rName, "users.#", "2"),
 				),
 			},
 			{
-				Config: testAccRdsDatabasePrivilege_basic_update(name),
+				Config: testAccMysqlDatabasePrivilege_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_rds_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "db_name",
 						"huaweicloud_rds_mysql_database.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "users.0.name",
-						"huaweicloud_rds_mysql_account.test_2", "name"),
-					resource.TestCheckResourceAttr(rName, "users.0.readonly", "true"),
+					resource.TestCheckResourceAttr(rName, "users.#", "2"),
 				),
 			},
 			{
@@ -127,45 +131,125 @@ func TestAccMysqlDatabasePrivilege_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsDatabasePrivilege_basic(rName string) string {
+func testAccMysqlDatabasePrivilege_basic_base(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_rds_mysql_account" "test_1" {
-  instance_id = huaweicloud_rds_instance.test.id
-  name        = "%s_1"
-  password    = "Test@12345678"
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
 }
 
-resource "huaweicloud_rds_mysql_database_privilege" "test" {
-  instance_id = huaweicloud_rds_instance.test.id
-  db_name     = huaweicloud_rds_mysql_database.test.name
+resource "huaweicloud_vpc" "test" {
+  name                  = "%[1]s"
+  cidr                  = "192.168.0.0/16"
+  enterprise_project_id = "%[2]s"
+}
 
-  users {
-    name = huaweicloud_rds_mysql_account.test_1.name
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[1]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "%[1]s"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name                  = "%[1]s"
+  flavor                = data.huaweicloud_rds_flavors.test.flavors[0].name
+  availability_zone     = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "%[2]s"
+
+  db {
+    type    = "MySQL"
+    version = "8.0"
+    port    = 3306
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
   }
 }
-`, testMysqlDatabase_basic(rName, rName), rName)
+
+resource "huaweicloud_rds_mysql_database" "test" {
+  instance_id   = huaweicloud_rds_instance.test.id
+  name          = "%[1]s"
+  character_set = "utf8"
 }
 
-func testAccRdsDatabasePrivilege_basic_update(rName string) string {
-	return fmt.Sprintf(`
-%s
+resource "random_password" "test" {
+  length           = 12
+  min_numeric      = 1
+  min_upper        = 1
+  min_lower        = 1
+  special          = true
+  min_special      = 1
+  override_special = "!#"
+}
 
-resource "huaweicloud_rds_mysql_account" "test_2" {
+resource "huaweicloud_rds_mysql_account" "test" {
+  count = 3
+
   instance_id = huaweicloud_rds_instance.test.id
-  name        = "%s_2"
-  password    = "Test@12345678"
+  name        = format("%[1]s_%%d", count.index)
+  password    = random_password.test.result
 }
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccMysqlDatabasePrivilege_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_rds_mysql_database_privilege" "test" {
+  # The behavior of parameter 'name' of the database resource is 'Required', means this parameter does not have
+  # 'Know After Apply' behavior.
+  depends_on = [huaweicloud_rds_mysql_database.test]
+
   instance_id = huaweicloud_rds_instance.test.id
   db_name     = huaweicloud_rds_mysql_database.test.name
+  
+  dynamic "users" {
+    for_each = slice(huaweicloud_rds_mysql_account.test[*].name, 0, 2)
 
-  users {
-    name     = huaweicloud_rds_mysql_account.test_2.name
-    readonly = true
+    content {
+      name     = users.value
+      readonly = true
+    }
   }
 }
-`, testMysqlDatabase_basic(rName, rName), rName)
+`, testAccMysqlDatabasePrivilege_basic_base(name))
+}
+
+func testAccMysqlDatabasePrivilege_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_mysql_database_privilege" "test" {
+  # The behavior of parameter 'name' of the database resource is 'Required', means this parameter does not 
+  # have 'Know After Apply' behavior.
+  depends_on = [huaweicloud_rds_mysql_database.test]
+
+  instance_id = huaweicloud_rds_instance.test.id
+  db_name     = huaweicloud_rds_mysql_database.test.name
+  
+  dynamic "users" {
+    for_each = slice(huaweicloud_rds_mysql_account.test[*].name, 1, 3)
+
+    content {
+      name     = users.value
+      readonly = true
+    }
+  }
+}
+`, testAccMysqlDatabasePrivilege_basic_base(name))
 }
