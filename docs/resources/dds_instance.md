@@ -270,6 +270,18 @@ The `flavor` block supports:
   + dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
   + dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
 
+* `node_list` - (Optional, List) Specifies the ID list of instance nodes to be deleted.  
+  
+  -> 1. This parameter is available only when you delete a replica set instance nodes or a cluster instance
+     mongos nodes.
+     <br/>2. When you delete a replica set instance nodes, this parameter can be empty, but it is required when
+     you delete a cluster instance mongos nodes.
+     <br/>3. For a 7-node replica set instance, `2` or `4` standby nodes can be deleted.
+     <br/>4. For a 5-node replica set instance, `2` standby nodes can be deleted.
+     <br/>5. The standby node of a 3-node replica set instance cannot be deleted.
+     <br/>6. At least keep `2` mongos nodes of a cluster instance.
+     <br/>7. Nodes cannot be deleted from instances that have abnormal nodes.
+
 The `backup_strategy` block supports:
 
 * `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered during
