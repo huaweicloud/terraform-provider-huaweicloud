@@ -3,17 +3,16 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_login_policy"
 description: |-
-  Manages the account login policy within HuaweiCloud.
+  Manages the configuration of account login policy within HuaweiCloud.
 ---
 
 # huaweicloud_identity_login_policy
 
-Manages the account login policy within HuaweiCloud.
+Manages the configuration of account login policy within HuaweiCloud.
 
--> **NOTE:**
-  You *must* have admin privileges to use this resource.  
-  This resource overwrites an existing configuration, make sure one resource per account.  
-  During action `terraform destroy` it sets values the same as defaults for this resource.
+-> You **must** have admin privileges to use this resource.<br>
+   This resource overwrites an existing configuration, make sure one resource per account.  
+   During action `terraform destroy` it sets values the same as defaults for this resource.
 
 ## Example Usage
 
@@ -25,7 +24,7 @@ resource "huaweicloud_identity_login_policy" "test" {
   period_with_login_failures = 30
   session_timeout            = 120
   show_recent_login_info     = true
-  custom_info_for_login      = "hello Terraform"
+  custom_info_for_login      = "Hello Terraform"
 }
 ```
 
@@ -55,16 +54,20 @@ The following arguments are supported:
 * `show_recent_login_info` - (Optional, Bool) Specifies whether to display last login information upon successful login.
   The value can be **true** or **false**.
 
+-> At least one parameter value must be **non-default**.<br>
+   When all configurations are equal to their default values, the resource will be deleted and the corresponding
+   record will be automatically removed from `terraform.tfstate` file.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The ID of account login policy, which is the same as the account ID.
+* `id` - The ID of account login policy, which is the same as the domain (account) ID.
 
 ## Import
 
-Identity login policy can be imported using the account ID or domain ID, e.g.
+Identity login policy can be imported using the domain (account) ID, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_login_policy.example <your account ID>
+$ terraform import huaweicloud_identity_login_policy.test <domain_id>
 ```
