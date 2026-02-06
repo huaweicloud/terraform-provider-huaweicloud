@@ -32,22 +32,28 @@ func ResourceIdentityVirtualMFADevice() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The virtual MFA device name.`,
 			},
 			"user_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The user ID which the virtual MFA device belongs to.`,
 			},
+
+			// Attribute
 			"base32_string_seed": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The base32 seed, which a third-patry system can use to generate a CAPTCHA code.`,
 			},
 			"qr_code_png": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The QR code PNG image.`,
 			},
 		},
 	}
