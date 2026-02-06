@@ -16,14 +16,15 @@ import (
 )
 
 // @API IAM GET /v5/authorization-schemas/services/{service_code}
-func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
+func DataSourceV5AuthorizationSchema() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5AuthorizationSchemaRead,
+		ReadContext: dataSourceV5AuthorizationSchemaRead,
 
 		Schema: map[string]*schema.Schema{
 			"service_code": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The service name abbreviation to be queried.`,
 			},
 			"actions": {
 				Type:     schema.TypeList,
@@ -31,12 +32,15 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The authorization item name.`,
 						},
 						"permission_only": {
 							Type:     schema.TypeBool,
 							Computed: true,
+							Description: `Whether the authorization item is only used as a permission point and
+does not correspond to any operation.`,
 						},
 						"resources": {
 							Type:     schema.TypeList,
@@ -47,31 +51,39 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+										Description: `The service custom conditional attribute list and some global attribute list supported
+  by the authorization item and resource.`,
 									},
 									"required": {
-										Type:     schema.TypeBool,
-										Computed: true,
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `Whether the resource type is mandatory for this authorization item.`,
 									},
 									"urn_template": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The uniform resource name template for the resource.`,
 									},
 								},
 							},
 						},
 						"access_level": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The access level granted when using this authorization item in a policy.`,
 						},
 						"aliases": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The list of authorization item aliases.`,
 						},
 						"condition_keys": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+							Description: `The service custom conditional attribute list and some global attribute list supported by the
+  authorization items and are independent of the resources.`,
 						},
 						"description": {
 							Type:     schema.TypeList,
@@ -91,6 +103,7 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 						},
 					},
 				},
+				Description: `The list of authorization items supported by the cloud service.`,
 			},
 			"conditions": {
 				Type:     schema.TypeList,
@@ -103,30 +116,36 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"en_us": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The English description.`,
 									},
 									"zh_cn": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The Chinese description.`,
 									},
 								},
 							},
 						},
 						"key": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The condition key name.`,
 						},
 						"multi_valued": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the condition value is multi-valued.`,
 						},
 						"value_type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The data type of the condition value.`,
 						},
 					},
 				},
+				Description: `The list of condition keys supported by the cloud service.`,
 			},
 			"operations": {
 				Type:     schema.TypeList,
@@ -134,20 +153,24 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dependent_actions": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The other authorization item list that this operation may require.`,
 						},
 						"operation_action": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The action of the operation.`,
 						},
 						"operation_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The OpenAPI operation identifier.`,
 						},
 					},
 				},
+				Description: `The list of operations supported by the cloud service.`,
 			},
 			"resources": {
 				Type:     schema.TypeList,
@@ -155,63 +178,69 @@ func DataSourceIdentityV5AuthorizationSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"urn_template": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name template for the resource.`,
 						},
 						"type_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type name of the resource.`,
 						},
 					},
 				},
+				Description: `The list of resources supported by the cloud service.`,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The version number of the service authorization summary.`,
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5AuthorizationSchemaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceV5AuthorizationSchemaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	serviceCode := d.Get("service_code").(string)
-
-	createLoginProfileHttpUrl := "v5/authorization-schemas/services/{service_code}"
-	createLoginProfilePath := iamClient.Endpoint + createLoginProfileHttpUrl
-	createLoginProfilePath = strings.ReplaceAll(createLoginProfilePath, "{service_code}", serviceCode)
+	httpUrl := "v5/authorization-schemas/services/{service_code}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{service_code}", d.Get("service_code").(string))
 
 	createLoginProfileOpt := &golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	createLoginProfileResp, err := iamClient.Request("GET", createLoginProfilePath, createLoginProfileOpt)
+	resp, err := client.Request("GET", getPath, createLoginProfileOpt)
 	if err != nil {
-		return diag.Errorf("error get IAM authorization schema: %s", err)
+		return diag.Errorf("error getting IAM authorization schema: %s", err)
 	}
 
-	createLoginProfileBody, err := utils.FlattenResponse(createLoginProfileResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	randomId, err := uuid.GenerateUUID()
 	if err != nil {
-		return diag.Errorf("error generate uuid: %s", err)
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(randomId)
 
-	mErr := multierror.Append(nil,
-		d.Set("actions", flattenActions(utils.PathSearch("actions", createLoginProfileBody, nil))),
-		d.Set("conditions", flattenConditions(utils.PathSearch("conditions", createLoginProfileBody, nil))),
-		d.Set("operations", flattenOperations(utils.PathSearch("operations", createLoginProfileBody, nil))),
-		d.Set("resources", flattenResources(utils.PathSearch("resources", createLoginProfileBody, nil))),
-		d.Set("version", utils.PathSearch("version", createLoginProfileBody, nil)),
+	mErr := multierror.Append(
+		d.Set("actions", flattenV5AuthorizationSchemaActions(utils.PathSearch("actions", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("conditions", flattenV5AuthorizationSchemaConditions(utils.PathSearch("conditions", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("operations", flattenV5AuthorizationSchemaOperations(utils.PathSearch("operations", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("resources", flattenV5AuthorizationSchemaResources(utils.PathSearch("resources", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("version", utils.PathSearch("version", respBody, "").(string)),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -221,135 +250,104 @@ func dataSourceIdentityV5AuthorizationSchemaRead(_ context.Context, d *schema.Re
 	return nil
 }
 
-func flattenActions(actions interface{}) []interface{} {
-	if actions == nil {
+func flattenV5AuthorizationSchemaActions(actions []interface{}) []interface{} {
+	if len(actions) == 0 {
 		return nil
 	}
 
-	actionList := actions.([]interface{})
-	result := make([]interface{}, len(actionList))
-
-	for i, v := range actionList {
-		action := v.(map[string]interface{})
-		result[i] = map[string]interface{}{
-			"name":            action["name"],
-			"permission_only": action["permission_only"],
-			"resources":       flattenActionResources(action["resources"]),
-			"access_level":    action["access_level"],
-			"aliases":         action["aliases"],
-			"condition_keys":  action["condition_keys"],
-			"description":     flattenActionDescription(action["description"]),
-		}
+	result := make([]interface{}, 0, len(actions))
+	for _, v := range actions {
+		result = append(result, map[string]interface{}{
+			"name":            utils.PathSearch("name", v, nil),
+			"permission_only": utils.PathSearch("permission_only", v, nil),
+			"resources": flattenV5AuthorizationSchemaActionResources(utils.PathSearch("resources", v,
+				make([]interface{}, 0)).([]interface{})),
+			"access_level":   utils.PathSearch("access_level", v, nil),
+			"aliases":        utils.PathSearch("aliases", v, nil),
+			"condition_keys": utils.PathSearch("condition_keys", v, nil),
+			"description":    flattenV5AuthorizationSchemaDescription(utils.PathSearch("description", v, nil)),
+		})
 	}
 
 	return result
 }
 
-func flattenActionResources(resources interface{}) []interface{} {
-	if resources == nil {
+func flattenV5AuthorizationSchemaActionResources(resources []interface{}) []interface{} {
+	if len(resources) == 0 {
 		return nil
 	}
 
-	resourceList := resources.([]interface{})
-	result := make([]interface{}, len(resourceList))
-
-	for i, v := range resourceList {
-		resource := v.(map[string]interface{})
-		result[i] = map[string]interface{}{
-			"condition_keys": resource["condition_keys"],
-			"required":       resource["required"],
-			"urn_template":   resource["urn_template"],
-		}
+	result := make([]interface{}, 0, len(resources))
+	for _, v := range resources {
+		result = append(result, map[string]interface{}{
+			"condition_keys": utils.PathSearch("condition_keys", v, nil),
+			"required":       utils.PathSearch("required", v, nil),
+			"urn_template":   utils.PathSearch("urn_template", v, nil),
+		})
 	}
 
 	return result
 }
 
-func flattenActionDescription(description interface{}) []interface{} {
+func flattenV5AuthorizationSchemaDescription(description interface{}) []interface{} {
 	if description == nil {
 		return nil
 	}
 
-	desc := description.(map[string]interface{})
-	result := make([]interface{}, 1)
-	result[0] = map[string]interface{}{
-		"en_us": desc["en_US"],
-		"zh_cn": desc["zh_CN"],
+	return []interface{}{
+		map[string]interface{}{
+			"en_us": utils.PathSearch("en_US", description, nil),
+			"zh_cn": utils.PathSearch("zh_CN", description, nil),
+		},
+	}
+}
+
+func flattenV5AuthorizationSchemaConditions(conditions []interface{}) []interface{} {
+	if len(conditions) == 0 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(conditions))
+	for _, v := range conditions {
+		result = append(result, map[string]interface{}{
+			"description":  flattenV5AuthorizationSchemaDescription(utils.PathSearch("description", v, nil)),
+			"key":          utils.PathSearch("key", v, nil),
+			"multi_valued": utils.PathSearch("multi_valued", v, nil),
+			"value_type":   utils.PathSearch("value_type", v, nil),
+		})
 	}
 
 	return result
 }
 
-func flattenConditions(conditions interface{}) []interface{} {
-	if conditions == nil {
+func flattenV5AuthorizationSchemaOperations(operations []interface{}) []interface{} {
+	if len(operations) == 0 {
 		return nil
 	}
 
-	conditionList := conditions.([]interface{})
-	result := make([]interface{}, len(conditionList))
-
-	for i, v := range conditionList {
-		condition := v.(map[string]interface{})
-		result[i] = map[string]interface{}{
-			"description":  flattenConditionDescription(condition["description"]),
-			"key":          condition["key"],
-			"multi_valued": condition["multi_valued"],
-			"value_type":   condition["value_type"],
-		}
+	result := make([]interface{}, 0, len(operations))
+	for _, v := range operations {
+		result = append(result, map[string]interface{}{
+			"dependent_actions": utils.PathSearch("dependent_actions", v, nil),
+			"operation_action":  utils.PathSearch("operation_action", v, nil),
+			"operation_id":      utils.PathSearch("operation_id", v, nil),
+		})
 	}
 
 	return result
 }
 
-func flattenConditionDescription(description interface{}) []interface{} {
-	if description == nil {
+func flattenV5AuthorizationSchemaResources(resources []interface{}) []interface{} {
+	if len(resources) == 0 {
 		return nil
 	}
 
-	desc := description.(map[string]interface{})
-	result := make([]interface{}, 1)
-	result[0] = map[string]interface{}{
-		"en_us": desc["en_US"],
-		"zh_cn": desc["zh_CN"],
-	}
-
-	return result
-}
-
-func flattenOperations(operations interface{}) []interface{} {
-	if operations == nil {
-		return nil
-	}
-
-	operationList := operations.([]interface{})
-	result := make([]interface{}, len(operationList))
-
-	for i, v := range operationList {
-		operation := v.(map[string]interface{})
-		result[i] = map[string]interface{}{
-			"dependent_actions": operation["dependent_actions"],
-			"operation_action":  operation["operation_action"],
-			"operation_id":      operation["operation_id"],
-		}
-	}
-
-	return result
-}
-
-func flattenResources(resources interface{}) []interface{} {
-	if resources == nil {
-		return nil
-	}
-
-	resourceList := resources.([]interface{})
-	result := make([]interface{}, len(resourceList))
-
-	for i, v := range resourceList {
-		resource := v.(map[string]interface{})
-		result[i] = map[string]interface{}{
-			"urn_template": resource["urn_template"],
-			"type_name":    resource["type_name"],
-		}
+	result := make([]interface{}, 0, len(resources))
+	for _, v := range resources {
+		result = append(result, map[string]interface{}{
+			"urn_template": utils.PathSearch("urn_template", v, nil),
+			"type_name":    utils.PathSearch("type_name", v, nil),
+		})
 	}
 
 	return result

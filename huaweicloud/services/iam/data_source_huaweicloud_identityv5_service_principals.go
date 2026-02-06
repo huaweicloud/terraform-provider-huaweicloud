@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,15 +15,16 @@ import (
 )
 
 // @API IAM GET /v5/service-principals
-func DataSourceIdentityV5ServicePrincipals() *schema.Resource {
+func DataSourceV5ServicePrincipals() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5ServicePrincipalsRead,
+		ReadContext: dataSourceV5ServicePrincipalsRead,
 
 		Schema: map[string]*schema.Schema{
 			"language": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "zh-cn",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "zh-cn",
+				Description: `The language of the information returned by the interface.`,
 			},
 			"service_principals": {
 				Type:     schema.TypeList,
@@ -32,96 +32,116 @@ func DataSourceIdentityV5ServicePrincipals() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_principal": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the service principal.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the service principal.`,
 						},
 						"display_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The display name of the service principal.`,
 						},
 						"service_catalog": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The cloud service name.`,
 						},
 					},
 				},
+				Description: `The list of service principals.`,
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5ServicePrincipalsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam", region)
-	if err != nil {
-		return diag.Errorf("error creating IAM client: %s", err)
+func buildV5ServicePrincipalsQueryParams(marker string) string {
+	if marker != "" {
+		return fmt.Sprintf("&marker=%v", marker)
 	}
+	return ""
+}
 
-	var allServicePrincipals []interface{}
-	var marker string
-	var path string
+func listV5ServicePrincipals(client *golangsdk.ServiceClient, language string) ([]interface{}, error) {
+	var (
+		httpUrl = "v5/service-principals"
+		result  = make([]interface{}, 0)
+		marker  = ""
+		// Default limit is 100, maximum is 200.
+		limit = 200
+	)
+
+	listPath := client.Endpoint + fmt.Sprintf("%s?limit=%d", httpUrl, limit)
 	for {
-		path = fmt.Sprintf("%sv5/service-principals", client.Endpoint) + buildListServicePrincipalsV5Params(marker)
+		listPathWithMarker := listPath + buildV5ServicePrincipalsQueryParams(marker)
 		reqOpt := &golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			MoreHeaders: map[string]string{
-				"X-Language": d.Get("language").(string),
+				"X-Language": language,
 			},
 		}
-		resp, err := client.Request("GET", path, reqOpt)
+		resp, err := client.Request("GET", listPathWithMarker, reqOpt)
 		if err != nil {
-			return diag.Errorf("error retrieving service principals: %s", err)
+			return nil, err
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return diag.FromErr(err)
+			return nil, err
 		}
 
-		servicePrincipals := flattenServicePrincipalsV5Response(respBody)
-		allServicePrincipals = append(allServicePrincipals, servicePrincipals...)
+		principals := utils.PathSearch("service_principals", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, principals...)
+		if len(principals) < limit {
+			break
+		}
 
 		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
-
-	mErr := multierror.Append(nil,
-		d.Set("service_principals", allServicePrincipals),
-	)
-	return diag.FromErr(mErr.ErrorOrNil())
+	return result, nil
 }
 
-func buildListServicePrincipalsV5Params(marker string) string {
-	res := "?limit=100"
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
+func dataSourceV5ServicePrincipalsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
-	return res
+
+	principals, err := listV5ServicePrincipals(client, d.Get("language").(string))
+	if err != nil {
+		return diag.Errorf("error retrieving service principals: %s", err)
+	}
+
+	randomId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(randomId)
+
+	return diag.FromErr(d.Set("service_principals", flattenV5ServicePrincipals(principals)))
 }
 
-func flattenServicePrincipalsV5Response(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenV5ServicePrincipals(principals []interface{}) []interface{} {
+	if len(principals) == 0 {
 		return nil
 	}
 
-	principals := utils.PathSearch("service_principals", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(principals))
-	for i, principal := range principals {
-		result[i] = map[string]interface{}{
+	result := make([]interface{}, 0, len(principals))
+	for _, principal := range principals {
+		result = append(result, map[string]interface{}{
 			"service_principal": utils.PathSearch("service_principal", principal, nil),
 			"description":       utils.PathSearch("description", principal, nil),
 			"display_name":      utils.PathSearch("display_name", principal, nil),
 			"service_catalog":   utils.PathSearch("service_catalog", principal, nil),
-		}
+		})
 	}
 	return result
 }
