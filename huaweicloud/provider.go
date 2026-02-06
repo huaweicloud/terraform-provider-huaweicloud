@@ -3612,6 +3612,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelartsv2_node_batch_delete":      modelarts.ResourceV2NodeBatchDelete(),
 			"huaweicloud_modelartsv2_node_batch_reboot":      modelarts.ResourceV2NodeBatchReboot(),
 			"huaweicloud_modelartsv2_node_batch_unsubscribe": modelarts.ResourceV2NodeBatchUnsubscribe(),
+			"huaweicloud_modelartsv2_resource_pool":          modelarts.Resourcev2ResourcePool(),
 			"huaweicloud_modelartsv2_service":                modelarts.ResourceV2Service(),
 			"huaweicloud_modelartsv2_service_action":         modelarts.ResourceV2ServiceAction(),
 
