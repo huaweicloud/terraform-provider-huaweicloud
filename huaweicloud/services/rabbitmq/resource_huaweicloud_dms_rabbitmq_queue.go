@@ -306,33 +306,32 @@ func flattenConsumerDetails(paramsList []interface{}) interface{} {
 	rst := make([]interface{}, 0, len(paramsList))
 	for _, params := range paramsList {
 		rst = append(rst, map[string]interface{}{
-			"consumer_tag":    utils.PathSearch("consumer_tag", params, nil),
-			"channel_details": flattenChannelDetails(utils.PathSearch("channel_details", params, make([]interface{}, 0)).([]interface{})),
-			"ack_required":    utils.PathSearch("ack_required", params, nil),
-			"prefetch_count":  utils.PathSearch("prefetch_count", params, nil),
+			"consumer_tag": utils.PathSearch("consumer_tag", params, nil),
+			"channel_details": flattenChannelDetails(utils.PathSearch("channel_details", params,
+				make(map[string]interface{})).(map[string]interface{})),
+			"ack_required":   utils.PathSearch("ack_required", params, nil),
+			"prefetch_count": utils.PathSearch("prefetch_count", params, nil),
 		})
 	}
 
 	return rst
 }
 
-func flattenChannelDetails(paramsList []interface{}) interface{} {
-	if len(paramsList) == 0 {
+func flattenChannelDetails(channelDetails map[string]interface{}) []map[string]interface{} {
+	if len(channelDetails) == 0 {
 		return nil
 	}
-	rst := make([]interface{}, 0, len(paramsList))
-	for _, params := range paramsList {
-		rst = append(rst, map[string]interface{}{
-			"name":            utils.PathSearch("name", params, nil),
-			"number":          utils.PathSearch("number", params, nil),
-			"user":            utils.PathSearch("user", params, nil),
-			"connection_name": utils.PathSearch("connection_name", params, nil),
-			"peer_host":       utils.PathSearch("peer_host", params, nil),
-			"peer_port":       utils.PathSearch("peer_port", params, nil),
-		})
-	}
 
-	return rst
+	return []map[string]interface{}{
+		{
+			"name":            utils.PathSearch("name", channelDetails, nil),
+			"number":          utils.PathSearch("number", channelDetails, nil),
+			"user":            utils.PathSearch("user", channelDetails, nil),
+			"connection_name": utils.PathSearch("connection_name", channelDetails, nil),
+			"peer_host":       utils.PathSearch("peer_host", channelDetails, nil),
+			"peer_port":       utils.PathSearch("peer_port", channelDetails, nil),
+		},
+	}
 }
 
 func flattenQueueBingdings(paramsList []interface{}) interface{} {
