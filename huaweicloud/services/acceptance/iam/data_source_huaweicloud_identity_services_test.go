@@ -9,10 +9,10 @@ import (
 )
 
 func TestAccIdentityServices_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_identity_services.test"
-
-	config := testAccIdentityServices_basic()
-	configById := testAccIdentityServicesById_basic()
+	var (
+		all = "data.huaweicloud_identity_services.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,15 +22,25 @@ func TestAccIdentityServices_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: config,
+				Config: testAccIdentityServices_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSource, "services.0.enabled", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(all, "services.0.enabled", "true"),
+					resource.TestCheckResourceAttrSet(all, "services.0.name"),
+					resource.TestCheckResourceAttrSet(all, "services.0.id"),
+					resource.TestCheckResourceAttrSet(all, "services.0.type"),
+					resource.TestCheckResourceAttrSet(all, "services.0.link"),
 				),
 			},
 			{
-				Config: configById,
+				Config: testAccIdentityServicesById_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSource, "services.0.enabled", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(all, "services.0.enabled", "true"),
+					resource.TestCheckResourceAttrSet(all, "services.0.name"),
+					resource.TestCheckResourceAttrSet(all, "services.0.id"),
+					resource.TestCheckResourceAttrSet(all, "services.0.type"),
+					resource.TestCheckResourceAttrSet(all, "services.0.link"),
 				),
 			},
 		},
