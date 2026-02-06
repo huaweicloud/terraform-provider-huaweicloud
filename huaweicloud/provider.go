@@ -3211,6 +3211,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_er_association":         er.ResourceAssociation(),
 			"huaweicloud_er_attachment_accepter": er.ResourceAttachmentAccepter(),
+			"huaweicloud_er_attachment_update":   er.ResourceAttachmentUpdate(),
 			"huaweicloud_er_instance":            er.ResourceInstance(),
 			"huaweicloud_er_propagation":         er.ResourcePropagation(),
 			"huaweicloud_er_route_table":         er.ResourceRouteTable(),
