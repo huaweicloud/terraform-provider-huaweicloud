@@ -3,17 +3,17 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_user_attached_policies"
 description: |-
-  Use this data source to get attached policies for a specified IAM V5 user.
+  Use this data source to get policy list attached to a user within Huaweicloud.
 ---
 
 # huaweicloud_identityv5_user_attached_policies
 
-Use this data source to get attached policies for a specified IAM V5 user.
+Use this data source to get policy list attached to a user within Huaweicloud.
 
 ## Example Usage
 
 ```hcl
-variable user_id {}
+variable "user_id" {}
 
 data "huaweicloud_identityv5_user_attached_policies" "test" {
   user_id = var.user_id
@@ -30,16 +30,18 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `attached_policies` - Indicate the attached policies of the IAM user.
-  The [attached_policies](#IdentityV5Attached_policies) structure is documented below.
+* `id` - The data source ID.
 
-<a name="IdentityV5Attached_policies"></a>
-The `attached_policies` block contains:
+* `attached_policies` - The list of policies attached to the user.  
+  The [attached_policies](#v5_user_attached_policies) structure is documented below.
 
-* `attached_at` - Indicate the time when the policy was attached.
+<a name="v5_user_attached_policies"></a>
+The `attached_policies` block supports:
 
-* `policy_id` - Indicate the ID of the policy.
+* `policy_id` - The ID of the policy.
 
-* `policy_name` - Indicate the name of the policy.
+* `policy_name` - The name of the policy.
 
-* `urn` - Indicate the Uniform Resource Name (URN) of the policy.
+* `attached_at` - The creation time of the policy.
+
+* `urn` - The Uniform Resource Name (URN) of the policy.

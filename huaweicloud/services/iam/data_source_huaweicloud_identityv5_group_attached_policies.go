@@ -16,113 +16,133 @@ import (
 )
 
 // @API IAM GET /v5/groups/{group_id}/attached-policies
-func DataSourceIdentityV5GroupAttachedPolicies() *schema.Resource {
+func DataSourceV5GroupAttachedPolicies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIdentityV5GroupAttachedPoliciesRead,
+		ReadContext: dataSourceV5GroupAttachedPoliciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"group_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ID of the IAM user group.",
 			},
 			"attached_policies": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"attached_at": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"policy_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the policy.",
 						},
 						"policy_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the policy.",
+						},
+						"attached_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The creation time of the policy.",
 						},
 						"urn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The Uniform Resource Name (URN) of the policy.",
 						},
 					},
 				},
+				Description: "The list of policies attached to the user group.",
 			},
 		},
 	}
 }
 
-func dataSourceIdentityV5GroupAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam", region)
-	if err != nil {
-		return diag.Errorf("error creating IAM client: %s", err)
+func buildV5GroupAttachedPoliciesQueryParams(marker string) string {
+	if marker != "" {
+		return fmt.Sprintf("&marker=%v", marker)
+	}
+	return ""
+}
+
+func listV5GroupAttachedPolicies(client *golangsdk.ServiceClient, groupId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v5/groups/{group_id}/attached-policies"
+		limit   = 100
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{group_id}", groupId)
+	listPath = fmt.Sprintf("%s?limit=%v", listPath, limit)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	groupId := d.Get("group_id").(string)
-
-	var allPolicies []interface{}
-	var marker string
-	var path string
-
 	for {
-		path = client.Endpoint + "v5/groups/{group_id}/attached-policies" + buildListAttachedPoliciesV5Params(marker)
-		path = strings.ReplaceAll(path, "{group_id}", groupId)
-		reqOpt := &golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		r, err := client.Request("GET", path, reqOpt)
+		listPathWithMarker := listPath + buildV5GroupAttachedPoliciesQueryParams(marker)
+		resp, err := client.Request("GET", listPathWithMarker, &opt)
 		if err != nil {
-			return diag.Errorf("error retrieving attached policies: %s", err)
+			return nil, err
 		}
-		resp, err := utils.FlattenResponse(r)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return diag.FromErr(err)
+			return nil, err
 		}
-		policies := flattenListAttachedPoliciesV5Response(resp)
-		allPolicies = append(allPolicies, policies...)
 
-		marker = utils.PathSearch("page_info.next_marker", resp, "").(string)
+		policies := utils.PathSearch("attached_policies", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, policies...)
+
+		if len(policies) < limit {
+			break
+		}
+
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if marker == "" {
 			break
 		}
 	}
 
-	id, err := uuid.GenerateUUID()
+	return result, nil
+}
+
+func dataSourceV5GroupAttachedPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM client: %s", err)
+	}
+
+	groupId := d.Get("group_id").(string)
+	policies, err := listV5GroupAttachedPolicies(client, groupId)
+	if err != nil {
+		return diag.Errorf("error retrieving group (%s) attached policies: %s", groupId, err)
+	}
+
+	randomId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
-	if err = d.Set("attached_policies", allPolicies); err != nil {
-		return diag.FromErr(err)
-	}
-	return nil
+	d.SetId(randomId)
+
+	return diag.FromErr(d.Set("attached_policies", flattenV5GroupAttachedPolicies(policies)))
 }
 
-func flattenListAttachedPoliciesV5Response(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenV5GroupAttachedPolicies(policies []interface{}) []interface{} {
+	if len(policies) == 0 {
 		return nil
 	}
 
-	policies := utils.PathSearch("attached_policies", resp, make([]interface{}, 0)).([]interface{})
-	result := make([]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
-			"policy_name": utils.PathSearch("policy_name", policy, nil),
+	result := make([]interface{}, 0, len(policies))
+	for _, policy := range policies {
+		result = append(result, map[string]interface{}{
 			"policy_id":   utils.PathSearch("policy_id", policy, nil),
+			"policy_name": utils.PathSearch("policy_name", policy, nil),
 			"urn":         utils.PathSearch("urn", policy, nil),
 			"attached_at": utils.PathSearch("attached_at", policy, nil),
-		}
+		})
 	}
 	return result
-}
-
-func buildListAttachedPoliciesV5Params(marker string) string {
-	res := "?limit=100"
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-	return res
 }
