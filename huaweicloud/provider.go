@@ -1839,6 +1839,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup_tags":     vpc.DataSourceVpcNetworkingSecgroupTags(),
 
 			"huaweicloud_mapreduce_versions": mrs.DataSourceMrsVersions(),
+			"huaweicloud_mapreduce_flavors":  mrs.DataSourceMrsFlavors(),
 
 			"huaweicloud_modelarts_datasets":         modelarts.DataSourceDatasets(),
 			"huaweicloud_modelarts_dataset_versions": modelarts.DataSourceDatasetVerions(),
