@@ -7,51 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
-
-func getV5LoginPolicy(client *golangsdk.ServiceClient) (interface{}, error) {
-	httpUrl := "v5/login-policy"
-	getPath := client.Endpoint + httpUrl
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	resp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return nil, err
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	// If the login policy values are not the default values, means the login policy is not destroyed.
-	if utils.PathSearch("login_policy.user_validity_period", respBody, float64(0)).(float64) != 0 ||
-		utils.PathSearch("login_policy.custom_info_for_login", respBody, "").(string) != "" ||
-		utils.PathSearch("login_policy.lockout_duration", respBody, float64(0)).(float64) != 15 ||
-		utils.PathSearch("login_policy.login_failed_times", respBody, float64(0)).(float64) != 5 ||
-		utils.PathSearch("login_policy.period_with_login_failures", respBody, float64(0)).(float64) != 15 ||
-		utils.PathSearch("login_policy.session_timeout", respBody, float64(0)).(float64) != 60 ||
-		utils.PathSearch("login_policy.show_recent_login_info", respBody, false).(bool) ||
-		utils.PathSearch("length(login_policy.allow_address_netmasks)", respBody, float64(0)).(float64) != 0 ||
-		utils.PathSearch("length(login_policy.allow_ip_ranges)", respBody, float64(0)).(float64) != 1 ||
-		utils.PathSearch("login_policy.allow_ip_ranges[0].ip_range", respBody, "").(string) != "0.0.0.0-255.255.255.255" ||
-		utils.PathSearch("login_policy.allow_ip_ranges[0].description", respBody, "").(string) != "" ||
-		utils.PathSearch("length(login_policy.allow_ip_ranges_ipv6)", respBody, float64(0)).(float64) != 1 ||
-		utils.PathSearch("login_policy.allow_ip_ranges_ipv6[0].ip_range", respBody, "").(string) !=
-			"0000:0000:0000:0000:0000:0000:0000:0000-FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF" ||
-		utils.PathSearch("login_policy.allow_ip_ranges_ipv6[0].description", respBody, "").(string) != "" {
-		return respBody, nil
-	}
-
-	return nil, golangsdk.ErrDefault404{}
-}
 
 func getV5LoginPolicyFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
@@ -59,7 +18,7 @@ func getV5LoginPolicyFunc(cfg *config.Config, _ *terraform.ResourceState) (inter
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	return getV5LoginPolicy(client)
+	return iam.GetV5LoginPolicy(client)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.

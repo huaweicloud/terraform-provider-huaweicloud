@@ -2,17 +2,14 @@ package iam
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV5LoginProfileFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,17 +17,8 @@ func getV5LoginProfileFunc(cfg *config.Config, state *terraform.ResourceState) (
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	getLoginProfileHttpUrl := "v5/users/{user_id}/login-profile"
-	getLoginProfilePath := client.Endpoint + getLoginProfileHttpUrl
-	getLoginProfilePath = strings.ReplaceAll(getLoginProfilePath, "{user_id}", state.Primary.ID)
-	getLoginProfileOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getLoginProfileResp, err := client.Request("GET", getLoginProfilePath, &getLoginProfileOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IAM login profile: %s", err)
-	}
-	return utils.FlattenResponse(getLoginProfileResp)
+
+	return iam.GetV5LoginProfile(client, state.Primary.Attributes["user_id"])
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
