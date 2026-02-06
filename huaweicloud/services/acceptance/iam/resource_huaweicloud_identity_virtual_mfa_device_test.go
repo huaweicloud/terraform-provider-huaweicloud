@@ -34,14 +34,13 @@ func getIdentityVirtualMFADeviceResourceFunc(conf *config.Config, state *terrafo
 }
 
 func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
-	var obj interface{}
-	resourceName := "huaweicloud_identity_virtual_mfa_device.test"
-	rName := acceptance.RandomAccResourceName()
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getIdentityVirtualMFADeviceResourceFunc,
+		resourceName = "huaweicloud_identity_virtual_mfa_device.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getIdentityVirtualMFADeviceResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,10 +53,10 @@ func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityVirtualMFADevice_basic(rName),
+				Config: testAccIdentityVirtualMFADevice_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "user_id", acceptance.HW_USER_ID),
 					resource.TestCheckResourceAttrSet(resourceName, "base32_string_seed"),
 					resource.TestCheckResourceAttrSet(resourceName, "qr_code_png"),
@@ -78,9 +77,12 @@ func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
 
 func testAccIdentityVirtualMFADevice_basic(name string) string {
 	return fmt.Sprintf(`
+// Only a user can create a virtual MFA device for himself.
+// Even a primary user cannot create an MFA for a sub-user.
+
 resource "huaweicloud_identity_virtual_mfa_device" "test" {
-  name    = "%s"
-  user_id = "%s"
+  name    = "%[1]s"
+  user_id = "%[2]s"
 }
 `, name, acceptance.HW_USER_ID)
 }
