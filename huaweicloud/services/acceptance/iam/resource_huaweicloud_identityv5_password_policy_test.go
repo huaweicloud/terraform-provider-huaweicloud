@@ -7,42 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
-
-func getV5PasswordPolicy(client *golangsdk.ServiceClient) (interface{}, error) {
-	httpUrl := "v5/password-policy"
-	getPath := client.Endpoint + httpUrl
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	resp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return nil, err
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	if utils.PathSearch("password_policy.maximum_consecutive_identical_chars", respBody, float64(0)).(float64) != 0 ||
-		utils.PathSearch("password_policy.minimum_password_age", respBody, float64(0)).(float64) != 0 ||
-		utils.PathSearch("password_policy.minimum_password_length", respBody, float64(0)).(float64) != 8 ||
-		utils.PathSearch("password_policy.password_reuse_prevention", respBody, float64(0)).(float64) != 1 ||
-		!utils.PathSearch("password_policy.password_not_username_or_invert", respBody, false).(bool) ||
-		utils.PathSearch("password_policy.password_validity_period", respBody, float64(0)).(float64) != 0 ||
-		utils.PathSearch("password_policy.password_char_combination", respBody, float64(0)).(float64) != 2 ||
-		!utils.PathSearch("password_policy.allow_user_to_change_password", respBody, false).(bool) {
-		return respBody, nil
-	}
-
-	return nil, golangsdk.ErrDefault404{}
-}
 
 func getV5PasswordPolicyFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam", acceptance.HW_REGION_NAME)
@@ -50,7 +18,7 @@ func getV5PasswordPolicyFunc(cfg *config.Config, _ *terraform.ResourceState) (in
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	return getV5PasswordPolicy(client)
+	return iam.GetV5PasswordPolicy(client)
 }
 
 // Please ensure that the user executing the acceptance test has 'admin' permission.
