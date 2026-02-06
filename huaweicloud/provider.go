@@ -1856,6 +1856,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
+			"huaweicloud_oms_migration_sync_tasks": oms.DataSourceMigrationSyncTasks(),
+
 			"huaweicloud_ram_resource_permissions":                  ram.DataSourceResourcePermissions(),
 			"huaweicloud_ram_resource_permission":                   ram.DataSourceResourcePermission(),
 			"huaweicloud_ram_resource_share_invitations":            ram.DataSourceResourceShareInvitations(),
