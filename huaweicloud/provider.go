@@ -2808,6 +2808,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_observability_configuration": cci.ResourceV2ObservabilityConfiguration(),
 
 			"huaweicloud_ccm_certificate":                ccm.ResourceCCMCertificate(),
+			"huaweicloud_ccm_csr":                        ccm.ResourceCsr(),
 			"huaweicloud_ccm_certificate_apply":          ccm.ResourceCertificateApply(),
 			"huaweicloud_ccm_certificate_deploy":         ccm.ResourceCertificateDeploy(),
 			"huaweicloud_ccm_certificate_import":         ccm.ResourceCertificateImport(),
