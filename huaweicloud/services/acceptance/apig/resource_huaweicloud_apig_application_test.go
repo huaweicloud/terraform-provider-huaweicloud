@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -25,49 +26,59 @@ func getApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (int
 
 func TestAccApplication_basic(t *testing.T) {
 	var (
-		app applications.Application
+		app           applications.Application
+		rName         = "huaweicloud_apig_application.test"
+		rc            = acceptance.InitResourceCheck(rName, &app, getApplicationFunc)
+		resertSecret  = "huaweicloud_apig_application.reset_secret"
+		rcResetSecret = acceptance.InitResourceCheck(resertSecret, &app, getApplicationFunc)
 
-		rName = "huaweicloud_apig_application.test"
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
-		name       = acceptance.RandomAccResourceName()
-		updateName = acceptance.RandomAccResourceName()
-
+		name              = acceptance.RandomAccResourceName()
+		updateName        = acceptance.RandomAccResourceName()
 		description       = "Created by script"
 		updateDescription = "Updated by script"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&app,
-		getApplicationFunc,
+		code              = utils.Base64EncodeString(acctest.RandString(64))
+		updateCode        = utils.Base64EncodeString(acctest.RandString(64))
+		randomId, _       = uuid.GenerateUUID()
+		updateRandomId, _ = uuid.GenerateUUID()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApplication_basic(name, description),
+				Config: testAccApplication_basic_step1(name, description, randomId, code),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", description),
-					resource.TestCheckResourceAttrSet(rName, "app_key"),
-					resource.TestCheckResourceAttrSet(rName, "app_secret"),
+					resource.TestCheckResourceAttr(rName, "app_key", randomId),
+					resource.TestCheckResourceAttr(rName, "app_secret", randomId),
+					resource.TestCheckResourceAttr(rName, "app_codes.#", "1"),
+					resource.TestCheckResourceAttr(rName, "app_codes.0", code),
+					rcResetSecret.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resertSecret, "app_key"),
+					resource.TestCheckResourceAttrSet(resertSecret, "app_secret"),
 				),
 			},
 			{
-				// update name, description and app_code.
-				Config: testAccApplication_basic(updateName, updateDescription),
+				// update name, description, app_codes, app_key and app_secret.
+				Config: testAccApplication_basic_step2(updateName, updateDescription, updateRandomId, updateCode),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", updateDescription),
-					resource.TestCheckResourceAttrSet(rName, "app_key"),
-					resource.TestCheckResourceAttrSet(rName, "app_secret"),
+					resource.TestCheckResourceAttr(rName, "app_key", updateRandomId),
+					resource.TestCheckResourceAttr(rName, "app_secret", updateRandomId),
+					resource.TestCheckResourceAttr(rName, "app_codes.#", "1"),
+					resource.TestCheckResourceAttr(rName, "app_codes.0", updateCode),
+					rcResetSecret.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resertSecret, "app_secret"),
 				),
 			},
 			{
@@ -94,16 +105,39 @@ func testAccApplicationImportIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccApplication_basic(name, description string) string {
-	code := utils.Base64EncodeString(acctest.RandString(64))
-
+func testAccApplication_basic_step1(name, description, randomId, code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_application" "test" {
   instance_id = "%[1]s"
   name        = "%[2]s"
   description = "%[3]s"
-
-  app_codes = ["%[4]s"]
+  app_key     = "%[4]s"
+  app_secret  = "%[4]s"
+  app_codes   = ["%[5]s"]
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, code)
+
+resource "huaweicloud_apig_application" "reset_secret" {
+  instance_id = "%[1]s"
+  name        = "%[2]s_reset"
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, randomId, code)
+}
+
+func testAccApplication_basic_step2(name, description, randomId, code string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_apig_application" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "%[3]s"
+  app_key     = "%[4]s"
+  app_secret  = "%[4]s"
+  app_codes   = ["%[5]s"]
+}
+
+resource "huaweicloud_apig_application" "reset_secret" {
+  instance_id   = "%[1]s"
+  name          = "%[2]s_reset"
+  secret_action = "RESET"
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, randomId, code)
 }

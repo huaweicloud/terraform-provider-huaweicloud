@@ -52,8 +52,20 @@ The following arguments are supported:
   The application code must start with a letter, digit, plus sign (+) or slash (/).  
   Only letters, digits and following special special characters are allowed: `!@#$%+-_/=`.
 
+* `app_key` - (Optional, String) Specifies the APP key.  
+  The valid length is limited from `8` to `200`, only English letters, digits, underscores (_) and
+  hyphens (-) are allowed.  
+  The key must start with a letter or digit.
+
+* `app_secret` - (Optional, String) Specifies the APP secret.  
+  The valid length is limited from `8` to `128`, only English letters, digits, special characters (`_-!@#$%`)
+  are allowed.  
+  The secret must start with a letter or digit.
+
 * `secret_action` - (Optional, String) Specifies the secret action to be done for the application.  
-  The valid action is **RESET**.
+  The valid action is **RESET**.  
+  When updating, if the `app_secret` parameter is specified in the script, using this parameter will reset the value of
+  the `app_secret`. Please use `lifecycle.ignore_changes` or manually synchronize the changes.
 
   -> The `secret_action` is a one-time action.
 
@@ -66,10 +78,6 @@ In addition to all arguments above, the following attributes are exported:
 * `registration_time` - the registration time.
 
 * `updated_at` - The latest update time of the application.
-
-* `app_key` - App key.
-
-* `app_secret` - App secret.
 
 ## Import
 

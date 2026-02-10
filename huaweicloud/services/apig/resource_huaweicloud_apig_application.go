@@ -75,6 +75,19 @@ func ResourceApigApplicationV2() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The array of one or more application codes that the application has.",
 			},
+			"app_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The APP key.",
+			},
+			"app_secret": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Sensitive:   true,
+				Description: "The APP secret.",
+			},
 			"secret_action": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -87,17 +100,6 @@ func ResourceApigApplicationV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The registration time.",
-			},
-			"app_key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The APP key.",
-			},
-			"app_secret": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: "The APP secret.",
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
@@ -134,6 +136,8 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 		opts = applications.AppOpts{
 			Name:        d.Get("name").(string),
 			Description: d.Get("description").(string),
+			AppKey:      d.Get("app_key").(string),
+			AppSecret:   d.Get("app_secret").(string),
 		}
 	)
 	resp, err := applications.Create(client, instanceId, opts).Extract()
@@ -269,10 +273,12 @@ func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta
 		appId      = d.Id()
 	)
 
-	if d.HasChanges("name", "description") {
+	if d.HasChanges("name", "description", "app_key", "app_secret") {
 		opt := applications.AppOpts{
 			Name:        d.Get("name").(string),
 			Description: d.Get("description").(string),
+			AppKey:      d.Get("app_key").(string),
+			AppSecret:   d.Get("app_secret").(string),
 		}
 		_, err = applications.Update(client, instanceId, appId, opt).Extract()
 		if err != nil {
