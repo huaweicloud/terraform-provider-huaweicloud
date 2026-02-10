@@ -116,7 +116,8 @@ var (
 	HW_OBS_USER_DOMAIN_NAME2  = os.Getenv("HW_OBS_USER_DOMAIN_NAME2")
 	HW_OBS_ENDPOINT           = os.Getenv("HW_OBS_ENDPOINT")
 
-	HW_OMS_ENABLE_FLAG = os.Getenv("HW_OMS_ENABLE_FLAG")
+	HW_OMS_ENABLE_FLAG  = os.Getenv("HW_OMS_ENABLE_FLAG")
+	HW_OMS_SYNC_TASK_ID = os.Getenv("HW_OMS_SYNC_TASK_ID")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
@@ -1620,6 +1621,13 @@ func TestAccPreCheckCNADProtectedObject(t *testing.T) {
 func TestAccPreCheckOmsInstance(t *testing.T) {
 	if HW_OMS_ENABLE_FLAG == "" {
 		t.Skip("Skip the OMS acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOmsSyncTaskId(t *testing.T) {
+	if HW_OMS_SYNC_TASK_ID == "" {
+		t.Skip("HW_OMS_SYNC_TASK_ID must be set for this acceptance test")
 	}
 }
 
