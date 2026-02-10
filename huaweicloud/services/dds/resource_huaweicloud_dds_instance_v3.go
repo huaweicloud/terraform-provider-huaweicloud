@@ -29,6 +29,11 @@ import (
 
 type ctxType string
 
+var (
+	// DBS.280110: The instance does not exist.
+	instanceNotFoundCodes = []string{"DBS.280110"}
+)
+
 // @API DDS POST /v3/{project_id}/instances
 // @API DDS GET /v3/{project_id}/instances
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/tags/action
@@ -976,7 +981,11 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DdsInstance")
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", instanceNotFoundCodes...),
+			"error retrieving DDS instance",
+		)
 	}
 	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
