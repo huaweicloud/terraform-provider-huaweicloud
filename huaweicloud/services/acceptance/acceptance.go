@@ -116,8 +116,9 @@ var (
 	HW_OBS_USER_DOMAIN_NAME2  = os.Getenv("HW_OBS_USER_DOMAIN_NAME2")
 	HW_OBS_ENDPOINT           = os.Getenv("HW_OBS_ENDPOINT")
 
-	HW_OMS_ENABLE_FLAG  = os.Getenv("HW_OMS_ENABLE_FLAG")
-	HW_OMS_SYNC_TASK_ID = os.Getenv("HW_OMS_SYNC_TASK_ID")
+	HW_OMS_ENABLE_FLAG     = os.Getenv("HW_OMS_ENABLE_FLAG")
+	HW_OMS_SYNC_TASK_ID    = os.Getenv("HW_OMS_SYNC_TASK_ID")
+	HW_OMS_OBS_BUCKET_NAME = os.Getenv("HW_OMS_OBS_BUCKET_NAME")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
@@ -1636,6 +1637,13 @@ func TestAccPreCheckOmsInstance(t *testing.T) {
 func TestAccPreCheckOmsSyncTaskId(t *testing.T) {
 	if HW_OMS_SYNC_TASK_ID == "" {
 		t.Skip("HW_OMS_SYNC_TASK_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOmsObsBucketName(t *testing.T) {
+	if HW_OMS_OBS_BUCKET_NAME == "" {
+		t.Skip("HW_OMS_OBS_BUCKET_NAME must be set for this acceptance test")
 	}
 }
 

@@ -1870,6 +1870,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
+			"huaweicloud_oms_bucket_region":         oms.DataSourceObjectstorageBucketRegion(),
 			"huaweicloud_oms_buckets":               oms.DataSourceObjectstorageBuckets(),
 			"huaweicloud_oms_cloud_type_venders":    oms.DataSourceCloudTypeVenders(),
 			"huaweicloud_oms_migration_sync_tasks":  oms.DataSourceMigrationSyncTasks(),
