@@ -51,18 +51,14 @@ func getAccountResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 }
 
 func TestAccAccount_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_organizations_account.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAccountResourceFunc,
+		obj   interface{}
+		rName = "huaweicloud_organizations_account.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getAccountResourceFunc)
 	)
 
-	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -74,28 +70,33 @@ func TestAccAccount_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccount_basic(name),
+				Config: testAccAccount_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "test_account_description"),
-					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
-					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
+					resource.TestCheckResourceAttr(rName, "parent_id", acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID),
+					resource.TestCheckResourceAttr(rName, "phone", "13245678978"),
+					resource.TestCheckResourceAttr(rName, "agency_name", "OrganizationAccountAccessAgency"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "joined_at"),
 					resource.TestCheckResourceAttrSet(rName, "joined_method"),
 				),
 			},
 			{
-				Config: testAccount_basic_update(name),
+				Config: testAccAccount_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttr(rName, "parent_id",
-						acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID),
-					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
-					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
+					resource.TestCheckResourceAttrPair(rName, "parent_id",
+						"data.huaweicloud_organizations_organization.test", "root_id"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform1"),
 				),
 			},
 			{
@@ -108,35 +109,40 @@ func TestAccAccount_basic(t *testing.T) {
 	})
 }
 
-func testAccount_basic(name string) string {
+func testAccAccount_basic_step1(name string) string {
 	return fmt.Sprintf(`
+# 'email' parameter is available when creating account in international website.
+# Create an account in the specified organizational unit.
 resource "huaweicloud_organizations_account" "test" {
-  name        = "%s"
-  email       = "account_1@abc.com"
-  phone       = "13987654321"
-  description = "test_account_description"
+  name        = "%[1]s"
+  parent_id   = "%[2]s"
+  phone       = "13245678978"
+  agency_name = "OrganizationAccountAccessAgency"
+  description = "Created by terraform script"
 
   tags = {
-    "key1" = "value1"
-    "key2" = "value2"
-  }
-}
-`, name)
-}
-
-func testAccount_basic_update(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_organizations_account" "test" {
-  name        = "%s"
-  email       = "account_1@abc.com"
-  phone       = "13987654321"
-  description = ""
-  parent_id   = "%s"
-
-  tags = {
-    "key3" = "value3"
-    "key4" = "value4"
+    foo   = "bar"
+    owner = "terraform"
   }
 }
 `, name, acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID)
+}
+
+func testAccAccount_basic_step2(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_organizations_organization" "test" {}
+
+resource "huaweicloud_organizations_account" "test" {
+  name = "%[1]s"
+  # Move the account to the root organizational unit.
+  parent_id   = data.huaweicloud_organizations_organization.test.root_id
+  phone       = "13245678978"
+  agency_name = "OrganizationAccountAccessAgency"
+
+  tags = {
+    foo1  = "bar"
+    owner = "terraform1"
+  }
+}
+`, name)
 }

@@ -95,6 +95,15 @@ func TestAccAccountAssociate_basic(t *testing.T) {
 	})
 }
 
+func testAccAccountAssociate_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_organizations_account" "test" {
+  name  = "%s"
+  phone = "13987654321"
+}
+`, name)
+}
+
 func testAccountAssociate_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -105,7 +114,7 @@ resource "huaweicloud_organizations_account_associate" "test" {
   account_id = huaweicloud_organizations_account.test.id
   parent_id  = huaweicloud_organizations_organizational_unit.test.id
 }
-`, testOrganizationalUnit_basic(name), testAccount_basic(name))
+`, testOrganizationalUnit_basic(name), testAccAccountAssociate_base(name))
 }
 
 func testAccountAssociate_basic_update(name string) string {
@@ -116,5 +125,5 @@ resource "huaweicloud_organizations_account_associate" "test" {
   account_id = huaweicloud_organizations_account.test.id
   parent_id  = "%s"
 }
-`, testAccount_basic(name), name, acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID)
+`, testAccAccountAssociate_base(name), name, acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID)
 }
