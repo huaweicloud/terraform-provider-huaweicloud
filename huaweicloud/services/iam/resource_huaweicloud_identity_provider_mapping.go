@@ -28,36 +28,46 @@ var mappingNonUpdatableParams = []string{"provider_id"}
 // @API IAM GET /v3/OS-FEDERATION/mappings
 // @API IAM GET /v3/OS-FEDERATION/mappings/{id}
 // @API IAM GET /v3/OS-FEDERATION/identity_providers/{id}
-func ResourceIAMProviderMapping() *schema.Resource {
+func ResourceV3ProviderMapping() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIAMProviderMappingCreate,
-		ReadContext:   resourceIAMProviderMappingRead,
-		UpdateContext: resourceIAMProviderMappingUpdate,
-		DeleteContext: resourceIAMProviderMappingDelete,
+		CreateContext: resourceV3ProviderMappingCreate,
+		ReadContext:   resourceV3ProviderMappingRead,
+		UpdateContext: resourceV3ProviderMappingUpdate,
+		DeleteContext: resourceV3ProviderMappingDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(mappingNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"provider_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the identity provider used to manage the mapping.`,
 			},
 			"mapping_rules": {
 				Type:         schema.TypeString,
 				Required:     true,
+				Description:  `The mapping rules of the identity provider.`,
 				ValidateFunc: validation.StringIsJSON,
 				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(o, n)
 					return equal
 				},
 			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 		},
 	}
 }
 
-func resourceIAMProviderMappingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderMappingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -101,7 +111,7 @@ func resourceIAMProviderMappingCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(mappingID)
-	return resourceIAMProviderMappingRead(ctx, d, meta)
+	return resourceV3ProviderMappingRead(ctx, d, meta)
 }
 
 func createMapping(client *golangsdk.ServiceClient, mappingID string, mappingOpts interface{}) error {
@@ -155,7 +165,7 @@ func buildMappingOpts(mappingRules string) (interface{}, error) {
 	return res, nil
 }
 
-func resourceIAMProviderMappingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderMappingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	mappingID := d.Id()
@@ -206,7 +216,7 @@ func resourceIAMProviderMappingRead(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceIAMProviderMappingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderMappingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
@@ -225,10 +235,10 @@ func resourceIAMProviderMappingUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("failed to update the provider mapping rules: %s", err)
 	}
 
-	return resourceIAMProviderMappingRead(ctx, d, meta)
+	return resourceV3ProviderMappingRead(ctx, d, meta)
 }
 
-func resourceIAMProviderMappingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderMappingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {

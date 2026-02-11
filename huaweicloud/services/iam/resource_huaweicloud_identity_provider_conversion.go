@@ -24,61 +24,72 @@ import (
 // @API IAM GET /v3/OS-FEDERATION/mappings
 // @API IAM GET /v3/OS-FEDERATION/mappings/{id}
 // @API IAM GET /v3/OS-FEDERATION/identity_providers/{id}
-func ResourceIAMProviderConversion() *schema.Resource {
+func ResourceV3Conversion() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIAMProviderConversionCreate,
-		ReadContext:   resourceIAMProviderConversionRead,
-		UpdateContext: resourceIAMProviderConversionUpdate,
-		DeleteContext: resourceIAMProviderConversionDelete,
+		CreateContext: resourceV3ProviderConversionCreate,
+		ReadContext:   resourceV3ProviderConversionRead,
+		UpdateContext: resourceV3ProviderConversionUpdate,
+		DeleteContext: resourceV3ProviderConversionDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"provider_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the identity provider used to manage the conversion rules.`,
 			},
 			"conversion_rules": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `The identity conversion rules of the identity provider.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"local": {
-							Type:     schema.TypeList,
-							Required: true,
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `The federated user information on the cloud platform.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"username": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The name of a federated user on the cloud platform.`,
 									},
 									"group": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Description: `The user group to which the federated user belongs on the
+                                               cloud platform.`,
 									},
 								},
 							},
 						},
 						"remote": {
-							Type:     schema.TypeList,
-							Required: true,
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Federated user information in the IDP system.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"attribute": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The attribute in the IDP assertion.`,
 									},
 									"condition": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"any_one_of", "not_any_of"}, false),
+										Description:  `The condition of conversion rule.`,
 									},
 									"value": {
 										Type:     schema.TypeList,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+										Description: `The rule is matched only if the specified strings appear in the
+                                            attribute type.`,
 									},
 								},
 							},
@@ -90,7 +101,7 @@ func ResourceIAMProviderConversion() *schema.Resource {
 	}
 }
 
-func resourceIAMProviderConversionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderConversionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -131,7 +142,7 @@ func resourceIAMProviderConversionCreate(ctx context.Context, d *schema.Resource
 	}
 
 	d.SetId(mappingID)
-	return resourceIAMProviderConversionRead(ctx, d, meta)
+	return resourceV3ProviderConversionRead(ctx, d, meta)
 }
 
 func buildConversionRules(conversionRules []interface{}) mappings.MappingOption {
@@ -193,7 +204,7 @@ func buildConversionRules(conversionRules []interface{}) mappings.MappingOption 
 	return opts
 }
 
-func resourceIAMProviderConversionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderConversionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -219,7 +230,7 @@ func resourceIAMProviderConversionRead(_ context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceIAMProviderConversionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderConversionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -234,10 +245,10 @@ func resourceIAMProviderConversionUpdate(ctx context.Context, d *schema.Resource
 		return diag.Errorf("failed to update the provider conversion rules: %s", err)
 	}
 
-	return resourceIAMProviderConversionRead(ctx, d, meta)
+	return resourceV3ProviderConversionRead(ctx, d, meta)
 }
 
-func resourceIAMProviderConversionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderConversionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {

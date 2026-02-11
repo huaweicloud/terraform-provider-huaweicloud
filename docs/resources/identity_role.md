@@ -2,21 +2,25 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_role"
-description: ""
+description: |-
+  Manages an IAM role resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_role
 
-Manages a **Custom Policy** resource within HuaweiCloud IAM service.
+Manages an IAM role resource within HuaweiCloud.
 
 ->**Note** You *must* have admin privileges to use this resource.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identity_role" "role1" {
-  name        = "test"
-  description = "created by terraform"
+variable "name" {}
+variable "description" {}
+
+resource "huaweicloud_identity_role" "test" {
+  name        = var.name
+  description = var.description
   type        = "AX"
   policy      = <<EOF
 {
@@ -52,11 +56,12 @@ The following arguments are supported:
 
 * `description` - (Required, String) Specifies the description of the custom policy.
 
-* `type` - (Required, String) Specifies the display mode of the custom policy. Valid options are as follows:
+* `type` - (Required, String) Specifies the display mode of the custom policy.  
+  The valid values are as follows:
   + **AX**: the global service project.
   + **XA**: region-specific projects.
 
-* `policy` - (Required, String) Specifies the content of the custom policy in JSON format. For more details,
+* `policy` - (Required, String) Specifies the content of the custom policy, in JSON format. For more details,
   please refer to the [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html).
 
 ## Attribute Reference
@@ -72,5 +77,5 @@ In addition to all arguments above, the following attributes are exported:
 IAM custom policies can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_role.role1 89c60255-9bd6-460c-822a-e2b959ede9d2
+$ terraform import huaweicloud_identity_role.test <id>
 ```

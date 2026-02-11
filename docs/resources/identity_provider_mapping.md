@@ -15,7 +15,7 @@ Manage the mapping rules of identity provider within HuaweiCloud IAM service.
 ```hcl
 variable "provider_id" {}
 
-resource "huaweicloud_identity_provider_mapping" "mapping" {
+resource "huaweicloud_identity_provider_mapping" "test" {
   provider_id = var.provider_id
 
   mapping_rules = <<RULES
@@ -71,5 +71,5 @@ In addition to all arguments above, the following attributes are exported:
 Identity provider mapping rules are imported using the `provider_id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_provider_mapping.mapping <provider_id>
+$ terraform import huaweicloud_identity_provider_mapping.test <provider_id>
 ```

@@ -14,42 +14,62 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var identityUserTokenNonUpdatableParams = []string{
+	"account_name",
+	"user_name",
+	"password",
+	"project_name",
+}
+
 // @API IAM POST /v3/auth/tokens
-func ResourceIdentityUserToken() *schema.Resource {
+func ResourceV3UserToken() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceUserTokenCreate,
 		ReadContext:   resourceUserTokenRead,
 		DeleteContext: resourceUserTokenDelete,
 
+		CustomizeDiff: config.FlexibleForceNew(identityUserTokenNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"account_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The account name to which the IAM user belongs.`,
 			},
 			"user_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The IAM user name.`,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-				ForceNew:  true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: `The IAM user password.`,
 			},
 			"project_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The project name.`,
 			},
+
+			// Attributes
 			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The token of the IAM user.`,
 			},
 			"expires_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The Time when the token will expire.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -161,7 +181,8 @@ func resourceUserTokenRead(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceUserTokenDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting token is not supported. The token is only removed from the state, but it remains in the cloud."
+	errorMsg := `This resource is a one-time action resource for creating a token. Deleting this resource will not
+    clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

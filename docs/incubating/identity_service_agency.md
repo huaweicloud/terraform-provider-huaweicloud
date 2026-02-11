@@ -1,10 +1,14 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identity_service_agency"
+description: |-
+  Manages an IAM service agency resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_service_agency
 
-Manages a service agency resource within HuaweiCloud.
+Manages an IAM service agency resource within HuaweiCloud.
 
 -> **NOTE:** You *must* have admin privileges to use this resource.
 
@@ -31,17 +35,20 @@ The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name of service agency. The name is a string of `1` to `64`
   characters. Only English letters, digits, underscores (_), plus (+), equals (=), commas (,), dots (.), ats (@) and
-  hyphens (-) are allowed. Changing this will create a new service agency.
+  hyphens (-) are allowed.  
+  Changing this will create a new service agency.
 
 * `delegated_service_name` - (Required, String, ForceNew) Specifies the name of delegated service name.
-  Prefix is `service.`. Such as **service.APIG**. Changing this will create a new service agency.
+  Prefix is `service.`. Such as **service.APIG**.  
+  Changing this will create a new service agency.
 
 * `policy_names` - (Required, List) Specifies a string list of one or more policy names that you would like to attach to
   the service agency.
 
 * `path` - (Optional, String, ForceNew) Specifies the resource path. It is made of several strings, each containing one
   or more English letters, digits, underscores (_), plus (+), equals (=), comma (,), dots (.), at (@) and hyphens (-),
-  and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is empty.
+  and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name.
+  Default is **empty**.  
   Changing this will create a new service agency.
 
 * `duration` - (Optional, Int) Specifies the validity period of a service agency.

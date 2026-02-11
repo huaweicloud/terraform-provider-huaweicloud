@@ -44,66 +44,76 @@ const (
 // @API IAM PUT /v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}
 // @API IAM GET /v3-ext/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/metadata
 // @API IAM POST /v3-ext/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/metadata
-func ResourceIdentityProvider() *schema.Resource {
+func ResourceV3Provider() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityProviderCreate,
-		ReadContext:   resourceIdentityProviderRead,
-		UpdateContext: resourceIdentityProviderUpdate,
-		DeleteContext: resourceIdentityProviderDelete,
+		CreateContext: resourceV3IdentityProviderCreate,
+		ReadContext:   resourceV3IdentityProviderRead,
+		UpdateContext: resourceV3IdentityProviderUpdate,
+		DeleteContext: resourceV3IdentityProviderDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the identity provider to be registered.`,
 			},
 			"protocol": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The protocol of the identity provider.`,
 			},
 			"sso_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The single sign-on type of the identity provider.`,
 			},
 			"status": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether the identity provider is enabled.`,
 			},
 			"metadata": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				StateFunc: utils.HashAndHexEncode,
+				Type:        schema.TypeString,
+				Optional:    true,
+				StateFunc:   utils.HashAndHexEncode,
+				Description: `The metadata of the IDP server.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the identity provider.`,
 			},
 			"access_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `The access configuration of the identity provider.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_type": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"program", "program_console"}, false),
+							Description:  `The access type of the identity provider.`,
 						},
 						"provider_url": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The URL of the identity provider.`,
 						},
 						"client_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of a client registered with the OpenID Connect identity provider.`,
 						},
 						"signing_key": {
 							Type:     schema.TypeString,
@@ -112,70 +122,86 @@ func ResourceIdentityProvider() *schema.Resource {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 								return equal
 							},
+							Description: `The public key used to sign the ID token of the OpenID Connect
+                                   identity provider.`,
 						},
 						"authorization_endpoint": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The authorization endpoint of the OpenID Connect identity provider.`,
 						},
 						"scopes": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The scopes of authorization requests.`,
 						},
 						"response_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "id_token",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "id_token",
+							Description: `The response type.`,
 						},
 						"response_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "form_post",
 							ValidateFunc: validation.StringInSlice([]string{"fragment", "form_post"}, false),
+							Description:  `The response mode.`,
 						},
 					},
 				},
 			},
 			"conversion_rules": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The identity conversion rules of the identity provider.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"local": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The federated user information on the cloud platform.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"username": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The name of a federated user on the cloud platform.`,
 									},
 									"group": {
 										Type:     schema.TypeString,
 										Computed: true,
+										Description: `The user group to which the federated user belongs
+                                                 on the cloud platform.`,
 									},
 								},
 							},
 						},
 						"remote": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The description of the identity provider.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"attribute": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The attribute in the IDP assertion.`,
 									},
 									"condition": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The condition of conversion rule.`,
 									},
 									"value": {
 										Type:     schema.TypeList,
 										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+										Description: `The rule is matched only if the specified strings appear
+                                                   in the attribute type.`,
 									},
 								},
 							},
@@ -184,14 +210,15 @@ func ResourceIdentityProvider() *schema.Resource {
 				},
 			},
 			"login_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The login link of the identity provider.`,
 			},
 		},
 	}
 }
 
-func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -256,7 +283,7 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	return resourceIdentityProviderRead(ctx, d, meta)
+	return resourceV3IdentityProviderRead(ctx, d, meta)
 }
 
 // importMetadata import metadata to provider, overwrite if it exists.
@@ -334,7 +361,7 @@ func getDefaultConversionOpts() *mappings.MappingOption {
 	return &opts
 }
 
-func resourceIdentityProviderRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityProviderRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -477,7 +504,7 @@ func queryProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 	return protocolName
 }
 
-func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -519,7 +546,7 @@ func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error updating provider: %s", err)
 	}
 
-	return resourceIdentityProviderRead(ctx, d, meta)
+	return resourceV3IdentityProviderRead(ctx, d, meta)
 }
 
 func updateAccessConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -550,7 +577,7 @@ func updateAccessConfig(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	return err
 }
 
-func resourceIdentityProviderDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityProviderDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {

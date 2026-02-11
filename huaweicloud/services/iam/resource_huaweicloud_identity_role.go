@@ -21,49 +21,56 @@ import (
 // @API IAM GET /v3.0/OS-ROLE/roles/{role_id}
 // @API IAM PATCH /v3.0/OS-ROLE/roles/{role_id}
 // @API IAM DELETE /v3.0/OS-ROLE/roles/{role_id}
-func ResourceIdentityRole() *schema.Resource {
+func ResourceV3Role() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityRoleCreate,
-		ReadContext:   resourceIdentityRoleRead,
-		UpdateContext: resourceIdentityRoleUpdate,
-		DeleteContext: resourceIdentityRoleDelete,
+		CreateContext: resourceV3IdentityRoleCreate,
+		ReadContext:   resourceV3IdentityRoleRead,
+		UpdateContext: resourceV3IdentityRoleUpdate,
+		DeleteContext: resourceV3IdentityRoleDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the custom policy.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The description of the custom policy.`,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The display mode of the custom policy.`,
 			},
 			"policy": {
 				Type:         schema.TypeString,
 				Required:     true,
+				Description:  `The content of the custom policy, in JSON format.`,
 				ValidateFunc: validation.StringIsJSON,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 					return equal
 				},
 			},
+
+			// Attribute
 			"references": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of references.`,
 			},
 		},
 	}
 }
 
-func resourceIdentityRoleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityRoleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	client, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -83,23 +90,23 @@ func resourceIdentityRoleCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	role, err := policies.Create(identityClient, createOpts).Extract()
+	role, err := policies.Create(client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating IAM custom policy: %s", err)
 	}
 
 	d.SetId(role.ID)
-	return resourceIdentityRoleRead(ctx, d, meta)
+	return resourceV3IdentityRoleRead(ctx, d, meta)
 }
 
-func resourceIdentityRoleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityRoleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	client, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	role, err := policies.Get(identityClient, d.Id()).Extract()
+	role, err := policies.Get(client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "IAM custom policy")
 	}
@@ -124,9 +131,9 @@ func resourceIdentityRoleRead(_ context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceIdentityRoleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityRoleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	client, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -146,22 +153,22 @@ func resourceIdentityRoleUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Update Options: %#v", createOpts)
-	_, err = policies.Update(identityClient, d.Id(), createOpts).Extract()
+	_, err = policies.Update(client, d.Id(), createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating IAM custom policy: %s", err)
 	}
 
-	return resourceIdentityRoleRead(ctx, d, meta)
+	return resourceV3IdentityRoleRead(ctx, d, meta)
 }
 
-func resourceIdentityRoleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3IdentityRoleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	client, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	err = policies.Delete(identityClient, d.Id()).ExtractErr()
+	err = policies.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
 		return diag.Errorf("error deleting IAM custom policy: %s", err)
 	}

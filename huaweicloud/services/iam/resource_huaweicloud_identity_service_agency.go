@@ -29,12 +29,12 @@ const pageLimit = 100
 // @API IAM GET /v5/agencies/{agency_id}/attached-policies
 // @API IAM POST /v5/{resource_type}/{resource_id}/tags/create
 // @API IAM POST /v5/{resource_type}/{resource_id}/tags/delete
-func ResourceIAMServiceAgency() *schema.Resource {
+func ResourceV3ServiceAgency() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIAMServiceAgencyCreate,
-		ReadContext:   resourceIAMServiceAgencyRead,
-		UpdateContext: resourceIAMServiceAgencyUpdate,
-		DeleteContext: resourceIAMServiceAgencyDelete,
+		CreateContext: resourceV3ServiceAgencyCreate,
+		ReadContext:   resourceV3ServiceAgencyRead,
+		UpdateContext: resourceV3ServiceAgencyUpdate,
+		DeleteContext: resourceV3ServiceAgencyDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -44,55 +44,63 @@ func ResourceIAMServiceAgency() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of service agency.`,
 			},
 			"delegated_service_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of delegated service name.`,
 			},
 			"policy_names": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The string list of one or more policy names that you would like to attach to the service agency.`,
 			},
 			"path": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The resource path.`,
 			},
 			"duration": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The validity period of a service agency.`,
 			},
 			"tags": common.TagsSchema(),
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the service agency.`,
 			},
 			"trust_policy": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The trust policy of the service agency.`,
 			},
 			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The uniform resource name of the service agency.`,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the service agency was created.`,
 			},
 		},
 	}
 }
 
-func resourceIAMServiceAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ServiceAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam_no_version", region)
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -136,7 +144,7 @@ func resourceIAMServiceAgencyCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	return resourceIAMServiceAgencyRead(ctx, d, meta)
+	return resourceV3ServiceAgencyRead(ctx, d, meta)
 }
 
 func buildCreateAgencyBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -170,10 +178,9 @@ func buildTrustPolicy(delegatedServiceName string) string {
 	return string(s)
 }
 
-func resourceIAMServiceAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ServiceAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam_no_version", region)
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -280,10 +287,9 @@ func listAttachedPolicyInfo(client *golangsdk.ServiceClient, agencyID, infoType 
 	return rst, nil
 }
 
-func resourceIAMServiceAgencyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ServiceAgencyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam_no_version", region)
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -359,7 +365,7 @@ func resourceIAMServiceAgencyUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	return resourceIAMServiceAgencyRead(ctx, d, meta)
+	return resourceV3ServiceAgencyRead(ctx, d, meta)
 }
 
 func getPolicyIDsByNames(client *golangsdk.ServiceClient, policyNames []interface{}) ([]string, error) {
@@ -507,10 +513,9 @@ func expandTagsKeyToStringList(tagmap map[string]interface{}) []string {
 	return tagKeyList
 }
 
-func resourceIAMServiceAgencyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ServiceAgencyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("iam_no_version", region)
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}

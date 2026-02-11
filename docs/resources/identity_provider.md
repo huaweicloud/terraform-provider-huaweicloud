@@ -2,12 +2,13 @@
 subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_provider"
-description: ""
+description: |-
+  Manages an IAM providers resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_provider
 
-Manages the identity providers within HuaweiCloud IAM service.
+Manages an IAM providers resource within HuaweiCloud.
 
 -> **NOTE:** 1. You *must* have admin privileges to use this resource.
   <br/>2. You can create up to 10 identity providers.
@@ -17,8 +18,10 @@ Manages the identity providers within HuaweiCloud IAM service.
 ### Create a SAML protocol provider
 
 ```hcl
-resource "huaweicloud_identity_provider" "provider_1" {
-  name     = "example_com_provider_saml"
+variable "name" {}
+
+resource "huaweicloud_identity_provider" "test" {
+  name     = var.name
   protocol = "saml"
   metadata = file("/usr/local/data/files/metadata.txt")
 }
@@ -27,14 +30,17 @@ resource "huaweicloud_identity_provider" "provider_1" {
 ### Create a OpenID Connect protocol provider
 
 ```hcl
-resource "huaweicloud_identity_provider" "provider_2" {
-  name     = "example_com_provider_oidc"
+variable "name" {}
+variable "client_id" {}
+
+resource "huaweicloud_identity_provider" "test" {
+  name     = var.name
   protocol = "oidc"
   
   access_config {
     access_type            = "program_console"
     provider_url           = "https://accounts.example.com"
-    client_id              = "your_client_id"
+    client_id              = var.client_id
     authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
     scopes                 = ["openid"]
     signing_key            = jsonencode(
@@ -63,12 +69,17 @@ The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the identity provider to be registered.
   The maximum length is `64` characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
-  The name is unique, it is recommended to include domain name information.
+  The name is unique, it is recommended to include domain name information.  
   Changing this creates a new resource.
 
-* `protocol` - (Optional, String, ForceNew) Specifies the protocol of the identity provider.
-  Valid values are **saml** and **oidc**. Changing this creates a new resource.
-  This parameter can be omitted during creation and using `huaweicloud_identity_provider_conversion` and
+* `protocol` - (Optional, String, ForceNew) Specifies the protocol of the identity provider.  
+  The valid values are as follows:
+  + **saml**: SAML protocol.
+  + **oidc**: OpenID Connect protocol.
+
+  Changing this creates a new resource.
+
+  ->**Note:** This parameter can be omitted during creation and using `huaweicloud_identity_provider_conversion` and
   `huaweicloud_identity_provider_protocol` resources to manage it. At the same time, please use
   `lifecycle.ignore_changes` to ignore changes to `conversion_rules` under this management way.
 
@@ -76,8 +87,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the identity provider.
 
-* `sso_type` - (Optional, String, ForceNew) Specifies the single sign-on type of the identity provider.
-  Valid values are as follows:
+* `sso_type` - (Optional, String, ForceNew) Specifies the single sign-on type of the identity provider.  
+  The valid values are as follows:
   + **virtual_user_sso**: After a federated user logs in to HuaweiCloud, the system automatically creates a virtual user
     and assigns permissions to the user based on identity conversion rules.
   + **iam_user_sso**: After a federated user logs in to HuaweiCloud, the system automatically maps the external identity
@@ -107,12 +118,14 @@ The following arguments are supported:
   <br/>`metadata = file("/usr/local/data/files/metadata.txt")`
 
 * `access_config` - (Optional, List) Specifies the description of the identity provider.
-  This field is required only if the protocol is set to *oidc*.
+  This field is required only if the protocol is set to *oidc*.  
+  The [access_config](#identity_provider_access_config) structure is documented below.
 
+<a name="identity_provider_access_config"></a>
 The `access_config` block supports:
 
-* `access_type` - (Required, String) Specifies the access type of the identity provider.
-  Available options are:
+* `access_type` - (Required, String) Specifies the access type of the identity provider.  
+  The valid values are as follows:
   + **program**: programmatic access only.
   + **program_console**: programmatic access and management console access.
 
@@ -150,22 +163,26 @@ In addition to all arguments above, the following attributes are exported:
 
 * `login_link` - The login link of the identity provider.
 
-* `conversion_rules` - The identity conversion rules of the identity provider.
-  The [object](#conversion_rules) structure is documented below
+* `conversion_rules` - The identity conversion rules of the identity provider.  
+  The [conversion_rules](#identity_provider_conversion_rules) structure is documented below
 
-<a name="conversion_rules"></a>
+<a name="identity_provider_conversion_rules"></a>
 The `conversion_rules` block supports:
 
-* `local` - The federated user information on the cloud platform.
+* `local` - The federated user information on the cloud platform.  
+  The [local](#identity_provider_local) structure is documented below.
 
-* `remote` - The description of the identity provider.
+* `remote` - The description of the identity provider.  
+  The [remote](#identity_provider_remote) structure is documented below.
 
+<a name="identity_provider_local"></a>
 The `local` block supports:
 
 * `username` - The name of a federated user on the cloud platform.
 
 * `group` - The user group to which the federated user belongs on the cloud platform.
 
+<a name="identity_provider_remote"></a>
 The `remote` block supports:
 
 * `attribute` - The attribute in the IDP assertion.
@@ -179,5 +196,5 @@ The `remote` block supports:
 Identity provider can be imported using the `name`, e.g.
 
 ```bash
-$ terraform import huaweicloud_identity_provider.provider_1 example_com_provider_saml
+$ terraform import huaweicloud_identity_provider.test <name>
 ```
