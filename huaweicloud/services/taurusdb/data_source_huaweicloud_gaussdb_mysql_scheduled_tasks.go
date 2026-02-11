@@ -95,51 +95,56 @@ func DataSourceGaussDBMysqlScheduledTasks() *schema.Resource {
 	}
 }
 
+func listMysqlScheduledTasks(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/scheduled-jobs"
+		limit   = 100
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = fmt.Sprintf("%s?limit=%d", listPath, limit)
+	listPath += buildMysqlScheduledTasksQueryParams(d)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	for {
+		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		listResp, err := client.Request("GET", listPathWithOffset, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(listResp)
+		if err != nil {
+			return nil, err
+		}
+
+		tasks := flattenListGaussDBMysqlScheduledTasksResponseBody(respBody)
+		result = append(result, tasks...)
+		if len(tasks) < limit {
+			break
+		}
+
+		offset += len(tasks)
+	}
+
+	return result, nil
+}
+
 func dataSourceGaussDBMysqlScheduledTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	var (
-		httpUrl = "v3/{project_id}/scheduled-jobs"
-		product = "gaussdb"
-	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	listBasePath := client.Endpoint + httpUrl
-	listBasePath = strings.ReplaceAll(listBasePath, "{project_id}", client.ProjectID)
-
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	var currentTotal int
-	page := 1
-	var scheduledTasks []interface{}
-
-	for {
-		listPath := listBasePath + buildGaussDBMysqlScheduledTasksQueryParams(d, page)
-		listResp, err := client.Request("GET", listPath, &listOpt)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		listRespBody, err := utils.FlattenResponse(listResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		tasks := flattenListGaussDBMysqlScheduledTasksResponseBody(listRespBody)
-		scheduledTasks = append(scheduledTasks, tasks...)
-		total := utils.PathSearch("total_count", listRespBody, float64(0)).(float64)
-		currentTotal += len(tasks)
-		if currentTotal >= int(total) {
-			break
-		}
-		page++
+	scheduledTasks, err := listMysqlScheduledTasks(client, d)
+	if err != nil {
+		return diag.Errorf("error querying GaussDB MySQL scheduled tasks: %s", err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -148,8 +153,7 @@ func dataSourceGaussDBMysqlScheduledTasksRead(_ context.Context, d *schema.Resou
 	}
 	d.SetId(dataSourceId)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("tasks", scheduledTasks),
 	)
@@ -157,8 +161,8 @@ func dataSourceGaussDBMysqlScheduledTasksRead(_ context.Context, d *schema.Resou
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildGaussDBMysqlScheduledTasksQueryParams(d *schema.ResourceData, page int) string {
-	res := fmt.Sprintf("?limit=100&offset=%v", page)
+func buildMysqlScheduledTasksQueryParams(d *schema.ResourceData) string {
+	res := ""
 	if v, ok := d.GetOk("status"); ok {
 		res = fmt.Sprintf("%s&status=%s", res, v)
 	}
