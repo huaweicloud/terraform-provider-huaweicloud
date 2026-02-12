@@ -370,6 +370,7 @@ var (
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
+	HW_ORGANIZATIONS_CLOSE_ACCOUNT_ID       = os.Getenv("HW_ORGANIZATIONS_CLOSE_ACCOUNT_ID")
 	HW_ORGANIZATIONS_ACCOUNT_ID             = os.Getenv("HW_ORGANIZATIONS_ACCOUNT_ID")
 	HW_ORGANIZATIONS_ACCOUNT_NAME           = os.Getenv("HW_ORGANIZATIONS_ACCOUNT_NAME")
 	HW_ORGANIZATIONS_INVITE_ACCOUNT_ID      = os.Getenv("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID")
@@ -922,6 +923,13 @@ func TestAccPreCheckCbcResourcesUnsubscribe(t *testing.T) {
 func TestAccPreCheckOrganizationsOpen(t *testing.T) {
 	if HW_ORGANIZATIONS_OPEN == "" {
 		t.Skip("HW_ORGANIZATIONS_OPEN must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizationsCloseAccountId(t *testing.T) {
+	if HW_ORGANIZATIONS_CLOSE_ACCOUNT_ID == "" {
+		t.Skip("HW_ORGANIZATIONS_CLOSE_ACCOUNT_ID must be set for the acceptance test")
 	}
 }
 

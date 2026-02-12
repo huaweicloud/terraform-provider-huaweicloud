@@ -1,6 +1,8 @@
 package organizations
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,47 +10,70 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceOrganizationsCloseAccountStatus_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_organizations_close_account_status.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+// Please make sure to have at least one account in the organization that is either pending closure or closed.
+func TestAccDataCloseAccountStatus_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_organizations_close_account_status.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+
+		byStates   = "data.huaweicloud_organizations_close_account_status.filter_by_states"
+		dcByStates = acceptance.InitDataSourceCheck(byStates)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Due to quota limit, use environment variable to ensure that there is at least one account that is either
+			// pending closure or closed.
+			acceptance.TestAccPreCheckOrganizationsCloseAccountId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceOrganizationsCloseAccountStatus_basic(),
+				Config: testDataCloseAccountStatus_basic(),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameters.
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.0.account_id"),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.0.state"),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.0.organization_id"),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.0.created_at"),
-					resource.TestCheckResourceAttrSet(dataSource, "close_account_statuses.0.updated_at"),
-					resource.TestCheckOutput("states_filter_is_useful", "true"),
+					resource.TestMatchResourceAttr(all, "close_account_statuses.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "close_account_statuses.0.account_id"),
+					resource.TestCheckResourceAttrSet(all, "close_account_statuses.0.state"),
+					resource.TestCheckResourceAttrSet(all, "close_account_statuses.0.organization_id"),
+					resource.TestCheckResourceAttrSet(all, "close_account_statuses.0.created_at"),
+					resource.TestCheckResourceAttrSet(all, "close_account_statuses.0.updated_at"),
+					// Filter by 'states' parameter.
+					dcByStates.CheckResourceExists(),
+					resource.TestCheckOutput("is_states_filter_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceOrganizationsCloseAccountStatus_basic() string {
-	return `
+func testDataCloseAccountStatus_basic() string {
+	return fmt.Sprintf(`
+# Without any filter parameters.
 data "huaweicloud_organizations_close_account_status" "test" {}
 
+output "is_account_id_exists" {
+  value = contains(data.huaweicloud_organizations_close_account_status.test.close_account_statuses[*].account_id, "%[1]s")
+}
+
 locals {
-  state = "pending_closure"
+  state = try(data.huaweicloud_organizations_close_account_status.test.close_account_statuses[0].state, null)
 }
-data "huaweicloud_organizations_close_account_status" "states_filter" {
-  states = ["pending_closure"]
+
+# Filter by 'states' parameter.
+data "huaweicloud_organizations_close_account_status" "filter_by_states" {
+  states = [local.state]
 }
-output "states_filter_is_useful" {
-  value = length(data.huaweicloud_organizations_close_account_status.states_filter.close_account_statuses) > 0 && alltrue(
-  [for v in data.huaweicloud_organizations_close_account_status.states_filter.close_account_statuses[*].state : v == local.state]
-  )  
+
+locals {
+  states_filter_result = [for v in data.huaweicloud_organizations_close_account_status.filter_by_states.close_account_statuses[*].state :
+  v == local.state]
 }
-`
+
+output "is_states_filter_useful" {
+  value = length(local.states_filter_result) > 0 && alltrue(local.states_filter_result)
+}
+`, acceptance.HW_ORGANIZATIONS_CLOSE_ACCOUNT_ID)
 }
