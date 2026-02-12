@@ -1866,6 +1866,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_oms_cloud_type_venders":    oms.DataSourceCloudTypeVenders(),
 			"huaweicloud_oms_migration_sync_tasks":  oms.DataSourceMigrationSyncTasks(),
+			"huaweicloud_oms_migration_tasks":       oms.DataSourceMigrationTasks(),
 			"huaweicloud_oms_migration_task_groups": oms.DataSourceMigrationTaskGroups(),
 
 			"huaweicloud_ram_resource_permissions":                  ram.DataSourceResourcePermissions(),
