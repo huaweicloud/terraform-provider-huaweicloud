@@ -1,19 +1,19 @@
 ---
 subcategory: "Cloud Certificate Manager (CCM)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_ccm_private_ca_quota"
+page_title: "HuaweiCloud: huaweicloud_ccm_private_certificate_quota"
 description: |-
-  Use this data source to get the quota of CCM private CA.
+  Use this data source to get the quota of CCM private certificate.
 ---
 
-# huaweicloud_ccm_private_ca_quota
+# huaweicloud_ccm_private_certificate_quota
 
-Use this data source to get the quota of CCM private CA.
+Use this data source to get the quota of CCM private certificate.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_ccm_private_ca_quota" "test" {}
+data "huaweicloud_ccm_private_certificate_quota" "test" {}
 ```
 
 ## Argument Reference

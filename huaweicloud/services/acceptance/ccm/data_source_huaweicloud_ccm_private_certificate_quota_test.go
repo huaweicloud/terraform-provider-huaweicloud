@@ -8,8 +8,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCcmPrivateCaQuota_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_ccm_private_ca_quota.test"
+func TestAccDataSourceCcmPrivateCertificateQuota_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_ccm_private_certificate_quota.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,7 +19,7 @@ func TestAccDataSourceCcmPrivateCaQuota_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCcmPrivateCaQuota_basic,
+				Config: testDataSourceDataSourceCcmPrivateCertificateQuota_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "quotas.0.resources.0.type"),
@@ -31,6 +31,6 @@ func TestAccDataSourceCcmPrivateCaQuota_basic(t *testing.T) {
 	})
 }
 
-const testDataSourceDataSourceCcmPrivateCaQuota_basic = `
-data "huaweicloud_ccm_private_ca_quota" "test" {}
+const testDataSourceDataSourceCcmPrivateCertificateQuota_basic = `
+data "huaweicloud_ccm_private_certificate_quota" "test" {}
 `

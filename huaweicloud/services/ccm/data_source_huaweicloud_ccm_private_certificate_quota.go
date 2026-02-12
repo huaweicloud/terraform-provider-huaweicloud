@@ -15,9 +15,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceCcmPrivateCaQuota() *schema.Resource {
+func DataSourceCcmPrivateCertificateQuota() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCcmPrivateCaQuotaRead,
+		ReadContext: dataSourceCcmPrivateCertificateQuotaRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -63,20 +63,20 @@ func DataSourceCcmPrivateCaQuota() *schema.Resource {
 	}
 }
 
-type PrivateCaQuotaDSWrapper struct {
+type PrivateCertificateQuotaDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
 }
 
-func newPrivateCaQuotaDSWrapper(d *schema.ResourceData, meta interface{}) *PrivateCaQuotaDSWrapper {
-	return &PrivateCaQuotaDSWrapper{
+func newPrivateCertificateQuotaDSWrapper(d *schema.ResourceData, meta interface{}) *PrivateCertificateQuotaDSWrapper {
+	return &PrivateCertificateQuotaDSWrapper{
 		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
 		Config:              meta.(*config.Config),
 	}
 }
 
-func dataSourceCcmPrivateCaQuotaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newPrivateCaQuotaDSWrapper(d, meta)
+func dataSourceCcmPrivateCertificateQuotaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	wrapper := newPrivateCertificateQuotaDSWrapper(d, meta)
 	shoCerQuoRst, err := wrapper.ShowCertificateQuota()
 	if err != nil {
 		return diag.FromErr(err)
@@ -97,7 +97,7 @@ func dataSourceCcmPrivateCaQuotaRead(_ context.Context, d *schema.ResourceData, 
 }
 
 // @API CCM GET /v1/private-certificates/quotas
-func (w *PrivateCaQuotaDSWrapper) ShowCertificateQuota() (*gjson.Result, error) {
+func (w *PrivateCertificateQuotaDSWrapper) ShowCertificateQuota() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "ccm")
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (w *PrivateCaQuotaDSWrapper) ShowCertificateQuota() (*gjson.Result, error) 
 		Result()
 }
 
-func (w *PrivateCaQuotaDSWrapper) showCertificateQuotaToSchema(body *gjson.Result) error {
+func (w *PrivateCertificateQuotaDSWrapper) showCertificateQuotaToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
