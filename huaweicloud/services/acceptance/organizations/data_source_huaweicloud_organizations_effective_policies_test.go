@@ -9,11 +9,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceOrganizationsEffectivePolicies_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_organizations_effective_policies.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+// Currently, only account-level effective policy queries are supported.
+func TestAccDataEffectivePolicies_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
 
+		all = "data.huaweicloud_organizations_effective_policies.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -24,34 +27,33 @@ func TestAccDataSourceOrganizationsEffectivePolicies_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceOrganizationsEffectivePolicies_basic(rName),
+				Config: testAccDataEffectivePolicies_basic(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Without any filter parameters.
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "last_updated_at"),
-					resource.TestCheckResourceAttrSet(dataSource, "policy_content"),
+					resource.TestCheckResourceAttrSet(all, "last_updated_at"),
+					resource.TestCheckResourceAttrSet(all, "policy_content"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceOrganizationsEffectivePolicies_base(rName string) string {
+func testAccDataEffectivePolicies_base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_organizations_policy" "test"{
+resource "huaweicloud_organizations_policy" "test" {
   name        = "%[1]s"
   type        = "tag_policy"
-  description = "test description"
-  content     = jsonencode(
-    {
-      "tags":{
-        "test_tag":{
-          "tag_key":{
-            "@@assign":"test_tag"
-          }
+  description = "Created by terraform script"
+  content     = jsonencode({
+    tags = {
+      test_tag = {
+        tag_key = {
+          "@@assign" = "test_tag"
         }
       }
     }
-  )
+  })
 }
 
 resource "huaweicloud_organizations_policy_attach" "test" {
@@ -61,15 +63,16 @@ resource "huaweicloud_organizations_policy_attach" "test" {
 `, rName, acceptance.HW_ORGANIZATIONS_ACCOUNT_ID)
 }
 
-func testDataSourceOrganizationsEffectivePolicies_basic(rName string) string {
+func testAccDataEffectivePolicies_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+# Without any filter parameters.
 data "huaweicloud_organizations_effective_policies" "test" {
   depends_on = [huaweicloud_organizations_policy_attach.test]
 
   entity_id   = "%[2]s"
   policy_type = "tag_policy"
 }
-`, testDataSourceOrganizationsEffectivePolicies_base(rName), acceptance.HW_ORGANIZATIONS_ACCOUNT_ID)
+`, testAccDataEffectivePolicies_base(rName), acceptance.HW_ORGANIZATIONS_ACCOUNT_ID)
 }

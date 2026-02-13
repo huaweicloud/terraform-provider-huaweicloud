@@ -99,7 +99,7 @@ func TestAccOrganizationalUnit_basic(t *testing.T) {
 
 func testOrganizationalUnit_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_organizations_organization" "test" {}
 
 resource "huaweicloud_organizations_organizational_unit" "test" {
   name      = "%s"
@@ -110,12 +110,12 @@ resource "huaweicloud_organizations_organizational_unit" "test" {
     "key2" = "value2"
   }
 }
-`, testAccDatasourceOrganization_basic(), name)
+`, name)
 }
 
 func testOrganizationalUnit_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_organizations_organization" "test" {}
 
 resource "huaweicloud_organizations_organizational_unit" "test" {
   name      = "%s"
@@ -126,5 +126,5 @@ resource "huaweicloud_organizations_organizational_unit" "test" {
     "key4" = "value4"
   }
 }
-`, testAccDatasourceOrganization_basic(), name)
+`, name)
 }
