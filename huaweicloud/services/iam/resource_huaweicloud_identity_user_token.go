@@ -26,6 +26,7 @@ func ResourceV3UserToken() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceUserTokenCreate,
 		ReadContext:   resourceUserTokenRead,
+		UpdateContext: resourceUserTokenUpdate,
 		DeleteContext: resourceUserTokenDelete,
 
 		CustomizeDiff: config.FlexibleForceNew(identityUserTokenNonUpdatableParams),
@@ -177,6 +178,10 @@ func resourceUserTokenRead(_ context.Context, d *schema.ResourceData, meta inter
 			return diag.FromErr(err)
 		}
 	}
+	return nil
+}
+
+func resourceUserTokenUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
