@@ -1,6 +1,7 @@
 package organizations
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,9 +9,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceOrganizationsTagPolicyServices_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_organizations_tag_policy_services.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+func TestAccDataTagPolicyServices_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_organizations_tag_policy_services.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -21,22 +24,20 @@ func TestAccDataSourceOrganizationsTagPolicyServices_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceOrganizationsTagPolicyServices_basic(),
+				Config: testAccDataTagPolicyServices_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "services.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "services.0.service_name"),
-					resource.TestCheckResourceAttrSet(dataSource, "services.0.resource_types.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "services.0.resource_types.0"),
-					resource.TestCheckResourceAttrSet(dataSource, "services.0.support_all"),
+					resource.TestMatchResourceAttr(all, "services.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "services.0.service_name"),
+					resource.TestMatchResourceAttr(all, "services.0.resource_types.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "services.0.resource_types.0"),
+					resource.TestCheckResourceAttrSet(all, "services.0.support_all"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceOrganizationsTagPolicyServices_basic() string {
-	return `
+const testAccDataTagPolicyServices_basic = `
 data "huaweicloud_organizations_tag_policy_services" "test" {}
 `
-}

@@ -1,6 +1,8 @@
 package organizations
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,9 +10,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceOrganizationsTags_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_organizations_resource_tags.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+func TestAccDataResourceTags_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		all = "data.huaweicloud_organizations_resource_tags.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -21,23 +27,42 @@ func TestAccDataSourceOrganizationsTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceOrganizationsTags_basic(),
+				Config: testAccDataResourceTags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "tags.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "tags.0.key"),
-					resource.TestCheckResourceAttrSet(dataSource, "tags.0.values.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "tags.0.values.0"),
+					resource.TestMatchResourceAttr(all, "tags.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "tags.0.key"),
+					resource.TestMatchResourceAttr(all, "tags.0.values.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "tags.0.values.0"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceOrganizationsTags_basic() string {
-	return `
-data "huaweicloud_organizations_resource_tags" "test" {
-  resource_type = "organizations:policies"
+func testAccDataResourceTags_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_organizations_organization" "test" {}
+
+resource "huaweicloud_organizations_organizational_unit" "test" {
+  name      = "%[1]s"
+  parent_id = data.huaweicloud_organizations_organization.test.root_id
+
+  tags = {
+    foo = "bar"
+  }
 }
-`
+`, name)
+}
+
+func testAccDataResourceTags_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_organizations_resource_tags" "test" {
+  resource_type = "organizations:ous"
+
+  depends_on = [huaweicloud_organizations_organizational_unit.test]
+}
+`, testAccDataResourceTags_base(name))
 }
