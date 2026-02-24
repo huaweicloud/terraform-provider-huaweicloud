@@ -1,6 +1,7 @@
 package organizations
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -8,9 +9,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceOrganizationsTrustedServices_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_organizations_trusted_services.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+func TestAccDataTrustedServices_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_organizations_trusted_services.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -21,24 +24,24 @@ func TestAccDataSourceOrganizationsTrustedServices_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceOrganizationsTrustedServices_basic(),
+				Config: testAccDataTrustedServices_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "trusted_services.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "trusted_services.0.service_principal"),
-					resource.TestCheckResourceAttrSet(dataSource, "trusted_services.0.enabled_at"),
+					resource.TestMatchResourceAttr(all, "trusted_services.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(all, "trusted_services.0.service_principal"),
+					resource.TestCheckResourceAttrSet(all, "trusted_services.0.enabled_at"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceOrganizationsTrustedServices_basic() string {
-	return `
+const testAccDataTrustedServices_basic = `
 resource "huaweicloud_organizations_trusted_service" "test" {
   service = "service.SecMaster"
 }
 
-data "huaweicloud_organizations_trusted_services" "test" {}
-`
+data "huaweicloud_organizations_trusted_services" "test" {
+  depends_on = [huaweicloud_organizations_trusted_service.test]
 }
+`

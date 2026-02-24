@@ -115,15 +115,17 @@ func TestAccDelegatedAdministrator_basic(t *testing.T) {
 func testDelegatedAdministrator_basic(name string) string {
 	return fmt.Sprintf(`
 
-%[1]s
+resource "huaweicloud_organizations_trusted_service" "test" {
+  service = "service.SecMaster"
+}
 
 data "huaweicloud_organizations_accounts" "test" {
-  name = "%[2]s"
+  name = "%[1]s"
 }
 
 resource "huaweicloud_organizations_delegated_administrator" "test" {
   account_id        = data.huaweicloud_organizations_accounts.test.accounts.0.id
   service_principal = huaweicloud_organizations_trusted_service.test.service
 }
-`, testTrustedService_basic(), name)
+`, name)
 }

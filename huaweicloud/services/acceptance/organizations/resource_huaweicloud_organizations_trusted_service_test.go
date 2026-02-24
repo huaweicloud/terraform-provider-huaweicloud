@@ -82,14 +82,11 @@ func buildGetTrustedServiceQueryParams(marker string) string {
 }
 
 func TestAccTrustedService_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		obj   interface{}
+		rName = "huaweicloud_organizations_trusted_service.test"
 
-	rName := "huaweicloud_organizations_trusted_service.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getTrustedServiceResourceFunc,
+		rc = acceptance.InitResourceCheck(rName, &obj, getTrustedServiceResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -102,7 +99,7 @@ func TestAccTrustedService_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testTrustedService_basic(),
+				Config: testAccTrustedService_basic,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "service", "service.SecMaster"),
@@ -118,10 +115,8 @@ func TestAccTrustedService_basic(t *testing.T) {
 	})
 }
 
-func testTrustedService_basic() string {
-	return `
+const testAccTrustedService_basic = `
 resource "huaweicloud_organizations_trusted_service" "test" {
   service = "service.SecMaster"
 }
 `
-}
