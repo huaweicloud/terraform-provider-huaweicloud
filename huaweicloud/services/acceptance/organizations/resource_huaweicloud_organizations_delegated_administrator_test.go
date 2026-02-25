@@ -73,14 +73,10 @@ func buildGetDelegatedAdministratorQueryParams(servicePrincipal string) string {
 }
 
 func TestAccDelegatedAdministrator_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_organizations_delegated_administrator.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDelegatedAdministratorResourceFunc,
+	var (
+		obj   interface{}
+		rName = "huaweicloud_organizations_delegated_administrator.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getDelegatedAdministratorResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +90,7 @@ func TestAccDelegatedAdministrator_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDelegatedAdministrator_basic(acceptance.HW_ORGANIZATIONS_ACCOUNT_NAME),
+				Config: testDelegatedAdministrator_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "account_id",
@@ -112,9 +108,8 @@ func TestAccDelegatedAdministrator_basic(t *testing.T) {
 	})
 }
 
-func testDelegatedAdministrator_basic(name string) string {
+func testDelegatedAdministrator_basic() string {
 	return fmt.Sprintf(`
-
 resource "huaweicloud_organizations_trusted_service" "test" {
   service = "service.SecMaster"
 }
@@ -124,8 +119,8 @@ data "huaweicloud_organizations_accounts" "test" {
 }
 
 resource "huaweicloud_organizations_delegated_administrator" "test" {
-  account_id        = data.huaweicloud_organizations_accounts.test.accounts.0.id
+  account_id        = try(data.huaweicloud_organizations_accounts.test.accounts[0].id, "")
   service_principal = huaweicloud_organizations_trusted_service.test.service
 }
-`, name)
+`, acceptance.HW_ORGANIZATIONS_ACCOUNT_NAME)
 }

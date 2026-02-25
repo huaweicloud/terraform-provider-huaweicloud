@@ -46,16 +46,13 @@ func getOrganizationalUnitResourceFunc(cfg *config.Config, state *terraform.Reso
 }
 
 func TestAccOrganizationalUnit_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_organizations_organizational_unit.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getOrganizationalUnitResourceFunc,
+		obj   interface{}
+		rName = "huaweicloud_organizations_organizational_unit.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getOrganizationalUnitResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -68,23 +65,24 @@ func TestAccOrganizationalUnit_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testOrganizationalUnit_basic(name),
+				Config: testAccOrganizationalUnit_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
-					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{
-				Config: testOrganizationalUnit_basic_update(updateName),
+				Config: testAccOrganizationalUnit_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
-					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(rName, "tags.foo1", "bar_update"),
 				),
 			},
 			{
@@ -97,7 +95,7 @@ func TestAccOrganizationalUnit_basic(t *testing.T) {
 	})
 }
 
-func testOrganizationalUnit_basic(name string) string {
+func testAccOrganizationalUnit_basic_step1(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_organizations_organization" "test" {}
 
@@ -106,14 +104,14 @@ resource "huaweicloud_organizations_organizational_unit" "test" {
   parent_id = data.huaweicloud_organizations_organization.test.root_id
 
   tags = {
-    "key1" = "value1"
-    "key2" = "value2"
+    foo   = "bar"
+    owner = "terraform"
   }
 }
 `, name)
 }
 
-func testOrganizationalUnit_basic_update(name string) string {
+func testAccOrganizationalUnit_basic_step2(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_organizations_organization" "test" {}
 
@@ -122,8 +120,7 @@ resource "huaweicloud_organizations_organizational_unit" "test" {
   parent_id = data.huaweicloud_organizations_organization.test.root_id
 
   tags = {
-    "key3" = "value3"
-    "key4" = "value4"
+    foo1 = "bar_update"
   }
 }
 `, name)

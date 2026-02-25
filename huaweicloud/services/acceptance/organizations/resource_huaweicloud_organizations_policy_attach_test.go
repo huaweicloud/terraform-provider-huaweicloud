@@ -69,15 +69,12 @@ func getPolicyAttachResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 }
 
 func TestAccPolicyAttach_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_organizations_policy_attach.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getPolicyAttachResourceFunc,
+		obj   interface{}
+		rName = "huaweicloud_organizations_policy_attach.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getPolicyAttachResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -90,7 +87,7 @@ func TestAccPolicyAttach_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testPolicyAttach_basic(name),
+				Config: testAccPolicyAttach_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
@@ -110,15 +107,41 @@ func TestAccPolicyAttach_basic(t *testing.T) {
 	})
 }
 
-func testPolicyAttach_basic(name string) string {
+func testAccPolicyAttach_base(name string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_organizations_policy" "test" {
+  name        = "%[1]s"
+  type        = "service_control_policy"
+  description = "Created by terraform script"
+  content     = jsonencode(
+    {
+      Version : "5.0",
+      Statement : [
+        {
+          Effect : "Deny",
+          Action : []
+        }
+      ]
+    }
+  )
+}
 
-%s
+data "huaweicloud_organizations_organization" "test" {}
+
+resource "huaweicloud_organizations_organizational_unit" "test" {
+  name      = "%[1]s"
+  parent_id = data.huaweicloud_organizations_organization.test.root_id
+}
+`, name)
+}
+
+func testAccPolicyAttach_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_organizations_policy_attach" "test" {
   policy_id = huaweicloud_organizations_policy.test.id
   entity_id = huaweicloud_organizations_organizational_unit.test.id
 }
-`, testPolicy_basic(name), testOrganizationalUnit_basic(name))
+`, testAccPolicyAttach_base(name))
 }

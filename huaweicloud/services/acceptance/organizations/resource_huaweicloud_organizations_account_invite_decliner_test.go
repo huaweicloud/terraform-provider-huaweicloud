@@ -21,14 +21,14 @@ func TestAccAccountInviteDecliner_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccountInviteDecliner_basic(),
+				Config: testAccAccountInviteDecliner_basic(),
 				Check:  resource.ComposeTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func testAccountInviteDecliner_basic() string {
+func testAccAccountInviteDecliner_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_organizations_account_invite_decliner" "test" {
   invitation_id = "%s"

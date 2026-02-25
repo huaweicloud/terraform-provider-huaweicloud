@@ -43,14 +43,10 @@ func getAccountInviteAccepterResourceFunc(cfg *config.Config, state *terraform.R
 }
 
 func TestAccAccountInviteAccepter_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_organizations_account_invite_accepter.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAccountInviteAccepterResourceFunc,
+	var (
+		obj   interface{}
+		rName = "huaweicloud_organizations_account_invite_accepter.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getAccountInviteAccepterResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -64,7 +60,7 @@ func TestAccAccountInviteAccepter_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccountInviteAccepter_basic(),
+				Config: testAccAccountInviteAccepter_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "invitation_id", acceptance.HW_ORGANIZATIONS_INVITATION_ID),
@@ -88,7 +84,7 @@ func TestAccAccountInviteAccepter_basic(t *testing.T) {
 	})
 }
 
-func testAccountInviteAccepter_basic() string {
+func testAccAccountInviteAccepter_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_organizations_account_invite_accepter" "test" {
   invitation_id                 = "%s"
