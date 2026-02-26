@@ -3,12 +3,12 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_trusted_services"
 description: |-
-  Use this data source to get the list of the trusted services that are integrated with Organizations
+  Use this data source to get the list of the trusted services that are integrated with Organizations.
 ---
 
 # huaweicloud_organizations_trusted_services
 
-Use this data source to get the list of the trusted services that are integrated with Organizations
+Use this data source to get the list of the trusted services that are integrated with Organizations.
 
 ## Example Usage
 
@@ -20,7 +20,7 @@ data "huaweicloud_organizations_trusted_services" "test"{}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
+* `region` - (Optional, String) Specifies the region where the trusted services are located.  
   If omitted, the provider-level region will be used.
 
 ## Attribute Reference
@@ -38,4 +38,4 @@ The `trusted_services` block supports:
 
 * `service_principal` - Indicates the name of a trusted service.
 
-* `enabled_at` - Indicates the date when the trusted service was integrated with Organizations
+* `enabled_at` - Indicates the time when the trusted service was integrated with Organizations.

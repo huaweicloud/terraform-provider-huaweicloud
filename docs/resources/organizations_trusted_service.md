@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_trusted_service"
-description: ""
+description: |-
+  Manages an Organizations trusted service resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_trusted_service
@@ -31,7 +32,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `enabled_at` - Indicates the date when the trusted service was integrated with Organizations.
+* `enabled_at` - Indicates the time when the trusted service was integrated with Organizations.
 
 ## Import
 
