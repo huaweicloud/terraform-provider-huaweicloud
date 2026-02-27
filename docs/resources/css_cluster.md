@@ -170,6 +170,9 @@ The following arguments are supported:
   distributed to each AZ. If the number of nodes is not a multiple of the number of AZs, the absolute difference
   between node quantity in any two AZs is **1** at most.
 
+* `disk_encryption` - (Optional, List, NonUpdatable) Specifies the disk encryption information.
+  The [disk_encryption](#disk_encryption_struct) structure is documented below.
+
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
@@ -323,6 +326,24 @@ The `backup_strategy` block supports:
 
   -> **NOTE:**  If the `bucket`, `backup_path`, and `agency` parameters are empty at the same time, the system will
   automatically create an OBS bucket and IAM agent, otherwise the configured parameter values will be used.
+
+<a name="disk_encryption_struct"></a>
+The `disk_encryption` block supports:
+
+* `system_encrypted` - (Optional, String, NonUpdatable) Specifies whether disk encryption is enabled. KMS is used to
+  encrypt the data disks of cluster nodes to ensure the security of stored data. Disk encryption and decryption do not
+  alter cluster management or O&M processes. However, they do increase the system's processing load, potentially affecting
+  the system's operational performance. Value options:
+  + **0**: Disable disk encryption.
+  + **1**: Enable disk encryption.
+
+* `system_cmk_id` - (Optional, String, NonUpdatable) Specifies the disk key ID. This parameter is valid only when
+  `system_encrypted` is set to **1**. If the KMS key used by the cluster is disabled, the cluster cannot be scaled or
+  upgraded, its node specifications or AZs cannot be changed, and its nodes cannot be replaced (by specifying the nodes
+  that need replacement). To solve this problem, you will have to create a new cluster and migrate your data to that new
+  cluster. Set a key that meets the following requirements:
+  + Cryptographic algorithm: **AES**.
+  + Key usage: **ENCRYPT_DECRYPT**.
 
 ## Attribute Reference
 

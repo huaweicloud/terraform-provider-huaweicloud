@@ -132,6 +132,26 @@ var cssClusterSchema = map[string]*schema.Schema{
 		Computed:    true,
 		Description: "schema: Required",
 	},
+	"disk_encryption": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"system_encrypted": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"system_cmk_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		},
+	},
 	"backup_strategy": {
 		Type:     schema.TypeList,
 		Optional: true,
@@ -437,7 +457,8 @@ var cssClusterSchema = map[string]*schema.Schema{
 	},
 }
 
-var clusterNonUpdatableParams = []string{"engine_version", "availability_zone"}
+var clusterNonUpdatableParams = []string{"engine_version", "availability_zone", "disk_encryption",
+	"disk_encryption.*.system_encrypted", "disk_encryption.*.system_cmk_id"}
 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/role_extend
 // @API CSS POST /v1.0/{project_id}/clusters
@@ -773,6 +794,16 @@ func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (
 		}
 	}
 
+	if v, ok := d.GetOk("disk_encryption"); ok {
+		diskEncryptionRaw := v.([]interface{})
+		if diskEncryption, ok := diskEncryptionRaw[0].(map[string]interface{}); ok {
+			cluster["diskEncryption"] = map[string]interface{}{
+				"systemEncrypted": diskEncryption["system_encrypted"],
+				"systemCmkid":     diskEncryption["system_cmk_id"],
+			}
+		}
+	}
+
 	if payModel, ok := d.GetOk("period_unit"); ok && d.Get("charging_mode").(string) != "postPaid" {
 		payInfo := map[string]interface{}{
 			"period":    d.Get("period"),
@@ -871,6 +902,7 @@ func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("bandwidth_resource_id", utils.PathSearch("bandwidthResourceId", clusterDetail, nil)),
 		d.Set("is_period", utils.PathSearch("period", clusterDetail, nil)),
 		d.Set("backup_available", utils.PathSearch("backupAvailable", clusterDetail, nil)),
+		d.Set("disk_encryption", flattenDiskEncryption(clusterDetail)),
 		d.Set("disk_encrypted", utils.PathSearch("diskEncrypted", clusterDetail, nil)),
 	)
 
@@ -921,6 +953,21 @@ func getClusterDetails(client *golangsdk.ServiceClient, clusterID string) (inter
 	}
 
 	return utils.FlattenResponse(getClusterDetailsResp)
+}
+
+func flattenDiskEncryption(clusterDetail interface{}) []map[string]interface{} {
+	diskEncrypted := utils.PathSearch("diskEncrypted", clusterDetail, false).(bool)
+	cmkId := utils.PathSearch("cmkId", clusterDetail, "").(string)
+	systemEncrypted := "0"
+	if diskEncrypted {
+		systemEncrypted = "1"
+	}
+	return []map[string]interface{}{
+		{
+			"system_encrypted": systemEncrypted,
+			"system_cmk_id":    cmkId,
+		},
+	}
 }
 
 func flattenClusterNodes(nodes []interface{}) []interface{} {

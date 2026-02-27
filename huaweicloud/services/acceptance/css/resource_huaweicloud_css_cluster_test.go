@@ -643,6 +643,36 @@ func TestAccCssCluster_changeToPeriod(t *testing.T) {
 	})
 }
 
+func TestAccCssCluster_disk_encryption(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_disk_encryption(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "disk_encryption.0.system_encrypted", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "disk_encryption.0.system_cmk_id",
+						"huaweicloud_kms_key.test", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCssBase(rName string) string {
 	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
@@ -1288,4 +1318,73 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName)
+}
+
+func testAccCssCluster_disk_encryption(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_enterprise_project" "test" {
+  name = "terraform-test"
+}
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias     = "%[2]s"
+  key_algorithm = "AES_256"
+  key_usage     = "ENCRYPT_DECRYPT"
+  pending_days  = "7"
+}
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.test.id
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  master_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  client_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  disk_encryption {
+    system_encrypted = "1"
+    system_cmk_id    = huaweicloud_kms_key.test.id
+  }
+}
+`, testAccCssBase(rName), rName)
 }
