@@ -93,7 +93,7 @@ func TestAccBandwidthPackage_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "local_area_id", "Chinese-Mainland"),
 					resource.TestCheckResourceAttr(rName, "remote_area_id", "Chinese-Mainland"),
 					resource.TestCheckResourceAttr(rName, "charge_mode", "bandwidth"),
-					resource.TestCheckResourceAttr(rName, "billing_mode", "3"),
+					resource.TestCheckResourceAttr(rName, "billing_mode", "5"),
 					resource.TestCheckResourceAttr(rName, "bandwidth", "5"),
 					resource.TestCheckResourceAttr(rName, "description", "This is an accaptance test"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
@@ -170,7 +170,7 @@ resource "huaweicloud_cc_bandwidth_package" "test" {
   local_area_id         = "Chinese-Mainland"
   remote_area_id        = "Chinese-Mainland"
   charge_mode           = "bandwidth"
-  billing_mode          = 3
+  billing_mode          = 5
   bandwidth             = 5
   description           = "This is an accaptance test"
   resource_id           = huaweicloud_cc_connection.test_another.id

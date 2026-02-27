@@ -295,6 +295,10 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Editing the `billing_mode` field has special restrictions:
+	// 1. When an edit API request is initiated, the value of `billing_mode` can only be one of [`1`, `2`, `5`, `6`, `7`, `8`].
+	// 2. When an edit API request includes `billing_mode`, the API requires `bandwidth` to be passed in.
+	// For the reasons mentioned above, the `billing_mode` need to be edited by calling the API separately.
 	if d.HasChange("billing_mode") {
 		err = updateBandwidthPackage(client, cfg.DomainID, bandWidthId, buildUpdateBandwidthPackageBillingModeParams(d))
 		if err != nil {
@@ -462,9 +466,9 @@ func deleteBandwidthPackageTags(client *golangsdk.ServiceClient, d *schema.Resou
 func buildUpdateBandwidthPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+			"name":        d.Get("name"),
+			"bandwidth":   d.Get("bandwidth"),
 			"description": utils.ValueIgnoreEmpty(d.Get("description")),
-			"bandwidth":   utils.ValueIgnoreEmpty(d.Get("bandwidth")),
 		},
 	}
 	return bodyParams
@@ -473,7 +477,8 @@ func buildUpdateBandwidthPackageBodyParams(d *schema.ResourceData) map[string]in
 func buildUpdateBandwidthPackageBillingModeParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"billing_mode": utils.ValueIgnoreEmpty(d.Get("billing_mode")),
+			"billing_mode": d.Get("billing_mode"),
+			"bandwidth":    d.Get("bandwidth"),
 		},
 	}
 	return bodyParams
