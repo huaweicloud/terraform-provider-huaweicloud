@@ -1,4 +1,4 @@
-package iam
+package deprecated
 
 import (
 	"context"

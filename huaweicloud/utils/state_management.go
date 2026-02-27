@@ -424,6 +424,23 @@ func getNestedObject(obj cty.Value, paths []string) interface{} {
 	}
 }
 
+// RefreshObjectParamOriginValuesOptions provides options for refreshing origin values
+type RefreshObjectParamOriginValuesOptions struct {
+	// PreservedFields specifies which fields to preserve for each parameter.
+	// Key is the parameter name (e.g., "policies"), value is a list of field paths to preserve.
+	// Field paths support nested structures using dot notation:
+	//   - "id" - simple field
+	//   - "tags.key" - nested field in an object
+	//   - "tags.*.key" - field in list items (use * to represent all elements in a list)
+	//   - "metadata.labels.name" - deeply nested field
+	// Examples:
+	//   - ["id"] - preserve only the "id" field
+	//   - ["id", "tags.key"] - preserve "id" and "tags.key" fields
+	//   - ["tags.*.key", "tags.*.value"] - preserve "key" and "value" from all items in "tags" list
+	// If nil or empty, all fields will be preserved (default behavior).
+	PreservedFields map[string][]string
+}
+
 // RefreshObjectParamOriginValues updates origin values after all diff calculations are completed.
 // This function captures the final configuration values that will be used for comparison in DiffSuppressFunc.
 // It handles both direct field changes and length changes (e.g., lts_custom_tag_origin.%).
@@ -431,7 +448,12 @@ func getNestedObject(obj cty.Value, paths []string) interface{} {
 // In UpdateContext, this function should preserve the new configuration values from the current change.
 // RawPlan reflects the planned values after all processing (including DiffSuppressFunc), which is what we want.
 // If RawPlan is not available, fallback to RawConfig which reflects the configuration file values.
-func RefreshObjectParamOriginValues(d *schema.ResourceData, objectParamKeys []string) error {
+func RefreshObjectParamOriginValues(d *schema.ResourceData, objectParamKeys []string, opts ...RefreshObjectParamOriginValuesOptions) error {
+	var options RefreshObjectParamOriginValuesOptions
+	if len(opts) > 0 {
+		options = opts[0]
+	}
+
 	log.Printf("[DEBUG][RefreshObjectParamOriginValues] Starting with %d object param keys: %v",
 		len(objectParamKeys), objectParamKeys)
 
@@ -474,39 +496,230 @@ func RefreshObjectParamOriginValues(d *schema.ResourceData, objectParamKeys []st
 			continue
 		}
 
+		// Process the value: if preservedFields is specified for this parameter, extract only those fields
+		processedVal := configVal
+		if options.PreservedFields != nil {
+			if preservedFields, exists := options.PreservedFields[absParamKeyPath]; exists && len(preservedFields) > 0 {
+				log.Printf("[DEBUG][RefreshObjectParamOriginValues] Extracting preserved fields for '%s': %v",
+					absParamKeyPath, preservedFields)
+				processedVal = extractPreservedFields(configVal, preservedFields)
+				if processedVal == nil {
+					log.Printf("[WARN][RefreshObjectParamOriginValues] Failed to extract preserved fields for '%s', using original value",
+						absParamKeyPath)
+					processedVal = configVal
+				}
+			}
+		}
+
 		// Log the final value to be set
 		log.Printf("[DEBUG][RefreshObjectParamOriginValues] Final value for '%s': %v",
-			absParamKeyPath, configVal)
+			absParamKeyPath, processedVal)
 
 		// Set the origin value to match the configuration value from RawConfig
 		// For top-level fields, use d.Set() directly for better performance
 		// For nested fields (containing '.'), use setNestedValueSafelyForResourceData
-		if strings.Contains(absOriginParamKeyPath, ".") {
-			// Nested field - use safe nested setting
-			if err := setNestedValueSafelyForResourceData(d, absOriginParamKeyPath, configVal); err != nil {
-				log.Printf("[ERROR][RefreshObjectParamOriginValues] Failed to set origin value for '%s': %v",
-					absOriginParamKeyPath, err)
-				return fmt.Errorf("failed to set origin value for '%s': %v", absOriginParamKeyPath, err)
-			}
-		} else {
-			// Top-level field - use direct setting
-			// lintignore:R001
-			if err := d.Set(absOriginParamKeyPath, configVal); err != nil {
-				log.Printf("[ERROR][RefreshObjectParamOriginValues] Failed to set origin value for '%s': %v",
-					absOriginParamKeyPath, err)
-				return fmt.Errorf("failed to set origin value for '%s': %v", absOriginParamKeyPath, err)
-			}
-			// Verify the value was set correctly
-			verifyVal := d.Get(absOriginParamKeyPath)
-			log.Printf("[DEBUG][RefreshObjectParamOriginValues] Verified value for '%s' after setting: %v",
-				absOriginParamKeyPath, verifyVal)
-		}
+		// Use recover to catch any panic (no address) errors
+		var setErr error
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Printf("[WARN][RefreshObjectParamOriginValues] Panic occurred while setting origin value for '%s': %v (ignored)",
+						absOriginParamKeyPath, r)
+					setErr = nil // Ignore panic
+				}
+			}()
 
-		log.Printf("[DEBUG][RefreshObjectParamOriginValues] Successfully set origin value for '%s'",
+			if strings.Contains(absOriginParamKeyPath, ".") {
+				// Nested field - use safe nested setting
+				setErr = setNestedValueSafelyForResourceData(d, absOriginParamKeyPath, processedVal)
+				if setErr != nil {
+					log.Printf("[WARN][RefreshObjectParamOriginValues] Failed to set origin value for '%s': %v (ignored)",
+						absOriginParamKeyPath, setErr)
+					setErr = nil // Ignore error as requested
+				}
+			} else {
+				// Top-level field - use direct setting
+				// lintignore:R001
+				setErr = d.Set(absOriginParamKeyPath, processedVal)
+				if setErr != nil {
+					log.Printf("[WARN][RefreshObjectParamOriginValues] Failed to set origin value for '%s': %v (ignored)",
+						absOriginParamKeyPath, setErr)
+					setErr = nil // Ignore error as requested
+				} else {
+					// Verify the value was set correctly
+					verifyVal := d.Get(absOriginParamKeyPath)
+					log.Printf("[DEBUG][RefreshObjectParamOriginValues] Verified value for '%s' after setting: %v",
+						absOriginParamKeyPath, verifyVal)
+				}
+			}
+		}()
+
+		log.Printf("[DEBUG][RefreshObjectParamOriginValues] Successfully processed origin value for '%s'",
 			absOriginParamKeyPath)
 	}
 
 	return nil
+}
+
+// extractPreservedFields extracts only the specified fields from a value (list or object).
+// PreservedFields supports nested paths using dot notation:
+//   - "id" - simple field
+//   - "tags.key" - nested field
+//   - "tags.*.key" - field in list items (use * to represent list elements)
+//   - "metadata.labels.name" - deeply nested field
+//
+// If the value is a list of maps, it returns a new list containing only the preserved fields.
+// If the value is a map, it returns a new map containing only the preserved fields.
+// If the value cannot be processed, it returns nil.
+func extractPreservedFields(value interface{}, preservedFields []string) interface{} {
+	if value == nil {
+		return nil
+	}
+
+	// Handle list of objects
+	if list, ok := value.([]interface{}); ok {
+		return extractPreservedFieldsFromList(list, preservedFields)
+	}
+
+	// Handle single object
+	if obj, ok := value.(map[string]interface{}); ok {
+		return extractPreservedFieldsFromObject(obj, preservedFields)
+	}
+
+	log.Printf("[DEBUG][extractPreservedFields] Value is neither a list nor a map (type: %T), returning nil", value)
+	return nil
+}
+
+// extractPreservedFieldsFromList extracts preserved fields from a list of objects
+func extractPreservedFieldsFromList(list []interface{}, preservedFields []string) []interface{} {
+	result := make([]interface{}, 0, len(list))
+	for _, item := range list {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			log.Printf("[WARN][extractPreservedFieldsFromList] Item is not a map, skipping")
+			continue
+		}
+
+		preservedItem := extractPreservedFieldsFromObject(itemMap, preservedFields)
+		if len(preservedItem) > 0 {
+			result = append(result, preservedItem)
+		}
+	}
+	return result
+}
+
+// extractPreservedFieldsFromObject extracts preserved fields from an object using nested paths
+func extractPreservedFieldsFromObject(obj map[string]interface{}, preservedFields []string) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	for _, fieldPath := range preservedFields {
+		// Split the path by dots
+		pathParts := strings.Split(fieldPath, ".")
+		if len(pathParts) == 0 {
+			continue
+		}
+
+		// Extract and set the value using the path
+		extractAndSetValueByPath(obj, result, pathParts)
+	}
+
+	return result
+}
+
+// extractAndSetValueByPath extracts a value from source and sets it in target using the path
+// Handles both simple fields and nested structures including lists
+func extractAndSetValueByPath(source map[string]interface{}, target map[string]interface{}, pathParts []string) {
+	if len(pathParts) == 0 {
+		return
+	}
+
+	currentPart := pathParts[0]
+	remainingParts := pathParts[1:]
+
+	// Check if current part exists in source
+	sourceValue, exists := source[currentPart]
+	if !exists {
+		return
+	}
+
+	// Handle different cases
+	if len(remainingParts) == 0 {
+		// Simple field: copy directly
+		target[currentPart] = sourceValue
+		return
+	}
+
+	// Check if next part is wildcard (list)
+	if remainingParts[0] == "*" {
+		// Handle list: tags.*.key
+		listValue, ok := sourceValue.([]interface{})
+		if !ok {
+			return
+		}
+
+		// Extract from all list items
+		extractedList := extractFromListItems(listValue, remainingParts[1:])
+		if extractedList != nil {
+			target[currentPart] = extractedList
+		}
+		return
+	}
+
+	// Handle nested object: tags.key
+	sourceMap, ok := sourceValue.(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	// Create nested structure in target
+	targetNested, ok := target[currentPart].(map[string]interface{})
+	if !ok {
+		targetNested = make(map[string]interface{})
+		target[currentPart] = targetNested
+	}
+
+	// Continue extracting from nested object
+	extractAndSetValueByPath(sourceMap, targetNested, remainingParts)
+}
+
+// extractFromListItems extracts values from all items in a list using the remaining path
+// Returns a list of objects containing only the extracted fields
+func extractFromListItems(list []interface{}, pathParts []string) []interface{} {
+	if len(pathParts) == 0 {
+		// No more path parts, return list as-is
+		return list
+	}
+
+	result := make([]interface{}, 0, len(list))
+	for _, item := range list {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		// Extract nested value
+		if len(pathParts) == 1 {
+			// Last part: extract single field
+			fieldName := pathParts[0]
+			if value, exists := itemMap[fieldName]; exists {
+				result = append(result, map[string]interface{}{
+					fieldName: value,
+				})
+			}
+		} else {
+			// More nested: recursively extract
+			extracted := make(map[string]interface{})
+			extractAndSetValueByPath(itemMap, extracted, pathParts)
+			if len(extracted) > 0 {
+				result = append(result, extracted)
+			}
+		}
+	}
+
+	if len(result) == 0 {
+		return nil
+	}
+	return result
 }
 
 // setNestedValueSafelyForResourceData safely sets nested values in a ResourceData
