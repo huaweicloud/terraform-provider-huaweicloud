@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityTrustAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV3TrustAgencyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("iam_no_version", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
@@ -33,15 +33,14 @@ func getIdentityTrustAgencyResourceFunc(cfg *config.Config, state *terraform.Res
 	return utils.FlattenResponse(getAgencyResp)
 }
 
-func TestAccIdentityTrustAgency_basic(t *testing.T) {
-	var object interface{}
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_trust_agency.test"
+func TestAccV3TrustAgency_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&object,
-		getIdentityTrustAgencyResourceFunc,
+		resourceName = "huaweicloud_identity_trust_agency.test"
+		rName        = acceptance.RandomAccResourceName()
+
+		rc = acceptance.InitResourceCheck(resourceName, &obj, getV3TrustAgencyResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,7 +53,7 @@ func TestAccIdentityTrustAgency_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityTrustAgency_basic(rName),
+				Config: testAccV3TrustAgency_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -62,21 +61,21 @@ func TestAccIdentityTrustAgency_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "duration", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttrSet(resourceName, "trust_policy"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
-				Config: testAccIdentityTrustAgency_update(rName),
+				Config: testAccV3TrustAgency_basic_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "policy_names.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "7200"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
 				),
 			},
 			{
@@ -88,12 +87,12 @@ func TestAccIdentityTrustAgency_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityTrustAgency_basic(rName string) string {
+func testAccV3TrustAgency_basic_step1(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_trust_agency" "test" {
   name         = "%s"
   policy_names = ["NATReadOnlyPolicy"]
-  description  = "test for terraform"
+  description  = "Created by terraform script"
   trust_policy = jsonencode(
     {
       Statement = [
@@ -121,13 +120,13 @@ resource "huaweicloud_identity_trust_agency" "test" {
 `, rName)
 }
 
-func testAccIdentityTrustAgency_update(rName string) string {
+func testAccV3TrustAgency_basic_step2(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_trust_agency" "test" {
   name         = "%s"
   policy_names = ["NATReadOnlyPolicy", "RDSReadOnlyPolicy"]
   duration     = 7200
-  description  = "test for terraform update"
+  description  = "Updated by terraform script"
   trust_policy = jsonencode(
     {
       Statement = [

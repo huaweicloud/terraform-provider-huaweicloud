@@ -3,32 +3,33 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_user_password"
 description: |-
-  Modify IAM user's own passwords within HuaweiCloud.
+  Manages an IAM user's password resource within HuaweiCloud.
 ---
 
 # huaweicloud_identity_user_password
 
-Modify IAM user's own passwords within HuaweiCloud.
+Manages an IAM user's password resource within HuaweiCloud.
 
-->**Note** The password can not be destroyed.
+-> This resource is a one-time action resource for modifying user password. Deleting this resource will
+   not clear the corresponding request record, but will only remove the resource information from the tfstate file.
 
 ## Example Usage
 
 ```hcl
-variable "password" {}
 variable "original_password" {}
+variable "password" {}
 
 resource "huaweicloud_identity_user_password" "test" {
-  password          = var.password
   original_password = var.original_password
+  password          = var.password
 }
 ```
 
 ## Argument Reference
 
-* `password` - (Required, String, ForceNew) Specifies the IAM user password.
+* `original_password` - (Required, String, NonUpdatable) Specifies the original password of the IAM user.
 
-* `original_password` - (Required, String, ForceNew) Specifies the IAM user original password.
+* `password` - (Required, String, NonUpdatable) Specifies the new password of the IAM user.
 
 ## Attribute Reference
 

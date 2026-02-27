@@ -41,5 +41,5 @@ data "huaweicloud_identityv5_policy_attached_entities" "test" {
 	huaweicloud_identity_trust_agency.test
   ]
 }
-`, testAccIdentityTrustAgency_basic(trustAgencyName), testAccDataSourceIdentityV5Policies_basic)
+`, testAccV3TrustAgency_basic_step1(trustAgencyName), testAccDataSourceIdentityV5Policies_basic)
 }

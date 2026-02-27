@@ -52,17 +52,17 @@ The following arguments are supported:
   characters. Only English letters, digits, underscores (_), plus (+), equals (=), commas (,), dots (.), ats (@) and
   hyphens (-) are allowed. Changing this will create a new trust agency.
 
-* `trust_policy` - (Required, String, ForceNew) Specifies the trust policy of the trust agency. It's a JSON string.
+* `trust_policy` - (Required, String, ForceNew) Specifies the trust policy of the trust agency, in JSON format.
 
 * `policy_names` - (Required, List) Specifies a string list of one or more policy names that you would like to attach to
   the trust agency.
 
 * `path` - (Optional, String, ForceNew) Specifies the resource path. It is made of several strings, each containing one
   or more English letters, digits, underscores (_), plus (+), equals (=), comma (,), dots (.), at (@) and hyphens (-),
-  and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is empty.
+  and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is empty.  
   Changing this will create a new trust agency.
 
-* `duration` - (Optional, Int) Specifies the validity period of a trust agency.
+* `duration` - (Optional, Int) Specifies the validity period of a trust agency.  
   Default value is `3,600`. The unit is seconds.
 
 * `tags` - (Optional, Map) Specifies the tags of the trust agency.

@@ -28,12 +28,12 @@ import (
 // @API IAM GET /v5/agencies/{agency_id}/attached-policies
 // @API IAM POST /v5/{resource_type}/{resource_id}/tags/create
 // @API IAM POST /v5/{resource_type}/{resource_id}/tags/delete
-func ResourceIAMTrustAgency() *schema.Resource {
+func ResourceV3TrustAgency() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIAMTrustAgencyCreate,
-		ReadContext:   resourceIAMTrustAgencyRead,
-		UpdateContext: resourceIAMTrustAgencyUpdate,
-		DeleteContext: resourceIAMTrustAgencyDelete,
+		CreateContext: resourceV3TrustAgencyCreate,
+		ReadContext:   resourceV3TrustAgencyRead,
+		UpdateContext: resourceV3TrustAgencyUpdate,
+		DeleteContext: resourceV3TrustAgencyDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -43,9 +43,10 @@ func ResourceIAMTrustAgency() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of trust agency.`,
 			},
 			"trust_policy": {
 				Type:     schema.TypeString,
@@ -55,40 +56,48 @@ func ResourceIAMTrustAgency() *schema.Resource {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 					return equal
 				},
+				Description: `The trust policy of the trust agency.`,
 			},
 			"policy_names": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `The string list of one or more policy names that you would like to attach to
+the trust agency.`,
 			},
 			"path": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The resource path.`,
 			},
 			"duration": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The validity period of a trust agency.`,
 			},
 			"tags": common.TagsSchema(),
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the trust agency.`,
 			},
 			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The uniform resource name of the trust agency.`,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the trust agency was created.`,
 			},
 		},
 	}
 }
 
-func resourceIAMTrustAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3TrustAgencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam_no_version", region)
@@ -135,7 +144,7 @@ func resourceIAMTrustAgencyCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	return resourceIAMTrustAgencyRead(ctx, d, meta)
+	return resourceV3TrustAgencyRead(ctx, d, meta)
 }
 
 func buildCreateTrustAgencyBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -149,7 +158,7 @@ func buildCreateTrustAgencyBodyParams(d *schema.ResourceData) map[string]interfa
 	return bodyParams
 }
 
-func resourceIAMTrustAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3TrustAgencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam_no_version", region)
@@ -223,7 +232,7 @@ func resourceIAMTrustAgencyRead(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceIAMTrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3TrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam_no_version", region)
@@ -302,10 +311,10 @@ func resourceIAMTrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	return resourceIAMTrustAgencyRead(ctx, d, meta)
+	return resourceV3TrustAgencyRead(ctx, d, meta)
 }
 
-func resourceIAMTrustAgencyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3TrustAgencyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("iam_no_version", region)

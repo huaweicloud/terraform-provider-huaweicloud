@@ -10,7 +10,8 @@ description: |-
 
 Manages an unscoped token through IdP-initiated federated authentication within HuaweiCloud.
 
-->**Note** The token can not be destroyed. It will be invalid after expiration time.
+-> This resource is a one-time action resource for creating unscoped token. Deleting this resource will
+   not clear the corresponding request record, but will only remove the resource information from the tfstate file.
 
 ## Example Usage
 
@@ -28,20 +29,22 @@ resource "huaweicloud_identity_unscoped_token_saml" "test" {
 
 ## Argument Reference
 
-* `idp_id` - (Required, String, ForceNew) Specifies the identity provider id.
+* `idp_id` - (Required, String, NonUpdatable) Specifies the identity provider id.
 
-* `saml_response` - (Required, String, ForceNew) Specifies the response body returned after successful IdP authentication.
-  You could refer to [workspace](https://support.huaweicloud.com/api-iam/iam_02_0003.html#section3) to get a SAMLResponse.
+* `saml_response` - (Required, String, NonUpdatable) Specifies the response body returned after successful IDP
+  authentication. You could refer to [workspace](https://support.huaweicloud.com/api-iam/iam_02_0003.html#section3)
+  to get a SAML response.
 
-* `with_global_domain` - (Optional, Bool, ForceNew) Specify whether to use a global domain name to obtain the token.
-  If set `with_global_domain=true`, it will call `iam.myhuaweicloud.com.` Otherwise, it will call `iam.{region_id}.myhuaweicloud.com`.
+* `with_global_domain` - (Optional, Bool, NonUpdatable) Specify whether to use a global domain name to obtain the token.
+  If set `with_global_domain=true`, it will call `iam.myhuaweicloud.com.`
+  Otherwise, it will call `iam.{region_id}.myhuaweicloud.com`.  
   Default value is `false`.
 
 ## Attribute Reference
 
 * `id` - Indicates the resource ID in format `<idp_id>:<username>`.
 
-* `token` - Indicates the token. Validity period is 24 hours.
+* `token` - Indicates the unscoped token. The validity period is `24` hours.
 
 * `username` - Indicates the user of token.
 

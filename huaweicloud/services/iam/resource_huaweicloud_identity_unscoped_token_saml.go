@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,57 +17,75 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceIdentityUnscopedTokenSaml
+var v3UnscopedTokenSamlNonUpdatableParams = []string{
+	"idp_id",
+	"saml_response",
+	"with_global_domain",
+}
+
 // @API IAM POST /v3.0/OS-FEDERATION/tokens
-func ResourceIdentityUnscopedTokenSaml() *schema.Resource {
+func ResourceV3UnscopedTokenSaml() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceUnscopedTokenSamlCreate,
-		ReadContext:   resourceUnscopedTokenSamlRead,
-		DeleteContext: resourceUserTokenDelete,
+		CreateContext: resourceV3UnscopedTokenSamlCreate,
+		ReadContext:   resourceV3UnscopedTokenSamlRead,
+		UpdateContext: resourceV3UnscopedTokenSamlUpdate,
+		DeleteContext: resourceV3UnscopedTokenSamlDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(v3UnscopedTokenSamlNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"idp_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: "Identity Provider Id",
+				Description: `The identity provider id.`,
 			},
 			"saml_response": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: "The response body returned after successful IdP authentication.",
+				Description: `The response body returned after successful IDP authentication.`,
 			},
 			"with_global_domain": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
-				Description: "Whether to use a global domain name to obtain the token. Its default value is false",
+				Description: `Whether to use a global domain name to obtain the token.`,
 			},
 
+			// Attributes
 			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unscoped token.`,
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The user of token.`,
 			},
 			"groups": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The group list of the user.`,
 			},
 			"expires_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the token will expire.`,
+			},
+
+			// Internal
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
 }
 
-func resourceUnscopedTokenSamlCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3UnscopedTokenSamlCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	var client *golangsdk.ServiceClient
 	var err error
@@ -90,10 +109,10 @@ func resourceUnscopedTokenSamlCreate(_ context.Context, d *schema.ResourceData, 
 	}
 	response, err := client.Request("POST", unscopedTokenSamlPath, &options)
 	if err != nil {
-		return diag.Errorf("error createFederationToken: %s", err)
+		return diag.Errorf("error creating unscoped token: %s", err)
 	}
 	if err = setFederationToken(d, response); err != nil {
-		return diag.Errorf("error setFederationToken fields: %s", err)
+		return diag.Errorf("error setting federation token fields: %s", err)
 	}
 	return nil
 }
@@ -120,7 +139,22 @@ func setFederationToken(d *schema.ResourceData, response *http.Response) error {
 	return mErr.ErrorOrNil()
 }
 
-func resourceUnscopedTokenSamlRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV3UnscopedTokenSamlRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// A SAMLResponse only supports calling the interface once, so we don't try to flush the token here
 	return nil
+}
+
+func resourceV3UnscopedTokenSamlUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceV3UnscopedTokenSamlDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource for creating unscoped token. Deleting this resource will
+    not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  errorMsg,
+		},
+	}
 }

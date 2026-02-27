@@ -408,6 +408,9 @@ var (
 	HW_IDENTITY_CENTER_APPLICATION_INSTANCE_ID         = os.Getenv("HW_IDENTITY_CENTER_APPLICATION_INSTANCE_ID")
 	HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID = os.Getenv("HW_IDENTITY_CENTER_APPLICATION_INSTANCE_PROFILE_ID")
 
+	HW_IDENTITY_ORIGINAL_PASSWORD = os.Getenv("HW_IDENTITY_ORIGINAL_PASSWORD")
+	HW_IDENTITY_NEW_PASSWORD      = os.Getenv("HW_IDENTITY_NEW_PASSWORD")
+
 	HW_ER_TEST_ON     = os.Getenv("HW_ER_TEST_ON")     // Whether to run the ER related tests.
 	HW_ER_INSTANCE_ID = os.Getenv("HW_ER_INSTANCE_ID") // Whether to run the ER related tests.
 
@@ -4821,5 +4824,12 @@ func TestAccPreCheckDnsZoneNames(t *testing.T, min int) {
 func TestAccPreCheckDnsZoneRetrievalName(t *testing.T) {
 	if HW_DNS_ZONE_RETRIEVAL_NAME == "" {
 		t.Skipf("HW_DNS_ZONE_RETRIEVAL_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckV3UserPassword(t *testing.T) {
+	if HW_IDENTITY_ORIGINAL_PASSWORD == "" || HW_IDENTITY_NEW_PASSWORD == "" {
+		t.Skipf("HW_IDENTITY_ORIGINAL_PASSWORD and HW_IDENTITY_NEW_PASSWORD must be set for the acceptance test")
 	}
 }

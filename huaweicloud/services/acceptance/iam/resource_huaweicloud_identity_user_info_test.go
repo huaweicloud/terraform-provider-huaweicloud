@@ -9,10 +9,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityUserInfo_basic(t *testing.T) {
-	email := "IAMEmail11@huawei.com"
-	mobile := "0086-123456789"
-	resourceName := "huaweicloud_identity_user_info.test"
+func TestAccV3UserInfo_basic(t *testing.T) {
+	var (
+		resourceName = "huaweicloud_identity_user_info.test"
+
+		rName = acceptance.RandomAccResourceName()
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,48 +24,56 @@ func TestAccIdentityUserInfo_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUserInfo(email, mobile),
+				Config: testAccV3UserInfo_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "email"),
+					resource.TestCheckResourceAttrSet(resourceName, "mobile"),
 				),
 			},
 			{
-				Config: testAccIdentityUserInfoEmail(email),
+				Config: testAccV3UserInfo_basic_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "email"),
 				),
 			},
 			{
-				Config: testAccIdentityUserInfoPhone(mobile),
+				Config: testAccV3UserInfo_basic_step3(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "mobile"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityUserInfo(email, mobile string) string {
+func testAccV3UserInfo_basic_step1(email string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user_info" "test" {
-  email  = "%[1]s"
-  mobile = "%[2]s"
+  email  = format("%[1]s@example.com")
+  mobile = "0086-12345678"
 }
-`, email, mobile)
+`, email)
 }
 
-func testAccIdentityUserInfoEmail(email string) string {
+func testAccV3UserInfo_basic_step2(email string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user_info" "test" {
-  email  = "%[1]s"
+  email = format("%[1]s@example1.com")
+
+  enable_force_new = true
 }
-`, "a"+email)
+`, email)
 }
 
-func testAccIdentityUserInfoPhone(mobile string) string {
+func testAccV3UserInfo_basic_step3() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user_info" "test" {
-  mobile = "%[1]s"
+  mobile = "0086-123456780"
+
+  enable_force_new = true
 }
-`, mobile)
+`)
 }

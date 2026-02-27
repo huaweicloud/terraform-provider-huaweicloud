@@ -6,38 +6,48 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceIdentityUserPassword
 // @API IAM POST /v3/users/{user_id}/password
-func ResourceIdentityUserPassword() *schema.Resource {
+func ResourceV3UserPassword() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityUserPasswordCreate,
-		ReadContext:   resourceIdentityUserPasswordRead,
-		DeleteContext: resourceIdentityUserPasswordDelete,
+		CreateContext: resourceV3UserPasswordCreate,
+		ReadContext:   resourceV3UserPasswordRead,
+		UpdateContext: resourceV3UserPasswordUpdate,
+		DeleteContext: resourceV3UserPasswordDelete,
 
 		Schema: map[string]*schema.Schema{
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-				ForceNew:  true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "The new password of the IAM user.",
 			},
 			"original_password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-				ForceNew:  true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "The original password of the IAM user.",
+			},
+
+			// Internal
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
 }
 
-func resourceIdentityUserPasswordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3UserPasswordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
@@ -46,7 +56,7 @@ func resourceIdentityUserPasswordCreate(_ context.Context, d *schema.ResourceDat
 
 	userId, err := getUserId(cfg)
 	if err != nil {
-		return diag.Errorf("error getUserId: %s", err)
+		return diag.Errorf("error getting user ID: %s", err)
 	}
 	updateUserPasswordPath := iamClient.Endpoint + "v3/users/{user_id}/password"
 	updateUserPasswordPath = strings.ReplaceAll(updateUserPasswordPath, "{user_id}", userId)
@@ -67,12 +77,17 @@ func resourceIdentityUserPasswordCreate(_ context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceIdentityUserPasswordRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceV3UserPasswordRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceIdentityUserPasswordDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting password is not supported. The password is only removed from the state, but it remains in the cloud."
+func resourceV3UserPasswordUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceV3UserPasswordDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource for modifying password of user. Deleting this resource will
+    not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
