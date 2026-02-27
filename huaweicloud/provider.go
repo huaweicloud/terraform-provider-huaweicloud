@@ -1573,6 +1573,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_tags":                                       hss.DataSourceHssTags(),
 			"huaweicloud_hss_plugins":                                    hss.DataSourcePlugins(),
 			"huaweicloud_hss_plugin_info":                                hss.DataSourcePluginInfo(),
+			"huaweicloud_hss_plugin_attachments":                         hss.DataSourcePluginAttachments(),
 			"huaweicloud_hss_vulnerabilities":                            hss.DataSourceVulnerabilities(),
 			"huaweicloud_hss_vulnerability_handle_history":               hss.DataSourceVulnerabilityHandleHistory(),
 			"huaweicloud_hss_vulnerability_hosts":                        hss.DataSourceVulnerabilityHosts(),
