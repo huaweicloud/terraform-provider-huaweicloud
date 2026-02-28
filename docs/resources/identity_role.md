@@ -32,7 +32,8 @@ resource "huaweicloud_identity_role" "test" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "obs:*:*:bucket:*"
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
       ],
       "Condition": {
         "StringStartWith": {

@@ -1,5 +1,5 @@
 ---
-subcategory: "IAM"
+subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_account_summary"
 description: |-
