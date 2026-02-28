@@ -1,5 +1,57 @@
 # CHANGELOG
 
+## 1.87.0 (February 28, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_ccm_certificate_cancel_request` [GH-9055]
+  + `huaweicloud_ccm_csr` [GH-9041]
+  + `huaweicloud_ccm_private_ca_switch_ocsp` [GH-9003]
+  + `huaweicloud_dds_database_upgrade` [GH-8972]
+  + `huaweicloud_dds_node_session_kill` [GH-8845]
+  + `huaweicloud_identityv5_policy` [GH-8712]
+  + `huaweicloud_lakeformation_instance_default_update` [GH-8980]
+  + `huaweicloud_lakeformation_instance_recover` [GH-8980]
+  + `huaweicloud_lakeformation_instance` [GH-8982]
+
+* **New Data Source:**
+  + `huaweicloud_ccm_certificate_tags` [GH-9028]
+  + `huaweicloud_ccm_certificates_by_tags` [GH-8986]
+  + `huaweicloud_ccm_csr_private_key` [GH-9042]
+  + `huaweicloud_ccm_csrs` [GH-9041]
+  + `huaweicloud_ccm_deployed_resources` [GH-9061]
+  + `huaweicloud_ccm_private_ca_agency` [GH-8997]
+  + `huaweicloud_ccm_private_ca_config_console` [GH-9015]
+  + `huaweicloud_ccm_private_ca_quota` [GH-9052]
+  + `huaweicloud_ccm_private_ca_tags` [GH-9017]
+  + `huaweicloud_ccm_private_cas_by_tags` [GH-8994]
+  + `huaweicloud_ccm_private_certificate_quota` [GH-9049]
+  + `huaweicloud_ccm_private_certificate_tags` [GH-9023]
+  + `huaweicloud_ccm_private_certificates_by_tags` [GH-8986]
+  + `huaweicloud_dds_kill_op_rules` [GH-8987]
+  + `huaweicloud_hss_baseline_all_risk_config_check_rules` [GH-9036]
+  + `huaweicloud_hss_baseline_check_rule_hosts` [GH-8989]
+  + `huaweicloud_hss_baseline_security_checks_details` [GH-9024]
+  + `huaweicloud_hss_container_kubernetes_clusters_daemonsets` [GH-9029]
+  + `huaweicloud_hss_event_severity` [GH-9016]
+  + `huaweicloud_hss_image_vulnerabilities` [GH-9010]
+  + `huaweicloud_hss_plugin_attachments` [GH-9056]
+  + `huaweicloud_hss_plugin_info` [GH-9051]
+  + `huaweicloud_hss_plugins` [GH-9048]
+  + `huaweicloud_hss_vulnerability_scan_estimated_time` [GH-8998]
+  + `huaweicloud_hss_vulnerability_white_lists` [GH-9002]
+  + `huaweicloud_hss_webtamper_image_options` [GH-9036]
+  + `huaweicloud_identity_roles` [GH-9019]
+  + `huaweicloud_lakeformation_instances` [GH-8982]
+  + `huaweicloud_lakeformation_specifications` [GH-8971]
+  + `huaweicloud_oms_bucket_objects` [GH-9059]
+  + `huaweicloud_oms_bucket_region` [GH-9046]
+  + `huaweicloud_oms_buckets` [GH-9044]
+  + `huaweicloud_oms_cloud_type_venders` [GH-9035]
+  + `huaweicloud_oms_migration_sync_tasks` [GH-9035]
+  + `huaweicloud_oms_migration_task_groups` [GH-9035]
+  + `huaweicloud_oms_migration_tasks` [GH-9050]
+  + `huaweicloud_oms_sync_task_statistics` [GH-9039]
+
 ## 1.86.0 (January 31, 2026)
 
 * **New Resource Source:**
