@@ -137,11 +137,10 @@ func dataSourceCustomLinesRead(_ context.Context, d *schema.ResourceData, meta i
 
 // @API DNS GET /v2.1/customlines
 func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
-	if v, ok := w.GetOk("region"); ok {
-		w.region = v.(string)
+	if _, ok := w.GetOk("region"); ok {
 		w.Config.RegionClient = true
 	}
-	client, err := w.Config.NewServiceClient("dns", w.region)
+	client, err := w.NewClient(w.Config, "dns")
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 func (w *CustomLinesDSWrapper) listCustomLineToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.region),
+		d.Set("region", w.Config.GetRegion(d)),
 		d.Set("lines", schemas.SliceToList(body.Get("lines"),
 			func(lines gjson.Result) any {
 				return map[string]any{

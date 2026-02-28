@@ -28,6 +28,7 @@ func ResourceCustomLine() *schema.Resource {
 		UpdateContext: resourceCustomLineUpdate,
 		ReadContext:   resourceCustomLineRead,
 		DeleteContext: resourceCustomLineDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -79,10 +80,9 @@ func ResourceCustomLine() *schema.Resource {
 }
 
 func resourceCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var region string
 	cfg := meta.(*config.Config)
-	if v, ok := d.GetOk("region"); ok {
-		region = v.(string)
+	region := cfg.GetRegion(d)
+	if _, ok := d.GetOk("region"); ok {
 		cfg.RegionClient = true
 	}
 
@@ -183,10 +183,9 @@ func GetCustomLineById(client *golangsdk.ServiceClient, customLineId string) (in
 }
 
 func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var region string
 	cfg := meta.(*config.Config)
-	if v, ok := d.GetOk("region"); ok {
-		region = v.(string)
+	region := cfg.GetRegion(d)
+	if _, ok := d.GetOk("region"); ok {
 		cfg.RegionClient = true
 	}
 
@@ -212,12 +211,12 @@ func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var region string
 	cfg := meta.(*config.Config)
-	if v, ok := d.GetOk("region"); ok {
-		region = v.(string)
+	region := cfg.GetRegion(d)
+	if _, ok := d.GetOk("region"); ok {
 		cfg.RegionClient = true
 	}
+
 	updateCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
@@ -255,10 +254,9 @@ func resourceCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta 
 		cfg                     = meta.(*config.Config)
 		deleteCustomLineHttpUrl = "v2.1/customlines/{line_id}"
 		customLineId            = d.Id()
-		region                  = ""
+		region                  = cfg.GetRegion(d)
 	)
-	if v, ok := d.GetOk("region"); ok {
-		region = v.(string)
+	if _, ok := d.GetOk("region"); ok {
 		cfg.RegionClient = true
 	}
 

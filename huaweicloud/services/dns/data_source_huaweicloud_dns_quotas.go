@@ -112,11 +112,10 @@ func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interf
 
 // @API DNS GET /v2/quotamg/dns/quotas
 func (w *QuotasDSWrapper) ShowDomainQuota() (*gjson.Result, error) {
-	if v, ok := w.GetOk("region"); ok {
-		w.region = v.(string)
+	if _, ok := w.GetOk("region"); ok {
 		w.Config.RegionClient = true
 	}
-	client, err := w.Config.NewServiceClient("dns", w.region)
+	client, err := w.NewClient(w.Config, "dns")
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +140,7 @@ func (w *QuotasDSWrapper) ShowDomainQuota() (*gjson.Result, error) {
 func (w *QuotasDSWrapper) showDomainQuotaToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.region),
+		d.Set("region", w.Config.GetRegion(d)),
 		d.Set("quotas", schemas.SliceToList(body.Get("quotas"),
 			func(quotas gjson.Result) any {
 				return map[string]any{

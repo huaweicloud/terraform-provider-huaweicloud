@@ -205,7 +205,7 @@ func zoneRouterSchema() *schema.Resource {
 func resourceZonesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
-		region      = ""
+		region      = cfg.GetRegion(d)
 		mErr        *multierror.Error
 		listHttpUrl = "v2/zones"
 		dnsProduct  = "dns"
