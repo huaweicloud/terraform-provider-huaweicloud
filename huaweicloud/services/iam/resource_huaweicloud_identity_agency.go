@@ -49,6 +49,8 @@ var agencyNonUpdatableParams = []string{"name"}
 // @API IAM DELETE /v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments
 // @API IAM GET /v3/projects
 // @API IAM GET /v3/roles
+// @API IAM POST /v5/policies/{policy_id}/detach-agency
+// @API IAM GET /v5/agencies/{agency_id}/attached-policies
 func ResourceV3Agency() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceV3AgencyCreate,
@@ -148,6 +150,12 @@ func ResourceV3Agency() *schema.Resource {
 					},
 				},
 				Description: `The roles assignment for the agency which the enterprise projects are used to grant.`,
+			},
+			"force_dissociate_v5_policies": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Whether to force dissociate the associated v5 policies when deleting the agency.`,
 			},
 
 			// Attributes.
@@ -1020,18 +1028,96 @@ func resourceV3AgencyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceV3AgencyRead(ctx, d, meta)
 }
 
+func listV5AgencyAssociatedPolicies(client *golangsdk.ServiceClient, agencyId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v5/agencies/{agency_id}/attached-policies?limit={limit}"
+		limit   = 100
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{agency_id}", agencyId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		if marker != "" {
+			listPath = fmt.Sprintf("%s&marker=%s", listPath, marker)
+		}
+		resp, err := client.Request("GET", listPath, &opt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+		policies := utils.PathSearch("attached_policies", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, policies...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func deleteV5PoliciesFromAgency(client *golangsdk.ServiceClient, agencyId string, policies []interface{}) error {
+	for _, policy := range policies {
+		policyId := utils.PathSearch("id", policy, "").(string)
+		httpUrl := "v5/policies/{policy_id}/detach-agency"
+		detachPath := client.Endpoint + httpUrl
+		detachPath = strings.ReplaceAll(detachPath, "{policy_id}", policyId)
+		detachOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"agency_id": agencyId,
+			},
+		}
+		_, err := client.Request("POST", detachPath, &detachOpt)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				log.Printf("[WARN] the policy (%s) was already detached from the agency (%s)", policyId, agencyId)
+				continue
+			}
+			return fmt.Errorf("error detaching IAM identity agency (%s) from policy (%s): %s", agencyId, policyId, err)
+		}
+	}
+	return nil
+}
+
 func resourceV3AgencyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	var (
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		agencyId = d.Id()
+	)
+	client, err := cfg.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
-	rID := d.Id()
+	if d.Get("force_dissociate_v5_policies").(bool) {
+		policies, err := listV5AgencyAssociatedPolicies(client, agencyId)
+		if err != nil {
+			log.Printf("[WARN] error listing associated v5 policies with the agency (%s): %s", agencyId, err)
+		} else {
+			err = deleteV5PoliciesFromAgency(client, agencyId, policies)
+			if err != nil {
+				return diag.Errorf("error dissociating v5 policies from the agency (%s): %s", agencyId, err)
+			}
+		}
+	}
+
 	timeout := d.Timeout(schema.TimeoutDelete)
 	// lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		err := agency.Delete(client, rID).ExtractErr()
+		err := agency.Delete(client, agencyId).ExtractErr()
 		if err != nil {
 			return common.CheckForRetryableError(err)
 		}

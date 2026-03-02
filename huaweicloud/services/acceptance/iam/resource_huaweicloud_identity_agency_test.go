@@ -104,6 +104,7 @@ func TestAccV3Agency_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"all_resources_roles",
 					"enterprise_project_roles",
+					"force_dissociate_v5_policies",
 				},
 			},
 			{
@@ -113,7 +114,14 @@ func TestAccV3Agency_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"all_resources_roles",
 					"enterprise_project_roles",
+					"force_dissociate_v5_policies",
 				},
+			},
+			{
+				Config: testAccV3Agency_basic_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcWithRoleAssignments.CheckResourceExists(),
+				),
 			},
 		},
 	})
@@ -222,6 +230,95 @@ resource "huaweicloud_identity_agency" "create_without_role_assignments" {
     enterprise_project = try(data.huaweicloud_enterprise_projects.test.enterprise_projects[0].name, "NOT_FOUND")
     roles              = ["CCE ReadOnlyAccess"]
   }
+}
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
+		name,
+		acceptance.HW_DOMAIN_NAME,
+		acceptance.HW_REGION_NAME,
+	)
+}
+
+func testAccV3Agency_basic_step3(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_enterprise_projects" "test" {
+  enterprise_project_id = "%[1]s"
+}
+
+resource "huaweicloud_identity_agency" "create_with_role_assignments" {
+  name                  = "%[2]s_create_with_role_assignments"
+  delegated_domain_name = "%[3]s"
+  duration              = "1"
+
+  project_role {
+    project = "%[4]s"
+    roles   = ["RDS Administrator"]
+  }
+
+  domain_roles = [
+    "Anti-DDoS Administrator",
+    "SMN Administrator",
+    "OBS Administrator",
+  ]
+
+  all_resources_roles = [
+    "VPCEndpoint Administrator"
+  ]
+
+  enterprise_project_roles {
+    enterprise_project = try(data.huaweicloud_enterprise_projects.test.enterprise_projects[0].name, "NOT_FOUND")
+    roles              = ["RDS ReadOnlyAccess"]
+  }
+}
+
+resource "huaweicloud_identityv5_policy" "test" {
+  name            = "%[2]s"
+  description     = "Created by terraform script"
+  policy_document = jsonencode(
+    {
+      Statement = [
+        {
+          Action = ["*"]
+          Effect = "Allow"
+        },
+      ]
+      Version = "5.0"
+    }
+  )
+}
+
+resource "huaweicloud_identity_policy_agency_attach" "test" {
+  agency_id = huaweicloud_identity_agency.create_with_role_assignments.id
+  policy_id = huaweicloud_identityv5_policy.test.id
+}
+
+resource "huaweicloud_identity_agency" "create_without_role_assignments" {
+  depends_on = [huaweicloud_identity_policy_agency_attach.test]
+
+  name                  = "%[2]s_create_without_role_assignments"
+  description           = "Updated by terraform acceptance test"
+  delegated_domain_name = "%[3]s"
+  duration              = "30"
+
+  project_role {
+    project = "%[4]s"
+    roles   = ["CCE Administrator"]
+  }
+
+  domain_roles = [
+    "Server Administrator",
+    "Anti-DDoS Administrator",
+  ]
+
+  all_resources_roles = [
+    "VPC Administrator"
+  ]
+
+  enterprise_project_roles {
+    enterprise_project = try(data.huaweicloud_enterprise_projects.test.enterprise_projects[0].name, "NOT_FOUND")
+    roles              = ["CCE ReadOnlyAccess"]
+  }
+
+  force_dissociate_v5_policies = true
 }
 `, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
 		name,

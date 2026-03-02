@@ -75,6 +75,10 @@ The following arguments are supported:
   projects are used to grant.  
   The [enterprise_project_roles](#iam_agency_enterprise_project_roles) structure is documented below.
 
+* `force_dissociate_v5_policies` - (Optional, Bool) Specifies whether to force dissociate the associated v5 policies
+  when deleting the agency.  
+  Defaults to **false**.
+
 <a name="iam_agency_project_role"></a>
 The `project_role` block supports:
 
