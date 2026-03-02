@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations POST /v2/organizations/accounts
 // @API Organizations POST /v1/organizations/accounts
 // @API Organizations GET /v1/organizations/accounts/{account_id}
 // @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
@@ -57,18 +58,6 @@ func ResourceAccount() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the name of the account.`,
 			},
-			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"phone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"agency_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -84,6 +73,18 @@ func ResourceAccount() *schema.Resource {
 				Computed: true,
 			},
 			"tags": common.TagsSchema(),
+			"email": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"phone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"intl_number_prefix": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -104,38 +105,43 @@ func ResourceAccount() *schema.Resource {
 	}
 }
 
-func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func createAccount(client *golangsdk.ServiceClient, version string, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := fmt.Sprintf("%s/organizations/accounts", version)
+	createPath := client.Endpoint + httpUrl
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateAccountBodyParams(d)),
+	}
+	resp, err := client.Request("POST", createPath, &opt)
+	if err != nil {
+		return nil, err
+	}
 
-	// createAccount: create Organizations account
+	return utils.FlattenResponse(resp)
+}
+
+func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		createAccountHttpUrl = "v1/organizations/accounts"
-		createAccountProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		respBody interface{}
 	)
-	createAccountClient, err := cfg.NewServiceClient(createAccountProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	createAccountPath := createAccountClient.Endpoint + createAccountHttpUrl
-
-	createAccountOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	createAccountOpt.JSONBody = utils.RemoveNil(buildCreateAccountBodyParams(d))
-	createAccountResp, err := createAccountClient.Request("POST", createAccountPath, &createAccountOpt)
-	if err != nil {
-		return diag.Errorf("error creating Account: %s", err)
+	if d.Get("email") != "" || d.Get("phone") != "" {
+		respBody, err = createAccount(client, "v1", d)
+	} else {
+		respBody, err = createAccount(client, "v2", d)
 	}
 
-	createAccountRespBody, err := utils.FlattenResponse(createAccountResp)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating account (%s): %s", d.Get("name"), err)
 	}
 
 	// we cannot get the account ID in API response, retrieve it from ShowCreateAccountStatus API
-	statusID := utils.PathSearch("create_account_status.id", createAccountRespBody, "").(string)
+	statusID := utils.PathSearch("create_account_status.id", respBody, "").(string)
 	if statusID == "" {
 		return diag.Errorf("error creating Account: state is not found in API response")
 	}
@@ -143,7 +149,7 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, statusID),
+		Refresh:      accountStateRefreshFunc(client, statusID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -163,12 +169,12 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	d.SetId(accountId)
 
 	if v, ok := d.GetOk("parent_id"); ok {
-		parentID, err := getParentIdByAccountId(createAccountClient, accountId)
+		parentID, err := getParentIdByAccountId(client, accountId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if v.(string) != parentID {
-			err = moveAccount(createAccountClient, d.Id(), parentID, v.(string))
+			err = moveAccount(client, d.Id(), parentID, v.(string))
 			if err != nil {
 				return diag.Errorf("error moving Account %s to organization unit %s: %s", d.Id(), v.(string), err)
 			}
