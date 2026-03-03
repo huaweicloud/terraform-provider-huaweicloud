@@ -15,32 +15,32 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsTrustedServices() *schema.Resource {
+func DataSourceTrustedServices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsTrustedServicesRead,
+		ReadContext: dataSourceTrustedServicesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the trusted services are located.`,
 			},
 			"trusted_services": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the list of service principals for the services that are integrated with Organizations.`,
+				Description: `The list of service principals for the services that are integrated with Organizations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_principal": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the name of a trusted service.`,
+							Description: `The name of a trusted service.`,
 						},
 						"enabled_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the date when the trusted service was integrated with Organizations`,
+							Description: `The time when the trusted service was integrated with Organizations`,
 						},
 					},
 				},
@@ -61,7 +61,7 @@ func newTrustedServicesDSWrapper(d *schema.ResourceData, meta interface{}) *Trus
 	}
 }
 
-func dataSourceOrganizationsTrustedServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceTrustedServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newTrustedServicesDSWrapper(d, meta)
 	lisTruSerRst, err := wrapper.ListTrustedServices()
 	if err != nil {
