@@ -4,49 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getPolicy: Query Organizations policy
-	var (
-		getPolicyHttpUrl = "v1/organizations/policies/{policy_id}"
-		getPolicyProduct = "organizations"
-	)
-	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getPolicyPath := getPolicyClient.Endpoint + getPolicyHttpUrl
-	getPolicyPath = strings.ReplaceAll(getPolicyPath, "{policy_id}", state.Primary.ID)
-
-	getPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getPolicyResp, err := getPolicyClient.Request("GET", getPolicyPath, &getPolicyOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy: %s", err)
-	}
-
-	getPolicyRespBody, err := utils.FlattenResponse(getPolicyResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy: %s", err)
-	}
-
-	return getPolicyRespBody, nil
+	return organizations.GetPolicyById(client, state.Primary.ID)
 }
 
 func TestAccPolicy_basic(t *testing.T) {
