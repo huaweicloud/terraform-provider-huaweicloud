@@ -1,12 +1,8 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -41,68 +37,63 @@ func ResourceOrganizationalUnit() *schema.Resource {
 		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
+			// Required parameters.
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the name of the organizational unit.`,
+				Description: `The name of the organizational unit.`,
 			},
 			"parent_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `Specifies the ID of the root or organizational unit in which you
+				Description: `The ID of the root or organizational unit in which you
 want to create a new organizational unit.`,
 			},
+			// Optional parameters.
+			"tags": common.TagsSchema(`The key/value pairs associated with the organizational unit.`),
+			// Attributes.
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the uniform resource name of the organizational unit.`,
+				Description: `The uniform resource name of the organizational unit.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the time when the OU was created.`,
+				Description: `The time when the OU was created.`,
 			},
-			"tags": common.TagsSchema(),
 		},
 	}
 }
 
 func resourceOrganizationalUnitCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createOrganizationalUnit: create Organizations organizational unit
 	var (
-		createOrganizationalUnitHttpUrl = "v1/organizations/organizational-units"
-		createOrganizationalUnitProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations/organizational-units"
 	)
-	createOrganizationalUnitClient, err := cfg.NewServiceClient(createOrganizationalUnitProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	createOrganizationalUnitPath := createOrganizationalUnitClient.Endpoint + createOrganizationalUnitHttpUrl
-
-	createOrganizationalUnitOpt := golangsdk.RequestOpts{
+	createPath := client.Endpoint + httpUrl
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrganizationalUnitBodyParams(d)),
 	}
-	createOrganizationalUnitOpt.JSONBody = utils.RemoveNil(buildCreateOrganizationalUnitBodyParams(d))
-	createOrganizationalUnitResp, err := createOrganizationalUnitClient.Request("POST",
-		createOrganizationalUnitPath, &createOrganizationalUnitOpt)
+	resp, err := client.Request("POST", createPath, &opt)
 	if err != nil {
-		return diag.Errorf("error creating Organizations organizational unit: %s", err)
+		return diag.Errorf("error creating organizational unit: %s", err)
 	}
 
-	createOrganizationalUnitRespBody, err := utils.FlattenResponse(createOrganizationalUnitResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	unitId := utils.PathSearch("organizational_unit.id", createOrganizationalUnitRespBody, "").(string)
+	unitId := utils.PathSearch("organizational_unit.id", respBody, "").(string)
 	if unitId == "" {
 		return diag.Errorf("unable to find the organizational unit ID from the API response")
 	}
@@ -121,48 +112,58 @@ func buildCreateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]
 	return bodyParams
 }
 
-func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getOrganizationalUnit: Query Organizations organizational unit
-	var (
-		getOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
-		getOrganizationalUnitProduct = "organizations"
-	)
-	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
-	}
-
-	getOrganizationalUnitPath := getOrganizationalUnitClient.Endpoint + getOrganizationalUnitHttpUrl
-	getOrganizationalUnitPath = strings.ReplaceAll(getOrganizationalUnitPath, "{organizational_unit_id}", d.Id())
-
-	getOrganizationalUnitOpt := golangsdk.RequestOpts{
+func GetOrganizationalUnit(client *golangsdk.ServiceClient, ouId string) (interface{}, error) {
+	httpUrl := "v1/organizations/organizational-units/{organizational_unit_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{organizational_unit_id}", ouId)
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getOrganizationalUnitResp, err := getOrganizationalUnitClient.Request("GET",
-		getOrganizationalUnitPath, &getOrganizationalUnitOpt)
-
+	resp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Organizations organizational unit")
+		return nil, err
 	}
 
-	getOrganizationalUnitRespBody, err := utils.FlattenResponse(getOrganizationalUnitResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return diag.FromErr(err)
+		return nil, err
 	}
 
-	organizationalUnit := utils.PathSearch("organizational_unit", getOrganizationalUnitRespBody, nil)
+	organizationalUnit := utils.PathSearch("organizational_unit", respBody, nil)
 	if organizationalUnit == nil {
-		log.Printf("[WARN] failed to get organizational unit, organizational_unit %s is not found "+
-			"in API response", d.Id())
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/organizations/organizational-units/{organizational_unit_id}",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the organizational unit (%s) does not exist", ouId)),
+			},
+		}
+	}
+
+	return organizationalUnit, nil
+}
+
+func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+		ouId   = d.Id()
+		mErr   *multierror.Error
+	)
+
+	client, err := cfg.NewServiceClient("organizations", region)
+	if err != nil {
+		return diag.Errorf("error creating client: %s", err)
+	}
+
+	organizationalUnit, err := GetOrganizationalUnit(client, ouId)
+	if err != nil {
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error retrieving organizational unit (%s)", ouId),
+		)
 	}
 
 	mErr = multierror.Append(
@@ -172,9 +173,9 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("created_at", utils.PathSearch("created_at", organizationalUnit, nil)),
 	)
 
-	tagMap, err := getTags(getOrganizationalUnitClient, unitType, d.Id())
+	tagMap, err := getTags(client, unitType, ouId)
 	if err != nil {
-		log.Printf("[WARN] error fetching tags of Organizations organizational unit (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of organizational unit (%s): %s", ouId, err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	}
@@ -183,44 +184,38 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func resourceOrganizationalUnitUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// updateOrganizationalUnit: update Organizations organizational unit
 	var (
-		updateOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
-		updateOrganizationalUnitProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
+		ouId    = d.Id()
 	)
-	updateOrganizationalUnitClient, err := cfg.NewServiceClient(updateOrganizationalUnitProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	if d.HasChange("name") {
-		updateOrganizationalUnitPath := updateOrganizationalUnitClient.Endpoint + updateOrganizationalUnitHttpUrl
-		updateOrganizationalUnitPath = strings.ReplaceAll(updateOrganizationalUnitPath,
-			"{organizational_unit_id}", d.Id())
-
-		updateOrganizationalUnitOpt := golangsdk.RequestOpts{
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{organizational_unit_id}", ouId)
+		opt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateOrganizationalUnitBodyParams(d)),
 		}
-		updateOrganizationalUnitOpt.JSONBody = utils.RemoveNil(buildUpdateOrganizationalUnitBodyParams(d))
-		_, err = updateOrganizationalUnitClient.Request("PATCH",
-			updateOrganizationalUnitPath, &updateOrganizationalUnitOpt)
+
+		_, err = client.Request("PATCH", updatePath, &opt)
 		if err != nil {
-			return diag.Errorf("error updating Organizations organizational unit: %s", err)
+			return diag.Errorf("error updating organizational unit (%s): %s", ouId, err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = updateTags(d, updateOrganizationalUnitClient, unitType, d.Id(), "tags")
+		err = updateTags(d, client, unitType, ouId, "tags")
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error updating tags of organizational unit (%s): %s", ouId, err)
 		}
 	}
+
 	return resourceOrganizationalUnitRead(ctx, d, meta)
 }
 
@@ -232,33 +227,29 @@ func buildUpdateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]
 }
 
 func resourceOrganizationalUnitDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteOrganizationalUnit: Delete Organizations organizational unit
 	var (
-		deleteOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
-		deleteOrganizationalUnitProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
+		ouId    = d.Id()
 	)
-	deleteOrganizationalUnitClient, err := cfg.NewServiceClient(deleteOrganizationalUnitProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deleteOrganizationalUnitPath := deleteOrganizationalUnitClient.Endpoint + deleteOrganizationalUnitHttpUrl
-	deleteOrganizationalUnitPath = strings.ReplaceAll(deleteOrganizationalUnitPath,
-		"{organizational_unit_id}", d.Id())
-
-	deleteOrganizationalUnitOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{organizational_unit_id}", ouId)
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
-	_, err = deleteOrganizationalUnitClient.Request("DELETE", deleteOrganizationalUnitPath,
-		&deleteOrganizationalUnitOpt)
+	_, err = client.Request("DELETE", deletePath, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting Organizations organizational unit: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error deleting organizational unit (%s)", ouId),
+		)
 	}
 
 	return nil
