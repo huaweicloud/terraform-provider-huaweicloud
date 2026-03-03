@@ -27,7 +27,7 @@ resource "huaweicloud_cce_addon" "addon_test" {
 
 Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
 the add-on type and version. For more detailed description of add-ons
-see [add-ons description](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-addon-templates.md)
+see [Deploy AutoScaler Addon](https://hcbp.gitbook.io/huaweicloud-provider/best-practices/cce/addon_autoscaler)
 
 ## Argument Reference
 
