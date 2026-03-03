@@ -2,20 +2,21 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_organizational_units"
-description: ""
+description: |-
+  Use this data source to get the list of child organizational units under the specified parent OU within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_organizational_units
 
-Use this data source to get the list of child organizational units under the specified parent OU.
+Use this data source to get the list of child organizational units under the specified parent OU within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_organizations_organization" "org" {}
+variable "parent_id" {}
 
 data "huaweicloud_organizations_organizational_units" "test" {
-  parent_id = data.huaweicloud_organizations_organization.org.root_id
+  parent_id = var.parent_id
 }
 ```
 
@@ -31,7 +32,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `children` - The list of child organizational units.
+* `children` - The list of child organizational units.  
   The [children](#OrganizationalUnits) structure is documented below.
 
 <a name="OrganizationalUnits"></a>

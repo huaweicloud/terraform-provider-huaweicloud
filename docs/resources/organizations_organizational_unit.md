@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_organizational_unit"
-description: ""
+description: |-
+  Manages an Organizations organizational unit resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_organizational_unit
@@ -12,10 +13,11 @@ Manages an Organizations organizational unit resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+  variable "organizational_unit_name" {}
   variable "parent_id" {}
   
   resource "huaweicloud_organizations_organizational_unit" "test"{
-    name      = "organizational_unit_test_name"
+    name      = var.organizational_unit_name
     parent_id = var.parent_id
   }
 ```
@@ -31,7 +33,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map) Specifies the key/value to attach to the organizational unit.
+* `tags` - (Optional, Map) Specifies the key/value pairs associated with the organizational unit.
 
 ## Attribute Reference
 
@@ -58,8 +60,8 @@ the organizational unit, or the resource definition should be updated to align w
 can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_organizations_organizational_unit" "instance_1" {
-    ...
+resource "huaweicloud_organizations_organizational_unit" "test" {
+  ...
 
   lifecycle {
     ignore_changes = [

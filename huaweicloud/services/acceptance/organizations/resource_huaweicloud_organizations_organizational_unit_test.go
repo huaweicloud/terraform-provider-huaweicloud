@@ -2,47 +2,23 @@ package organizations
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getOrganizationalUnitResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	// getOrganizationalUnit: Query Organizations organizational unit
-	var (
-		region                       = acceptance.HW_REGION_NAME
-		getOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
-		getOrganizationalUnitProduct = "organizations"
-	)
-	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
+		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getOrganizationalUnitPath := getOrganizationalUnitClient.Endpoint + getOrganizationalUnitHttpUrl
-	getOrganizationalUnitPath = strings.ReplaceAll(getOrganizationalUnitPath, "{organizational_unit_id}",
-		state.Primary.ID)
-
-	getOrganizationalUnitOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getOrganizationalUnitResp, err := getOrganizationalUnitClient.Request("GET",
-		getOrganizationalUnitPath, &getOrganizationalUnitOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations organizational unit: %s", err)
-	}
-	return utils.FlattenResponse(getOrganizationalUnitResp)
+	return organizations.GetOrganizationalUnit(client, state.Primary.ID)
 }
 
 func TestAccOrganizationalUnit_basic(t *testing.T) {
