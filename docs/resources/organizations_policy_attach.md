@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_policy_attach"
-description: ""
+description: |-
+  Manages an Organizations policy attach resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_policy_attach
@@ -12,8 +13,8 @@ Manages an Organizations policy attach resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable policy_id {}
-variable entity_id {}
+variable "policy_id" {}
+variable "entity_id" {}
 
 resource "huaweicloud_organizations_policy_attach" "test"{
   policy_id = var.policy_id
