@@ -1023,6 +1023,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_logstash_templates":        css.DataSourceCssLogstashTemplates(),
 			"huaweicloud_css_cluster_tags":              css.DataSourceCssClusterTags(),
 			"huaweicloud_css_log_backup_records":        css.DataSourceCssLogBackupRecords(),
+			"huaweicloud_css_resize_flavors":            css.DataSourceResizeFlavors(),
 			"huaweicloud_css_scan_tasks":                css.DataSourceCssScanTasks(),
 			"huaweicloud_css_snapshots":                 css.DataSourceCssSnapshots(),
 
