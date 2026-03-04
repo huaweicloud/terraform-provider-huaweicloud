@@ -1,13 +1,7 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -16,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -40,121 +33,149 @@ func ResourcePolicyAttach() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the ID of the policy.`,
+				Description: `The ID of the policy.`,
 			},
 			"entity_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the unique ID of the root, OU, or account.`,
+				Description: `The unique ID of the root, OU, or account.`,
 			},
 			"entity_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the entity.`,
+				Description: `The name of the entity.`,
 			},
 			"entity_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the type of the entity.`,
+				Description: `The type of the entity.`,
 			},
 		},
 	}
 }
 
 func resourcePolicyAttachCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createPolicyAttach: create Organizations policy attach
 	var (
-		createPolicyAttachHttpUrl = "v1/organizations/policies/{policy_id}/attach"
-		createPolicyAttachProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		httpUrl  = "v1/organizations/policies/{policy_id}/attach"
+		policyId = d.Get("policy_id").(string)
+		entityId = d.Get("entity_id").(string)
 	)
-	createPolicyAttachClient, err := cfg.NewServiceClient(createPolicyAttachProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	policyId := d.Get("policy_id").(string)
-	createPolicyAttachPath := createPolicyAttachClient.Endpoint + createPolicyAttachHttpUrl
-	createPolicyAttachPath = strings.ReplaceAll(createPolicyAttachPath, "{policy_id}", policyId)
-
-	createPolicyAttachOpt := golangsdk.RequestOpts{
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{policy_id}", policyId)
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildPolicyAttachBodyParams(entityId),
 	}
 
-	createPolicyAttachOpt.JSONBody = utils.RemoveNil(buildPolicyAttachBodyParams(d))
-	_, err = createPolicyAttachClient.Request("POST", createPolicyAttachPath, &createPolicyAttachOpt)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating Organizations policy attach: %s", err)
+		return diag.Errorf("error attaching entity (%s) to policy (%s): %s", entityId, policyId, err)
 	}
 
-	entityId := d.Get("entity_id").(string)
 	d.SetId(fmt.Sprintf("%s/%s", policyId, entityId))
 
 	return resourcePolicyAttachRead(ctx, d, meta)
 }
 
-func buildPolicyAttachBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildPolicyAttachBodyParams(entityId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"entity_id": d.Get("entity_id"),
+		"entity_id": entityId,
 	}
 	return bodyParams
 }
 
-func resourcePolicyAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getPolicyAttach: Query Organizations policy attach
+func listPolicyAttachedEntities(client *golangsdk.ServiceClient, policyId string) ([]interface{}, error) {
 	var (
-		getPolicyAttachHttpUrl = "v1/organizations/policies/{policy_id}/attached-entities"
-		getPolicyAttachProduct = "organizations"
+		httpUrl = "v1/organizations/policies/{policy_id}/attached-entities"
+		marker  = ""
+		result  = make([]interface{}, 0)
 	)
-	getPolicyAttachClient, err := cfg.NewServiceClient(getPolicyAttachProduct, region)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{policy_id}", policyId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker = fmt.Sprintf("%s?marker=%s", listPathWithMarker, marker)
+		}
+
+		resp, err := client.Request("GET", listPathWithMarker, &opt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		entities := utils.PathSearch("attached_entities", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, entities...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func GetPolicyAttachedEntity(client *golangsdk.ServiceClient, policyId string, entityId string) (interface{}, error) {
+	entities, err := listPolicyAttachedEntities(client, policyId)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0]", entityId), entities, nil)
+	if entity == nil {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/organizations/policies/{policy_id}/attached-entities",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("unable to find the entity (%s) attached to the policy (%s)", entityId, policyId)),
+			},
+		}
+	}
+
+	return entity, nil
+}
+
+func resourcePolicyAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg  = meta.(*config.Config)
+		mErr *multierror.Error
+	)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	// Split policy_id and entity_id from resource id
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <policy_id>/<entity_id>")
+		return diag.Errorf("invalid ID format, want '<policy_id>/<entity_id>', but got '%s'", d.Id())
 	}
+
 	policyId := parts[0]
 	entityId := parts[1]
-
-	getPolicyAttachPath := getPolicyAttachClient.Endpoint + getPolicyAttachHttpUrl
-	getPolicyAttachPath = strings.ReplaceAll(getPolicyAttachPath, "{policy_id}", policyId)
-
-	getPolicyAttachResp, err := pagination.ListAllItems(
-		getPolicyAttachClient,
-		"marker",
-		getPolicyAttachPath,
-		&pagination.QueryOpts{MarkerField: ""})
-
+	attachedEntity, err := GetPolicyAttachedEntity(client, policyId, entityId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Organizations policy attach")
-	}
-
-	getPolicyAttachRespJson, err := json.Marshal(getPolicyAttachResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	var getPolicyAttachRespBody interface{}
-	err = json.Unmarshal(getPolicyAttachRespJson, &getPolicyAttachRespBody)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	attachedEntity := utils.PathSearch(fmt.Sprintf("attached_entities[?id=='%s']|[0]", entityId),
-		getPolicyAttachRespBody, nil)
-
-	if attachedEntity == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("the entity (%s) is not attached to the policy (%s)", entityId, policyId))
 	}
 
 	mErr = multierror.Append(
@@ -169,32 +190,32 @@ func resourcePolicyAttachRead(_ context.Context, d *schema.ResourceData, meta in
 }
 
 func resourcePolicyAttachDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deletePolicyAttach: Delete Organizations policy attach
 	var (
-		deletePolicyAttachHttpUrl = "v1/organizations/policies/{policy_id}/detach"
-		deletePolicyAttachProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		httpUrl  = "v1/organizations/policies/{policy_id}/detach"
+		policyId = d.Get("policy_id").(string)
+		entityId = d.Get("entity_id").(string)
 	)
-	deletePolicyAttachClient, err := cfg.NewServiceClient(deletePolicyAttachProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deletePolicyAttachPath := deletePolicyAttachClient.Endpoint + deletePolicyAttachHttpUrl
-	deletePolicyAttachPath = strings.ReplaceAll(deletePolicyAttachPath, "{policy_id}",
-		d.Get("policy_id").(string))
-
-	deletePolicyAttachOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", policyId)
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildPolicyAttachBodyParams(entityId),
 	}
 
-	deletePolicyAttachOpt.JSONBody = utils.RemoveNil(buildPolicyAttachBodyParams(d))
-	_, err = deletePolicyAttachClient.Request("POST", deletePolicyAttachPath, &deletePolicyAttachOpt)
+	_, err = client.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Organizations policy attach: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error detaching entity (%s) from policy (%s)", entityId, policyId),
+		)
 	}
 
 	return nil

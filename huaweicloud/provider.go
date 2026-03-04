@@ -2555,7 +2555,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_organization":             organizations.DataSourceOrganization(),
 			"huaweicloud_organizations_organizational_units":     organizations.DataSourceOrganizationalUnits(),
 			"huaweicloud_organizations_policies":                 organizations.DataSourcePolicies(),
-			"huaweicloud_organizations_policy_attached_entities": organizations.DataSourceOrganizationsPolicyAttachedEntities(),
+			"huaweicloud_organizations_policy_attached_entities": organizations.DataSourcePolicyAttachedEntities(),
 			"huaweicloud_organizations_quotas":                   organizations.DataSourceQuotas(),
 			"huaweicloud_organizations_received_invitations":     organizations.DataSourceReceivedInvitations(),
 			"huaweicloud_organizations_resource_instances":       organizations.DataSourceResourceInstances(),
