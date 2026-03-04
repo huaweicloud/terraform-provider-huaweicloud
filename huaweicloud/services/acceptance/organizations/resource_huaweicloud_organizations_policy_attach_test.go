@@ -1,71 +1,24 @@
 package organizations
 
 import (
-	"encoding/json"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/pagination"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getPolicyAttachResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getPolicyAttach: Query Organizations policy attach
-	var (
-		getPolicyAttachHttpUrl = "v1/organizations/policies/{policy_id}/attached-entities"
-		getPolicyAttachProduct = "organizations"
-	)
-	getPolicyAttachClient, err := cfg.NewServiceClient(getPolicyAttachProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	// Split policy_id and entity_id from resource id
-	parts := strings.Split(state.Primary.ID, "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <policy_id>/<entity_id>")
-	}
-	policyId := parts[0]
-	entityId := parts[1]
-
-	getPolicyAttachPath := getPolicyAttachClient.Endpoint + getPolicyAttachHttpUrl
-	getPolicyAttachPath = strings.ReplaceAll(getPolicyAttachPath, "{policy_id}", policyId)
-
-	getPolicyAttachResp, err := pagination.ListAllItems(
-		getPolicyAttachClient,
-		"marker",
-		getPolicyAttachPath,
-		&pagination.QueryOpts{MarkerField: ""})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy attach: %s", err)
-	}
-
-	getPolicyAttachRespJson, err := json.Marshal(getPolicyAttachResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy attach: %s", err)
-	}
-	var getPolicyAttachRespBody interface{}
-	err = json.Unmarshal(getPolicyAttachRespJson, &getPolicyAttachRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy attach: %s", err)
-	}
-
-	attachedEntity := utils.PathSearch(fmt.Sprintf("attached_entities[?id=='%s']|[0]", entityId),
-		getPolicyAttachRespBody, nil)
-
-	if attachedEntity == nil {
-		return nil, fmt.Errorf("error retrieving Organizations policy attach: %s", err)
-	}
-
-	return getPolicyAttachRespBody, nil
+	return organizations.GetPolicyAttachedEntity(client, state.Primary.Attributes["policy_id"], state.Primary.Attributes["entity_id"])
 }
 
 func TestAccPolicyAttach_basic(t *testing.T) {

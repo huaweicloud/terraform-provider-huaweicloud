@@ -16,36 +16,36 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsPolicyAttachedEntities() *schema.Resource {
+func DataSourcePolicyAttachedEntities() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsPolicyAttachedEntitiesRead,
+		ReadContext: dataSourcePolicyAttachedEntitiesRead,
 
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the ID of the policy.`,
+				Description: `The ID of the policy.`,
 			},
 			"attached_entities": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the entities that the specified policy is attached to.`,
+				Description: `The list of entities attached to the policy.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the ID of the entity.`,
+							Description: `The ID of the entity.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the type of the entity.`,
+							Description: `The type of the entity.`,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the name of the entity.`,
+							Description: `The name of the entity.`,
 						},
 					},
 				},
@@ -66,7 +66,7 @@ func newPolicyAttachedEntitiesDSWrapper(d *schema.ResourceData, meta interface{}
 	}
 }
 
-func dataSourceOrganizationsPolicyAttachedEntitiesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourcePolicyAttachedEntitiesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newPolicyAttachedEntitiesDSWrapper(d, meta)
 	lisEntForPolRst, err := wrapper.ListEntitiesForPolicy()
 	if err != nil {
