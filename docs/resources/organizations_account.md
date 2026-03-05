@@ -40,16 +40,6 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Specifies the name of the account.
   Changing this parameter will create a new resource.
 
-* `email` - (Optional, String, ForceNew) Specifies the email address of the account.
-  This parameter is mandatory in **International Website**.
-  Changing this parameter will create a new resource.
-
-* `phone` - (Optional, String, ForceNew) Specifies the mobile number of the account.
-  This parameter is mandatory in **Chinese Mainland Website**.
-  Changing this parameter will create a new resource.
-
--> At least one of `email` and `phone` must be specified.
-
 * `agency_name` - (Optional, String, ForceNew) Specifies the agency name of the account.
   Changing this parameter will create a new resource.
 
@@ -59,6 +49,12 @@ The following arguments are supported:
   account. The default is root ID.
 
 * `tags` - (Optional, Map) Specifies the key/value to attach to the account.
+
+* `email` - (Optional, String, ForceNew) Specifies the email address of the account.  
+  Changing this parameter will create a new resource.
+
+* `phone` - (Optional, String, ForceNew) Specifies the mobile number of the account.  
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
