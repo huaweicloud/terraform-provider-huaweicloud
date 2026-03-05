@@ -25,34 +25,30 @@ func ResourceAccountInviteDecliner() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the unique ID of an invitation (handshake).`,
+				Description: `The unique ID of an invitation (handshake).`,
 			},
 		},
 	}
 }
 
 func resourceAccountInviteDeclinerCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
+		cfg     = meta.(*config.Config)
 		httpUrl = "v1/received-handshakes/{handshake_id}/decline"
-		product = "organizations"
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{handshake_id}", d.Get("invitation_id").(string))
-
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating Organizations account invite decliner: %s", err)
+		return diag.Errorf("error declining the received account invitation: %s", err)
 	}
 
 	createRespBody, err := utils.FlattenResponse(createResp)

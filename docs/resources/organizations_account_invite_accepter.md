@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_account_invite_accepter"
-description: ""
+description: |-
+  Manages an Organizations account invite accepter resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_account_invite_accepter
@@ -12,7 +13,7 @@ Manages an Organizations account invite accepter resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable invitation_id {}
+variable "invitation_id" {}
 
 resource "huaweicloud_organizations_account_invite_accepter" "test"{
   invitation_id = var.invitation_id
@@ -28,7 +29,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `leave_organization_on_destroy` - (Optional, Bool) Specifies whether to leave the organization when delete the
-  invitation (handshake). Defaults to false.
+  invitation (handshake).  
+  Defaults to **false**.
 
 ## Attribute Reference
 
