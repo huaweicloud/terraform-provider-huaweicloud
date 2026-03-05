@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
@@ -27,49 +22,49 @@ func DataSourceOrganization() *schema.Resource {
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the uniform resource name of the organization.`,
+				Description: `The uniform resource name of the organization.`,
 			},
 			"master_account_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the unique ID of the organization's management account.`,
+				Description: `The unique ID of the organization's management account.`,
 			},
 			"master_account_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the organization's management account.`,
+				Description: `The name of the organization's management account.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the time when the organization was created.`,
+				Description: `The time when the organization was created.`,
 			},
 			"root_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the ID of the root.`,
+				Description: `The ID of the root.`,
 			},
 			"root_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the root.`,
+				Description: `The name of the root.`,
 			},
 			"root_urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the urn of the root.`,
+				Description: `The urn of the root.`,
 			},
 			"root_tags": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Indicates the key/value attached to the root.`,
+				Description: `The key/value pairs attached to the root.`,
 			},
 			"enabled_policy_types": {
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Indicates the list of enabled Organizations policy types in the Organization Root.`,
+				Description: `The list of enabled Organizations policy types in the Organization Root.`,
 			},
 		},
 	}
@@ -77,20 +72,12 @@ func DataSourceOrganization() *schema.Resource {
 
 func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getOrganization: Query Organizations organization
-	var (
-		getOrganizationProduct = "organizations"
-	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
+	getOrganizationClient, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getOrganizationRespBody, err := getOrganization(getOrganizationClient)
+	respBody, err := GetOrganization(getOrganizationClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -100,26 +87,23 @@ func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("organization.id", getOrganizationRespBody, "")
-	d.SetId(id.(string))
+	organizationId := utils.PathSearch("organization.id", respBody, "").(string)
+	if organizationId == "" {
+		return diag.Errorf("unable to find the organization ID from the API response")
+	}
+
+	d.SetId(organizationId)
 
 	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
-
 	policyTypes := utils.PathSearch("roots|[0].policy_types[?status=='enabled'].type", getRootRespBody,
 		make([]interface{}, 0)).([]interface{})
-
-	mErr = multierror.Append(
-		mErr,
-		d.Set("urn", utils.PathSearch("organization.urn", getOrganizationRespBody, nil)),
-		d.Set("master_account_id", utils.PathSearch("organization.management_account_id",
-			getOrganizationRespBody, nil)),
-		d.Set("master_account_name", utils.PathSearch("organization.management_account_name",
-			getOrganizationRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("organization.created_at",
-			getOrganizationRespBody, nil)),
+	mErr := multierror.Append(
+		d.Set("urn", utils.PathSearch("organization.urn", respBody, nil)),
+		d.Set("master_account_id", utils.PathSearch("organization.management_account_id", respBody, nil)),
+		d.Set("master_account_name", utils.PathSearch("organization.management_account_name", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("organization.created_at", respBody, nil)),
 		d.Set("root_id", rootId),
-		d.Set("root_name", utils.PathSearch("roots|[0].name",
-			getRootRespBody, nil)),
+		d.Set("root_name", utils.PathSearch("roots|[0].name", getRootRespBody, nil)),
 		d.Set("root_urn", utils.PathSearch("roots|[0].urn", getRootRespBody, nil)),
 		d.Set("enabled_policy_types", policyTypes),
 	)
