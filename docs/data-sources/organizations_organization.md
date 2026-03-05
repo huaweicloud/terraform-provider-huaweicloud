@@ -2,18 +2,18 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_organization"
-description: ""
+description: |-
+  Use this data source to get the organization information and the root information winth HuaweiCloud.
 ---
 
 # huaweicloud_organizations_organization
 
-Use this data source to get the Organization info and the root info.
+Use this data source to get the organization information and the root information within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_organizations_organization" "test"{
-}
+data "huaweicloud_organizations_organization" "test" {}
 ```
 
 ## Argument Reference
@@ -40,6 +40,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `root_urn` - Indicates the urn of the root.
 
-* `root_tags` - Indicates the key/value attached to the root.
+* `root_tags` - Indicates the key/value pairs attached to the root.
 
-* `enabled_policy_types` - Indicates the list of enabled Organizations policy types in the Organization Root.
+* `enabled_policy_types` - Indicates the list of enabled policy types in the Organizations root.

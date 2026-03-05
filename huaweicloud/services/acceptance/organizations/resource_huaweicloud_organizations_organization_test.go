@@ -7,38 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func resourceOrganizationRead(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
-	// getOrganization: Query Organizations organization
-	var (
-		region                 = acceptance.HW_REGION_NAME
-		getOrganizationHttpUrl = "v1/organizations"
-		getOrganizationProduct = "organizations"
-	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
+		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getOrganizationPath := getOrganizationClient.Endpoint + getOrganizationHttpUrl
-
-	getOrganizationOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getOrganizationResp, err := getOrganizationClient.Request("GET", getOrganizationPath, &getOrganizationOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Organizations organization: %s", err)
-	}
-	return utils.FlattenResponse(getOrganizationResp)
+	return organizations.GetOrganization(client)
 }
 
 func TestAccOrganization_basic(t *testing.T) {
