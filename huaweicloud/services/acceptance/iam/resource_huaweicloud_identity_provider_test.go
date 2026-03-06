@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getProviderResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV3ProviderResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMNoVersionClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client without version: %s", err)
@@ -21,15 +21,15 @@ func getProviderResourceFunc(c *config.Config, state *terraform.ResourceState) (
 	return providers.Get(client, state.Primary.ID)
 }
 
-func TestAccProvider_basic(t *testing.T) {
+func TestAccV3Provider_basic(t *testing.T) {
 	var (
 		obj interface{}
 
 		protocolSaml   = "huaweicloud_identity_provider.protocol_saml"
-		rcProtocolSaml = acceptance.InitResourceCheck(protocolSaml, &obj, getProviderResourceFunc)
+		rcProtocolSaml = acceptance.InitResourceCheck(protocolSaml, &obj, getV3ProviderResourceFunc)
 
 		protocolOidc   = "huaweicloud_identity_provider.protocol_oidc"
-		rcProtocolOidc = acceptance.InitResourceCheck(protocolOidc, &obj, getProviderResourceFunc)
+		rcProtocolOidc = acceptance.InitResourceCheck(protocolOidc, &obj, getV3ProviderResourceFunc)
 
 		name = acceptance.RandomAccResourceName()
 	)
@@ -46,7 +46,7 @@ func TestAccProvider_basic(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProvider_basic_step1(name),
+				Config: testAccV3Provider_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rcProtocolSaml.CheckResourceExists(),
 					resource.TestCheckResourceAttr(protocolSaml, "name", name+"_saml"),
@@ -59,7 +59,7 @@ func TestAccProvider_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccProvider_basic_step2(name),
+				Config: testAccV3Provider_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rcProtocolSaml.CheckResourceExists(),
 					resource.TestCheckResourceAttr(protocolSaml, "name", name+"_saml"),
@@ -73,7 +73,7 @@ func TestAccProvider_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccProvider_basic_step3(name),
+				Config: testAccV3Provider_basic_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rcProtocolOidc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(protocolOidc, "name", name+"_oidc"),
@@ -97,7 +97,7 @@ func TestAccProvider_basic(t *testing.T) {
 	})
 }
 
-func testAccProvider_basic_step1(name string) string {
+func testAccV3Provider_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_provider" "protocol_saml" {
   name     = "%[1]s_saml"
@@ -134,7 +134,7 @@ resource "huaweicloud_identity_provider" "protocol_oidc" {
 `, name)
 }
 
-func testAccProvider_basic_step2(name string) string {
+func testAccV3Provider_basic_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_provider" "protocol_saml" {
   name     = "%[1]s_saml"
@@ -172,7 +172,7 @@ resource "huaweicloud_identity_provider" "protocol_oidc" {
 `, name)
 }
 
-func testAccProvider_basic_step3(name string) string {
+func testAccV3Provider_basic_step3(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_provider" "protocol_saml" {
   name     = "%[1]s_saml"
