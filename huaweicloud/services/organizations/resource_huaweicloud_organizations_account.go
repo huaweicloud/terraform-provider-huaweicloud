@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
@@ -24,14 +19,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var accountNotFoundErrCodes = []string{
+	"Organizations.1325", // The account is being closed, cannot be closed repeatedly.
+}
+
 // @API Organizations POST /v2/organizations/accounts
 // @API Organizations POST /v1/organizations/accounts
+// @API Organizations GET /v1/organizations/create-account-status/{create_account_status_id}
+// @API Organizations GET /v1/organizations/entities
 // @API Organizations GET /v1/organizations/accounts/{account_id}
 // @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
 // @API Organizations POST /v1/organizations/accounts/{account_id}/move
 // @API Organizations PATCH /v1/organizations/accounts/{account_id}
-// @API Organizations GET /v1/organizations/entities
-// @API Organizations GET /v1/organizations/create-account-status/{create_account_status_id}
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/create
 // @API Organizations POST /v1/organizations/accounts/{account_id}/close
@@ -56,50 +55,59 @@ func ResourceAccount() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the name of the account.`,
+				Description: `The name of the account.`,
 			},
 			"agency_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The agency name of the account.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the account.`,
 			},
 			"parent_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The ID of the organizational unit or root to which the account belongs.`,
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsSchema(`The key/value pairs to be associated with the account`),
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The email address of the account.`,
 			},
 			"phone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The mobile number of the account.`,
 			},
 			"intl_number_prefix": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The prefix of a mobile number.`,
 			},
 			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The uniform resource name of the account.`,
 			},
 			"joined_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The time when the account was created.`,
 			},
 			"joined_method": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `How the account joined the organization.`,
 			},
 		},
 	}
@@ -143,25 +151,23 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	// we cannot get the account ID in API response, retrieve it from ShowCreateAccountStatus API
 	statusID := utils.PathSearch("create_account_status.id", respBody, "").(string)
 	if statusID == "" {
-		return diag.Errorf("error creating Account: state is not found in API response")
+		return diag.Errorf("unable to find the account creation status ID from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"in_progress"},
-		Target:       []string{"succeeded"},
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
 		Refresh:      accountStateRefreshFunc(client, statusID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
-	accountName := d.Get("name").(string)
 	accountStatusRespBody, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for Organizations account (%s) to create: %s", accountName, err)
+		return diag.Errorf("error waiting for account (%v) to be created: %s", d.Get("name"), err)
 	}
 
-	// set the account ID
 	accountId := utils.PathSearch("create_account_status.account_id", accountStatusRespBody, "").(string)
 	if accountId == "" {
 		return diag.Errorf("unable to find the account ID from the API response")
@@ -173,10 +179,11 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		if err != nil {
 			return diag.FromErr(err)
 		}
+
 		if v.(string) != parentID {
-			err = moveAccount(client, d.Id(), parentID, v.(string))
+			err = moveAccount(client, accountId, parentID, v.(string))
 			if err != nil {
-				return diag.Errorf("error moving Account %s to organization unit %s: %s", d.Id(), v.(string), err)
+				return diag.Errorf("error moving account (%s) to organization unit (%v): %s", accountId, v, err)
 			}
 		}
 	}
@@ -186,31 +193,35 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		getAccountStatusHttpUrl := "v1/organizations/create-account-status/{create_account_status_id}"
-		getAccountStatusPath := client.Endpoint + getAccountStatusHttpUrl
-		getAccountStatusPath = strings.ReplaceAll(getAccountStatusPath, "{create_account_status_id}", accountStatusId)
+		httpUrl := "v1/organizations/create-account-status/{create_account_status_id}"
+		getPath := client.Endpoint + httpUrl
+		getPath = strings.ReplaceAll(getPath, "{create_account_status_id}", accountStatusId)
 
-		getAccountStatusOpt := golangsdk.RequestOpts{
+		getOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
-		getAccountStatusResp, err := client.Request("GET", getAccountStatusPath, &getAccountStatusOpt)
+		resp, err := client.Request("GET", getPath, &getOpt)
 		if err != nil {
-			return nil, "", err
+			return nil, "failed", err
 		}
 
-		getAccountStatusRespBody, err := utils.FlattenResponse(getAccountStatusResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return nil, "", err
+			return nil, "failed", err
 		}
 
-		state := utils.PathSearch("create_account_status.state", getAccountStatusRespBody, "").(string)
-
-		reason := utils.PathSearch("create_account_status.failure_reason", getAccountStatusRespBody, "").(string)
-		if reason != "" {
-			return getAccountStatusRespBody, state, fmt.Errorf("state: %s; failure_reason: %s", state, reason)
+		state := utils.PathSearch("create_account_status.state", respBody, "").(string)
+		if state == "succeeded" {
+			return respBody, "COMPLETED", nil
 		}
 
-		return getAccountStatusRespBody, state, nil
+		if state == "failed" {
+			return respBody, state, fmt.Errorf("state: %s; failure_reason: %v", state,
+				utils.PathSearch("create_account_status.failure_reason", respBody, ""))
+		}
+
+		return respBody, state, nil
 	}
 }
 
@@ -221,70 +232,79 @@ func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 		"phone":       utils.ValueIgnoreEmpty(d.Get("phone")),
 		"agency_name": utils.ValueIgnoreEmpty(d.Get("agency_name")),
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
-		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		"tags":        utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }
 
+func GetAccountInfoById(client *golangsdk.ServiceClient, accountId string) (interface{}, error) {
+	getHttpUrl := "v1/organizations/accounts/{account_id}?with_register_contact_info=true"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{account_id}", accountId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	status := utils.PathSearch("account.status", respBody, "").(string)
+	if status == "" || status == "pending_closure" || status == "suspended" {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/organizations/accounts/{account_id}",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the account (%s) does not exist", accountId)),
+			},
+		}
+	}
+
+	return utils.PathSearch("account", respBody, nil), nil
+}
+
 func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getAccount: Query Organizations account
-	var (
-		getAccountProduct = "organizations"
-	)
-	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountHttpUrl := "v1/organizations/accounts/{account_id}?with_register_contact_info=true"
-	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
-	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", d.Id())
-
-	getAccountOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccountResp, err := getAccountClient.Request("GET", getAccountPath, &getAccountOpt)
-
+	accountId := d.Id()
+	account, err := GetAccountInfoById(client, accountId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Account")
+		return common.CheckDeletedDiag(d, common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			"error retrieving account")
 	}
 
-	getAccountRespBody, err := utils.FlattenResponse(getAccountResp)
+	parentID, err := getParentIdByAccountId(client, accountId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	status := utils.PathSearch("account.status", getAccountRespBody, "").(string)
-	if status == "" || status == "pending_closure" || status == "suspended" {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-	}
-
-	parentID, err := getParentIdByAccountId(getAccountClient, d.Id())
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("parent_id", parentID),
-		d.Set("name", utils.PathSearch("account.name", getAccountRespBody, nil)),
-		d.Set("email", utils.PathSearch("account.email", getAccountRespBody, nil)),
-		d.Set("phone", utils.PathSearch("account.mobile_phone", getAccountRespBody, nil)),
-		d.Set("description", utils.PathSearch("account.description", getAccountRespBody, nil)),
-		d.Set("intl_number_prefix", utils.PathSearch("account.intl_number_prefix", getAccountRespBody, nil)),
-		d.Set("urn", utils.PathSearch("account.urn", getAccountRespBody, nil)),
-		d.Set("joined_at", utils.PathSearch("account.joined_at", getAccountRespBody, nil)),
-		d.Set("joined_method", utils.PathSearch("account.join_method", getAccountRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", account, nil)),
+		d.Set("email", utils.PathSearch("email", account, nil)),
+		d.Set("phone", utils.PathSearch("mobile_phone", account, nil)),
+		d.Set("description", utils.PathSearch("description", account, nil)),
+		d.Set("intl_number_prefix", utils.PathSearch("intl_number_prefix", account, nil)),
+		d.Set("urn", utils.PathSearch("urn", account, nil)),
+		d.Set("joined_at", utils.PathSearch("joined_at", account, nil)),
+		d.Set("joined_method", utils.PathSearch("join_method", account, nil)),
 	)
 
-	tagMap, err := getTags(getAccountClient, accountsType, d.Id())
+	tagMap, err := getTags(client, accountsType, accountId)
 	if err != nil {
-		log.Printf("[WARN] error fetching tags of Organizations account (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of Organizations account (%s): %s", accountId, err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	}
@@ -294,34 +314,29 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 func resourceAccountUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// updateAccount: update Organizations account
-	var (
-		updateAccountProduct = "organizations"
-	)
-	updateAccountClient, err := cfg.NewServiceClient(updateAccountProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
+	accountId := d.Id()
 	if d.HasChange("parent_id") {
 		oldVal, newVal := d.GetChange("parent_id")
-		err = moveAccount(updateAccountClient, d.Id(), oldVal.(string), newVal.(string))
+		err = moveAccount(client, accountId, oldVal.(string), newVal.(string))
 		if err != nil {
-			return diag.Errorf("error moving account: %s", err)
+			return diag.Errorf("error moving account (%s) to organizational unit (%v): %s", accountId, newVal, err)
 		}
 	}
 
 	if d.HasChange("description") {
-		err = updateAccount(updateAccountClient, d)
+		err = updateAccount(client, d)
 		if err != nil {
-			return diag.Errorf("error updating account: %s", err)
+			return diag.Errorf("error updating account (%s): %s", accountId, err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = updateTags(d, updateAccountClient, accountsType, d.Id(), "tags")
+		err = updateTags(d, client, accountsType, accountId, "tags")
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -337,17 +352,15 @@ func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func updateAccount(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		updateAccountHttpUrl = "v1/organizations/accounts/{account_id}"
-	)
-	updateAccountPath := client.Endpoint + updateAccountHttpUrl
-	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{account_id}", d.Id())
+	updateHttpUrl := "v1/organizations/accounts/{account_id}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{account_id}", d.Id())
 
-	updateAccountOpt := golangsdk.RequestOpts{
+	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         buildUpdateAccountBodyParams(d),
 	}
-	updateAccountOpt.JSONBody = utils.RemoveNil(buildUpdateAccountBodyParams(d))
-	_, err := client.Request("PATCH", updateAccountPath, &updateAccountOpt)
+	_, err := client.Request("PATCH", updatePath, &updateOpt)
 	return err
 }
 
@@ -360,44 +373,44 @@ func buildMoveAccountBodyParams(oldOrganizationsUnitId, newOrganizationsUnitId s
 }
 
 func moveAccount(client *golangsdk.ServiceClient, accountId, sourceParentID, destinationParentID string) error {
-	// moveAccount: update Organizations account
-	var (
-		moveAccountHttpUrl = "v1/organizations/accounts/{account_id}/move"
-	)
-	moveAccountPath := client.Endpoint + moveAccountHttpUrl
-	moveAccountPath = strings.ReplaceAll(moveAccountPath, "{account_id}", accountId)
+	moveHttpUrl := "v1/organizations/accounts/{account_id}/move"
+	movePath := client.Endpoint + moveHttpUrl
+	movePath = strings.ReplaceAll(movePath, "{account_id}", accountId)
 
-	moveAccountOpt := golangsdk.RequestOpts{
+	moveOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         buildMoveAccountBodyParams(sourceParentID, destinationParentID),
 	}
-	moveAccountOpt.JSONBody = utils.RemoveNil(buildMoveAccountBodyParams(sourceParentID, destinationParentID))
-	_, err := client.Request("POST", moveAccountPath, &moveAccountOpt)
+	_, err := client.Request("POST", movePath, &moveOpt)
 	return err
 }
 
 func resourceAccountDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteAccount: close Organizations account
 	var (
-		deleteAccountHttpUrl = "v1/organizations/accounts/{account_id}/close"
-		deleteAccountProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		httpUrl = "v1/organizations/accounts/{account_id}/close"
 	)
-	deleteAccountClient, err := cfg.NewServiceClient(deleteAccountProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deleteAccountPath := deleteAccountClient.Endpoint + deleteAccountHttpUrl
-	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{account_id}", d.Id())
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{account_id}", d.Id())
 
-	deleteAccountOpt := golangsdk.RequestOpts{
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	_, err = deleteAccountClient.Request("POST", deleteAccountPath, &deleteAccountOpt)
+	_, err = client.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting account: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(
+				common.ConvertExpected400ErrInto404Err(err, "error_code", accountNotFoundErrCodes...),
+				"error_code", organizationNotFoundErrCodes...,
+			),
+			"error deleting account",
+		)
 	}
 
 	return nil
@@ -410,17 +423,16 @@ func getParentIdByAccountId(client *golangsdk.ServiceClient, accountID string) (
 
 	getParentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 	getAccountResp, err := client.Request("GET", getParentPath, &getParentOpt)
 	if err != nil {
-		return "", fmt.Errorf("error retrieving parent by account_id: %s", accountID)
+		return "", fmt.Errorf("error retrieving parent by account ID: %s", accountID)
 	}
-	getAccountRespBody, err := utils.FlattenResponse(getAccountResp)
+	respBody, err := utils.FlattenResponse(getAccountResp)
 	if err != nil {
 		return "", err
 	}
 
-	id := utils.PathSearch("entities|[0].id", getAccountRespBody, "").(string)
-
-	return id, nil
+	return utils.PathSearch("entities|[0].id", respBody, "").(string), nil
 }

@@ -10,7 +10,7 @@ description: |-
 
 Manages an Organizations account resource within HuaweiCloud.
 
--> **NOTE:** Deleting Organizations account is not support. If you destroy a resource of Organizations account,
+-> Deleting Organizations account is not support. If you destroy a resource of Organizations account,
 the Organizations account is only removed from the state, but it remains in the cloud.
 
 ## Example Usage
@@ -45,10 +45,10 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the account.
 
-* `parent_id` - (Optional, String) Specifies the ID of the root or organization unit in which you want to create a new
-  account. The default is root ID.
+* `parent_id` - (Optional, String) Specifies the ID of the root or organizational unit to which the account belongs.
+  The default is the root ID.
 
-* `tags` - (Optional, Map) Specifies the key/value to attach to the account.
+* `tags` - (Optional, Map) Specifies the key/value pairs to be associated with the account.
 
 * `email` - (Optional, String, ForceNew) Specifies the email address of the account.  
   Changing this parameter will create a new resource.
