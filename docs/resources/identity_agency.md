@@ -103,6 +103,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `create_time` - The creation time of the agency.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `read` - Default is 2 minutes.
+* `update` - Default is 1 minute.
+* `delete` - Default is 1 minute.
+
 ## Import
 
 Agencies can be imported using their `id`, e.g.

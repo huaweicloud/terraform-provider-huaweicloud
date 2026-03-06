@@ -1,6 +1,7 @@
 package iam
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"testing"
@@ -8,10 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getV3AgencyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,7 +19,7 @@ func getV3AgencyResourceFunc(c *config.Config, state *terraform.ResourceState) (
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	return agency.Get(client, state.Primary.ID).Extract()
+	return iam.GetV3AgencyByIdWithRetry(context.Background(), client, state.Primary.ID)
 }
 
 func TestAccV3Agency_basic(t *testing.T) {
@@ -268,6 +268,8 @@ resource "huaweicloud_identity_agency" "create_with_role_assignments" {
     enterprise_project = try(data.huaweicloud_enterprise_projects.test.enterprise_projects[0].name, "NOT_FOUND")
     roles              = ["RDS ReadOnlyAccess"]
   }
+
+  force_dissociate_v5_policies = true
 }
 
 resource "huaweicloud_identityv5_policy" "test" {
@@ -292,8 +294,6 @@ resource "huaweicloud_identity_policy_agency_attach" "test" {
 }
 
 resource "huaweicloud_identity_agency" "create_without_role_assignments" {
-  depends_on = [huaweicloud_identity_policy_agency_attach.test]
-
   name                  = "%[2]s_create_without_role_assignments"
   description           = "Updated by terraform acceptance test"
   delegated_domain_name = "%[3]s"
@@ -317,8 +317,6 @@ resource "huaweicloud_identity_agency" "create_without_role_assignments" {
     enterprise_project = try(data.huaweicloud_enterprise_projects.test.enterprise_projects[0].name, "NOT_FOUND")
     roles              = ["CCE ReadOnlyAccess"]
   }
-
-  force_dissociate_v5_policies = true
 }
 `, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
 		name,
