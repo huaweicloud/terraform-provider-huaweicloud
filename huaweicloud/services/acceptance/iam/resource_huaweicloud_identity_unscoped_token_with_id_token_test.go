@@ -10,21 +10,29 @@ import (
 )
 
 func TestAccIdentityUnscopedTokenWithIdToken_basic(t *testing.T) {
-	idpId := "YourIdpId"
-	protocolId := "YourProtocolId"
-	idToken := "YourIdToken"
-	resourceName := "huaweicloud_identity_unscoped_token_with_id_token.test"
+	var (
+		resourceName = "huaweicloud_identity_unscoped_token_with_id_token.test"
+
+		name = acceptance.RandomAccResourceName()
+	)
 
 	// Avoid CheckDestroy because the token can not be destroyed.
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckIdentityIDPId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source:            "hashicorp/random",
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityUnscopedTokenWithIdToken(idpId, protocolId, idToken),
+				Config: testAccIdentityUnscopedTokenWithIdToken(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "token"),
 					resource.TestCheckResourceAttrSet(resourceName, "username"),
@@ -36,12 +44,14 @@ func TestAccIdentityUnscopedTokenWithIdToken_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityUnscopedTokenWithIdToken(idpId, protocolId, idToken string) string {
+func testAccIdentityUnscopedTokenWithIdToken(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_identity_unscoped_token_with_id_token" "test" {
-  idp_id      = "%[1]s"
-  protocol_id = "%[2]s"
-  id_token    = "%[3]s"
+  idp_id      = "%[2]s"
+  protocol_id = "oidc"
+  id_token    = huaweicloud_identity_temporary_access_key.test.securitytoken
 }
-`, idpId, protocolId, idToken)
+`, testAccTemporaryAccessKey_basic_step1(name), acceptance.HW_IDENTITY_OIDC_IDP_ID)
 }
