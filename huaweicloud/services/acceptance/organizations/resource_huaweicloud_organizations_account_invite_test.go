@@ -2,73 +2,23 @@ package organizations
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getAccountInviteResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	// getAccountInvite: Query Organizations account invite
-	var (
-		region                  = acceptance.HW_REGION_NAME
-		getAccountHttpUrl       = "v1/organizations/accounts/{account_id}"
-		getAccountInviteHttpUrl = "v1/organizations/handshakes/{handshake_id}"
-		getAccountInviteProduct = "organizations"
-	)
-	getAccountInviteClient, err := cfg.NewServiceClient(getAccountInviteProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
+		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountInvitePath := getAccountInviteClient.Endpoint + getAccountInviteHttpUrl
-	getAccountInvitePath = strings.ReplaceAll(getAccountInvitePath, "{handshake_id}", state.Primary.ID)
-
-	getAccountInviteOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccountInviteResp, err := getAccountInviteClient.Request("GET", getAccountInvitePath,
-		&getAccountInviteOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AccountInvite: %s", err)
-	}
-
-	getAccountInviteRespBody, err := utils.FlattenResponse(getAccountInviteResp)
-	if err != nil {
-		return nil, err
-	}
-
-	status := utils.PathSearch("handshake.status", getAccountInviteRespBody, "")
-	if status == "cancelled" || status == "expired" {
-		return nil, fmt.Errorf("failed to get Organizations AccountInvite")
-	}
-
-	accountID := utils.PathSearch("handshake.target.entity", getAccountInviteRespBody, "")
-
-	// the handshake will always exist, so it is necessary to check whether the account can be obtained if the
-	// status is accepted
-	if status == "accepted" {
-		getAccountPath := getAccountInviteClient.Endpoint + getAccountHttpUrl
-		getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", accountID.(string))
-
-		getAccountOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		_, err = getAccountInviteClient.Request("GET", getAccountPath, &getAccountOpt)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to get Organizations AccountInvite")
-		}
-	}
-
-	return getAccountInviteRespBody, nil
+	return organizations.GetAccountInvite(client, state.Primary.ID)
 }
 
 func TestAccAccountInvite_basic(t *testing.T) {
