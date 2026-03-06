@@ -42,22 +42,20 @@ func ResourceV5GroupMembership() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the user group.`,
 			},
-			"user_id_list": {
-				Type:        schema.TypeSet,
-				Required:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The list of user IDs to associate with the group.`,
-			},
-			// Attributes.
 			"users": {
 				Type:     schema.TypeList,
+				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"user_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The ID of the user.`,
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The ID of the user.`,
+								utils.SchemaDescInput{Required: true},
+							),
 						},
 						"user_name": {
 							Type:        schema.TypeString,
@@ -91,7 +89,11 @@ func ResourceV5GroupMembership() *schema.Resource {
 						},
 					},
 				},
-				Description: `The list of users associated with the group.`,
+				DiffSuppressFunc: utils.SuppressStrSliceDiffs(),
+				Description: utils.SchemaDesc(
+					`The list of users associated with the group.`,
+					utils.SchemaDescInput{Required: true},
+				),
 			},
 			// Internal parameter(s).
 			"enable_force_new": {
@@ -99,6 +101,35 @@ func ResourceV5GroupMembership() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+			// Internal attribute(s).
+			"users_origin": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+the new value next time the change is made. The corresponding parameter name is 'users'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			// Deprecated parameter(s).
+			"user_id_list": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The list of user IDs to associate with the group.`,
+					utils.SchemaDescInput{
+						Required:   true,
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}
@@ -111,23 +142,61 @@ func resourceV5GroupMembershipCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	groupId := d.Get("group_id").(string)
-	users := utils.ExpandToStringList(d.Get("user_id_list").(*schema.Set).List())
-	if err := v5AddUsersToGroup(client, groupId, users); err != nil {
-		return diag.FromErr(err)
+	var (
+		groupId = d.Get("group_id").(string)
+		userIds []interface{}
+	)
+
+	// Compatible with the deprecated 'user_id_list' parameter, if the users parameter is not set, use the 'user_id_list' parameter.
+	users, isConfigScriptUsers := d.GetOk("users")
+	if !isConfigScriptUsers {
+		userIds = d.Get("user_id_list").(*schema.Set).List()
+	} else {
+		userIds = utils.PathSearch("[*].user_id", users, make([]interface{}, 0)).([]interface{})
+	}
+
+	if len(userIds) == 0 {
+		return diag.Errorf("At least one user is required to be added to the group")
+	}
+
+	for _, userId := range userIds {
+		if err := v5AddUsersToGroup(client, groupId, userId.(string)); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	d.SetId(groupId)
+
+	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
+	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	if isConfigScriptUsers {
+		if err = refreshV5GroupMembershipUsersOrigin(d); err != nil {
+			// Don't report an error if origin refresh fails
+			log.Printf("[WARN] Unable to refresh the users origin values: %s", err)
+		}
+	}
+
 	return resourceV5GroupMembershipRead(ctx, d, meta)
 }
 
-func GetV5GroupassociateUsers(client *golangsdk.ServiceClient, groupId string) ([]interface{}, error) {
-	users, err := listV5Users(client, fmt.Sprintf("&group_id=%s", groupId))
+func refreshV5GroupMembershipUsersOrigin(d *schema.ResourceData) error {
+	scriptConfigValue := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "users")
+	if scriptConfigValue == nil {
+		log.Printf("[WARN] Unable to get the script configuration value for the users parameter")
+		return nil
+	}
+
+	return d.Set("users_origin", utils.PathSearch("[*].user_id", scriptConfigValue, make([]interface{}, 0)).([]interface{}))
+}
+
+func GetV5GroupassociateUsers(client *golangsdk.ServiceClient, groupId string, usersOrigin []interface{}) ([]interface{}, error) {
+	assocatedUsers, err := listV5Users(client, fmt.Sprintf("&group_id=%s", groupId))
 	if err != nil {
 		return nil, err
 	}
 
-	if len(users) == 0 {
+	if len(assocatedUsers) == 0 {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Method:    "GET",
@@ -138,7 +207,45 @@ func GetV5GroupassociateUsers(client *golangsdk.ServiceClient, groupId string) (
 		}
 	}
 
-	return users, nil
+	associatedUserIds := utils.PathSearch("[*].user_id", assocatedUsers, make([]interface{}, 0)).([]interface{})
+	// When the user bound in the script is manually unbound in the console, and there are users bound through other ways under the group,
+	// 404 error is returned.
+	if len(assocatedUsers) == 0 || (len(usersOrigin) > 0 && len(utils.FildSliceIntersection(associatedUserIds, usersOrigin)) == 0) {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "v5/users",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("All locally managed users (%v) have been unbound from the group (%s)", usersOrigin, groupId)),
+			},
+		}
+	}
+
+	return orderV5AssociatedUsersByUsersOrigin(assocatedUsers, usersOrigin), nil
+}
+
+func orderV5AssociatedUsersByUsersOrigin(associatedUsers, usersOrigin []interface{}) []interface{} {
+	if len(usersOrigin) < 1 {
+		return associatedUsers
+	}
+
+	sortedAssociatedUsers := make([]interface{}, 0, len(associatedUsers))
+	associatedUsersCopy := associatedUsers
+	for _, userIdOrigin := range usersOrigin {
+		for index, user := range associatedUsersCopy {
+			if utils.PathSearch("user_id", user, "").(string) == userIdOrigin {
+				// Add the found user to the sorted users list.
+				sortedAssociatedUsers = append(sortedAssociatedUsers, associatedUsersCopy[index])
+				// Remove the processed user from the original array.
+				associatedUsersCopy = append(associatedUsersCopy[:index], associatedUsersCopy[index+1:]...)
+
+				break
+			}
+		}
+	}
+	// Add any remaining unsorted users to the end of the sorted list.
+	sortedAssociatedUsers = append(sortedAssociatedUsers, associatedUsersCopy...)
+	return sortedAssociatedUsers
 }
 
 func resourceV5GroupMembershipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -148,15 +255,17 @@ func resourceV5GroupMembershipRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	users, err := GetV5GroupassociateUsers(client, d.Id())
+	groupId := d.Id()
+	sortedUsers, err := GetV5GroupassociateUsers(client, groupId, d.Get("users_origin").([]interface{}))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting users in group (%s)", d.Id()))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting users in group (%s)", groupId))
 	}
 
 	mErr := multierror.Append(
-		d.Set("group_id", d.Id()),
-		d.Set("user_id_list", utils.PathSearch("[*].user_id", users, nil)),
-		d.Set("users", flattenV5GroupAssociatedUsers(users)),
+		d.Set("group_id", groupId),
+		d.Set("users", flattenV5GroupAssociatedUsers(sortedUsers)),
+		// Deprecated parameter(s).
+		d.Set("user_id_list", utils.PathSearch("[*].user_id", sortedUsers, nil)),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting group membership fields: %s", err)
@@ -192,20 +301,49 @@ func resourceV5GroupMembershipUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	groupId := d.Get("group_id").(string)
-	if d.HasChange("user_id_list") {
+	var (
+		groupId           = d.Id()
+		configScriptUsers = utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "users")
+		oldUserIds        []interface{}
+		newUserIds        []interface{}
+	)
+
+	// Compatible with the deprecated user_id_list parameter, if the users parameter is not set, use the 'user_id_list' parameter.
+	if v, ok := configScriptUsers.([]interface{}); ok && len(v) > 0 {
+		oldRaw, newRaw := d.GetChange("users")
+		oldUserIds = utils.PathSearch("[*].user_id", oldRaw, make([]interface{}, 0)).([]interface{})
+		newUserIds = utils.PathSearch("[*].user_id", newRaw, make([]interface{}, 0)).([]interface{})
+	} else {
 		oldRaw, newRaw := d.GetChange("user_id_list")
-		rmSet := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
-		addSet := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+		oldUserIds = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set)).List()
+		newUserIds = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set)).List()
+	}
 
-		removeList := utils.ExpandToStringListBySet(rmSet)
-		if err := v5RemoveUsersFromGroup(client, groupId, removeList); err != nil {
-			return diag.FromErr(err)
+	if len(oldUserIds) > 0 {
+		for _, userId := range oldUserIds {
+			if !utils.SliceContains(newUserIds, userId) {
+				if err := v5RemoveUsersFromGroup(client, groupId, userId.(string)); err != nil {
+					return diag.FromErr(err)
+				}
+			}
 		}
+	}
 
-		addList := utils.ExpandToStringListBySet(addSet)
-		if err := v5AddUsersToGroup(client, groupId, addList); err != nil {
-			return diag.FromErr(err)
+	for _, userId := range newUserIds {
+		if !utils.SliceContains(oldUserIds, userId) {
+			if err := v5AddUsersToGroup(client, groupId, userId.(string)); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
+	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
+	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	if configScriptUsers != nil {
+		if err = refreshV5GroupMembershipUsersOrigin(d); err != nil {
+			// Don't report an error if origin refresh fails
+			log.Printf("[WARN] Unable to refresh the users origin values: %s", err)
 		}
 	}
 
@@ -213,61 +351,74 @@ func resourceV5GroupMembershipUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceV5GroupMembershipDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
+	var (
+		cfg     = meta.(*config.Config)
+		groupId = d.Get("group_id").(string)
+	)
 	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	groupId := d.Get("group_id").(string)
-	allUsers := utils.ExpandToStringList(d.Get("user_id_list").(*schema.Set).List())
-	if err := v5RemoveUsersFromGroup(client, groupId, allUsers); err != nil {
-		return diag.FromErr(err)
+	var userIds []interface{}
+	configScriptUsers := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "users")
+	// Compatible with the deprecated 'user_id_list' parameter, if the users parameter is not set, use the 'user_id_list' parameter.
+	if v, ok := configScriptUsers.([]interface{}); ok && len(v) > 0 {
+		userIds = utils.PathSearch("[*].user_id", d.Get("users").([]interface{}), make([]interface{}, 0)).([]interface{})
+		// The value of users_origin is empty only when the resource is imported and the terraform apply command is not executed.
+		// In this case, all information obtained from the remote service is used to remove user relationships from the group.
+		if userIdsOrigin, ok := d.GetOk("users_origin"); ok && len(userIdsOrigin.([]interface{})) > 0 {
+			log.Printf("[DEBUG] Find the custom users configuration, according to it to remove users from the group (%v)", groupId)
+			userIds = userIdsOrigin.([]interface{})
+		}
+	} else {
+		userIds = d.Get("user_id_list").(*schema.Set).List()
+	}
+
+	for _, userId := range userIds {
+		if err := v5RemoveUsersFromGroup(client, groupId, userId.(string)); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return nil
 }
 
-func v5AddUsersToGroup(client *golangsdk.ServiceClient, groupId string, users []string) error {
+func v5AddUsersToGroup(client *golangsdk.ServiceClient, groupId, userId string) error {
 	httpUrl := "v5/groups/{group_id}/add-user"
 	addPath := client.Endpoint + httpUrl
 	addPath = strings.ReplaceAll(addPath, "{group_id}", groupId)
-	for _, user := range users {
-		opt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody: map[string]interface{}{
-				"user_id": user,
-			},
-		}
-		_, err := client.Request("POST", addPath, &opt)
-		if err != nil {
-			return fmt.Errorf("error adding user (%s) to group (%s): %s ", user, groupId, err)
-		}
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"user_id": userId,
+		},
+	}
+	_, err := client.Request("POST", addPath, &opt)
+	if err != nil {
+		return fmt.Errorf("error adding user (%s) to group (%s): %s ", userId, groupId, err)
 	}
 
 	return nil
 }
 
-func v5RemoveUsersFromGroup(client *golangsdk.ServiceClient, groupId string, users []string) error {
+func v5RemoveUsersFromGroup(client *golangsdk.ServiceClient, groupId, userId string) error {
 	httpUrl := "v5/groups/{group_id}/remove-user"
 	removePath := client.Endpoint + httpUrl
 	removePath = strings.ReplaceAll(removePath, "{group_id}", groupId)
-	for _, user := range users {
-		opt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody: map[string]interface{}{
-				"user_id": user,
-			},
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"user_id": userId,
+		},
+	}
+	_, err := client.Request("POST", removePath, &opt)
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			log.Printf("[WARN] the user (%s) is not exist, ignore to remove it from the group", userId)
 		}
-		_, err := client.Request("POST", removePath, &opt)
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[WARN] the user (%s) is not exist, ignore to remove it from the group", user)
-				continue
-			}
 
-			return fmt.Errorf("error removing user (%s) from group (%s): %s ", user, groupId, err)
-		}
+		return fmt.Errorf("error removing user (%s) from group (%s): %s ", userId, groupId, err)
 	}
 
 	return nil
