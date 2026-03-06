@@ -20,40 +20,46 @@ import (
 // @API IAM GET /v3.0/OS-MFA/users/{user_id}/virtual-mfa-device
 // @API IAM GET /v3.0/OS-USER/users/{user_id}
 // @API IAM GET /v3/auth/domains
-func ResourceIdentityVirtualMFADevice() *schema.Resource {
+func ResourceV3VirtualMFADevice() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceMFACreate,
-		ReadContext:   resourceMFARead,
-		DeleteContext: resourceMFADelete,
+		CreateContext: resourceV3VirtualMFACreate,
+		ReadContext:   resourceV3VirtualMFARead,
+		DeleteContext: resourceV3VirtualMFADelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceMFAImportState,
+			StateContext: resourceV3VirtualMFAImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The virtual MFA device name.`,
 			},
 			"user_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The user ID which the virtual MFA device belongs to.`,
 			},
+
+			// Attribute
 			"base32_string_seed": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The base32 seed, which a third-patry system can use to generate a CAPTCHA code.`,
 			},
 			"qr_code_png": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The QR code PNG image.`,
 			},
 		},
 	}
 }
 
-func resourceMFACreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3VirtualMFACreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	product := "iam"
@@ -154,7 +160,7 @@ func getUserName(client *golangsdk.ServiceClient, userID string) (string, error)
 	return userName, nil
 }
 
-func resourceMFARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3VirtualMFARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	getMFAProduct := "iam"
@@ -190,7 +196,7 @@ func resourceMFARead(_ context.Context, d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceMFADelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3VirtualMFADelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	dproduct := "iam"
@@ -229,6 +235,6 @@ func resourceMFADelete(_ context.Context, d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceMFAImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceV3VirtualMFAImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, d.Set("user_id", d.Id())
 }
