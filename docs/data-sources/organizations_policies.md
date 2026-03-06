@@ -2,17 +2,27 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_policies"
-description: ""
+description: |-
+  Use this data source to get the list of Organizations policies within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_policies
 
-Use this data source to get the list of policies in an organization.
+Use this data source to get the list of Organizations policies within HuaweiCloud.
 
 ## Example Usage
 
+### Query all policies
+
+```hcl
+data "huaweicloud_organizations_policies" "test" {}
+```
+
+### Query policies by build type
+
 ```hcl
 data "huaweicloud_organizations_policies" "test" {
+  build_type = "system"
 }
 ```
 
@@ -20,15 +30,17 @@ data "huaweicloud_organizations_policies" "test" {
 
 The following arguments are supported:
 
-* `build_type` - (Optional, String) Specifies the build type of the policy.
-  + **system**: system policy.
-  + **custom**: custom policy.
+* `build_type` - (Optional, String) Specifies the build type of the policy.  
+  The valid values are as follows:
+  + **system**: System policy.
+  + **custom**: Custom policy.
 
 * `name` - (Optional, String) Specifies the name of the policy.
 
-* `type` - (Optional, String) Specifies the type of the policy. Value options:
-  + **service_control_policy**: service control policy.
-  + **tag_policy**: tag policy.
+* `type` - (Optional, String) Specifies the type of the policy.  
+  The valid values are as follows:
+  + **service_control_policy**: Service control policy.
+  + **tag_policy**: Tag policy.
 
 ## Attribute Reference
 
@@ -36,7 +48,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `policies` - List of policies in an organization.
+* `policies` - The list of policies that match the filter parameters.  
   The [policies](#Policies_Policy) structure is documented below.
 
 <a name="Policies_Policy"></a>
@@ -50,6 +62,6 @@ The `policies` block supports:
 
 * `urn` - Indicates the uniform resource name of the policy.
 
-* `description` - Specifies the description of the policy.
+* `description` - Indicates the description of the policy.
 
 * `build_type` - Indicates the build type of the policy.

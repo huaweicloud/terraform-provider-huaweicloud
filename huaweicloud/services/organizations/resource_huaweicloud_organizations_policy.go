@@ -1,12 +1,8 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -22,17 +18,17 @@ import (
 )
 
 // @API Organizations POST /v1/organizations/policies
-// @API Organizations DELETE /v1/organizations/policies/{policy_id}
 // @API Organizations GET /v1/organizations/policies/{policy_id}
+// @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
 // @API Organizations PATCH /v1/organizations/policies/{policy_id}
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/create
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
-// @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
+// @API Organizations DELETE /v1/organizations/policies/{policy_id}
 func ResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
-		UpdateContext: resourcePolicyUpdate,
 		ReadContext:   resourcePolicyRead,
+		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -44,12 +40,12 @@ func ResourcePolicy() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the name to be assigned to the policy.`,
+				Description: `The name to be assigned to the policy.`,
 			},
 			"content": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the policy text content to be added to the new policy.`,
+				Description: `The policy text content to be added to the new policy.`,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 					return equal
@@ -59,58 +55,55 @@ func ResourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the type of the policy to be created.`,
+				Description: `The type of the policy to be created.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the description to be assigned to the policy.`,
+				Description: `The description to be assigned to the policy.`,
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsSchema(`The key/value pairs associated with the policy.`),
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the uniform resource name of the policy.`,
+				Description: `The uniform resource name of the policy.`,
 			},
 		},
 	}
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createPolicy: create Organizations policy
 	var (
-		createPolicyHttpUrl = "v1/organizations/policies"
-		createPolicyProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations/policies"
 	)
-	createPolicyClient, err := cfg.NewServiceClient(createPolicyProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	createPolicyPath := createPolicyClient.Endpoint + createPolicyHttpUrl
-
-	createPolicyOpt := golangsdk.RequestOpts{
+	createPath := client.Endpoint + httpUrl
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePolicyBodyParams(d)),
 	}
 
-	createPolicyOpt.JSONBody = utils.RemoveNil(buildCreatePolicyBodyParams(d))
-	createPolicyResp, err := createPolicyClient.Request("POST", createPolicyPath, &createPolicyOpt)
+	resp, err := client.Request("POST", createPath, &opt)
 	if err != nil {
-		return diag.Errorf("error creating Organizations policy: %s", err)
+		return diag.Errorf("error creating policy: %s", err)
 	}
 
-	createPolicyRespBody, err := utils.FlattenResponse(createPolicyResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	policyId := utils.PathSearch("policy.policy_summary.id", createPolicyRespBody, "").(string)
+	policyId := utils.PathSearch("policy.policy_summary.id", respBody, "").(string)
 	if policyId == "" {
-		return diag.Errorf("unable to find the Organizations policy ID from the API response")
+		return diag.Errorf("unable to find the policy ID from the API response")
 	}
+
 	d.SetId(policyId)
 
 	return resourcePolicyRead(ctx, d, meta)
@@ -122,57 +115,61 @@ func buildCreatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} 
 		"content":     utils.ValueIgnoreEmpty(d.Get("content")),
 		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
-		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		"tags":        utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }
 
+func GetPolicyById(client *golangsdk.ServiceClient, policyId string) (interface{}, error) {
+	httpUrl := "v1/organizations/policies/{policy_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{policy_id}", policyId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	resp, err := client.Request("GET", getPath, &opt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
 func resourcePolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getPolicy: Query Organizations policy
 	var (
-		getPolicyHttpUrl = "v1/organizations/policies/{policy_id}"
-		getPolicyProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		policyId = d.Id()
+		mErr     *multierror.Error
 	)
-	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getPolicyPath := getPolicyClient.Endpoint + getPolicyHttpUrl
-	getPolicyPath = strings.ReplaceAll(getPolicyPath, "{policy_id}", d.Id())
-
-	getPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getPolicyResp, err := getPolicyClient.Request("GET", getPolicyPath, &getPolicyOpt)
-
+	respBody, err := GetPolicyById(client, policyId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Organizations policy")
-	}
-
-	getPolicyRespBody, err := utils.FlattenResponse(getPolicyResp)
-	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error retrieving policy (%s)", policyId),
+		)
 	}
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("name", utils.PathSearch("policy.policy_summary.name", getPolicyRespBody, nil)),
-		d.Set("content", utils.PathSearch("policy.content", getPolicyRespBody, nil)),
-		d.Set("type", utils.PathSearch("policy.policy_summary.type", getPolicyRespBody, nil)),
-		d.Set("description", utils.PathSearch("policy.policy_summary.description", getPolicyRespBody, nil)),
-		d.Set("urn", utils.PathSearch("policy.policy_summary.urn", getPolicyRespBody, nil)),
+		d.Set("name", utils.PathSearch("policy.policy_summary.name", respBody, nil)),
+		d.Set("content", utils.PathSearch("policy.content", respBody, nil)),
+		d.Set("type", utils.PathSearch("policy.policy_summary.type", respBody, nil)),
+		d.Set("description", utils.PathSearch("policy.policy_summary.description", respBody, nil)),
+		d.Set("urn", utils.PathSearch("policy.policy_summary.urn", respBody, nil)),
 	)
 
-	tagMap, err := getTags(getPolicyClient, policiesType, d.Id())
+	tagMap, err := getTags(client, policiesType, policyId)
 	if err != nil {
-		log.Printf("[WARN] error fetching tags of Organizations policy (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of policy (%s): %s", policyId, err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	}
@@ -181,44 +178,34 @@ func resourcePolicyRead(_ context.Context, d *schema.ResourceData, meta interfac
 }
 
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	updatePolicyChanges := []string{
-		"name",
-		"content",
-		"description",
-	}
-
-	// updatePolicy: update Organizations policy
 	var (
-		updatePolicyHttpUrl = "v1/organizations/policies/{policy_id}"
-		updatePolicyProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		httpUrl  = "v1/organizations/policies/{policy_id}"
+		policyId = d.Id()
 	)
-	updatePolicyClient, err := cfg.NewServiceClient(updatePolicyProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	if d.HasChanges(updatePolicyChanges...) {
-		updatePolicyPath := updatePolicyClient.Endpoint + updatePolicyHttpUrl
-		updatePolicyPath = strings.ReplaceAll(updatePolicyPath, "{policy_id}", d.Id())
-
-		updatePolicyOpt := golangsdk.RequestOpts{
+	if d.HasChanges("name", "content", "description") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", policyId)
+		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdatePolicyBodyParams(d)),
 		}
 
-		updatePolicyOpt.JSONBody = utils.RemoveNil(buildUpdatePolicyBodyParams(d))
-		_, err = updatePolicyClient.Request("PATCH", updatePolicyPath, &updatePolicyOpt)
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			return diag.Errorf("error updating Organizations policy: %s", err)
+			return diag.Errorf("error updating policy (%s): %s", policyId, err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = updateTags(d, updatePolicyClient, policiesType, d.Id(), "tags")
+		err = updateTags(d, client, policiesType, policyId, "tags")
 		if err != nil {
-			return diag.Errorf("error updating tags of Organizations policy %s: %s", d.Id(), err)
+			return diag.Errorf("error updating tags of policy (%s): %s", policyId, err)
 		}
 	}
 
@@ -235,29 +222,28 @@ func buildUpdatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} 
 }
 
 func resourcePolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deletePolicy: Delete Organizations policy
 	var (
-		deletePolicyHttpUrl = "v1/organizations/policies/{policy_id}"
-		deletePolicyProduct = "organizations"
+		cfg      = meta.(*config.Config)
+		httpUrl  = "v1/organizations/policies/{policy_id}"
+		policyId = d.Id()
 	)
-	deletePolicyClient, err := cfg.NewServiceClient(deletePolicyProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deletePolicyPath := deletePolicyClient.Endpoint + deletePolicyHttpUrl
-	deletePolicyPath = strings.ReplaceAll(deletePolicyPath, "{policy_id}", d.Id())
-
-	deletePolicyOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", policyId)
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	_, err = deletePolicyClient.Request("DELETE", deletePolicyPath, &deletePolicyOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Organizations policy: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error deleting policy (%s)", policyId),
+		)
 	}
 
 	return nil

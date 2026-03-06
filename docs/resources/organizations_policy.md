@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_policy"
-description: ""
+description: |-
+  Manages an Organizations policy resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_policy
@@ -14,8 +15,10 @@ Manages an Organizations policy resource within HuaweiCloud.
 ### Create service control policy
 
 ```hcl
+variable "policy_name" {}
+
 resource "huaweicloud_organizations_policy" "scp_policy"{
-  name    = "test_policy_name"
+  name    = var.policy_name
   type    = "service_control_policy"
   content = jsonencode(
     {
@@ -33,9 +36,11 @@ resource "huaweicloud_organizations_policy" "scp_policy"{
 
 ### Create tag policy
 
-```hcl
+```hcl'
+variable "policy_name" {}
+
 resource "huaweicloud_organizations_policy" "tag_policy"{
-  name    = "test_policy_name"
+  name    = var.policy_name
   type    = "tag_policy"
   content = jsonencode(
     {
@@ -55,25 +60,26 @@ resource "huaweicloud_organizations_policy" "tag_policy"{
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the name to be assigned to the policy. It can contain 1 to 64 characters, only
-  English and Chinese letters, digits, underscore (_), hyphens (-) and spaces are allowed and the first and last
-  characters cannot be spaces.
+* `name` - (Required, String) Specifies the name to be assigned to the policy.  
+  It can contain `1` to `64` characters, only English and Chinese letters, digits, underscore (_), hyphens (-) and
+  spaces are allowed and the first and last characters cannot be spaces.
 
-* `content` - (Required, String) Specifies the policy text content to be added to the new policy. For details, see the
-  following documents:
+* `content` - (Required, String) Specifies the policy text content to be added to the new policy.  
+  For details, see the following documents:
   <br/> For service control policy: [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-organizations/org_03_0033.html).
   <br/> For tag policy: [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-organizations/org_03_0068.html).
 
-* `type` - (Required, String, ForceNew) Specifies the type of the policy to be created. Value options:
-  + **service_control_policy**: service control policy.
-  + **tag_policy**: tag policy.
+* `type` - (Required, String, ForceNew) Specifies the type of the policy to be created.  
+  The valid values are as follows:
+  + **service_control_policy**: Service control policy.
+  + **tag_policy**: Tag policy.
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the description to be assigned to the policy. It can contain 1 to 512
-  characters.
+* `description` - (Optional, String) Specifies the description to be assigned to the policy.  
+  It can contain `1` to `512` characters.
 
-* `tags` - (Optional, Map) Specifies the key/value to attach to the policy.
+* `tags` - (Optional, Map) Specifies the key/value pairs associated with the policy.
 
 ## Attribute Reference
 
