@@ -2893,6 +2893,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_dns_resolution":                cfw.ResourceDNSResolution(),
 			"huaweicloud_cfw_capture_task":                  cfw.ResourceCaptureTask(),
 			"huaweicloud_cfw_ips_rule_mode_change":          cfw.ResourceCfwIpsRuleModeChange(),
+			"huaweicloud_cfw_export_ip_blacklist":           cfw.ResourceExportIpBlacklist(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
