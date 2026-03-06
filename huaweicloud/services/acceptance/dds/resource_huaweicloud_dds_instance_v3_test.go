@@ -138,7 +138,7 @@ func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -148,7 +148,7 @@ func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -156,7 +156,7 @@ func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -829,7 +829,7 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
 
 func testAccDDSInstanceV3Config_baseEpsId(rName string) string {
@@ -846,7 +846,7 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id     = huaweicloud_networking_secgroup.test.id
   password              = "Terraform@123"
   mode                  = "Sharding"
-  enterprise_project_id = "0"
+  enterprise_project_id = "%s"
 
   datastore {
     type           = "DDS-Community"
@@ -884,7 +884,7 @@ resource "huaweicloud_dds_instance" "instance" {
     foo   = "bar"
     owner = "terraform"
   }
-}`, common.TestBaseNetwork(rName), rName)
+}`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDDSInstanceV3Config_prePaid(rName string) string {
