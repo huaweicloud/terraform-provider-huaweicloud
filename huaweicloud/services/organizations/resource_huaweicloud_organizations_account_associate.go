@@ -1,19 +1,12 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -39,32 +32,32 @@ func ResourceAccountAssociate() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the ID of the account.`,
+				Description: `The ID of the account.`,
 			},
 			"parent_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the ID of root or organizational unit in which you want to move the account.`,
+				Description: `The ID of root or organizational unit in which you want to move the account.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the account.`,
+				Description: `The name of the account.`,
 			},
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the uniform resource name of the account.`,
+				Description: `The uniform resource name of the account.`,
 			},
 			"joined_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the time when the account was created.`,
+				Description: `The time when the account was created.`,
 			},
 			"joined_method": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates how an account joined an organization.`,
+				Description: `How an account joined an organization.`,
 			},
 		},
 	}
@@ -72,85 +65,59 @@ func ResourceAccountAssociate() *schema.Resource {
 
 func resourceAccountAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createAccountAssociate: create Organizations account associate
-	var (
-		createAccountAssociateProduct = "organizations"
-	)
-	createAccountAssociateClient, err := cfg.NewServiceClient(createAccountAssociateProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	accountID := d.Get("account_id").(string)
-	oParentID, err := getParentIdByAccountId(createAccountAssociateClient, accountID)
+	accountId := d.Get("account_id").(string)
+	oParentId, err := getParentIdByAccountId(client, accountId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	nParentID := d.Get("parent_id").(string)
-	if oParentID != nParentID {
-		err = moveAccount(createAccountAssociateClient, accountID, oParentID, nParentID)
+
+	nParentId := d.Get("parent_id").(string)
+	if oParentId != nParentId {
+		err = moveAccount(client, accountId, oParentId, nParentId)
 		if err != nil {
-			return diag.Errorf("error updating Account: %s", err)
+			return diag.Errorf("error moving account (%s) to organization unit (%v): %s", accountId, nParentId, err)
 		}
 	}
 
-	d.SetId(accountID)
+	d.SetId(accountId)
 
 	return resourceAccountAssociateRead(ctx, d, meta)
 }
 
 func resourceAccountAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getAccountAssociate: Query Organizations account associate
-	var (
-		getAccountAssociateHttpUrl = "v1/organizations/accounts/{account_id}"
-		getAccountAssociateProduct = "organizations"
-	)
-	getAccountAssociateClient, err := cfg.NewServiceClient(getAccountAssociateProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountAssociatePath := getAccountAssociateClient.Endpoint + getAccountAssociateHttpUrl
-	getAccountAssociatePath = strings.ReplaceAll(getAccountAssociatePath, "{account_id}", d.Id())
-
-	getAccountAssociateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getAccountAssociateResp, err := getAccountAssociateClient.Request("GET", getAccountAssociatePath,
-		&getAccountAssociateOpt)
-
+	accountId := d.Id()
+	account, err := GetAccountById(client, accountId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AccountAssociate")
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			"error retrieving account associate",
+		)
 	}
 
-	getAccountAssociateRespBody, err := utils.FlattenResponse(getAccountAssociateResp)
+	parentId, err := getParentIdByAccountId(client, accountId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	parentID, err := getParentIdByAccountId(getAccountAssociateClient, d.Id())
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	mErr = multierror.Append(
-		mErr,
-		d.Set("account_id", d.Id()),
-		d.Set("parent_id", parentID),
-		d.Set("name", utils.PathSearch("account.name", getAccountAssociateRespBody, nil)),
-		d.Set("urn", utils.PathSearch("account.urn", getAccountAssociateRespBody, nil)),
-		d.Set("joined_at", utils.PathSearch("account.joined_at", getAccountAssociateRespBody,
-			nil)),
-		d.Set("joined_method", utils.PathSearch("account.join_method", getAccountAssociateRespBody,
-			nil)),
+	mErr := multierror.Append(
+		d.Set("account_id", accountId),
+		d.Set("parent_id", parentId),
+		d.Set("name", utils.PathSearch("account.name", account, nil)),
+		d.Set("urn", utils.PathSearch("account.urn", account, nil)),
+		d.Set("joined_at", utils.PathSearch("account.joined_at", account, nil)),
+		d.Set("joined_method", utils.PathSearch("account.join_method", account, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -158,26 +125,21 @@ func resourceAccountAssociateRead(_ context.Context, d *schema.ResourceData, met
 
 func resourceAccountAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// updateAccountAssociate: update Organizations account associate
-	var (
-		updateAccountAssociateProduct = "organizations"
-	)
-	updateAccountAssociateClient, err := cfg.NewServiceClient(updateAccountAssociateProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	oParentID, err := getParentIdByAccountId(updateAccountAssociateClient, d.Id())
+	accountId := d.Id()
+	oParentId, err := getParentIdByAccountId(client, accountId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	nParentID := d.Get("parent_id").(string)
 
-	err = moveAccount(updateAccountAssociateClient, d.Id(), oParentID, nParentID)
+	nParentId := d.Get("parent_id").(string)
+	err = moveAccount(client, accountId, oParentId, nParentId)
 	if err != nil {
-		return diag.Errorf("error updating Account: %s", err)
+		return diag.Errorf("error moving account (%s) to organization unit (%v): %s", accountId, nParentId, err)
 	}
 
 	return resourceAccountAssociateRead(ctx, d, meta)
@@ -185,26 +147,24 @@ func resourceAccountAssociateUpdate(ctx context.Context, d *schema.ResourceData,
 
 func resourceAccountAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteAccountAssociate: Delete Organizations account associate
-	var (
-		deleteAccountAssociateProduct = "organizations"
-	)
-	deleteAccountAssociateClient, err := cfg.NewServiceClient(deleteAccountAssociateProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getRootRespBody, err := getRoot(deleteAccountAssociateClient)
+	getRootRespBody, err := getRoot(client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
-	parentID := d.Get("parent_id").(string)
-	err = moveAccount(deleteAccountAssociateClient, d.Id(), parentID, rootId)
+
+	accountId := d.Id()
+	parentId := d.Get("parent_id").(string)
+	err = moveAccount(client, accountId, parentId, utils.PathSearch("roots|[0].id", getRootRespBody, "").(string))
 	if err != nil {
-		return diag.Errorf("error updating Account: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			fmt.Sprintf("error moving account (%s) to root", accountId))
 	}
 
 	return nil

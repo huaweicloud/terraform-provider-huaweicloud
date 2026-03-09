@@ -2,18 +2,21 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_account_associate"
-description: ""
+description: |-
+  Manages an Organizations account associate resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_account_associate
 
 Manages an Organizations account associate resource within HuaweiCloud.
 
+-> Deleting this resource will move the account to the root organization unit.
+
 ## Example Usage
 
 ```hcl
-variable account_id {}
-variable parent_id {}
+variable "account_id" {}
+variable "parent_id" {}
 
 resource "huaweicloud_organizations_account_associate" "test"{
   account_id = var.account_id

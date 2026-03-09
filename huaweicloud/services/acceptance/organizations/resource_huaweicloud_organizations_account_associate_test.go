@@ -2,42 +2,23 @@ package organizations
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getAccountAssociateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getAccount: Query Organizations account
-	var (
-		getAccountHttpUrl = "v1/organizations/accounts/{account_id}"
-		getAccountProduct = "organizations"
-	)
-	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
+	getAccountClient, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
+		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
-	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", state.Primary.ID)
-
-	getAccountOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccountResp, err := getAccountClient.Request("GET", getAccountPath, &getAccountOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AccountAssociate: %s", err)
-	}
-	return utils.FlattenResponse(getAccountResp)
+	return organizations.GetAccountById(getAccountClient, state.Primary.ID)
 }
 
 // Before running the test, please provide an account ID under the root organization.
