@@ -2,6 +2,7 @@ package iam
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -46,10 +47,10 @@ const (
 // @API IAM POST /v3-ext/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/metadata
 func ResourceV3Provider() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceV3IdentityProviderCreate,
-		ReadContext:   resourceV3IdentityProviderRead,
-		UpdateContext: resourceV3IdentityProviderUpdate,
-		DeleteContext: resourceV3IdentityProviderDelete,
+		CreateContext: resourceV3ProviderCreate,
+		ReadContext:   resourceV3ProviderRead,
+		UpdateContext: resourceV3ProviderUpdate,
+		DeleteContext: resourceV3ProviderDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -218,7 +219,57 @@ func ResourceV3Provider() *schema.Resource {
 	}
 }
 
-func resourceV3IdentityProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+// importMetadata import metadata to provider, overwrite if it exists.
+func importMetadata(conf *config.Config, d *schema.ResourceData) error {
+	metadata := d.Get("metadata").(string)
+	if len(metadata) == 0 {
+		return nil
+	}
+
+	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating IAM client without version: %s", err)
+	}
+
+	providerID := d.Get("name").(string)
+	opts := metadatas.ImportOpts{
+		DomainID: conf.DomainID,
+		Metadata: metadata,
+	}
+	_, err = metadatas.Import(client, providerID, protocolSAML, opts)
+	if err != nil {
+		return fmt.Errorf("failed to import metadata: %s", err)
+	}
+	return nil
+}
+
+// createV3ProviderProtocol create default mapping and protocol
+func createV3ProviderProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	providerID := d.Get("name").(string)
+
+	// Create default mapping
+	defaultConversionRules := getDefaultV3ProviderConversionOpts()
+	mappingID := generateV3ProviderMappingID(providerID)
+	_, err := mappings.Create(client, mappingID, *defaultConversionRules)
+	if err != nil {
+		return fmt.Errorf("error in creating default conversion rule: %s", err)
+	}
+
+	// Create protocol
+	protocolName := d.Get("protocol").(string)
+	_, err = protocols.Create(client, providerID, protocolName, mappingID)
+	if err != nil {
+		// If fails to create protocols, then delete the mapping.
+		log.Printf("[WARN] error creating protocol and the mapping will be deleted. Error: %s", err)
+		mErr := multierror.Append(err,
+			mappings.Delete(client, mappingID),
+		)
+		return fmt.Errorf("error creating identity provider protocol: %s", mErr.Error())
+	}
+	return nil
+}
+
+func resourceV3ProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -242,7 +293,7 @@ func resourceV3IdentityProviderCreate(ctx context.Context, d *schema.ResourceDat
 
 	if d.HasChange("protocol") {
 		// Create default mapping and protocol
-		err = createProtocol(client, d)
+		err = createV3ProviderProtocol(client, d)
 		if err != nil {
 			return diag.Errorf("error creating provider protocol: %s", err)
 		}
@@ -283,60 +334,10 @@ func resourceV3IdentityProviderCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	return resourceV3IdentityProviderRead(ctx, d, meta)
+	return resourceV3ProviderRead(ctx, d, meta)
 }
 
-// importMetadata import metadata to provider, overwrite if it exists.
-func importMetadata(conf *config.Config, d *schema.ResourceData) error {
-	metadata := d.Get("metadata").(string)
-	if len(metadata) == 0 {
-		return nil
-	}
-
-	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
-	if err != nil {
-		return fmt.Errorf("error creating IAM client without version: %s", err)
-	}
-
-	providerID := d.Get("name").(string)
-	opts := metadatas.ImportOpts{
-		DomainID: conf.DomainID,
-		Metadata: metadata,
-	}
-	_, err = metadatas.Import(client, providerID, protocolSAML, opts)
-	if err != nil {
-		return fmt.Errorf("failed to import metadata: %s", err)
-	}
-	return nil
-}
-
-// createProtocol create default mapping and protocol
-func createProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	providerID := d.Get("name").(string)
-
-	// Create default mapping
-	defaultConversionRules := getDefaultConversionOpts()
-	mappingID := generateV3ProviderMappingID(providerID)
-	_, err := mappings.Create(client, mappingID, *defaultConversionRules)
-	if err != nil {
-		return fmt.Errorf("error in creating default conversion rule: %s", err)
-	}
-
-	// Create protocol
-	protocolName := d.Get("protocol").(string)
-	_, err = protocols.Create(client, providerID, protocolName, mappingID)
-	if err != nil {
-		// If fails to create protocols, then delete the mapping.
-		log.Printf("[WARN] error creating protocol and the mapping will be deleted. Error: %s", err)
-		mErr := multierror.Append(err,
-			mappings.Delete(client, mappingID),
-		)
-		return fmt.Errorf("error creating identity provider protocol: %s", mErr.Error())
-	}
-	return nil
-}
-
-func getDefaultConversionOpts() *mappings.MappingOption {
+func getDefaultV3ProviderConversionOpts() *mappings.MappingOption {
 	localRules := []mappings.LocalRule{
 		{
 			User: &mappings.LocalRuleVal{
@@ -361,7 +362,76 @@ func getDefaultConversionOpts() *mappings.MappingOption {
 	return &opts
 }
 
-func resourceV3IdentityProviderRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func queryV3ProviderProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) string {
+	arr, err := protocols.List(client, d.Id())
+	if err != nil {
+		return ""
+	}
+	// The SAML protocol provider may not have protocol data,
+	// so the default value is set to SAML.
+	protocolName := protocolSAML
+	if len(arr) > 0 {
+		protocolName = arr[0].ID
+	}
+	return protocolName
+}
+
+// generateV3ProviderLoginLink generate login link base on config.domainID.
+func generateV3ProviderLoginLink(host, domainID, id, protocol string) string {
+	// The domain name is the same as that of the console, it is converted according to the config.Cloud.
+	if host == "myhuaweicloud.com" {
+		host = "huaweicloud.com"
+	}
+	url := fmt.Sprintf("https://auth.%s/authui/federation/websso?domain_id=%s&idp=%s&protocol=%s",
+		host, domainID, id, protocol)
+	return url
+}
+
+func generateV3ProviderMappingID(providerID string) string {
+	return "mapping_" + providerID
+}
+
+func flattenV3ProviderConversionRules(conversions *mappings.IdentityMapping) []interface{} { //nolint:gocognit
+	conversionRules := make([]interface{}, 0, len(conversions.Rules))
+	for _, v := range conversions.Rules {
+		localRules := make([]map[string]interface{}, 0, len(v.Local))
+		for _, localRule := range v.Local {
+			r := map[string]interface{}{}
+			if localRule.User != nil {
+				r["username"] = localRule.User.Name
+			}
+
+			if localRule.Group != nil {
+				r["group"] = localRule.Group.Name
+			}
+			localRules = append(localRules, r)
+		}
+
+		remoteRules := make([]map[string]interface{}, 0, len(v.Remote))
+		for _, remoteRule := range v.Remote {
+			r := map[string]interface{}{
+				"attribute": remoteRule.Type,
+			}
+			if len(remoteRule.NotAnyOf) > 0 {
+				r["condition"] = "not_any_of"
+				r["value"] = remoteRule.NotAnyOf
+			} else if len(remoteRule.AnyOneOf) > 0 {
+				r["condition"] = "any_one_of"
+				r["value"] = remoteRule.AnyOneOf
+			}
+			remoteRules = append(remoteRules, r)
+		}
+
+		rule := map[string]interface{}{
+			"local":  localRules,
+			"remote": remoteRules,
+		}
+		conversionRules = append(conversionRules, rule)
+	}
+	return conversionRules
+}
+
+func resourceV3ProviderRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -375,8 +445,8 @@ func resourceV3IdentityProviderRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	// Query the protocol name from HuaweiCloud.
-	protocol := queryProtocolName(client, d)
-	url := generateLoginLink(conf.Cloud, conf.DomainID, provider.ID, protocol)
+	protocol := queryV3ProviderProtocolName(client, d)
+	url := generateV3ProviderLoginLink(conf.Cloud, conf.DomainID, provider.ID, protocol)
 
 	mErr := multierror.Append(nil,
 		d.Set("name", provider.ID),
@@ -434,76 +504,35 @@ func resourceV3IdentityProviderRead(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func flattenV3ProviderConversionRules(conversions *mappings.IdentityMapping) []interface{} {
-	conversionRules := make([]interface{}, 0, len(conversions.Rules))
-	for _, v := range conversions.Rules {
-		localRules := make([]map[string]interface{}, 0, len(v.Local))
-		for _, localRule := range v.Local {
-			r := map[string]interface{}{}
-			if localRule.User != nil {
-				r["username"] = localRule.User.Name
-			}
-
-			if localRule.Group != nil {
-				r["group"] = localRule.Group.Name
-			}
-			localRules = append(localRules, r)
-		}
-
-		remoteRules := make([]map[string]interface{}, 0, len(v.Remote))
-		for _, remoteRule := range v.Remote {
-			r := map[string]interface{}{
-				"attribute": remoteRule.Type,
-			}
-			if len(remoteRule.NotAnyOf) > 0 {
-				r["condition"] = "not_any_of"
-				r["value"] = remoteRule.NotAnyOf
-			} else if len(remoteRule.AnyOneOf) > 0 {
-				r["condition"] = "any_one_of"
-				r["value"] = remoteRule.AnyOneOf
-			}
-			remoteRules = append(remoteRules, r)
-		}
-
-		rule := map[string]interface{}{
-			"local":  localRules,
-			"remote": remoteRules,
-		}
-		conversionRules = append(conversionRules, rule)
+func updateV3ProviderAccessConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	accessConfigArr := d.Get("access_config").([]interface{})
+	if len(accessConfigArr) == 0 {
+		return errors.New("the access_config block is required for the OIDC provider")
 	}
-	return conversionRules
+
+	accessConfig := accessConfigArr[0].(map[string]interface{})
+	accessType := accessConfig["access_type"].(string)
+	opts := oidcconfig.UpdateOpenIDConnectConfigOpts{
+		AccessMode: accessType,
+		IdpURL:     accessConfig["provider_url"].(string),
+		ClientID:   accessConfig["client_id"].(string),
+		SigningKey: accessConfig["signing_key"].(string),
+	}
+
+	if accessType == "program_console" {
+		scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
+		opts.Scope = strings.Join(scopes, scopeSpilt)
+		opts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
+		opts.ResponseType = accessConfig["response_type"].(string)
+		opts.ResponseMode = accessConfig["response_mode"].(string)
+	}
+	log.Printf("[DEBUG] Update access type of provider: %#v", opts)
+	providerID := d.Id()
+	_, err := oidcconfig.Update(client, providerID, opts)
+	return err
 }
 
-func generateV3ProviderMappingID(providerID string) string {
-	return "mapping_" + providerID
-}
-
-// generateLoginLink generate login link base on config.domainID.
-func generateLoginLink(host, domainID, id, protocol string) string {
-	// The domain name is the same as that of the console, it is converted according to the config.Cloud.
-	if host == "myhuaweicloud.com" {
-		host = "huaweicloud.com"
-	}
-	url := fmt.Sprintf("https://auth.%s/authui/federation/websso?domain_id=%s&idp=%s&protocol=%s",
-		host, domainID, id, protocol)
-	return url
-}
-
-func queryProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) string {
-	arr, err := protocols.List(client, d.Id())
-	if err != nil {
-		return ""
-	}
-	// The SAML protocol provider may not have protocol data,
-	// so the default value is set to SAML.
-	protocolName := protocolSAML
-	if len(arr) > 0 {
-		protocolName = arr[0].ID
-	}
-	return protocolName
-}
-
-func resourceV3IdentityProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
@@ -535,7 +564,7 @@ func resourceV3IdentityProviderUpdate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if d.HasChange("access_config") && d.Get("protocol") == protocolOIDC {
-		err = updateAccessConfig(client, d)
+		err = updateV3ProviderAccessConfig(client, d)
 		if err != nil {
 			mErr = multierror.Append(mErr, err)
 		}
@@ -545,38 +574,10 @@ func resourceV3IdentityProviderUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error updating provider: %s", err)
 	}
 
-	return resourceV3IdentityProviderRead(ctx, d, meta)
+	return resourceV3ProviderRead(ctx, d, meta)
 }
 
-func updateAccessConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	accessConfigArr := d.Get("access_config").([]interface{})
-	if len(accessConfigArr) == 0 {
-		return fmt.Errorf("the access_config block is required for the OIDC provider")
-	}
-
-	accessConfig := accessConfigArr[0].(map[string]interface{})
-	accessType := accessConfig["access_type"].(string)
-	opts := oidcconfig.UpdateOpenIDConnectConfigOpts{
-		AccessMode: accessType,
-		IdpURL:     accessConfig["provider_url"].(string),
-		ClientID:   accessConfig["client_id"].(string),
-		SigningKey: accessConfig["signing_key"].(string),
-	}
-
-	if accessType == "program_console" {
-		scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
-		opts.Scope = strings.Join(scopes, scopeSpilt)
-		opts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
-		opts.ResponseType = accessConfig["response_type"].(string)
-		opts.ResponseMode = accessConfig["response_mode"].(string)
-	}
-	log.Printf("[DEBUG] Update access type of provider: %#v", opts)
-	providerID := d.Id()
-	_, err := oidcconfig.Update(client, providerID, opts)
-	return err
-}
-
-func resourceV3IdentityProviderDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV3ProviderDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {

@@ -262,7 +262,7 @@ func resourceV3ProviderConversionDelete(_ context.Context, d *schema.ResourceDat
 	}
 
 	conversionID := d.Id()
-	opts := getDefaultConversionOpts()
+	opts := getDefaultV3ProviderConversionOpts()
 	_, err = mappings.Update(client, conversionID, *opts)
 
 	if err != nil {
