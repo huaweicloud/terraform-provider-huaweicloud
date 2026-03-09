@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_delegated_administrator"
-description: ""
+description: |-
+  Manages an Organizations delegated administrator resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_delegated_administrator

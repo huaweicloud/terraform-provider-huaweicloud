@@ -1,13 +1,7 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -16,11 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+var (
+	delegatedAdministratorNotFoundErrCodes = []string{
+		"Organizations.1500", // The delegated administrator not found.
+	}
 )
 
 // @API Organizations POST /v1/organizations/delegated-administrators/register
@@ -40,154 +39,173 @@ func ResourceDelegatedAdministrator() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the unique ID of an account.`,
+				Description: `The unique ID of an account.`,
 			},
 			"service_principal": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the name of the service principal.`,
+				Description: `The name of the service principal.`,
 			},
 		},
 	}
 }
 
 func resourceDelegatedAdministratorCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createDelegatedAdministrator: create Organizations delegated administrator
 	var (
-		createDelegatedAdministratorHttpUrl = "v1/organizations/delegated-administrators/register"
-		createDelegatedAdministratorProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		httpUrl = "v1/organizations/delegated-administrators/register"
 	)
-	createDelegatedAdministratorClient, err := cfg.NewServiceClient(createDelegatedAdministratorProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	createDelegatedAdministratorPath := createDelegatedAdministratorClient.Endpoint + createDelegatedAdministratorHttpUrl
-
-	createDelegatedAdministratorOpt := golangsdk.RequestOpts{
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildDelegatedAdministratorBodyParams(d),
 	}
 
-	createDelegatedAdministratorOpt.JSONBody = utils.RemoveNil(deleteDelegatedAdministratorBodyParams(d))
-	_, err = createDelegatedAdministratorClient.Request("POST", createDelegatedAdministratorPath,
-		&createDelegatedAdministratorOpt)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating Organizations delegated administrator: %s", err)
 	}
 
-	accountID := d.Get("account_id")
-	servicePrincipal := d.Get("service_principal")
-
-	d.SetId(fmt.Sprintf("%s/%s", accountID, servicePrincipal))
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("account_id"), d.Get("service_principal")))
 
 	return resourceDelegatedAdministratorRead(ctx, d, meta)
 }
 
+func listDelegatedAdministrators(client *golangsdk.ServiceClient, queryParams ...string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/organizations/delegated-administrators"
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	if len(queryParams) > 0 && queryParams[0] != "" {
+		listPath += queryParams[0]
+	}
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker = fmt.Sprintf("%s&marker=%s", listPathWithMarker, marker)
+		}
+
+		resp, err := client.Request("GET", listPathWithMarker, &getOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		delegatedAdministrators := utils.PathSearch("delegated_administrators", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, delegatedAdministrators...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func GetDelegatedAdministrator(client *golangsdk.ServiceClient, accountId, servicePrincipal string) (interface{}, error) {
+	delegatedAdministrators, err := listDelegatedAdministrators(client, fmt.Sprintf("?service_principal=%v", servicePrincipal))
+	if err != nil {
+		return nil, err
+	}
+
+	delegatedAdministrator := utils.PathSearch(fmt.Sprintf("[?account_id=='%s']|[0]", accountId), delegatedAdministrators, nil)
+	if delegatedAdministrator == nil {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v1/organizations/delegated-administrators",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the delegated administrator (%s) does not exist for account (%s)", servicePrincipal, accountId)),
+			},
+		}
+	}
+
+	return delegatedAdministrator, nil
+}
+
 func resourceDelegatedAdministratorRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getDelegatedAdministrator: Query Organizations delegated administrator
-	var (
-		getDelegatedAdministratorHttpUrl = "v1/organizations/delegated-administrators"
-		getDelegatedAdministratorProduct = "organizations"
-	)
-	getDelegatedAdministratorClient, err := cfg.NewServiceClient(getDelegatedAdministratorProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <account_id>/<service_principal>")
+		return diag.Errorf("invalid ID format, want '<account_id>/<service_principal>', but got '%s'", d.Id())
 	}
-	accountID := parts[0]
+
 	servicePrincipal := parts[1]
-
-	getDelegatedAdministratorPath := getDelegatedAdministratorClient.Endpoint + getDelegatedAdministratorHttpUrl
-
-	getDelegatedAdministratorQueryParams := buildGetDelegatedAdministratorQueryParams(servicePrincipal)
-	getDelegatedAdministratorPath += getDelegatedAdministratorQueryParams
-
-	getDelegatedAdministratorResp, err := pagination.ListAllItems(
-		getDelegatedAdministratorClient,
-		"marker",
-		getDelegatedAdministratorPath,
-		&pagination.QueryOpts{MarkerField: "account_id"})
-
+	delegatedAdministrator, err := GetDelegatedAdministrator(client, parts[0], servicePrincipal)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Organizations delegated administrator")
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			"error retrieving Organizations delegated administrator",
+		)
 	}
 
-	getDelegatedAdministratorRespJson, err := json.Marshal(getDelegatedAdministratorResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	var getDelegatedAdministratorRespBody interface{}
-	err = json.Unmarshal(getDelegatedAdministratorRespJson, &getDelegatedAdministratorRespBody)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	delegatedAdministrator := utils.PathSearch(fmt.Sprintf("delegated_administrators|[?account_id=='%s']|[0]",
-		accountID), getDelegatedAdministratorRespBody, nil)
-	if delegatedAdministrator == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-	}
-
-	mErr = multierror.Append(
-		mErr,
-		d.Set("account_id", accountID),
+	mErr := multierror.Append(
+		d.Set("account_id", utils.PathSearch("account_id", delegatedAdministrator, nil)),
 		d.Set("service_principal", servicePrincipal),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildGetDelegatedAdministratorQueryParams(servicePrincipal string) string {
-	return fmt.Sprintf("?service_principal=%v", servicePrincipal)
-}
-
 func resourceDelegatedAdministratorDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteDelegatedAdministrator: Delete Organizations delegated administrator
 	var (
-		deleteDelegatedAdministratorHttpUrl = "v1/organizations/delegated-administrators/deregister"
-		deleteDelegatedAdministratorProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		httpUrl = "v1/organizations/delegated-administrators/deregister"
 	)
-	deleteDelegatedAdministratorClient, err := cfg.NewServiceClient(deleteDelegatedAdministratorProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deleteDelegatedAdministratorPath := deleteDelegatedAdministratorClient.Endpoint + deleteDelegatedAdministratorHttpUrl
-
-	deleteDelegatedAdministratorOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildDelegatedAdministratorBodyParams(d),
 	}
 
-	deleteDelegatedAdministratorOpt.JSONBody = utils.RemoveNil(deleteDelegatedAdministratorBodyParams(d))
-	_, err = deleteDelegatedAdministratorClient.Request("POST", deleteDelegatedAdministratorPath,
-		&deleteDelegatedAdministratorOpt)
+	_, err = client.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Organizations delegated administrator: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected400ErrInto404Err(common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+				"error_code", delegatedAdministratorNotFoundErrCodes...),
+			"error deleting Organizations delegated administrator",
+		)
 	}
 
 	return nil
 }
 
-func deleteDelegatedAdministratorBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
+func buildDelegatedAdministratorBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
 		"account_id":        d.Get("account_id"),
 		"service_principal": d.Get("service_principal"),
 	}
-	return bodyParams
 }
