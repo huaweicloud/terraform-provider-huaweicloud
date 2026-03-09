@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_account_invite"
-description: ""
+description: |-
+  Manages an Organizations account invite resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_account_invite
@@ -12,7 +13,7 @@ Manages an Organizations account invite resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable account_id {}
+variable "account_id" {}
 
 resource "huaweicloud_organizations_account_invite" "test"{
   account_id = var.account_id
@@ -28,7 +29,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `remove_account_on_destroy` - (Optional, Bool) Specifies whether to remove the invited account when delete the
-  invitation (handshake). Defaults to false.
+  invitation (handshake).  
+  Defaults to **false**.
 
 ## Attribute Reference
 
@@ -50,6 +52,8 @@ In addition to all arguments above, the following attributes are exported:
   declined, or expired.
 
 * `status` - Indicates the current state of the invitation (handshake).
+  + **active**
+  + **cancelled**
 
 ## Import
 

@@ -3,12 +3,12 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_received_invitations"
 description: |-
-  Use this data source to get the list of received invitations.
+  Use this data source to get the list of received invitations within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_received_invitations
 
-Use this data source to get the list of received invitations.
+Use this data source to get the list of received invitations within HuaweiCloud.
 
 ## Example Usage
 
@@ -20,7 +20,7 @@ data "huaweicloud_organizations_received_invitations" "test"{}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
+* `region` - (Optional, String) Specifies the region where the received invitations are located.  
   If omitted, the provider-level region will be used.
 
 ## Attribute Reference
@@ -41,7 +41,11 @@ The `handshakes` block supports:
 * `urn` - Indicates the uniform resource name of the invitation (handshake).
 
 * `status` - Indicates the current state of the invitation (handshake).
-  It can be **pending**, **accepted**, **cancelled**, **declined**, or **expired**.
+  + **pending**
+  + **accepted**
+  + **cancelled**
+  + **declined**
+  + **expired**
 
 * `organization_id` - Indicates the unique ID of an organization.
 
@@ -49,22 +53,19 @@ The `handshakes` block supports:
 
 * `management_account_name` - Indicates the name of the organization's management account.
 
-* `target` - Indicates the unique ID of the invited account.
+* `target` - Indicates the target information of the invited account.
 
   The [target](#handshakes_target_struct) structure is documented below.
 
 * `created_at` - Indicates the date and time when an invitation (handshake) request was made.
 
 * `updated_at` - Indicates the date and time when an invitation (handshake) request was updated.
-  The update method can be **accepted**, **canceled**, **declined**, or **expired**.
 
 * `notes` - Indicates the additional information that you want to include in the email to the recipient account owner.
 
 <a name="handshakes_target_struct"></a>
 The `target` block supports:
 
-* `type` - Indicates the type of the invited account. It can be account or email.
+* `type` - Indicates the type of the invited account.
 
-* `entity` - Indicates the value of the invited account.
-  + If you choose **type:account**, you must provide the account ID.
-  + If you choose **type:email**, you must specify the email address that is associated with the account.
+* `entity` - Indicates the ID of the invited account.

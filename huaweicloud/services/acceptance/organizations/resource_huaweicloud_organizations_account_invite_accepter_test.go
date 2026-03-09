@@ -2,44 +2,23 @@ package organizations
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getAccountInviteAccepterResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	// getAccountInviteAccepter: Query Organizations account invite accepter
-	var (
-		region                          = acceptance.HW_REGION_NAME
-		getAccountInviteAccepterHttpUrl = "v1/organizations/handshakes/{handshake_id}"
-		getAccountInviteAccepterProduct = "organizations"
-	)
-	getAccountInviteAccepterClient, err := cfg.NewServiceClient(getAccountInviteAccepterProduct, region)
+	getAccountInviteAccepterClient, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
+		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountInviteAccepterPath := getAccountInviteAccepterClient.Endpoint + getAccountInviteAccepterHttpUrl
-	getAccountInviteAccepterPath = strings.ReplaceAll(getAccountInviteAccepterPath, "{handshake_id}",
-		state.Primary.ID)
-
-	getAccountInviteAccepterOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccountInviteAccepterResp, err := getAccountInviteAccepterClient.Request("GET",
-		getAccountInviteAccepterPath, &getAccountInviteAccepterOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AccountInviteAccepter: %s", err)
-	}
-	return utils.FlattenResponse(getAccountInviteAccepterResp)
+	return organizations.GetAccountInviteById(getAccountInviteAccepterClient, state.Primary.ID)
 }
 
 func TestAccAccountInviteAccepter_basic(t *testing.T) {

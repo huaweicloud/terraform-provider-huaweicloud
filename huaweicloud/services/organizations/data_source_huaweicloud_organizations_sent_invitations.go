@@ -15,68 +15,68 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsSentInvitations() *schema.Resource {
+func DataSourceSentInvitations() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsSentInvitationsRead,
+		ReadContext: dataSourceSentInvitationsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the sent invitations are located.`,
 			},
 			"handshakes": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the list of invitations (handshakes).`,
+				Description: `The list of invitations (handshakes).`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the unique ID of an invitation (handshake).`,
+							Description: `The unique ID of an invitation (handshake).`,
 						},
 						"urn": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the uniform resource name of the invitation (handshake).`,
+							Description: `The uniform resource name of the invitation (handshake).`,
 						},
 						"status": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the current state of the invitation (handshake).`,
+							Description: `The current state of the invitation (handshake).`,
 						},
 						"organization_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the unique ID of an organization.`,
+							Description: `The unique ID of an organization.`,
 						},
 						"management_account_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the unique ID of the organization's management account.`,
+							Description: `The unique ID of the organization's management account.`,
 						},
 						"management_account_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the name of the organization's management account.`,
+							Description: `The name of the organization's management account.`,
 						},
 						"target": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: `Indicates the unique ID of the invited account.`,
+							Description: `The target information to be invited.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"type": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: `Indicates the type of the invited account. It can be account or email.`,
+										Description: `The type of the account.`,
 									},
 									"entity": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: `Indicates the value of the invited account.`,
+										Description: `The ID of the account.`,
 									},
 								},
 							},
@@ -84,17 +84,17 @@ func DataSourceOrganizationsSentInvitations() *schema.Resource {
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the date and time when an invitation (handshake) request was made.`,
+							Description: `The date and time when an invitation (handshake) request was made.`,
 						},
 						"updated_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the date and time when an invitation (handshake) request was updated.`,
+							Description: `The date and time when an invitation (handshake) request was updated.`,
 						},
 						"notes": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the additional information that you want to include in the email to the recipient account owner.`,
+							Description: `The additional information included in the email to the recipient account owner.`,
 						},
 					},
 				},
@@ -115,7 +115,7 @@ func newSentInvitationsDSWrapper(d *schema.ResourceData, meta interface{}) *Sent
 	}
 }
 
-func dataSourceOrganizationsSentInvitationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSentInvitationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newSentInvitationsDSWrapper(d, meta)
 	listHandshakesRst, err := wrapper.ListHandshakes()
 	if err != nil {
