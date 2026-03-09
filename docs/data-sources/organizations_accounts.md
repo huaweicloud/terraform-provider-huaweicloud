@@ -3,14 +3,22 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_accounts"
 description: |-
-  Use this data source to get the list of accounts in an organization.
+  Use this data source to get the list of accounts in an organization within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_accounts
 
-Use this data source to get the list of accounts in an organization.
+Use this data source to get the list of accounts in an organization within HuaweiCloud.
 
 ## Example Usage
+
+### Query all accounts
+
+```hcl
+data "huaweicloud_organizations_accounts" "test" {}
+```
+
+### Query accounts by parent ID
 
 ```hcl
 variable "parent_id" {}
@@ -28,8 +36,9 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of the account.
 
-* `with_register_contact_info` - (Optional, Bool) Whether to return email addresses and mobile
-  numbers associated with the account.
+* `with_register_contact_info` - (Optional, Bool) Specifies whether to return email addresses and mobile
+  numbers associated with the account.  
+  Default to **false**.
 
 ## Attribute Reference
 
@@ -37,7 +46,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `accounts` - The list of accounts in an organization.
+* `accounts` - The list of accounts that match the filter parameters.
   The [accounts](#Organizations_Accounts) structure is documented below.
 
 <a name="Organizations_Accounts"></a>

@@ -1,22 +1,15 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -29,12 +22,12 @@ func DataSourceAccounts() *schema.Resource {
 			"parent_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the ID of root or organizational unit.`,
+				Description: `The ID of root or organizational unit.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the name of the account.`,
+				Description: `The name of the account.`,
 			},
 			"with_register_contact_info": {
 				Type:        schema.TypeBool,
@@ -45,7 +38,7 @@ func DataSourceAccounts() *schema.Resource {
 				Type:        schema.TypeList,
 				Elem:        organizationsAccountSchema(),
 				Computed:    true,
-				Description: `List of accounts in an organization.`,
+				Description: `The list of accounts that match the filter parameters.`,
 			},
 		},
 	}
@@ -57,97 +50,109 @@ func organizationsAccountSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Unique ID of an account.`,
+				Description: `The unique ID of an account.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Name of the account.`,
+				Description: `The name of the account.`,
 			},
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Uniform resource name of the account.`,
+				Description: `The uniform resource name of the account.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Description of the account.`,
+				Description: `The description of the account.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Status of the account.`,
+				Description: `The status of the account.`,
 			},
 			"join_method": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `How an account joined an organization.`,
+				Description: `How the account joined the organization.`,
 			},
 			"joined_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Time when an account joined an organization.`,
+				Description: `The time when the account joined the organization.`,
 			},
 			"mobile_phone": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Mobile phone number.`,
+				Description: `The mobile phone number.`,
 			},
 			"intl_number_prefix": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Prefix of a mobile phone number.`,
+				Description: `The prefix of a mobile phone number.`,
 			},
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Email address associated with the account.`,
+				Description: `The email address associated with the account.`,
 			},
 		},
 	}
 	return &sc
 }
 
+func listAccounts(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/organizations/accounts"
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	listPath += buildListAccountsQueryParams(d)
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker += fmt.Sprintf("&marker=%v", marker)
+		}
+
+		resp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		accounts := utils.PathSearch("accounts", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, accounts...)
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
 func dataSourceAccountsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	listAccountsHttpUrl := "v1/organizations/accounts"
-	listAccountsProduct := "organizations"
-	listAccountsClient, err := cfg.NewServiceClient(listAccountsProduct, region)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	listAccountsPath := listAccountsClient.Endpoint + listAccountsHttpUrl
-	listAccountsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	filterName := d.Get("name").(string)
-	var orgAccounts []interface{}
-	var marker string
-	var queryPath string
-
-	for {
-		queryPath = listAccountsPath + buildListAccountsQueryParams(d, marker)
-		listAccountsResp, err := listAccountsClient.Request("GET", queryPath, &listAccountsOpt)
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving Organizations accounts")
-		}
-
-		listAccountsRespBody, err := utils.FlattenResponse(listAccountsResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		onePageAccounts := flattenAccountsResp(listAccountsRespBody, filterName)
-		orgAccounts = append(orgAccounts, onePageAccounts...)
-		marker = utils.PathSearch("page_info.next_marker", listAccountsRespBody, "").(string)
-		if marker == "" {
-			break
-		}
+	accounts, err := listAccounts(client, d)
+	if err != nil {
+		return diag.Errorf("error retrieving accounts: %s", err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -156,26 +161,16 @@ func dataSourceAccountsRead(_ context.Context, d *schema.ResourceData, meta inte
 	}
 	d.SetId(uuid)
 
-	mErr := multierror.Append(nil,
-		d.Set("accounts", orgAccounts),
-	)
-
-	return diag.FromErr(mErr.ErrorOrNil())
+	return diag.FromErr(d.Set("accounts", flattenAccounts(accounts, d.Get("name").(string))))
 }
 
-func flattenAccountsResp(resp interface{}, name string) []interface{} {
-	if resp == nil {
+func flattenAccounts(accounts []interface{}, name string) []interface{} {
+	if len(accounts) == 0 {
 		return nil
 	}
 
-	jsonPath := "accounts"
-	if name != "" {
-		jsonPath += fmt.Sprintf("[?name=='%s']", name)
-	}
-	curJson := utils.PathSearch(jsonPath, resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(accounts))
+	for _, v := range accounts {
 		rst = append(rst, map[string]interface{}{
 			"id":                 utils.PathSearch("id", v, nil),
 			"name":               utils.PathSearch("name", v, nil),
@@ -189,18 +184,17 @@ func flattenAccountsResp(resp interface{}, name string) []interface{} {
 			"email":              utils.PathSearch("email", v, nil),
 		})
 	}
+
+	if name != "" {
+		return utils.PathSearch(fmt.Sprintf("[?name=='%s']", name), rst, make([]interface{}, 0)).([]interface{})
+	}
+
 	return rst
 }
 
-func buildListAccountsQueryParams(d *schema.ResourceData, marker string) string {
+func buildListAccountsQueryParams(d *schema.ResourceData) string {
 	// the default value of limit is 200
-	res := "?limit=200"
-
-	res = fmt.Sprintf("%s&with_register_contact_info=%v", res, d.Get("with_register_contact_info"))
-
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
+	res := fmt.Sprintf("?limit=200&with_register_contact_info=%v", d.Get("with_register_contact_info"))
 
 	if v, ok := d.GetOk("parent_id"); ok {
 		res = fmt.Sprintf("%s&parent_id=%v", res, v)

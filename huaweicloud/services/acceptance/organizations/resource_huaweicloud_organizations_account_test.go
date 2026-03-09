@@ -2,52 +2,23 @@ package organizations
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 )
 
 func getAccountResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	// getAccount: Query Organizations account
-	var (
-		region            = acceptance.HW_REGION_NAME
-		getAccountHttpUrl = "v1/organizations/accounts/{account_id}"
-		getAccountProduct = "organizations"
-	)
-	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
+	client, err := cfg.NewServiceClient("organizations", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
-	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", state.Primary.ID)
-
-	getAccountOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getAccountResp, err := getAccountClient.Request("GET", getAccountPath, &getAccountOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Account: %s", err)
-	}
-
-	getAccountRespBody, err := utils.FlattenResponse(getAccountResp)
-	if err != nil {
-		return nil, err
-	}
-
-	status := utils.PathSearch("account.status", getAccountRespBody, "").(string)
-	if status == "" || status == "pending_closure" || status == "suspended" {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return getAccountRespBody, nil
+	return organizations.GetAccountInfoById(client, state.Primary.ID)
 }
 
 func TestAccAccount_basic(t *testing.T) {
