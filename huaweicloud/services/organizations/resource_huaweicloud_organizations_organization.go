@@ -1,15 +1,9 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Organizations
-// ---------------------------------------------------------------
-
 package organizations
 
 import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -18,18 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	rootType     = "organizations:roots"
-	unitType     = "organizations:ous"
-	accountsType = "organizations:accounts"
-	policiesType = "organizations:policies"
 )
 
 // @API Organizations POST /v1/organizations
@@ -61,96 +47,90 @@ func ResourceOrganization() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the list of Organizations policy types to enable in the Organization Root.`,
+				Description: `The list of policy types to be enabled in the organization root.`,
 			},
-			"root_tags": common.TagsSchema(),
+			"root_tags": common.TagsSchema(`The key/value pairs to be attached to the root.`),
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the uniform resource name of the organization.`,
+				Description: `The uniform resource name of the organization.`,
 			},
 			"master_account_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the unique ID of the organization's management account.`,
+				Description: `The unique ID of the organization's management account.`,
 			},
 			"master_account_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the organization's management account.`,
+				Description: `The name of the organization's management account.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the time when the organization was created.`,
+				Description: `The time when the organization was created.`,
 			},
 			"root_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the ID of the root.`,
+				Description: `The ID of the root.`,
 			},
 			"root_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the name of the root.`,
+				Description: `The name of the root.`,
 			},
 			"root_urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the urn of the root.`,
+				Description: `The urn of the root.`,
 			},
 		},
 	}
 }
 
 func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createOrganization: create Organizations organization
 	var (
-		createOrganizationHttpUrl = "v1/organizations"
-		createOrganizationProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations"
 	)
-	createOrganizationClient, err := cfg.NewServiceClient(createOrganizationProduct, region)
+
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	createOrganizationPath := createOrganizationClient.Endpoint + createOrganizationHttpUrl
-
-	createOrganizationOpt := golangsdk.RequestOpts{
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	createOrganizationResp, err := createOrganizationClient.Request("POST", createOrganizationPath,
-		&createOrganizationOpt)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating Organizations organization: %s", err)
+		return diag.Errorf("error creating organization: %s", err)
 	}
 
-	createOrganizationRespBody, err := utils.FlattenResponse(createOrganizationResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	organizationId := utils.PathSearch("organization.id", createOrganizationRespBody, "").(string)
+	organizationId := utils.PathSearch("organization.id", respBody, "").(string)
 	if organizationId == "" {
 		return diag.Errorf("unable to find the organization ID from the API response")
 	}
 	d.SetId(organizationId)
 
-	getRootRespBody, err := getRoot(createOrganizationClient)
+	getRootRespBody, err := getRoot(client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
 
+	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
 	if v, ok := d.GetOk("root_tags"); ok {
 		tagList := utils.ExpandResourceTags(v.(map[string]interface{}))
-		err = addTags(createOrganizationClient, rootType, rootId, tagList)
+		err = addTags(client, rootType, rootId, tagList)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -159,7 +139,7 @@ func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, met
 	if v, ok := d.GetOk("enabled_policy_types"); ok {
 		enabledPolicyTypes := v.(*schema.Set).List()
 		for _, enabledPolicyType := range enabledPolicyTypes {
-			if err = enablePolicy(ctx, d.Timeout(schema.TimeoutCreate), createOrganizationClient,
+			if err = enablePolicy(ctx, d.Timeout(schema.TimeoutCreate), client,
 				enabledPolicyType.(string), rootId); err != nil {
 				return diag.FromErr(err)
 			}
@@ -170,52 +150,43 @@ func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getOrganization: Query Organizations organization
 	var (
-		getOrganizationProduct = "organizations"
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getOrganizationRespBody, err := getOrganization(getOrganizationClient)
+	respBody, err := GetOrganization(client)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Organizations organization")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			"error retrieving organization",
+		)
 	}
 
-	getRootRespBody, diagErr := getRoot(getOrganizationClient)
-	if diagErr != nil {
-		return common.CheckDeletedDiag(d, diagErr, "error retrieving Organizations root")
+	getRootRespBody, err := getRoot(client)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving Organizations root")
 	}
 
 	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
-
 	policyTypes := utils.PathSearch("roots|[0].policy_types[?status=='enabled'].type", getRootRespBody,
 		make([]interface{}, 0)).([]interface{})
-
-	mErr = multierror.Append(
-		mErr,
-		d.Set("urn", utils.PathSearch("organization.urn", getOrganizationRespBody, nil)),
-		d.Set("master_account_id", utils.PathSearch("organization.management_account_id",
-			getOrganizationRespBody, nil)),
-		d.Set("master_account_name", utils.PathSearch("organization.management_account_name",
-			getOrganizationRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("organization.created_at",
-			getOrganizationRespBody, nil)),
+	mErr := multierror.Append(
+		d.Set("urn", utils.PathSearch("organization.urn", respBody, nil)),
+		d.Set("master_account_id", utils.PathSearch("organization.management_account_id", respBody, nil)),
+		d.Set("master_account_name", utils.PathSearch("organization.management_account_name", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("organization.created_at", respBody, nil)),
 		d.Set("root_id", rootId),
-		d.Set("root_name", utils.PathSearch("roots|[0].name",
-			getRootRespBody, nil)),
+		d.Set("root_name", utils.PathSearch("roots|[0].name", getRootRespBody, nil)),
 		d.Set("root_urn", utils.PathSearch("roots|[0].urn", getRootRespBody, nil)),
 		d.Set("enabled_policy_types", policyTypes),
 	)
 
-	tagMap, err := getTags(getOrganizationClient, rootType, rootId)
+	tagMap, err := getTags(client, rootType, rootId)
 	if err != nil {
 		log.Printf("[WARN] error fetching Organizations tags of root (%s): %s", rootId, err)
 	} else {
@@ -225,56 +196,19 @@ func resourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta in
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getOrganization(client *golangsdk.ServiceClient) (interface{}, error) {
-	var (
-		getOrganizationHttpUrl = "v1/organizations"
-	)
-
-	getOrganizationPath := client.Endpoint + getOrganizationHttpUrl
-
-	getOrganizationOpt := golangsdk.RequestOpts{
+func GetOrganization(client *golangsdk.ServiceClient) (interface{}, error) {
+	httpUrl := "v1/organizations"
+	getPath := client.Endpoint + httpUrl
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	getOrganizationResp, err := client.Request("GET", getOrganizationPath, &getOrganizationOpt)
-
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return nil, err
 	}
 
-	getOrganizationRespBody, err := utils.FlattenResponse(getOrganizationResp)
-	if err != nil {
-		return nil, err
-	}
-	return getOrganizationRespBody, nil
-}
-
-func getRoot(client *golangsdk.ServiceClient) (interface{}, error) {
-	var (
-		getRootHttpUrl = "v1/organizations/roots"
-	)
-
-	getRootPath := client.Endpoint + getRootHttpUrl
-
-	getRootOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getRootResp, err := client.Request("GET", getRootPath, &getRootOpt)
-
-	if err != nil {
-		return nil, err
-	}
-
-	getRootRespBody, err := utils.FlattenResponse(getRootResp)
-	if err != nil {
-		return nil, err
-	}
-	return getRootRespBody, nil
+	return utils.FlattenResponse(getResp)
 }
 
 func enablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, policyType,
@@ -283,15 +217,15 @@ func enablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk.
 	if err != nil {
 		return err
 	}
+
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"pending_enable"},
-		Target:       []string{"enabled"},
-		Refresh:      policyStateRefreshFunc(client, policyType),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      policyStateRefreshFunc(client, policyType, "enabled"),
 		Timeout:      timeout,
 		Delay:        1 * time.Second,
 		PollInterval: 1 * time.Second,
 	}
-
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmt.Errorf("error waiting for Organizations policy type (%s) to be enabled: %s", policyType, err)
@@ -306,9 +240,9 @@ func disablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk
 		return err
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"pending_disable"},
-		Target:       []string{"disabled"},
-		Refresh:      policyStateRefreshFunc(client, policyType),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      policyStateRefreshFunc(client, policyType, "disabled"),
 		Timeout:      timeout,
 		Delay:        1 * time.Second,
 		PollInterval: 1 * time.Second,
@@ -322,21 +256,16 @@ func disablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk
 }
 
 func requestRootPolicy(client *golangsdk.ServiceClient, policyType, rootId, action string) error {
-	requestRootPolicyHttpUrl := fmt.Sprintf("v1/organizations/policies/%s", action)
-
-	requestRootPolicyPath := client.Endpoint + requestRootPolicyHttpUrl
-
-	requestRootPolicyOpt := golangsdk.RequestOpts{
+	httpUrl := fmt.Sprintf("v1/organizations/policies/%s", action)
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildRequestRootPolicyBodyParams(policyType, rootId)),
 	}
 
-	requestRootPolicyOpt.JSONBody = utils.RemoveNil(buildRequestRootPolicyBodyParams(policyType, rootId))
-	_, err := client.Request("POST", requestRootPolicyPath, &requestRootPolicyOpt)
-
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	return err
 }
 
 func buildRequestRootPolicyBodyParams(policyType, rootId string) map[string]interface{} {
@@ -347,44 +276,44 @@ func buildRequestRootPolicyBodyParams(policyType, rootId string) map[string]inte
 	return bodyParams
 }
 
-func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType string) resource.StateRefreshFunc {
+func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType, target string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		getRootRespBody, err := getRoot(client)
+		respBody, err := getRoot(client)
 		if err != nil {
 			return nil, "", err
 		}
 
-		enabled := utils.PathSearch(fmt.Sprintf("roots|[0].policy_types[?type=='%s'].status|[0]",
-			policyType), getRootRespBody, "").(string)
+		status := utils.PathSearch(fmt.Sprintf("roots|[0].policy_types[?type=='%s'].status|[0]", policyType), respBody, "").(string)
 		if err != nil {
 			return nil, "", err
 		}
 
-		return getRootRespBody, enabled, nil
+		if status == target {
+			return respBody, "COMPLETED", nil
+		}
+
+		return respBody, "PENDING", nil
 	}
 }
 
 func resourceOrganizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// updateOrganization: update Organizations organization
 	var (
-		updateOrganizationProduct = "organizations"
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
-	updateOrganizationClient, err := cfg.NewServiceClient(updateOrganizationProduct, region)
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getRootRespBody, err := getRoot(updateOrganizationClient)
+	getRootRespBody, err := getRoot(client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
 
+	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
 	if d.HasChange("root_tags") {
-		if err = updateTags(d, updateOrganizationClient, rootType, rootId, "root_tags"); err != nil {
+		if err = updateTags(d, client, rootType, rootId, "root_tags"); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -393,17 +322,15 @@ func resourceOrganizationUpdate(ctx context.Context, d *schema.ResourceData, met
 		oldRaw, newRaw := d.GetChange("enabled_policy_types")
 		enabledPolicyTypes := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
 		disabledPolicyTypes := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
-
+		timeout := d.Timeout(schema.TimeoutUpdate)
 		for _, enabledPolicyType := range enabledPolicyTypes.List() {
-			if err = enablePolicy(ctx, d.Timeout(schema.TimeoutUpdate), updateOrganizationClient,
-				enabledPolicyType.(string), rootId); err != nil {
+			if err = enablePolicy(ctx, timeout, client, enabledPolicyType.(string), rootId); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
 		for _, disabledPolicyType := range disabledPolicyTypes.List() {
-			if err = disablePolicy(ctx, d.Timeout(schema.TimeoutUpdate), updateOrganizationClient,
-				disabledPolicyType.(string), rootId); err != nil {
+			if err = disablePolicy(ctx, timeout, client, disabledPolicyType.(string), rootId); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -413,154 +340,30 @@ func resourceOrganizationUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceOrganizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteOrganization: Delete Organizations organization
 	var (
-		deleteOrganizationHttpUrl = "v1/organizations"
-		deleteOrganizationProduct = "organizations"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/organizations"
 	)
-	deleteOrganizationClient, err := cfg.NewServiceClient(deleteOrganizationProduct, region)
+
+	client, err := cfg.NewServiceClient("organizations", region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	deleteOrganizationPath := deleteOrganizationClient.Endpoint + deleteOrganizationHttpUrl
-
-	deleteOrganizationOpt := golangsdk.RequestOpts{
+	deletePath := client.Endpoint + httpUrl
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	_, err = deleteOrganizationClient.Request("DELETE", deleteOrganizationPath, &deleteOrganizationOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Organizations organization: %s", err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", organizationNotFoundErrCodes...),
+			"error deleting organization",
+		)
 	}
 
 	return nil
-}
-
-func addTags(client *golangsdk.ServiceClient, resourceType, resourceId string, tagList []tags.ResourceTag) error {
-	var (
-		addTagsToHttpUrl = "v1/organizations/{resource_type}/{resource_id}/tags/create"
-	)
-
-	addTagsToPath := client.Endpoint + addTagsToHttpUrl
-	addTagsToPath = strings.ReplaceAll(addTagsToPath, "{resource_type}", resourceType)
-	addTagsToPath = strings.ReplaceAll(addTagsToPath, "{resource_id}", resourceId)
-
-	addTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	addTagsOpt.JSONBody = utils.RemoveNil(buildTagsBodyParams(tagList))
-	_, err := client.Request("POST", addTagsToPath, &addTagsOpt)
-	if err != nil {
-		return fmt.Errorf("error creating tags of resourceType (%s): %s", resourceType, err)
-	}
-
-	return nil
-}
-
-func deleteTags(client *golangsdk.ServiceClient, resourceType, resourceId string, tagList []tags.ResourceTag) error {
-	var (
-		addTagsHttpUrl = "v1/organizations/{resource_type}/{resource_id}/tags/delete"
-	)
-
-	addTagsPath := client.Endpoint + addTagsHttpUrl
-	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_type}", resourceType)
-	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_id}", resourceId)
-
-	addTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	addTagsOpt.JSONBody = utils.RemoveNil(buildTagsBodyParams(tagList))
-	_, err := client.Request("POST", addTagsPath, &addTagsOpt)
-	if err != nil {
-		return fmt.Errorf("error deleting tags of resourceType (%s): %s", resourceType, err)
-	}
-
-	return nil
-}
-
-func buildTagsBodyParams(tagList []tags.ResourceTag) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"tags": tagList,
-	}
-	return bodyParams
-}
-
-func updateTags(d *schema.ResourceData, client *golangsdk.ServiceClient, resourceType, resourceId, tagsName string) error {
-	oRaw, nRaw := d.GetChange(tagsName)
-	oMap := oRaw.(map[string]interface{})
-	nMap := nRaw.(map[string]interface{})
-	if len(oMap) > 0 {
-		tagList := utils.ExpandResourceTags(oMap)
-		err := deleteTags(client, resourceType, resourceId, tagList)
-		if err != nil {
-			return err
-		}
-	}
-	if len(nMap) > 0 {
-		tagList := utils.ExpandResourceTags(nMap)
-		err := addTags(client, resourceType, resourceId, tagList)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func getTags(client *golangsdk.ServiceClient, resourceType, resourceId string) (map[string]string, error) {
-	var (
-		getTagsHttpUrl = "v1/organizations/{resource_type}/{resource_id}/tags"
-	)
-
-	getTagsPath := client.Endpoint + getTagsHttpUrl
-	getTagsPath = strings.ReplaceAll(getTagsPath, "{resource_type}", resourceType)
-	getTagsPath = strings.ReplaceAll(getTagsPath, "{resource_id}", resourceId)
-	getTagsPath += buildQueryTagsParam()
-
-	getTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-
-	getTagsResp, err := client.Request("GET", getTagsPath, &getTagsOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error get Organizations tags: %s", err)
-	}
-
-	getTagsRespBody, err := utils.FlattenResponse(getTagsResp)
-	if err != nil {
-		return nil, err
-	}
-
-	curJson := utils.PathSearch("tags", getTagsRespBody, nil)
-	if curJson == nil {
-		return nil, fmt.Errorf("error get tags by resourceId (%s) and resourceType (%s)", resourceId, resourceType)
-	}
-
-	result := make(map[string]string)
-	for _, v := range curJson.([]interface{}) {
-		key := utils.PathSearch("key", v, "").(string)
-		value := utils.PathSearch("value", v, "").(string)
-		result[key] = value
-	}
-
-	return result, nil
-}
-
-func buildQueryTagsParam() string {
-	return fmt.Sprintf("?limit=%d", 2000)
 }

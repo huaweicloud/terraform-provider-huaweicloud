@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_organization"
-description: ""
+description: |-
+  Manages an Organizations organization resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_organization
@@ -12,20 +13,20 @@ Manages an Organizations organization resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_organizations_organization" "test"{
-}
+resource "huaweicloud_organizations_organization" "test" {}
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `enabled_policy_types` - (Optional, List) Specifies the list of Organizations policy types to enable in the
-  Organization Root. Value options:
-    + **service_control_policy**: service control policy.
-    + **tag_policy**: tag policy.
+* `enabled_policy_types` - (Optional, List) Specifies the list of policy types to be enabled in the
+  organization root.  
+  The valid values are as follows:
+  + **service_control_policy**: Service control policy.
+  + **tag_policy**: Tag policy.
 
-* `root_tags` - (Optional, Map) Specifies the key/value to attach to the root.
+* `root_tags` - (Optional, Map) Specifies the key/value pairs to be attached to the root.
 
 ## Attribute Reference
 
