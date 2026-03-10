@@ -148,6 +148,8 @@ type RootVolume struct {
 	ClusterId string `json:"cluster_id,omitempty"`
 	// The cluster type is default to DSS
 	ClusterType string `json:"cluster_type,omitempty"`
+
+	PassThrough *bool `json:"hw:passthrough,omitempty"`
 }
 
 type DataVolume struct {
@@ -166,7 +168,11 @@ type DataVolume struct {
 
 	Extendparam *VolumeExtendParam `json:"extendparam,omitempty"`
 
+	DataImageId string `json:"data_image_id,omitempty"`
+
 	Metadata *VolumeMetadata `json:"metadata,omitempty"`
+
+	DeleteOnTermination *bool `json:"delete_on_termination,omitempty"`
 
 	ClusterId string `json:"cluster_id,omitempty"`
 	// The cluster type is default to DSS
