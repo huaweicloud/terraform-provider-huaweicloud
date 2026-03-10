@@ -479,6 +479,11 @@ func ddsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 		}
 		allPages, err := instances.List(client, &opts).AllPages()
 		if err != nil {
+			err = common.ConvertExpected400ErrInto404Err(err, "error_code", instanceNotFoundCodes...)
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				var instance instances.InstanceResponse
+				return instance, "deleted", nil
+			}
 			return nil, "", err
 		}
 		instancesList, err := instances.ExtractInstances(allPages)
