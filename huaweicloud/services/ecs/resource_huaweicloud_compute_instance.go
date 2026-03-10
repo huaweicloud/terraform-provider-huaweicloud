@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -248,6 +249,14 @@ func ResourceComputeInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"system_pass_through": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
 			"data_disks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -265,7 +274,17 @@ func ResourceComputeInstance() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+						"data_image_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 						"snapshot_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"delete_on_termination": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -289,6 +308,14 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+						},
+						"pass_through": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"true", "false",
+							}, false),
 						},
 					},
 				},
@@ -543,6 +570,18 @@ func ResourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"data_image_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"delete_on_termination": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"pass_through": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -962,12 +1001,15 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 			log.Printf("[DEBUG] retrieved block device %s: %#v", b.ID, va)
 
 			bds[i] = map[string]interface{}{
-				"volume_id":   b.ID,
-				"size":        volumeInfo.Size,
-				"type":        volumeInfo.VolumeType,
-				"boot_index":  va.BootIndex,
-				"pci_address": va.PciAddress,
-				"kms_key_id":  volumeInfo.Metadata.SystemCmkID,
+				"volume_id":             b.ID,
+				"size":                  volumeInfo.Size,
+				"type":                  volumeInfo.VolumeType,
+				"boot_index":            va.BootIndex,
+				"pci_address":           va.PciAddress,
+				"kms_key_id":            volumeInfo.Metadata.SystemCmkID,
+				"delete_on_termination": b.DeleteOnTermination,
+				"pass_through":          volumeInfo.Metadata.HwPassthrough,
+				"data_image_id":         volumeInfo.ImageMetadata["image_id"],
 			}
 
 			if va.BootIndex == 0 {
@@ -2159,6 +2201,11 @@ func buildInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
 		volRequest.ClusterId = v.(string)
 	}
 
+	if v, ok := d.GetOk("system_pass_through"); ok {
+		systemPassThrough, _ := strconv.ParseBool(v.(string))
+		volRequest.PassThrough = &systemPassThrough
+	}
+
 	return volRequest
 }
 
@@ -2182,6 +2229,10 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 			volRequest.Extendparam = &extendparam
 		}
 
+		if vol["data_image_id"] != "" {
+			volRequest.DataImageId = vol["data_image_id"].(string)
+		}
+
 		if vol["kms_key_id"] != "" {
 			matadata := cloudservers.VolumeMetadata{
 				SystemEncrypted: "1",
@@ -2190,9 +2241,19 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 			volRequest.Metadata = &matadata
 		}
 
+		if vol["delete_on_termination"] != "" {
+			deleteOnTermination, _ := strconv.ParseBool(vol["delete_on_termination"].(string))
+			volRequest.DeleteOnTermination = &deleteOnTermination
+		}
+
 		if vol["dss_pool_id"] != "" {
 			volRequest.ClusterType = "DSS"
 			volRequest.ClusterId = vol["dss_pool_id"].(string)
+		}
+
+		if vol["pass_through"] != "" {
+			passThrough, _ := strconv.ParseBool(vol["pass_through"].(string))
+			volRequest.PassThrough = &passThrough
 		}
 
 		volRequests = append(volRequests, volRequest)

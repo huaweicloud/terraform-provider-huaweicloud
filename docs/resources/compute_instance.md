@@ -278,6 +278,11 @@ The following arguments are supported:
 * `system_disk_dss_pool_id` - (Optional, String, ForceNew) Specifies the system disk DSS pool ID. This field is used
   only for dedicated storage. Changing this parameter will create a new resource.
 
+* `system_pass_through` - (Optional, String, ForceNew) Specifies the device type of the EVS disks to be created.
+  Changing this parameter will create a new resource. Value options:
+  + **true**: SCSI disks are created.
+  + **false(default)**: VBD disks are created.
+
 * `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
@@ -426,8 +431,16 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
   Changing this creates a new instance.
 
+* `data_image_id` - (Optional, String, ForceNew) Specifies the ID of the data image. If data disks are created using a
+  data disk image, this parameter is mandatory, and it does not support `kms_key_id`. Changing this creates a new instance.
+
 * `snapshot_id` - (Optional, String, ForceNew) Specifies the EVS snapshot ID or ID of the original data disk contained
   in the full-ECS image. Changing this creates a new instance.
+
+* `delete_on_termination` - (Optional, String, ForceNew) Specifies the policy of releasing data disks when the ECS is
+  deleted. Changing this creates a new instance. Value options:
+  + **true**: The data disk is released when the ECS is deleted.
+  + **false**: The data disk is not released when the ECS is deleted.
 
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
   Changing this creates a new instance.
@@ -453,6 +466,11 @@ The `data_disks` block supports:
 
 * `dss_pool_id` - (Optional, String, ForceNew) Specifies the data disk DSS pool ID. This field is used
   only for dedicated storage. Changing this parameter will create a new resource.
+
+* `pass_through` - (Optional, String, ForceNew) Specifies the device type of the EVS disks to be created. Changing this
+  parameter will create a new resource. Value options:
+  + **true**: SCSI disks are created.
+  + **false(default)**: VBD disks are created.
 
 The `bandwidth` block supports:
 
@@ -560,6 +578,9 @@ The `volume_attached` block supports:
 * `size` - The volume size on that attachment.
 * `type` - The volume type on that attachment.
 * `pci_address` - The volume pci address on that attachment.
+* `data_image_id` - The ID of the data image.
+* `delete_on_termination` - The policy of releasing data disks when the ECS is deleted.
+* `pass_through` - The device type of the EVS disks to be created.
 
 ## Timeouts
 

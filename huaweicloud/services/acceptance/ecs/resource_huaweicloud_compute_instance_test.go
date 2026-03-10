@@ -270,9 +270,49 @@ func TestAccComputeInstance_diskIopsThroughput(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_disks.0.type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "data_disks.0.iops", "4000"),
 					resource.TestCheckResourceAttr(resourceName, "data_disks.0.throughput", "200"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.0.delete_on_termination", "true"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.0.pass_through", "true"),
 					resource.TestCheckResourceAttr(resourceName, "data_disks.1.type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "data_disks.1.iops", "5000"),
 					resource.TestCheckResourceAttr(resourceName, "data_disks.1.throughput", "300"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.1.delete_on_termination", "false"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.1.pass_through", "false"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.2.type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.2.iops", "5000"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.2.throughput", "300"),
+					resource.TestCheckResourceAttrPair(resourceName, "data_disks.2.data_image_id",
+						"huaweicloud_ims_evs_data_image.data_image", "id"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.0.volume_id"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.type", "GPSSD2"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.0.boot_index"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.0.pci_address"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.delete_on_termination", "true"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.1.volume_id"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.1.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.1.type", "GPSSD2"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.1.boot_index"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.1.pci_address"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.1.delete_on_termination", "true"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.1.pass_through", "true"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.2.volume_id"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.2.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.2.type", "GPSSD2"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.2.boot_index"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.2.pci_address"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.2.delete_on_termination", "false"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.2.pass_through", "false"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.3.volume_id"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.3.size", "200"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.3.type", "GPSSD2"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.3.boot_index"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.3.pci_address"),
+					resource.TestCheckResourceAttrPair(resourceName, "volume_attached.3.data_image_id",
+						"huaweicloud_ims_evs_data_image.data_image", "id"),
 				),
 			},
 		},
@@ -430,6 +470,7 @@ func TestAccComputeInstance_change_charging_mode_to_prepaid(t *testing.T) {
 		},
 	})
 }
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
@@ -760,10 +801,35 @@ resource "huaweicloud_compute_instance" "test" {
 
 func testAccComputeInstance_diskIopsThroughput(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_compute_instance" "data_image" {
+  name               = "%[2]s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_evs_volume" "data_image" {
+  name              = "%[2]s"
+  volume_type       = "GPSSD"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  server_id         = huaweicloud_compute_instance.data_image.id
+  size              = 100
+}
+
+resource "huaweicloud_ims_evs_data_image" "data_image" {
+  name      = "%[2]s"
+  volume_id = huaweicloud_evs_volume.data_image.id
+}
 
 resource "huaweicloud_compute_instance" "test" {
-  name                = "%s"
+  name                = "%[2]s"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -778,18 +844,30 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_size       = 50
   system_disk_iops       = 3000
   system_disk_throughput = 125
+  system_pass_through    = false
 
   data_disks {
-    type       = "GPSSD2"
-    size       = "50"
-    iops       = 4000
-    throughput = 200
+    type                  = "GPSSD2"
+    size                  = "50"
+    iops                  = 4000
+    throughput            = 200
+    delete_on_termination = true
+    pass_through          = true
   }
   data_disks {
-    type       = "GPSSD2"
-    size       = "50"
-    iops       = 5000
-    throughput = 300
+    type                  = "GPSSD2"
+    size                  = "50"
+    iops                  = 5000
+    throughput            = 300
+    delete_on_termination = false
+    pass_through          = false
+  }
+  data_disks {
+    type          = "GPSSD2"
+    size          = "200"
+    iops          = 5000
+    throughput    = 300
+    data_image_id = huaweicloud_ims_evs_data_image.data_image.id
   }
 }
 `, testAccCompute_data, rName)
