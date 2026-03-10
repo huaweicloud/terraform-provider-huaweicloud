@@ -641,6 +641,7 @@ var (
 	HW_CSS_TARGET_IMAGE_ID    = os.Getenv("HW_CSS_TARGET_IMAGE_ID")
 	HW_CSS_REPLACE_AGENCY     = os.Getenv("HW_CSS_REPLACE_AGENCY")
 	HW_CSS_AZ_MIGRATE_AGENCY  = os.Getenv("HW_CSS_AZ_MIGRATE_AGENCY")
+	HW_CSS_CLUSTER_ID         = os.Getenv("HW_CSS_CLUSTER_ID")
 
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
@@ -3700,6 +3701,13 @@ func TestAccPreCheckCSSElbAgency(t *testing.T) {
 func TestAccPreCheckCSSUpgradeAgency(t *testing.T) {
 	if HW_CSS_UPGRADE_AGENCY == "" {
 		t.Skip("HW_CSS_UPGRADE_AGENCY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCSSClusterId(t *testing.T) {
+	if HW_CSS_CLUSTER_ID == "" {
+		t.Skip("HW_CSS_CLUSTER_ID must be set for the acceptance test")
 	}
 }
 
