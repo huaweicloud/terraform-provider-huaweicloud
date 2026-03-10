@@ -36,3 +36,6 @@ dist
 
 # Ignore all files in the current directory that start with `.c` (they are local tools)
 .c*
+
+# Ignore AGENTS.md file which is used to store the skills and rules for the project
+AGENTS.md
