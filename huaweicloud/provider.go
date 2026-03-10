@@ -1012,6 +1012,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_secrets":              dew.DataSourceDewCsmsSecrets(),
 			"huaweicloud_csms_tasks":                dew.DataSourceCsmsTasks(),
 
+			"huaweicloud_css_ai_ops_detectors":          css.DataSourceAiOpsDetectors(),
 			"huaweicloud_css_flavors":                   css.DataSourceCssFlavors(),
 			"huaweicloud_css_flavor_details":            css.DataSourceFlavorDetails(),
 			"huaweicloud_css_clusters":                  css.DataSourceCssClusters(),
