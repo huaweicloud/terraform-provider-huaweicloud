@@ -640,6 +640,7 @@ var (
 	HW_CSS_LOW_ENGINE_VERSION = os.Getenv("HW_CSS_LOW_ENGINE_VERSION")
 	HW_CSS_TARGET_IMAGE_ID    = os.Getenv("HW_CSS_TARGET_IMAGE_ID")
 	HW_CSS_REPLACE_AGENCY     = os.Getenv("HW_CSS_REPLACE_AGENCY")
+	HW_CSS_DATASTORE_ID       = os.Getenv("HW_CSS_DATASTORE_ID")
 	HW_CSS_AZ_MIGRATE_AGENCY  = os.Getenv("HW_CSS_AZ_MIGRATE_AGENCY")
 	HW_CSS_CLUSTER_ID         = os.Getenv("HW_CSS_CLUSTER_ID")
 
@@ -3694,6 +3695,13 @@ func TestAccPreCheckCSSLocalDiskFlavor(t *testing.T) {
 func TestAccPreCheckCSSElbAgency(t *testing.T) {
 	if HW_CSS_ELB_AGENCY == "" {
 		t.Skip("HW_CSS_ELB_AGENCY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCSSDatastoreId(t *testing.T) {
+	if HW_CSS_DATASTORE_ID == "" {
+		t.Skip("HW_CSS_DATASTORE_ID must be set for the acceptance test")
 	}
 }
 
