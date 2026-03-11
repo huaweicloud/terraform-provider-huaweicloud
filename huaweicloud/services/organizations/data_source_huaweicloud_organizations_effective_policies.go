@@ -16,26 +16,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceOrganizationsEffectivePolicies() *schema.Resource {
+func DataSourceEffectivePolicies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsEffectivePoliciesRead,
+		ReadContext: dataSourceEffectivePoliciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the effective policies are located.`,
 			},
 			"entity_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the unique ID of an account.`,
+				Description: `The unique ID of an account.`,
 			},
 			"policy_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the name of a policy type.`,
+				Description: `The name of a policy type.`,
 			},
 			"last_updated_at": {
 				Type:        schema.TypeString,
@@ -63,7 +63,7 @@ func newEffectivePoliciesDSWrapper(d *schema.ResourceData, meta interface{}) *Ef
 	}
 }
 
-func dataSourceOrganizationsEffectivePoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceEffectivePoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newEffectivePoliciesDSWrapper(d, meta)
 	shoEffPolRst, err := wrapper.ShowEffectivePolicies()
 	if err != nil {

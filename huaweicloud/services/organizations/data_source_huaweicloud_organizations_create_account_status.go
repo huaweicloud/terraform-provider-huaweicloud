@@ -16,16 +16,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceOrganizationsCreateAccountStatus() *schema.Resource {
+func DataSourceCreateAccountStatus() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsCreateAccountStatusRead,
+		ReadContext: dataSourceCreateAccountStatusRead,
 
 		Schema: map[string]*schema.Schema{
 			"states": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the list of states.`,
+				Description: `The state list of the account.`,
 			},
 			"create_account_statuses": {
 				Type:        schema.TypeList,
@@ -87,7 +87,7 @@ func newCreateAccountStatusDSWrapper(d *schema.ResourceData, meta interface{}) *
 	}
 }
 
-func dataSourceOrganizationsCreateAccountStatusRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCreateAccountStatusRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newCreateAccountStatusDSWrapper(d, meta)
 	lisCreAccStaRst, err := wrapper.ListCreateAccountStatuses()
 	if err != nil {
@@ -108,7 +108,7 @@ func dataSourceOrganizationsCreateAccountStatusRead(_ context.Context, d *schema
 	return nil
 }
 
-// @API ORGANIZATIONS GET /v1/organizations/create-account-status
+// @API Organizations GET /v1/organizations/create-account-status
 func (w *CreateAccountStatusDSWrapper) ListCreateAccountStatuses() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "organizations")
 	if err != nil {

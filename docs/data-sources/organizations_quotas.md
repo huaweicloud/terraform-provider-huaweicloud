@@ -3,12 +3,12 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_quotas"
 description: |-
-  Use this data source to get the list of organizations quotas.
+  Use this data source to get the list of Organizations quotas within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_quotas
 
-Use this data source to get the list of organizations quotas.
+Use this data source to get the list of Organizations quotas within HuaweiCloud.
 
 ## Example Usage
 
@@ -26,7 +26,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `quotas` - Indicates the list organization's quotas.
+* `quotas` - Indicates the list of the resource quotas.
 
   The [quotas](#quotas_struct) structure is documented below.
 
@@ -40,8 +40,12 @@ The `quotas` block supports:
 <a name="quotas_resources_struct"></a>
 The `resources` block supports:
 
-* `type` - Indicates the quota type.
-  It can be **account**, **organizational_unit** or **policy**.
+* `type` - Indicates the quota type.  
+  + **account**
+  + **organizational_unit**
+  + **policy**
+  + **close_account_count_in_30_days**
+  + **service_control_policy_per_entity**
 
 * `quota` - Indicates the number of quotas.
 

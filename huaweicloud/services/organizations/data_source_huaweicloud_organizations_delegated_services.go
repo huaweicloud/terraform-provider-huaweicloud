@@ -5,94 +5,106 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API Organizations GET /v1/organizations/accounts/{account_id}/delegated-services
-func DataSourceOrganizationsDelegatedServices() *schema.Resource {
+func DataSourceDelegatedServices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDelegatedServices,
+		ReadContext: dataSourceDelegatedServicesRead,
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The unique ID of an account.`,
 			},
 			"delegated_services": {
 				Type:        schema.TypeList,
-				Elem:        organizationsDelegatedServiceSchema(),
+				Elem:        delegatedServiceSchema(),
 				Computed:    true,
-				Description: `List of the services for which the specified account is a delegated administrator.`,
+				Description: `The list of the delegated services.`,
 			},
 		},
 	}
 }
 
-func organizationsDelegatedServiceSchema() *schema.Resource {
+func delegatedServiceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"service_principal": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Name of the service principal.`,
+				Description: `The name of the service principal.`,
 			},
 			"delegation_enabled_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Date when the account became a delegated administrator for the service.`,
+				Description: `The date when the account became a delegated administrator for the service.`,
 			},
 		},
 	}
 	return &sc
 }
 
-func dataSourceDelegatedServices(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func listDelegatedServices(client *golangsdk.ServiceClient, accountId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/organizations/accounts/{account_id}/delegated-services"
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
 
-	listDelegatedServiceHttpUrl := "v1/organizations/accounts/{account_id}/delegated-services"
-	listDelegatedServiceProduct := "organizations"
-	listDelegatedServiceClient, err := cfg.NewServiceClient(listDelegatedServiceProduct, region)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{account_id}", accountId)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker = fmt.Sprintf("%s?marker=%s", listPathWithMarker, marker)
+		}
+
+		listResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		listRespBody, err := utils.FlattenResponse(listResp)
+		if err != nil {
+			return nil, err
+		}
+
+		delegatedServices := utils.PathSearch("delegated_services", listRespBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, delegatedServices...)
+		marker = utils.PathSearch("page_info.next_marker", listRespBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func dataSourceDelegatedServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("organizations", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	listDelegatedServicePath := listDelegatedServiceClient.Endpoint + listDelegatedServiceHttpUrl
-	listDelegatedServicePath = strings.ReplaceAll(listDelegatedServicePath, "{account_id}", d.Get("account_id").(string))
-	listDelegatedServiceOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	var orgDelegatedServices []interface{}
-	var marker string
-	var queryPath string
-
-	for {
-		queryPath = listDelegatedServicePath + buildListDelegatedServiceQueryParams(marker)
-		listDelegatedServiceResp, err := listDelegatedServiceClient.Request("GET", queryPath, &listDelegatedServiceOpt)
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving Organizations Delegated Service")
-		}
-
-		listDelegatedServiceRespBody, err := utils.FlattenResponse(listDelegatedServiceResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		onePageDelegatedServices := flattenDelegatedServiceResp(listDelegatedServiceRespBody)
-		orgDelegatedServices = append(orgDelegatedServices, onePageDelegatedServices...)
-		marker = utils.PathSearch("page_info.next_marker", listDelegatedServiceRespBody, "").(string)
-		if marker == "" {
-			break
-		}
+	accountId := d.Get("account_id").(string)
+	delegatedServices, err := listDelegatedServices(client, accountId)
+	if err != nil {
+		return diag.Errorf("error retrieving Organizations delegated services for account (%s): %s", accountId, err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -101,39 +113,21 @@ func dataSourceDelegatedServices(_ context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(uuid)
 
-	mErr := multierror.Append(nil,
-		d.Set("delegated_services", orgDelegatedServices),
-	)
-
-	return diag.FromErr(mErr.ErrorOrNil())
+	return diag.FromErr(d.Set("delegated_services", flattenDelegatedServiceResp(delegatedServices)))
 }
 
-func flattenDelegatedServiceResp(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenDelegatedServiceResp(delegatedServices []interface{}) []interface{} {
+	if len(delegatedServices) == 0 {
 		return nil
 	}
 
-	jsonPath := "delegated_services"
-
-	curJson := utils.PathSearch(jsonPath, resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(delegatedServices))
+	for _, v := range delegatedServices {
 		rst = append(rst, map[string]interface{}{
 			"service_principal":     utils.PathSearch("service_principal", v, nil),
 			"delegation_enabled_at": utils.PathSearch("delegation_enabled_at", v, nil),
 		})
 	}
+
 	return rst
-}
-
-func buildListDelegatedServiceQueryParams(marker string) string {
-	// the default value of limit is 200
-	res := "?limit=200"
-
-	if marker != "" {
-		res = fmt.Sprintf("%s&marker=%v", res, marker)
-	}
-
-	return res
 }

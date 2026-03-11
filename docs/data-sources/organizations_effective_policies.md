@@ -3,12 +3,14 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_effective_policies"
 description: |-
-  Use this data source to get the effective policies of a specific type for the specified account.
+  Use this data source to get the effective policie list of a specific policy type for the specified
+  entity within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_effective_policies
 
-Use this data source to get the effective policies of a specific type for the specified account.
+Use this data source to get the effective policie list of a specific policy type for the specified
+entity within HuaweiCloud.
 
 ## Example Usage
 
@@ -25,13 +27,12 @@ data "huaweicloud_organizations_effective_policies" "test"{
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
+* `region` - (Optional, String) Specifies the region where the effective policies are located.
 
-* `entity_id` - (Required, String) Specifies the unique ID of an account.
+* `entity_id` - (Required, String) Specifies the unique ID of an account.  
   Currently, the effective policy of the root and organizational units cannot be queried.
 
-* `policy_type` - (Required, String) Specifies the name of a policy type.
+* `policy_type` - (Required, String) Specifies the name of a policy type.  
   Currently, the value **tag_policy** is available.
 
 ## Attribute Reference

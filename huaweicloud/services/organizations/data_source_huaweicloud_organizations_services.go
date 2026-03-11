@@ -15,22 +15,22 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsServices() *schema.Resource {
+func DataSourceServices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsServicesRead,
+		ReadContext: dataSourceServicesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the services are located.`,
 			},
 			"services": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Indicates the list of cloud services that can be integrated with Organizations.`,
+				Description: `The list of cloud services that can be integrated with Organizations.`,
 			},
 		},
 	}
@@ -48,7 +48,7 @@ func newServicesDSWrapper(d *schema.ResourceData, meta interface{}) *ServicesDSW
 	}
 }
 
-func dataSourceOrganizationsServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newServicesDSWrapper(d, meta)
 	listServicesRst, err := wrapper.ListServices()
 	if err != nil {

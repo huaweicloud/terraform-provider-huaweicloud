@@ -3,12 +3,12 @@ subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_resource_tags"
 description: |-
-  Use this data source to get the list of tags attached to the specified resource.
+  Use this data source to get the list of tags attached to the specified resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_resource_tags
 
-Use this data source to get the list of tags attached to the specified resource.
+Use this data source to get the list of tags attached to the specified resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -22,11 +22,11 @@ data "huaweicloud_organizations_resource_tags" "test"{
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
+* `region` - (Optional, String) Specifies the region in which to query the resource.  
   If omitted, the provider-level region will be used.
 
-* `resource_type` - (Required, String) Specifies the resource type.
-  Value options:
+* `resource_type` - (Required, String) Specifies the resource type.  
+  The valid values are as follows:
   + **organizations:policies**
   + **organizations:ous**
   + **organizations:accounts**

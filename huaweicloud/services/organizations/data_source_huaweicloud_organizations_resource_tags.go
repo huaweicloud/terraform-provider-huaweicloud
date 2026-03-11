@@ -16,38 +16,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsTags() *schema.Resource {
+func DataSourceResourceTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsTagsRead,
+		ReadContext: dataSourceResourceTagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the resource tags are located.`,
 			},
 			"resource_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the resource type.`,
+				Description: `The type of the resource.`,
 			},
 			"tags": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the list of tags.`,
+				Description: `The list of tags.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the key of the tag.`,
+							Description: `The key of the tag.`,
 						},
 						"values": {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: `Indicates the list of values of the tag.`,
+							Description: `The list of values of the tag.`,
 						},
 					},
 				},
@@ -68,7 +68,7 @@ func newTagsDSWrapper(d *schema.ResourceData, meta interface{}) *TagsDSWrapper {
 	}
 }
 
-func dataSourceOrganizationsTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newTagsDSWrapper(d, meta)
 	listResourceTagsRst, err := wrapper.ListResourceTags()
 	if err != nil {
