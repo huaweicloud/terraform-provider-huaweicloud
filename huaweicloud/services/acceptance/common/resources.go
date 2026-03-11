@@ -15,20 +15,30 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 // TestVpc can be referred as `huaweicloud_vpc.test` and `huaweicloud_vpc_subnet.test`
-func TestVpc(name string) string {
+func TestVpc(name string, enterpriseProjectId ...string) string {
+	var epsIdVal string
+	if len(enterpriseProjectId) > 0 {
+		epsIdVal = enterpriseProjectId[0]
+	}
+
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  default = "%[1]s"
+}
+
 resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
+  name                  = "%[2]s"
+  cidr                  = "192.168.0.0/16"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
+  name       = "%[2]s"
   vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)              # 192.168.0.0/24
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1) # 192.168.0.1
 }
-`, name)
+`, epsIdVal, name)
 }
 
 // TestBaseNetwork vpc, subnet, security group
