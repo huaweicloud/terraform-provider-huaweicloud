@@ -20,7 +20,7 @@ data "huaweicloud_organizations_close_account_status" "test" {}
 
 The following arguments are supported:
 
-* `states` - (Optional, List) Specifies the list of one or more states that you want to include in the response.
+* `states` - (Optional, List) Specifies the state list of the account.
 
 ## Attribute Reference
 

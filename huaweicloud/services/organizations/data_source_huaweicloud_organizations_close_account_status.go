@@ -16,52 +16,52 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceOrganizationsCloseAccountStatus() *schema.Resource {
+func DataSourceCloseAccountStatus() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsCloseAccountStatusRead,
+		ReadContext: dataSourceCloseAccountStatusRead,
 
 		Schema: map[string]*schema.Schema{
 			"states": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the list of one or more states that you want to include in the response.`,
+				Description: `The state list of the account.`,
 			},
 			"close_account_statuses": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the list of close account statuses.`,
+				Description: `The list of close account statuses.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"account_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the ID of an account.`,
+							Description: `The ID of an account.`,
 						},
 						"state": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the Status of the close account request.`,
+							Description: `The current status of the account.`,
 						},
 						"organization_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the ID of an organization.`,
+							Description: `The ID of an organization.`,
 						},
 						"failure_reason": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the reason for a request failure.`,
+							Description: `The reason for a request failure.`,
 						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the date and time when the close account request was made.`,
+							Description: `The date and time when the close account request was made.`,
 						},
 						"updated_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the date and time when the status of close account request was updated.`,
+							Description: `The date and time when the status of close account request was updated.`,
 						},
 					},
 				},
@@ -82,7 +82,7 @@ func newCloseAccountStatusDSWrapper(d *schema.ResourceData, meta interface{}) *C
 	}
 }
 
-func dataSourceOrganizationsCloseAccountStatusRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCloseAccountStatusRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newCloseAccountStatusDSWrapper(d, meta)
 	lisCloAccStaRst, err := wrapper.ListCloseAccountStatuses()
 	if err != nil {

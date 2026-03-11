@@ -20,7 +20,7 @@ data "huaweicloud_organizations_create_account_status" "test" {}
 
 The following arguments are supported:
 
-* `states` - (Optional, List) Specifies the list of states.
+* `states` - (Optional, List) Specifies the state list of the account.
 
 ## Attribute Reference
 

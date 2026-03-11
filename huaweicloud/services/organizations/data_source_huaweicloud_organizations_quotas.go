@@ -15,15 +15,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsQuotas() *schema.Resource {
+func DataSourceQuotas() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsQuotasRead,
+		ReadContext: dataSourceQuotasRead,
 
 		Schema: map[string]*schema.Schema{
 			"quotas": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the list organization's quotas.`,
+				Description: `Indicates the list of the Organizations quotas.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resources": {
@@ -79,7 +79,7 @@ func newQuotasDSWrapper(d *schema.ResourceData, meta interface{}) *QuotasDSWrapp
 	}
 }
 
-func dataSourceOrganizationsQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newQuotasDSWrapper(d, meta)
 	listQuotasRst, err := wrapper.ListQuotas()
 	if err != nil {

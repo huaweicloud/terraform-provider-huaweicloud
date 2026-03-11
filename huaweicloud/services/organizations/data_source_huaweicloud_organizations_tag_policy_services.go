@@ -15,38 +15,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceOrganizationsTagPolicyServices() *schema.Resource {
+func DataSourceTagPolicyServices() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceOrganizationsTagPolicyServicesRead,
+		ReadContext: dataSourceTagPolicyServicesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the tag policy services are located.`,
 			},
 			"services": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the services that support enforcement with tag policies.`,
+				Description: `The list of services that support enforcement with tag policies.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the service name of the service.`,
+							Description: `The service name of the service.`,
 						},
 						"resource_types": {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: `Indicates the resource types.`,
+							Description: `The list of resource types.`,
 						},
 						"support_all": {
 							Type:        schema.TypeBool,
 							Computed:    true,
-							Description: `Indicates whether resource_type support all services (wildcard *).`,
+							Description: `Whether resource_type support all services (wildcard *).`,
 						},
 					},
 				},
@@ -67,7 +67,7 @@ func newTagPolicyServicesDSWrapper(d *schema.ResourceData, meta interface{}) *Ta
 	}
 }
 
-func dataSourceOrganizationsTagPolicyServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceTagPolicyServicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newTagPolicyServicesDSWrapper(d, meta)
 	lisTagPolSerRst, err := wrapper.ListTagPolicyServices()
 	if err != nil {
