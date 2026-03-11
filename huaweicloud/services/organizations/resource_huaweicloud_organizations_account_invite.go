@@ -223,7 +223,7 @@ func GetAccountInvite(client *golangsdk.ServiceClient, handshakeId string) (inte
 	// the handshake will always exist, so it is necessary to check whether the account can be obtained if the
 	// status is accepted.
 	if status == "accepted" {
-		_, err = getAccountById(client, utils.PathSearch("target.entity", handshake, "").(string))
+		_, err = GetAccountById(client, utils.PathSearch("target.entity", handshake, "").(string))
 		if err != nil {
 			return nil, err
 		}
@@ -232,7 +232,7 @@ func GetAccountInvite(client *golangsdk.ServiceClient, handshakeId string) (inte
 	return handshake, nil
 }
 
-func getAccountById(client *golangsdk.ServiceClient, accountId string) (interface{}, error) {
+func GetAccountById(client *golangsdk.ServiceClient, accountId string) (interface{}, error) {
 	httpUrl := "v1/organizations/accounts/{account_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{account_id}", accountId)
