@@ -88,7 +88,6 @@ github.com/chnsz/golangsdk/openstack/compute/v2/images
 github.com/chnsz/golangsdk/openstack/compute/v2/servers
 github.com/chnsz/golangsdk/openstack/csbs/v1/backup
 github.com/chnsz/golangsdk/openstack/csbs/v1/policies
-github.com/chnsz/golangsdk/openstack/cse/dedicated/v2/engines
 github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/auth
 github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/instances
 github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/services
