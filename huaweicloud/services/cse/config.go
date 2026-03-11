@@ -33,3 +33,15 @@ func GetAuthorizationToken(connAddr, username, password string) (string, error) 
 	client := common.NewCustomClient(true, connAddr, "v4")
 	return getToken(client, username, password)
 }
+
+func buildRequestMoreHeaders(enterpriseProjectId string) map[string]string {
+	moreHeaders := map[string]string{
+		"Content-Type": "application/json;charset=UTF-8",
+		"Accept":       "application/json",
+	}
+
+	if enterpriseProjectId != "" {
+		moreHeaders["X-Enterprise-Project-ID"] = enterpriseProjectId
+	}
+	return moreHeaders
+}
