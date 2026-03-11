@@ -2512,25 +2512,30 @@ func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, ti
 
 func rdsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		httpUrl := "v3/{project_id}/jobs?id={id}"
-		getPath := client.Endpoint + httpUrl
-		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-		getPath = strings.ReplaceAll(getPath, "{id}", jobID)
-
-		getOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		getResp, err := client.Request("GET", getPath, &getOpt)
-		if err != nil {
-			return nil, "FOUND ERROR", err
-		}
-		getRespBody, err := utils.FlattenResponse(getResp)
+		getRespBody, err := getInstanceJob(client, jobID)
 		if err != nil {
 			return nil, "FOUND ERROR", err
 		}
 
 		return getRespBody, utils.PathSearch("job.status", getRespBody, "").(string), nil
 	}
+}
+
+func getInstanceJob(client *golangsdk.ServiceClient, jobID string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/jobs?id={id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", jobID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(getResp)
 }
 
 func rdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
