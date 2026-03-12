@@ -38,6 +38,10 @@ func ResourceV3TrustAgency() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		CustomizeDiff: config.MergeDefaultTags(),
 
@@ -134,7 +138,7 @@ func resourceV3TrustAgencyCreate(ctx context.Context, d *schema.ResourceData, me
 
 	// attach policies by ID
 	for _, policyID := range policyIDs {
-		if err = attachPolicyByID(client, d.Id(), policyID); err != nil {
+		if err = attachPolicyByID(ctx, client, d.Id(), policyID, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -284,7 +288,7 @@ func resourceV3TrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, me
 
 		// attach policy by ID
 		for _, attachPolicyID := range attachPolicyIDs {
-			if err := attachPolicyByID(client, d.Id(), attachPolicyID); err != nil {
+			if err := attachPolicyByID(ctx, client, d.Id(), attachPolicyID, d.Timeout(schema.TimeoutUpdate)); err != nil {
 				return diag.FromErr(err)
 			}
 		}

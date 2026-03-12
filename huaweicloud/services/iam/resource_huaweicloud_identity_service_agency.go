@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -38,6 +41,10 @@ func ResourceV3ServiceAgency() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		CustomizeDiff: config.MergeDefaultTags(),
@@ -134,7 +141,7 @@ func resourceV3ServiceAgencyCreate(ctx context.Context, d *schema.ResourceData, 
 
 	// attach policies by ID
 	for _, policyID := range policyIDs {
-		if err = attachPolicyByID(client, d.Id(), policyID); err != nil {
+		if err = attachPolicyByID(ctx, client, d.Id(), policyID, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -338,7 +345,7 @@ func resourceV3ServiceAgencyUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		// attach policy by ID
 		for _, attachPolicyID := range attachPolicyIDs {
-			if err := attachPolicyByID(client, d.Id(), attachPolicyID); err != nil {
+			if err := attachPolicyByID(ctx, client, d.Id(), attachPolicyID, d.Timeout(schema.TimeoutUpdate)); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -419,7 +426,7 @@ func getPolicyIDsByNames(client *golangsdk.ServiceClient, policyNames []interfac
 	return rst, nil
 }
 
-func attachPolicyByID(client *golangsdk.ServiceClient, agencyID, policyID string) error {
+func attachPolicyByID(ctx context.Context, client *golangsdk.ServiceClient, agencyID, policyID string, timeout time.Duration) error {
 	attachHttpUrl := "v5/policies/{policy_id}/attach-agency"
 	attachPath := client.Endpoint + attachHttpUrl
 	attachPath = strings.ReplaceAll(attachPath, "{policy_id}", policyID)
@@ -429,7 +436,35 @@ func attachPolicyByID(client *golangsdk.ServiceClient, agencyID, policyID string
 			"agency_id": agencyID,
 		},
 	}
-	_, err := client.Request("POST", attachPath, &attachOpt)
+	count := 0
+	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		_, err := client.Request("POST", attachPath, &attachOpt)
+		if err != nil {
+			// send a maximum of three requests, wait for agency to be created complete
+			if count == 3 {
+				return resource.NonRetryableError(err)
+			}
+			if errCode, ok := err.(golangsdk.ErrDefault404); ok {
+				var apiError interface{}
+				if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+					return resource.NonRetryableError(jsonErr)
+				}
+
+				errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+				if errorCodeErr != nil {
+					return resource.NonRetryableError(errorCodeErr)
+				}
+				if errorCode.(string) == "PAP5.0012" {
+					count++
+					// lintignore:R018
+					time.Sleep(2 * time.Second)
+					return resource.RetryableError(err)
+				}
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return fmt.Errorf("error attaching IAM service agency to policy(%s): %s", policyID, err)
 	}
