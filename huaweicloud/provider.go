@@ -3781,6 +3781,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_notify_replace_node":            rds.ResourceNotifyReplaceNode(),
 			"huaweicloud_rds_distribution":                   rds.ResourceDistribution(),
 			"huaweicloud_rds_publication":                    rds.ResourcePublication(),
+			"huaweicloud_rds_pub_and_sub_metadata_sync":      rds.ResourcePubAndSubMetadataSync(),
 
 			"huaweicloud_rgc_account":                      rgc.ResourceAccount(),
 			"huaweicloud_rgc_account_enroll":               rgc.ResourceAccountEnroll(),
