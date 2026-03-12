@@ -229,12 +229,11 @@ func resourceAlarmConfigDelete(_ context.Context, d *schema.ResourceData, meta i
 	deleteAlarmConfigPath = strings.ReplaceAll(deleteAlarmConfigPath, "{project_id}", deleteAlarmConfigClient.ProjectID)
 	deleteAlarmConfigPath = strings.ReplaceAll(deleteAlarmConfigPath, "{fw_instance_id}", fwInstanceID)
 
-	alarmType := d.Get("alarm_type").(int)
 	deleteAlarmConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	deleteAlarmConfigOpt.JSONBody = buildDeleteAlarmConfigBodyParams(alarmType)
+	deleteAlarmConfigOpt.JSONBody = buildDeleteAlarmConfigBodyParams(d)
 	_, err = deleteAlarmConfigClient.Request("PUT", deleteAlarmConfigPath, &deleteAlarmConfigOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d,
@@ -246,10 +245,11 @@ func resourceAlarmConfigDelete(_ context.Context, d *schema.ResourceData, meta i
 }
 
 // Restore common parameters to default values.
-func buildDeleteAlarmConfigBodyParams(alarmType int) map[string]interface{} {
+func buildDeleteAlarmConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"enable_status":     0,
-		"alarm_type":        alarmType,
+		"alarm_type":        d.Get("alarm_type").(int),
+		"severity":          d.Get("severity").(string),
 		"alarm_time_period": 0,
 		"topic_urn":         "",
 	}
