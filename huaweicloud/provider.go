@@ -1027,6 +1027,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_log_backup_records":        css.DataSourceCssLogBackupRecords(),
 			"huaweicloud_css_resize_flavors":            css.DataSourceResizeFlavors(),
 			"huaweicloud_css_scan_tasks":                css.DataSourceCssScanTasks(),
+			"huaweicloud_css_smn_topics":                css.DataSourceCssSmnTopics(),
 			"huaweicloud_css_snapshots":                 css.DataSourceCssSnapshots(),
 			"huaweicloud_css_vpcep_connections":         css.DataSourceVpcepserviceConnections(),
 
