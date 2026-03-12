@@ -346,6 +346,14 @@ The `job_schedule` block supports:
 
 * `id` -Indicates the schedule ID.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 The RDS publication can be imported using the `instance_id` and `id` separated by a slash, e.g.
