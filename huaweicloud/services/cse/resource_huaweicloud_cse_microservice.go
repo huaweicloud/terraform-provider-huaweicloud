@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/services"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -163,7 +162,7 @@ func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ inter
 		// When the engine does not exist, obtaining a token will cause a request connection exception.
 		// To ensure that the resource is available on RFS platform, this situation is specially handled as a 404 error.
 		log.Printf("[ERROR] %s", err)
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
 	}
 
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
