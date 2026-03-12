@@ -277,7 +277,7 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
 	}
 
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
@@ -305,7 +305,7 @@ func resourceMicroserviceInstanceDelete(_ context.Context, d *schema.ResourceDat
 	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
 	}
 
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")

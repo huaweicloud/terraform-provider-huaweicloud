@@ -277,7 +277,7 @@ func resourceMicroserviceEngineConfigurationDelete(_ context.Context, d *schema.
 	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
 	}
 	deleteOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
