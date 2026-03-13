@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/instances"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -16,27 +14,30 @@ import (
 )
 
 func getMicroserviceInstanceFunc(_ *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	token, err := cse.GetAuthorizationToken(getAuthAddress(state.Primary.Attributes),
-		state.Primary.Attributes["admin_user"], state.Primary.Attributes["admin_pass"])
-	if err != nil {
-		return nil, err
-	}
+	var (
+		authAddress    = getAuthAddress(state.Primary.Attributes)
+		adminUser      = state.Primary.Attributes["admin_user"]
+		adminPass      = state.Primary.Attributes["admin_pass"]
+		microserviceId = state.Primary.Attributes["microservice_id"]
+		instanceId     = state.Primary.ID
+		client         = common.NewCustomClient(true, state.Primary.Attributes["connect_address"])
+	)
 
-	client := common.NewCustomClient(true, state.Primary.Attributes["connect_address"], "v4", "default")
-	return instances.Get(client, state.Primary.Attributes["microservice_id"], state.Primary.ID, token)
+	return cse.GetInstance(client, authAddress, adminUser, adminPass, microserviceId, instanceId)
 }
 
 // Beforce testing, please bind the EIP and open the access rules according to the resource ducoment appendix.
 func TestAccMicroserviceInstance_basic(t *testing.T) {
 	var (
-		instance instances.Instance
-		randName = acceptance.RandomAccResourceName()
+		obj interface{}
 
 		withAuthAddress   = "huaweicloud_cse_microservice_instance.with_auth_address"
-		rcWithAuthAddress = acceptance.InitResourceCheck(withAuthAddress, &instance, getMicroserviceInstanceFunc)
+		rcWithAuthAddress = acceptance.InitResourceCheck(withAuthAddress, &obj, getMicroserviceInstanceFunc)
 
 		withoutAuthAddress   = "huaweicloud_cse_microservice_instance.without_auth_address"
-		rcWithoutAuthAddress = acceptance.InitResourceCheck(withoutAuthAddress, &instance, getMicroserviceInstanceFunc)
+		rcWithoutAuthAddress = acceptance.InitResourceCheck(withoutAuthAddress, &obj, getMicroserviceInstanceFunc)
+
+		randName = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{

@@ -2,15 +2,16 @@
 subcategory: "Cloud Service Engine (CSE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cse_microservice_instance"
-description: ""
+description: |-
+  Manages a microservice instance resource under a specified microservice engine within HuaweiCloud.
 ---
 
 # huaweicloud_cse_microservice_instance
 
-Manages a dedicated microservice instance resource within HuaweiCloud.
+Manages a microservice instance resource under a specified microservice engine within HuaweiCloud.
 
--> Before creating a configuration, make sure the engine has enabled the rules shown in the appendix
-   [table](#microservice_instance_default_engine_access_rules).
+-> Before creating a microservice, make sure that the engine is bound to the EIP and that the rules shown in the
+   appendix [table](#microservice_instance_default_engine_access_rules) are enabled in the corresponding security group.
 
 ## Example Usage
 
@@ -107,103 +108,87 @@ resource "huaweicloud_cse_microservice_instance" "test" {
 
 The following arguments are supported:
 
-* `auth_address` - (Required, String, ForceNew) Specifies the address that used to request the access token.  
-  Usually is the connection address of service center.  
-  Changing this will create a new resource.
+* `auth_address` - (Required, String, NonUpdatable) Specifies the address that used to request the access token.  
+  Usually is the connection address of service center.
 
-* `connect_address` - (Required, String, ForceNew) Specifies the address that used to access engine and manages
+* `connect_address` - (Required, String, NonUpdatable) Specifies the address that used to access engine and manages
   microservice instance.  
-  Usually is the connection address of service center.  
-  Changing this will create a new resource.
+  Usually is the connection address of service center.
 
 -> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
 
-* `admin_user` - (Optional, String, ForceNew) Specifies the account name for **RBAC** login.
-  Changing this will create a new resource.
+* `admin_user` - (Optional, String, NonUpdatable) Specifies the user name that used to pass the **RBAC** control.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the account password for **RBAC** login.
+* `admin_pass` - (Optional, String, NonUpdatable) Specifies the user password that used to pass the **RBAC** control.  
   The password format must meet the following conditions:
   + Must be `8` to `32` characters long.
   + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
     (-~!@#%^*_=+?$&()|<>{}[]).
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
-
-  Changing this will create a new resource.
 
 -> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
-* `microservice_id` - (Required, String, ForceNew) Specifies the ID of the dedicated microservice to which the instance
-  belongs. Changing this will create a new microservice instance.
+~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will assume the resource
+   does not exist and remove it from the local `.tfstate` file, after which it can only be managed by importing it.
 
-* `host_name` - (Required, String, ForceNew) Specifies the host name, such as `localhost`.
-  Changing this will create a new microservice instance.
+* `microservice_id` - (Required, String, NonUpdatable) Specifies the ID of the microservice to which the microservice
+  instance belongs.
 
-* `endpoints` - (Required, List, ForceNew) Specifies the access addresses information.
-  Changing this will create a new microservice instance.
+* `host_name` - (Required, String, NonUpdatable) Specifies the host name of the microservice instance.
 
-* `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice instance.
-  Changing this will create a new microservice instance.
+* `endpoints` - (Required, List, NonUpdatable) Specifies the list of access addresses of the microservice instance.
 
-* `properties` - (Optional, Map, ForceNew) Specifies the extended attributes.
-  Changing this will create a new microservice instance.
+* `version` - (Optional, String, NonUpdatable) Specifies the version of the microservice instance.
+
+* `properties` - (Optional, Map, NonUpdatable) Specifies the extended attributes of the microservice instance,
+  in key/value format.
 
   -> The internal key-value pair cannot be configured or overwritten, such as **engineID** and **engineName**.
 
-* `health_check` - (Optional, List, ForceNew) Specifies the health check configuration.
-  The [object](#microservice_instance_health_check) structure is documented below.
-  Changing this will create a new microservice instance.
+* `health_check` - (Optional, List, NonUpdatable) Specifies the health check configuration of the microservice
+  instance.  
+  The [health_check](#cse_microservice_instance_health_check) structure is documented below.
 
-* `data_center` - (Optional, List, ForceNew) Specifies the data center configuration.
-  The [object](#microservice_instance_data_center) structure is documented below.
-  Changing this will create a new microservice instance.
+* `data_center` - (Optional, List, NonUpdatable) Specifies the data center configuration of the microservice instance.  
+  The [data_center](#cse_microservice_instance_data_center) structure is documented below.
 
-* `admin_user` - (Optional, String, ForceNew) Specifies the account name. The initial account name is **root**.
-  Required if the `auth_type` of engine is **RBAC**. Changing this will create a new microservice instance.
-
-* `admin_pass` - (Optional, String, ForceNew) Specifies the account password.
-  Required if the `auth_type` of engine is **RBAC**. Changing this will create a new microservice instance.
-  The password format must meet the following conditions:
-  + Must be `8` to `32` characters long.
-  + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
-    (-~!@#%^*_=+?$&()|<>{}[]).
-  + Cannot be the account name or account name spelled backwards.
-  + The password can only start with a letter.
-
-<a name="microservice_instance_health_check"></a>
+<a name="cse_microservice_instance_health_check"></a>
 The `health_check` block supports:
 
-* `mode` - (Required, String, ForceNew) Specifies the heartbeat mode. The valid values are **push** and **pull**.
-  Changing this will create a new microservice instance.
+* `mode` - (Required, String, NonUpdatable) Specifies the heartbeat mode of the health check.  
+  The valid values are as follows:
+  + **push**
+  + **pull**
 
-* `interval` - (Required, Int, ForceNew) Specifies the heartbeat interval. The unit is **s** (second).
-  Changing this will create a new microservice instance.
+* `interval` - (Required, Int, NonUpdatable) Specifies the heartbeat interval of the health check, in seconds.
 
-* `max_retries` - (Required, Int, ForceNew) Specifies the maximum retries.
-  Changing this will create a new microservice instance.
+* `max_retries` - (Required, Int, NonUpdatable) Specifies the maximum retry number of the health check.
 
-* `port` - (Optional, Int, ForceNew) Specifies the port number.
-  Changing this will create a new microservice instance.
+* `port` - (Optional, Int, NonUpdatable) Specifies the port of the health check.
 
-<a name="microservice_instance_data_center"></a>
+<a name="cse_microservice_instance_data_center"></a>
 The `data_center` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the data center name.
-  Changing this will create a new microservice instance.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the data center.
 
-* `region` - (Required, String, ForceNew) Specifies the custom region name of the data center.
-  Changing this will create a new microservice instance.
+* `region` - (Required, String, NonUpdatable) Specifies the custom region name of the data center.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the custom availability zone name of the data center.
-  Changing this will create a new microservice instance.
+* `availability_zone` - (Required, String, NonUpdatable) Specifies the custom availability zone name of the data center.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The microservice instance ID.
+* `id` - The ID of the microservice instance.
 
-* `status` - The microservice instance status. The values supports **UP**, **DOWN**, **STARTING** and **OUTOFSERVICE**.
+* `status` - The status of the microservice instance.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `delete` - Default is 3 minutes.
 
 ## Import
 
@@ -243,8 +228,8 @@ Security group rules required to access the engine:
 | Ingress   | 1        | Allow  | ICMP     | All           | Ipv6      | ::/0                  |
 | Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv6      | ::/0                  |
 | Ingress   | 1        | Allow  | All      | All           | Ipv6      | cse-engine-default-sg |
-| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | 0.0.0.0/0             |
-| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | 0.0.0.0/0             |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
 | Ingress   | 1        | Allow  | All      | All           | Ipv4      | cse-engine-default-sg |
 | Egress    | 100      | Allow  | All      | All           | Ipv6      | ::/0                  |
 | Egress    | 100      | Allow  | All      | All           | Ipv4      | 0.0.0.0/0             |
