@@ -992,6 +992,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_engine_flavors":        cse.DataSourceMicroserviceEngineFlavors(),
 			"huaweicloud_cse_microservice_engines":               cse.DataSourceMicroserviceEngines(),
 			"huaweicloud_cse_microservice_instances":             cse.DataSourceMicroserviceInstances(),
+			"huaweicloud_cse_microservices":                      cse.DataSourceMicroservices(),
 			"huaweicloud_cse_nacos_namespaces":                   cse.DataSourceNacosNamespaces(),
 
 			"huaweicloud_cpcs_app_access_keys":     dew.DataSourceCpcsAppAccessKeys(),
