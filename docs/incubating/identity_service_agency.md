@@ -71,6 +71,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The time when the service agency was created.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+
 ## Import
 
 Service agencies can be imported using the `id`, e.g.
