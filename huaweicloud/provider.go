@@ -2424,6 +2424,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_logical_cluster_rings":           dws.DataSourceLogicalClusterRings(),
 			"huaweicloud_dws_logical_cluster_volumes":         dws.DataSourceDwsLogicalClusterVolumes(),
 			"huaweicloud_dws_logical_clusters":                dws.DataSourceDwsLogicalClusters(),
+			"huaweicloud_dws_monitor_indicators":              dws.DataSourceMonitorIndicators(),
 			"huaweicloud_dws_om_account_configuration":        dws.DataSourceOmAccountConfiguration(),
 			"huaweicloud_dws_quotas":                          dws.DataSourceDwsQuotas(),
 			"huaweicloud_dws_snapshot_policies":               dws.DataSourceDwsSnapshotPolicies(),
