@@ -1978,6 +1978,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_schedule_tasks":                     rds.DataSourceRdsScheduleTasks(),
 			"huaweicloud_rds_distribution":                       rds.DataSourceRdsDistribution(),
 			"huaweicloud_rds_publications":                       rds.DataSourceRdsPublications(),
+			"huaweicloud_rds_publication_candidates":             rds.DataSourceRdsPublicationCandidates(),
 			"huaweicloud_rds_configurable_distributor_instances": rds.DataSourceRdsConfigurableDistributorInstances(),
 			"huaweicloud_rds_configurable_subscriber_instances":  rds.DataSourceRdsConfigurableSubscriberInstances(),
 			"huaweicloud_rds_top_sqls":                           rds.DataSourceRdsTopSqls(),
