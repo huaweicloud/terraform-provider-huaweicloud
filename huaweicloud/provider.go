@@ -1033,6 +1033,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_smn_topics":                css.DataSourceCssSmnTopics(),
 			"huaweicloud_css_snapshots":                 css.DataSourceCssSnapshots(),
 			"huaweicloud_css_vpcep_connections":         css.DataSourceVpcepserviceConnections(),
+			"huaweicloud_css_tags":                      css.DataSourceCssTags(),
 
 			"huaweicloud_dataarts_studio_data_connections": dataarts.DataSourceDataConnections(),
 			"huaweicloud_dataarts_studio_workspaces":       dataarts.DataSourceDataArtsStudioWorkspaces(),
