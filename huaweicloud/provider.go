@@ -3432,7 +3432,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_provider":                     iam.ResourceV3Provider(),
 			"huaweicloud_identity_provider_protocol":            iam.ResourceV3ProviderProtocol(),
 			"huaweicloud_identity_protection_policy":            iam.ResourceIdentityProtectionPolicy(),
-			"huaweicloud_identity_virtual_mfa_device":           iam.ResourceIdentityVirtualMFADevice(),
+			"huaweicloud_identity_virtual_mfa_device":           iam.ResourceV3VirtualMFADevice(),
 			"huaweicloud_identity_user_token":                   iam.ResourceV3UserToken(),
 			"huaweicloud_identity_token_with_id_token":          iam.ResourceIdentityTokenWithIdToken(),
 			"huaweicloud_identity_unscoped_token_saml":          iam.ResourceV3UnscopedTokenSaml(),

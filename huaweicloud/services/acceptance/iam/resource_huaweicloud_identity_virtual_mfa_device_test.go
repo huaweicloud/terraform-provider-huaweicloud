@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getIdentityVirtualMFADeviceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV3VirtualMFADeviceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getMFAClient, err := conf.NewServiceClient("iam", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM Client: %s", err)
@@ -33,15 +33,14 @@ func getIdentityVirtualMFADeviceResourceFunc(conf *config.Config, state *terrafo
 	return utils.FlattenResponse(getMFAResp)
 }
 
-func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
-	var obj interface{}
-	resourceName := "huaweicloud_identity_virtual_mfa_device.test"
-	rName := acceptance.RandomAccResourceName()
+func TestAccV3VirtualMFADevice_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getIdentityVirtualMFADeviceResourceFunc,
+		resourceName = "huaweicloud_identity_virtual_mfa_device.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getV3VirtualMFADeviceResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,10 +53,10 @@ func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityVirtualMFADevice_basic(rName),
+				Config: testAccV3VirtualMFADevice_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "user_id", acceptance.HW_USER_ID),
 					resource.TestCheckResourceAttrSet(resourceName, "base32_string_seed"),
 					resource.TestCheckResourceAttrSet(resourceName, "qr_code_png"),
@@ -67,7 +66,7 @@ func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testIdentityVirtualMFADevice(resourceName),
+				ImportStateIdFunc: testV3VirtualMFADevice(resourceName),
 				ImportStateVerifyIgnore: []string{
 					"base32_string_seed", "qr_code_png",
 				},
@@ -76,16 +75,19 @@ func TestAccIdentityVirtualMFADevice_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityVirtualMFADevice_basic(name string) string {
+func testAccV3VirtualMFADevice_basic(name string) string {
 	return fmt.Sprintf(`
+// Only a user can create a virtual MFA device for himself.
+// Even a primary user cannot create an MFA for a sub-user.
+
 resource "huaweicloud_identity_virtual_mfa_device" "test" {
-  name    = "%s"
-  user_id = "%s"
+  name    = "%[1]s"
+  user_id = "%[2]s"
 }
 `, name, acceptance.HW_USER_ID)
 }
 
-func testIdentityVirtualMFADevice(name string) resource.ImportStateIdFunc {
+func testV3VirtualMFADevice(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
