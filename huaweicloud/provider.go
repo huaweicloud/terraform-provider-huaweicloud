@@ -1021,6 +1021,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_logstash_pipelines":        css.DataSourceCssLogstashPipelines(),
 			"huaweicloud_css_logstash_configurations":   css.DataSourceCssLogstashConfigurations(),
 			"huaweicloud_css_datastore_flavors":         css.DataSourceDatastoreFlavors(),
+			"huaweicloud_css_elb_certificates":          css.DataSourceCssElbCertificates(),
 			"huaweicloud_css_elb_loadbalancers":         css.DataSourceCssElbLoadbalancers(),
 			"huaweicloud_css_logstash_certificates":     css.DataSourceCssLogstashCertificates(),
 			"huaweicloud_css_logstash_pipeline_actions": css.DataSourceCssLogstashPipelineActions(),
