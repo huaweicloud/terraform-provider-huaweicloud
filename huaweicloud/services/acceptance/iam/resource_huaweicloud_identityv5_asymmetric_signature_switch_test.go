@@ -8,14 +8,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-// Please ensure that the user executing the acceptance test has 'admin' permission.
 func TestAccV5AsymmetricSignatureSwitch_basic(t *testing.T) {
 	rName := "huaweicloud_identityv5_asymmetric_signature_switch.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,

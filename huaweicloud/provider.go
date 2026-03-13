@@ -3456,7 +3456,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identityv5_access_key":                  iam.ResourceV5AccessKey(),
 			"huaweicloud_identityv5_resource_tag":                iam.ResourceV5ResourceTag(),
 			"huaweicloud_identityv5_service_linked_agency":       iam.ResourceIdentityv5ServiceLinkedAgency(),
-			"huaweicloud_identityv5_asymmetric_signature_switch": iam.ResourceIdentityV5AsymmetricSignatureSwitch(),
+			"huaweicloud_identityv5_asymmetric_signature_switch": iam.ResourceV5AsymmetricSignatureSwitch(),
 
 			"huaweicloud_identitycenter_instance":                               identitycenter.ResourceIdentityCenterInstance(),
 			"huaweicloud_identitycenter_registered_region":                      identitycenter.ResourceIdentityCenterRegisteredRegion(),
