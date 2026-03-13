@@ -3,8 +3,6 @@ package cse
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,36 +10,59 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/services"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var microserviceNotFoundCodes = []string{
-	"400012",
-}
+var (
+	microserviceNonUpdatableParams = []string{
+		"auth_address",
+		"connect_address",
+		"admin_user",
+		"admin_pass",
+		"name",
+		"app_name",
+		"version",
+		"environment",
+		"level",
+		"description",
+	}
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	microserviceDefaultProjectId = "default"
+	microserviceNotFoundCodes    = []string{
+		"400012",
+	}
+)
 
-// @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}
-// @API CSE GET /v2/{project_id}/registry/microservices/{serviceId}
-// @API CSE POST /v2/{project_id}/registry/microservices
+// @API CSE GET /v4/token
+// @API CSE POST /v4/{project_id}/registry/microservices
+// @API CSE GET /v4/{project_id}/registry/microservices/{service_id}
+// @API CSE DELETE /v4/{project_id}/registry/microservices/{service_id}
 func ResourceMicroservice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceCreate,
 		ReadContext:   resourceMicroserviceRead,
+		UpdateContext: resourceMicroserviceUpdate,
 		DeleteContext: resourceMicroserviceDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceMicroserviceImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(microserviceNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
-			// Authentication and request parameters.
+			// Special parameters.
+			// These parameters are used to specify the address that used to request the access token and access the
+			// microservice engine.
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{
@@ -51,63 +72,72 @@ func ResourceMicroservice() *schema.Resource {
 			"connect_address": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `The address that used to send requests and manage configuration.`,
+				Description: `The address that used to access engine and manages microservice.`,
 			},
 			"admin_user": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "The user name that used to pass the RBAC control.",
 			},
 			"admin_pass": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
-				ForceNew:     true,
 				RequiredWith: []string{"admin_user"},
 				Description:  "The user password that used to pass the RBAC control.",
 			},
-			// Resource parameters.
+
+			// Required parameters.
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the microservice.",
 			},
 			"app_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the microservice application.",
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The version of the microservice.",
 			},
+
+			// Optional parameters.
 			"environment": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"development", "testing", "acceptance", "production",
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The environment (stage) type of the microservice.",
 			},
 			"level": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"FRONT", "MIDDLE", "BACK",
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The level of the microservice.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the microservice.",
 			},
+
+			// Attributes.
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of the microservice.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
 			},
 		},
 	}
@@ -122,89 +152,194 @@ func getAuthAddress(d *schema.ResourceData) string {
 	return d.Get("connect_address").(string)
 }
 
-func buildMicroserviceCreateOpts(d *schema.ResourceData) services.CreateOpts {
-	env := d.Get("environment").(string)
-	return services.CreateOpts{
-		Services: services.Service{
-			Name:        d.Get("name").(string),
-			AppId:       d.Get("app_name").(string),
-			Environment: &env,
-			Version:     d.Get("version").(string),
-			Level:       d.Get("level").(string),
-			Description: d.Get("description").(string),
+func buildMicroserviceCreateOpts(d *schema.ResourceData) map[string]interface{} {
+	return utils.RemoveNil(map[string]interface{}{
+		"service": map[string]interface{}{
+			// Required parameters.
+			"serviceName": d.Get("name").(string),
+			"appId":       d.Get("app_name").(string),
+			"version":     d.Get("version").(string),
+			// Optional parameters.
+			"environment": utils.ValueIgnoreEmpty(d.Get("environment").(string)),
+			"level":       utils.ValueIgnoreEmpty(d.Get("level").(string)),
+			"description": utils.ValueIgnoreEmpty(d.Get("description").(string)),
 		},
+	})
+}
+
+func createMicroservice(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v4/{project_id}/registry/microservices"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", microserviceDefaultProjectId)
+
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		JSONBody:         buildMicroserviceCreateOpts(d),
 	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `GET /v4/token` interface.
+	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string), d.Get("admin_pass").(string))
+	if err != nil {
+		return nil, err
+	}
+	// If the microservice has RBAC authentication enabled, the Authorization header will use a special token provided
+	// by the CSE service to replace the original IAM authentication information (AKSK authentication) in the request
+	// header.
+	if token != "" {
+		createOpts.MoreHeaders["Authorization"] = token
+	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpts)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceMicroserviceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
+	client := common.NewCustomClient(true, d.Get("connect_address").(string))
+
+	resp, err := createMicroservice(client, d)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating microservice: %s", err)
 	}
 
-	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
-	createOpts := buildMicroserviceCreateOpts(d)
-	log.Printf("[DEBUG] The createOpts of the Microservice is: %v", createOpts)
-	resp, err := services.Create(client, createOpts, token)
-	if err != nil {
-		return diag.Errorf("error creating dedicated microservice: %s", err)
+	microserviceId := utils.PathSearch("serviceId", resp, "").(string)
+	if microserviceId == "" {
+		return diag.Errorf("unable to find the microservice ID from the API response")
 	}
-	d.SetId(resp.ID)
+	d.SetId(microserviceId)
 
 	return resourceMicroserviceRead(ctx, d, meta)
 }
 
-func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		// When the engine does not exist, obtaining a token will cause a request connection exception.
-		// To ensure that the resource is available on RFS platform, this situation is specially handled as a 404 error.
-		log.Printf("[ERROR] %s", err)
-		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
+func GetMicroservice(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass, microserviceId string) (interface{}, error) {
+	httpUrl := "v4/{project_id}/registry/microservices/{service_id}"
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceDefaultProjectId)
+	getPath = strings.ReplaceAll(getPath, "{service_id}", microserviceId)
+
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
 	}
 
-	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
-	resp, err := services.Get(client, d.Id(), token)
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `GET /v4/token` interface.
+	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
 	if err != nil {
+		return nil, err
+	}
+	// If the microservice has RBAC authentication enabled, the Authorization header will use a special token provided
+	// by the CSE service to replace the original IAM authentication information (AKSK authentication) in the request
+	// header.
+	if token != "" {
+		getOpts.MoreHeaders["Authorization"] = token
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(requestResp)
+}
+
+func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	var (
+		client         = common.NewCustomClient(true, d.Get("connect_address").(string))
+		authAddress    = getAuthAddress(d)
+		adminUser      = d.Get("admin_user").(string)
+		adminPass      = d.Get("admin_pass").(string)
+		microserviceId = d.Id()
+	)
+
+	respBody, err := GetMicroservice(client, authAddress, adminUser, adminPass, microserviceId)
+	if err != nil {
+		// When the microservice does not exist, the error code returned is 400, and the error information is:
+		// {"errorCode": "400012", "errorMessage": "Micro-service does not exist", "detail": "Service does not exist."}
+		// So, we need to convert the error code to 404 error and specify the key of the error code to be "errorCode".
 		return common.CheckDeletedDiag(d,
 			common.ConvertExpected400ErrInto404Err(err, "errorCode", microserviceNotFoundCodes...),
-			"CSE Microservice")
+			fmt.Sprintf("error retrieving microservice (%s)", microserviceId))
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("name", resp.Name),
-		d.Set("app_name", resp.AppId),
-		d.Set("environment", resp.Environment),
-		d.Set("version", resp.Version),
-		d.Set("level", resp.Level),
-		d.Set("description", resp.Description),
-		d.Set("status", resp.Status),
+		// Required parameters.
+		d.Set("name", utils.PathSearch("service.serviceName", respBody, "").(string)),
+		d.Set("app_name", utils.PathSearch("service.appId", respBody, "").(string)),
+		d.Set("version", utils.PathSearch("service.version", respBody, "").(string)),
+		// Optional parameters.
+		d.Set("environment", utils.PathSearch("service.environment", respBody, "").(string)),
+		d.Set("level", utils.PathSearch("service.level", respBody, "").(string)),
+		d.Set("description", utils.PathSearch("service.description", respBody, "").(string)),
+		// Attributes.
+		d.Set("status", utils.PathSearch("service.status", respBody, "").(string)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceMicroserviceDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		return diag.FromErr(err)
+func resourceMicroserviceUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func deleteMicroservice(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl        = "v4/{project_id}/registry/microservices/{service_id}"
+		microserviceId = d.Id()
+	)
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", microserviceDefaultProjectId)
+	deletePath = strings.ReplaceAll(deletePath, "{service_id}", microserviceId)
+
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
 	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `GET /v4/token` interface.
+	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string), d.Get("admin_pass").(string))
+	if err != nil {
+		return err
+	}
+	// If the microservice has RBAC authentication enabled, the Authorization header will use a special token provided
+	// by the CSE service to replace the original IAM authentication information (AKSK authentication) in the request
+	// header.
+	if token != "" {
+		deleteOpts.MoreHeaders["Authorization"] = token
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func resourceMicroserviceDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	client := common.NewCustomClient(true, d.Get("connect_address").(string))
 
 	// The current configuration is force deletion that delete microservices and related configuration and binding
 	// instances
-	deleteOpts := services.DeleteOpts{
-		Force: true,
-	}
-	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
-	err = services.Delete(client, deleteOpts, d.Id(), token)
+	err := deleteMicroservice(client, d)
 	if err != nil {
-		return diag.Errorf("error deleting dedicated microservice (%s): %s", d.Id(), err)
+		// When the microservice does not exist, the error code returned is 400, and the error information is:
+		// {"errorCode": "400012", "errorMessage": "Micro-service does not exist", "detail": "Service does not exist."}
+		// So, we need to convert the error code to 404 error and specify the key of the error code to be "errorCode".
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errorCode", microserviceNotFoundCodes...),
+			fmt.Sprintf("error deleting microservice (%s)", d.Id()))
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -214,26 +349,31 @@ func resourceMicroserviceImportState(_ context.Context, d *schema.ResourceData,
 		authAddr, connectAddr, importedIdWithoutAddrs, microserviceId, adminUser, adminPwd string
 		mErr                                                                               *multierror.Error
 
-		importedId   = d.Id()
-		addressRegex = `https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}`
-		re           = regexp.MustCompile(fmt.Sprintf(`^(%[1]s)?/?(%[1]s)/(.*)$`, addressRegex))
-		formatErr    = fmt.Errorf("the imported microservice ID specifies an invalid format, want "+
+		importedId = d.Id()
+		formatErr  = fmt.Errorf("the imported microservice ID specifies an invalid format, want "+
 			"'<auth_address>/<connect_address>/<id>' or '<auth_address>/<connect_address>/<id>/<admin_user>/<admin_pass>', but got '%s'",
 			importedId)
 	)
 
-	if !re.MatchString(importedId) {
+	if !connectAddressRegexPattern.MatchString(importedId) {
 		return nil, formatErr
 	}
-	resp := re.FindAllStringSubmatch(importedId, -1)
-	// If the imported ID matches the address regular expression, the length of the response result must be greater than 1.
+	resp := connectAddressRegexPattern.FindAllStringSubmatch(importedId, -1)
+	// To prevent panics caused by null resp values ​​due to differences in regular expression implementation, defensive
+	// checks are added.
+	if len(resp) == 0 {
+		return nil, formatErr
+	}
+	// If the imported ID matches the address regular expression, the length of the response result must be greater
+	// than 1.
 	switch len(resp[0]) {
 	case 4:
 		authAddr = resp[0][1]
 		connectAddr = resp[0][2]
 		importedIdWithoutAddrs = resp[0][3]
 		if authAddr == "" {
-			authAddr = connectAddr // Using the connect address as the auth address if the auth address input is omitted.
+			// Using the connect address as the auth address if the auth address input is omitted.
+			authAddr = connectAddr
 		}
 	default:
 		return nil, formatErr

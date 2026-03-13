@@ -2,16 +2,17 @@
 subcategory: "Cloud Service Engine (CSE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cse_microservice"
-description: ""
+description: |-
+  Manages a microservice resource under a specified microservice engine within HuaweiCloud.
 ---
 
 # huaweicloud_cse_microservice
 
-Manages a dedicated microservice resource within HuaweiCloud.
+Manages a microservice resource under a specified microservice engine within HuaweiCloud.
 
--> 1. Before creating a configuration, make sure the engine has enabled the rules shown in the appendix
-   [table](#microservice_default_engine_access_rules).
-   <br/> 2. When deleting a microservice, all instances under it will also be deleted together.
+-> 1. Before creating a microservice, make sure that the engine is bound to the EIP and that the rules shown in the
+   appendix [table](#microservice_default_engine_access_rules) are enabled in the corresponding security group.
+   <br/>2. When deleting a microservice, all instances under it will also be deleted together.
 
 ## Example Usage
 
@@ -70,21 +71,18 @@ resource "huaweicloud_cse_microservice" "test" {
 
 The following arguments are supported:
 
-* `auth_address` - (Required, String, ForceNew) Specifies the address that used to request the access token.  
-  Usually is the connection address of service center.  
-  Changing this will create a new resource.
+* `auth_address` - (Required, String, NonUpdatable) Specifies the address that used to request the access token.  
+  Usually is the connection address of service center.
 
-* `connect_address` - (Required, String, ForceNew) Specifies the address that used to access engine and manages
+* `connect_address` - (Required, String, NonUpdatable) Specifies the address that used to access engine and manages
   microservice.  
-  Usually is the connection address of service center.  
-  Changing this will create a new resource.
+  Usually is the connection address of service center.
 
 -> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
 
-* `admin_user` - (Optional, String, ForceNew) Specifies the account name for **RBAC** login.
-  Changing this will create a new resource.
+* `admin_user` - (Optional, String, NonUpdatable) Specifies the user name that used to pass the **RBAC** control.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the account password for **RBAC** login.
+* `admin_pass` - (Optional, String, NonUpdatable) Specifies the user password that used to pass the **RBAC** control.
   The password format must meet the following conditions:
   + Must be `8` to `32` characters long.
   + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
@@ -92,39 +90,44 @@ The following arguments are supported:
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
 
-  Changing this will create a new resource.
-
 -> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the dedicated microservice.
-  The name can contain `1` to `128` characters, only letters, digits, underscore (_), hyphens (-) and dots (.) are
-  allowed. The name must start and end with a letter or digit. Changing this will create a new microservice.
+~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will assume the resource
+   does not exist and remove it from the local `.tfstate` file, after which it can only be managed by importing it.
 
-* `app_name` - (Required, String, ForceNew) Specifies the name of the dedicated microservice application.
-  Changing this will create a new microservice.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the microservice.  
+  The valid value is limited from `1` to `128` characters, only letters, digits, underscore (_), hyphens (-) and
+  dots (.) are allowed. The name must start and end with a letter or digit.
 
-* `version` - (Required, String, ForceNew) Specifies the version of the dedicated microservice.
-  Changing this will create a new microservice.
+* `app_name` - (Required, String, NonUpdatable) Specifies the name of the microservice application.
 
-* `environment` - (Optional, String, ForceNew) Specifies the environment (stage) type.
-  The valid values are **development**, **testing**, **acceptance** and **production**.
+* `version` - (Required, String, NonUpdatable) Specifies the version of the microservice.
+
+* `environment` - (Optional, String, NonUpdatable) Specifies the environment (stage) type of the microservice.  
+  The valid values are as follows:
+  + **development**
+  + **testing**
+  + **acceptance**
+  + **production**
+
   If omitted, the microservice will be deployed in an empty environment.
-  Changing this will create a new microservice.
 
-* `level` - (Optional, String, ForceNew) Specifies the microservice level.
-  The valid values are **FRONT**, **MIDDLE**, and **BACK**. Changing this will create a new microservice.
+* `level` - (Optional, String, NonUpdatable) Specifies the level of the microservice.  
+  The valid values are as follows:
+  + **FRONT**
+  + **MIDDLE**
+  + **BACK**
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the dedicated microservice.
+* `description` - (Optional, String, NonUpdatable) Specifies the description of the microservice.  
   The description can contain a maximum of `256` characters.
-  Changing this will create a new microservice.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The microservice ID.
+* `id` - The ID of the microservice.
 
-* `status` - The microservice status. The values supports **UP** and **DOWN**.
+* `status` - The status of the microservice.
 
 ## Import
 
@@ -163,8 +166,8 @@ Security group rules required to access the engine:
 | Ingress   | 1        | Allow  | ICMP     | All           | Ipv6      | ::/0                  |
 | Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv6      | ::/0                  |
 | Ingress   | 1        | Allow  | All      | All           | Ipv6      | cse-engine-default-sg |
-| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | 0.0.0.0/0             |
-| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | 0.0.0.0/0             |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
 | Ingress   | 1        | Allow  | All      | All           | Ipv4      | cse-engine-default-sg |
 | Egress    | 100      | Allow  | All      | All           | Ipv6      | ::/0                  |
 | Egress    | 100      | Allow  | All      | All           | Ipv4      | 0.0.0.0/0             |

@@ -32,8 +32,16 @@ func NewCustomClient(insecure bool, endpoints ...string) *golangsdk.ServiceClien
 		Timeout: 30 * time.Minute,
 	}
 
-	return &golangsdk.ServiceClient{
+	client := &golangsdk.ServiceClient{
 		ProviderClient: p,
-		ResourceBase:   strings.Join(endpoints, "/") + "/",
+		ResourceBase:   "",
+		Endpoint:       "",
 	}
+
+	if len(endpoints) > 0 {
+		client.Endpoint = strings.TrimSuffix(endpoints[0], "/") + "/"
+		client.ResourceBase = strings.Join(endpoints, "/") + "/"
+	}
+
+	return client
 }
