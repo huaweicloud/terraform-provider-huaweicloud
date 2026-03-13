@@ -3,14 +3,15 @@ subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identityv5_user_password"
 description: |-
-  Modify IAM user's own password within HuaweiCloud.
+  Use this resource to modify IAM user's own password within HuaweiCloud.
 ---
 
 # huaweicloud_identityv5_user_password
 
-Modify IAM user's own password within HuaweiCloud.
+Use this resource to modify IAM user's own password within HuaweiCloud.
 
-->**Note** The password can not be destroyed.
+-> This resource is only a one-time action resource for changing user password. Deleting this resource will
+   not clear the corresponding request record, but will only remove the resource information from the tfstate file.
 
 ## Example Usage
 
@@ -26,10 +27,10 @@ resource "huaweicloud_identityv5_user_password" "test" {
 
 ## Argument Reference
 
-* `new_password` - (Required, String, NonUpdatable) Specifies the IAM user new password.
+* `new_password` - (Required, String, NonUpdatable) Specifies the new password of the user.
 
-* `old_password` - (Required, String, NonUpdatable) Specifies the IAM user old password.
+* `old_password` - (Required, String, NonUpdatable) Specifies the old password of the user.
 
 ## Attribute Reference
 
-* `id` - Resource ID in format `<user_id>`.
+* `id` - The resource ID, also the user ID.
