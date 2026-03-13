@@ -848,6 +848,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_resource_tags":             cfw.DataSourceCfwResourceTags(),
 			"huaweicloud_cfw_tags":                      cfw.DataSourceCfwTags(),
 			"huaweicloud_cfw_ip_blacklist":              cfw.DataSourceIpBlacklist(),
+			"huaweicloud_cfw_ip_blacklist_switch":       cfw.DataSourceIpBlacklistSwitch(),
 
 			"huaweicloud_cnad_advanced_instances":           cnad.DataSourceInstances(),
 			"huaweicloud_cnad_advanced_alarm_notifications": cnad.DataSourceAlarmNotifications(),
