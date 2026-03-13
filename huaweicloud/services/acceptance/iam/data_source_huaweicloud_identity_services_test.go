@@ -8,11 +8,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityServices_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_identity_services.test"
-
-	config := testAccIdentityServices_basic()
-	configById := testAccIdentityServicesById_basic()
+func TestAccV3Services_basic(t *testing.T) {
+	var (
+		all = "data.huaweicloud_identity_services.test"
+		dc  = acceptance.InitDataSourceCheck(all)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,27 +22,37 @@ func TestAccIdentityServices_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: config,
+				Config: testAccV3Services_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSource, "services.0.enabled", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(all, "services.0.enabled", "true"),
+					resource.TestCheckResourceAttrSet(all, "services.0.name"),
+					resource.TestCheckResourceAttrSet(all, "services.0.id"),
+					resource.TestCheckResourceAttrSet(all, "services.0.type"),
+					resource.TestCheckResourceAttrSet(all, "services.0.link"),
 				),
 			},
 			{
-				Config: configById,
+				Config: testAccV3ServicesById_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSource, "services.0.enabled", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(all, "services.0.enabled", "true"),
+					resource.TestCheckResourceAttrSet(all, "services.0.name"),
+					resource.TestCheckResourceAttrSet(all, "services.0.id"),
+					resource.TestCheckResourceAttrSet(all, "services.0.type"),
+					resource.TestCheckResourceAttrSet(all, "services.0.link"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityServices_basic() string {
+func testAccV3Services_basic() string {
 	return `
 data "huaweicloud_identity_services" "test" {}
 `
 }
-func testAccIdentityServicesById_basic() string {
+func testAccV3ServicesById_basic() string {
 	return `
 data "huaweicloud_identity_services" "all" {}
 
