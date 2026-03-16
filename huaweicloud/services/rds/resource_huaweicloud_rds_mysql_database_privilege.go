@@ -197,6 +197,7 @@ func deleteMysqlDatabasePrivilege(ctx context.Context, client *golangsdk.Service
 	for start < end {
 		opt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 			JSONBody:         utils.RemoveNil(buildDeleteUserPrivilegesFromDatabaseBodyParams(dbName, users[start:end])),
 		}
 
@@ -280,6 +281,7 @@ func addPrivilegesToDatabase(ctx context.Context, client *golangsdk.ServiceClien
 	for start < end {
 		opt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 			JSONBody:         utils.RemoveNil(buildAddUserPrivilegesToDatabaseBodyParams(dbName, users[start:end])),
 		}
 
@@ -396,6 +398,7 @@ func ListMysqlDatabasePrivileges(client *golangsdk.ServiceClient, instanceId, db
 	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	result := make([]interface{}, 0)
