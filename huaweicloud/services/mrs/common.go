@@ -13,6 +13,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var clusterNotFoundCodes = []string{
+	"12000003", // The MRS cluster does not exist.
+}
+
 func getClusterById(client *golangsdk.ServiceClient, clusterId string) (interface{}, error) {
 	httpUrl := "v1.1/{project_id}/cluster_infos/{cluster_id}"
 	getPath := client.Endpoint + httpUrl
