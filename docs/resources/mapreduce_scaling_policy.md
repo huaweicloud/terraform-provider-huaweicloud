@@ -150,7 +150,7 @@ The `trigger` block supports:
 * `metric_name` - (Required, String) Metric name.  
   This triggering condition makes a judgment according to the value of the metric.  
   A metric name contains a maximum of 64 characters.  
-  For details about metric names, see [Configuring Auto Scaling for an MRS Cluster](https://support.huaweicloud.com/intl/en-us/qs-mrs/mrs_09_0005.html).
+  For details about metric names, see [Configuring Auto Scaling for an MRS Cluster](https://support.huaweicloud.com/intl/en-us/bestpractice-mrs/mrs_05_0132.html#mrs_05_0132__en-us_topic_0000001168444324_table15133845184415).
 
 * `metric_value` - (Required, String) Metric threshold to trigger a rule.  
   The parameter value can only be an integer or number with two decimal places.
