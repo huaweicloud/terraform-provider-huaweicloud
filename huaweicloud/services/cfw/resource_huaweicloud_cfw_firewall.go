@@ -43,7 +43,7 @@ const (
 // @API CFW GET /v1/{project_id}/ips/protect
 // @API CFW POST /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/create
 // @API CFW DELETE /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/delete
-
+// @API CFW PUT /v1/{project_id}/firewall/name
 func ResourceFirewall() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFirewallCreate,
@@ -93,7 +93,6 @@ func ResourceFirewall() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the firewall name.`,
 			},
 			"flavor": {
@@ -934,6 +933,13 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if !d.IsNewResource() && d.HasChange("name") {
+		err := updateFirewallName(d, meta)
+		if err != nil {
+			return diag.Errorf("error updating firewall name: %s", err)
+		}
+	}
+
 	if !d.IsNewResource() && d.HasChange("tags") {
 		err := updateTags(d, meta)
 		if err != nil {
@@ -942,6 +948,34 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return resourceFirewallRead(ctx, d, meta)
+}
+
+func updateFirewallName(d *schema.ResourceData, meta interface{}) error {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/firewall/name"
+		product = "cfw"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
+	requestOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"fw_instance_name": d.Get("name").(string),
+		},
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpts)
+
+	return err
 }
 
 func updateEastWestFirewallStatus(d *schema.ResourceData, meta interface{}, objectID string) error {

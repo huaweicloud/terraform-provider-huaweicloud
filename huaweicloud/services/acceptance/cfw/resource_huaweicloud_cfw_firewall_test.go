@@ -113,6 +113,7 @@ func TestAccFirewall_prePaid(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -123,7 +124,7 @@ func TestAccFirewall_prePaid(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "engine_type"),
@@ -138,7 +139,7 @@ func TestAccFirewall_prePaid(t *testing.T) {
 				Config: testFirewall_prePaid_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttr(rName, "tags.k1", "v1"),
 					resource.TestCheckResourceAttr(rName, "tags.k2", "v2"),
 				),
@@ -461,7 +462,7 @@ resource "huaweicloud_cfw_firewall" "test" {
 func testFirewall_prePaid(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cfw_firewall" "test" {
-  name = "%s"
+  name = "%[1]s"
 
   flavor {
     version = "Professional"
@@ -472,18 +473,19 @@ resource "huaweicloud_cfw_firewall" "test" {
     foo = "bar"
   }
 
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-  auto_renew    = false
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  auto_renew            = false
+  enterprise_project_id = "%[2]s"
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testFirewall_prePaid_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cfw_firewall" "test" {
-  name = "%s"
+  name = "%[1]s_update"
 
   flavor {
     version = "Professional"
@@ -494,12 +496,13 @@ resource "huaweicloud_cfw_firewall" "test" {
     k2 = "v2"
   }
 
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-  auto_renew    = false
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  auto_renew            = false
+  enterprise_project_id = "%[2]s"
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testFirewall_eastWestBase(name string, bgpAsNum int) string {
