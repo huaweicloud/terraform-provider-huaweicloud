@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 function usage() {
-    echo "Usage: ./scripts/codecheck.sh {package}"
+    echo "Usage: ./scripts/codecheck.sh {package} [-f|--file <file_path>]"
     echo "Example1: ./scripts/codecheck.sh ./huaweicloud/services/vpc"
     echo "Example2: ./scripts/codecheck.sh ./huaweicloud/services/..."
+    echo "Example3: ./scripts/codecheck.sh ./huaweicloud/services/dws -f huaweicloud/services/dws/data_source_huaweicloud_dws_host_nets.go"
+    echo "Example4: ./scripts/codecheck.sh ./huaweicloud/services/dws --file huaweicloud/services/acceptance/dws/data_source_huaweicloud_dws_host_nets_test.go"
     echo ""
 }
 
@@ -59,13 +61,46 @@ function checkHuaweiCloudKey() {
     done
 }
 
+# Parse command line arguments
+TARGET_FILE=""
+package=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -f | --file)
+            if [[ $# -gt 1 ]]; then
+                TARGET_FILE=$2
+                shift 2
+            else
+                echo "Error: -f/--file requires a file path argument"
+                usage
+                exit 1
+            fi
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            if [[ -z "$package" ]]; then
+                package=$1
+            else
+                echo "Error: Unknown option $1"
+                usage
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
 # Check parameters
-package=$1
 if [ "X$package" == "X" ]; then
     echo -e "error: package is missing!\n"
     usage
     exit 1
 fi
+
 # trim right "/" if necessary
 package=${package%/}
 packageDir=${package%...}
@@ -131,6 +166,44 @@ if [ $? -ne 0 ]; then
 else
     git apply ./scripts/0001-deprecate-fmtp-and-logp.patch
     applied=TRUE
+fi
+
+# Check specific file
+if [[ -n "$TARGET_FILE" ]]; then
+    echo -e "\n==> Checking specific file: $TARGET_FILE"
+    
+    # Check if file exists
+    if [[ ! -f "$TARGET_FILE" ]]; then
+        echo -e "error: file not found: $TARGET_FILE\n"
+        exit 1
+    fi
+    
+    # Check golangci-lint for specific file
+    echo -e "\n==> Checking for golangci-lint..."
+    golangci-lint run "$TARGET_FILE"
+    
+    # Check for Nolint directives
+    echo -e "\n==> Checking for Nolint directives..."
+    grep -rn "nolint:" "$TARGET_FILE"
+    grep -rn "lintignore:" "$TARGET_FILE"
+    
+    # Check for HuaweiCloud key
+    echo -e "\n==> Checking for HuaweiCloud key..."
+    checkHuaweiCloudKey "$(dirname $TARGET_FILE)"
+    
+    # Check for misspell
+    echo -e "\n==> Checking for misspell..."
+    misspell "$TARGET_FILE"
+    
+    # Cleanup
+    if [ "X$applied" == "XTRUE" ]; then
+        echo -e "\n==> Cleanup patch..."
+        git checkout -- huaweicloud/utils/fmtp/errors.go
+        git checkout -- huaweicloud/utils/logp/log.go
+    fi
+    
+    echo -e "\nCheck Completed!\n"
+    exit 0
 fi
 
 # Check Code Complexity
