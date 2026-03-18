@@ -2904,6 +2904,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_firewall":                      cfw.ResourceFirewall(),
 			"huaweicloud_cfw_ips_custom_rule":               cfw.ResourceIpsCustomRule(),
 			"huaweicloud_cfw_domain_name_group":             cfw.ResourceDomainNameGroup(),
+			"huaweicloud_cfw_download_imported_acl_rule":    cfw.ResourceDownloadImportedAclRule(),
 			"huaweicloud_cfw_lts_log":                       cfw.ResourceLtsLog(),
 			"huaweicloud_cfw_report_profile":                cfw.ResourceReportProfile(),
 			"huaweicloud_cfw_schedule":                      cfw.ResourceSchedule(),
