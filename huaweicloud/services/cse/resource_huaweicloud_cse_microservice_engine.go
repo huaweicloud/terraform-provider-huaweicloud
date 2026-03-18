@@ -21,9 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var (
-	DefaultVersion = "CSE2"
+const DefaultVersion = "CSE2"
 
+var (
 	microserviceEngineNotFoundCodes = []string{
 		"SVCSTG.00501116",
 		"SVCSTG.00501125",
@@ -91,7 +91,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			"network_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The network ID of the microservice engine.`,
+				Description: `The network ID of the subnet to which the microservice engine belongs.`,
 			},
 			"auth_type": {
 				Type:        schema.TypeString,
@@ -117,7 +117,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				Description: `The administrator password of the microservice engine.`,
+				Description: `The administrator account password of the microservice engine.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -147,17 +147,16 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			"service_limit": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `The service limit of the microservice engine.`,
+				Description: `The maximum number of the microservice resources.`,
 			},
 			"instance_limit": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `The instance limit of the microservice engine.`,
+				Description: `The maximum number of the microservice instance resources.`,
 			},
 			"service_registry_addresses": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `The service registry addresses of the microservice engine.`,
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"private": {
@@ -172,11 +171,11 @@ func ResourceMicroserviceEngine() *schema.Resource {
 						},
 					},
 				},
+				Description: `The service registry addresses of the microservice engine.`,
 			},
 			"config_center_addresses": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `The config center addresses of the microservice engine.`,
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"private": {
@@ -191,6 +190,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 						},
 					},
 				},
+				Description: `The config center addresses of the microservice engine.`,
 			},
 
 			// Internal parameters.
@@ -198,7 +198,11 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
 			},
 		},
 	}
@@ -253,26 +257,28 @@ func buildAuthCred(authType, adminPass string) interface{} {
 	return nil
 }
 
-// buildMicroserviceEngineCreateOpts builds the request body for creating a microservice engine.
+// buildMicroserviceEngineBodyParams builds the request body for creating a microservice engine.
 // It extracts data from the schema, VPC info, and subnet info, then constructs the API request parameters.
 // The function handles field mapping, type conversion, and optional field processing (using utils.ValueIgnoreEmpty).
-func buildMicroserviceEngineCreateOpts(d *schema.ResourceData, vpcInfo, subnetInfo interface{}) map[string]interface{} {
+func buildMicroserviceEngineBodyParams(d *schema.ResourceData, vpcInfo, subnetInfo interface{}) map[string]interface{} {
 	authType := d.Get("auth_type").(string)
 	return map[string]interface{}{
-		"name":        d.Get("name").(string),
+		"payment": "1", // PostPaid
+		// Required parameters.
+		"name":       d.Get("name").(string),
+		"flavor":     d.Get("flavor").(string),
+		"networkId":  d.Get("network_id").(string),
+		"authType":   authType,
+		"vpc":        utils.PathSearch("vpc.name", vpcInfo, ""),
+		"vpcId":      utils.PathSearch("subnet.vpc_id", subnetInfo, ""),
+		"subnetCidr": utils.PathSearch("subnet.cidr", subnetInfo, ""),
+		// Optional parameters.
 		"description": utils.ValueIgnoreEmpty(d.Get("description").(string)),
-		"payment":     "1", // PostPaid
-		"flavor":      d.Get("flavor").(string),
-		"azList":      utils.ExpandToStringListBySet(d.Get("availability_zones").(*schema.Set)),
-		"authType":    authType,
-		"vpc":         utils.PathSearch("vpc.name", vpcInfo, ""),
-		"vpcId":       utils.PathSearch("subnet.vpc_id", subnetInfo, ""),
-		"networkId":   d.Get("network_id").(string),
-		"subnetCidr":  utils.PathSearch("subnet.cidr", subnetInfo, ""),
+		"azList":      utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(d.Get("availability_zones").(*schema.Set))),
 		"publicIpId":  utils.ValueIgnoreEmpty(d.Get("eip_id").(string)),
-		"auth_cred":   buildAuthCred(authType, d.Get("admin_pass").(string)),
-		"specType":    d.Get("version").(string),
-		"inputs":      d.Get("extend_params").(map[string]interface{}),
+		"auth_cred":   utils.ValueIgnoreEmpty(buildAuthCred(authType, d.Get("admin_pass").(string))),
+		"specType":    utils.ValueIgnoreEmpty(d.Get("version").(string)),
+		"inputs":      utils.ValueIgnoreEmpty(d.Get("extend_params").(map[string]interface{})),
 	}
 }
 
@@ -295,7 +301,7 @@ func createMicroserviceEngine(cseClient, vpcClient *golangsdk.ServiceClient, d *
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      buildRequestMoreHeaders(enterpriseProjectId),
-		JSONBody:         utils.RemoveNil(buildMicroserviceEngineCreateOpts(d, vpcInfo, subnetInfo)),
+		JSONBody:         utils.RemoveNil(buildMicroserviceEngineBodyParams(d, vpcInfo, subnetInfo)),
 	}
 
 	requestResp, err := cseClient.Request("POST", createPath, &createOpts)
@@ -344,7 +350,7 @@ func refreshMicroserviceEngineJobFunc(client *golangsdk.ServiceClient, engineId,
 			if _, ok := parsedErr.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
 				return "RESOURCE_NOT_FOUND", "COMPLETED", nil
 			}
-			return nil, "ERROR", parsedErr
+			return resp, "ERROR", parsedErr
 		}
 
 		status := utils.PathSearch("status", resp, "").(string)
@@ -393,7 +399,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 		Refresh: refreshMicroserviceEngineJobFunc(cseClient, engineId,
 			strconv.Itoa(int(utils.PathSearch("jobId", createOpts, float64(0)).(float64))), enterpriseProjectId, []string{"Finished"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        180 * time.Second,
+		Delay:        3 * time.Minute,
 		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -456,6 +462,9 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 
 	respBody, err := GetMicroserviceEngineById(client, engineId, enterpriseProjectId)
 	if err != nil {
+		// When the microservice engine does not exist, the error code returned is 400/401, and the error information
+		// contains "SVCSTG.00501116" or "SVCSTG.00501125". So, we need to convert the error to 404 and specify
+		// the key of the error code to be "error_code".
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(
 			common.ConvertExpected401ErrInto404Err(err, "error_code", microserviceEngineNotFoundCodes...),
 			"error_code",
@@ -465,16 +474,19 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		// Required parameters.
 		d.Set("name", utils.PathSearch("name", respBody, "").(string)),
 		d.Set("flavor", utils.PathSearch("flavor", respBody, "").(string)),
-		d.Set("availability_zones", utils.PathSearch("reference.azList", respBody, make([]interface{}, 0)).([]interface{})),
+		d.Set("network_id", utils.PathSearch("reference.networkId", respBody, "").(string)),
 		d.Set("auth_type", utils.PathSearch("authType", respBody, "").(string)),
+		// Optional parameters.
+		d.Set("availability_zones", utils.PathSearch("reference.azList", respBody, make([]interface{}, 0)).([]interface{})),
 		d.Set("version", utils.PathSearch("specType", respBody, "").(string)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterpriseProjectId", respBody, "").(string)),
-		d.Set("network_id", utils.PathSearch("reference.networkId", respBody, "").(string)),
 		d.Set("description", utils.PathSearch("description", respBody, "").(string)),
 		d.Set("eip_id", utils.PathSearch("reference.publicIpId", respBody, "").(string)),
 		d.Set("extend_params", utils.PathSearch("reference.inputs", respBody, map[string]interface{}{}).(map[string]interface{})),
+		// Attributes.
 		d.Set("service_registry_addresses", flattenServiceRegistryAddresses(utils.PathSearch("externalEntrypoint",
 			respBody, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("config_center_addresses", flattenConfigAddresses(utils.PathSearch("externalEntrypoint",
@@ -482,7 +494,7 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 	)
 
 	diagErr := make([]diag.Diagnostic, 0, 3)
-	// Attributes
+	// Attributes (service_limit, instance_limit with special parsing).
 	if serviceLimit := utils.PathSearch("reference.serviceLimit", respBody, "").(string); serviceLimit != "" {
 		limit, err := strconv.Atoi(serviceLimit)
 		if err != nil {
@@ -552,6 +564,9 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 
 	resp, err := deleteMicroserviceEngine(client, engineId, enterpriseProjectId)
 	if err != nil {
+		// When the microservice engine does not exist, the error code returned is 400/401, and the error information
+		// contains "SVCSTG.00501116" or "SVCSTG.00501125". So, we need to convert the error to 404 and specify
+		// the key of the error code to be "error_code".
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(
 			common.ConvertExpected401ErrInto404Err(err, "error_code", microserviceEngineNotFoundCodes...),
 			"error_code",
@@ -566,7 +581,7 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 		Refresh: refreshMicroserviceEngineJobFunc(client, engineId,
 			strconv.Itoa(int(utils.PathSearch("jobId", resp, float64(0)).(float64))), enterpriseProjectId, nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
-		Delay:        120 * time.Second,
+		Delay:        2 * time.Minute,
 		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)

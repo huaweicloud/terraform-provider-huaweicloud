@@ -148,7 +148,7 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   description           = "Created by terraform test"
   flavor                = data.huaweicloud_cse_microservice_engine_flavors.test.flavors[0].id
   network_id            = huaweicloud_vpc_subnet.test.id
-  eip_id                = huaweicloud_vpc_eip.test.id
+  # eip_id                = huaweicloud_vpc_eip.test.id
   availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
   enterprise_project_id = huaweicloud_vpc.test.enterprise_project_id != "" ? huaweicloud_vpc.test.enterprise_project_id : null
 
