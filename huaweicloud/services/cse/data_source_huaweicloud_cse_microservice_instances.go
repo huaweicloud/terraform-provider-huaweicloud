@@ -17,27 +17,35 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CSE POST /v4/token
 // @API CSE GET /v4/{project_id}/registry/microservices/{service_id}/instances
 func DataSourceMicroserviceInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceMicroserviceInstancesRead,
 
 		Schema: map[string]*schema.Schema{
+			// Special parameters.
+			// These parameters are used to specify the address that used to request the access token and access the
+			// microservice engine.
 			"auth_address": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The address that used to request the access token.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The address that used to request the access token.`,
+					utils.SchemaDescInput{
+						Required: true,
+					}),
 			},
 			"connect_address": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The address that used to send requests and manage configuration.`,
+				Description: `The address that used to access engine and query microservice instances.`,
 			},
 			"admin_user": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"admin_pass"},
-				Description:  `The user name that used to pass the RBAC control.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user name that used to pass the RBAC control.`,
 			},
 			"admin_pass": {
 				Type:         schema.TypeString,
@@ -46,11 +54,15 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 				RequiredWith: []string{"admin_user"},
 				Description:  `The user password that used to pass the RBAC control.`,
 			},
+
+			// Required parameters.
 			"microservice_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The ID of the dedicated microservice to which the instances belong.`,
+				Description: `The ID of the microservice to which the microservice instances belong.`,
 			},
+
+			// Attributes.
 			"instances": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -64,7 +76,7 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 						"host_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The host name ID of the microservice instance.`,
+							Description: `The host name of the microservice instance.`,
 						},
 						"endpoints": {
 							Type:        schema.TypeList,
@@ -117,15 +129,15 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"region": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The custom region name of the data center.`,
-									},
 									"name": {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: `The name of the data center.`,
+									},
+									"region": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The custom region name of the data center.`,
 									},
 									"availability_zone": {
 										Type:        schema.TypeString,
@@ -159,25 +171,36 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 	}
 }
 
-func queryMicroserviceInstances(client *golangsdk.ServiceClient, token, microserviceId string) ([]interface{}, error) {
-	var (
-		httpUrl = "registry/microservices/{service_id}/instances"
-		listOpt = golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-	)
+func listMicroserviceInstances(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass,
+	microserviceId string) ([]interface{}, error) {
+	httpUrl := "v4/{project_id}/registry/microservices/{service_id}/instances"
 
-	if token != "" {
-		listOpt.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
-	}
-
-	listPath := client.ResourceBase + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath := client.Endpoint + httpUrl
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	listPath = strings.ReplaceAll(listPath, "{project_id}", microserviceInstanceProjectId)
 	listPath = strings.ReplaceAll(listPath, "{service_id}", microserviceId)
 
-	requestResp, err := client.Request("GET", listPath, &listOpt)
+	listOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	if err != nil {
+		return nil, err
+	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
+	if token != "" {
+		listOpts.MoreHeaders["Authorization"] = token
+	}
+
+	requestResp, err := client.Request("GET", listPath, &listOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -189,88 +212,78 @@ func queryMicroserviceInstances(client *golangsdk.ServiceClient, token, microser
 	return utils.PathSearch("instances", respBody, make([]interface{}, 0)).([]interface{}), nil
 }
 
-func flattenMicroserviceInstances(instances []interface{}) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(instances))
+// parseMicroserviceInstanceTimestamp converts the timestamp from API response (string, float64, or int) to RFC3339 format.
+func parseMicroserviceInstanceTimestamp(val interface{}) string {
+	if val == nil {
+		return ""
+	}
+	switch v := val.(type) {
+	case string:
+		if v == "" {
+			return ""
+		}
+		r, err := strconv.Atoi(v)
+		if err != nil {
+			log.Printf("[ERROR] unable to convert the string (%s) to int: %v", v, err)
+			return ""
+		}
+		return utils.FormatTimeStampRFC3339(int64(r), false)
+	case float64:
+		return utils.FormatTimeStampRFC3339(int64(v), false)
+	case int:
+		return utils.FormatTimeStampRFC3339(int64(v), false)
+	default:
+		return ""
+	}
+}
 
+func flattenMicroserviceInstances(instances []interface{}) []map[string]interface{} {
+	if len(instances) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(instances))
 	for _, instance := range instances {
 		result = append(result, map[string]interface{}{
 			"id":           utils.PathSearch("instanceId", instance, nil),
 			"host_name":    utils.PathSearch("hostName", instance, nil),
 			"endpoints":    utils.PathSearch("endpoints", instance, nil),
 			"version":      utils.PathSearch("version", instance, nil),
-			"properties":   utils.PathSearch("properties", instance, nil),
-			"health_check": flattenMicroserviceInstancesHealthCheck(utils.PathSearch("healthCheck", instance, nil)),
-			"data_center":  flattenMicroserviceInstancesDataCenter(utils.PathSearch("dataCenterInfo", instance, nil)),
+			"properties":   buildInstanceProperties(utils.PathSearch("properties", instance, make(map[string]interface{})).(map[string]interface{})),
+			"health_check": flattenHealthCheck(utils.PathSearch("healthCheck", instance, nil)),
+			"data_center":  flattenDataCenter(utils.PathSearch("dataCenterInfo", instance, nil)),
 			"status":       utils.PathSearch("status", instance, nil),
-			"created_at":   parseMicroserviceInstancesTime(utils.PathSearch("timestamp", instance, "").(string)),
-			"updated_at":   parseMicroserviceInstancesTime(utils.PathSearch("modTimestamp", instance, "").(string)),
+			"created_at":   parseMicroserviceInstanceTimestamp(utils.PathSearch("timestamp", instance, nil)),
+			"updated_at":   parseMicroserviceInstanceTimestamp(utils.PathSearch("modTimestamp", instance, nil)),
 		})
 	}
-
 	return result
 }
 
-func flattenMicroserviceInstancesHealthCheck(healthCheck interface{}) []map[string]interface{} {
-	if healthCheck == nil {
-		return nil
-	}
-
-	return []map[string]interface{}{
-		{
-			"mode":        utils.PathSearch("mode", healthCheck, nil),
-			"interval":    utils.PathSearch("interval", healthCheck, nil),
-			"max_retries": utils.PathSearch("times", healthCheck, nil),
-			"port":        utils.PathSearch("port", healthCheck, nil),
-		},
-	}
-}
-
-func flattenMicroserviceInstancesDataCenter(dataCenter interface{}) []map[string]interface{} {
-	if dataCenter == nil {
-		return nil
-	}
-
-	return []map[string]interface{}{
-		{
-			"region":            utils.PathSearch("region", dataCenter, nil),
-			"name":              utils.PathSearch("name", dataCenter, nil),
-			"availability_zone": utils.PathSearch("availableZone", dataCenter, nil),
-		},
-	}
-}
-
-func parseMicroserviceInstancesTime(timeStampStr string) string {
-	r, err := strconv.Atoi(timeStampStr)
-	if err != nil {
-		log.Printf("[ERROR] unable to convert the string (%s) to int", timeStampStr)
-		return ""
-	}
-
-	return utils.FormatTimeStampRFC3339(int64(r), false)
-}
-
 func dataSourceMicroserviceInstancesRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
+	var (
+		// Querying microservice instances in the microservice engine requires building a client based on the
+		// microservice engine's connection address, which does not use IAM authentication.
+		client         = common.NewCustomClient(true, d.Get("connect_address").(string))
+		authAddress    = getAuthAddress(d)
+		adminUser      = d.Get("admin_user").(string)
+		adminPass      = d.Get("admin_pass").(string)
+		microserviceId = d.Get("microservice_id").(string)
+	)
+
+	instances, err := listMicroserviceInstances(client, authAddress, adminUser, adminPass, microserviceId)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error querying microservice instances: %s", err)
 	}
 
-	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
-	instances, err := queryMicroserviceInstances(client, token, d.Get("microservice_id").(string))
-	if err != nil {
-		return diag.Errorf("error querying CSE microservice instances: %s", err)
-	}
-
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("instances", flattenMicroserviceInstances(instances)),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
 }

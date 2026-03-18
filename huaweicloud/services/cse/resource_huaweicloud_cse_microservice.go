@@ -38,7 +38,7 @@ var (
 	}
 )
 
-// @API CSE GET /v4/token
+// @API CSE POST /v4/token
 // @API CSE POST /v4/{project_id}/registry/microservices
 // @API CSE GET /v4/{project_id}/registry/microservices/{service_id}
 // @API CSE DELETE /v4/{project_id}/registry/microservices/{service_id}
@@ -180,7 +180,7 @@ func createMicroservice(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
-	// `GET /v4/token` interface.
+	// `POST /v4/token` interface.
 	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string), d.Get("admin_pass").(string))
 	if err != nil {
 		return nil, err
@@ -230,7 +230,7 @@ func GetMicroservice(client *golangsdk.ServiceClient, authAddress, adminUser, ad
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
-	// `GET /v4/token` interface.
+	// `POST /v4/token` interface.
 	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
 	if err != nil {
 		return nil, err
@@ -306,7 +306,7 @@ func deleteMicroservice(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
-	// `GET /v4/token` interface.
+	// `POST /v4/token` interface.
 	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string), d.Get("admin_pass").(string))
 	if err != nil {
 		return err

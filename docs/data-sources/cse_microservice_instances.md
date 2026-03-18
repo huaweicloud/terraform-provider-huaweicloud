@@ -3,17 +3,20 @@ subcategory: "Cloud Service Engine (CSE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cse_microservice_instances"
 description: |-
-  Use this data source to get the list of the instances under dedicated microservice within HuaweiCloud.
+  Use this data source to get the list of the microservice instances under specified microservice within HuaweiCloud.
 ---
 
 # huaweicloud_cse_microservice_instances
 
-Use this data source to get the list of the instances under dedicated microservice within HuaweiCloud.
+Use this data source to get the list of the microservice instances under specified microservice within HuaweiCloud.
+
+-> Before creating a microservice, make sure that the engine is bound to the EIP and that the rules shown in the
+   appendix [table](#microservice_instances_default_engine_access_rules) are enabled in the corresponding security group.
 
 ## Example Usage
 
 ```hcl
-variable "microservice_engine_id" {} // Ensure EIP access is enabled.
+variable "microservice_engine_id" {} // Enable the EIP access
 variable "admin_user" {}
 variable "admin_password" {}
 variable "microservice_id" {}
@@ -40,13 +43,14 @@ The following arguments are supported:
 
 * `auth_address` - (Required, String) Specifies the address that used to request the access token.
 
-* `connect_address` - (Required, String) Specifies the address that used to send requests and manage configuration.
+* `connect_address` - (Required, String) Specifies the address that used to access engine and query microservice
+  instances.
 
 -> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
 
-* `admin_pass` - (Optional, String) Specifies the user password that used to pass the **RBAC** control.
-
 * `admin_user` - (Optional, String) Specifies the user name that used to pass the **RBAC** control.
+
+* `admin_pass` - (Optional, String) Specifies the user password that used to pass the **RBAC** control.  
   The password format must meet the following conditions:
   + Must be `8` to `32` characters long.
   + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
@@ -56,7 +60,11 @@ The following arguments are supported:
 
 -> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
-* `microservice_id` - (Required, String) Specifies the ID of the dedicated microservice to which the instances belong.
+~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will report a connection
+   error.
+
+* `microservice_id` - (Required, String) Specifies the ID of the microservice to which the microservice instances
+  belong.
 
 ## Attribute Reference
 
@@ -96,15 +104,6 @@ The `instances` block supports:
 
 * `updated_at` - The latest update time of the microservice instance, in RFC3339 format.
 
-<a name="microservice_instances_data_center"></a>
-The `data_center` block supports:
-
-* `region` - The custom region name of the data center.
-
-* `name` - The name of the data center.
-
-* `availability_zone` - The custom availability zone of the data center.
-
 <a name="microservice_instances_health_check"></a>
 The `health_check` block supports:
 
@@ -115,3 +114,29 @@ The `health_check` block supports:
 * `max_retries` - The maximum retry number of the health check.
 
 * `port` - The port of the health check.
+
+<a name="microservice_instances_data_center"></a>
+The `data_center` block supports:
+
+* `name` - The name of the data center.
+
+* `region` - The custom region name of the data center.
+
+* `availability_zone` - The custom availability zone of the data center.
+
+## Appendix
+
+<a name="microservice_instances_default_engine_access_rules"></a>
+Security group rules required to access the engine:
+(Remote is not the minimum range and can be adjusted according to business needs)
+
+| Direction | Priority | Action | Protocol | Ports         | Ethertype | Remote                |
+| --------- | -------- | ------ | -------- | ------------- | --------- | --------------------- |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv6      | ::/0                  |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv6      | ::/0                  |
+| Ingress   | 1        | Allow  | All      | All           | Ipv6      | cse-engine-default-sg |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | A CIDR containing the public IP address of the machine from which you executed this terraform script, such as **0.0.0.0/0** |
+| Ingress   | 1        | Allow  | All      | All           | Ipv4      | cse-engine-default-sg |
+| Egress    | 100      | Allow  | All      | All           | Ipv6      | ::/0                  |
+| Egress    | 100      | Allow  | All      | All           | Ipv4      | 0.0.0.0/0             |
