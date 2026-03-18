@@ -2899,6 +2899,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_anti_virus":                    cfw.ResourceAntiVirus(),
 			"huaweicloud_cfw_black_white_list":              cfw.ResourceBlackWhiteList(),
 			"huaweicloud_cfw_eip_protection":                cfw.ResourceEipProtection(),
+			"huaweicloud_cfw_export_acl_rule":               cfw.ResourceExportAclRule(),
 			"huaweicloud_cfw_service_group":                 cfw.ResourceServiceGroup(),
 			"huaweicloud_cfw_service_group_member":          cfw.ResourceServiceGroupMember(),
 			"huaweicloud_cfw_firewall":                      cfw.ResourceFirewall(),
