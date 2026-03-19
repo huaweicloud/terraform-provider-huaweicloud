@@ -1863,8 +1863,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup_rules":    vpc.DataSourceNetworkingSecGroupRules(),
 			"huaweicloud_networking_secgroup_tags":     vpc.DataSourceVpcNetworkingSecgroupTags(),
 
-			"huaweicloud_mapreduce_versions": mrs.DataSourceMrsVersions(),
-
 			"huaweicloud_modelarts_datasets":         modelarts.DataSourceDatasets(),
 			"huaweicloud_modelarts_dataset_versions": modelarts.DataSourceDatasetVerions(),
 			"huaweicloud_modelarts_notebook_images":  modelarts.DataSourceNotebookImages(),
@@ -1880,7 +1878,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelartsv2_resource_pool_nodes": modelarts.DataSourceV2ResourcePoolNodes(),
 			"huaweicloud_modelartsv2_resource_pools":      modelarts.DataSourceV2ResourcePools(),
 
-			"huaweicloud_mapreduce_clusters": mrs.DataSourceMrsClusters(),
+			"huaweicloud_mapreduce_availability_zones": mrs.DataSourceAvailabilityZones(),
+			"huaweicloud_mapreduce_clusters":           mrs.DataSourceMrsClusters(),
+			"huaweicloud_mapreduce_versions":           mrs.DataSourceMrsVersions(),
 
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
