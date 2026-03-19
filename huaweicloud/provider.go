@@ -2916,6 +2916,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_export_logs":                   cfw.ResourceExportLogs(),
 			"huaweicloud_cfw_delete_ip_blacklist":           cfw.ResourceDeleteIpBlacklist(),
 			"huaweicloud_cfw_export_ip_blacklist":           cfw.ResourceExportIpBlacklist(),
+			"huaweicloud_cfw_ip_blacklist_retry":            cfw.ResourceIpBlacklistRetry(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
