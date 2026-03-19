@@ -159,8 +159,11 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID.
   Changing this parameter will create a new resource.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the Subnet ID.
-  Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String) Specifies the Subnet ID.
+
+  -> By default, subnets with the same VPC are connected. Ensure that the new subnet can reach your service system.
+    Note that a cluster with automatic IPv6 address creation enabled can only be switched to a new subnet that uses
+    IPv6 addresses.
 
 * `security_group_id` - (Required, String) Specifies the security group ID.
 

@@ -122,7 +122,6 @@ var cssClusterSchema = map[string]*schema.Schema{
 	"subnet_id": {
 		Type:        schema.TypeString,
 		Optional:    true,
-		ForceNew:    true,
 		Computed:    true,
 		Description: "schema: Required",
 	},
@@ -491,6 +490,7 @@ var clusterNonUpdatableParams = []string{"engine_version", "availability_zone", 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/mode/change
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/password/reset
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/subnet/change
 // @API CSS POST /v1.0/{project_id}/cluster/{cluster_id}/period
 // @API CSS POST /v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/node/offline
@@ -1290,6 +1290,14 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	// update security group ID
 	if d.HasChange("security_group_id") {
 		err = updateSecurityGroup(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// update subnet ID
+	if d.HasChange("subnet_id") {
+		err = updateClusterSubnet(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2685,6 +2693,27 @@ func updateSecurityGroup(ctx context.Context, d *schema.ResourceData, client *go
 	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func updateClusterSubnet(_ context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	updateHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/subnet/change"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"subnet_id": d.Get("subnet_id"),
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CSS cluster subnet ID: %s", err)
 	}
 
 	return nil
