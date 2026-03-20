@@ -449,6 +449,8 @@ var (
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_REPORT_PROFILE_ID         = os.Getenv("HW_CFW_REPORT_PROFILE_ID")
+	HW_CFW_REPORT_ID                 = os.Getenv("HW_CFW_REPORT_ID")
 	HW_CFW_EAST_WEST_FIREWALL        = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
 	HW_CFW_START_TIME                = os.Getenv("HW_CFW_START_TIME")
 	HW_CFW_END_TIME                  = os.Getenv("HW_CFW_END_TIME")
@@ -2770,6 +2772,20 @@ func TestAccPreCheckCesAlarmRuleWithTags(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwReportProfile(t *testing.T) {
+	if HW_CFW_REPORT_PROFILE_ID == "" {
+		t.Skip("HW_CFW_REPORT_PROFILE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwReport(t *testing.T) {
+	if HW_CFW_REPORT_ID == "" {
+		t.Skip("HW_CFW_REPORT_ID must be set for CFW acceptance tests")
 	}
 }
 
