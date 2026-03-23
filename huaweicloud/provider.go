@@ -3018,6 +3018,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_scheduled_delete_secret_task": dew.ResourceCsmsScheduledDeleteSecretTask(),
 			"huaweicloud_csms_secret_rotate":                dew.ResourceSecretRotate(),
 
+			"huaweicloud_css_agency":                      css.ResourceAgency(),
 			"huaweicloud_css_ai_ops_setting":              css.ResourceAiOpsSetting(),
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_cluster_az_migrate":          css.ResourceCssClusterAzMigrate(),
