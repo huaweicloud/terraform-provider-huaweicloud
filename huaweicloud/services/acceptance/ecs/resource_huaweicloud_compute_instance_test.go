@@ -30,6 +30,10 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
+					resource.TestCheckResourceAttrPair(resourceName, "image_id",
+						"data.huaweicloud_images_image.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "image_name", "Ubuntu 18.04 server 64bit"),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
@@ -58,6 +62,9 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
+					resource.TestCheckResourceAttrPair(resourceName, "image_id",
+						"data.huaweicloud_images_image.test_update", "id"),
+					resource.TestCheckResourceAttr(resourceName, "image_name", "Ubuntu 20.04 server 64bit"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "ces"),
@@ -600,16 +607,27 @@ func testAccComputeInstance_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_images_image" "test_update" {
+  name        = "Ubuntu 20.04 server 64bit"
+  most_recent = true
+}
+
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s-update"
   description         = "terraform test update"
-  image_id            = data.huaweicloud_images_image.test.id
+  image_id            = data.huaweicloud_images_image.test_update.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
   stop_before_destroy = true
   agency_name         = "test222"
   agent_list          = "ces"
   auto_terminate_time = ""
+
+  user_data = <<EOF
+#! /bin/bash
+echo user_test > /home/user.txt
+echo "hello wrold"
+EOF
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id

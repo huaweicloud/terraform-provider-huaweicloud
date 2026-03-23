@@ -205,11 +205,11 @@ The following arguments are supported:
 
 * `flavor_id` - (Required, String) Specifies the flavor ID of the instance to be created.
 
-* `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty. Specifies the image ID of the desired
-  image for the instance. Changing this creates a new instance.
+* `image_id` - (Optional, String) Required if `image_name` is empty. Specifies the image ID of the desired image for the
+  instance.
 
-* `image_name` - (Optional, String, ForceNew) Required if `image_id` is empty. Specifies the name of the desired image
-  for the instance. Changing this creates a new instance.
+* `image_name` - (Optional, String) Required if `image_id` is empty. Specifies the name of the desired image for the
+  instance.
 
 * `security_group_ids` - (Optional, List) Specifies an array of one or more security group IDs to associate with the
   instance.
@@ -228,7 +228,7 @@ The following arguments are supported:
 
 * `key_pair` - (Optional, String) Specifies the SSH keypair name used for logging in to the instance.
 
-* `private_key` - (Optional, String) Specifies the the private key of the keypair in use. This parameter is mandatory
+* `private_key` - (Optional, String) Specifies the private key of the keypair in use. This parameter is mandatory
   when replacing or unbinding a keypair and the instance is in **Running** state.
 
 * `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance. Defaults to `GPSSD`.
@@ -250,8 +250,8 @@ The following arguments are supported:
 * `system_disk_size` - (Optional, Int) Specifies the system disk size in GB, The value range is 1 to 1024.
   Shrinking the disk is not supported.
 
-* `system_disk_kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key used to encrypt the system disk.
-  Changing this creates a new instance.
+* `system_disk_kms_key_id` - (Optional, String) Specifies the ID of a KMS key used to encrypt the system disk. It can
+  only be modified when `image_id` or `image_name` is modified.
 
   -> **NOTE:** This parameter is only supported in some regions, such as ap-southeast-3.
     If not supported, please contact technical support.

@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -42,6 +43,8 @@ var (
 // @API ECS POST /v1.1/{project_id}/cloudservers
 // @API ECS POST /v1/{project_id}/cloudservers/delete
 // @API ECS PUT /v1/{project_id}/cloudservers/{server_id}
+// @API ECS POST /v2/{project_id}/cloudservers/{server_id}/changeos
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/changeos
 // @API ECS POST /v1/{project_id}/cloudservers/action
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/metadata
 // @API ECS DELETE /v1/{project_id}/cloudservers/{server_id}/metadata/{key}
@@ -106,14 +109,12 @@ func ResourceComputeInstance() *schema.Resource {
 			"image_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HW_IMAGE_ID", nil),
 			},
 			"image_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HW_IMAGE_NAME", nil),
 			},
@@ -229,7 +230,6 @@ func ResourceComputeInstance() *schema.Resource {
 			"system_disk_kms_key_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"system_disk_iops": {
@@ -1125,6 +1125,10 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.Errorf("error creating compute V1 client: %s", err)
 	}
+	imsClient, err := cfg.ImageV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating image client: %s", err)
+	}
 	ecsV11Client, err := cfg.ComputeV11Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V1.1 client: %s", err)
@@ -1146,6 +1150,41 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	} else if d.HasChange("auto_renew") {
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), serverID); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", serverID, err)
+		}
+	}
+
+	if d.HasChanges("image_id", "image_name") {
+		err = updateInstanceImage(ctx, d, ecsClient, imsClient)
+		if err != nil {
+			return diag.Errorf("error updating ECS instance image (%s): %s", serverID, err)
+		}
+	} else {
+		if d.HasChange("admin_pass") {
+			if newPwd, ok := d.Get("admin_pass").(string); ok {
+				err := cloudservers.ChangeAdminPassword(ecsClient, serverID, newPwd).ExtractErr()
+				if err != nil {
+					return diag.Errorf("error changing admin password of server (%s): %s", serverID, err)
+				}
+			}
+		}
+		if d.HasChange("key_pair") {
+			kmsClient, err := cfg.KmsV3Client(region)
+			if err != nil {
+				return diag.Errorf("error creating KMS v3 client: %s", err)
+			}
+
+			o, n := d.GetChange("key_pair")
+			keyPairOpts := &common.KeypairAuthOpts{
+				InstanceID:       serverID,
+				InUsedKeyPair:    o.(string),
+				NewKeyPair:       n.(string),
+				InUsedPrivateKey: d.Get("private_key").(string),
+				Password:         d.Get("admin_pass").(string),
+				Timeout:          d.Timeout(schema.TimeoutUpdate),
+			}
+			if err := common.UpdateEcsInstanceKeyPair(ctx, ecsClient, kmsClient, keyPairOpts); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -1214,15 +1253,6 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 				return diag.Errorf("error adding security group (%s) to server (%s): %s", g, serverID, err)
 			}
 			log.Printf("[DEBUG] added security group (%s) to instance (%s)", g, serverID)
-		}
-	}
-
-	if d.HasChange("admin_pass") {
-		if newPwd, ok := d.Get("admin_pass").(string); ok {
-			err := cloudservers.ChangeAdminPassword(ecsClient, serverID, newPwd).ExtractErr()
-			if err != nil {
-				return diag.Errorf("error changing admin password of server (%s): %s", serverID, err)
-			}
 		}
 	}
 
@@ -1335,27 +1365,6 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	// update the key_pair before power action
-	if d.HasChange("key_pair") {
-		kmsClient, err := cfg.KmsV3Client(region)
-		if err != nil {
-			return diag.Errorf("error creating KMS v3 client: %s", err)
-		}
-
-		o, n := d.GetChange("key_pair")
-		keyPairOpts := &common.KeypairAuthOpts{
-			InstanceID:       serverID,
-			InUsedKeyPair:    o.(string),
-			NewKeyPair:       n.(string),
-			InUsedPrivateKey: d.Get("private_key").(string),
-			Password:         d.Get("admin_pass").(string),
-			Timeout:          d.Timeout(schema.TimeoutUpdate),
-		}
-		if err := common.UpdateEcsInstanceKeyPair(ctx, ecsClient, kmsClient, keyPairOpts); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	// The instance power status update needs to be done at the end
 	if d.HasChange("power_action") {
 		action := d.Get("power_action").(string)
@@ -1407,6 +1416,95 @@ func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resourc
 		}
 		return response, "ERROR", nil
 	}
+}
+
+func updateInstanceImage(ctx context.Context, d *schema.ResourceData, ecsClient, imsClient *golangsdk.ServiceClient) error {
+	image, err := getImageFromConfig(d, imsClient)
+	if err != nil {
+		return err
+	}
+
+	var (
+		httpUrlWithoutCloudInit = "v1/{project_id}/cloudservers/{server_id}/changeos"
+		httpUrlWithCloudInit    = "v2/{project_id}/cloudservers/{server_id}/changeos"
+	)
+
+	updatePath := ""
+	if image.SupportFcInject == "true" {
+		updatePath = ecsClient.Endpoint + httpUrlWithCloudInit
+	} else {
+		updatePath = ecsClient.Endpoint + httpUrlWithoutCloudInit
+	}
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", ecsClient.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceImageBodyParams(d, image.ID))
+
+	updateResp, err := ecsClient.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ECS instance image: %s", err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error updating ECS instance image: job_id is not found in API response")
+	}
+
+	return waitForJobComplete(ctx, ecsClient, jobId, d.Timeout(schema.TimeoutUpdate))
+}
+
+func buildUpdateInstanceImageBodyParams(d *schema.ResourceData, imageId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"imageid":   imageId,
+		"adminpass": utils.ValueIgnoreEmpty(d.Get("admin_pass")),
+		"keyname":   utils.ValueIgnoreEmpty(d.Get("key_pair")),
+		"userid":    utils.ValueIgnoreEmpty(d.Get("user_id")),
+		"metadata":  buildUpdateInstanceImageMetadataBodyParams(d),
+		"mode":      "withStopServer",
+	}
+
+	if d.Get("charging_mode") == "prePaid" {
+		bodyParams["isAutoPay"] = "true"
+	}
+
+	return map[string]interface{}{
+		"os-change": bodyParams,
+	}
+}
+
+func buildUpdateInstanceImageMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	v, ok := d.GetOk("user_data")
+	if !ok {
+		return nil
+	}
+	userData := v.(string)
+	if _, err := base64.StdEncoding.DecodeString(userData); err != nil {
+		userData = base64.StdEncoding.EncodeToString([]byte(userData))
+	}
+	bodyParams := map[string]interface{}{
+		"user_data": userData,
+	}
+	if v, ok = d.GetOk("system_disk_kms_key_id"); ok {
+		bodyParams["__system__encrypted"] = "1"
+		bodyParams["__system__cmkid"] = v
+	}
+
+	return bodyParams
+}
+
+func getImageFromConfig(d *schema.ResourceData, imsClient *golangsdk.ServiceClient) (*cloudimages.Image, error) {
+	if d.HasChange("image_id") {
+		return getImage(imsClient, d.Get("image_id").(string), "")
+	}
+	return getImage(imsClient, "", d.Get("image_name").(string))
 }
 
 func updateInstanceMetaData(d *schema.ResourceData, client *golangsdk.ServiceClient, serverID string) error {
@@ -2259,4 +2357,59 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 		volRequests = append(volRequests, volRequest)
 	}
 	return volRequests
+}
+
+func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      ecsJobRefreshFunc(client, jobId),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for ECS job(%s) to complete: %s ", jobId, err)
+	}
+	return nil
+}
+
+func ecsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			httpUrl = "v1/{project_id}/jobs/{job_id}"
+		)
+
+		getPath := client.Endpoint + httpUrl
+		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+		getPath = strings.ReplaceAll(getPath, "{job_id}", jobId)
+
+		getOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		}
+		getResp, err := client.Request("GET", getPath, &getOpt)
+		if err != nil {
+			return nil, "FAIL", err
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return nil, "FAIL", err
+		}
+
+		status := utils.PathSearch("status", getRespBody, "").(string)
+		if status == "" {
+			return getRespBody, "FAIL", errors.New("status is not found in the response")
+		}
+
+		if status == "FAIL" {
+			return getRespBody, "FAIL", fmt.Errorf("the ECS job status is: %s", status)
+		}
+		if status == "SUCCESS" {
+			return getRespBody, "SUCCESS", nil
+		}
+
+		return getRespBody, "PENDING", nil
+	}
 }

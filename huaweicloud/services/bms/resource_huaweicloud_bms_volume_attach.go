@@ -268,7 +268,7 @@ func bmsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.S
 		}
 
 		if status == "FAIL" {
-			return getRespBody, "FAIL", fmt.Errorf("the connection status is: %s", status)
+			return getRespBody, "FAIL", fmt.Errorf("the BMS job status is: %s", status)
 		}
 		if status == "SUCCESS" {
 			return getRespBody, "SUCCESS", nil
