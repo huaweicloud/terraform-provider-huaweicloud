@@ -32,6 +32,11 @@ The following arguments are supported:
 
   Defaults to **CSE2**.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the microservice engine
+  flavors belong.  
+  This parameter is only valid for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

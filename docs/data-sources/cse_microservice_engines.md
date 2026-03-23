@@ -23,6 +23,11 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region where dedicated microservice engines are located.  
   If omitted, the provider-level region will be used.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the microservice engines
+  belong.  
+  This parameter is only valid for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

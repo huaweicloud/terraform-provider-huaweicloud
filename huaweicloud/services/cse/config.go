@@ -12,6 +12,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+type MicroserviceEngineAuthInfo struct {
+	AuthAddress         string
+	AdminUser           string
+	AdminPass           string
+	EnterpriseProjectId string
+}
+
 const connectAddressRegex = `https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}`
 
 var connectAddressRegexPattern = regexp.MustCompile(fmt.Sprintf(`^(%[1]s)?/?(%[1]s)/(.*)$`, connectAddressRegex))

@@ -28,11 +28,20 @@ func DataSourceMicroserviceEngineFlavors() *schema.Resource {
 				Computed:    true,
 				Description: `The region where the microservice engine flavors are located.`,
 			},
+
+			// Optional parameters.
 			"version": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The version that used to filter the microservice engine flavors.`,
+				Description: `The version used to filter the microservice engine flavors.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The enterprise project ID to which the microservice engine flavors belong.`,
+			},
+
+			// Attributes.
 			"flavors": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -69,34 +78,52 @@ func DataSourceMicroserviceEngineFlavors() *schema.Resource {
 						},
 					},
 				},
-				Description: `All microservice engine flavors that match the filter parameters.`,
+				Description: `The list of microservice engine flavors that matched filter parameters.`,
 			},
 		},
 	}
 }
 
-func queryMicroserviceEngineFlavors(client *golangsdk.ServiceClient, specType string) ([]interface{}, error) {
+func buildMicroserviceEngineFlavorsQueryParams(d *schema.ResourceData) string {
+	result := ""
+
+	if v, ok := d.GetOk("version"); ok {
+		result = fmt.Sprintf("%s&specType=%s", result, v)
+	}
+
+	if result != "" {
+		return "?" + result[1:]
+	}
+	return result
+}
+
+func listMicroserviceEngineFlavors(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	enterpriseProjectId string) ([]interface{}, error) {
 	var (
-		httpUrl = "v2/{project_id}/enginemgr/flavors"
+		httpUrl  = "v2/{project_id}/enginemgr/flavors"
+		listPath = client.Endpoint + httpUrl
 	)
 
-	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	if specType != "" {
-		listPath = fmt.Sprintf("%s?specType=%s", listPath, specType)
-	}
+	listPath += buildMicroserviceEngineFlavorsQueryParams(d)
 
-	opt := golangsdk.RequestOpts{
+	listOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	requestResp, err := client.Request("GET", listPath, &opt)
+	if enterpriseProjectId != "" {
+		listOpts.MoreHeaders = buildRequestMoreHeaders(enterpriseProjectId)
+	}
+
+	requestResp, err := client.Request("GET", listPath, &listOpts)
 	if err != nil {
 		return nil, err
 	}
+
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
 		return nil, err
 	}
+
 	return utils.PathSearch("data", respBody, make([]interface{}, 0)).([]interface{}), nil
 }
 
@@ -115,8 +142,11 @@ func flattenMicroserviceEngineFlavorSpec(spec interface{}) []map[string]interfac
 }
 
 func flattenMicroserviceEngineFlavors(flavors []interface{}) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(flavors))
+	if len(flavors) < 1 {
+		return nil
+	}
 
+	result := make([]map[string]interface{}, 0, len(flavors))
 	for _, flavor := range flavors {
 		result = append(result, map[string]interface{}{
 			"id":   utils.PathSearch("flavor", flavor, nil),
@@ -128,26 +158,31 @@ func flattenMicroserviceEngineFlavors(flavors []interface{}) []map[string]interf
 }
 
 func dataSourceMicroserviceEngineFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.NewServiceClient("cse", region)
+	var (
+		cfg                 = meta.(*config.Config)
+		region              = cfg.GetRegion(d)
+		enterpriseProjectId = cfg.GetEnterpriseProjectID(d)
+	)
+
+	client, err := cfg.NewServiceClient("cse", region)
 	if err != nil {
 		return diag.Errorf("error creating CSE client: %s", err)
 	}
 
-	flavors, err := queryMicroserviceEngineFlavors(client, d.Get("version").(string))
+	flavors, err := listMicroserviceEngineFlavors(client, d, enterpriseProjectId)
 	if err != nil {
 		return diag.Errorf("error querying microservice engine flavors: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		d.Set("enterprise_project_id", enterpriseProjectId),
 		d.Set("flavors", flattenMicroserviceEngineFlavors(flavors)),
 	)
 

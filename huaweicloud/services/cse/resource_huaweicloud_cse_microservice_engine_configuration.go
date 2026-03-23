@@ -3,13 +3,14 @@ package cse
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,6 +19,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const microserviceEngineConfigurationDefaultProjectId = "default"
+
+var microserviceEngineConfigurationNonUpdatableParams = []string{
+	"auth_address",
+	"connect_address",
+	"admin_user",
+	"admin_pass",
+	"key",
+	"value_type",
+	"enterprise_project_id",
+	"tags",
+}
+
+// @API CSE POST /v4/token
 // @API CSE POST /v1/{project_id}/kie/kv
 // @API CSE GET /v1/{project_id}/kie/kv/{kv_id}
 // @API CSE PUT /v1/{project_id}/kie/kv/{kv_id}
@@ -34,63 +49,78 @@ func ResourceMicroserviceEngineConfiguration() *schema.Resource {
 			StateContext: resourceMicroserviceEngineConfigurationImportState,
 		},
 
-		CustomizeDiff: config.MergeDefaultTags(),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(microserviceEngineConfigurationNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
-			// Authentication and request parameters.
+			// Special parameters.
+			// These parameters are used to specify the address that used to request the access token and access the
+			// microservice engine.
 			"auth_address": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The address that used to request the access token.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The address that used to request the access token.`,
+					utils.SchemaDescInput{
+						Required: true,
+					}),
 			},
 			"connect_address": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `The address that used to send requests and manage configuration.`,
+				Description: `The address that used to access the engine and manage configuration.`,
 			},
 			"admin_user": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
-				Description: "The user name that used to pass the RBAC control.",
+				Description: `The user name that used to pass the RBAC control.`,
 			},
 			"admin_pass": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
-				ForceNew:     true,
 				RequiredWith: []string{"admin_user"},
-				Description:  "The user password that used to pass the RBAC control.",
+				Description:  `The user password that used to pass the RBAC control.`,
 			},
-			// Resource parameters.
+
+			// Required parameters.
 			"key": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: "The configuration key (item name).",
+				Description: `The configuration key (item name).`,
 			},
 			"value_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The type of the configuration value.`,
 			},
 			"value": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The configuration value.",
+				Description: `The configuration value.`,
 			},
+
+			// Optional parameters.
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The configuration status.`,
 			},
-			"tags": common.TagsForceNewSchema(
-				`The key/value pairs to associate with the configuration that used to filter resource.`,
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The enterprise project ID to which the microservice engine configuration belongs.`,
+			},
+			"tags": common.TagsSchema(
+				`The key/value pairs to associate with the configuration.`,
 			),
+
+			// Attributes.
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -111,101 +141,172 @@ func ResourceMicroserviceEngineConfiguration() *schema.Resource {
 				Computed:    true,
 				Description: `The update version of the configuration.`,
 			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
+			},
 		},
 	}
 }
 
 func buildMicroserviceEngineConfigurationCreateOpts(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+	return utils.RemoveNil(map[string]interface{}{
 		"key":        d.Get("key").(string),
 		"value_type": d.Get("value_type").(string),
 		"value":      d.Get("value").(string),
-		"status":     d.Get("status").(string),
 		"labels":     d.Get("tags").(map[string]interface{}),
-	}
+		"status":     utils.ValueIgnoreEmpty(d.Get("status").(string)),
+	})
 }
 
-func resourceMicroserviceEngineConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func createMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	authInfo MicroserviceEngineAuthInfo) (interface{}, error) {
 	var (
-		client     = common.NewCustomClient(true, d.Get("connect_address").(string), "v1", "default")
-		httpUrl    = "kie/kv"
-		createPath = client.ResourceBase + httpUrl
+		httpUrl     = "v1/{project_id}/kie/kv"
+		createPath  = client.Endpoint + httpUrl
+		authAddress = getAuthAddress(d)
+		adminUser   = d.Get("admin_user").(string)
+		adminPass   = d.Get("admin_pass").(string)
 	)
 
-	// The connection address is no longer used to obtain an authentication token.
-	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	// The project ID of the microservices is the fixed value "default".
+	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	createPath = strings.ReplaceAll(createPath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
+
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 		JSONBody:         buildMicroserviceEngineConfigurationCreateOpts(d),
 	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	if err != nil {
+		return nil, err
+	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
 	if token != "" {
-		createOpts.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
+		createOpts.MoreHeaders["Authorization"] = token
 	}
 
 	requestResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
-		return diag.Errorf("error creating configuration: %s", err)
+		return "", err
 	}
-	respBody, err := utils.FlattenResponse(requestResp)
+
+	return utils.FlattenResponse(requestResp)
+}
+
+func resourceMicroserviceEngineConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg = meta.(*config.Config)
+		// Creating a microservice engine configuration requires building a client based on the
+		// microservice engine's connection address, which does not use IAM authentication.
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+	)
+
+	respBody, err := createMicroserviceEngineConfiguration(client, d, microserviceEngineAuthInfo)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	configId := utils.PathSearch("id", respBody, "").(string)
 	if configId == "" {
-		return diag.Errorf("enable to find the CSE microservice configuration ID from the API response")
+		return diag.Errorf("unable to find the CSE microservice configuration ID from the API response")
 	}
 	d.SetId(configId)
 
 	return resourceMicroserviceEngineConfigurationRead(ctx, d, meta)
 }
 
-func QueryMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, token, configId string) (interface{}, error) {
-	httpUrl := "kie/kv/{kv_id}"
+// formatKieKvTime converts KIE KV create_time/update_time (Unix milliseconds as float64) to RFC3339.
+func formatKieKvTime(val interface{}) string {
+	if val == nil {
+		return ""
+	}
 
-	queryPath := client.ResourceBase + httpUrl
-	queryPath = strings.ReplaceAll(queryPath, "{kv_id}", configId)
+	f, ok := val.(float64)
+	if !ok || f == 0 {
+		return ""
+	}
 
-	queryOpts := golangsdk.RequestOpts{
+	return utils.FormatTimeStampRFC3339(int64(f)/1000, false)
+}
+
+// GetMicroserviceEngineConfiguration queries a single KIE KV configuration by ID.
+func GetMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
+	configId string) (interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/kie/kv/{kv_id}"
+		getPath = client.Endpoint + httpUrl
+	)
+
+	// The project ID of the microservice engine configuration is the fixed value "default".
+	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
+	getPath = strings.ReplaceAll(getPath, "{kv_id}", configId)
+
+	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	if token != "" {
-		queryOpts.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
 
-	requestResp, err := client.Request("GET", queryPath, &queryOpts)
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return nil, err
 	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
+	if token != "" {
+		getOpts.MoreHeaders["Authorization"] = token
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
 	return utils.FlattenResponse(requestResp)
 }
 
-func resourceMicroserviceEngineConfigurationRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceMicroserviceEngineConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		client   = common.NewCustomClient(true, d.Get("connect_address").(string), "v1", "default")
+		cfg = meta.(*config.Config)
+		// Creating a microservice engine configuration requires building a client based on the
+		// microservice engine's connection address, which does not use IAM authentication.
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 		configId = d.Id()
 	)
-	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		// When the engine does not exist, obtaining a token will cause a request connection exception.
-		// To ensure that the resource is available on RFS platform, this situation is specially handled as a 404 error.
-		log.Printf("[ERROR] %s", err)
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-	}
 
-	respBody, err := QueryMicroserviceEngineConfiguration(client, token, configId)
+	respBody, err := GetMicroserviceEngineConfiguration(client, microserviceEngineAuthInfo, configId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying configuration (%s)", configId))
 	}
@@ -215,9 +316,10 @@ func resourceMicroserviceEngineConfigurationRead(_ context.Context, d *schema.Re
 		d.Set("value_type", utils.PathSearch("value_type", respBody, nil)),
 		d.Set("value", utils.PathSearch("value", respBody, nil)),
 		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("enterprise_project_id", microserviceEngineAuthInfo.EnterpriseProjectId),
 		d.Set("tags", utils.PathSearch("labels", respBody, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
-		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("update_time", respBody, float64(0)).(float64))/1000, false)),
+		d.Set("created_at", formatKieKvTime(utils.PathSearch("create_time", respBody, nil))),
+		d.Set("updated_at", formatKieKvTime(utils.PathSearch("update_time", respBody, nil))),
 		d.Set("create_revision", utils.PathSearch("create_revision", respBody, nil)),
 		d.Set("update_revision", utils.PathSearch("update_revision", respBody, nil)),
 	)
@@ -226,108 +328,139 @@ func resourceMicroserviceEngineConfigurationRead(_ context.Context, d *schema.Re
 }
 
 func buildMicroserviceEngineConfigurationUpdateOpts(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+	return utils.RemoveNil(map[string]interface{}{
 		"value":  d.Get("value").(string),
-		"status": d.Get("status").(string),
+		"status": utils.ValueIgnoreEmpty(d.Get("status").(string)),
+	})
+}
+
+func updateMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData, authInfo MicroserviceEngineAuthInfo,
+	configId string) error {
+	var (
+		httpUrl    = "v1/{project_id}/kie/kv/{kv_id}"
+		updatePath = client.Endpoint + httpUrl
+	)
+
+	// The project ID of the microservice engine configuration is the fixed value "default".
+	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
+	updatePath = strings.ReplaceAll(updatePath, "{kv_id}", configId)
+
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
+		JSONBody:         buildMicroserviceEngineConfigurationUpdateOpts(d),
 	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
+	if err != nil {
+		return err
+	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
+	if token != "" {
+		updateOpts.MoreHeaders["Authorization"] = token
+	}
+
+	_, err = client.Request("PUT", updatePath, &updateOpts)
+	return err
 }
 
 func resourceMicroserviceEngineConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		client   = common.NewCustomClient(true, d.Get("connect_address").(string), "v1", "default")
-		httpUrl  = "kie/kv/{kv_id}"
-		configId = d.Id()
+		cfg = meta.(*config.Config)
+		// Creating a microservice engine configuration requires building a client based on the
+		// microservice engine's connection address, which does not use IAM authentication.
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 	)
 
-	updatePath := client.ResourceBase + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{kv_id}", configId)
-
-	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	updateOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         buildMicroserviceEngineConfigurationUpdateOpts(d),
-	}
-	if token != "" {
-		updateOpts.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
+	if err := updateMicroserviceEngineConfiguration(client, d, microserviceEngineAuthInfo, d.Id()); err != nil {
+		return diag.Errorf("error updating configuration (%s): %s", d.Id(), err)
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpts)
-	if err != nil {
-		return diag.Errorf("error updating configuration (%s): %s", configId, err)
-	}
 	return resourceMicroserviceEngineConfigurationRead(ctx, d, meta)
 }
 
-func resourceMicroserviceEngineConfigurationDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func deleteMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, configId string) error {
 	var (
-		client   = common.NewCustomClient(true, d.Get("connect_address").(string), "v1", "default")
-		httpUrl  = "kie/kv/{kv_id}"
-		configId = d.Id()
+		httpUrl    = "v1/{project_id}/kie/kv/{kv_id}"
+		deletePath = client.Endpoint + httpUrl
 	)
 
-	deletePath := client.ResourceBase + httpUrl
+	// The project ID of the microservice engine configuration is the fixed value "default".
+	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
 	deletePath = strings.ReplaceAll(deletePath, "{kv_id}", configId)
 
-	token, err := GetAuthorizationToken(d.Get("auth_address").(string), d.Get("admin_user").(string),
-		d.Get("admin_pass").(string))
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving the authorization token")
-	}
 	deleteOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
+	if err != nil {
+		return err
+	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
 	if token != "" {
-		deleteOpts.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
+		deleteOpts.MoreHeaders["Authorization"] = token
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpts)
-	if err != nil {
+	return err
+}
+
+func resourceMicroserviceEngineConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg = meta.(*config.Config)
+		// Creating a microservice engine configuration requires building a client based on the
+		// microservice engine's connection address, which does not use IAM authentication.
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+		configId = d.Id()
+	)
+
+	if err := deleteMicroserviceEngineConfiguration(client, microserviceEngineAuthInfo, configId); err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting configuration (%s)", configId))
 	}
+
 	return nil
 }
 
-func queryMicroserviceEngineConfigurationByKey(connectAddress, token, keyName string) (interface{}, error) {
-	var (
-		client  = common.NewCustomClient(true, connectAddress, "v1", "default")
-		httpUrl = "kie/kv"
-	)
-	queryPath := client.ResourceBase + httpUrl
-
-	queryOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	if token != "" {
-		queryOpts.MoreHeaders = map[string]string{
-			"Authorization": token,
-		}
-	}
-
-	requestResp, err := client.Request("GET", queryPath, &queryOpts)
+func getMicroserviceEngineConfigurationByKey(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
+	keyName string) (interface{}, error) {
+	configurations, err := listMicroserviceEngineConfigurations(client, authInfo)
 	if err != nil {
 		return nil, err
 	}
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return nil, err
-	}
-	return utils.PathSearch(fmt.Sprintf("data[?key=='%s']|[0]", keyName), respBody, nil), nil
+
+	return utils.PathSearch(fmt.Sprintf("[?key=='%s']|[0]", keyName), configurations, nil), nil
 }
 
 func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	var (
-		token, authAddr, connectAddr, keyName, adminUser, adminPwd string
-		err                                                        error
-		mErr                                                       *multierror.Error
+		authAddr, connectAddr, keyName, adminUser, adminPwd, enterpriseProjectId string
+		mErr                                                                     *multierror.Error
 
 		importedId   = d.Id()
 		addressRegex = `https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}`
@@ -336,6 +469,7 @@ func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *sc
 			"'<auth_address>/<connect_address>/<key>' or '<auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>', but got '%s'",
 			importedId)
 	)
+
 	if !re.MatchString(d.Id()) {
 		return nil, formatErr
 	}
@@ -354,26 +488,43 @@ func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *sc
 		switch len(parts) {
 		case 1:
 			keyName = parts[0]
+		case 2:
+			keyName = parts[0]
+			enterpriseProjectId = parts[1]
 		case 3:
 			keyName = parts[0]
 			adminUser = parts[1]
 			adminPwd = parts[2]
-			token, err = GetAuthorizationToken(authAddr, adminUser, adminPwd)
-			if err != nil {
-				return nil, err
-			}
-			mErr = multierror.Append(mErr,
-				d.Set("admin_user", adminUser),
-				d.Set("admin_pass", adminPwd),
-			)
+		case 4:
+			keyName = parts[0]
+			adminUser = parts[1]
+			adminPwd = parts[2]
+			enterpriseProjectId = parts[3]
 		default:
 			return nil, formatErr
 		}
-		engineDetail, err := queryMicroserviceEngineConfigurationByKey(connectAddr, token, keyName)
-		if err != nil {
-			return nil, err
+
+		client := common.NewCustomClient(true, connectAddr)
+		authInfo := MicroserviceEngineAuthInfo{
+			AuthAddress:         authAddr,
+			AdminUser:           adminUser,
+			AdminPass:           adminPwd,
+			EnterpriseProjectId: enterpriseProjectId,
 		}
+		engineDetail, lookupErr := getMicroserviceEngineConfigurationByKey(client, authInfo, keyName)
+		if lookupErr != nil {
+			return nil, lookupErr
+		}
+
 		d.SetId(utils.PathSearch("id", engineDetail, "").(string))
+		mErr = multierror.Append(mErr,
+			d.Set("auth_address", authAddr),
+			d.Set("connect_address", connectAddr),
+			d.Set("key", keyName),
+			d.Set("admin_user", adminUser),
+			d.Set("admin_pass", adminPwd),
+			d.Set("enterprise_project_id", enterpriseProjectId),
+		)
 		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 	}
 

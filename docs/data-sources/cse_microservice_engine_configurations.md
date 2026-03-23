@@ -22,8 +22,8 @@ locals {
 }
 
 data "huaweicloud_cse_microservice_engine_configurations" "test" {
-  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
-  connect_address = local.fileter_engines[0].config_center_addresses[0].public
+  auth_address    = local.filter_engines[0].service_registry_addresses[0].public
+  connect_address = local.filter_engines[0].config_center_addresses[0].public
 }
 ```
 
@@ -47,6 +47,17 @@ The following arguments are supported:
     (-~!@#%^*_=+?$&()|<>{}[]).
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
+
+-> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
+
+~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will report a connection
+   error.
+
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the microservice engine
+  configurations belong.  
+  If the microservice engine belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
 
 ## Attribute Reference
 

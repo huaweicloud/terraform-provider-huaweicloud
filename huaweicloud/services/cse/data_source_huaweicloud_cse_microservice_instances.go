@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -60,6 +61,13 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The ID of the microservice to which the microservice instances belong.`,
+			},
+
+			// Optional parameters.
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The enterprise project ID to which the microservice instances belong.`,
 			},
 
 			// Attributes.
@@ -171,14 +179,16 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 	}
 }
 
-func listMicroserviceInstances(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass,
+func listMicroserviceInstances(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
 	microserviceId string) ([]interface{}, error) {
-	httpUrl := "v4/{project_id}/registry/microservices/{service_id}/instances"
+	var (
+		httpUrl  = "v4/{project_id}/registry/microservices/{service_id}/instances"
+		listPath = client.Endpoint + httpUrl
+	)
 
-	listPath := client.Endpoint + httpUrl
 	// The project ID of the microservice instance is the fixed value "default".
 	// No region parameter needs to be defined because this data source does not use IAM authentication.
-	listPath = strings.ReplaceAll(listPath, "{project_id}", microserviceInstanceProjectId)
+	listPath = strings.ReplaceAll(listPath, "{project_id}", microserviceInstanceDefaultProjectId)
 	listPath = strings.ReplaceAll(listPath, "{service_id}", microserviceId)
 
 	listOpts := golangsdk.RequestOpts{
@@ -189,7 +199,7 @@ func listMicroserviceInstances(client *golangsdk.ServiceClient, authAddress, adm
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
 	// `POST /v4/token` interface.
-	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return nil, err
 	}
@@ -260,18 +270,22 @@ func flattenMicroserviceInstances(instances []interface{}) []map[string]interfac
 	return result
 }
 
-func dataSourceMicroserviceInstancesRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func dataSourceMicroserviceInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg = meta.(*config.Config)
 		// Querying microservice instances in the microservice engine requires building a client based on the
 		// microservice engine's connection address, which does not use IAM authentication.
-		client         = common.NewCustomClient(true, d.Get("connect_address").(string))
-		authAddress    = getAuthAddress(d)
-		adminUser      = d.Get("admin_user").(string)
-		adminPass      = d.Get("admin_pass").(string)
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 		microserviceId = d.Get("microservice_id").(string)
 	)
 
-	instances, err := listMicroserviceInstances(client, authAddress, adminUser, adminPass, microserviceId)
+	instances, err := listMicroserviceInstances(client, microserviceEngineAuthInfo, microserviceId)
 	if err != nil {
 		return diag.Errorf("error querying microservice instances: %s", err)
 	}

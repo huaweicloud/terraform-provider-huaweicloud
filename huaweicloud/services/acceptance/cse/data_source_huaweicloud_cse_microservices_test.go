@@ -48,22 +48,30 @@ func TestAccDataMicroservices_basic(t *testing.T) {
 
 func testAccDataMicroservices_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_cse_microservice_engines" "test" {}
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
+data "huaweicloud_cse_microservice_engines" "test" {
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : "0"
+}
 
 locals {
   id_filter_result = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == "%[1]s"]
 }
 
 resource "huaweicloud_cse_microservice" "test" {
-  auth_address    = local.id_filter_result[0].service_registry_addresses[0].public
-  connect_address = local.id_filter_result[0].service_registry_addresses[0].public
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
 
-  name        = "%[2]s"
-  app_name    = "%[2]s"
-  environment = "development"
-  version     = "1.0.1"
-  description = "Created by terraform test"
-  level       = "BACK"
+  name                  = "%[2]s"
+  app_name              = "%[2]s"
+  environment           = "development"
+  version               = "1.0.1"
+  description           = "Created by terraform test"
+  level                 = "BACK"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   admin_user = "root"
   admin_pass = "%[3]s"
@@ -78,10 +86,12 @@ resource "huaweicloud_cse_microservice" "test" {
 data "huaweicloud_cse_microservices" "test" {
   depends_on = [huaweicloud_cse_microservice.test]
 
-  auth_address    = local.id_filter_result[0].service_registry_addresses[0].public
-  connect_address = local.id_filter_result[0].service_registry_addresses[0].public
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
   admin_user      = "root"
   admin_pass      = "%[3]s"
+
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 locals {

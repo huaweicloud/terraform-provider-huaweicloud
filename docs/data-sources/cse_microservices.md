@@ -86,6 +86,11 @@ The following arguments are supported:
 ~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will report a connection
    error.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the microservices belong.  
+  If the microservice engine belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

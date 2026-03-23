@@ -34,7 +34,10 @@ The following arguments are supported:
 * `engine_id` - (Required, String) Specifies the ID of the Nacos microservice engine to which the namespaces belong.
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the Nacos namespaces
-  belong.
+  belong.  
+  If the Nacos engine belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
 
 ## Attribute Reference
 

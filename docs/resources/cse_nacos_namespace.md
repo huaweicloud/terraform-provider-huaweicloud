@@ -15,10 +15,12 @@ Manages a namespace resource under CSE Nacos microservice engine within HuaweiCl
 ```hcl
 variable "nacos_engine_id" {}
 variable "namespace_name" {}
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding Nacos engine belongs
 
 resource "huaweicloud_cse_nacos_namespace" "test" {
-  engine_id = var.nacos_engine_id
-  name      = var.namespace_name
+  engine_id             = var.nacos_engine_id
+  name                  = var.namespace_name
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -36,7 +38,8 @@ The following arguments are supported:
   The name can contain `1` to `128` characters, special characters `@#$%^&*` are not allowed.
 
 * `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the ID of the enterprise project to which the
-  Nacos namespace belongs.
+  Nacos namespace belongs.  
+  If omitted, the provider-level enterprise project will be used.
 
 ## Attribute Reference
 

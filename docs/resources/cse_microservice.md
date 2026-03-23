@@ -19,9 +19,10 @@ Manages a microservice resource under a specified microservice engine within Hua
 ### Create a microservice in an engine with RBAC authentication disabled
 
 ```hcl
-variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_id" {} # Enable the EIP access
 variable "service_name" {}
 variable "app_name" {}
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding microservice engine belongs
 
 data "huaweicloud_cse_microservice_engines" "test" {}
 
@@ -33,20 +34,22 @@ resource "huaweicloud_cse_microservice" "test" {
   auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
   connect_address = local.fileter_engines[0].service_registry_addresses[0].public
 
-  name        = var.service_name
-  version     = "1.0.0"
-  environment = "development"
-  app_name    = var.app_name
+  name                  = var.service_name
+  version               = "1.0.0"
+  environment           = "development"
+  app_name              = var.app_name
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
 ### Create a microservice in an engine with RBAC authentication enabled
 
 ```hcl
-variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_id" {} # Enable the EIP access
 variable "microservice_engine_admin_password" {}
 variable "service_name" {}
 variable "app_name" {}
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding microservice engine belongs
 
 data "huaweicloud_cse_microservice_engines" "test" {}
 
@@ -60,10 +63,11 @@ resource "huaweicloud_cse_microservice" "test" {
   admin_user      = "root"
   admin_pass      = var.microservice_engine_admin_password
 
-  name        = var.service_name
-  version     = "1.0.0"
-  environment = "development"
-  app_name    = var.app_name
+  name                  = var.service_name
+  version               = "1.0.0"
+  environment           = "development"
+  app_name              = var.app_name
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -121,6 +125,10 @@ The following arguments are supported:
 * `description` - (Optional, String, NonUpdatable) Specifies the description of the microservice.  
   The description can contain a maximum of `256` characters.
 
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID to which the
+  microservice belongs.  
+  If omitted, the provider-level enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -154,6 +162,12 @@ $ terraform import huaweicloud_cse_microservice.test https://124.70.26.32:30100/
 ```bash
 $ terraform import huaweicloud_cse_microservice.test 'https://124.70.26.32:30100/https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/root/Test!123'
 ```
+
+For the corresponding microservice engine created with the `enterprise_project_id`, its enterprise project ID needs to
+be specified additionally when importing, the corresponding formats are as follows:
+
+* `<auth_address>/<connect_address>/<id>/<enterprise_project_id>`
+* `<auth_address>/<connect_address>/<id>/<admin_user>/<admin_pass>/<enterprise_project_id>`
 
 ## Appendix
 

@@ -18,8 +18,9 @@ Manages a microservice instance resource under a specified microservice engine w
 ### Create a microservice instance under a microservice with RBAC authentication of engine disabled
 
 ```hcl
-variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_id" {} # Enable the EIP access
 variable "microservice_id" {}
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding microservice engine belongs
 variable "region_name" {}
 variable "az_name" {}
 
@@ -33,10 +34,11 @@ resource "huaweicloud_cse_microservice_instance" "test" {
   auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
   connect_address = local.fileter_engines[0].service_registry_addresses[0].public
 
-  microservice_id = var.microservice_id
-  host_name       = "localhost"
-  endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
-  version         = "1.0.0"
+  microservice_id       = var.microservice_id
+  host_name             = "localhost"
+  endpoints             = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
+  version               = "1.0.0"
+  enterprise_project_id = var.enterprise_project_id
 
   properties = {
     "_TAGS"  = "A, B"
@@ -61,9 +63,10 @@ resource "huaweicloud_cse_microservice_instance" "test" {
 ### Create a microservice instance under a microservice with RBAC authentication of engine enabled
 
 ```hcl
-variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_id" {} # Enable the EIP access
 variable "microservice_engine_admin_password" {}
 variable "microservice_id" {}
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding microservice engine belongs
 variable "region_name" {}
 variable "az_name" {}
 
@@ -79,10 +82,11 @@ resource "huaweicloud_cse_microservice_instance" "test" {
   admin_user      = "root"
   admin_pass      = var.microservice_engine_admin_password
 
-  microservice_id = var.microservice_id
-  host_name       = "localhost"
-  endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
-  version         = "1.0.0"
+  microservice_id       = var.microservice_id
+  host_name             = "localhost"
+  endpoints             = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
+  version               = "1.0.0"
+  enterprise_project_id = var.enterprise_project_id
 
   properties = {
     "_TAGS"  = "A, B"
@@ -159,6 +163,10 @@ The following arguments are supported:
   + **OUTOFSERVICE**
   + **DOWN**
 
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID to which the
+  microservice instance belongs.  
+  If omitted, the provider-level enterprise project will be used.
+
 <a name="cse_microservice_instance_health_check"></a>
 The `health_check` block supports:
 
@@ -220,6 +228,12 @@ $ terraform import huaweicloud_cse_microservice_instance.test https://124.70.26.
 ```bash
 $ terraform import huaweicloud_cse_microservice_instance.test 'https://124.70.26.32:30100/https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7/root/Test!123'
 ```
+
+For the corresponding microservice engine created with the `enterprise_project_id`, its enterprise project ID needs to
+be specified additionally when importing, the corresponding formats are as follows:
+
+* `<auth_address>/<connect_address>/<microservice_id>/<id>/<enterprise_project_id>`
+* `<auth_address>/<connect_address>/<microservice_id>/<id>/<admin_user>/<admin_pass>/<enterprise_project_id>`
 
 ## Appendix
 

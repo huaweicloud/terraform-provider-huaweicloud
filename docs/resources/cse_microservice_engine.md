@@ -108,7 +108,7 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID to which the
   microservice engine belongs.  
-  If omitted and the version is **Nacos2**, the default enterprise project will be used.
+  If omitted, the provider-level enterprise project will be used.
 
 * `description` - (Optional, String) Specifies the description of the microservice engine.  
   The description can contain a maximum of `255` characters.

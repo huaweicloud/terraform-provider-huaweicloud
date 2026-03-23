@@ -18,7 +18,8 @@ Manages a key/value pair under a dedicated microservice engine (2.0+) resource w
 ### Create an engine configuration and the engine RBAC authentication is disabled
 
 ```hcl
-variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_id" {} # Enable the EIP access
+variable "enterprise_project_id" {}  # The enterprise project ID to which the corresponding microservice engine belongs
 
 data "huaweicloud_cse_microservice_engines" "test" {}
 
@@ -27,8 +28,8 @@ locals {
 }
 
 resource "huaweicloud_cse_microservice_engine_configuration" "test" {
-  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
-  connect_address = local.fileter_engines[0].config_center_addresses[0].public
+  auth_address    = local.filter_engines[0].service_registry_addresses[0].public
+  connect_address = local.filter_engines[0].config_center_addresses[0].public
 
   key        = "demo"
   value_type = "json"
@@ -56,8 +57,8 @@ locals {
 }
 
 resource "huaweicloud_cse_microservice_engine_configuration" "test" {
-  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
-  connect_address = local.fileter_engines[0].config_center_addresses[0].public
+  auth_address    = local.filter_engines[0].service_registry_addresses[0].public
+  connect_address = local.filter_engines[0].config_center_addresses[0].public
   admin_user      = "root"
   admin_pass      = var.microservice_engine_admin_password
 
@@ -78,19 +79,17 @@ resource "huaweicloud_cse_microservice_engine_configuration" "test" {
 
 The following arguments are supported:
 
-* `auth_address` - (Required, String, ForceNew) Specifies the address that used to request the access token.  
-  Changing this will create a new resource.
+* `auth_address` - (Required, String, NonUpdatable) Specifies the address that used to request the access token.
 
-* `connect_address` - (Required, String, ForceNew) Specifies the address that used to access engine and manages
-  configuration.  
-  Changing this will create a new resource.
+* `connect_address` - (Required, String, NonUpdatable) Specifies the address that used to access engine and manages
+  configuration.
 
 -> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
 
-* `admin_user` - (Optional, String, ForceNew) Specifies the account name for **RBAC** login.
+* `admin_user` - (Optional, String, NonUpdatable) Specifies the account name for **RBAC** login.
   Changing this will create a new resource.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the account password for **RBAC** login.
+* `admin_pass` - (Optional, String, NonUpdatable) Specifies the account password for **RBAC** login.
   The password format must meet the following conditions:
   + Must be `8` to `32` characters long.
   + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
@@ -98,16 +97,16 @@ The following arguments are supported:
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
 
-  Changing this will create a new resource.
-
 -> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
-* `key` - (Required, String, ForceNew) Specifies the configuration key (item name).  
-  The valid length is limited from `1` to `2,048` characters, only letters, digits, hyphens (-), underscores (_),
-  colons (:) and periods (.) are allowed.  
-  Changing this will create a new resource.
+~> Please make sure that all the above parameter values ​​are correct; otherwise, **Terraform** will assume the resource
+   does not exist and remove it from the local `.tfstate` file, after which it can only be managed by importing it.
 
-* `value_type` - (Required, String, ForceNew) Specifies the type of the configuration value.
+* `key` - (Required, String, NonUpdatable) Specifies the configuration key (item name).  
+  The valid length is limited from `1` to `2,048` characters, only letters, digits, hyphens (-), underscores (_),
+  colons (:) and periods (.) are allowed.
+
+* `value_type` - (Required, String, NonUpdatable) Specifies the type of the configuration value.
   The valid values are as follows:
   + **ini**
   + **json**
@@ -125,9 +124,14 @@ The following arguments are supported:
   + **enabled**
   + **disabled**
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the configuration that used to
-  filter resource.  
-  Changing this will create a new resource.
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID to which the
+  microservice engine configuration belongs.  
+  If the microservice engine belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
+
+* `tags` - (Optional, Map, NonUpdatable) Specifies the key/value pairs to associate with the configuration that used to
+  filter resource.
 
 ## Attribute Reference
 
@@ -169,6 +173,12 @@ $ terraform import huaweicloud_cse_microservice_engine_configuration.test https:
 ```bash
 $ terraform import huaweicloud_cse_microservice_engine_configuration.test 'https://124.70.26.32:30100/https://124.70.26.32:30110/demo/root/Test!123'
 ```
+
+For the corresponding microservice engine created with the `enterprise_project_id`, its enterprise project ID needs to
+be specified additionally when importing, the corresponding formats are as follows:
+
+* `<auth_address>/<connect_address>/<key>/<enterprise_project_id>`
+* `<auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>/<enterprise_project_id>`
 
 Note that the imported state may not be identical to your resource definition, due to security reason.
 The missing attribute is `admin_pass`. It is generally recommended running `terraform plan` after importing an instance.

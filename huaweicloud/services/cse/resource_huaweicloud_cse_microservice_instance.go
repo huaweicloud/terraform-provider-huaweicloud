@@ -40,12 +40,13 @@ var (
 		"data_center.*.name",
 		"data_center.*.region",
 		"data_center.*.availability_zone",
+		"enterprise_project_id",
 	}
 	// The project ID of the microservice instance is the fixed value "default".
 	// No region parameter needs to be defined because this resource does not use IAM authentication.
-	microserviceInstanceProjectId     = "default"
-	internalPropertyKeys              = []string{"engineID", "engineName"}
-	microserviceInstanceNotFoundCodes = []string{
+	microserviceInstanceDefaultProjectId = "default"
+	internalPropertyKeys                 = []string{"engineID", "engineName"}
+	microserviceInstanceNotFoundCodes    = []string{
 		"400017",
 	}
 )
@@ -201,6 +202,12 @@ func ResourceMicroserviceInstance() *schema.Resource {
 				Computed:    true,
 				Description: `The status of the microservice instance.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The enterprise project ID to which the microservice instance belongs.`,
+			},
 
 			// Internal parameters.
 			"enable_force_new": {
@@ -277,26 +284,28 @@ func buildInstanceCreateOpts(d *schema.ResourceData) map[string]interface{} {
 	})
 }
 
-func createInstance(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+func createInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, authInfo MicroserviceEngineAuthInfo) (interface{}, error) {
 	var (
 		httpUrl        = "v4/{project_id}/registry/microservices/{service_id}/instances"
+		createPath     = client.Endpoint + httpUrl
 		microserviceId = d.Get("microservice_id").(string)
 	)
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", microserviceInstanceProjectId)
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	createPath = strings.ReplaceAll(createPath, "{project_id}", microserviceInstanceDefaultProjectId)
 	createPath = strings.ReplaceAll(createPath, "{service_id}", microserviceId)
 
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 		JSONBody:         buildInstanceCreateOpts(d),
 	}
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
 	// `POST /v4/token` interface.
-	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string), d.Get("admin_pass").(string))
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return nil, err
 	}
@@ -314,17 +323,10 @@ func createInstance(client *golangsdk.ServiceClient, d *schema.ResourceData) (in
 	return utils.FlattenResponse(requestResp)
 }
 
-func microserviceInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData, instanceId string,
-	targets []string, allowNotFound bool) resource.StateRefreshFunc {
+func microserviceInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
+	microserviceId, instanceId string, targets []string, allowNotFound bool) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var (
-			authAddress    = getAuthAddress(d)
-			adminUser      = d.Get("admin_user").(string)
-			adminPass      = d.Get("admin_pass").(string)
-			microserviceId = d.Get("microservice_id").(string)
-		)
-
-		respBody, err := GetInstance(client, authAddress, adminUser, adminPass, microserviceId, instanceId)
+		respBody, err := GetInstance(client, authInfo, microserviceId, instanceId)
 		if err != nil {
 			convertedErr := common.ConvertExpected400ErrInto404Err(err, "errorCode", microserviceInstanceNotFoundCodes...)
 			if _, ok := convertedErr.(golangsdk.ErrDefault404); ok && allowNotFound {
@@ -341,27 +343,26 @@ func microserviceInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, d *s
 	}
 }
 
-func updateMicroserviceInstanceStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, instanceId, status string) error {
+func updateMicroserviceInstanceStatus(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
+	microserviceId, instanceId, status string) error {
 	var (
-		httpUrl        = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}/status"
-		authAddress    = getAuthAddress(d)
-		adminUser      = d.Get("admin_user").(string)
-		adminPass      = d.Get("admin_pass").(string)
-		microserviceId = d.Get("microservice_id").(string)
+		httpUrl    = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}/status"
+		updatePath = client.Endpoint + httpUrl
 	)
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", microserviceInstanceProjectId)
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", microserviceInstanceDefaultProjectId)
 	updatePath = strings.ReplaceAll(updatePath, "{service_id}", microserviceId)
 	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", instanceId)
 	updatePath = fmt.Sprintf("%s?value=%s", updatePath, status)
 
 	updateOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
 
-	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return err
 	}
@@ -377,11 +378,21 @@ func updateMicroserviceInstanceStatus(client *golangsdk.ServiceClient, d *schema
 }
 
 func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// Creating a microservice instance in the microservice engine requires building a client based on the microservice
-	// engine's connection address, which does not use IAM authentication.
-	client := common.NewCustomClient(true, d.Get("connect_address").(string))
+	var (
+		cfg = meta.(*config.Config)
+		// Creating a microservice instance in the microservice engine requires building a client based on the microservice
+		// engine's connection address, which does not use IAM authentication.
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+		microserviceId = d.Get("microservice_id").(string)
+	)
 
-	resp, err := createInstance(client, d)
+	resp, err := createInstance(client, d, microserviceEngineAuthInfo)
 	if err != nil {
 		return diag.Errorf("error creating microservice instance: %s", err)
 	}
@@ -396,7 +407,7 @@ func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceD
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      microserviceInstanceStatusRefreshFunc(client, d, instanceId, []string{"UP"}, true),
+		Refresh:      microserviceInstanceStatusRefreshFunc(client, microserviceEngineAuthInfo, microserviceId, instanceId, []string{"UP"}, true),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -410,15 +421,16 @@ func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceD
 	// In this case, an additional update status request is required to keep the instance status consistent.
 	if v, ok := d.GetOk("status"); ok && utils.PathSearch("instance.status", resp, "").(string) != v.(string) {
 		instanceStatus := v.(string)
-		if err := updateMicroserviceInstanceStatus(client, d, instanceId, instanceStatus); err != nil {
+		if err := updateMicroserviceInstanceStatus(client, microserviceEngineAuthInfo, microserviceId, instanceId, instanceStatus); err != nil {
 			return diag.Errorf("error updating the status of the microservice instance (%s): %s", instanceId, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for the microservice instance (%s) status to become '%s'", instanceId, instanceStatus)
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"PENDING"},
-			Target:       []string{"COMPLETED"},
-			Refresh:      microserviceInstanceStatusRefreshFunc(client, d, instanceId, []string{instanceStatus}, false),
+			Pending: []string{"PENDING"},
+			Target:  []string{"COMPLETED"},
+			Refresh: microserviceInstanceStatusRefreshFunc(client, microserviceEngineAuthInfo, microserviceId, instanceId,
+				[]string{instanceStatus}, false),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        5 * time.Second,
 			PollInterval: 10 * time.Second,
@@ -434,23 +446,27 @@ func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceD
 }
 
 // GetInstance retrieves the microservice instance details by authorization parameters, microservice ID, and instance ID.
-func GetInstance(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass, microserviceId, instanceId string) (interface{}, error) {
-	httpUrl := "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
+func GetInstance(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, microserviceId, instanceId string) (interface{}, error) {
+	var (
+		httpUrl = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
+		getPath = client.Endpoint + httpUrl
+	)
 
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceInstanceProjectId)
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceInstanceDefaultProjectId)
 	getPath = strings.ReplaceAll(getPath, "{service_id}", microserviceId)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
 
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
 	// `POST /v4/token` interface.
-	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return nil, err
 	}
@@ -498,19 +514,23 @@ func flattenDataCenter(dataCenter interface{}) []map[string]interface{} {
 	}
 }
 
-func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg = meta.(*config.Config)
 		// Creating a microservice instance in the microservice engine requires building a client based on the
 		// microservice engine's connection address, which does not use IAM authentication.
-		client         = common.NewCustomClient(true, d.Get("connect_address").(string))
-		authAddress    = getAuthAddress(d)
-		adminUser      = d.Get("admin_user").(string)
-		adminPass      = d.Get("admin_pass").(string)
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 		microserviceId = d.Get("microservice_id").(string)
 		instanceId     = d.Id()
 	)
 
-	respBody, err := GetInstance(client, authAddress, adminUser, adminPass, microserviceId, instanceId)
+	respBody, err := GetInstance(client, microserviceEngineAuthInfo, microserviceId, instanceId)
 	if err != nil {
 		// When the microservice instance does not exist, the error code returned is 400, and the error information is:
 		// {"errorCode": "400017", "errorMessage": "Instance does not exist", "detail": "... instance does not exist"}
@@ -529,31 +549,41 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 		d.Set("health_check", flattenHealthCheck(utils.PathSearch("instance.healthCheck", respBody, nil))),
 		d.Set("data_center", flattenDataCenter(utils.PathSearch("instance.dataCenterInfo", respBody, nil))),
 		d.Set("status", utils.PathSearch("instance.status", respBody, nil)),
+		d.Set("enterprise_project_id", microserviceEngineAuthInfo.EnterpriseProjectId),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceMicroserviceInstanceUpdate(ctx context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceMicroserviceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg = meta.(*config.Config)
 		// Creating a microservice instance in the microservice engine requires building a client based on the
 		// microservice engine's connection address, which does not use IAM authentication.
-		client     = common.NewCustomClient(true, d.Get("connect_address").(string))
-		instanceId = d.Id()
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+		microserviceId = d.Get("microservice_id").(string)
+		instanceId     = d.Id()
 	)
 
 	if d.HasChange("status") {
 		instanceStatus := d.Get("status").(string)
-		err := updateMicroserviceInstanceStatus(client, d, instanceId, instanceStatus)
+		err := updateMicroserviceInstanceStatus(client, microserviceEngineAuthInfo, microserviceId, instanceId, instanceStatus)
 		if err != nil {
 			return diag.Errorf("error updating the status of the microservice instance (%s): %s", instanceId, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for the microservice instance (%s) status to become '%s'", instanceId, instanceStatus)
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"PENDING"},
-			Target:       []string{"COMPLETED"},
-			Refresh:      microserviceInstanceStatusRefreshFunc(client, d, instanceId, []string{instanceStatus}, false),
+			Pending: []string{"PENDING"},
+			Target:  []string{"COMPLETED"},
+			Refresh: microserviceInstanceStatusRefreshFunc(client, microserviceEngineAuthInfo, microserviceId, instanceId,
+				[]string{instanceStatus}, false),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        5 * time.Second,
 			PollInterval: 10 * time.Second,
@@ -568,23 +598,27 @@ func resourceMicroserviceInstanceUpdate(ctx context.Context, d *schema.ResourceD
 	return resourceMicroserviceInstanceRead(ctx, d, nil)
 }
 
-func deleteInstance(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass, microserviceId, instanceId string) error {
-	httpUrl := "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
+func deleteInstance(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, microserviceId, instanceId string) error {
+	var (
+		httpUrl    = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
+		deletePath = client.Endpoint + httpUrl
+	)
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", microserviceInstanceProjectId)
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", microserviceInstanceDefaultProjectId)
 	deletePath = strings.ReplaceAll(deletePath, "{service_id}", microserviceId)
 	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceId)
 
 	deleteOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
 	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
 	// `POST /v4/token` interface.
-	token, err := GetAuthorizationToken(authAddress, adminUser, adminPass)
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
 	if err != nil {
 		return err
 	}
@@ -602,10 +636,10 @@ func deleteInstance(client *golangsdk.ServiceClient, authAddress, adminUser, adm
 	return nil
 }
 
-func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, authAddress, adminUser, adminPass,
+func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
 	microserviceId, instanceId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		respBody, err := GetInstance(client, authAddress, adminUser, adminPass, microserviceId, instanceId)
+		respBody, err := GetInstance(client, authInfo, microserviceId, instanceId)
 		if err != nil {
 			// Convert 400 error to 404 error if it matches instance not found codes.
 			convertedErr := common.ConvertExpected400ErrInto404Err(err, "errorCode", microserviceInstanceNotFoundCodes...)
@@ -621,19 +655,23 @@ func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, authAddress, adm
 	}
 }
 
-func resourceMicroserviceInstanceDelete(ctx context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceMicroserviceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg = meta.(*config.Config)
 		// Creating a microservice instance in the microservice engine requires building a client based on the
 		// microservice engine's connection address, which does not use IAM authentication.
-		client         = common.NewCustomClient(true, d.Get("connect_address").(string))
-		authAddress    = getAuthAddress(d)
-		adminUser      = d.Get("admin_user").(string)
-		adminPass      = d.Get("admin_pass").(string)
+		client                     = common.NewCustomClient(true, d.Get("connect_address").(string))
+		microserviceEngineAuthInfo = MicroserviceEngineAuthInfo{
+			AuthAddress:         getAuthAddress(d),
+			AdminUser:           d.Get("admin_user").(string),
+			AdminPass:           d.Get("admin_pass").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 		microserviceId = d.Get("microservice_id").(string)
 		instanceId     = d.Id()
 	)
 
-	err := deleteInstance(client, authAddress, adminUser, adminPass, microserviceId, instanceId)
+	err := deleteInstance(client, microserviceEngineAuthInfo, microserviceId, instanceId)
 	if err != nil {
 		// When the microservice instance does not exist, the error code returned is 400, and the error information is:
 		// {"errorCode": "400017", "errorMessage": "Instance does not exist", "detail": "... instance does not exist"}
@@ -647,7 +685,7 @@ func resourceMicroserviceInstanceDelete(ctx context.Context, d *schema.ResourceD
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      instanceStatusRefreshFunc(client, authAddress, adminUser, adminPass, microserviceId, instanceId),
+		Refresh:      instanceStatusRefreshFunc(client, microserviceEngineAuthInfo, microserviceId, instanceId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -663,8 +701,8 @@ func resourceMicroserviceInstanceDelete(ctx context.Context, d *schema.ResourceD
 func resourceMicroserviceInstanceImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	var (
-		authAddr, connectAddr, idWithoutAddrs, microserviceId, instanceId, adminUser, adminPwd string
-		mErr                                                                                   *multierror.Error
+		authAddr, connectAddr, idWithoutAddrs, microserviceId, instanceId, adminUser, adminPwd, enterpriseProjectId string
+		mErr                                                                                                        *multierror.Error
 
 		importedId = d.Id()
 		formatErr  = fmt.Errorf("the imported microservice ID specifies an invalid format, want "+
@@ -705,21 +743,31 @@ func resourceMicroserviceInstanceImportState(_ context.Context, d *schema.Resour
 	case 2:
 		microserviceId = parts[0]
 		instanceId = parts[1]
+	case 3:
+		microserviceId = parts[0]
+		instanceId = parts[1]
+		enterpriseProjectId = parts[2]
 	case 4:
 		microserviceId = parts[0]
 		instanceId = parts[1]
 		adminUser = parts[2]
 		adminPwd = parts[3]
-
-		mErr = multierror.Append(mErr,
-			d.Set("admin_user", adminUser),
-			d.Set("admin_pass", adminPwd),
-		)
+	case 5:
+		microserviceId = parts[0]
+		instanceId = parts[1]
+		adminUser = parts[2]
+		adminPwd = parts[3]
+		enterpriseProjectId = parts[4]
 	default:
 		return nil, formatErr
 	}
 
-	mErr = multierror.Append(mErr, d.Set("microservice_id", microserviceId))
 	d.SetId(instanceId)
+	mErr = multierror.Append(mErr,
+		d.Set("microservice_id", microserviceId),
+		d.Set("admin_user", adminUser),
+		d.Set("admin_pass", adminPwd),
+		d.Set("enterprise_project_id", enterpriseProjectId),
+	)
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

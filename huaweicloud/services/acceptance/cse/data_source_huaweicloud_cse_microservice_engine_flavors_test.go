@@ -1,6 +1,7 @@
 package cse
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -25,7 +26,7 @@ func TestAccDataMicroserviceEngineFlavors_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataMicroserviceEngineFlavors_basic,
+				Config: testAccDataMicroserviceEngineFlavors_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dcWithDefaultVersion.CheckResourceExists(),
 					resource.TestMatchResourceAttr(withDefaultVersion, "flavors.#", regexp.MustCompile(`[1-9]\d*`)),
@@ -41,8 +42,16 @@ func TestAccDataMicroserviceEngineFlavors_basic(t *testing.T) {
 	})
 }
 
-const testAccDataMicroserviceEngineFlavors_basic string = `
-data "huaweicloud_cse_microservice_engine_flavors" "version_omitted" {}
+func testAccDataMicroserviceEngineFlavors_basic() string {
+	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
+data "huaweicloud_cse_microservice_engine_flavors" "version_omitted" {
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+}
 
 # Check whether flavor ID is set
 locals {
@@ -103,4 +112,5 @@ locals {
 output "is_version_filter_useful" {
   value = length(local.version_filter_result) > 0 && alltrue(local.version_filter_result)
 }
-`
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}

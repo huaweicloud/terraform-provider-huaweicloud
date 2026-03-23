@@ -53,21 +53,27 @@ func TestAccDataMicroserviceInstances_basic(t *testing.T) {
 func testAccDataMicroserviceInstances_expectErr() string {
 	randUUID, _ := uuid.GenerateUUID()
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 data "huaweicloud_cse_microservice_engines" "test" {}
 
 locals {
-  id_filter_result = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == "%[1]s"]
+  id_filter_result = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == "%[2]s"]
 }
 
 data "huaweicloud_cse_microservice_instances" "test" {
   auth_address    = local.id_filter_result[0].service_registry_addresses[0].public
   connect_address = local.id_filter_result[0].service_registry_addresses[0].public
   admin_user      = "root"
-  admin_pass      = "%[2]s"
+  admin_pass      = "%[3]s"
 
-  microservice_id = "%[3]s"
+  microservice_id       = "%[3]s"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : "0"
 }
-`, acceptance.HW_CSE_MICROSERVICE_ENGINE_ID, acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD, randUUID)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_CSE_MICROSERVICE_ENGINE_ID, acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD, randUUID)
 }
 
 func testAccDataMicroserviceInstances_basic(name string) string {
@@ -75,12 +81,16 @@ func testAccDataMicroserviceInstances_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_cse_microservice_instance" "test" {
-  auth_address    = local.id_filter_result[0].service_registry_addresses[0].public
-  connect_address = local.id_filter_result[0].service_registry_addresses[0].public
-  microservice_id = huaweicloud_cse_microservice.test.id
-  host_name       = "localhost_with_auth_address"
-  endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
-  version         = "1.0.1"
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  admin_user      = "root"
+  admin_pass      = "%[3]s"
+
+  microservice_id       = huaweicloud_cse_microservice.test.id
+  host_name             = "localhost_with_auth_address"
+  endpoints             = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
+  version               = "1.0.1"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   properties = {
     "nodeIP" = "127.0.0.1"
@@ -98,20 +108,18 @@ resource "huaweicloud_cse_microservice_instance" "test" {
     name              = "dc1"
     availability_zone = data.huaweicloud_availability_zones.test.names[0]
   }
-
-  admin_user = "root"
-  admin_pass = "%[3]s"
 }
 
 data "huaweicloud_cse_microservice_instances" "test" {
   depends_on = [huaweicloud_cse_microservice_instance.test]
 
-  auth_address    = local.id_filter_result[0].service_registry_addresses[0].public
-  connect_address = local.id_filter_result[0].service_registry_addresses[0].public
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
   admin_user      = "root"
   admin_pass      = "%[3]s"
 
-  microservice_id = huaweicloud_cse_microservice.test.id
+  microservice_id       = huaweicloud_cse_microservice.test.id
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 locals {

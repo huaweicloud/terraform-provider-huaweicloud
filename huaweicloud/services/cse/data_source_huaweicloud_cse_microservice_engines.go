@@ -30,6 +30,16 @@ func DataSourceMicroserviceEngines() *schema.Resource {
 				Computed:    true,
 				Description: `The region where dedicated microservice engines are located.`,
 			},
+
+			// Optional parameters.
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The enterprise project ID to which the dedicated microservice engines belong.`,
+			},
+
+			// Attributes.
 			"engines": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -158,23 +168,26 @@ func DataSourceMicroserviceEngines() *schema.Resource {
 	}
 }
 
-func queryMicroserviceEngines(client *golangsdk.ServiceClient) ([]interface{}, error) {
+func queryMicroserviceEngines(client *golangsdk.ServiceClient, enterpriseProjectId string) ([]interface{}, error) {
 	var (
-		httpUrl = "v2/{project_id}/enginemgr/engines?type=CSE&limit=100"
-		offset  = 0
-		result  = make([]interface{}, 0)
+		httpUrl  = "v2/{project_id}/enginemgr/engines?type=CSE&limit=100"
+		listPath = client.Endpoint + httpUrl
+		offset   = 0
+		result   = make([]interface{}, 0)
 	)
 
-	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 
-	opt := golangsdk.RequestOpts{
+	listOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+	}
+	if enterpriseProjectId != "" {
+		listOpts.MoreHeaders = buildRequestMoreHeaders(enterpriseProjectId)
 	}
 
 	for {
 		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
-		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		requestResp, err := client.Request("GET", listPathWithOffset, &listOpts)
 		if err != nil {
 			return nil, fmt.Errorf("error querying microservice engines: %s", err)
 		}
@@ -258,7 +271,7 @@ func dataSourceMicroserviceEnginesRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating CSE client: %s", err)
 	}
 
-	engines, err := queryMicroserviceEngines(client)
+	engines, err := queryMicroserviceEngines(client, d.Get("enterprise_project_id").(string))
 	if err != nil {
 		return diag.Errorf("error querying CSE microservice engines: %s", err)
 	}

@@ -66,6 +66,12 @@ The following arguments are supported:
 * `microservice_id` - (Required, String) Specifies the ID of the microservice to which the microservice instances
   belong.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the microservice instances
+  belong.  
+  If the microservice engine belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.  
+  If omitted, the provider-level enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

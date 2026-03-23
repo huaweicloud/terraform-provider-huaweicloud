@@ -34,30 +34,35 @@ func TestAccDataMicroserviceEngineConfigurations_basic(t *testing.T) {
 	})
 }
 
-func testAccDataMicroserviceEngineConfigurations_basic() string {
-	name := acceptance.RandomAccResourceNameWithDash()
-
+func testAccDataMicroserviceEngineConfigurations_basic_base(name string) string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 data "huaweicloud_cse_microservice_engines" "test" {}
 
 locals {
   id_filter_result = [
-    for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == "%[1]s"
+    for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == "%[2]s"
   ]
 }
 
 resource "huaweicloud_cse_microservice_engine_configuration" "test" {
-  auth_address    = local.id_filter_result[0].service_registry_addresses.0.public
-  connect_address = local.id_filter_result[0].config_center_addresses.0.public
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].config_center_addresses[0].public, null)
   admin_user      = "root"
-  admin_pass      = "%[2]s"
+  admin_pass      = "%[3]s"
 
-  key        = "%[3]s"
+  key        = "%[4]s"
   value_type = "json"
   value      = jsonencode({
     "foo": "baar"
   })
-  status = "disabled"
+
+  status                = "disabled"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   tags = {
     owner = "terraform"
@@ -69,21 +74,33 @@ resource "huaweicloud_cse_microservice_engine_configuration" "test" {
     ]
   }
 }
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
+		acceptance.HW_CSE_MICROSERVICE_ENGINE_ID,
+		acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD,
+		name)
+}
+
+func testAccDataMicroserviceEngineConfigurations_basic() string {
+	name := acceptance.RandomAccResourceNameWithDash()
+
+	return fmt.Sprintf(`
+%[1]s
 
 data "huaweicloud_cse_microservice_engine_configurations" "test" {
   depends_on = [huaweicloud_cse_microservice_engine_configuration.test]
 
-  auth_address    = try(local.id_filter_result[0].service_registry_addresses.0.public, "")
-  connect_address = try(local.id_filter_result[0].config_center_addresses.0.public, "")
+  auth_address    = try(local.id_filter_result[0].service_registry_addresses[0].public, null)
+  connect_address = try(local.id_filter_result[0].config_center_addresses[0].public, null)
   admin_user      = "root"
   admin_pass      = "%[2]s"
+
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 output "is_configuration_queried" {
   value = contains(data.huaweicloud_cse_microservice_engine_configurations.test.configurations[*].id,
     huaweicloud_cse_microservice_engine_configuration.test.id)
 }
-`, acceptance.HW_CSE_MICROSERVICE_ENGINE_ID,
-		acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD,
-		name)
+`, testAccDataMicroserviceEngineConfigurations_basic_base(name),
+		acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD)
 }
