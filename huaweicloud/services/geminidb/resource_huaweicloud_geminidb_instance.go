@@ -530,7 +530,7 @@ func buildCreateGeminiDbInstanceBodyParams(d *schema.ResourceData, region, epsId
 		"product_type":             utils.ValueIgnoreEmpty(d.Get("product_type")),
 		"configuration_id":         utils.ValueIgnoreEmpty(d.Get("configuration_id")),
 		"backup_strategy":          buildCreateGeminiDbInstanceBackupStrategyBody(d),
-		"enterprise_project_id":    epsId,
+		"enterprise_project_id":    utils.ValueIgnoreEmpty(epsId),
 		"ssl_option":               utils.ValueIgnoreEmpty(d.Get("ssl_option")),
 		"dedicated_resource_id":    utils.ValueIgnoreEmpty(d.Get("dedicated_resource_id")),
 		"port":                     utils.ValueIgnoreEmpty(d.Get("port")),
