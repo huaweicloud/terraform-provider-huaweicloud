@@ -16,6 +16,11 @@ variable "source_account" {}
 
 resource "huaweicloud_rms_resource_aggregation_authorization" "test" {
   account_id = var.source_account
+
+  tags = {
+    "foo" = "bar"
+    "key" = "value"
+  }
 }
 ```
 

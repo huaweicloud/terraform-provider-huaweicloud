@@ -28,6 +28,7 @@ func ResourceAggregationAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAggregationAuthCreate,
 		ReadContext:   resourceAggregationAuthRead,
+		UpdateContext: resourceAggregationAuthUpdate,
 		DeleteContext: resourceAggregationAuthDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -151,6 +152,45 @@ func resourceAggregationAuthRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func updateResourceAggregationAuthorizationTags(client *golangsdk.ServiceClient, domainID string, d *schema.ResourceData) error {
+	httpUrl := "v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{domain_id}", domainID)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+	}
+	updateOpt.JSONBody = buildCreateAggregationAuthBodyParams(d)
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func resourceAggregationAuthUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		updateAggregationAuthProduct = "rms"
+	)
+
+	cfg := meta.(*config.Config)
+	updateAggregationAuthClient, err := cfg.NewServiceClient(updateAggregationAuthProduct, cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating RMS Client: %s", err)
+	}
+
+	if d.HasChange("tags") {
+		if err = updateResourceAggregationAuthorizationTags(updateAggregationAuthClient, cfg.DomainID, d); err != nil {
+			return diag.Errorf("error updating aggregation authorization tags: %s", err)
+		}
+	}
+
+	return resourceAggregationAuthRead(ctx, d, meta)
 }
 
 func resourceAggregationAuthDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

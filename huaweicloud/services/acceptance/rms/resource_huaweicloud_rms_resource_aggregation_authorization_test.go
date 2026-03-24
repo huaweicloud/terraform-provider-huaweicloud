@@ -57,16 +57,14 @@ func getAggregationAuthResourceFunc(cfg *config.Config, state *terraform.Resourc
 }
 
 func TestAccAggregationAuthorization_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	// the RMS service does not validate the account ID, so we can randomly generate it.
-	accountID := acctest.RandStringFromCharSet(32, randomCharSet)
-	rName := "huaweicloud_rms_resource_aggregation_authorization.test"
+		rName = "huaweicloud_rms_resource_aggregation_authorization.test"
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAggregationAuthResourceFunc,
+		// the RMS service does not validate the account ID, so we can randomly generate it.
+		accountID = acctest.RandStringFromCharSet(32, randomCharSet)
+		rc        = acceptance.InitResourceCheck(rName, &obj, getAggregationAuthResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -81,7 +79,21 @@ func TestAccAggregationAuthorization_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "account_id", accountID),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttr(rName, "tags.k1", "v1"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testAggregationAuthorizationorization_basic_update(accountID),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "account_id", accountID),
+					resource.TestCheckResourceAttrSet(rName, "urn"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttr(rName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -97,8 +109,23 @@ func testAggregationAuthorizationorization_basic(account string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rms_resource_aggregation_authorization" "test" {
   account_id = "%s"
-  tags       = {
-    k1 = "v1"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, account)
+}
+
+func testAggregationAuthorizationorization_basic_update(account string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rms_resource_aggregation_authorization" "test" {
+  account_id = "%s"
+
+  tags = {
+    foo   = "bar1"
+    owner = "terraform"
   }
 }
 `, account)
