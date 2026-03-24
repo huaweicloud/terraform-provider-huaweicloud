@@ -94,7 +94,7 @@ func DataSourceMicroserviceEngines() *schema.Resource {
 						"eip_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The EIP ID to which the dedicated microservice engine assocated.`,
+							Description: `The EIP ID to which the dedicated microservice engine associated.`,
 						},
 						"extend_params": {
 							Type:        schema.TypeMap,
@@ -168,7 +168,7 @@ func DataSourceMicroserviceEngines() *schema.Resource {
 	}
 }
 
-func queryMicroserviceEngines(client *golangsdk.ServiceClient, enterpriseProjectId string) ([]interface{}, error) {
+func listMicroserviceEngines(client *golangsdk.ServiceClient, enterpriseProjectId string) ([]interface{}, error) {
 	var (
 		httpUrl  = "v2/{project_id}/enginemgr/engines?type=CSE&limit=100"
 		listPath = client.Endpoint + httpUrl
@@ -189,7 +189,7 @@ func queryMicroserviceEngines(client *golangsdk.ServiceClient, enterpriseProject
 		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
 		requestResp, err := client.Request("GET", listPathWithOffset, &listOpts)
 		if err != nil {
-			return nil, fmt.Errorf("error querying microservice engines: %s", err)
+			return nil, err
 		}
 		respBody, err := utils.FlattenResponse(requestResp)
 		if err != nil {
@@ -228,6 +228,8 @@ func flattenMicroserviceEngineConfigCenterAddresses(engineDetail interface{}) []
 func convertStrNumberToIntIgnoreErr(strNum string) int {
 	result, err := strconv.Atoi(strNum)
 	if err != nil {
+		// If the type conversion fails, only the error information is recorded in the log, and the program execution
+		// is not interrupted.
 		log.Printf("[ERROR] unable to convert object from type string to type int: %s", err)
 		return 0
 	}
@@ -264,16 +266,20 @@ func flattenAllMicroserviceEngines(engines []interface{}) []map[string]interface
 }
 
 func dataSourceMicroserviceEnginesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.NewServiceClient("cse", region)
+	var (
+		cfg                 = meta.(*config.Config)
+		region              = cfg.GetRegion(d)
+		enterpriseProjectId = cfg.GetEnterpriseProjectID(d)
+	)
+
+	client, err := cfg.NewServiceClient("cse", region)
 	if err != nil {
 		return diag.Errorf("error creating CSE client: %s", err)
 	}
 
-	engines, err := queryMicroserviceEngines(client, d.Get("enterprise_project_id").(string))
+	engines, err := listMicroserviceEngines(client, enterpriseProjectId)
 	if err != nil {
-		return diag.Errorf("error querying CSE microservice engines: %s", err)
+		return diag.Errorf("error querying microservice engines: %s", err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -284,6 +290,7 @@ func dataSourceMicroserviceEnginesRead(_ context.Context, d *schema.ResourceData
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		d.Set("enterprise_project_id", enterpriseProjectId),
 		d.Set("engines", flattenAllMicroserviceEngines(engines)),
 	)
 

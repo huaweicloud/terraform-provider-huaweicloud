@@ -29,7 +29,6 @@ func DataSourceMicroserviceEngineConfigurations() *schema.Resource {
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{
@@ -58,6 +57,7 @@ func DataSourceMicroserviceEngineConfigurations() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The enterprise project ID to which the microservice engine configurations belong.`,
 			},
 
@@ -215,6 +215,7 @@ func dataSourceMicroserviceEngineConfigurationsRead(_ context.Context, d *schema
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
+		d.Set("enterprise_project_id", microserviceEngineAuthInfo.EnterpriseProjectId),
 		d.Set("configurations", flattenMicroserviceEngineConfigurations(configurations)),
 	)
 

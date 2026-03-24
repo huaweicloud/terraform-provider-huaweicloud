@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CSE POST /v4/token
 // @API CSE GET /v4/{project_id}/registry/microservices
 func DataSourceMicroservices() *schema.Resource {
 	return &schema.Resource{
@@ -28,9 +29,13 @@ func DataSourceMicroservices() *schema.Resource {
 			// These parameters are used to specify the address that used to request the access token and access the
 			// microservice engine.
 			"auth_address": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The address that used to request the access token.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: utils.SchemaDesc(
+					`The address that used to request the access token.`,
+					utils.SchemaDescInput{
+						Required: true,
+					}),
 			},
 			"connect_address": {
 				Type:        schema.TypeString,
@@ -55,6 +60,7 @@ func DataSourceMicroservices() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The enterprise project ID to which the microservices belong.`,
 			},
 
@@ -242,6 +248,22 @@ func flattenMicroservicesPaths(paths []interface{}) []map[string]interface{} {
 	return result
 }
 
+func parseMicroservicesTime(timeStampStr string) string {
+	if timeStampStr == "" {
+		return ""
+	}
+
+	r, err := strconv.Atoi(timeStampStr)
+	if err != nil {
+		// If the type conversion fails, only the error information is recorded in the log, and the program execution
+		// is not interrupted.
+		log.Printf("[ERROR] unable to convert the string (%s) to int", timeStampStr)
+		return ""
+	}
+
+	return utils.FormatTimeStampRFC3339(int64(r), false)
+}
+
 func flattenMicroservices(microservices []interface{}) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(microservices))
 
@@ -266,20 +288,6 @@ func flattenMicroservices(microservices []interface{}) []map[string]interface{} 
 	}
 
 	return result
-}
-
-func parseMicroservicesTime(timeStampStr string) string {
-	if timeStampStr == "" {
-		return ""
-	}
-
-	r, err := strconv.Atoi(timeStampStr)
-	if err != nil {
-		log.Printf("[ERROR] unable to convert the string (%s) to int", timeStampStr)
-		return ""
-	}
-
-	return utils.FormatTimeStampRFC3339(int64(r), false)
 }
 
 func dataSourceMicroservicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -308,6 +316,7 @@ func dataSourceMicroservicesRead(_ context.Context, d *schema.ResourceData, meta
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
+		d.Set("enterprise_project_id", microserviceEngineAuthInfo.EnterpriseProjectId),
 		d.Set("microservices", flattenMicroservices(microservices)),
 	)
 

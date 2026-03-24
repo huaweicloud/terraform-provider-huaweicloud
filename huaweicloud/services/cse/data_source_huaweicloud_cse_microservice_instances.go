@@ -31,7 +31,6 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{
@@ -67,6 +66,7 @@ func DataSourceMicroserviceInstances() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The enterprise project ID to which the microservice instances belong.`,
 			},
 
@@ -193,7 +193,7 @@ func listMicroserviceInstances(client *golangsdk.ServiceClient, authInfo Microse
 
 	listOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(client.ProjectID),
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
 	}
 
 	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
@@ -234,6 +234,8 @@ func parseMicroserviceInstanceTimestamp(val interface{}) string {
 		}
 		r, err := strconv.Atoi(v)
 		if err != nil {
+			// If the type conversion fails, only the error information is recorded in the log, and the program
+			// execution is not interrupted.
 			log.Printf("[ERROR] unable to convert the string (%s) to int: %v", v, err)
 			return ""
 		}
@@ -297,6 +299,7 @@ func dataSourceMicroserviceInstancesRead(_ context.Context, d *schema.ResourceDa
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
+		d.Set("enterprise_project_id", microserviceEngineAuthInfo.EnterpriseProjectId),
 		d.Set("instances", flattenMicroserviceInstances(instances)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

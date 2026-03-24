@@ -134,7 +134,7 @@ func resourceNacosNamespaceCreate(ctx context.Context, d *schema.ResourceData, m
 
 	err = createNacosNamespace(client, engineId, enterpriseProjectId, resourceId, name)
 	if err != nil {
-		// When the microservice instance does not exist, the error code returned is 400, and the error information is:
+		// When the Nacos engine does not exist, the error code returned is 400, and the error information is:
 		// {"error_code": "SVCSTG.00401116", "error_message": "engine does not exist"}
 		// So, we need to convert the error code to 404 error and specify the key of the error code to be "error_code".
 		parsedErr := common.ConvertExpected400ErrInto404Err(err, "error_code", microserviceEngineNotFoundCodes...)
@@ -328,16 +328,16 @@ func resourceNacosNamespaceDelete(_ context.Context, d *schema.ResourceData, met
 					Method:    "DELETE",
 					URL:       "v1/{project_id}/nacos/v1/console/namespaces?namespaceId={namespace_id}",
 					RequestId: "NONE",
-					Body: []byte(fmt.Sprintf("unable to delete the namespace because the Nacos microserivce engine (%s) does not exist",
+					Body: []byte(fmt.Sprintf("unable to delete the namespace because the Nacos microservice engine (%s) does not exist",
 						engineId)),
 				},
 			}
 		}
-		// When the microservice instance does not exist, the error code returned is 400, and the error information is:
+		// When the Nacos engine does not exist, the error code returned is 400, and the error information is:
 		// {"error_code": "SVCSTG.00401116", "error_message": "engine does not exist"}
 		// So, we need to convert the error code to 404 error and specify the key of the error code to be "error_code".
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", microserviceEngineNotFoundCodes...),
-			fmt.Sprintf("error deleting namespace (%s) from the Nacos microserivce engine (%s)", namespaceId, engineId))
+			fmt.Sprintf("error deleting namespace (%s) from the Nacos microservice engine (%s)", namespaceId, engineId))
 	}
 	return nil
 }

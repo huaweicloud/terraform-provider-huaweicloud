@@ -29,6 +29,7 @@ var (
 		"environment",
 		"level",
 		"description",
+		"enterprise_project_id",
 	}
 	// The project ID of the microservice instance is the fixed value "default".
 	// No region parameter needs to be defined because this resource does not use IAM authentication.
@@ -62,7 +63,6 @@ func ResourceMicroservice() *schema.Resource {
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{

@@ -82,7 +82,6 @@ func ResourceMicroserviceInstance() *schema.Resource {
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{
@@ -323,6 +322,46 @@ func createInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, aut
 	return utils.FlattenResponse(requestResp)
 }
 
+// GetInstance retrieves the microservice instance details by authorization parameters, microservice ID, and instance ID.
+func GetInstance(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, microserviceId, instanceId string) (interface{}, error) {
+	var (
+		httpUrl = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
+		getPath = client.Endpoint + httpUrl
+	)
+
+	// The project ID of the microservice instance is the fixed value "default".
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
+	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceInstanceDefaultProjectId)
+	getPath = strings.ReplaceAll(getPath, "{service_id}", microserviceId)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
+	}
+
+	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
+	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
+	// `POST /v4/token` interface.
+	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
+	if err != nil {
+		return nil, err
+	}
+	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
+	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
+	// request header.
+	if token != "" {
+		getOpts.MoreHeaders["Authorization"] = token
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(requestResp)
+}
+
 func microserviceInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo,
 	microserviceId, instanceId string, targets []string, allowNotFound bool) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
@@ -439,50 +478,9 @@ func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceD
 		if err != nil {
 			return diag.Errorf("error waiting for the microservice instance (%s) status to become '%s': %s", instanceId, instanceStatus, err)
 		}
-		return nil
 	}
 
 	return resourceMicroserviceInstanceRead(ctx, d, meta)
-}
-
-// GetInstance retrieves the microservice instance details by authorization parameters, microservice ID, and instance ID.
-func GetInstance(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, microserviceId, instanceId string) (interface{}, error) {
-	var (
-		httpUrl = "v4/{project_id}/registry/microservices/{service_id}/instances/{instance_id}"
-		getPath = client.Endpoint + httpUrl
-	)
-
-	// The project ID of the microservice instance is the fixed value "default".
-	// No region parameter needs to be defined because this resource does not use IAM authentication.
-	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceInstanceDefaultProjectId)
-	getPath = strings.ReplaceAll(getPath, "{service_id}", microserviceId)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
-
-	getOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      buildRequestMoreHeaders(authInfo.EnterpriseProjectId),
-	}
-
-	// When a user configures both the `admin_user` and `admin_pass` fields, it indicates that the microservice engine
-	// has enabled RBAC authentication. Subsequent requests will require the token information obtained via the
-	// `POST /v4/token` interface.
-	token, err := GetAuthorizationToken(authInfo.AuthAddress, authInfo.AdminUser, authInfo.AdminPass)
-	if err != nil {
-		return nil, err
-	}
-	// If the microservice instance has RBAC authentication enabled, the Authorization header will use a special token
-	// provided by the CSE service to replace the original IAM authentication information (AKSK authentication) in the
-	// request header.
-	if token != "" {
-		getOpts.MoreHeaders["Authorization"] = token
-	}
-
-	requestResp, err := client.Request("GET", getPath, &getOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return utils.FlattenResponse(requestResp)
 }
 
 func flattenHealthCheck(healthCheck interface{}) []map[string]interface{} {
@@ -592,10 +590,9 @@ func resourceMicroserviceInstanceUpdate(ctx context.Context, d *schema.ResourceD
 		if err != nil {
 			return diag.Errorf("error waiting for the microservice instance (%s) status to become '%s': %s", instanceId, instanceStatus, err)
 		}
-		return nil
 	}
 
-	return resourceMicroserviceInstanceRead(ctx, d, nil)
+	return resourceMicroserviceInstanceRead(ctx, d, meta)
 }
 
 func deleteInstance(client *golangsdk.ServiceClient, authInfo MicroserviceEngineAuthInfo, microserviceId, instanceId string) error {

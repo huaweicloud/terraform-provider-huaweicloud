@@ -35,9 +35,9 @@ var microserviceEngineConfigurationNonUpdatableParams = []string{
 // @API CSE POST /v4/token
 // @API CSE POST /v1/{project_id}/kie/kv
 // @API CSE GET /v1/{project_id}/kie/kv/{kv_id}
+// @API CSE GET /v1/{project_id}/kie/kv
 // @API CSE PUT /v1/{project_id}/kie/kv/{kv_id}
 // @API CSE DELETE /v1/{project_id}/kie/kv/{kv_id}
-// @API CSE GET /v1/{project_id}/kie/kv
 func ResourceMicroserviceEngineConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceEngineConfigurationCreate,
@@ -61,7 +61,6 @@ func ResourceMicroserviceEngineConfiguration() *schema.Resource {
 			"auth_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				Description: utils.SchemaDesc(
 					`The address that used to request the access token.`,
 					utils.SchemaDescInput{
@@ -178,7 +177,7 @@ func createMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, d *s
 	)
 
 	// The project ID of the microservices is the fixed value "default".
-	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
 	createPath = strings.ReplaceAll(createPath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
 
 	createOpts := golangsdk.RequestOpts{
@@ -203,7 +202,7 @@ func createMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, d *s
 
 	requestResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return utils.FlattenResponse(requestResp)
@@ -225,12 +224,12 @@ func resourceMicroserviceEngineConfigurationCreate(ctx context.Context, d *schem
 
 	respBody, err := createMicroserviceEngineConfiguration(client, d, microserviceEngineAuthInfo)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating microservice engine configuration: %s", err)
 	}
 
 	configId := utils.PathSearch("id", respBody, "").(string)
 	if configId == "" {
-		return diag.Errorf("unable to find the CSE microservice configuration ID from the API response")
+		return diag.Errorf("unable to find the microservice engine configuration ID from the API response")
 	}
 	d.SetId(configId)
 
@@ -260,7 +259,7 @@ func GetMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, authInf
 	)
 
 	// The project ID of the microservice engine configuration is the fixed value "default".
-	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
 	getPath = strings.ReplaceAll(getPath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
 	getPath = strings.ReplaceAll(getPath, "{kv_id}", configId)
 
@@ -308,7 +307,7 @@ func resourceMicroserviceEngineConfigurationRead(_ context.Context, d *schema.Re
 
 	respBody, err := GetMicroserviceEngineConfiguration(client, microserviceEngineAuthInfo, configId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying configuration (%s)", configId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying microservice engine configuration (%s)", configId))
 	}
 
 	mErr := multierror.Append(nil,
@@ -342,7 +341,7 @@ func updateMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, d *s
 	)
 
 	// The project ID of the microservice engine configuration is the fixed value "default".
-	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
 	updatePath = strings.ReplaceAll(updatePath, "{kv_id}", configId)
 
@@ -382,10 +381,11 @@ func resourceMicroserviceEngineConfigurationUpdate(ctx context.Context, d *schem
 			AdminPass:           d.Get("admin_pass").(string),
 			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
+		configId = d.Id()
 	)
 
-	if err := updateMicroserviceEngineConfiguration(client, d, microserviceEngineAuthInfo, d.Id()); err != nil {
-		return diag.Errorf("error updating configuration (%s): %s", d.Id(), err)
+	if err := updateMicroserviceEngineConfiguration(client, d, microserviceEngineAuthInfo, configId); err != nil {
+		return diag.Errorf("error updating microservice engine configuration (%s): %s", configId, err)
 	}
 
 	return resourceMicroserviceEngineConfigurationRead(ctx, d, meta)
@@ -398,7 +398,7 @@ func deleteMicroserviceEngineConfiguration(client *golangsdk.ServiceClient, auth
 	)
 
 	// The project ID of the microservice engine configuration is the fixed value "default".
-	// No region parameter needs to be defined because this data source does not use IAM authentication.
+	// No region parameter needs to be defined because this resource does not use IAM authentication.
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", microserviceEngineConfigurationDefaultProjectId)
 	deletePath = strings.ReplaceAll(deletePath, "{kv_id}", configId)
 
@@ -466,7 +466,9 @@ func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *sc
 		addressRegex = `https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}`
 		re           = regexp.MustCompile(fmt.Sprintf(`^(%[1]s)?/?(%[1]s)/(.*)$`, addressRegex))
 		formatErr    = fmt.Errorf("the imported microservice ID specifies an invalid format, want "+
-			"'<auth_address>/<connect_address>/<key>' or '<auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>', but got '%s'",
+			"'<auth_address>/<connect_address>/<key>', '<auth_address>/<connect_address>/<key>/<enterprise_project_id>', "+
+			"'<auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>' or "+
+			"'<auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>/<enterprise_project_id>', but got '%s'",
 			importedId)
 	)
 
@@ -475,6 +477,11 @@ func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *sc
 	}
 
 	resp := re.FindAllStringSubmatch(d.Id(), -1)
+	// To prevent panics caused by null resp values ​​due to differences in regular expression implementation, defensive
+	// checks are added.
+	if len(resp) == 0 {
+		return nil, formatErr
+	}
 	// If the imported ID matches the address regular expression, the length of the response result must be greater than 1.
 	if len(resp[0]) == 4 {
 		authAddr = resp[0][1]
@@ -511,12 +518,15 @@ func resourceMicroserviceEngineConfigurationImportState(_ context.Context, d *sc
 			AdminPass:           adminPwd,
 			EnterpriseProjectId: enterpriseProjectId,
 		}
-		engineDetail, lookupErr := getMicroserviceEngineConfigurationByKey(client, authInfo, keyName)
+		configuration, lookupErr := getMicroserviceEngineConfigurationByKey(client, authInfo, keyName)
 		if lookupErr != nil {
 			return nil, lookupErr
 		}
+		if configuration == nil {
+			return nil, fmt.Errorf("unable to find microservice engine configuration by key (%s)", keyName)
+		}
 
-		d.SetId(utils.PathSearch("id", engineDetail, "").(string))
+		d.SetId(utils.PathSearch("id", configuration, "").(string))
 		mErr = multierror.Append(mErr,
 			d.Set("auth_address", authAddr),
 			d.Set("connect_address", connectAddr),

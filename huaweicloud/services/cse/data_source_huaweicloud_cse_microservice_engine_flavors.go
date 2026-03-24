@@ -38,6 +38,7 @@ func DataSourceMicroserviceEngineFlavors() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The enterprise project ID to which the microservice engine flavors belong.`,
 			},
 
@@ -127,8 +128,8 @@ func listMicroserviceEngineFlavors(client *golangsdk.ServiceClient, d *schema.Re
 	return utils.PathSearch("data", respBody, make([]interface{}, 0)).([]interface{}), nil
 }
 
-func flattenMicroserviceEngineFlavorSpec(spec interface{}) []map[string]interface{} {
-	if spec == nil {
+func flattenMicroserviceEngineFlavorSpec(spec map[string]interface{}) []map[string]interface{} {
+	if len(spec) < 1 {
 		return nil
 	}
 
@@ -150,7 +151,7 @@ func flattenMicroserviceEngineFlavors(flavors []interface{}) []map[string]interf
 	for _, flavor := range flavors {
 		result = append(result, map[string]interface{}{
 			"id":   utils.PathSearch("flavor", flavor, nil),
-			"spec": flattenMicroserviceEngineFlavorSpec(utils.PathSearch("spec", flavor, nil)),
+			"spec": flattenMicroserviceEngineFlavorSpec(utils.PathSearch("spec", flavor, make(map[string]interface{})).(map[string]interface{})),
 		})
 	}
 

@@ -50,8 +50,8 @@ var (
 // @API VPC GET /v1/{project_id}/subnets/{subnet_id}
 // @API VPC GET /v1/{project_id}/vpcs/{vpc_id}
 // @API CSE POST /v2/{project_id}/enginemgr/engines
-// @API CSE POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API CSE GET /v2/{project_id}/enginemgr/engines/{engine_id}/jobs/{job_id}
+// @API CSE POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API CSE GET /v2/{project_id}/enginemgr/engines/{engine_id}
 // @API CSE PUT /v2/{project_id}/enginemgr/engines/{engine_id}
 // @API CSE DELETE /v2/{project_id}/{resource_type}/{resource_id}/tags/delete
@@ -365,7 +365,7 @@ func refreshMicroserviceEngineJobFunc(client *golangsdk.ServiceClient, engineId,
 
 		status := utils.PathSearch("status", resp, "").(string)
 		if utils.StrSliceContains([]string{"CreateFail", "DeleteFailed", "UpgradeFailed", "ModifyFailed"}, status) {
-			return resp, "ERROR", fmt.Errorf("unexpect status (%s)", status)
+			return resp, "ERROR", fmt.Errorf("unexpected status (%s)", status)
 		}
 
 		if utils.StrSliceContains(targets, status) {

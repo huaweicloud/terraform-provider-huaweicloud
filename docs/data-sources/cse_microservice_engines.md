@@ -60,7 +60,7 @@ The `engines` block supports:
 
 * `description` - The description of the dedicated microservice engine.
 
-* `eip_id` - The EIP ID to which the dedicated microservice engine assocated.
+* `eip_id` - The EIP ID to which the dedicated microservice engine associated.
 
 * `extend_params` - The additional parameters for the dedicated microservice engine.
 
