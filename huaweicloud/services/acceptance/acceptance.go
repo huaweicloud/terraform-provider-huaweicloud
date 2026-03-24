@@ -102,11 +102,12 @@ var (
 
 	HW_CBC_UNSUBSCRIBE_RESOURCE_ID = os.Getenv("HW_CBC_UNSUBSCRIBE_RESOURCE_ID")
 
-	HW_MAPREDUCE_CUSTOM            = os.Getenv("HW_MAPREDUCE_CUSTOM")
-	HW_MAPREDUCE_BOOTSTRAP_SCRIPT  = os.Getenv("HW_MAPREDUCE_BOOTSTRAP_SCRIPT")
-	HW_MRS_CLUSTER_FLAVOR_ID       = os.Getenv("HW_MRS_CLUSTER_FLAVOR_ID")
-	HW_MRS_CLUSTER_ID              = os.Getenv("HW_MRS_CLUSTER_ID")
-	HW_MRS_CLUSTER_NODE_GROUP_NAME = os.Getenv("HW_MRS_CLUSTER_NODE_GROUP_NAME")
+	HW_MAPREDUCE_CUSTOM             = os.Getenv("HW_MAPREDUCE_CUSTOM")
+	HW_MAPREDUCE_BOOTSTRAP_SCRIPT   = os.Getenv("HW_MAPREDUCE_BOOTSTRAP_SCRIPT")
+	HW_MRS_CLUSTER_FLAVOR_ID        = os.Getenv("HW_MRS_CLUSTER_FLAVOR_ID")
+	HW_MRS_CLUSTER_ID               = os.Getenv("HW_MRS_CLUSTER_ID")
+	HW_MRS_CLUSTER_NODE_GROUP_NAME  = os.Getenv("HW_MRS_CLUSTER_NODE_GROUP_NAME")
+	HW_MRS_CLUSTER_JOB_PROGRAM_PATH = os.Getenv("HW_MRS_CLUSTER_JOB_PROGRAM_PATH")
 
 	HW_CNAD_ENABLE_FLAG       = os.Getenv("HW_CNAD_ENABLE_FLAG")
 	HW_CNAD_PROJECT_OBJECT_ID = os.Getenv("HW_CNAD_PROJECT_OBJECT_ID")
@@ -1329,6 +1330,13 @@ func TestAccPreCheckMrsClusterID(t *testing.T) {
 func TestAccPreCheckMrsClusterNodeGroupName(t *testing.T) {
 	if HW_MRS_CLUSTER_NODE_GROUP_NAME == "" {
 		t.Skip("HW_MRS_CLUSTER_NODE_GROUP_NAME must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckMrsClusterJobProgramPath(t *testing.T) {
+	if HW_MRS_CLUSTER_JOB_PROGRAM_PATH == "" {
+		t.Skip("HW_MRS_CLUSTER_JOB_PROGRAM_PATH must be set for acceptance tests")
 	}
 }
 

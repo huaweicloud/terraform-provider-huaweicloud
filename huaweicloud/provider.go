@@ -1888,6 +1888,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_mapreduce_availability_zones": mrs.DataSourceAvailabilityZones(),
 			"huaweicloud_mapreduce_available_flavors":  mrs.DataSourceAvailableFlavors(),
+			"huaweicloud_mapreduce_cluster_jobs":       mrs.DataSourceClusterJobs(),
 			"huaweicloud_mapreduce_cluster_nodes":      mrs.DataSourceClusterNodes(),
 			"huaweicloud_mapreduce_clusters":           mrs.DataSourceMrsClusters(),
 			"huaweicloud_mapreduce_versions":           mrs.DataSourceMrsVersions(),
