@@ -1,5 +1,61 @@
 # CHANGELOG
 
+## 1.88.0 (March 24, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_cfw_batch_delete_acl_rules` [GH-9095]
+  + `huaweicloud_cfw_batch_update_acl_rules_action` [GH-9095]
+  + `huaweicloud_cfw_delete_ip_blacklist` [GH-9102]
+  + `huaweicloud_cfw_eip_auto_protection` [GH-9173]
+  + `huaweicloud_cfw_export_ip_blacklist` [GH-9103]
+  + `huaweicloud_cfw_export_logs` [GH-9107]
+  + `huaweicloud_cfw_ip_blacklist_retry` [GH-9154]
+  + `huaweicloud_cfw_ips_custom_rule` [GH-9152]
+  + `huaweicloud_cfw_report_profile` [GH-9152]
+  + `huaweicloud_cfw_schedule` [GH-9156]
+  + `huaweicloud_css_ai_ops_setting` [GH-9148]
+  + `huaweicloud_mapreduce_cluster_default_tags_switch` [GH-9139]
+  + `huaweicloud_mapreduce_scaling_policy_v2` [GH-9143]
+  + `huaweicloud_oms_sync_event` [GH-9072]
+  + `huaweicloud_rds_pub_and_sub_metadata_sync` [GH-9125]
+  + `huaweicloud_rds_publication` [GH-8291]
+
+* **New Data Source:**
+  + `huaweicloud_cfw_acl_rule_export_status` [GH-9152]
+  + `huaweicloud_cfw_acl_rule_tags` [GH-9161]
+  + `huaweicloud_cfw_advanced_ips_rules` [GH-9163]
+  + `huaweicloud_cfw_attack_log_statistics` [GH-9174]
+  + `huaweicloud_cfw_attack_log_trend` [GH-9181]
+  + `huaweicloud_cfw_eip_auto_protect_status` [GH-9152]
+  + `huaweicloud_cfw_eip_count` [GH-9162]
+  + `huaweicloud_cfw_inspection_vpcs` [GH-9171]
+  + `huaweicloud_cfw_ip_blacklist_switch` [GH-9152]
+  + `huaweicloud_cfw_ip_blacklist` [GH-9152]
+  + `huaweicloud_cfw_report_profiles` [GH-9152]
+  + `huaweicloud_cfw_report` [GH-9166]
+  + `huaweicloud_cfw_schedules` [GH-9156]
+  + `huaweicloud_cfw_sn_firewall_protection_status` [GH-9152]
+  + `huaweicloud_cse_microservices` [GH-9170]
+  + `huaweicloud_css_ai_ops_detectors` [GH-9116]
+  + `huaweicloud_css_datastore_flavors` [GH-9111]
+  + `huaweicloud_css_elb_certificates` [GH-9121]
+  + `huaweicloud_css_flavor_details` [GH-9096]
+  + `huaweicloud_css_resize_flavors` [GH-9093]
+  + `huaweicloud_css_smn_topics` [GH-9109]
+  + `huaweicloud_css_vpcep_connections` [GH-9094]
+  + `huaweicloud_dws_cluster_database_objects` [GH-9117]
+  + `huaweicloud_dws_cluster_database_schemas` [GH-9122]
+  + `huaweicloud_dws_cluster_database_users` [GH-9123]
+  + `huaweicloud_dws_cluster_upgrade_records` [GH-9120]
+  + `huaweicloud_dws_cluster_user_authorities` [GH-9115]
+  + `huaweicloud_dws_disk_details` [GH-9129]
+  + `huaweicloud_mapreduce_availability_zones` [GH-9158]
+  + `huaweicloud_mapreduce_available_flavors` [GH-9169]
+  + `huaweicloud_mapreduce_cluster_nodes` [GH-9172]
+  + `huaweicloud_oms_bucket_cdn_info` [GH-9084]
+  + `huaweicloud_oms_cloud_vender_regions` [GH-9030]
+  + `huaweicloud_rds_publication_candidates` [GH-9135]
+
 ## 1.87.0 (February 28, 2026)
 
 * **New Resource Source:**
