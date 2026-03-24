@@ -27,7 +27,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
 
-		errorCode, errorCodeErr := jmespath.Search("errCode", apiError)
+		errorCode, errorCodeErr := jmespath.Search("errCode||error_code", apiError)
 		if errorCodeErr != nil {
 			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
