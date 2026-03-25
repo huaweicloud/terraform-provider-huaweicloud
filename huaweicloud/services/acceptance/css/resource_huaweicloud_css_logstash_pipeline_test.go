@@ -50,10 +50,19 @@ func getLogstashPipelineResourceFunc(cfg *config.Config, state *terraform.Resour
 }
 
 func TestAccLogstashPipeline_basic(t *testing.T) {
-	var obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_css_logstash_pipeline.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_css_logstash_pipeline.test"
+
+		configContent = `input { \r\n    redis {\r\n        data_type => \"pattern_channel\"\r\n        key` +
+			` => \"lgs-*\"\r\n        host => \"xxx.xxx.xxx.xxxx\"\r\n        port => 6379\r\n    }\r\n}\r\n` +
+			`\r\nfilter {\r\n    mutate {\r\n        remove_field => [\"@timestamp\", \"@version\"] \r\n    }` +
+			` \r\n} \r\n\r\noutput { \r\n    elasticsearch { \r\n        hosts => [\"http://xxx.xxx.xxx.xxx:9200\",` +
+			` \"http://xxx.xxx.xxx.xxx:9200\", \"http://xxx.xxx.xxx.xxx:9200\"]\r\n` +
+			`        index => \"xxxxxx\"\r\n    } \r\n}`
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -62,20 +71,20 @@ func TestAccLogstashPipeline_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCSSClusterId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLogstashPipeline_basic(name),
+				Config: testLogstashPipeline_basic(name, configContent),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "cluster_id", "huaweicloud_css_logstash_cluster.test", "id"),
-					resource.TestCheckResourceAttrPair(
-						rName, "names.0", "huaweicloud_css_logstash_configuration.test_1", "name"),
-					resource.TestCheckResourceAttrPair(
-						rName, "names.1", "huaweicloud_css_logstash_configuration.test_2", "name"),
-					resource.TestCheckResourceAttr(rName, "pipelines.#", "2"),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_CSS_CLUSTER_ID),
+					resource.TestCheckResourceAttr(rName, "names.#", "1"),
+					resource.TestCheckResourceAttr(rName, "pipelines.#", "1"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.keep_alive"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.status"),
@@ -83,17 +92,23 @@ func TestAccLogstashPipeline_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testLogstashPipeline_basic_update(name),
+				Config: testLogstashPipeline_update_hostStart(name, configContent),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "cluster_id", "huaweicloud_css_logstash_cluster.test", "id"),
-					resource.TestCheckResourceAttrPair(
-						rName, "names.0", "huaweicloud_css_logstash_configuration.test_1", "name"),
-					resource.TestCheckResourceAttrPair(
-						rName, "names.1", "huaweicloud_css_logstash_configuration.test_2", "name"),
-					resource.TestCheckResourceAttrPair(
-						rName, "names.2", "huaweicloud_css_logstash_configuration.test_3", "name"),
+					resource.TestCheckResourceAttr(rName, "names.#", "3"),
 					resource.TestCheckResourceAttr(rName, "pipelines.#", "3"),
+					resource.TestCheckResourceAttrSet(rName, "pipelines.1.name"),
+					resource.TestCheckResourceAttrSet(rName, "pipelines.1.keep_alive"),
+					resource.TestCheckResourceAttrSet(rName, "pipelines.1.status"),
+					resource.TestCheckResourceAttrSet(rName, "pipelines.1.updated_at"),
+				),
+			},
+			{
+				Config: testLogstashPipeline_update_hostStop(name, configContent),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "names.#", "1"),
+					resource.TestCheckResourceAttr(rName, "pipelines.#", "1"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.keep_alive"),
 					resource.TestCheckResourceAttrSet(rName, "pipelines.0.status"),
@@ -109,49 +124,50 @@ func TestAccLogstashPipeline_basic(t *testing.T) {
 	})
 }
 
-func testLogstashPipeline_basic(rName string) string {
+func testLogstashPipeline_basic(rName, configContent string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_css_logstash_pipeline" "test" {
-  cluster_id   = huaweicloud_css_logstash_cluster.test.id
-  names        = [
-    huaweicloud_css_logstash_configuration.test_1.name,
-    huaweicloud_css_logstash_configuration.test_2.name
-  ]
+  cluster_id = "%[2]s"
+  names      = [huaweicloud_css_logstash_configuration.test_1.name]
 }
-`, logstashCluster_configurations(rName))
+`, logstashCluster_configurations(rName, configContent), acceptance.HW_CSS_CLUSTER_ID)
 }
 
-func testLogstashPipeline_basic_update(rName string) string {
+func testLogstashPipeline_update_hostStart(rName, configContent string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_css_logstash_pipeline" "test" {
-  cluster_id   = huaweicloud_css_logstash_cluster.test.id
-  names        = [
+  cluster_id = "%[2]s"
+  names      = [
     huaweicloud_css_logstash_configuration.test_1.name,
     huaweicloud_css_logstash_configuration.test_2.name,
     huaweicloud_css_logstash_configuration.test_3.name
   ]
 }
-`, logstashCluster_configurations(rName))
+`, logstashCluster_configurations(rName, configContent), acceptance.HW_CSS_CLUSTER_ID)
 }
 
-func logstashCluster_configurations(rName string) string {
-	confContent := `input { \r\n    redis {\r\n        data_type => \"pattern_channel\"\r\n        key` +
-		` => \"lgs-*\"\r\n        host => \"xxx.xxx.xxx.xxxx\"\r\n        port => 6379\r\n    }\r\n}\r\n` +
-		`\r\nfilter {\r\n    mutate {\r\n        remove_field => [\"@timestamp\", \"@version\"] \r\n    }` +
-		` \r\n} \r\n\r\noutput { \r\n    elasticsearch { \r\n        hosts => [\"http://xxx.xxx.xxx.xxx:9200\",` +
-		` \"http://xxx.xxx.xxx.xxx:9200\", \"http://xxx.xxx.xxx.xxx:9200\"]\r\n` +
-		`        index => \"xxxxxx\"\r\n    } \r\n}`
+func testLogstashPipeline_update_hostStop(rName, configContent string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_css_logstash_pipeline" "test" {
+  cluster_id = "%[2]s"
+  names      = [huaweicloud_css_logstash_configuration.test_3.name]
+}
+`, logstashCluster_configurations(rName, configContent), acceptance.HW_CSS_CLUSTER_ID)
+}
+
+func logstashCluster_configurations(rName, configContent string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_css_logstash_configuration" "test_1" {
-  cluster_id   = huaweicloud_css_logstash_cluster.test.id
-  name         = "%[2]s_1"
+  cluster_id   = "%[1]s"
+  name         = "%[2]s_test1"
   conf_content = "%[3]s"
+
   setting {
     workers                  = 4
     batch_size               = 125
@@ -163,9 +179,10 @@ resource "huaweicloud_css_logstash_configuration" "test_1" {
 }
 
 resource "huaweicloud_css_logstash_configuration" "test_2" {
-  cluster_id   = huaweicloud_css_logstash_cluster.test.id
-  name         = "%[2]s_2"
+  cluster_id   = "%[1]s"
+  name         = "%[2]s_test2"
   conf_content = "%[3]s"
+
   setting {
     workers                  = 4
     batch_size               = 125
@@ -177,9 +194,10 @@ resource "huaweicloud_css_logstash_configuration" "test_2" {
 }
 
 resource "huaweicloud_css_logstash_configuration" "test_3" {
-  cluster_id   = huaweicloud_css_logstash_cluster.test.id
-  name         = "%[2]s_3"
+  cluster_id   = "%[1]s"
+  name         = "%[2]s_test3"
   conf_content = "%[3]s"
+
   setting {
     workers                  = 4
     batch_size               = 125
@@ -189,5 +207,5 @@ resource "huaweicloud_css_logstash_configuration" "test_3" {
     queue_max_bytes_mb       = 1024
   }
 }
-`, testAccLogstashCluster_basic(rName, 1, "bar"), rName, confContent)
+`, acceptance.HW_CSS_CLUSTER_ID, rName, configContent)
 }

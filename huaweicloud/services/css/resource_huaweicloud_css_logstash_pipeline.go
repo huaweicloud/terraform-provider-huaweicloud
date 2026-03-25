@@ -19,8 +19,9 @@ import (
 )
 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/start
-// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/hot-start
 // @API CSS GET /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/listpipelines
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/hot-start
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/hot-stop
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/stop
 func ResourceLogstashPipeline() *schema.Resource {
 	return &schema.Resource{
@@ -186,9 +187,16 @@ func resourceLogstashPipelineUpdate(ctx context.Context, d *schema.ResourceData,
 	oldRaws, newRaws := d.GetChange("names")
 	hotStopNames := utils.ExpandToStringListBySet(oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set)))
 	hotStartNames := utils.ExpandToStringListBySet(newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set)))
+
+	// hot stop pipeline
 	if len(hotStopNames) > 0 {
-		return diag.Errorf("cannot hot stop a pipeline")
+		err := hotStopPipeline(ctx, d, cssV1Client, hotStopNames)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
+
+	// hot start pipeline
 	if len(hotStartNames) > 0 {
 		err := addPipeline(ctx, d, cssV1Client, hotStartNames)
 		if err != nil {
@@ -255,6 +263,37 @@ func addPipeline(ctx context.Context, d *schema.ResourceData, cssV1Client *golan
 		_, err := cssV1Client.Request("POST", hotStartPipelinePath, &hotStartPipelineOpt)
 		if err != nil {
 			return fmt.Errorf("error hot start CSS logstash cluster pipeline: %s", err)
+		}
+
+		checkErr := pipelineStatusCheck(ctx, d, cssV1Client, d.Timeout(schema.TimeoutUpdate), "WORKING")
+		if checkErr != nil {
+			return checkErr
+		}
+	}
+
+	return nil
+}
+
+func hotStopPipeline(ctx context.Context, d *schema.ResourceData, cssV1Client *golangsdk.ServiceClient,
+	hotStopNames []string) error {
+	requestHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/lgsconf/hot-stop"
+	requestPath := cssV1Client.Endpoint + requestHttpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", cssV1Client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{cluster_id}", d.Get("cluster_id").(string))
+
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	for _, name := range hotStopNames {
+		requestOpt.JSONBody = map[string]interface{}{
+			"name": name,
+		}
+
+		_, err := cssV1Client.Request("POST", requestPath, &requestOpt)
+		if err != nil {
+			return fmt.Errorf("error hot stopping CSS logstash cluster pipeline: %s", err)
 		}
 
 		checkErr := pipelineStatusCheck(ctx, d, cssV1Client, d.Timeout(schema.TimeoutUpdate), "WORKING")

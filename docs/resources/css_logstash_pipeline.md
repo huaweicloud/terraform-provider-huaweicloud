@@ -2,18 +2,21 @@
 subcategory: "Cloud Search Service (CSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_css_logstash_pipeline"
-description: ""
+description: |-
+  Manages a CSS logstash cluster pipeline resource within HuaweiCloud.
 ---
 
 # huaweicloud_css_logstash_pipeline
 
-Manages CSS logstash cluster pipeline resource within HuaweiCloud.
+Manages a CSS logstash cluster pipeline resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 variable "cluster_id" {}
-variable "config_file_names" {}
+variable "config_file_names" {
+  type = list(string)
+}
 
 resource "huaweicloud_css_logstash_pipeline" "test" {
   cluster_id = var.cluster_id
@@ -33,7 +36,6 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `names` - (Required, List) Specifies the configuration file names of the CSS logstash cluster pipeline.
-  Changing this creates a new resource.
 
 * `keep_alive` - (Optional, Bool, ForceNew) Specifies whether keep alive. The value can be **true** and **false**.
   Defaults to **false**. During hot start, the value of keep alive of existing pipelines in the cluster needs to
