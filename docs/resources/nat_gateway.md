@@ -79,22 +79,20 @@ The following arguments are supported:
 
 -> Fields `name`, `spec` and `description` only support editing for pay-per-use billing mode NAT gateways.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the NAT gateway.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the NAT gateway.
   The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.
   + **postPaid**: the pay-per-use billing mode.
 
-  Defaults to **postPaid**. Changing this will create a new resource.
+  Defaults to **postPaid**.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the NAT gateway.
+* `period_unit` - (Optional, String) Specifies the charging period unit of the NAT gateway.
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the NAT gateway.
+* `period` - (Optional, Int) Specifies the charging period of the NAT gateway.
   If `period_unit` is set to **month**, the value ranges from `1` to `9`.
   If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this will create a new resource.
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. This parameter is only valid when
   `charging_mode` is set to **prePaid**. Valid values are **true** and **false**. Defaults to **false**.

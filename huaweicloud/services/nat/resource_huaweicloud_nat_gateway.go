@@ -2,6 +2,7 @@ package nat
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -22,6 +24,7 @@ import (
 
 // @API NAT POST /v2/{project_id}/nat_gateways
 // @API NAT GET /v2/{project_id}/nat_gateways/{nat_gateway_id}
+// @API NAT POST /v2/{project_id}/nat_gateways/{nat_gateway_id}/change_to_period
 // @API NAT PUT /v2/{project_id}/nat_gateways/{nat_gateway_id}
 // @API NAT DELETE /v2/{project_id}/nat_gateways/{nat_gateway_id}
 // @API NAT POST /v2.0/{project_id}/nat_gateways/{nat_gateway_id}/tags/action
@@ -76,10 +79,28 @@ func ResourcePublicGateway() *schema.Resource {
 				Required:    true,
 				Description: "The specification of the NAT gateway.",
 			},
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -410,75 +431,40 @@ func flattenGatewaySessionConfig(sessionConfig interface{}) []map[string]interfa
 	}
 }
 
-func buildUpdatePublicGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
-	natGatewayBodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"spec":        utils.ValueIgnoreEmpty(d.Get("spec")),
-		"description": d.Get("description"),
-	}
-	return map[string]interface{}{
-		"nat_gateway": natGatewayBodyParams,
-	}
-}
-
-func buildUpdateSessionConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
-	sessionConfParams := map[string]interface{}{
-		"session_conf": buildSessionConfigBodyParams(d.Get("session_conf").([]interface{})),
-	}
-	return map[string]interface{}{
-		"nat_gateway": sessionConfParams,
-	}
-}
-
 func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg          = meta.(*config.Config)
-		region       = cfg.GetRegion(d)
-		product      = "nat"
-		chargingMode = d.Get("charging_mode").(string)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "nat"
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
 
-	updatePath := client.Endpoint + "v2/{project_id}/nat_gateways/{nat_gateway_id}"
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{nat_gateway_id}", d.Id())
-
-	// Due to API limitations, the prepaid NAT gateway does not support editing.
-	if d.HasChanges("name", "spec", "description") && chargingMode != "prePaid" {
-		updateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         utils.RemoveNil(buildUpdatePublicGatewayBodyParams(d)),
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return diag.Errorf("error updating the charging mode of the NAT gateway (%s): %s", d.Id(),
+				"only support changing post-paid instance to pre-paid")
 		}
-
-		_, err = client.Request("PUT", updatePath, &updateOpt)
-		if err != nil {
-			return diag.Errorf("error updating NAT gateway (%s): %s", d.Id(), err)
+		if err = updatePublicGatewayChargingMode(ctx, d, client, bssClient); err != nil {
+			return diag.FromErr(err)
 		}
-
-		if err := waitingForPublicGatewayStatusActive(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return diag.Errorf("error waiting for NAT gateway (%s) to become active in"+
-				" update operation: %s", d.Id(), err)
+	} else if d.HasChange("auto_renew") {
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the NAT gateway (%s): %s", d.Id(), err)
 		}
 	}
 
-	if d.HasChange("session_conf") {
-		updateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         utils.RemoveNil(buildUpdateSessionConfigBodyParams(d)),
-		}
-
-		_, err = client.Request("PUT", updatePath, &updateOpt)
+	if d.HasChanges("name", "spec", "description", "session_conf") {
+		err = updatePublicGateway(ctx, d, client, bssClient)
 		if err != nil {
-			return diag.Errorf("error updating NAT gateway (%s): %s", d.Id(), err)
-		}
-
-		if err := waitingForPublicGatewayStatusActive(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return diag.Errorf("error waiting for NAT gateway (%s) to become active in"+
-				" update operation: %s", d.Id(), err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -493,18 +479,116 @@ func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	// Only prepaid NAT gateway supports editing `auto_renew`.
-	if d.HasChange("auto_renew") && chargingMode == "prePaid" {
-		bssClient, err := cfg.BssV2Client(region)
+	return resourcePublicGatewayRead(ctx, d, meta)
+}
+
+func updatePublicGatewayChargingMode(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	httpUrl := "v2/{project_id}/nat_gateways/{nat_gateway_id}/change_to_period"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{nat_gateway_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdatePublicGatewayChargingModeBodyParams(d)),
+	}
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating NAT gateway(%s) charging mode: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
+	if orderId == "" {
+		return errors.New("error updating NAT gateway charging mode, order_id is not found in the response")
+	}
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdatePublicGatewayChargingModeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"period_type":   d.Get("period_unit"),
+		"period_num":    d.Get("period"),
+		"is_auto_renew": d.Get("auto_renew"),
+		"is_auto_pay":   true,
+	}
+	if v, ok := d.GetOk("auto_renew"); ok {
+		autoRenew, _ := strconv.ParseBool(v.(string))
+		bodyParams["is_auto_renew"] = autoRenew
+	}
+
+	return map[string]interface{}{
+		"prepaid_options": bodyParams,
+	}
+}
+
+func updatePublicGateway(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	httpUrl := "v2/{project_id}/nat_gateways/{nat_gateway_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{nat_gateway_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdatePublicGatewayBodyParams(d)),
+	}
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating NAT gateway (%s): %s", d.Id(), err)
+	}
+
+	// order_id is returned only when spec is updated
+	if d.Get("charging_mode").(string) == "prePaid" && d.HasChange("spec") {
+		updateRespBody, err := utils.FlattenResponse(updateResp)
 		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
+			return err
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the NAT gateway (%s): %s", d.Id(), err)
+
+		orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
+		if orderId == "" {
+			return errors.New("error updating NAT gateway, order_id is not found in the response")
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
 		}
 	}
 
-	return resourcePublicGatewayRead(ctx, d, meta)
+	if err := waitingForPublicGatewayStatusActive(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for NAT gateway (%s) to become active in"+
+			" update operation: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildUpdatePublicGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
+	natGatewayBodyParams := map[string]interface{}{
+		"name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"spec":         utils.ValueIgnoreEmpty(d.Get("spec")),
+		"description":  d.Get("description"),
+		"session_conf": buildSessionConfigBodyParams(d.Get("session_conf").([]interface{})),
+	}
+	if d.Get("charging_mode").(string) == "prePaid" {
+		natGatewayBodyParams["prepaid_options"] = map[string]interface{}{
+			"is_auto_pay": true,
+		}
+	}
+
+	return map[string]interface{}{
+		"nat_gateway": natGatewayBodyParams,
+	}
 }
 
 func waitingForPublicGatewayDelete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
