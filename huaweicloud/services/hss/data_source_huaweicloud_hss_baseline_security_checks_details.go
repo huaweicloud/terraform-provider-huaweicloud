@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API HSS GET /v5/{project_id}/baseline/security-checks/policy-detail
+// @API HSS GET /v5/{project_id}/baseline/security-checks/default-policy/details
 func DataSourceBaselineSecurityChecksDetails() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBaselineSecurityChecksDetailsRead,
