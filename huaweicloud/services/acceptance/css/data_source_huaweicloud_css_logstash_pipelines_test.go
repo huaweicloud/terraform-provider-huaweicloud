@@ -10,22 +10,29 @@ import (
 )
 
 func TestAccDataSourceCssLogstashPipelines_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_css_logstash_pipelines.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_css_logstash_pipelines.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Before running test, prepare a logstash cluster and
+			// there are active pipelines in this cluster.
+			acceptance.TestAccPreCheckCSSClusterId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCssLogstashPipelines_basic(rName),
+				Config: testDataSourceCssLogstashPipelines_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "pipelines.#"),
 					resource.TestCheckResourceAttrSet(dataSource, "pipelines.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "pipelines.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "pipelines.0.keep_alive"),
+					resource.TestCheckResourceAttrSet(dataSource, "pipelines.0.update_at"),
 
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 				),
@@ -34,14 +41,10 @@ func TestAccDataSourceCssLogstashPipelines_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceCssLogstashPipelines_basic(name string) string {
+func testDataSourceCssLogstashPipelines_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_css_logstash_pipelines" "test" {
-  depends_on = [huaweicloud_css_logstash_pipeline.test]
-
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
 }
 
 locals {
@@ -49,18 +52,14 @@ locals {
 }
 
 data "huaweicloud_css_logstash_pipelines" "filter_by_name" {
-  cluster_id =  huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   name       = local.name
 }
 
-locals {
-  list_by_name = data.huaweicloud_css_logstash_pipelines.filter_by_name.pipelines
-}
-
 output "name_filter_is_useful" {
-  value = length(local.list_by_name) > 0 && alltrue(
-    [for v in local.list_by_name[*].name : v == local.name]
+  value = length(data.huaweicloud_css_logstash_pipelines.filter_by_name.pipelines) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_pipelines.filter_by_name.pipelines[*].name : v == local.name]
   )
 }
-`, testLogstashPipeline_basic(name))
+`, acceptance.HW_CSS_CLUSTER_ID)
 }

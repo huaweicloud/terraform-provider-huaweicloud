@@ -10,23 +10,28 @@ import (
 )
 
 func TestAccDataSourceCssLogstashPipelineActions_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_css_logstash_pipeline_actions.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_css_logstash_pipeline_actions.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Before running test, prepare a logstash cluster and
+			// there are active pipelines in this cluster.
+			acceptance.TestAccPreCheckCSSClusterId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceCssLogstashPipelineActions_basic(rName),
+				Config: testDataSourceCssLogstashPipelineActions_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "actions.0.id"),
 					resource.TestCheckResourceAttrSet(dataSource, "actions.0.type"),
 					resource.TestCheckResourceAttrSet(dataSource, "actions.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "actions.0.updated_at"),
 
 					resource.TestCheckOutput("id_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
@@ -37,14 +42,10 @@ func TestAccDataSourceCssLogstashPipelineActions_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceCssLogstashPipelineActions_basic(name string) string {
+func testDataSourceCssLogstashPipelineActions_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_css_logstash_pipeline_actions" "test" {
-  depends_on = [huaweicloud_css_logstash_pipeline.test]
-
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
 }
 
 locals {
@@ -54,42 +55,36 @@ locals {
 }
 
 data "huaweicloud_css_logstash_pipeline_actions" "filter_by_id" {
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   action_id  = local.action_id
 }
 
 data "huaweicloud_css_logstash_pipeline_actions" "filter_by_type" {
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   type       = local.type
 }
 
 data "huaweicloud_css_logstash_pipeline_actions" "filter_by_status" {
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   status     = local.status
 }
 
-locals {
-  list_by_id     = data.huaweicloud_css_logstash_pipeline_actions.filter_by_id.actions
-  list_by_type   = data.huaweicloud_css_logstash_pipeline_actions.filter_by_type.actions
-  list_by_status = data.huaweicloud_css_logstash_pipeline_actions.filter_by_status.actions
-}
-
 output "id_filter_is_useful" {
-  value = length(local.list_by_id) > 0 && alltrue(
-    [for v in local.list_by_id[*].id : v == local.action_id]
+  value = length(data.huaweicloud_css_logstash_pipeline_actions.filter_by_id.actions) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_pipeline_actions.filter_by_id.actions[*].id : v == local.action_id]
   )
 }
 
 output "type_filter_is_useful" {
-  value = length(local.list_by_type) > 0 && alltrue(
-    [for v in local.list_by_type[*].type : v == local.type]
+  value = length(data.huaweicloud_css_logstash_pipeline_actions.filter_by_type.actions) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_pipeline_actions.filter_by_type.actions[*].type : v == local.type]
   )
 }
 
 output "status_filter_is_useful" {
-  value = length(local.list_by_type) > 0 && alltrue(
-    [for v in local.list_by_type[*].status : v == local.status]
+  value = length(data.huaweicloud_css_logstash_pipeline_actions.filter_by_status.actions) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_pipeline_actions.filter_by_status.actions[*].status : v == local.status]
   )
 }
-`, testLogstashPipeline_basic(name))
+`, acceptance.HW_CSS_CLUSTER_ID)
 }

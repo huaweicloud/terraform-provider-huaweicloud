@@ -10,22 +10,31 @@ import (
 )
 
 func TestAccDataSourceCssLogstashConfigurations_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_css_logstash_configurations.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_css_logstash_configurations.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Before running test, prepare a logstash cluster and
+			// the cluster has configuration files.
+			acceptance.TestAccPreCheckCSSClusterId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceCssLogstashConfigurations_basic(rName),
+				Config: testDataSourceCssLogstashConfigurations_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "confs.0.name"),
 					resource.TestCheckResourceAttrSet(dataSource, "confs.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "confs.0.conf_content"),
+					resource.TestCheckResourceAttrSet(dataSource, "confs.0.updated_at"),
+					resource.TestCheckResourceAttrSet(dataSource, "confs.0.setting.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "confs.0.setting.0.workers"),
+					resource.TestCheckResourceAttrSet(dataSource, "confs.0.setting.0.queue_type"),
 
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
@@ -35,18 +44,10 @@ func TestAccDataSourceCssLogstashConfigurations_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceCssLogstashConfigurations_basic(name string) string {
+func testDataSourceCssLogstashConfigurations_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_css_logstash_configurations" "test" {
-  depends_on = [
-    huaweicloud_css_logstash_configuration.test_1,
-    huaweicloud_css_logstash_configuration.test_2,
-    huaweicloud_css_logstash_configuration.test_3,
-  ]
-
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
 }
 
 locals {
@@ -55,30 +56,25 @@ locals {
 }
 
 data "huaweicloud_css_logstash_configurations" "filter_by_name" {
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   name       = local.name
 }
 
 data "huaweicloud_css_logstash_configurations" "filter_by_status" {
-  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  cluster_id = "%[1]s"
   status     = local.status
 }
 
-locals {
-  list_by_name   = data.huaweicloud_css_logstash_configurations.filter_by_name.confs
-  list_by_status = data.huaweicloud_css_logstash_configurations.filter_by_status.confs
-}
-
 output "name_filter_is_useful" {
-  value = length(local.list_by_name) > 0 && alltrue(
-    [for v in local.list_by_name[*].name : v == local.name]
+  value = length(data.huaweicloud_css_logstash_configurations.filter_by_name.confs) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_configurations.filter_by_name.confs[*].name : v == local.name]
   )
 }
 
 output "status_filter_is_useful" {
-  value = length(local.list_by_status) > 0 && alltrue(
-    [for v in local.list_by_status[*].status : v == local.status]
+  value = length(data.huaweicloud_css_logstash_configurations.filter_by_status.confs) > 0 && alltrue(
+    [for v in data.huaweicloud_css_logstash_configurations.filter_by_status.confs[*].status : v == local.status]
   )
 }
-`, logstashCluster_configurations(name))
+`, acceptance.HW_CSS_CLUSTER_ID)
 }
