@@ -23,9 +23,9 @@ import (
 // @API DLI GET /v2.0/{project_id}/resources/{resource_name}
 // @API DLI PUT /v2.0/{project_id}/resources/owner
 // @API DLI DELETE /v2.0/{project_id}/resources/{resource_name}
-// @API DLI GET /v3/{project_id}/dli_package_resource/{resource_id}/tags
-// @API DLI POST /v3/{project_id}/dli_package_resource/{resource_id}/tags/create
-// @API DLI POST /v3/{project_id}/dli_package_resource/{resource_id}/tags/delete
+// @API DLI GET /v3/{project_id}/{resource_type}/{resource_id}/tags
+// @API DLI POST /v3/{project_id}/{resource_type}/{resource_id}/tags/create
+// @API DLI POST /v3/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceDliPackageV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDliDependentPackageV2Create,
