@@ -1,21 +1,21 @@
 ---
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_rds_session_kill"
+page_title: "HuaweiCloud: huaweicloud_rds_intelligent_session_kill"
 description: |-
-  Manage an RDS session kill resource within HuaweiCloud.
+  Manage an RDS intelligent session kill resource within HuaweiCloud.
 ---
 
-# huaweicloud_rds_session_kill
+# huaweicloud_rds_intelligent_session_kill
 
-Manage an RDS session kill resource within HuaweiCloud.
+Manage an RDS intelligent session kill resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
 
-resource "huaweicloud_rds_session_kill" "test" {
+resource "huaweicloud_rds_intelligent_session_kill" "test" {
   instance_id = var.instance_id
 }
 ```

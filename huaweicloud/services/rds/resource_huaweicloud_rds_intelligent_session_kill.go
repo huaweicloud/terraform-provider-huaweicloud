@@ -17,22 +17,22 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var sessionKillNonUpdatableParams = []string{"instance_id", "auto_add_sql_limit_rule"}
+var intelligentSessionKillNonUpdatableParams = []string{"instance_id", "auto_add_sql_limit_rule"}
 
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ops/intelligent-kill-session
 // @API RDS GET /v3/{project_id}/instances
-func ResourceSessionKill() *schema.Resource {
+func ResourceIntelligentSessionKill() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceSessionKillCreate,
-		ReadContext:   resourceSessionKillRead,
-		UpdateContext: resourceSessionKillUpdate,
-		DeleteContext: resourceSessionKillDelete,
+		CreateContext: resourceIntelligentSessionKillCreate,
+		ReadContext:   resourceIntelligentSessionKillRead,
+		UpdateContext: resourceIntelligentSessionKillUpdate,
+		DeleteContext: resourceIntelligentSessionKillDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(sessionKillNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(intelligentSessionKillNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -59,7 +59,7 @@ func ResourceSessionKill() *schema.Resource {
 	}
 }
 
-func resourceSessionKillCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntelligentSessionKillCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -81,7 +81,7 @@ func resourceSessionKillCreate(ctx context.Context, d *schema.ResourceData, meta
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	createOpt.JSONBody = buildCreateSessionKillBodyParams(d)
+	createOpt.JSONBody = buildCreateIntelligentSessionKillBodyParams(d)
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("PUT", createPath, &createOpt)
@@ -98,7 +98,7 @@ func resourceSessionKillCreate(ctx context.Context, d *schema.ResourceData, meta
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error creating RDS session kill: %s", err)
+		return diag.Errorf("error creating RDS intelligent session kill: %s", err)
 	}
 
 	d.SetId(instanceId)
@@ -106,7 +106,7 @@ func resourceSessionKillCreate(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func buildCreateSessionKillBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateIntelligentSessionKillBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := make(map[string]interface{})
 	if v, ok := d.GetOk("auto_add_sql_limit_rule"); ok {
 		autoAddSqlLimitRule, _ := strconv.ParseBool(v.(string))
@@ -115,16 +115,16 @@ func buildCreateSessionKillBodyParams(d *schema.ResourceData) map[string]interfa
 	return bodyParams
 }
 
-func resourceSessionKillRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceIntelligentSessionKillRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceSessionKillUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceIntelligentSessionKillUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceSessionKillDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting RDS session kill is not supported. The resource is only removed from the state."
+func resourceIntelligentSessionKillDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := "Deleting RDS intelligent session kill is not supported. The resource is only removed from the state."
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

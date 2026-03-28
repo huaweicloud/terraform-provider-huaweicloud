@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccSessionKill_basic(t *testing.T) {
+func TestAccIntelligentSessionKill_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -19,17 +19,17 @@ func TestAccSessionKill_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSessionKill_basic(rName),
+				Config: testAccIntelligentSessionKill_basic(rName),
 			},
 		},
 	})
 }
 
-func testAccSessionKill_basic(rName string) string {
+func testAccIntelligentSessionKill_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_rds_session_kill" "test" {
+resource "huaweicloud_rds_intelligent_session_kill" "test" {
   instance_id             = huaweicloud_rds_instance.test.id
   auto_add_sql_limit_rule = "true"
 }
