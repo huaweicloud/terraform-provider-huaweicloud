@@ -3458,6 +3458,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_plan_execution":         dws.ResourceWorkLoadPlanExecution(),
 			"huaweicloud_dws_workload_plan_stage":             dws.ResourceWorkLoadPlanStage(),
 			"huaweicloud_dws_workload_plan":                   dws.ResourceWorkLoadPlan(),
+			"huaweicloud_dws_workload_queue_update_action":    dws.ResourceWorkLoadQueueUpdateAction(),
 			"huaweicloud_dws_workload_queue_user_associate":   dws.ResourceWorkloadQueueUserAssociate(),
 			"huaweicloud_dws_workload_queue":                  dws.ResourceWorkLoadQueue(),
 
