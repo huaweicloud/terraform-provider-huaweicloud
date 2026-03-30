@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 1.89.0 (March 30, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_cfw_import_ip_blacklist` [GH-9185]
+  + `huaweicloud_css_agency` [GH-9180]
+  + `huaweicloud_dataarts_factory_job_export` [GH-9200]
+  + `huaweicloud_dataarts_factory_job_import` [GH-9211]
+  + `huaweicloud_ddm_instance_group` [GH-7775]
+  + `huaweicloud_dws_cluster_user` [GH-9115]
+  + `huaweicloud_dws_database_schema_adjust_action` [GH-9199]
+  + `huaweicloud_rds_intelligent_session_kill` [GH-9213]
+  + `huaweicloud_rds_parametergroup_apply` [GH-9206]
+  + `huaweicloud_rds_parametergroup_compare` [GH-9194]
+  + `huaweicloud_rds_parametergroup_reset` [GH-9194]
+
+* **New Data Source:**
+  + `huaweicloud_cfw_flow_log_statistic_detail` [GH-9196]
+  + `huaweicloud_cfw_flow_log_statistics` [GH-9190]
+  + `huaweicloud_cfw_traffic_log_trend` [GH-9202]
+  + `huaweicloud_dws_cluster_snapshot_flavors` [GH-9157]
+  + `huaweicloud_dws_host_nets` [GH-9128]
+  + `huaweicloud_dws_monitor_indicators` [GH-9124]
+  + `huaweicloud_mapreduce_cluster_jobs` [GH-9187]
+  + `huaweicloud_rds_intelligent_session_kill_history` [GH-9213]
+  + `huaweicloud_rds_intelligent_session_kill_statistic` [GH-9213]
+  + `huaweicloud_rds_parametergroup_applied_instances` [GH-9206]
+  + `huaweicloud_rds_parametergroup_apply_histories` [GH-9206]
+  + `huaweicloud_rds_remote_databases` [GH-9210]
+
 ## 1.88.0 (March 24, 2026)
 
 * **New Resource Source:**
