@@ -175,3 +175,54 @@ resource "huaweicloud_tms_resource_tags" "test" {
 }
 `, basicCfg, acceptance.HW_PROJECT_ID)
 }
+
+// MRS service binding tags is an asynchronous operation, so a separate test case is provided.
+func TestAccResourceTags_mrs(t *testing.T) {
+	var (
+		tagsConfigured bool
+
+		rName = "huaweicloud_tms_resource_tags.test"
+		rc    = acceptance.InitResourceCheck(rName, &tagsConfigured, getResourceTagsFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
+			acceptance.TestAccPreCheckMrsClusterID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceTags_mrs(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "resources.#", "1"),
+					resource.TestCheckResourceAttr(rName, "resources.0.resource_type", "clusters"),
+					resource.TestCheckResourceAttr(rName, "resources.0.resource_id", acceptance.HW_MRS_CLUSTER_ID),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
+				),
+			},
+		},
+	})
+}
+
+func testAccResourceTags_mrs() string {
+	return fmt.Sprintf(`
+resource "huaweicloud_tms_resource_tags" "test" {
+  project_id = "%[1]s"
+
+  resources {
+    resource_type = "clusters"
+    resource_id   = "%[2]s"
+  }
+
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
+  }
+}
+`, acceptance.HW_PROJECT_ID, acceptance.HW_MRS_CLUSTER_ID)
+}

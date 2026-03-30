@@ -2,11 +2,14 @@ package tms
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -26,6 +29,12 @@ func ResourceResourceTags() *schema.Resource {
 		ReadContext:   resourceResourceTagsRead,
 		UpdateContext: resourceResourceTagsUpdate,
 		DeleteContext: resourceResourceTagsDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project_id": {
@@ -93,6 +102,38 @@ func expandResourceTags(tagsInput map[string]interface{}) []tags.ResourceTag {
 	return result
 }
 
+func waitingResourceTagsConfigCompleted(ctx context.Context, cfg *config.Config, d *schema.ResourceData,
+	timeout time.Duration) error {
+	client, err := cfg.TmsV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating TMS v2 client: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			// For some services, binding tags is an asynchronous operation, such as MRS.
+			resResult, err := GetResourceTags(client, d)
+			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					return "waiting config", "PENDING", nil
+				}
+
+				return nil, "ERROR", err
+			}
+
+			return resResult, "COMPLETED", nil
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	return err
+}
+
 func resourceResourceTagsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -119,6 +160,10 @@ func resourceResourceTagsCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("unable to generate resource ID of the TMS tags management: %s", err)
 	}
 	d.SetId(randUUID)
+
+	if err := waitingResourceTagsConfigCompleted(ctx, cfg, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for TMS resource tags config to complete: %s", err)
+	}
 
 	return resourceResourceTagsRead(ctx, d, meta)
 }
@@ -159,14 +204,7 @@ func compareTwoTags(localTags, remoteTags map[string]interface{}) (same, diff ma
 	return
 }
 
-func resourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.TmsV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating TMS v2 client: %s", err)
-	}
-
+func GetResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
 		projectId = d.Get("project_id").(string)
 		resources = d.Get("resources").([]interface{})
@@ -189,7 +227,7 @@ func resourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta in
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				continue
 			}
-			return diag.Errorf("error query resource (%s) tags: %s", resourceId, err)
+			return nil, fmt.Errorf("error query resource (%s) tags: %s", resourceId, err)
 		}
 		actualTags := FlattenTagsToMap(resp)
 		same, diff := compareTwoTags(tagsInput, actualTags)
@@ -204,10 +242,28 @@ func resourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta in
 			resResult = append(resResult, val)
 		}
 	}
+
 	// All tags set failed.
 	if len(resResult) < 1 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "TMS tags management")
+		return nil, golangsdk.ErrDefault404{}
 	}
+
+	return resResult, nil
+}
+
+func resourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.TmsV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating TMS v2 client: %s", err)
+	}
+
+	resResult, err := GetResourceTags(client, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error getting TMS resource tags")
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("resources", resResult),
 	)
@@ -257,10 +313,46 @@ func resourceResourceTagsUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("some tags were not set successfully: %#v", failResp)
 	}
 
+	if err := waitingResourceTagsConfigCompleted(ctx, cfg, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return diag.Errorf("error waiting for TMS resource tags config to complete: %s", err)
+	}
+
 	return resourceResourceTagsRead(ctx, d, meta)
 }
 
-func resourceResourceTagsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func waitingResourceTagsDeleteCompleted(ctx context.Context, cfg *config.Config, d *schema.ResourceData,
+	timeout time.Duration) error {
+	client, err := cfg.TmsV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating TMS v2 client: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			// For some services, binding tags is an asynchronous operation, such as MRS.
+			resResult, err := GetResourceTags(client, d)
+			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					return "success deleted", "COMPLETED", nil
+				}
+
+				return nil, "ERROR", err
+			}
+
+			return resResult, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceResourceTagsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.TmsV1Client(region)
@@ -279,6 +371,10 @@ func resourceResourceTagsDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 	if len(failResp) > 0 {
 		return diag.Errorf("some tags were not successfully removed: %#v", failResp)
+	}
+
+	if err := waitingResourceTagsDeleteCompleted(ctx, cfg, d, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error waiting for TMS resource tags delete to complete: %s", err)
 	}
 
 	return nil
