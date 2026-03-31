@@ -19,7 +19,7 @@ import (
 // @API MRS GET /v2/{project_id}/clusters/{cluster_id}/nodes
 func DataSourceClusterNodes() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceClusterNodesRead,
+		ReadContext: dataSourceClusterNodesRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -407,7 +407,7 @@ func buildListClusterNodesQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func resourceClusterNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceClusterNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)

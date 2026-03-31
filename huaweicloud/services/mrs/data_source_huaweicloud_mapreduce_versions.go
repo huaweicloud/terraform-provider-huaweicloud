@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product MRS
-// ---------------------------------------------------------------
-
 package mrs
 
 import (
@@ -16,61 +11,55 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API MRS GET /v2/{project_id}/metadata/versions
-func DataSourceMrsVersions() *schema.Resource {
+func DataSourceVersions() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceMrsVersionsRead,
+		ReadContext: dataSourceVersionsRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the cluster versions are located.`,
 			},
+			// Attributes.
 			"versions": {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Computed:    true,
-				Description: "List of available cluster versions",
+				Description: `The list of available cluster versions.`,
 			},
 		},
 	}
 }
 
-func resourceMrsVersionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
+func dataSourceVersionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg                = meta.(*config.Config)
+		region             = cfg.GetRegion(d)
 		getVersionsHttpUrl = "v2/{project_id}/metadata/versions"
-		getVersionsProduct = "mrs"
 	)
-	getVersionsClient, err := cfg.NewServiceClient(getVersionsProduct, region)
+
+	client, err := cfg.NewServiceClient("mrs", region)
 	if err != nil {
 		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
-	getVersionsPath := getVersionsClient.Endpoint + getVersionsHttpUrl
-	getVersionsPath = strings.ReplaceAll(getVersionsPath, "{project_id}", getVersionsClient.ProjectID)
+	getVersionsPath := client.Endpoint + getVersionsHttpUrl
+	getVersionsPath = strings.ReplaceAll(getVersionsPath, "{project_id}", client.ProjectID)
 
 	getVersionsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	getVersionsResp, err := getVersionsClient.Request("GET", getVersionsPath, &getVersionsOpt)
-
+	getVersionsResp, err := client.Request("GET", getVersionsPath, &getVersionsOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving MrsVersions")
+		return diag.Errorf("error retrieving cluster available versions: %s", err)
 	}
 
 	getVersionsRespBody, err := utils.FlattenResponse(getVersionsResp)
@@ -84,8 +73,7 @@ func resourceMrsVersionsRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 	d.SetId(uuid)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("versions", utils.PathSearch("cluster_versions", getVersionsRespBody, nil)),
 	)
