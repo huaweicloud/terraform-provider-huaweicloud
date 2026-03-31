@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product MRS
-// ---------------------------------------------------------------
-
 package mrs
 
 import (
@@ -22,15 +17,17 @@ import (
 )
 
 // @API MRS GET /v1.1/{project_id}/cluster_infos
-func DataSourceMrsClusters() *schema.Resource {
+func DataSourceClusters() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceMrsClustersRead,
+		ReadContext: dataSourceClustersRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the clusters are located.`,
 			},
+			// Optional parameters.
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -44,24 +41,25 @@ func DataSourceMrsClusters() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The enterprise project ID used to query clusters in a specified enterprise project.`,
+				Description: `The ID of the enterprise project to which the clusters belong.`,
 			},
 			"tags": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `You can search for a cluster by its tags.`,
+				Description: `The tags of the cluster.`,
 			},
+			// Attributes.
 			"clusters": {
 				Type:        schema.TypeList,
-				Elem:        mrsClustersClustersSchema(),
 				Computed:    true,
-				Description: `The list of clusters.`,
+				Elem:        clustersSchema(),
+				Description: `The list of clusters that match the filter parameters.`,
 			},
 		},
 	}
 }
 
-func mrsClustersClustersSchema() *schema.Resource {
+func clustersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -203,7 +201,7 @@ func mrsClustersClustersSchema() *schema.Resource {
 			"volume_size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Disk storage space.`,
+				Description: `Disk storage space, in GB.`,
 			},
 			"volume_type": {
 				Type:        schema.TypeString,
@@ -261,9 +259,10 @@ func mrsClustersClustersSchema() *schema.Resource {
 				Description: `Preferred private IP address.`,
 			},
 			"tags": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The tags of the cluster.`,
 			},
 			"log_collection": {
 				Type:        schema.TypeInt,
@@ -272,14 +271,14 @@ func mrsClustersClustersSchema() *schema.Resource {
 			},
 			"task_node_groups": {
 				Type:        schema.TypeList,
-				Elem:        mrsClustersClustersNodeGroupSchema(),
 				Computed:    true,
+				Elem:        mrsClustersClustersNodeGroupSchema(),
 				Description: `List of Task nodes.`,
 			},
 			"node_groups": {
 				Type:        schema.TypeList,
-				Elem:        mrsClustersClustersNodeGroupSchema(),
 				Computed:    true,
+				Elem:        mrsClustersClustersNodeGroupSchema(),
 				Description: `List of Master, Core and Task nodes.`,
 			},
 			"master_data_volume_type": {
@@ -290,12 +289,12 @@ func mrsClustersClustersSchema() *schema.Resource {
 			"master_data_volume_size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Data disk storage space of the Master node`,
+				Description: `Data disk storage space of the Master node, in GB.`,
 			},
 			"master_data_volume_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Number of data disks of the Master node`,
+				Description: `Number of data disks of the Master node.`,
 			},
 			"core_data_volume_type": {
 				Type:        schema.TypeString,
@@ -305,7 +304,7 @@ func mrsClustersClustersSchema() *schema.Resource {
 			"core_data_volume_size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Data disk storage space of the Core node.`,
+				Description: `Data disk storage space of the Core node, in GB.`,
 			},
 			"core_data_volume_count": {
 				Type:        schema.TypeInt,
@@ -320,7 +319,7 @@ func mrsClustersClustersSchema() *schema.Resource {
 			"scale": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Status of node changes.`,
+				Description: `The change status of cluster nodes.`,
 			},
 			"eip_id": {
 				Type:        schema.TypeString,
@@ -416,7 +415,7 @@ func mrsClustersClustersNodeGroupSchema() *schema.Resource {
 			"root_volume_size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Root disk storage space of a node group.`,
+				Description: `Root disk storage space of a node group, in GB.`,
 			},
 			"root_volume_type": {
 				Type:        schema.TypeString,
@@ -451,7 +450,7 @@ func mrsClustersClustersNodeGroupSchema() *schema.Resource {
 			"data_volume_size": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Data disk storage space of a node group.`,
+				Description: `Data disk storage space of a node group, in GB.`,
 			},
 			"data_volume_product_id": {
 				Type:        schema.TypeString,
@@ -533,7 +532,7 @@ func listClusters(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]in
 	return result, nil
 }
 
-func resourceMrsClustersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceClustersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -557,59 +556,66 @@ func resourceMrsClustersRead(_ context.Context, d *schema.ResourceData, meta int
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("clusters", flattenGetClustersResponseBodyClusters(cluster)),
+		d.Set("clusters", flattenClusters(cluster)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetClustersResponseBodyClusters(clusters []interface{}) []interface{} {
+func flattenClusters(clusters []interface{}) []interface{} {
+	if len(clusters) == 0 {
+		return nil
+	}
+
 	rst := make([]interface{}, 0, len(clusters))
 	for _, v := range clusters {
 		rst = append(rst, map[string]interface{}{
-			"id":                       utils.PathSearch("clusterId", v, nil),
-			"name":                     utils.PathSearch("clusterName", v, nil),
-			"master_node_num":          utils.PathSearch("masterNodeNum", v, nil),
-			"core_node_num":            utils.PathSearch("coreNodeNum", v, nil),
-			"total_node_num":           utils.PathSearch("totalNodeNum", v, nil),
-			"status":                   utils.PathSearch("clusterState", v, nil),
-			"billing_type":             utils.PathSearch("billingType", v, nil),
-			"vpc_id":                   utils.PathSearch("vpcId", v, nil),
-			"subnet_id":                utils.PathSearch("subnetId", v, nil),
-			"duration":                 utils.PathSearch("duration", v, nil),
-			"fee":                      utils.PathSearch("fee", v, nil),
-			"hadoop_version":           utils.PathSearch("hadoopVersion", v, nil),
-			"master_node_size":         utils.PathSearch("masterNodeSize", v, nil),
-			"core_node_size":           utils.PathSearch("coreNodeSize", v, nil),
-			"component_list":           flattenClustersComponentList(v),
-			"external_ip":              utils.PathSearch("externalIp", v, nil),
-			"external_alternate_ip":    utils.PathSearch("externalAlternateIp", v, nil),
-			"internal_ip":              utils.PathSearch("internalIp", v, nil),
-			"deployment_id":            utils.PathSearch("deploymentId", v, nil),
-			"description":              utils.PathSearch("remark", v, nil),
-			"order_id":                 utils.PathSearch("orderId", v, nil),
-			"master_node_product_id":   utils.PathSearch("masterNodeProductId", v, nil),
-			"master_node_spec_id":      utils.PathSearch("masterNodeSpecId", v, nil),
-			"core_node_product_id":     utils.PathSearch("coreNodeProductId", v, nil),
-			"core_node_spec_id":        utils.PathSearch("coreNodeSpecId", v, nil),
-			"availability_zone":        utils.PathSearch("availabilityZoneId", v, nil),
-			"vnc":                      utils.PathSearch("vnc", v, nil),
-			"volume_size":              utils.PathSearch("volumeSize", v, nil),
-			"volume_type":              utils.PathSearch("volumeType", v, nil),
-			"enterprise_project_id":    utils.PathSearch("enterpriseProjectId", v, nil),
-			"type":                     utils.PathSearch("clusterType", v, nil),
-			"security_group_id":        utils.PathSearch("securityGroupsId", v, nil),
-			"slave_security_group_id":  utils.PathSearch("slaveSecurityGroupsId", v, nil),
-			"stage_desc":               utils.PathSearch("stageDesc", v, nil),
-			"safe_mode":                utils.PathSearch("safeMode", v, nil),
-			"version":                  utils.PathSearch("clusterVersion", v, nil),
-			"node_public_cert_name":    utils.PathSearch("nodePublicCertName", v, nil),
-			"master_node_ip":           utils.PathSearch("masterNodeIp", v, nil),
-			"private_ip_first":         utils.PathSearch("privateIpFirst", v, nil),
-			"tags":                     flattenTags(utils.PathSearch("tags", v, "").(string)),
-			"log_collection":           utils.PathSearch("logCollection", v, nil),
-			"task_node_groups":         flattenClustersNodeGroups(v, "taskNodeGroups"),
-			"node_groups":              flattenClustersNodeGroups(v, "nodeGroups"),
+			"id":               utils.PathSearch("clusterId", v, nil),
+			"name":             utils.PathSearch("clusterName", v, nil),
+			"master_node_num":  utils.PathSearch("masterNodeNum", v, nil),
+			"core_node_num":    utils.PathSearch("coreNodeNum", v, nil),
+			"total_node_num":   utils.PathSearch("totalNodeNum", v, nil),
+			"status":           utils.PathSearch("clusterState", v, nil),
+			"billing_type":     utils.PathSearch("billingType", v, nil),
+			"vpc_id":           utils.PathSearch("vpcId", v, nil),
+			"subnet_id":        utils.PathSearch("subnetId", v, nil),
+			"duration":         utils.PathSearch("duration", v, nil),
+			"fee":              utils.PathSearch("fee", v, nil),
+			"hadoop_version":   utils.PathSearch("hadoopVersion", v, nil),
+			"master_node_size": utils.PathSearch("masterNodeSize", v, nil),
+			"core_node_size":   utils.PathSearch("coreNodeSize", v, nil),
+			"component_list": flattenClustersComponentList(utils.PathSearch("componentList",
+				v, make([]interface{}, 0)).([]interface{})),
+			"external_ip":             utils.PathSearch("externalIp", v, nil),
+			"external_alternate_ip":   utils.PathSearch("externalAlternateIp", v, nil),
+			"internal_ip":             utils.PathSearch("internalIp", v, nil),
+			"deployment_id":           utils.PathSearch("deploymentId", v, nil),
+			"description":             utils.PathSearch("remark", v, nil),
+			"order_id":                utils.PathSearch("orderId", v, nil),
+			"master_node_product_id":  utils.PathSearch("masterNodeProductId", v, nil),
+			"master_node_spec_id":     utils.PathSearch("masterNodeSpecId", v, nil),
+			"core_node_product_id":    utils.PathSearch("coreNodeProductId", v, nil),
+			"core_node_spec_id":       utils.PathSearch("coreNodeSpecId", v, nil),
+			"availability_zone":       utils.PathSearch("availabilityZoneId", v, nil),
+			"vnc":                     utils.PathSearch("vnc", v, nil),
+			"volume_size":             utils.PathSearch("volumeSize", v, nil),
+			"volume_type":             utils.PathSearch("volumeType", v, nil),
+			"enterprise_project_id":   utils.PathSearch("enterpriseProjectId", v, nil),
+			"type":                    utils.PathSearch("clusterType", v, nil),
+			"security_group_id":       utils.PathSearch("securityGroupsId", v, nil),
+			"slave_security_group_id": utils.PathSearch("slaveSecurityGroupsId", v, nil),
+			"stage_desc":              utils.PathSearch("stageDesc", v, nil),
+			"safe_mode":               utils.PathSearch("safeMode", v, nil),
+			"version":                 utils.PathSearch("clusterVersion", v, nil),
+			"node_public_cert_name":   utils.PathSearch("nodePublicCertName", v, nil),
+			"master_node_ip":          utils.PathSearch("masterNodeIp", v, nil),
+			"private_ip_first":        utils.PathSearch("privateIpFirst", v, nil),
+			"tags":                    flattenTags(utils.PathSearch("tags", v, "").(string)),
+			"log_collection":          utils.PathSearch("logCollection", v, nil),
+			"task_node_groups": flattenClustersNodeGroups(utils.PathSearch("taskNodeGroups", v,
+				make([]interface{}, 0)).([]interface{})),
+			"node_groups": flattenClustersNodeGroups(utils.PathSearch("nodeGroups", v,
+				make([]interface{}, 0)).([]interface{})),
 			"master_data_volume_type":  utils.PathSearch("masterDataVolumeType", v, nil),
 			"master_data_volume_size":  utils.PathSearch("masterDataVolumeSize", v, nil),
 			"master_data_volume_count": utils.PathSearch("masterDataVolumeCount", v, nil),
@@ -627,14 +633,13 @@ func flattenGetClustersResponseBodyClusters(clusters []interface{}) []interface{
 	return rst
 }
 
-func flattenClustersComponentList(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenClustersComponentList(components []interface{}) []interface{} {
+	if len(components) == 0 {
 		return nil
 	}
-	curJson := utils.PathSearch("componentList", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+
+	rst := make([]interface{}, 0, len(components))
+	for _, v := range components {
 		rst = append(rst, map[string]interface{}{
 			"component_id":      utils.PathSearch("componentId", v, nil),
 			"component_name":    utils.PathSearch("componentName", v, nil),
@@ -645,14 +650,13 @@ func flattenClustersComponentList(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenClustersNodeGroups(resp interface{}, key string) []interface{} {
-	if resp == nil {
+func flattenClustersNodeGroups(nodeGroups []interface{}) []interface{} {
+	if len(nodeGroups) == 0 {
 		return nil
 	}
-	curJson := utils.PathSearch(key, resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+
+	rst := make([]interface{}, 0, len(nodeGroups))
+	for _, v := range nodeGroups {
 		rst = append(rst, map[string]interface{}{
 			"group_name":                     utils.PathSearch("groupName", v, nil),
 			"node_num":                       utils.PathSearch("nodeNum", v, nil),

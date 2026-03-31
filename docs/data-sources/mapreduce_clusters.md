@@ -2,18 +2,29 @@
 subcategory: "MapReduce Service (MRS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_mapreduce_clusters"
-description: ""
+description: |-
+  Use this data source to get MapReduce cluster list within HuaweiCloud.
 ---
 
 # huaweicloud_mapreduce_clusters
 
-Use this data source to get clusters of MapReduce.
+Use this data source to get MapReduce cluster list within HuaweiCloud.
 
 ## Example Usage
 
+### Query all clusters
+
 ```hcl
+data "huaweicloud_mapreduce_clusters" "test" {}
+```
+
+### Query clusters by name
+
+```hcl
+variable "cluster_name" {}
+
 data "huaweicloud_mapreduce_clusters" "test" {
-  status = "running"
+  name = var.cluster_name
 }
 ```
 
@@ -21,16 +32,16 @@ data "huaweicloud_mapreduce_clusters" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the clusters are located.  
   If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) The name of cluster.
+* `name` - (Optional, String) Specifies the name of cluster.
 
-* `status` - (Optional, String) The status of cluster.  
-  The following options are supported:
+* `status` - (Optional, String) Specifies the status of cluster.  
+  The valid values are as follows:
     + **existing**: Query existing clusters, including all clusters except those in the deleted state
       and the yearly/monthly clusters in the Order processing or preparing state.
-    + **history**: Quer historical clusters, including all the deleted clusters, clusters that fail to delete,
+    + **history**: Query historical clusters, including all the deleted clusters, clusters that fail to delete,
       clusters whose VMs fail to delete, and clusters whose database updates fail to delete.
     + **starting**: Query a list of clusters that are being started.
     + **running**: Query a list of running clusters.
@@ -42,13 +53,13 @@ The following arguments are supported:
     + **scaling-out**: Query a list of clusters that are being scaled out.
     + **scaling-in**: Query a list of clusters that are being scaled in.
 
-* `enterprise_project_id` - (Optional, String) The enterprise project ID used to query clusters in a specified
-  enterprise project.
-  The default value is **0**, indicating the default enterprise project.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which
+  the clusters belong.  
+  If omitted, the clusters in all enterprise projects will be returned.
 
-* `tags` - (Optional, String) You can search for a cluster by its tags.  
-  If you specify multiple tags, the relationship between them is **AND**.
-  The format of the tags parameter is **tags=k1\*v1,k2\*v2,k3\*v3**.
+* `tags` - (Optional, String) Specifies the tags of the cluster.  
+  If you specify multiple tags, the relationship between them is **AND**.  
+  The format of the tags parameter is **tags=k1\*v1,k2\*v2,k3\*v3**.  
   When the values of some tags are null, the format is **tags=k1,k2,k3\*v3**.
 
 ## Attribute Reference
@@ -57,11 +68,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `clusters` - The list of clusters.
-  The [clusters](#MrsClusters_Clusters) structure is documented below.
+* `clusters` - The list of clusters that match the filter parameters.  
+  The [clusters](#mrs_clusters) structure is documented below.
 
-<a name="MrsClusters_Clusters"></a>
-The `Clusters` block supports:
+<a name="mrs_clusters"></a>
+The `clusters` block supports:
 
 * `id` - Cluster ID.
 
@@ -73,22 +84,20 @@ The `Clusters` block supports:
 
 * `total_node_num` - Total number of nodes deployed in a cluster.
 
-* `status` - Cluster status.  
-  The following options are supported:  
-    + **starting**: The cluster is being started.
-    + **running**: The cluster is running.
-    + **terminated**: The cluster has been terminated.
-    + **failed**: The cluster fails.
-    + **abnormal**: The cluster is abnormal.
-    + **terminating**: The cluster is being terminated.
-    + **frozen**: The cluster has been frozen.
-    + **scaling-out**: The cluster is being scaled out.
-    + **scaling-in**: The cluster is being scaled in.
+* `status` - Cluster status.
+  + **starting**: The cluster is being started.
+  + **running**: The cluster is running.
+  + **terminated**: The cluster has been terminated.
+  + **failed**: The cluster fails.
+  + **abnormal**: The cluster is abnormal.
+  + **terminating**: The cluster is being terminated.
+  + **frozen**: The cluster has been frozen.
+  + **scaling-out**: The cluster is being scaled out.
+  + **scaling-in**: The cluster is being scaled in.
 
 * `billing_type` - Cluster billing mode.  
-  The following options are supported:  
-    + **11**: Yearly/Monthly.
-    + **12**: Pay-per-use.
+  + **11**: Yearly/Monthly.
+  + **12**: Pay-per-use.
 
 * `vpc_id` - VPC ID.
 
@@ -104,8 +113,8 @@ The `Clusters` block supports:
 
 * `core_node_size` - Instance specifications of a Core node.
 
-* `component_list` - Component list.
-  The [component_list](#MrsClusters_ClustersComponentList) structure is documented below.
+* `component_list` - Component list.  
+  The [component_list](#mrs_clusters_component_list) structure is documented below.
 
 * `external_ip` - External IP address.
 
@@ -131,19 +140,18 @@ The `Clusters` block supports:
 
 * `vnc` - URI for remotely logging in to an ECS.
 
-* `volume_size` - Disk storage space.
+* `volume_size` - Disk storage space, in GB.
 
 * `volume_type` - Disk type.
 
 * `enterprise_project_id` - Enterprise project ID.
 
-* `type` - Cluster type.  
-  The following options are supported:  
-    + **0**: analysis cluster.
-    + **1**: streaming cluster.
-    + **2**: hybrid cluster.
-    + **3**: custom cluster.
-    + **4**: Offline cluster.
+* `type` - Cluster type.
+  + **0**: analysis cluster.
+  + **1**: streaming cluster.
+  + **2**: hybrid cluster.
+  + **3**: custom cluster.
+  + **4**: Offline cluster.
 
 * `security_group_id` - Security group ID.
 
@@ -152,32 +160,31 @@ The `Clusters` block supports:
 
 * `stage_desc` - Cluster progress description.  
   The cluster installation progress includes:
-    + **Verifying cluster parameters**: Cluster parameters are being verified.
-    + **Applying for cluster resources**: Cluster resources are being applied for.
-    + **Creating VMs**: The VMs are being created.
-    + **Initializing VMs**: The VMs are being initialized.
-    + **Installing MRS Manager**: MRS Manager is being installed.
-    + **Deploying the cluster**: The cluster is being deployed.
-    + **Cluster installation failed**: Failed to install the cluster.
+  + **Verifying cluster parameters**: Cluster parameters are being verified.
+  + **Applying for cluster resources**: Cluster resources are being applied for.
+  + **Creating VMs**: The VMs are being created.
+  + **Initializing VMs**: The VMs are being initialized.
+  + **Installing MRS Manager**: MRS Manager is being installed.
+  + **Deploying the cluster**: The cluster is being deployed.
+  + **Cluster installation failed**: Failed to install the cluster.
 
   The cluster scale-out progress includes:
-    + **Preparing for scale-out**: Cluster scale-out is being prepared.
-    + **Creating VMs**: The VMs are being created.
-    + **Initializing VMs**: The VMs are being initialized.
-    + **Adding nodes to the cluster**: The nodes are being added to the cluster.
-    + **Scale-out failed**: Failed to scale out the cluster.
+  + **Preparing for scale-out**: Cluster scale-out is being prepared.
+  + **Creating VMs**: The VMs are being created.
+  + **Initializing VMs**: The VMs are being initialized.
+  + **Adding nodes to the cluster**: The nodes are being added to the cluster.
+  + **Scale-out failed**: Failed to scale out the cluster.
 
   The cluster scale-in progress includes:
-    + **Preparing for scale-in**: Cluster scale-in is being prepared.
-    + **Decommissioning instance**: The instance is being decommissioned.
-    + **Deleting VMs**: The VMs are being deleted.
-    + **Deleting nodes from the cluster**: The nodes are being deleted from the cluster.
-    + **Scale-in failed**: Failed to scale in the cluster.
+  + **Preparing for scale-in**: Cluster scale-in is being prepared.
+  + **Decommissioning instance**: The instance is being decommissioned.
+  + **Deleting VMs**: The VMs are being deleted.
+  + **Deleting nodes from the cluster**: The nodes are being deleted from the cluster.
+  + **Scale-in failed**: Failed to scale in the cluster.
 
   If the cluster installation, scale-out, or scale-in fails, stageDesc will display the failure cause.
 
-* `safe_mode` - Running mode of an MRS cluster.  
-  The following options are supported:
+* `safe_mode` - Running mode of an MRS cluster.
     + **0**: Normal cluster.
     + **1**: Security cluster.
 
@@ -189,54 +196,50 @@ The `Clusters` block supports:
 
 * `private_ip_first` - Preferred private IP address.
 
-* `tags` - The tag information.
+* `tags` - The tags of the cluster.
 
-* `log_collection` - Whether to collect logs when cluster installation fails.  
-  The following options are supported:
-    + **0**: Do not collect logs.
-    + **1**: Collect logs.
+* `log_collection` - Whether to collect logs when cluster installation fails.
+  + **0**: Do not collect logs.
+  + **1**: Collect logs.
 
-* `task_node_groups` - List of Task nodes.
-  The [NodeGroup](#MrsClusters_ClustersNodeGroup) structure is documented below.
+* `task_node_groups` - List of Task nodes.  
+  The [task_node_groups](#mrs_clusters_node_group) structure is documented below.
 
-* `node_groups` - List of Master, Core and Task nodes.
-  The [NodeGroup](#MrsClusters_ClustersNodeGroup) structure is documented below.
+* `node_groups` - List of Master, Core and Task nodes.  
+  The [node_groups](#mrs_clusters_node_group) structure is documented below.
 
 * `master_data_volume_type` - Data disk storage type of the Master node.  
-  Currently, **SATA**, **SAS**, and **SSD** are supported.
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
 
-* `master_data_volume_size` - Data disk storage space of the Master node  
-  To increase data storage capacity, you can add disks at the same time when creating a cluster.  
-  Value range: 100 GB to 32,000 GB
+* `master_data_volume_size` - Data disk storage space of the Master node, in GB.
 
-* `master_data_volume_count` - Number of data disks of the Master node  
-  The value can be set to 1 only.
+* `master_data_volume_count` - Number of data disks of the Master node.
 
-* `core_data_volume_type` - Data disk storage type of the Core node.  
-  Currently, **SATA**, **SAS**, and **SSD** are supported.
+* `core_data_volume_type` - Data disk storage type of the Core node.
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
 
-* `core_data_volume_size` - Data disk storage space of the Core node.  
-  To increase data storage capacity, you can add disks at the same time when creating a cluster.  
-  Value range: 100 GB to 32,000 GB
+* `core_data_volume_size` - Data disk storage space of the Core node, in GB.
 
 * `core_data_volume_count` - Number of data disks of the Core node.
 
-* `period_type` - Whether the subscription type is yearly or monthly.  
-  The following options are supported:  
-    + **0**: monthly subscription.
-    + **1**: yearly subscription.
+* `period_type` - Whether the subscription type is yearly or monthly.
+  + **0**: monthly subscription.
+  + **1**: yearly subscription.
 
-* `scale` - Status of node changes  
+* `scale` - The change status of cluster nodes.  
   If this parameter is left blank, no change operation is performed on a cluster node.  
-  The options are as follows:
-    + **Scaling-out**: The cluster is being scaled out.
-    + **Scaling-in**: The cluster is being scaled in.
-    + **scaling-error**: The cluster is in the running state and fails to be scaled in or out or the specifications
-      fail to be scaled up for the last time.
-    + **scaling-up**: The master node specifications are being scaled up.
-    + **scaling_up_first**: The standby master node specifications are being scaled up.
-    + **scaled_up_first**: The standby master node specifications have been scaled up.
-    + **scaled-up-success**: The master node specifications have been scaled up.
+  + **scaling-out**: The cluster is being scaled out.
+  + **scaling-in**: The cluster is being scaled in.
+  + **scaling-error**: The cluster is in the running state and fails to be scaled in or out or the specifications
+    fail to be scaled up for the last time.
+  + **scaling-up**: The master node specifications are being scaled up.
+  + **scaling_up_first**: The standby master node specifications are being scaled up.
+  + **scaled_up_first**: The standby master node specifications have been scaled up.
+  + **scaled-up-success**: The master node specifications have been scaled up.
 
 * `eip_id` - Unique ID of the cluster EIP.
 
@@ -247,11 +250,11 @@ The `Clusters` block supports:
 
 * `mrs_ecs_default_agency` - The default agency name bound to the cluster node.
 
-<a name="MrsClusters_ClustersComponentList"></a>
+<a name="mrs_clusters_component_list"></a>
 The `component_list` block supports:
 
-* `component_id` - Component ID  
-  For example, the component_id of Hadoop is MRS 3.0.2_001, MRS 2.1.0_001, MRS 1.9.2_001, MRS 1.8.10_001.
+* `component_id` - Component ID.  
+  For example, the component ID of Hadoop is MRS `3.0.2_001`, `MRS 2.1.0_001`, `MRS 1.9.2_001`, `MRS 1.8.10_001`.
 
 * `component_name` - Component name.
 
@@ -259,8 +262,8 @@ The `component_list` block supports:
 
 * `component_desc` - Component description.
 
-<a name="MrsClusters_ClustersNodeGroup"></a>
-The `NodeGroup` block supports:
+<a name="mrs_clusters_node_group"></a>
+The `task_node_groups` and `node_groups` blocks support:
 
 * `group_name` - Node group name.
 
@@ -276,7 +279,7 @@ The `NodeGroup` block supports:
 
 * `vm_spec_code` - VM specification code of a node group.
 
-* `root_volume_size` - Root disk storage space of a node group.
+* `root_volume_size` - Root disk storage space of a node group, in GB.
 
 * `root_volume_type` - Root disk storage type of a node group.
 
@@ -287,14 +290,13 @@ The `NodeGroup` block supports:
 * `root_volume_resource_type` - System disk product type of a node group.
 
 * `data_volume_type` - Data disk storage type of a node group.  
-  The following options are supported:  
-    + **SATA**: Common I/O.
-    + **SAS**: High I/O.
-    + **SSD**: Ultra-high I/O.
+  + **SATA**: Common I/O.
+  + **SAS**: High I/O.
+  + **SSD**: Ultra-high I/O.
 
 * `data_volume_count` - Number of data disks of a node group.
 
-* `data_volume_size` - Data disk storage space of a node group.
+* `data_volume_size` - Data disk storage space of a node group, in GB.
 
 * `data_volume_product_id` - Data disk product ID of a node group.
 
