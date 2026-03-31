@@ -63,7 +63,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -96,7 +96,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   }
 }
 
-resource "huaweicloud_gaussdb_opengauss_parameter_template" "test" {
+resource "huaweicloud_gaussdb_parameter_template" "test" {
   name           = "%[2]s"
   engine_version = "8.201"
   instance_mode  = "ha"
@@ -119,9 +119,9 @@ func testDataSourceGaussdbOpengaussPtApplicableInstances_basic(name string) stri
 %s
 
 data "huaweicloud_gaussdb_pt_applicable_instances" "test" {
-  depends_on = [huaweicloud_gaussdb_opengauss_instance.test]
+  depends_on = [huaweicloud_gaussdb_instance.test]
 
-  config_id = huaweicloud_gaussdb_opengauss_parameter_template.test.id
+  config_id = huaweicloud_gaussdb_parameter_template.test.id
 }
 `, testDataSourceGaussdbOpengaussPtApplicableInstances_base(name))
 }

@@ -66,7 +66,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -97,8 +97,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   }
 }
 
-resource "huaweicloud_gaussdb_opengauss_backup" "test" {
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+resource "huaweicloud_gaussdb_backup" "test" {
+  instance_id = huaweicloud_gaussdb_instance.test.id
   name        = "%[2]s"
   description = "test description"
 }
@@ -110,7 +110,7 @@ func testDataSourceGaussdbOpengaussBackupFiles_basic(name string) string {
 %s
 
 data "huaweicloud_gaussdb_backup_files" "test" {
-  backup_id = huaweicloud_gaussdb_opengauss_backup.test.id
+  backup_id = huaweicloud_gaussdb_backup.test.id
 }
 `, testDataSourceGaussdbOpengaussBackupFiles_base(name))
 }

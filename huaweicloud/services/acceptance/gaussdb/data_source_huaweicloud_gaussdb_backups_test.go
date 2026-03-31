@@ -77,7 +77,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -108,16 +108,16 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   }
 }
 
-resource "huaweicloud_gaussdb_opengauss_backup" "backup_1" {
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+resource "huaweicloud_gaussdb_backup" "backup_1" {
+  instance_id = huaweicloud_gaussdb_instance.test.id
   name        = "%[2]s_backup_1"
   description = "test description"
 }
 
-resource "huaweicloud_gaussdb_opengauss_backup" "backup_2" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_1]
+resource "huaweicloud_gaussdb_backup" "backup_2" {
+  depends_on = [huaweicloud_gaussdb_backup.backup_1]
 
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+  instance_id = huaweicloud_gaussdb_instance.test.id
   name        = "%[2]s_backup_2"
   description = "test description"
 }
@@ -129,16 +129,16 @@ func testDataSourceGaussdbOpengaussBackups_basic(name string) string {
 %[1]s
 
 data "huaweicloud_gaussdb_backups" "test" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 }
 
 locals {
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+  instance_id = huaweicloud_gaussdb_instance.test.id
 }
 data "huaweicloud_gaussdb_backups" "instance_id_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+  instance_id = huaweicloud_gaussdb_instance.test.id
 }
 output "instance_id_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_backups.instance_id_filter.backups) > 0 && alltrue(
@@ -147,12 +147,12 @@ output "instance_id_filter_is_useful" {
 }
 
 locals {
-  backup_id = huaweicloud_gaussdb_opengauss_backup.backup_2.id
+  backup_id = huaweicloud_gaussdb_backup.backup_2.id
 }
 data "huaweicloud_gaussdb_backups" "backup_id_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 
-  backup_id  = huaweicloud_gaussdb_opengauss_backup.backup_2.id
+  backup_id  = huaweicloud_gaussdb_backup.backup_2.id
 }
 output "backup_id_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_backups.backup_id_filter.backups) > 0 && alltrue(
@@ -164,7 +164,7 @@ locals {
   backup_type = "manual"
 }
 data "huaweicloud_gaussdb_backups" "backup_type_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 
   backup_type = "manual"
 }
@@ -175,24 +175,24 @@ output "backup_type_filter_is_useful" {
 }
 
 locals {
-  begin_time = huaweicloud_gaussdb_opengauss_backup.backup_1.begin_time
+  begin_time = huaweicloud_gaussdb_backup.backup_1.begin_time
 }
 data "huaweicloud_gaussdb_backups" "begin_time_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 
-  begin_time = huaweicloud_gaussdb_opengauss_backup.backup_1.begin_time
+  begin_time = huaweicloud_gaussdb_backup.backup_1.begin_time
 }
 output "begin_time_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_backups.begin_time_filter.backups) > 0
 }
 
 locals {
-  end_time = huaweicloud_gaussdb_opengauss_backup.backup_2.end_time
+  end_time = huaweicloud_gaussdb_backup.backup_2.end_time
 }
 data "huaweicloud_gaussdb_backups" "end_time_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_backup.backup_2]
+  depends_on = [huaweicloud_gaussdb_backup.backup_2]
 
-  end_time = huaweicloud_gaussdb_opengauss_backup.backup_2.end_time
+  end_time = huaweicloud_gaussdb_backup.backup_2.end_time
 }
 output "end_time_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_backups.end_time_filter.backups) > 0

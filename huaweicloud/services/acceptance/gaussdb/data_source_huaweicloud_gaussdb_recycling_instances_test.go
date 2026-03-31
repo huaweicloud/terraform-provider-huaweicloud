@@ -81,7 +81,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -120,7 +120,7 @@ func testDataSourceGaussdbOpengaussRecyclingInstances_delete_instance() string {
 	return `
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_gaussdb_opengauss_flavors" "test" {
+data "huaweicloud_gaussdb_flavors" "test" {
   version = "8.201"
   ha_mode = "centralization_standard"
 }`

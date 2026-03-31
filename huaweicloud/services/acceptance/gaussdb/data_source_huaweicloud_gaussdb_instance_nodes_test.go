@@ -66,7 +66,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -107,14 +107,14 @@ func testDataSourceGaussdbOpengaussInstanceNodes_basic(name string) string {
 %[1]s
 
 data "huaweicloud_gaussdb_instance_nodes" "test" {
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+  instance_id = huaweicloud_gaussdb_instance.test.id
 }
 
 locals {
   component_type = "DN"
 }
 data "huaweicloud_gaussdb_instance_nodes" "component_type_filter" {
-  instance_id    = huaweicloud_gaussdb_opengauss_instance.test.id
+  instance_id    = huaweicloud_gaussdb_instance.test.id
   component_type = "DN"
 }
 output "component_type_filter_is_useful" {

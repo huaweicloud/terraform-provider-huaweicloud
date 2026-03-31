@@ -69,7 +69,7 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+resource "huaweicloud_gaussdb_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
@@ -103,8 +103,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   }
 }
 
-data "huaweicloud_gaussdb_opengauss_instance_nodes" "test" {
-  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+data "huaweicloud_gaussdb_instance_nodes" "test" {
+  instance_id = huaweicloud_gaussdb_instance.test.id
 }
 `, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -114,15 +114,15 @@ func testDataSourceGaussdbOpengaussTopIoTraffics_basic(name string) string {
 %s
 
 data "huaweicloud_gaussdb_top_io_traffics" "test" {
-  instance_id  = huaweicloud_gaussdb_opengauss_instance.test.id
-  node_id      = data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].id
-  component_id = [for v in data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
+  instance_id  = huaweicloud_gaussdb_instance.test.id
+  node_id      = data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].id
+  component_id = [for v in data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
 }
 
 data "huaweicloud_gaussdb_top_io_traffics" "top_io_num_filter" {
-  instance_id  = huaweicloud_gaussdb_opengauss_instance.test.id
-  node_id      = data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].id
-  component_id = [for v in data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
+  instance_id  = huaweicloud_gaussdb_instance.test.id
+  node_id      = data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].id
+  component_id = [for v in data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
   top_io_num   = 0
 }
 output "top_io_num_filter_is_useful" {
@@ -130,9 +130,9 @@ output "top_io_num_filter_is_useful" {
 }
 
 data "huaweicloud_gaussdb_top_io_traffics" "sort_condition_filter" {
-  instance_id    = huaweicloud_gaussdb_opengauss_instance.test.id
-  node_id        = data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].id
-  component_id   = [for v in data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
+  instance_id    = huaweicloud_gaussdb_instance.test.id
+  node_id        = data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].id
+  component_id   = [for v in data.huaweicloud_gaussdb_instance_nodes.test.nodes[0].components : v.id if v.type == "DN"][0]
   sort_condition = "read"
 }
 output "sort_condition_filter_is_useful" {

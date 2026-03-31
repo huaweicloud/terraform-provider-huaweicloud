@@ -61,10 +61,10 @@ func TestAccDataSourceGaussDbSqlThrottlingTasks_basic(t *testing.T) {
 
 func testDataSourceGaussdbOpengaussSqlThrottlingTasks_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_gaussdb_opengauss_instances" "test" {}
+data "huaweicloud_gaussdb_instances" "test" {}
 
 locals {
-  instance       = [for v in  data.huaweicloud_gaussdb_opengauss_instances.test.instances : v if v.id == "%[1]s"][0]
+  instance       = [for v in  data.huaweicloud_gaussdb_instances.test.instances : v if v.id == "%[1]s"][0]
   master_node_id = [for v in local.instance.nodes : v if v.role == "master"][0].id
 }
 
@@ -73,19 +73,19 @@ data "huaweicloud_gaussdb_sql_templates" "test" {
   node_id     = local.master_node_id
 }
 
-resource "huaweicloud_gaussdb_opengauss_sql_throttling_task" "test" {
+resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   instance_id      = "%[1]s"
   task_scope       = "SQL"
   limit_type       = "SQL_ID"
-  limit_type_value = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_id
+  limit_type_value = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
   task_name        = "%[2]s"
   parallel_size    = 10
   start_time       = "%[3]s"
   end_time         = "%[4]s"
-  sql_model        = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_model
+  sql_model        = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_model
   node_infos {
     node_id = local.master_node_id
-    sql_id  = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_id
+    sql_id  = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
   }
 }
 
@@ -97,7 +97,7 @@ func testDataSourceGaussdbOpengaussSqlThrottlingTasks_basic(name string) string 
 %[1]s
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "test" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
 }
@@ -107,7 +107,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "task_scope_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   task_scope  = "SQL"
@@ -125,7 +125,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "limit_type_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   limit_type  = "SQL_ID"
@@ -139,14 +139,14 @@ output "limit_type_filter_is_useful" {
 }
 
 locals {
-  limit_type_value = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_id
+  limit_type_value = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "limit_type_value_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id      = "%[2]s"
-  limit_type_value = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_id
+  limit_type_value = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
 }
 
 output "limit_type_value_filter_is_useful" {
@@ -161,7 +161,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "task_name_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   task_name   = "%[3]s"
@@ -172,14 +172,14 @@ output "task_name_filter_is_useful" {
 }
 
 locals {
-  sql_model = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_model
+  sql_model = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_model
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "sql_model_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
-  sql_model   =  data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[1].sql_model
+  sql_model   =  data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_model
 }
 
 output "sql_model_filter_is_useful" {
@@ -194,7 +194,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "rule_name_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   rule_name   = data.huaweicloud_gaussdb_sql_throttling_tasks.test.limit_task_list[0].rule_name
@@ -212,7 +212,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "start_time_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   start_time  = "%[4]s"
@@ -227,7 +227,7 @@ locals {
 }
 
 data "huaweicloud_gaussdb_sql_throttling_tasks" "end_time_filter" {
-  depends_on = [huaweicloud_gaussdb_opengauss_sql_throttling_task.test]
+  depends_on = [huaweicloud_gaussdb_sql_throttling_task.test]
 
   instance_id = "%[2]s"
   end_time    = "%[5]s"

@@ -82,9 +82,9 @@ func testAccOpenGaussInstancesDataSource_basic(rName string) string {
 %[1]s
 
 data "huaweicloud_gaussdb_instances" "test" {
-  name = huaweicloud_gaussdb_opengauss_instance.test.name
+  name = huaweicloud_gaussdb_instance.test.name
   depends_on = [
-    huaweicloud_gaussdb_opengauss_instance.test,
+    huaweicloud_gaussdb_instance.test,
   ]
 }
 `, testAccOpenGaussInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5)), 2))
@@ -95,9 +95,9 @@ func testAccOpenGaussInstancesDataSource_haModeCentralized(rName string) string 
 %[1]s
 
 data "huaweicloud_gaussdb_instances" "test" {
-  name = huaweicloud_gaussdb_opengauss_instance.test.name
+  name = huaweicloud_gaussdb_instance.test.name
   depends_on = [
-    huaweicloud_gaussdb_opengauss_instance.test,
+    huaweicloud_gaussdb_instance.test,
   ]
 }
 `, testAccOpenGaussInstance_haModeCentralized(rName, fmt.Sprintf("%s@123", acctest.RandString(5))))
