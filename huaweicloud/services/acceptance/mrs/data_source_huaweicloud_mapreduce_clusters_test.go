@@ -34,6 +34,7 @@ func TestAccDataClusters_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMrsClusterID(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

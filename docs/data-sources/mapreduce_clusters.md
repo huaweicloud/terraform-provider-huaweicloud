@@ -35,7 +35,8 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region where the clusters are located.  
   If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) Specifies the name of cluster.
+* `name` - (Optional, String) Specifies the name of cluster.  
+  Fuzzy search is supported.
 
 * `status` - (Optional, String) Specifies the status of cluster.  
   The valid values are as follows:
