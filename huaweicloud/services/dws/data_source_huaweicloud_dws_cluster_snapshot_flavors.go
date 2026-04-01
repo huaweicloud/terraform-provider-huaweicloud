@@ -286,13 +286,13 @@ func dataSourceClusterSnapshotFlavorsRead(_ context.Context, d *schema.ResourceD
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("flavors", flattenFlavors(flavors)),
+		d.Set("flavors", flattenClusterSnapshotFlavors(flavors)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenFlavors(flavors []interface{}) []interface{} {
+func flattenClusterSnapshotFlavors(flavors []interface{}) []interface{} {
 	if len(flavors) < 1 {
 		return nil
 	}
@@ -308,23 +308,23 @@ func flattenFlavors(flavors []interface{}) []interface{} {
 			"flavor_id":    utils.PathSearch("flavor_id", flavor, nil),
 			"code":         utils.PathSearch("code", flavor, nil),
 			"status":       utils.PathSearch("status", flavor, nil),
-			"attributes": flattenAttributes(
+			"attributes": flattenClusterSnapshotAttributes(
 				utils.PathSearch("attribute", flavor, make([]interface{}, 0)).([]interface{})),
 			"min_node":    utils.PathSearch("min_node", flavor, nil),
 			"flavor_code": utils.PathSearch("flavor_code", flavor, nil),
-			"product_versions": flattenProductVersions(
+			"product_versions": flattenClusterSnapshotProductVersions(
 				utils.PathSearch("product_version_list", flavor, make([]interface{}, 0)).([]interface{})),
 			"volume_num":       utils.PathSearch("volume_num", flavor, nil),
 			"default_capacity": utils.PathSearch("default_capacity", flavor, nil),
 			"scenario":         utils.PathSearch("scenario", flavor, nil),
 			"duplicate":        utils.PathSearch("duplicate", flavor, nil),
-			"volume_used":      flattenVolumeUsed(utils.PathSearch("volume_used", flavor, nil)),
+			"volume_used":      flattenClusterSnapshotVolumeUsed(utils.PathSearch("volume_used", flavor, nil)),
 		})
 	}
 	return result
 }
 
-func flattenAttributes(attributes []interface{}) []interface{} {
+func flattenClusterSnapshotAttributes(attributes []interface{}) []interface{} {
 	if len(attributes) < 1 {
 		return nil
 	}
@@ -339,7 +339,7 @@ func flattenAttributes(attributes []interface{}) []interface{} {
 	return result
 }
 
-func flattenProductVersions(productVersions []interface{}) []interface{} {
+func flattenClusterSnapshotProductVersions(productVersions []interface{}) []interface{} {
 	if len(productVersions) < 1 {
 		return nil
 	}
@@ -356,7 +356,7 @@ func flattenProductVersions(productVersions []interface{}) []interface{} {
 	return result
 }
 
-func flattenVolumeUsed(volumeUsed interface{}) []interface{} {
+func flattenClusterSnapshotVolumeUsed(volumeUsed interface{}) []interface{} {
 	if volumeUsed == nil {
 		return nil
 	}

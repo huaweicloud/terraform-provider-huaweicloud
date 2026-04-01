@@ -38,7 +38,7 @@ data "huaweicloud_dws_cluster_snapshot_flavors" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the snapshot flavors.  
+* `region` - (Optional, String) Specifies the region where the snapshot flavors are located.  
   If omitted, the provider-level region will be used.
 
 * `snapshot_id` - (Required, String) Specifies the ID of the snapshot.
