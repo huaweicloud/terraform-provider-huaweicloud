@@ -1,0 +1,34 @@
+---
+subcategory: "TaurusDB"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_taurusdb_configuration"
+description: ""
+---
+
+# huaweicloud_taurusdb_configuration
+
+Use this data source to get available HuaweiCloud TaurusDB configuration.
+
+## Example Usage
+
+```hcl
+data "huaweicloud_taurusdb_configuration" "this" {
+  name = "Default-GaussDB-for-MySQL 8.0"
+}
+```
+
+## Argument Reference
+
+* `region` - (Optional, String) The region in which to obtain the configurations. If omitted, the provider-level region
+  will be used.
+
+* `name` - (Optional, String) Specifies the name of the parameter template.
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Indicates the ID of the configuration.
+* `description` - Indicates the description of the configuration.
+* `datastore_name` - Indicates the datastore name of the configuration.
+* `datastore_version` - Indicates the datastore version of the configuration.
