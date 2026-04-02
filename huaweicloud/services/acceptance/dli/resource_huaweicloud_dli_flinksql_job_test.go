@@ -39,6 +39,7 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDliGenaralQueueName(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
+			acceptance.TestAccPreCheckDliFlinkSqlJobExecutionAgencyURN(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -53,6 +54,8 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "flink_opensource_sql_job"),
 					resource.TestCheckResourceAttr(resourceName, "queue_name", acceptance.HW_DLI_GENERAL_QUEUE_NAME),
 					resource.TestCheckResourceAttr(resourceName, "runtime_config.dli_sql_sqlasync_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "execution_agency_urn",
+						acceptance.HW_DLI_EXECUTION_AGENCY_URN),
 				),
 			},
 			{
@@ -82,22 +85,24 @@ func testAccFlinkJobResource_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_dli_flinksql_job" "test" {
-  name          = "%[2]s"
-  type          = "flink_opensource_sql_job"
-  run_mode      = "exclusive_cluster"
-  sql           = local.opensourceSql
-  queue_name    = "%[3]s"
-  flink_version = "%[4]s"
-  
+  name                 = "%[2]s"
+  type                 = "flink_opensource_sql_job"
+  run_mode             = "exclusive_cluster"
+  sql                  = local.opensourceSql
+  queue_name           = "%[3]s"
+  flink_version        = "%[4]s"
+  execution_agency_urn = "%[5]s"
+
   runtime_config = {
-    "dli_sql_sqlasync_enabled"= true
+    "dli_sql_sqlasync_enabled" = true
   }
 
   tags = {
     foo = "bar"
   }
 }
-`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME,
+		acceptance.HW_DLI_FLINK_VERSION, acceptance.HW_DLI_EXECUTION_AGENCY_URN)
 }
 
 func testAccFlinkJobResource_update(name string) string {
@@ -116,15 +121,16 @@ resource "huaweicloud_smn_topic" "test" {
 }
 
 resource "huaweicloud_dli_flinksql_job" "test" {
-  name          = "%[2]s"
-  type          = "flink_opensource_sql_job"
-  run_mode      = "exclusive_cluster"
-  sql           = local.opensourceSql
-  queue_name    = "%[3]s"
-  flink_version = "%[4]s"
-  obs_bucket    = huaweicloud_obs_bucket.test.bucket
-  smn_topic     = huaweicloud_smn_topic.test.name
- 
+  name                 = "%[2]s"
+  type                 = "flink_opensource_sql_job"
+  run_mode             = "exclusive_cluster"
+  sql                  = local.opensourceSql
+  queue_name           = "%[3]s"
+  flink_version        = "%[4]s"
+  obs_bucket           = huaweicloud_obs_bucket.test.bucket
+  smn_topic            = huaweicloud_smn_topic.test.name
+  execution_agency_urn = "%[5]s"
+
   runtime_config = {
     "dli_sql_sqlasync_enabled"= false
   }
@@ -133,7 +139,8 @@ resource "huaweicloud_dli_flinksql_job" "test" {
     owner = "terraform"
   }
 }
-`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME,
+		acceptance.HW_DLI_FLINK_VERSION, acceptance.HW_DLI_EXECUTION_AGENCY_URN)
 }
 
 func TestAccResourceDliFlinkJob_streamGraph(t *testing.T) {

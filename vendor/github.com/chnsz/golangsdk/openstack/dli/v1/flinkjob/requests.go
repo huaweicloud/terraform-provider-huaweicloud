@@ -99,6 +99,8 @@ type CreateSqlJobOpts struct {
 	Tags []tags.ResourceTag `json:"tags"`
 	// Flink version. The valid value is `1.1`0 or `1.12`.
 	FlinkVersion string `json:"flink_version,omitempty"`
+	// The name of the delegation authorized to DLI. This parameter is supported only when the Flink version is 1.15.
+	ExecutionAgencyUrn string `json:"execution_agency_urn,omitempty"`
 }
 
 type UpdateSqlJobOpts struct {

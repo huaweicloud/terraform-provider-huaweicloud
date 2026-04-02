@@ -197,6 +197,12 @@ func ResourceFlinkSqlJob() *schema.Resource {
 				Optional: true,
 				Default:  -1,
 			},
+			"execution_agency_urn": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 
 			"runtime_config": common.TagsSchema(),
 
@@ -295,6 +301,10 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		config := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
 		configStr, _ := json.Marshal(config)
 		opts.RuntimeConfig = string(configStr)
+	}
+
+	if executionAgencyUrn, ok := d.GetOk("execution_agency_urn"); ok {
+		opts.ExecutionAgencyUrn = executionAgencyUrn.(string)
 	}
 
 	log.Printf("[DEBUG] Creating new DLI flink job opts: %#v", opts)
@@ -421,6 +431,7 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("operator_config", detail.JobConfig.OperatorConfig),
 		d.Set("static_estimator_config", detail.JobConfig.StaticEstimatorConfig),
+		d.Set("execution_agency_urn", detail.JobConfig.ExecutionAgencyUrn),
 		d.Set("status", detail.Status),
 		d.Set("tags", d.Get("tags")),
 	)

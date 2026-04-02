@@ -255,6 +255,7 @@ var (
 	HW_DLI_FLINK_VERSION                = os.Getenv("HW_DLI_FLINK_VERSION")
 	HW_DLI_FLINK_STREAM_GRAPH           = os.Getenv("HW_DLI_FLINK_STREAM_GRAPH")
 	HW_DLI_ELASTIC_RESOURCE_POOL        = os.Getenv("HW_DLI_ELASTIC_RESOURCE_POOL")
+	HW_DLI_EXECUTION_AGENCY_URN         = os.Getenv("HW_DLI_EXECUTION_AGENCY_URN")
 
 	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
 	HW_GITHUB_REPO_PWD         = os.Getenv("HW_GITHUB_REPO_PWD")         // Repository password (DevCloud, BitBucket)
@@ -2120,6 +2121,13 @@ func TestAccPreCheckDliFlinkVersion(t *testing.T) {
 func TestAccPreCheckDliFlinkStreamGraph(t *testing.T) {
 	if HW_DLI_FLINK_STREAM_GRAPH == "" {
 		t.Skip("HW_DLI_FLINK_STREAM_GRAPH must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkSqlJobExecutionAgencyURN(t *testing.T) {
+	if HW_DLI_EXECUTION_AGENCY_URN == "" {
+		t.Skip("HW_DLI_EXECUTION_AGENCY_URN must be set for DLI acceptance tests.")
 	}
 }
 

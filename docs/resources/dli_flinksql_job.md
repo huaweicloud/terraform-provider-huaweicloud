@@ -138,6 +138,10 @@ The following arguments are supported:
   -> When `type` is set to `flink_opensource_sql_job`, the `flink_version`, `operator_config`, `static_estimator`,
      `static_estimator_config` and `graph_type` parameters are valid.
 
+* `execution_agency_urn` - (Optional, String, ForceNew) Specifies the delegate name to be authorized to DLI. This
+  parameter is supported in Flink version **1.15**.  
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
