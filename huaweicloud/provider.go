@@ -1348,6 +1348,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_endpoints":          ga.DataSourceEndpoints(),
 			"huaweicloud_ga_health_checks":      ga.DataSourceHealthChecks(),
 			"huaweicloud_ga_listeners":          ga.DataSourceListeners(),
+			"huaweicloud_ga_quotas":             ga.DataSourceGaQuotas(),
 			"huaweicloud_ga_tags":               ga.DataSourceGaTags(),
 
 			"huaweicloud_gaussdb_nosql_flavors":                geminidb.DataSourceGaussDBNoSQLFlavors(),
