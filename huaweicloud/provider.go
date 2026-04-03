@@ -3234,6 +3234,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_spark_job":                       dli.ResourceDliSparkJobV2(),
 			"huaweicloud_dli_sql_job":                         dli.ResourceSqlJob(),
 			"huaweicloud_dli_table":                           dli.ResourceDliTable(),
+			"huaweicloud_dli_flinksql_job_savepoint_import":   dli.ResourceFlinkSqlJobSavepointImport(),
 			"huaweicloud_dli_flinksql_job":                    dli.ResourceFlinkSqlJob(),
 			"huaweicloud_dli_flinksql_job_savepoint":          dli.ResourceFlinkSqlJobSavepoint(),
 			"huaweicloud_dli_flinkjar_job":                    dli.ResourceFlinkJarJob(),
