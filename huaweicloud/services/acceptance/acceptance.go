@@ -255,6 +255,8 @@ var (
 	HW_DLI_GENERAL_QUEUE_NAME           = os.Getenv("HW_DLI_GENERAL_QUEUE_NAME")
 	HW_DLI_UPDATED_OWNER                = os.Getenv("HW_DLI_UPDATED_OWNER")
 	HW_DLI_FLINK_VERSION                = os.Getenv("HW_DLI_FLINK_VERSION")
+	HW_DLI_FLINK_SQL_OBS_PATH           = os.Getenv("HW_DLI_FLINK_SQL_OBS_PATH")
+	HW_DLI_FLINK_SQL_JOB_IDS            = os.Getenv("HW_DLI_FLINK_SQL_JOB_IDS")
 	HW_DLI_FLINK_STREAM_GRAPH           = os.Getenv("HW_DLI_FLINK_STREAM_GRAPH")
 	HW_DLI_ELASTIC_RESOURCE_POOL        = os.Getenv("HW_DLI_ELASTIC_RESOURCE_POOL")
 	HW_DLI_EXECUTION_AGENCY_URN         = os.Getenv("HW_DLI_EXECUTION_AGENCY_URN")
@@ -908,7 +910,7 @@ func TestAccPreCheckCaeEnvironment(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckCaeEnvironmentIds(t *testing.T, min int) {
 	if HW_CAE_ENVIRONMENT_IDS == "" || len(strings.Split(HW_CAE_ENVIRONMENT_IDS, ",")) < min {
-		t.Skipf("At least %d environment IDs must be must be supported during the HW_CAE_ENVIRONMENT_IDS, "+
+		t.Skipf("At least %d environment IDs must be supported during the HW_CAE_ENVIRONMENT_IDS, "+
 			"separated by commas (,).", min)
 	}
 }
@@ -2138,6 +2140,21 @@ func TestAccPreCheckDliFlinkVersion(t *testing.T) {
 func TestAccPreCheckDliFlinkStreamGraph(t *testing.T) {
 	if HW_DLI_FLINK_STREAM_GRAPH == "" {
 		t.Skip("HW_DLI_FLINK_STREAM_GRAPH must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkSQLOBSPath(t *testing.T) {
+	if HW_DLI_FLINK_SQL_OBS_PATH == "" {
+		t.Skip("HW_DLI_FLINK_SQL_OBS_PATH must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkSQLJobIds(t *testing.T, min int) {
+	if HW_DLI_FLINK_SQL_JOB_IDS == "" || len(strings.Split(HW_DLI_FLINK_SQL_JOB_IDS, ",")) < min {
+		t.Skipf("At least %d Flink SQL job IDs must be supported during the HW_DLI_FLINK_SQL_JOB_IDS, "+
+			"separated by commas (,).", min)
 	}
 }
 
@@ -4530,7 +4547,7 @@ func TestAccPreCheckDMSRocketMQTopicName(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckDMSRocketMQDeadLetterMessageIDs(t *testing.T, min int) {
 	if HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs == "" || len(strings.Split(HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, ",")) < min {
-		t.Skipf("At least %d dead letter message IDs must be must be supported during the HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, "+
+		t.Skipf("At least %d dead letter message IDs must be supported during the HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, "+
 			"separated by commas (,).", min)
 	}
 }
