@@ -2133,6 +2133,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_table_consumption":             secmaster.DataSourceTableConsumption(),
 			"huaweicloud_secmaster_table_histograms":              secmaster.DataSourceTableHistograms(),
 			"huaweicloud_secmaster_tables":                        secmaster.DataSourceTables(),
+			"huaweicloud_secmaster_tasks":                         secmaster.DataSourceSecmasterTasks(),
 			"huaweicloud_secmaster_upgradation_version":           secmaster.DataSourceUpgradationVersion(),
 			"huaweicloud_secmaster_vpc_endpoint_services":         secmaster.DataSourceSecmasterVpcEndpointServices(),
 			"huaweicloud_secmaster_vulnerabilities":               secmaster.DataSourceVulnerabilities(),
