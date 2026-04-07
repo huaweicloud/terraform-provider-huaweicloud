@@ -4466,6 +4466,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_account_invite_accepter": organizations.ResourceAccountInviteAccepter(),
 			"huaweicloud_organizations_account_invite_decliner": organizations.ResourceAccountInviteDecliner(),
 			"huaweicloud_organizations_delegated_administrator": organizations.ResourceDelegatedAdministrator(),
+			"huaweicloud_organizations_dry_run_policy":          organizations.ResourceDryRunPolicy(),
 			"huaweicloud_organizations_organization":            organizations.ResourceOrganization(),
 			"huaweicloud_organizations_organizational_unit":     organizations.ResourceOrganizationalUnit(),
 			"huaweicloud_organizations_policy":                  organizations.ResourcePolicy(),
