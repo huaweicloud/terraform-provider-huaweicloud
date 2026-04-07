@@ -3237,6 +3237,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_table":                           dli.ResourceDliTable(),
 			"huaweicloud_dli_flinksql_job":                    dli.ResourceFlinkSqlJob(),
 			"huaweicloud_dli_flinksql_job_savepoint":          dli.ResourceFlinkSqlJobSavepoint(),
+			"huaweicloud_dli_flinksql_job_savepoint_import":   dli.ResourceFlinkSqlJobSavepointImport(),
 			"huaweicloud_dli_flinkjar_job":                    dli.ResourceFlinkJarJob(),
 			"huaweicloud_dli_permission":                      dli.ResourceDliPermission(),
 			"huaweicloud_dli_datasource_connection":           dli.ResourceDatasourceConnection(),
