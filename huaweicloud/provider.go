@@ -1350,6 +1350,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_listeners":          ga.DataSourceListeners(),
 			"huaweicloud_ga_pops":               ga.DataSourceGaPops(),
 			"huaweicloud_ga_quotas":             ga.DataSourceGaQuotas(),
+			"huaweicloud_ga_resources_by_tags":  ga.DataSourceGaResourcesByTags(),
 			"huaweicloud_ga_tags":               ga.DataSourceGaTags(),
 
 			"huaweicloud_gaussdb_nosql_flavors":                geminidb.DataSourceGaussDBNoSQLFlavors(),
