@@ -827,6 +827,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_host_configurations":               ces.DataSourceCesHostConfigurations(),
 
 			"huaweicloud_cfw_sn_firewall_protection_status": cfw.DataSourceSnFirewallProtectionStatus(),
+			"huaweicloud_cfw_firewall_config_quota":         cfw.DataSourceFirewallConfigQuota(),
 			"huaweicloud_cfw_firewalls":                     cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":                cfw.DataSourceCfwAddressGroups(),
 			"huaweicloud_cfw_advanced_ips_rules":            cfw.DataSourceAdvancedIpsRules(),
