@@ -47,7 +47,7 @@ func getAutopilotReleaseFunc(cfg *config.Config, state *terraform.ResourceState)
 func TestAccAutopilotRelease_basic(t *testing.T) {
 	var (
 		release      interface{}
-		resourceName = "huaweicloud_cce_autopiot_release.test"
+		resourceName = "huaweicloud_cce_autopilot_release.test"
 		name         = acceptance.RandomAccResourceNameWithDash()
 
 		rc = acceptance.InitResourceCheck(
@@ -117,7 +117,7 @@ func testAccAutopilotRelease_basic(name string) string {
 
 %[2]s
 
-resource "huaweicloud_cce_autopiot_release" "test" {
+resource "huaweicloud_cce_autopilot_release" "test" {
   cluster_id = huaweicloud_cce_autopilot_cluster.test.id
   chart_id   = huaweicloud_cce_autopilot_chart.test.id
   name       = "%[3]s"

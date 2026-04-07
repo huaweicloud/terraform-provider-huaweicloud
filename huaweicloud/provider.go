@@ -2896,7 +2896,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_autopilot_cluster":         cceautopilot.ResourceAutopilotCluster(),
 			"huaweicloud_cce_autopilot_addon":           cceautopilot.ResourceAutopilotAddon(),
 			"huaweicloud_cce_autopilot_chart":           cceautopilot.ResourceAutopilotChart(),
-			"huaweicloud_cce_autopiot_release":          cceautopilot.ResourceAutopilotRelease(),
+			"huaweicloud_cce_autopilot_release":         cceautopilot.ResourceAutopilotRelease(),
 			"huaweicloud_cce_autopilot_cluster_upgrade": cceautopilot.ResourceAutopilotClusterUpgrade(),
 
 			"huaweicloud_cce_access_policy":                         cce.ResourceAccessPolicy(),
@@ -4331,6 +4331,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_projectman_project": codearts.ResourceProject(),
 			"huaweicloud_codehub_repository": codearts.ResourceRepository(),
+
+			"huaweicloud_cce_autopiot_release": cceautopilot.ResourceAutopilotRelease(),
 
 			"huaweicloud_compute_instance_v2":             ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach_v2":     ecs.ResourceComputeInterfaceAttach(),

@@ -129,6 +129,12 @@ resource "huaweicloud_cce_autopilot_cluster" "test" {
     "foo" = "bar"
     "key" = "value"
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 `, common.TestVpc(rName), rName)
 }
@@ -161,6 +167,12 @@ resource "huaweicloud_cce_autopilot_cluster" "test" {
   tags = {
     "foo"        = "bar_update"
     "key_update" = "value_update"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
   }
 }
 `, common.TestVpc(rName), rName)
