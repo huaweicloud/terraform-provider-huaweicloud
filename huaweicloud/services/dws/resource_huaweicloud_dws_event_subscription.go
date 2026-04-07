@@ -25,7 +25,7 @@ import (
 
 // @API DWS POST /v2/{project_id}/event-subs
 // @API DWS GET /v2/{project_id}/event-subs
-// @API AWS PUT /v2/{project_id}/event-subs/{event_sub_id}
+// @API DWS PUT /v2/{project_id}/event-subs/{event_sub_id}
 // @API DWS DELETE /v2/{project_id}/event-subs/{event_sub_id}
 func ResourceDwsEventSubs() *schema.Resource {
 	return &schema.Resource{
@@ -248,7 +248,7 @@ func resourceDwsEventSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 		)
 		updateDwsEventSubsClient, err := cfg.NewServiceClient(updateDwsEventSubsProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating AS Client: %s", err)
+			return diag.Errorf("error creating DWS Client: %s", err)
 		}
 
 		updateDwsEventSubsPath := updateDwsEventSubsClient.Endpoint + updateDwsEventSubsHttpUrl

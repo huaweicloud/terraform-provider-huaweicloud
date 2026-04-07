@@ -18,7 +18,7 @@ import (
 )
 
 // @API DWS PUT /v2/{project_id}/clusters/{cluster_id}/workload/queues
-// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/workload/queues{queue_name}
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/workload/queues/{queue_name}
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/workload/queues
 func ResourceWorkLoadQueue() *schema.Resource {
 	return &schema.Resource{

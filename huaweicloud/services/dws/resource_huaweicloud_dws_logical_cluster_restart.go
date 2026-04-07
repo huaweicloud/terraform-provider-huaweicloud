@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DDM POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}/restart
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}/restart
 // @API DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
 func ResourceLogicalClusterRestart() *schema.Resource {
 	return &schema.Resource{
