@@ -838,6 +838,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_capture_task_results":          cfw.DataSourceCfwCaptureTaskResults(),
 			"huaweicloud_cfw_domain_name_groups":            cfw.DataSourceCfwDomainNameGroups(),
 			"huaweicloud_cfw_domain_name_parse_ip_list":     cfw.DataSourceCfwDomainNameParseIpList(),
+			"huaweicloud_cfw_domain_resolve_ip_list":        cfw.DataSourceCfwDomainResolveIpList(),
 			"huaweicloud_cfw_eip_auto_protect_status":       cfw.DataSourceEipAutoProtectStatus(),
 			"huaweicloud_cfw_eip_count":                     cfw.DataSourceEipCount(),
 			"huaweicloud_cfw_protection_rules":              cfw.DataSourceCfwProtectionRules(),
