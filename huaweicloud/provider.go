@@ -734,6 +734,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster_configurations":        cce.DataSourceClusterConfigurations(),
 			"huaweicloud_cce_addons":                        cce.DataSourceCceAddons(),
 			"huaweicloud_cce_releases":                      cce.DataSourceCCEReleases(),
+			"huaweicloud_cce_release_history":               cce.DataSourceCCEReleaseHistory(),
 			"huaweicloud_cce_chart_values":                  cce.DataSourceCCEShowChartValues(),
 			"huaweicloud_cce_cluster_upgrade_info":          cce.DataSourceCceClusterUpgradeInfo(),
 
