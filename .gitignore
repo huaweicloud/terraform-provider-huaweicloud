@@ -39,3 +39,6 @@ dist
 
 # Ignore AGENTS.md file which is used to store the skills and rules for the project
 AGENTS.md
+
+mise.toml
+terraform-provider-huaweicloud*
