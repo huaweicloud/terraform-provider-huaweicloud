@@ -46,6 +46,8 @@ var (
 		"DCS.4120": {},
 		// reset password
 		"DCS.4121": {},
+		// offline key analysis is running
+		"DCS.4231": {},
 		// creating/restarting
 		"DCS.4975": {},
 	}
