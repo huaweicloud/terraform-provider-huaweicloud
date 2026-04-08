@@ -744,6 +744,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_autopilot_releases":             cceautopilot.DataSourceCCEAutopilotReleases(),
 			"huaweicloud_cce_autopilot_cluster_log_configs":  cceautopilot.DataSourceCceAutopilotClusterLogConfigs(),
 			"huaweicloud_cce_autopilot_charts":               cceautopilot.DataSourceCceAutopilotCharts(),
+			"huaweicloud_cce_autopilot_chart_values":         cceautopilot.DataSourceCceAutopilotShowChartValues(),
 			"huaweicloud_cce_autopilot_addons":               cceautopilot.DataSourceCceAutopilotAddons(),
 
 			"huaweicloud_cci_namespaces":                 cci.DataSourceCciNamespaces(),
