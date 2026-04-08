@@ -2409,6 +2409,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_events":                               waf.DataSourceWafAttackEvents(),
 			"huaweicloud_waf_geolocation_detail":                   waf.DataSourceGeolocationDetail(),
 			"huaweicloud_waf_instance_groups":                      waf.DataSourceWafInstanceGroups(),
+			"huaweicloud_waf_instance_tags":                        waf.DataSourceWafInstanceTags(),
 			"huaweicloud_waf_overviews_abnormal":                   waf.DataSourceWafOverviewsAbnormal(),
 			"huaweicloud_waf_overviews_attack_action_types":        waf.DataSourceOverviewsAttackActionTypes(),
 			"huaweicloud_waf_overviews_attack_ip":                  waf.DataSourceOverviewsAttackIp(),
