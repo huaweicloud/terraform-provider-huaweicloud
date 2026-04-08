@@ -4175,6 +4175,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_batch_update_whiteblackip_rules":     waf.ResourceWafBatchUpdateWhiteblackipRules(),
 			"huaweicloud_waf_migrate_domain":                      waf.ResourceMigrateDomain(),
 			"huaweicloud_waf_policy":                              waf.ResourceWafPolicy(),
+			"huaweicloud_waf_policy_v2":                           waf.ResourceWafPolicyV2(),
 			"huaweicloud_waf_policies_batch_delete":               waf.ResourcePoliciesBatchDelete(),
 			"huaweicloud_waf_policy_copy":                         waf.ResourcePolicyCopy(),
 			"huaweicloud_waf_reference_table":                     waf.ResourceWafReferenceTable(),
