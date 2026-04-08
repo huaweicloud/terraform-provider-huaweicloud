@@ -1344,6 +1344,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_access_logs":        ga.DataSourceGaAccessLogs(),
 			"huaweicloud_ga_address_groups":     ga.DataSourceAddressGroups(),
 			"huaweicloud_ga_availability_zones": ga.DataSourceAvailabilityZones(),
+			"huaweicloud_ga_byoip_pools":        ga.DataSourceGaByoipPools(),
 			"huaweicloud_ga_endpoint_groups":    ga.DataSourceEndpointGroups(),
 			"huaweicloud_ga_endpoints":          ga.DataSourceEndpoints(),
 			"huaweicloud_ga_health_checks":      ga.DataSourceHealthChecks(),
