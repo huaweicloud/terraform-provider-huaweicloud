@@ -832,6 +832,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_advanced_ips_rules":            cfw.DataSourceAdvancedIpsRules(),
 			"huaweicloud_cfw_attack_log_statistic":          cfw.DataSourceAttackLogStatistic(),
 			"huaweicloud_cfw_attack_log_statistics":         cfw.DataSourceAttackLogStatistics(),
+			"huaweicloud_cfw_attack_log_total":              cfw.DataSourceAttackLogTotal(),
 			"huaweicloud_cfw_attack_log_trend":              cfw.DataSourceAttackLogTrend(),
 			"huaweicloud_cfw_address_group_members":         cfw.DataSourceCfwAddressGroupMembers(),
 			"huaweicloud_cfw_black_white_lists":             cfw.DataSourceCfwBlackWhiteLists(),
