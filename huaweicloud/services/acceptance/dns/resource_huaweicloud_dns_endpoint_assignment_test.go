@@ -14,7 +14,11 @@ import (
 )
 
 func getEndpointAssignmentResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.NewServiceClient("dns", acceptance.HW_REGION_NAME)
+	if state.Primary.Attributes["regional"] == "true" {
+		conf.RegionClient = true
+	}
+
+	client, err := conf.NewServiceClient("dns", state.Primary.Attributes["region"])
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client: %s", err)
 	}
@@ -70,6 +74,8 @@ func TestAccEndpointAssignment_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Only ignore regional in acceptance test, it will not be changed in actual use.
+				ImportStateVerifyIgnore: []string{"regional"},
 			},
 		},
 	})
@@ -139,4 +145,135 @@ resource "huaweicloud_dns_endpoint_assignment" "test" {
     ip_address = cidrhost(huaweicloud_vpc_subnet.test[1].cidr, 103)
   }
 }`, testEndpointAssignment_base(rName), updateName)
+}
+
+// Check that some regions require the region parameter to be specified, such as 'sa-brazil-1'.
+func TestAccEndpointAssignment_regional(t *testing.T) {
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+
+		obj   interface{}
+		rName = "huaweicloud_dns_endpoint_assignment.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getEndpointAssignmentResourceFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckCustomRegion(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEndpointAssignment_regional_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "direction", "inbound"),
+					resource.TestCheckResourceAttr(rName, "assignments.#", "2"),
+					resource.TestCheckResourceAttrSet(rName, "assignments.0.subnet_id"),
+					resource.TestCheckResourceAttrSet(rName, "assignments.0.ip_address"),
+					resource.TestCheckResourceAttrSet(rName, "assignments.0.ip_address_id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttr(rName, "regional", "true"),
+				),
+			},
+			{
+				Config: testAccEndpointAssignment_regional_step2(name, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "assignments.#", "2"),
+					resource.TestCheckResourceAttr(rName, "regional", "true"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Only ignore regional in acceptance test, it will not be changed in actual use.
+				ImportStateVerifyIgnore: []string{"regional"},
+				ImportStateIdFunc:       testAccEndpointAssignmentImportStateFunc(rName),
+			},
+		},
+	})
+}
+
+func testAccEndpointAssignmentImportStateFunc(rName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+		}
+
+		region := rs.Primary.Attributes["region"]
+		endpointId := rs.Primary.ID
+		if region == "" || endpointId == "" {
+			return "", fmt.Errorf("invalid format specified for import ID, want '<region>/<id>', but got '%s/%s'", region, endpointId)
+		}
+
+		return fmt.Sprintf("%s/%s", region, endpointId), nil
+	}
+}
+
+func testEndpointAssignment_regional_base(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  region = "%[1]s"
+  name   = "%[2]s"
+  cidr   = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  region     = "%[1]s"
+  name       = "%[2]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0), 1)
+}`, acceptance.HW_CUSTOM_REGION_NAME, rName)
+}
+
+func testAccEndpointAssignment_regional_step1(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dns_endpoint_assignment" "test" {
+  region    = "%[2]s"
+  name      = "%[3]s"
+  direction = "inbound"
+
+  assignments {
+    subnet_id  = huaweicloud_vpc_subnet.test.id
+    ip_address = cidrhost(huaweicloud_vpc_subnet.test.cidr, 100)
+  }
+  assignments {
+    subnet_id  = huaweicloud_vpc_subnet.test.id
+    ip_address = cidrhost(huaweicloud_vpc_subnet.test.cidr, 101)
+  }
+}`, testEndpointAssignment_regional_base(rName), acceptance.HW_CUSTOM_REGION_NAME, rName)
+}
+
+func testAccEndpointAssignment_regional_step2(rName, updateName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dns_endpoint_assignment" "test" {
+  region    = "%[2]s"
+  name      = "%[3]s"
+  direction = "inbound"
+
+  assignments {
+    subnet_id  = huaweicloud_vpc_subnet.test.id
+    ip_address = cidrhost(huaweicloud_vpc_subnet.test.cidr, 102)
+  }
+  assignments {
+    subnet_id  = huaweicloud_vpc_subnet.test.id
+    ip_address = cidrhost(huaweicloud_vpc_subnet.test.cidr, 103)
+  }
+}`, testEndpointAssignment_regional_base(rName), acceptance.HW_CUSTOM_REGION_NAME, updateName)
 }

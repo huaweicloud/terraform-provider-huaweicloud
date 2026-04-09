@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -33,7 +34,7 @@ func ResourceEndpointAssignment() *schema.Resource {
 		UpdateContext: resourceEndpointAssignmentUpdate,
 		DeleteContext: resourceEndpointAssignmentDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceEndpointAssignmentImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -44,10 +45,11 @@ func ResourceEndpointAssignment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the endpoint is located.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -101,6 +103,17 @@ func ResourceEndpointAssignment() *schema.Resource {
 				Computed:    true,
 				Description: `The creation time of the endpoint, in RFC3339 format.`,
 			},
+			// Internal attribute(s).
+			"regional": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(`The regional is used to indicate whether the script region is configured.
+If the script region is configured, the region client will be used to create the endpoint.`,
+					utils.SchemaDescInput{Internal: true},
+				),
+			},
 		},
 	}
 }
@@ -131,6 +144,11 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 		region  = conf.GetRegion(d)
 		httpUrl = "v2.1/endpoints"
 	)
+
+	scriptRegion := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "region")
+	if scriptRegion != nil && scriptRegion.(string) != "" {
+		conf.RegionClient = true
+	}
 
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
@@ -169,6 +187,13 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("error waiting for DNS endpoint (%s) creation to completed: %s", endpointId, err)
+	}
+
+	// In the ReadContext stage, the region parameter configured in the script cannot be obtained, so it needs to be set in the Create stage,
+	// for subsequent API client building to distinguish between using the global service endpoint or the specified regional client.
+	err = d.Set("regional", conf.RegionClient)
+	if err != nil {
+		log.Printf("[WARN] Unable to set regional attribute: %s", err)
 	}
 
 	return resourceEndpointAssignmentRead(ctx, d, meta)
@@ -212,6 +237,11 @@ func resourceEndpointAssignmentRead(_ context.Context, d *schema.ResourceData, m
 		region     = conf.GetRegion(d)
 		endpointId = d.Id()
 	)
+
+	if d.Get("regional").(bool) {
+		conf.RegionClient = true
+	}
+
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
@@ -335,6 +365,11 @@ func resourceEndpointAssignmentUpdate(ctx context.Context, d *schema.ResourceDat
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	endpointId := d.Id()
+
+	if d.Get("regional").(bool) {
+		conf.RegionClient = true
+	}
+
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
@@ -463,6 +498,11 @@ func resourceEndpointAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 		httplUr    = "v2.1/endpoints/{endpoint_id}"
 		endpointId = d.Id()
 	)
+
+	if d.Get("regional").(bool) {
+		conf.RegionClient = true
+	}
+
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
@@ -493,4 +533,24 @@ func resourceEndpointAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error waiting for DNS endpoint (%s) deletion to completed: %s", d.Id(), err)
 	}
 	return nil
+}
+
+func resourceEndpointAssignmentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	switch len(parts) {
+	case 1:
+		d.SetId(parts[0])
+		return []*schema.ResourceData{d}, nil
+	case 2:
+		mErr := multierror.Append(
+			d.Set("region", parts[0]),
+			// When using region import, it means using the specified regional client.
+			d.Set("regional", true),
+		)
+
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	}
+
+	return nil, fmt.Errorf("invalid format for import ID, want '<id>' or '<region>/<id>', but got '%s'", d.Id())
 }

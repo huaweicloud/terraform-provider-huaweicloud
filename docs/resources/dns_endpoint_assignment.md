@@ -42,8 +42,9 @@ resource "huaweicloud_dns_endpoint_assignment" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+* `region` - (Optional, String, ForceNew) Specifies the region where the endpoint is located.  
+  If omitted, the provider-level region will be used, but for some regions, it must be specified, e.g. `sa-brazil-1`.
+  Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the endpoint.  
   The name valid length is limited from `1` to `64` characters. Only Chinese and English characters, digits and
@@ -100,4 +101,10 @@ The DNS endpoint resource can be imported using `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_dns_endpoint_assignment.test <id>
+```
+
+For `region` required endpoint, the resource can be imported using `<region>` and `<id>`, separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_dns_endpoint_assignment.test <region>/<id>
 ```
