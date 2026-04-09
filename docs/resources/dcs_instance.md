@@ -135,8 +135,7 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) The ID of VPC which the instance belongs to.
   Changing this creates a new instance resource.
 
-* `subnet_id` - (Required, String, ForceNew) The ID of subnet which the instance belongs to.
-  Changing this creates a new instance resource.
+* `subnet_id` - (Required, String) The ID of subnet which the instance belongs to.
 
 * `security_group_id` - (Optional, String) The ID of the security group which the instance belongs to.
   This parameter is mandatory for Memcached and Redis 3.0 version.

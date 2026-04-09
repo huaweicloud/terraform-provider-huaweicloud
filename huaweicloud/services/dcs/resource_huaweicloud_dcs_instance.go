@@ -59,6 +59,7 @@ var (
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/password/reset
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/resize
 // @API DCS POST /v3/{project_id}/instances/{instance_id}/tags/action
+// @API DCS POST /v2/{project_id}/instances/{instance_id}/resources/subnet
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -135,7 +136,6 @@ func ResourceDcsInstance() *schema.Resource {
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"security_group_id": {
 				Type:          schema.TypeString,
@@ -1308,6 +1308,13 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if d.HasChange("subnet_id") {
+		err = updateSubnetId(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
@@ -1753,6 +1760,30 @@ func buildUpdateTransparentClientIpEnableBodyParams(d *schema.ResourceData) map[
 	transparentClientIpEnable, _ := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
 	bodyParams := map[string]interface{}{
 		"transparent_client_ip_enable": transparentClientIpEnable,
+	}
+	return bodyParams
+}
+
+func updateSubnetId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v2/{project_id}/instances/{instance_id}/resources/subnet",
+		httpMethod:          "POST",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    buildUpdateSubnetIdBodyParams(d),
+		isRetry:             true,
+		isWaitInstanceReady: true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance subnet ID: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateSubnetIdBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"action":    "switch",
+		"vpc_id":    d.Get("vpc_id"),
+		"subnet_id": d.Get("subnet_id"),
 	}
 	return bodyParams
 }
