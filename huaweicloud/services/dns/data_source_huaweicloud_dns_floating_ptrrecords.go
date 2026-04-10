@@ -24,10 +24,15 @@ func DataSourceFloatingPtrRecords() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region in which to query the resource.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the PTR records are located`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"record_id": {
 				Type:        schema.TypeString,
@@ -149,7 +154,10 @@ func dataSourceFloatingPtrRecordsRead(_ context.Context, d *schema.ResourceData,
 
 // @API DNS GET /v2/reverse/floatingips
 func (w *FloatingPtrrecordsDSWrapper) ListPtrRecords() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	_, regional := w.GetOk("region")
+	w.Config.RegionClient = regional
+
+	client, err := w.NewClient(w.Config, "dns")
 	if err != nil {
 		return nil, err
 	}

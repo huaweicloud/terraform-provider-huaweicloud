@@ -27,6 +27,12 @@ func DataSourceDNSV21PtrRecords() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the line groups are located`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -107,7 +113,11 @@ func DataSourceDNSV21PtrRecords() *schema.Resource {
 func dataSourceDNSV21PtrRecordsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dns_region", region)
+
+	_, regional := d.GetOk("region")
+	cfg.RegionClient = regional
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}

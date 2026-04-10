@@ -2,6 +2,8 @@ package dns
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -39,7 +41,7 @@ func ResourceDNSV21PtrRecord() *schema.Resource {
 		DeleteContext: resourceDNSV21PtrRecordDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceV21PtrRecordImportState,
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -49,10 +51,11 @@ func ResourceDNSV21PtrRecord() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the PTR record is located.`,
 			},
 			"names": {
 				Type:     schema.TypeSet,
@@ -115,6 +118,17 @@ func ResourceDNSV21PtrRecord() *schema.Resource {
 				Computed:    true,
 				Description: `The status of the PTR record.`,
 			},
+			// Internal attribute(s).
+			"regional": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(`The regional is used to indicate whether the script region is configured.
+If the script region is configured, the region client will be used to create the endpoint.`,
+					utils.SchemaDescInput{Internal: true},
+				),
+			},
 		},
 	}
 }
@@ -122,7 +136,13 @@ func ResourceDNSV21PtrRecord() *schema.Resource {
 func resourceDNSV21PtrRecordCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dns_region", region)
+
+	scriptRegion := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "region")
+	isRegion := scriptRegion != nil && scriptRegion.(string) != ""
+	// When creating multiple resources in parallel, `conf.RegionClient` will be overwritten, so a temporary variable is needed to store it.
+	cfg.RegionClient = isRegion
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -153,6 +173,13 @@ func resourceDNSV21PtrRecordCreate(ctx context.Context, d *schema.ResourceData, 
 	err = waitForDNSV21PtrRecordToBeActive(ctx, client, id, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for PTR record (%s) to be active: %s", id, err)
+	}
+
+	// In the ReadContext stage, the region parameter configured in the script cannot be obtained, so it needs to be set in the Create stage,
+	// for subsequent API client building to distinguish between using the global service endpoint or the specified regional client.
+	err = d.Set("regional", isRegion)
+	if err != nil {
+		log.Printf("[WARN] Unable to set regional attribute: %s", err)
 	}
 
 	return resourceDNSV21PtrRecordRead(ctx, d, meta)
@@ -203,7 +230,10 @@ func waitForDNSV21PtrRecordToBeActive(ctx context.Context, client *golangsdk.Ser
 func resourceDNSV21PtrRecordRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dns_region", region)
+
+	cfg.RegionClient = d.Get("regional").(bool)
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -254,7 +284,10 @@ func GetDNSV21PtrRecord(client *golangsdk.ServiceClient, id string) (interface{}
 func resourceDNSV21PtrRecordUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dns_region", region)
+
+	cfg.RegionClient = d.Get("regional").(bool)
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -302,7 +335,10 @@ func buildUpdateDNSV21PtrRecordBodyParams(d *schema.ResourceData) map[string]int
 func resourceDNSV21PtrRecordDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dns_region", region)
+
+	cfg.RegionClient = d.Get("regional").(bool)
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -320,4 +356,24 @@ func resourceDNSV21PtrRecordDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	return nil
+}
+
+func resourceV21PtrRecordImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	switch len(parts) {
+	case 1:
+		d.SetId(parts[0])
+		return []*schema.ResourceData{d}, nil
+	case 2:
+		mErr := multierror.Append(
+			d.Set("region", parts[0]),
+			// When using region import, it means using the specified regional client.
+			d.Set("regional", true),
+		)
+
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	}
+
+	return nil, fmt.Errorf("invalid format for import ID, want '<id>' or '<region>/<id>', but got '%s'", d.Id())
 }

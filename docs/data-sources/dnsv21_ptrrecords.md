@@ -20,9 +20,6 @@ data "huaweicloud_dnsv21_ptrrecords" "test"{}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
-  If omitted, the provider-level region will be used.
-
 * `enterprise_project_id` - (Optional, String) The enterprise project ID corresponding to the PTR record.
 
 * `resource_type` - (Optional, String) The resource type.

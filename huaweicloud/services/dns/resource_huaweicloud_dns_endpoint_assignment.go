@@ -146,9 +146,9 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 	)
 
 	scriptRegion := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "region")
-	if scriptRegion != nil && scriptRegion.(string) != "" {
-		conf.RegionClient = true
-	}
+	isRegion := scriptRegion != nil && scriptRegion.(string) != ""
+	// When creating multiple resources in parallel, `conf.RegionClient` will be overwritten, so a temporary variable is needed to store it.
+	conf.RegionClient = isRegion
 
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
@@ -191,7 +191,7 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 
 	// In the ReadContext stage, the region parameter configured in the script cannot be obtained, so it needs to be set in the Create stage,
 	// for subsequent API client building to distinguish between using the global service endpoint or the specified regional client.
-	err = d.Set("regional", conf.RegionClient)
+	err = d.Set("regional", isRegion)
 	if err != nil {
 		log.Printf("[WARN] Unable to set regional attribute: %s", err)
 	}
@@ -238,9 +238,7 @@ func resourceEndpointAssignmentRead(_ context.Context, d *schema.ResourceData, m
 		endpointId = d.Id()
 	)
 
-	if d.Get("regional").(bool) {
-		conf.RegionClient = true
-	}
+	conf.RegionClient = d.Get("regional").(bool)
 
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
@@ -366,9 +364,7 @@ func resourceEndpointAssignmentUpdate(ctx context.Context, d *schema.ResourceDat
 	region := conf.GetRegion(d)
 	endpointId := d.Id()
 
-	if d.Get("regional").(bool) {
-		conf.RegionClient = true
-	}
+	conf.RegionClient = d.Get("regional").(bool)
 
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {
@@ -499,9 +495,7 @@ func resourceEndpointAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 		endpointId = d.Id()
 	)
 
-	if d.Get("regional").(bool) {
-		conf.RegionClient = true
-	}
+	conf.RegionClient = d.Get("regional").(bool)
 
 	client, err := conf.NewServiceClient("dns", region)
 	if err != nil {

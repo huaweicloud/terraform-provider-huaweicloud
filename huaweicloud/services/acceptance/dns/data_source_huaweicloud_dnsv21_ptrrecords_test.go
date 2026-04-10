@@ -94,5 +94,5 @@ locals {
 output "is_tags_filter_useful" {
   value = length(local.filter_result_by_tags) > 0 && alltrue(local.filter_result_by_tags)
 }
-`, testAccDNSV21PtrRecord_basic(name))
+`, testAccV21PtrRecord_basic(name))
 }

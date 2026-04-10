@@ -26,8 +26,8 @@ resource "huaweicloud_dns_ptrrecord" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used.
+* `region` - (Optional, String, ForceNew) Specifies the region where the PTR record is located.  
+  If omitted, the provider-level region will be used, but for some special regions, the parameter must be specified.
   Changing this creates a new resource.
 
 * `names` - (Required, List) Specifies the domain names of the PTR record.

@@ -22,10 +22,15 @@ func DataSourceLineGroups() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the line groups are located`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"line_id": {
 				Type:        schema.TypeString,
@@ -121,7 +126,10 @@ func dataSourceLineGroupsRead(_ context.Context, d *schema.ResourceData, meta in
 
 // @API DNS GET /v2.1/linegroups
 func (w *LineGroupsDSWrapper) ListLineGroups() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns_region")
+	_, regional := w.GetOk("region")
+	w.Config.RegionClient = regional
+
+	client, err := w.NewClient(w.Config, "dns")
 	if err != nil {
 		return nil, err
 	}

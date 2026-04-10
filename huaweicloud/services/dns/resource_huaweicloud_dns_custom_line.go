@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -30,7 +31,7 @@ func ResourceCustomLine() *schema.Resource {
 		DeleteContext: resourceCustomLineDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceCustomLineImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -41,16 +42,11 @@ func ResourceCustomLine() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Description: utils.SchemaDesc(
-					`The region where the custom line is located`,
-					utils.SchemaDescInput{
-						Deprecated: true,
-					},
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the custom line is located.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -75,6 +71,17 @@ func ResourceCustomLine() *schema.Resource {
 				Computed:    true,
 				Description: `The resource status.`,
 			},
+			// Internal attribute(s).
+			"regional": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(`The regional is used to indicate whether the script region is configured.
+If the script region is configured, the region client will be used to create the endpoint.`,
+					utils.SchemaDescInput{Internal: true},
+				),
+			},
 		},
 	}
 }
@@ -82,14 +89,18 @@ func ResourceCustomLine() *schema.Resource {
 func resourceCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	if _, ok := d.GetOk("region"); ok {
-		cfg.RegionClient = true
-	}
+
+	scriptRegion := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "region")
+	isRegion := scriptRegion != nil && scriptRegion.(string) != ""
+	// When creating multiple resources in parallel, `conf.RegionClient` will be overwritten, so a temporary variable is needed to store it.
+	cfg.RegionClient = isRegion
 
 	createCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
+
+	log.Printf("[DEBUG] customLineClient.Endpoint: %#v", createCustomLineClient.Endpoint)
 
 	if err := createCustomLine(createCustomLineClient, d); err != nil {
 		return diag.FromErr(err)
@@ -98,6 +109,13 @@ func resourceCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta 
 	err = waitForCustomLineCreateOrUpdate(ctx, createCustomLineClient, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	// In the ReadContext stage, the region parameter configured in the script cannot be obtained, so it needs to be set in the Create stage,
+	// for subsequent API client building to distinguish between using the global service endpoint or the specified regional client.
+	err = d.Set("regional", isRegion)
+	if err != nil {
+		log.Printf("[WARN] Unable to set regional attribute: %s", err)
 	}
 
 	return resourceCustomLineRead(ctx, d, meta)
@@ -185,9 +203,8 @@ func GetCustomLineById(client *golangsdk.ServiceClient, customLineId string) (in
 func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	if _, ok := d.GetOk("region"); ok {
-		cfg.RegionClient = true
-	}
+
+	cfg.RegionClient = d.Get("regional").(bool)
 
 	getCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
@@ -213,9 +230,8 @@ func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta inte
 func resourceCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	if _, ok := d.GetOk("region"); ok {
-		cfg.RegionClient = true
-	}
+
+	cfg.RegionClient = d.Get("regional").(bool)
 
 	updateCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
@@ -230,6 +246,7 @@ func resourceCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	return resourceCustomLineRead(ctx, d, meta)
 }
 
@@ -256,9 +273,8 @@ func resourceCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta 
 		customLineId            = d.Id()
 		region                  = cfg.GetRegion(d)
 	)
-	if _, ok := d.GetOk("region"); ok {
-		cfg.RegionClient = true
-	}
+
+	cfg.RegionClient = d.Get("regional").(bool)
 
 	deleteCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
@@ -312,4 +328,24 @@ func customLineStatusRefreshFunc(client *golangsdk.ServiceClient, customLineId s
 
 		return customLine, parseStatus(utils.PathSearch("status", customLine, "").(string)), nil
 	}
+}
+
+func resourceCustomLineImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	switch len(parts) {
+	case 1:
+		d.SetId(parts[0])
+		return []*schema.ResourceData{d}, nil
+	case 2:
+		// If the region is specified, it means using the specified regional client, formatted as '<region>/<id>'.
+		mErr := multierror.Append(
+			d.Set("region", parts[0]),
+			d.Set("regional", true),
+		)
+
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	}
+
+	return nil, fmt.Errorf("invalid format for import ID, want '<id>' or '<region>/<id>', but got '%s'", d.Id())
 }

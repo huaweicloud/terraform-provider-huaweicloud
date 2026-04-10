@@ -24,9 +24,6 @@ data "huaweicloud_dns_line_groups" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `line_id` - (Optional, String) Specifies the ID of the line group. Fuzzy search is supported.
 
 * `name` - (Optional, String) Specifies the name of the line group. Fuzzy search is supported.

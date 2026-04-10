@@ -15,7 +15,7 @@ Use this data source to get the list of DNS PTR records.
 ```hcl
 variable "domain_name" {}
 
-data "huaweicloud_dns_floating_ptrrecords" "test"{
+data "huaweicloud_dns_floating_ptrrecords" "test" {
   domain_name = var.domain_name
 }
 ```
@@ -23,9 +23,6 @@ data "huaweicloud_dns_floating_ptrrecords" "test"{
 ## Argument Reference
 
 The following arguments are supported:
-
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
 
 * `record_id` - (Optional, String) Specifies the ID of the PTR record.
   The format is `{region}:{floatingip_id}`, `floatingip_id` indicates the EIP ID corresponding to the PTR record.

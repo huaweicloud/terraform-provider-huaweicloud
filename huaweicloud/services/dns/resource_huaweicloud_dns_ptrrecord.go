@@ -44,10 +44,11 @@ func ResourcePtrRecord() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the PTR record is located.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
