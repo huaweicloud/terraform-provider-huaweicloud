@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
-//111
+
 func DataSourceGlobalInternetBandwidthTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGlobalInternetBandwidthTagsRead,
