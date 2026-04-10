@@ -23,6 +23,8 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
+* `cluster_id` - (Optional, String) Specifies the cluster ID corresponding of the snapshot.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

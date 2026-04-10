@@ -3,6 +3,7 @@ package dws
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -25,8 +26,15 @@ func DataSourceDwsSnapshots() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource.`,
 			},
+			"cluster_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The cluster ID corresponding of the snapshot.`,
+			},
+
+			// Attribute
 			"snapshots": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -98,8 +106,18 @@ func newSnapshotsDSWrapper(d *schema.ResourceData, meta interface{}) *SnapshotsD
 }
 
 func dataSourceDwsSnapshotsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newSnapshotsDSWrapper(d, meta)
-	listSnapshotsRst, err := wrapper.ListSnapshots()
+	var (
+		wrapper          = newSnapshotsDSWrapper(d, meta)
+		listSnapshotsRst *gjson.Result
+		err              error
+	)
+
+	if clusterId, ok := d.GetOk("cluster_id"); ok {
+		listSnapshotsRst, err = wrapper.ListClusterSnapshots(clusterId.(string))
+	} else {
+		listSnapshotsRst, err = wrapper.ListSnapshots()
+	}
+
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -126,6 +144,23 @@ func (w *SnapshotsDSWrapper) ListSnapshots() (*gjson.Result, error) {
 	}
 
 	uri := "/v1.0/{project_id}/snapshots"
+
+	return httphelper.New(client).
+		Method("GET").
+		URI(uri).
+		Request().
+		Result()
+}
+
+// @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}/snapshots
+func (w *SnapshotsDSWrapper) ListClusterSnapshots(clusterId string) (*gjson.Result, error) {
+	client, err := w.NewClient(w.Config, "dws")
+	if err != nil {
+		return nil, err
+	}
+
+	uri := fmt.Sprintf("/v1.0/{project_id}/clusters/%s/snapshots", clusterId)
+
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
