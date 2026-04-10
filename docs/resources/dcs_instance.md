@@ -224,6 +224,9 @@ The following arguments are supported:
 * `transparent_client_ip_enable` - (Optional, String) Specifies whether client IP pass-through is enabled.
   Value options: **true**, **false**.
 
+* `auto_scaling` - (Optional, List) Specifies the auto-scaling policies.
+  The [auto_scaling](#auto_scaling_struct) structure is documented below.
+
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the redis instance.
@@ -296,6 +299,18 @@ The `parameters` block supports:
 * `name` - (Required, String) Specifies the name of the configuration item.
 
 * `value` - (Required, String) Specifies the value of the configuration item.
+
+<a name="auto_scaling_struct"></a>
+The `auto_scaling` block supports:
+
+* `window_size` - (Required, Int) Specifies the monitoring period of bandwidth increases, in minutes. The value can be
+  **1**, **5**, **10**, **15**, or **30**.
+
+* `bandwidth_usage_upper_threshold` - (Required, Int) Specifies the threshold percentage of the average bandwidth usage
+  that triggers an auto bandwidth increase. The value can be **50**, **60**, **70**, **80**, **90**, or **95**.
+
+* `scale_out_cooldown` - (Required, Int) Specifies the silence time (minimum interval) between two bandwidth increases,
+  in seconds. Default value: 0 Value range: 0–86,400.
 
 ## Attribute Reference
 
