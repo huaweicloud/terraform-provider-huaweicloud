@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
+// @API EIP GET /v3/internet-bandwidth-tags
 func DataSourceGlobalInternetBandwidthTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGlobalInternetBandwidthTagsRead,
