@@ -3009,6 +3009,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_resource_group_alarm_template_async_associate": ces.ResourceResourceGroupAlarmTemplateAsyncAssociate(),
 
 			"huaweicloud_cfw_acl_rule":                      cfw.ResourceAclRule(),
+			"huaweicloud_cfw_add_dns_server":                cfw.ResourceAddDNSServer(),
 			"huaweicloud_cfw_batch_delete_acl_rules":        cfw.ResourceBatchDeleteAclRules(),
 			"huaweicloud_cfw_batch_update_acl_rules_action": cfw.ResourceBatchUpdateAclRulesAction(),
 			"huaweicloud_cfw_address_group":                 cfw.ResourceAddressGroup(),

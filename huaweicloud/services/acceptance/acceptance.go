@@ -455,6 +455,7 @@ var (
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_SERVER_IP                 = os.Getenv("HW_CFW_SERVER_IP")
 	HW_CFW_REPORT_PROFILE_ID         = os.Getenv("HW_CFW_REPORT_PROFILE_ID")
 	HW_CFW_REPORT_ID                 = os.Getenv("HW_CFW_REPORT_ID")
 	HW_CFW_EAST_WEST_FIREWALL        = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
@@ -2825,6 +2826,13 @@ func TestAccPreCheckCesAlarmRuleWithTags(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwServerIp(t *testing.T) {
+	if HW_CFW_SERVER_IP == "" {
+		t.Skip("HW_CFW_SERVER_IP must be set for CFW acceptance tests")
 	}
 }
 
