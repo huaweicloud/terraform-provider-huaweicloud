@@ -19,7 +19,7 @@ var configurationResetNonUpdatableParams = []string{
 	"config_id",
 }
 
-// @API RDS POST /v3/{project_id}/configurations/{config_id}/reset
+// @API RDS PUT /v3/{project_id}/configurations/{config_id}/reset
 func ResourceRdsConfigurationReset() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsConfigurationResetCreate,

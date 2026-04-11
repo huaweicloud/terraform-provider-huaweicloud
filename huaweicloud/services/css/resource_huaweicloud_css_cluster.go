@@ -461,7 +461,7 @@ var clusterNonUpdatableParams = []string{"engine_version", "availability_zone", 
 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/role_extend
 // @API CSS POST /v1.0/{project_id}/clusters
-// @API CSS POST /v1.0/{project_id}/{resource_type}/{cluster_id}/tags
+// @API CSS POST /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/action
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/public/open
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/close
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth
@@ -469,7 +469,6 @@ var clusterNonUpdatableParams = []string{"engine_version", "availability_zone", 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/open
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/permissions
-// @API CSS DELETE /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/{key}
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/auto_setting
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/update
 // @API CSS DELETE /v1.0/{project_id}/clusters/{cluster_id}
