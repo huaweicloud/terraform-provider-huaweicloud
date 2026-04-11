@@ -465,6 +465,7 @@ var (
 	HW_CFW_PREDEFINED_SERVICE_GROUP2 = os.Getenv("HW_CFW_PREDEFINED_SERVICE_GROUP2")
 	HW_CFW_PREDEFINED_ADDRESS_GROUP1 = os.Getenv("HW_CFW_PREDEFINED_ADDRESS_GROUP1")
 	HW_CFW_PREDEFINED_ADDRESS_GROUP2 = os.Getenv("HW_CFW_PREDEFINED_ADDRESS_GROUP2")
+	HW_CFW_IPS_ADVANCED_RULE_ID      = os.Getenv("HW_CFW_IPS_ADVANCED_RULE_ID")
 	HW_CFW_IPS_CUSTOM_RULE           = os.Getenv("HW_CFW_IPS_CUSTOM_RULE")
 	HW_CFW_ACL_RULE_ID               = os.Getenv("HW_CFW_ACL_RULE_ID")
 	HW_CFW_IP_BLACKLIST_NAME         = os.Getenv("HW_CFW_IP_BLACKLIST_NAME")
@@ -2875,6 +2876,13 @@ func TestAccPreCheckCfwPredefinedServiceGroup(t *testing.T) {
 func TestAccPreCheckCfwPredefinedAddressGroup(t *testing.T) {
 	if HW_CFW_PREDEFINED_ADDRESS_GROUP1 == "" || HW_CFW_PREDEFINED_ADDRESS_GROUP2 == "" {
 		t.Skip("HW_CFW_PREDEFINED_ADDRESS_GROUP1 and HW_CFW_PREDEFINED_ADDRESS_GROUP2 must be set for CFW ACL rule acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwIpsAdvancedRuleID(t *testing.T) {
+	if HW_CFW_IPS_ADVANCED_RULE_ID == "" {
+		t.Skip("HW_CFW_IPS_ADVANCED_RULE_ID must be set for CFW IPS acceptance tests")
 	}
 }
 

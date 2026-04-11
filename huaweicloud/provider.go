@@ -3013,6 +3013,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_batch_delete_acl_rules":        cfw.ResourceBatchDeleteAclRules(),
 			"huaweicloud_cfw_batch_update_acl_rules_action": cfw.ResourceBatchUpdateAclRulesAction(),
 			"huaweicloud_cfw_address_group":                 cfw.ResourceAddressGroup(),
+			"huaweicloud_cfw_advanced_ips_rule":             cfw.ResourceAdvancedIpsRule(),
 			"huaweicloud_cfw_address_group_member":          cfw.ResourceAddressGroupMember(),
 			"huaweicloud_cfw_alarm_config":                  cfw.ResourceAlarmConfig(),
 			"huaweicloud_cfw_anti_virus":                    cfw.ResourceAntiVirus(),
