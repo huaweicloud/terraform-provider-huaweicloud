@@ -49,7 +49,7 @@ func TestAccDliQueue_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliElasticResourcePoolName(t)
+			acceptance.TestAccPreCheckDliElasticResourcePoolName(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rcForTypeSQL.CheckResourceDestroy(),
@@ -140,7 +140,7 @@ func TestAccDliQueue_another(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliElasticResourcePoolName(t)
+			acceptance.TestAccPreCheckDliElasticResourcePoolName(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

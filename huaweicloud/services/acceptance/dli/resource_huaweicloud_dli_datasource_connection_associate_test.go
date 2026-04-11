@@ -34,7 +34,7 @@ func TestAccDatasourceConnectionAssociate_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliElasticResourcePoolName(t)
+			acceptance.TestAccPreCheckDliElasticResourcePoolName(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

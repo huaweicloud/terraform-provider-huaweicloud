@@ -37,7 +37,7 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
 			acceptance.TestAccPreCheckDliFlinkSqlJobExecutionAgencyURN(t)
 		},
@@ -162,7 +162,7 @@ func TestAccResourceDliFlinkJob_streamGraph(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 			// The current flink version does not support generating stream graph.
 			acceptance.TestAccPreCheckDliFlinkStreamGraph(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)

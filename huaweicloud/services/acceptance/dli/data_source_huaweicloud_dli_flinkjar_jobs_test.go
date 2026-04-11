@@ -44,7 +44,7 @@ func TestAccDataSourceDliFlinkjarJobs_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 			acceptance.TestAccPreCheckDliJarPath(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
 			acceptance.TestAccPreCheckDliFlinkJarObsBucketName(t)

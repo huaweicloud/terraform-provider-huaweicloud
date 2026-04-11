@@ -32,7 +32,7 @@ func TestAccDataSourceDliElasticResourcePools_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliElasticResourcePoolName(t)
+			acceptance.TestAccPreCheckDliElasticResourcePoolName(t, 2)
 			acceptance.TestAccPreCheckDliSQLQueueName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

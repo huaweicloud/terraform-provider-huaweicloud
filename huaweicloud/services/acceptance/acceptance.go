@@ -2098,18 +2098,16 @@ func TestAccPreCheckDliOwner(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDliElasticResourcePoolName(t *testing.T) {
+func TestAccPreCheckDliElasticResourcePoolName(t *testing.T, min int) {
 	// Elastic resource pools for associating DLI datasource enhanced connection.
 	// Therefore, two elastic resource pools are provided, one for initial binding and the other for updating binding.
 	// Using commas (,) to separate two elastic resource pools.
 	// The CU of the latter must be large and can be associated with multiple queues.
 	// In the test case, the HW_DLI_SQL_QUEUE_NAME and HW_DLI_GENERAL_QUEUE_NAME belong to the latter resource pool.
-	names := strings.Split(HW_DLI_ELASTIC_RESOURCE_POOL_NAMES, ",")
-	if len(names) < 2 {
-		t.Skip("Before running acceptance tests related to elastic resource pool, " +
-			"please ensure +the 'HW_DLI_ELASTIC_RESOURCE_POOL_NAMES' has been configured")
+	if HW_DLI_ELASTIC_RESOURCE_POOL_NAMES == "" || len(strings.Split(HW_DLI_ELASTIC_RESOURCE_POOL_NAMES, ",")) < min {
+		t.Skipf("At least %d elastic resource pool IDs must be supported during the "+
+			"HW_DLI_ELASTIC_RESOURCE_POOL_NAMES, separated by commas (,).", min)
 	}
-
 }
 
 // lintignore:AT003
@@ -2120,7 +2118,7 @@ func TestAccPreCheckDliSQLQueueName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDliGenaralQueueName(t *testing.T) {
+func TestAccPreCheckDliGeneralQueueName(t *testing.T) {
 	if HW_DLI_GENERAL_QUEUE_NAME == "" {
 		t.Skip("HW_DLI_GENERAL_QUEUE_NAME must be set for DLI acceptance tests.")
 	}

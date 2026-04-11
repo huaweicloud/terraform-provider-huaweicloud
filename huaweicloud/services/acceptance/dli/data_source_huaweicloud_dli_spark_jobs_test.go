@@ -36,7 +36,7 @@ func TestAccDataSourceSparkJobs_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

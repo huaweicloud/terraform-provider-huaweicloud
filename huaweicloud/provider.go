@@ -1173,6 +1173,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_flink_templates":         dli.DataSourceDliFlinkTemplates(),
 			"huaweicloud_dli_flinkjar_jobs":           dli.DataSourceDliFlinkjarJobs(),
 			"huaweicloud_dli_flinksql_jobs":           dli.DataSourceDliFlinkSQLJobs(),
+			"huaweicloud_dli_queues":                  dli.DataSourceQueues(),
 			"huaweicloud_dli_quotas":                  dli.DataSourceDliQuotas(),
 			"huaweicloud_dli_spark_jobs":              dli.DataSourceSparkJobs(),
 			"huaweicloud_dli_spark_templates":         dli.DataSourceDliSparkTemplates(),

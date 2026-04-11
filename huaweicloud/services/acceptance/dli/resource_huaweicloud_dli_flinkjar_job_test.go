@@ -63,7 +63,7 @@ func TestAccFlinkJarJob_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDliJarPath(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
 			acceptance.TestAccPreCheckDliFlinkJarObsBucketName(t)
 			acceptance.TestAccPreCheckDliFlinkJarAgencyNames(t, 2)

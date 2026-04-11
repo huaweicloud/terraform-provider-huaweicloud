@@ -42,7 +42,7 @@ func TestAccDataSourceDliFlinkSQLJobs_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliGeneralQueueName(t)
 			acceptance.TestAccPreCheckDliFlinkVersion(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
