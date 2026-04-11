@@ -21,7 +21,7 @@ import (
 
 // @API DLI POST /v1.0/{project_id}/jobs/submit-job
 // @API DLI GET /v1.0/{project_id}/jobs/{job_id}/status
-// @API DLI GET /v1.0/{project_id}/jobs
+// @API DLI GET /v1.0/{project_id}/jobs/{job_id}/detail
 // @API DLI DELETE /v1.0/{project_id}/jobs/{job_id}
 func ResourceSqlJob() *schema.Resource {
 	return &schema.Resource{
@@ -205,34 +205,31 @@ func resourceSQLJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
 
-	listResp, err := sqljob.List(client, sqljob.ListJobsOpts{
-		JobId: d.Id(),
-	})
-
+	detail, err := sqljob.Get(client, d.Id())
 	if err != nil {
-		return diag.Errorf("error query DLI sql job %q:%s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "DLI sql-job")
 	}
 
-	if listResp == nil || !listResp.IsSuccess {
-		return diag.Errorf("error query DLI sql job: %s", listResp.Message)
+	if detail == nil || !detail.IsSuccess {
+		return diag.Errorf("error query DLI sql job detail, job ID is: %s", d.Id())
 	}
 
-	if listResp.JobCount == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DLI sql-job")
+	statusResp, err := sqljob.Status(client, d.Id())
+	if err != nil {
+		return diag.Errorf("error query DLI sql job status %q:%s", d.Id(), err)
 	}
 
-	dt := listResp.Jobs[0]
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("sql", dt.Statement),
-		d.Set("database_name", dt.DatabaseName),
-		d.Set("queue_name", dt.QueueName),
-		d.Set("job_type", dt.JobType),
-		d.Set("owner", dt.Owner),
-		d.Set("start_time", utils.FormatTimeStampRFC3339(int64(dt.StartTime), false)),
-		d.Set("duration", dt.Duration),
-		d.Set("status", dt.Status),
-		d.Set("tags", utils.TagsToMap(dt.Tags)),
+		d.Set("sql", statusResp.Statement),
+		d.Set("database_name", detail.DatabaseName),
+		d.Set("queue_name", statusResp.QueueName),
+		d.Set("job_type", statusResp.JobType),
+		d.Set("owner", detail.Owner),
+		d.Set("start_time", utils.FormatTimeStampRFC3339(int64(detail.StartTime)/1000, false)),
+		d.Set("duration", detail.Duration),
+		d.Set("status", statusResp.Status),
+		d.Set("tags", utils.TagsToMap(statusResp.Tags)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
