@@ -468,6 +468,7 @@ var (
 	HW_CFW_IPS_ADVANCED_RULE_ID      = os.Getenv("HW_CFW_IPS_ADVANCED_RULE_ID")
 	HW_CFW_IPS_CUSTOM_RULE           = os.Getenv("HW_CFW_IPS_CUSTOM_RULE")
 	HW_CFW_ACL_RULE_ID               = os.Getenv("HW_CFW_ACL_RULE_ID")
+	HW_CFW_DOMAIN_SET_ID             = os.Getenv("HW_CFW_DOMAIN_SET_ID")
 	HW_CFW_IP_BLACKLIST_NAME         = os.Getenv("HW_CFW_IP_BLACKLIST_NAME")
 
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
@@ -2890,6 +2891,13 @@ func TestAccPreCheckCfwIpsAdvancedRuleID(t *testing.T) {
 func TestAccPreCheckCfwIpsCustomRule(t *testing.T) {
 	if HW_CFW_IPS_CUSTOM_RULE == "" {
 		t.Skip("HW_CFW_IPS_CUSTOM_RULE must be set for CFW IPS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwDomainSetId(t *testing.T) {
+	if HW_CFW_DOMAIN_SET_ID == "" {
+		t.Skip("HW_CFW_DOMAIN_SET_ID must be set for CFW acceptance tests")
 	}
 }
 
