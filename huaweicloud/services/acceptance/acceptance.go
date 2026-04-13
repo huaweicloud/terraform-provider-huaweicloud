@@ -472,6 +472,8 @@ var (
 	HW_CFW_IP_BLACKLIST_NAME         = os.Getenv("HW_CFW_IP_BLACKLIST_NAME")
 	HW_CFW_ADDRESS_GROUP_ID          = os.Getenv("HW_CFW_ADDRESS_GROUP_ID")
 	HW_CFW_ADDRESS_GROUP_MEMBER_ID   = os.Getenv("HW_CFW_ADDRESS_GROUP_MEMBER_ID")
+	HW_CFW_SERVICE_GROUP_ID          = os.Getenv("HW_CFW_SERVICE_GROUP_ID")
+	HW_CFW_SERVICE_GROUP_MEMBER_ID   = os.Getenv("HW_CFW_SERVICE_GROUP_MEMBER_ID")
 
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
 	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
@@ -2929,6 +2931,20 @@ func TestAccPreCheckCfwAddressGroupId(t *testing.T) {
 func TestAccPreCheckCfwAddressGroupMemberId(t *testing.T) {
 	if HW_CFW_ADDRESS_GROUP_MEMBER_ID == "" {
 		t.Skip("HW_CFW_ADDRESS_GROUP_MEMBER_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwServiceGroupId(t *testing.T) {
+	if HW_CFW_SERVICE_GROUP_ID == "" {
+		t.Skip("HW_CFW_SERVICE_GROUP_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwServiceGroupMemberId(t *testing.T) {
+	if HW_CFW_SERVICE_GROUP_MEMBER_ID == "" {
+		t.Skip("HW_CFW_SERVICE_GROUP_MEMBER_ID must be set for CFW acceptance tests")
 	}
 }
 
