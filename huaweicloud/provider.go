@@ -3274,6 +3274,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_datasource_connection_privilege": dli.ResourceDatasourceConnectionPrivilege(),
 			"huaweicloud_dli_datasource_auth":                 dli.ResourceDatasourceAuth(),
 			"huaweicloud_dli_sql_template":                    dli.ResourceSQLTemplate(),
+			"huaweicloud_dli_flink_job_export":                dli.ResourceFlinkJobExport(),
+			"huaweicloud_dli_flink_job_import":                dli.ResourceFlinkJobImport(),
 			"huaweicloud_dli_flink_template":                  dli.ResourceFlinkTemplate(),
 			"huaweicloud_dli_global_variable":                 dli.ResourceGlobalVariable(),
 			"huaweicloud_dli_spark_template":                  dli.ResourceSparkTemplate(),
