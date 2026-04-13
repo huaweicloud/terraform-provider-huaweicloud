@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccBatchDeleteAddressGroupMember_basic(t *testing.T) {
+func TestAccBatchDeleteAddressGroupMembers_basic(t *testing.T) {
 	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -20,15 +20,15 @@ func TestAccBatchDeleteAddressGroupMember_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testBatchDeleteAddressGroupMember_basic(),
+				Config: testBatchDeleteAddressGroupMembers_basic(),
 			},
 		},
 	})
 }
 
-func testBatchDeleteAddressGroupMember_basic() string {
+func testBatchDeleteAddressGroupMembers_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_cfw_batch_delete_address_group_member" "test" {
+resource "huaweicloud_cfw_batch_delete_address_group_members" "test" {
   set_id           = "%[1]s"
   address_item_ids = ["%[2]s"]
 }

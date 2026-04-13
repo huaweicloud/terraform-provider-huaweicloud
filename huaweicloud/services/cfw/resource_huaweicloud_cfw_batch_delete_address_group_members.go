@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var batchDeleteAddressGroupMemberNonUpdatableParams = []string{
+var batchDeleteAddressGroupMembersNonUpdatableParams = []string{
 	"set_id",
 	"address_item_ids",
 	"fw_instance_id",
@@ -23,14 +23,14 @@ var batchDeleteAddressGroupMemberNonUpdatableParams = []string{
 }
 
 // @API CFW DELETE /v1/{project_id}/address-items
-func ResourceBatchDeleteAddressGroupMember() *schema.Resource {
+func ResourceBatchDeleteAddressGroupMembers() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceBatchDeleteAddressGroupMemberCreate,
-		ReadContext:   resourceBatchDeleteAddressGroupMemberRead,
-		UpdateContext: resourceBatchDeleteAddressGroupMemberUpdate,
-		DeleteContext: resourceBatchDeleteAddressGroupMemberDelete,
+		CreateContext: resourceBatchDeleteAddressGroupMembersCreate,
+		ReadContext:   resourceBatchDeleteAddressGroupMembersRead,
+		UpdateContext: resourceBatchDeleteAddressGroupMembersUpdate,
+		DeleteContext: resourceBatchDeleteAddressGroupMembersDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(batchDeleteAddressGroupMemberNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(batchDeleteAddressGroupMembersNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -66,7 +66,7 @@ func ResourceBatchDeleteAddressGroupMember() *schema.Resource {
 	}
 }
 
-func buildBatchDeleteAddressGroupMemberQueryParams(d *schema.ResourceData, epsId string) string {
+func buildBatchDeleteAddressGroupMembersQueryParams(d *schema.ResourceData, epsId string) string {
 	queryParams := ""
 
 	if epsId != "" {
@@ -82,7 +82,7 @@ func buildBatchDeleteAddressGroupMemberQueryParams(d *schema.ResourceData, epsId
 	return queryParams
 }
 
-func buildBatchDeleteAddressGroupMemberBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildBatchDeleteAddressGroupMembersBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"set_id":           d.Get("set_id"),
 		"address_item_ids": utils.ExpandToStringList(d.Get("address_item_ids").([]interface{})),
@@ -91,7 +91,7 @@ func buildBatchDeleteAddressGroupMemberBodyParams(d *schema.ResourceData) map[st
 	return bodyParams
 }
 
-func resourceBatchDeleteAddressGroupMemberCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBatchDeleteAddressGroupMembersCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -107,10 +107,10 @@ func resourceBatchDeleteAddressGroupMemberCreate(_ context.Context, d *schema.Re
 
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
-	requestPath += buildBatchDeleteAddressGroupMemberQueryParams(d, epsId)
+	requestPath += buildBatchDeleteAddressGroupMembersQueryParams(d, epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildBatchDeleteAddressGroupMemberBodyParams(d),
+		JSONBody:         buildBatchDeleteAddressGroupMembersBodyParams(d),
 	}
 
 	_, err = client.Request("DELETE", requestPath, &requestOpt)
@@ -123,17 +123,17 @@ func resourceBatchDeleteAddressGroupMemberCreate(_ context.Context, d *schema.Re
 	return nil
 }
 
-func resourceBatchDeleteAddressGroupMemberRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceBatchDeleteAddressGroupMembersRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in 'Read()' method because resource is a one-time action resource.
 	return nil
 }
 
-func resourceBatchDeleteAddressGroupMemberUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceBatchDeleteAddressGroupMembersUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in 'Update()' method because resource is a one-time action resource.
 	return nil
 }
 
-func resourceBatchDeleteAddressGroupMemberDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceBatchDeleteAddressGroupMembersDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is a one-time action resource used to batch delete address group members. Deleting this resource
     will not clear of corresponding request record, but will only remove resource information from
     the tf state file.`

@@ -1,12 +1,12 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_cfw_batch_delete_address_group_member"
+page_title: "HuaweiCloud: huaweicloud_cfw_batch_delete_address_group_members"
 description: |-
   Manages a resource to batch delete address group members within HuaweiCloud.
 ---
 
-# huaweicloud_cfw_batch_delete_address_group_member
+# huaweicloud_cfw_batch_delete_address_group_members
 
 Manages a resource to batch delete address group members within HuaweiCloud.
 
@@ -21,7 +21,7 @@ variable "address_item_ids" {
   type = list(string)
 }
 
-resource "huaweicloud_cfw_batch_delete_address_group_member" "test" {
+resource "huaweicloud_cfw_batch_delete_address_group_members" "test" {
   set_id           = var.set_id
   address_item_ids = var.address_item_ids
 }
