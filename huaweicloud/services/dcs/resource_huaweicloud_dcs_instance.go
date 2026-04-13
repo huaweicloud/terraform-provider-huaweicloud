@@ -1278,18 +1278,24 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// update basic params
-	if d.HasChanges("port", "name", "description", "security_group_id", "backup_policy",
-		"maintain_begin", "maintain_end", "rename_commands") {
+	if d.HasChanges("name", "description", "security_group_id", "backup_policy", "maintain_begin", "maintain_end") {
 		err = updateInstance(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		if d.HasChange("port") {
-			// Modifying the port is asynchronous and needs to wait for completion.
-			err = waitForPortUpdated(ctx, client, d)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+	}
+
+	if d.HasChange("rename_commands") {
+		err = updateInstanceRenameCommands(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("port") {
+		err = updateInstancePort(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1427,8 +1433,6 @@ func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{
 	bodyParams := map[string]interface{}{
 		"name":                   d.Get("name"),
 		"description":            d.Get("description"),
-		"port":                   d.Get("port"),
-		"rename_commands":        buildInstanceRenameCommandsBodyParams(d),
 		"maintain_begin":         d.Get("maintain_begin"),
 		"maintain_end":           d.Get("maintain_end"),
 		"security_group_id":      utils.ValueIgnoreEmpty(d.Get("security_group_id")),
@@ -1437,42 +1441,61 @@ func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{
 	return bodyParams
 }
 
-func waitForPortUpdated(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	op, np := d.GetChange("port")
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{strconv.Itoa(op.(int))},
-		Target:       []string{strconv.Itoa(np.(int))},
-		Refresh:      refreshDcsInstancePort(c, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
+func updateInstanceRenameCommands(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v2/{project_id}/instances/{instance_id}",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    utils.RemoveNil(buildUpdateInstanceRenameCommandsBodyParams(d)),
+		isRetry:             true,
+		timeout:             schema.TimeoutUpdate,
+		isWaitInstanceReady: true,
+	})
 	if err != nil {
-		return fmt.Errorf("error while waiting for DCS instance(%s) port update completed: %#v", d.Id(), err)
+		return fmt.Errorf("error updating instance rename commands: %s", err)
 	}
 	return nil
 }
 
-func refreshDcsInstancePort(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		instance, err := getDcsInstanceByID(c, id)
-		if err != nil {
-			return nil, "ERROR", err
-		}
-		port := utils.PathSearch("port", instance, float64(0)).(float64)
-		return instance, strconv.Itoa(int(port)), nil
+func buildUpdateInstanceRenameCommandsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"rename_commands": buildInstanceRenameCommandsBodyParams(d),
 	}
+	return bodyParams
+}
+
+func updateInstancePort(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v2/{project_id}/instances/{instance_id}",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    utils.RemoveNil(buildUpdateInstancePortBodyParams(d)),
+		isRetry:             true,
+		timeout:             schema.TimeoutUpdate,
+		isWaitInstanceReady: true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance port: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateInstancePortBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"port": d.Get("port"),
+	}
+	return bodyParams
 }
 
 func updateInstancePassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
-		httpUrl:          "v2/{project_id}/instances/{instance_id}/password/reset",
-		httpMethod:       "POST",
-		pathParams:       map[string]string{"instance_id": d.Id()},
-		updateBodyParams: buildUpdateInstancePasswordBodyParams(d),
-		isRetry:          true,
-		timeout:          schema.TimeoutUpdate,
+		httpUrl:             "v2/{project_id}/instances/{instance_id}/password/reset",
+		httpMethod:          "POST",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    buildUpdateInstancePasswordBodyParams(d),
+		isRetry:             true,
+		timeout:             schema.TimeoutUpdate,
+		isWaitInstanceReady: true,
 	})
 	if err != nil {
 		return fmt.Errorf("error updating instance password: %s", err)
@@ -1524,17 +1547,6 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, client *gola
 	})
 	if err != nil {
 		return fmt.Errorf("error updating instance(%s) flavor: %s", d.Id(), err)
-	}
-
-	// check the result of the change
-	instance, err := getDcsInstanceByID(client, d.Id())
-	if err != nil {
-		return fmt.Errorf("error getting DCS instance: %s", err)
-	}
-	specCode := utils.PathSearch("spec_code", instance, "").(string)
-	if specCode != newSpecCode {
-		return fmt.Errorf("change flavor failed, after changed the DCS flavor still is: %s, expected: %s",
-			specCode, newSpecCode)
 	}
 	return nil
 }

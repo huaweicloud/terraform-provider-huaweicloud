@@ -256,6 +256,10 @@ func refreshDcsInstanceState(client *golangsdk.ServiceClient, id string) resourc
 		if utils.StrSliceContains(failStatus, status) {
 			return instance, status, fmt.Errorf("unexpect status: %s", status)
 		}
+		task := utils.PathSearch("task", instance, nil)
+		if task != nil {
+			return instance, "PENDING", nil
+		}
 		if status == "RUNNING" {
 			return instance, status, nil
 		}

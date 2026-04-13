@@ -68,6 +68,10 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
 					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
 					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"data.huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"data.huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(rName, "capacity", "1"),
@@ -120,6 +124,10 @@ func TestAccDcsInstances_basic(t *testing.T) {
 				Config: testAccDcsV1Instance_updated(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"data.huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test_update", "id"),
 					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(rName, "capacity", "2"),
@@ -1051,46 +1059,6 @@ func TestAccDcsInstances_ssl(t *testing.T) {
 	})
 }
 
-func TestAccDcsInstances_subnet(t *testing.T) {
-	var instance interface{}
-
-	var instanceName = acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dcs_instance.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&instance,
-		getDcsResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDcsV1Instance_subnet(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "vpc_id",
-						"huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "subnet_id",
-						"huaweicloud_vpc_subnet.test.0", "id"),
-				),
-			},
-			{
-				Config: testAccDcsV1Instance_subnet_update(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(rName, "vpc_id",
-						"huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "subnet_id",
-						"huaweicloud_vpc_subnet.test.1", "id"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccDcsInstances_auto_scaling(t *testing.T) {
 	var instance interface{}
 
@@ -1227,6 +1195,13 @@ data "huaweicloud_dcs_flavors" "test" {
   cpu_architecture = "x86_64"
 }
 
+resource "huaweicloud_vpc_subnet" "test_update" {
+  name       = "%[1]s"
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+  vpc_id     = data.huaweicloud_vpc.test.id
+}
+
 resource "huaweicloud_dcs_instance" "test" {
   name                         = "%[1]s"
   engine_version               = "5.0"
@@ -1235,7 +1210,7 @@ resource "huaweicloud_dcs_instance" "test" {
   port                         = 6389
   capacity                     = 2
   vpc_id                       = data.huaweicloud_vpc.test.id
-  subnet_id                    = data.huaweicloud_vpc_subnet.test.id
+  subnet_id                    = huaweicloud_vpc_subnet.test_update.id
   availability_zones           = [data.huaweicloud_availability_zones.test.names[0]]
   flavor                       = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin               = "06:00:00"
@@ -2184,80 +2159,6 @@ resource "huaweicloud_dcs_instance" "test" {
   capacity           = 2
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  ssl_enable         = false
-}`, instanceName)
-}
-
-func testAccDcsV1Instance_subnet(instanceName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_dcs_flavors" "test" {
-  cache_mode     = "ha"
-  capacity       = 2
-  engine_version = "6.0"
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  count = 2
-
-  vpc_id     = huaweicloud_vpc.test.id
-  name       = "%[1]s-target-${count.index}"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index), 1)
-}
-
-resource "huaweicloud_dcs_instance" "test" {
-  name               = "%[1]s"
-  engine_version     = "6.0"
-  engine             = "Redis"
-  capacity           = 2
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test[0].id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  ssl_enable         = true
-}`, instanceName)
-}
-
-func testAccDcsV1Instance_subnet_update(instanceName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_dcs_flavors" "test" {
-  cache_mode     = "ha"
-  capacity       = 2
-  engine_version = "6.0"
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  count = 2
-
-  vpc_id     = huaweicloud_vpc.test.id
-  name       = "%[1]s-target-${count.index}"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index), 1)
-}
-
-resource "huaweicloud_dcs_instance" "test" {
-  name               = "%[1]s"
-  engine_version     = "6.0"
-  engine             = "Redis"
-  capacity           = 2
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test[1].id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   ssl_enable         = false
