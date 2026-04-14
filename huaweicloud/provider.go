@@ -847,6 +847,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_domain_resolve_ip_list":        cfw.DataSourceCfwDomainResolveIpList(),
 			"huaweicloud_cfw_eip_auto_protect_status":       cfw.DataSourceEipAutoProtectStatus(),
 			"huaweicloud_cfw_eip_count":                     cfw.DataSourceEipCount(),
+			"huaweicloud_cfw_enterprise_routers":            cfw.DataSourceEnterpriseRouters(),
 			"huaweicloud_cfw_protection_rules":              cfw.DataSourceCfwProtectionRules(),
 			"huaweicloud_cfw_service_groups":                cfw.DataSourceCfwServiceGroups(),
 			"huaweicloud_cfw_service_group_members":         cfw.DataSourceCfwServiceGroupMembers(),
