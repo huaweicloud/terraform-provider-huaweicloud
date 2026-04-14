@@ -20,7 +20,8 @@ type ChargeInfoOpt struct {
 }
 
 type VolumeOpt struct {
-	Size int `json:"size" required:"true"`
+	Size int    `json:"size,omitempty"`
+	Type string `json:"type,omitempty"`
 }
 
 type DataStoreOpt struct {
@@ -44,7 +45,7 @@ type CreateTaurusDBOpts struct {
 	Password            string             `json:"password" required:"true"`
 	TimeZone            string             `json:"time_zone" required:"true"`
 	AZMode              string             `json:"availability_zone_mode" required:"true"`
-	SlaveCount          int                `json:"slave_count" required:"true"`
+	SlaveCount          int                `json:"slave_count"`
 	MasterAZ            string             `json:"master_availability_zone,omitempty"`
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`

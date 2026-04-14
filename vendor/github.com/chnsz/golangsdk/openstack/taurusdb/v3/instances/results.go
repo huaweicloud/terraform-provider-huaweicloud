@@ -113,7 +113,8 @@ type Volume struct {
 }
 
 type NodeVolume struct {
-	Size int `json:"size"`
+	Size int    `json:"size"`
+	Type string `json:"type"`
 }
 
 type Nodes struct {

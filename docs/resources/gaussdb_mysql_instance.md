@@ -65,6 +65,13 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet. Changing this parameter will create a
   new resource.
 
+* `mode` - (Optional, String, ForceNew) Specifies the instance type. Changing this parameter will create a new resource.
+  Value options:
+  + **Cluster**: cluster instance
+  + **StandSingle**: single-node instance
+
+  Defaults to **Cluster**.
+
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
   will create a new resource.
 
@@ -115,7 +122,8 @@ The following arguments are supported:
   be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`. This parameter only works during
   creation.
 
-* `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to `1`.
+* `read_replicas` - (Optional, Int) Specifies the count of read replicas. If `mode` is set to **StandSingle**, the value
+  must be **0**. Defaults to **1**.
 
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to "UTC+08:00". Changing this parameter
   will create a new resource.
@@ -161,6 +169,9 @@ The following arguments are supported:
 
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
   the current storage and must be a multiple of `10` GB. Only valid when in prePaid mode.
+
+* `volume_type` - (Optional, String, ForceNew) Specifies the storage type of the instance. Changing this parameter will
+  create a new resource. Value options: **DL6**, **DL5**. Defaults to **DL6**.
 
 The `datastore` block supports:
 
