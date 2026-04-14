@@ -65,13 +65,14 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created v1 cluster by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "UTC"),
 				),
 			},
 			{
 				Config: testAccDwsCluster_basic_step2(name, updatePassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", name+"_updated"),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "6"),
 					resource.TestCheckResourceAttr(resourceName, "logical_cluster_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
@@ -81,6 +82,7 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test2", "id"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated cluster info"),
+					// resource.TestCheckResourceAttr(resourceName, "timezone", "Asia/Shanghai"),
 				),
 			},
 			{
@@ -147,6 +149,7 @@ resource "huaweicloud_dws_cluster" "test" {
   logical_cluster_enable = true
   enterprise_project_id  = "%[5]s"
   description            = "Created v1 cluster by terraform script"
+  timezone               = "UTC"
 
   public_ip {
     # Automatically purchase EIP when creating cluster.
@@ -175,7 +178,7 @@ resource "huaweicloud_networking_secgroup" "test2" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dws_cluster" "test" {
-  name                   = "%[3]s"
+  name                   = "%[3]s_updated"
   node_type              = "dwsk2.xlarge"
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
@@ -187,6 +190,7 @@ resource "huaweicloud_dws_cluster" "test" {
   logical_cluster_enable = false
   enterprise_project_id  = "%[5]s"
   description            = "Updated cluster info"
+  timezone               = "Asia/Shanghai"
 
   public_ip {
     # Modify the associated EIP.
@@ -228,6 +232,7 @@ resource "huaweicloud_dws_cluster" "test" {
   user_pwd               = "%[4]s"
   logical_cluster_enable = false
   enterprise_project_id  = "%[5]s"
+  description            = "Updated cluster info"
 
   public_ip {
     # Unbind the associated EIP.
@@ -289,6 +294,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", name+"_elb0"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created v2 cluster by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "UTC"),
 				),
 			},
 			// Assert all modifiable parameters.
@@ -296,7 +302,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 				Config: testAccDwsCluster_basicV2_step2(name, updatePassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", name+"_updated"),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "6"),
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip.0.eip_id", "huaweicloud_vpc_eip.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
@@ -307,6 +313,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", name+"_elb1"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test2", "id"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated cluster info"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Asia/Shanghai"),
 				),
 			},
 			// Assert that ELB and EIP are unbound and delete all tags.
@@ -397,6 +404,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   enterprise_project_id  = "%[4]s"
   elb_id                 = huaweicloud_elb_loadbalancer.test[0].id
   description            = "Created v2 cluster by terraform script"
+  timezone               = "UTC"
 
   public_ip {
     # Binging a EIP for cluster.
@@ -422,7 +430,7 @@ func testAccDwsCluster_basicV2_step2(rName, password string) string {
 %[1]s
 
 resource "huaweicloud_dws_cluster" "testv2" {
-  name                   = "%[2]s"
+  name                   = "%[2]s_updated"
   node_type              = "dwsk2.xlarge"
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
@@ -438,6 +446,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   enterprise_project_id  = "%[4]s"
   elb_id                 = huaweicloud_elb_loadbalancer.test[1].id
   description            = "Updated cluster info"
+  timezone               = "Asia/Shanghai"
 
   public_ip {
     # Modify the associated EIP.

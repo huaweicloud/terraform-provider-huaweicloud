@@ -56,6 +56,8 @@ const ClusterIdIllegalErrCode = "DWS.0001"
 // @API DWS POST /v1/{project_id}/clusters/{cluster_id}/description
 // @API DWS PUT /v1/{project_id}/clusters/{cluster_id}/security-group
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/cluster-shrink
+// @API DWS PUT /v1.0/{project_id}/clusters/{cluster_id}/name
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/timezone
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -83,7 +85,6 @@ func ResourceDwsCluster() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The cluster name.`,
 			},
 			"node_type": {
@@ -218,6 +219,12 @@ func ResourceDwsCluster() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 				Description: `Whether to automatically execute snapshot when shrinking the number of nodes.`,
+			},
+			"timezone": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The timezone of the cluster.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -529,6 +536,12 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(err)
 		}
 	}
+
+	if v, ok := d.GetOk("timezone"); ok {
+		if err := updateClusterTimezone(ctx, createDwsClusterClient, clusterId, v.(string), d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -593,6 +606,12 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 
 	if v, ok := d.GetOk("description"); ok {
 		if err := updateDescription(createDwsClusterClient, clusterId, v.(string)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if v, ok := d.GetOk("timezone"); ok {
+		if err := updateClusterTimezone(ctx, createDwsClusterClient, clusterId, v.(string), d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -786,6 +805,8 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("maintain_window", flattenGetDwsClusterRespBodyMaintainWindow(getDwsClusterRespBody)),
 		d.Set("elb", flattenGetDwsClusterRespBodyElb(getDwsClusterRespBody)),
 		d.Set("description", utils.PathSearch("cluster.cluster_description_info", getDwsClusterRespBody, nil)),
+		d.Set("name", utils.PathSearch("cluster.name", getDwsClusterRespBody, nil)),
+		d.Set("timezone", utils.PathSearch("cluster.cluster_timezone", getDwsClusterRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -1031,6 +1052,21 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("security_group_id") {
 		if err := updateSecurityGroup(clusterClient, clusterId, d.Get("security_group_id").(string)); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("name") {
+		if err := updateClusterName(ctx, clusterClient, clusterId, d.Get("name").(string), d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("timezone") {
+		timezoneValue := d.Get("timezone").(string)
+		if timezoneValue != "" {
+			if err := updateClusterTimezone(ctx, clusterClient, clusterId, timezoneValue, d.Timeout(schema.TimeoutUpdate)); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 	return resourceDwsClusterRead(ctx, d, meta)
@@ -1338,7 +1374,7 @@ func bindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Serv
 		return fmt.Errorf("error binding ELB to DWS cluster: job ID is not found in API response")
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"INIT"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -1386,7 +1422,7 @@ func unbindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Se
 		return fmt.Errorf("error unbinding ELB from DWS cluster: job ID is not found in API response: %s", jobId)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"INIT"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -1460,14 +1496,19 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resourc
 			return nil, "", err
 		}
 
-		status := utils.PathSearch("status", getJobStatusRespBody, "")
-		if status.(string) == "FAIL" {
+		status := utils.PathSearch("status", getJobStatusRespBody, "").(string)
+		if status == "FAIL" {
 			failedCode := utils.PathSearch("failed_code", getJobStatusRespBody, "")
 			failedDetail := utils.PathSearch("failed_detail", getJobStatusRespBody, "")
-			return nil, "", fmt.Errorf("DWS cluster binding ELB job failed,"+
-				" job ID: %s, failed_code: %s, failed_detail: %s", jobId, failedCode, failedDetail)
+			return nil, "", fmt.Errorf("DWS cluster job failed, job ID: %s, failed_code: %s, failed_detail: %s",
+				jobId, failedCode, failedDetail)
 		}
-		return getJobStatusRespBody, status.(string), nil
+
+		if status == "SUCCESS" {
+			return getJobStatusRespBody, "SUCCESS", nil
+		}
+
+		return getJobStatusRespBody, "PENDING", nil
 	}
 }
 
@@ -1572,6 +1613,90 @@ func updateSecurityGroup(client *golangsdk.ServiceClient, clusterId, securityGro
 	_, err := client.Request("PUT", path, &opt)
 	if err != nil {
 		return fmt.Errorf("error updating security group for the cluster (%s): %s", clusterId, err)
+	}
+
+	return nil
+}
+
+func updateClusterName(ctx context.Context, client *golangsdk.ServiceClient, clusterId, name string, timeout time.Duration) error {
+	httpUrl := "v1/{project_id}/clusters/{cluster_id}/cluster-name"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{cluster_id}", clusterId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"cluster_name": name,
+		},
+	}
+	resp, err := client.Request("PUT", path, &opt)
+	if err != nil {
+		return fmt.Errorf("error updating name for cluster (%s): %s", clusterId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("error updating name for cluster (%s): job ID is not found in API response", clusterId)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      jobStatusRefreshFunc(client, jobId),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for updating name of cluster (%s) to complete: %s", clusterId, err)
+	}
+
+	return nil
+}
+
+func updateClusterTimezone(ctx context.Context, client *golangsdk.ServiceClient, clusterId, timezone string, timeout time.Duration) error {
+	httpUrl := "v2/{project_id}/clusters/{cluster_id}/timezone"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{cluster_id}", clusterId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"cluster_timezone": timezone,
+		},
+	}
+	resp, err := client.Request("POST", path, &opt)
+	if err != nil {
+		return fmt.Errorf("error updating timezone for cluster (%s): %s", clusterId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("error updating timezone for cluster (%s): job ID is not found in API response", clusterId)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      jobStatusRefreshFunc(client, jobId),
+		Timeout:      timeout,
+		Delay:        60 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for updating timezone of cluster (%s) to complete: %s", clusterId, err)
 	}
 
 	return nil

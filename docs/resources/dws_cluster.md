@@ -53,9 +53,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64 characters, which
+* `name` - (Required, String) Cluster name, which must be unique and contains 4 to 64 characters, which
   consist of letters, digits, hyphens(-), or underscores(_) only and must start with a letter.
-  Changing this creates a new cluster resource.
 
 * `node_type` - (Required, String, ForceNew) The flavor of the cluster.  
  [For details](https://support.huaweicloud.com/intl/en-us/productdesc-dws/dws_01_00018.html).
@@ -136,6 +135,14 @@ The following arguments are supported:
 * `force_backup` - (Optional, Bool) Specified whether to automatically execute snapshot when shrinking the number of nodes.
   The default value is **true**.
   This parameter is required and available only when scaling-in the `number_of_node` parameter value.
+
+* `timezone` - (Optional, String) Specifies the timezone of the cluster.
+  When not specified, the cloud default timezone is used.
+  This parameter can be updated, but resetting it to empty will skip API call and keep the cloud timezone unchanged.
+
+~> **Note:** When `timezone` is reset to empty or removed from configuration,
+   no API call will be made and the cloud timezone setting remains unchanged.
+   To change the timezone, explicitly specify a new timezone value.
 
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
