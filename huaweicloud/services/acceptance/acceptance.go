@@ -470,6 +470,7 @@ var (
 	HW_CFW_ACL_RULE_ID               = os.Getenv("HW_CFW_ACL_RULE_ID")
 	HW_CFW_DOMAIN_SET_ID             = os.Getenv("HW_CFW_DOMAIN_SET_ID")
 	HW_CFW_IP_BLACKLIST_NAME         = os.Getenv("HW_CFW_IP_BLACKLIST_NAME")
+	HW_CFW_IPS_CUSTOM_RULE_ID        = os.Getenv("HW_CFW_IPS_CUSTOM_RULE_ID")
 	HW_CFW_ADDRESS_GROUP_ID          = os.Getenv("HW_CFW_ADDRESS_GROUP_ID")
 	HW_CFW_ADDRESS_GROUP_MEMBER_ID   = os.Getenv("HW_CFW_ADDRESS_GROUP_MEMBER_ID")
 
@@ -2908,6 +2909,13 @@ func TestAccPreCheckCfwDomainSetId(t *testing.T) {
 func TestAccPreCheckCfwAclRuleId(t *testing.T) {
 	if HW_CFW_ACL_RULE_ID == "" {
 		t.Skip("HW_CFW_ACL_RULE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwIpsCustomRuleId(t *testing.T) {
+	if HW_CFW_IPS_CUSTOM_RULE_ID == "" {
+		t.Skip("HW_CFW_IPS_CUSTOM_RULE_ID must be set for CFW acceptance tests")
 	}
 }
 
