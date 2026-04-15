@@ -2796,6 +2796,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rfs_execution_plan": rfs.ResourceExecutionPlan(),
 			"huaweicloud_rfs_private_hook":   rfs.ResourcePrivateHook(),
+			"huaweicloud_rfs_private_module": rfs.ResourcePrivateModule(),
 			"huaweicloud_rfs_stack":          rfs.ResourceStack(),
 
 			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
