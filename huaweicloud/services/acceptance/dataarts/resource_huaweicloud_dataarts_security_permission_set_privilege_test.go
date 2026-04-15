@@ -116,6 +116,12 @@ resource "huaweicloud_dataarts_studio_data_connection" "test" {
   config       = jsonencode({
     "cdm_property_enable": "false"
   })
+
+  lifecycle {
+    ignore_changes = [
+      config,
+    ]
+  }
 }
 
 resource "huaweicloud_dataarts_security_permission_set" "test" {
