@@ -103,7 +103,10 @@ func resourceVolumeAutoExpandConfigurationCreate(_ context.Context, d *schema.Re
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildVolumeAutoExpandConfigurationBodyParams(d)),
+		// Currently, the API returns 204 status code, but to ensure that some regions have not updated the status code,
+		// so we add other status codes.
+		OkCodes:  []int{200, 201, 202, 204},
+		JSONBody: utils.RemoveNil(buildVolumeAutoExpandConfigurationBodyParams(d)),
 	}
 
 	_, err = client.Request("PUT", updatePath, &opt)
