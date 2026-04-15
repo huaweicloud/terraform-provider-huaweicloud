@@ -127,10 +127,10 @@ The following arguments are supported:
     in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
   + Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
 
-* `availability_zones` - (Required, List, ForceNew) The code of the AZ where the cache node resides.
+* `availability_zones` - (Required, List) The code of the AZ where the cache node resides.
   Master/Standby, Proxy Cluster, and Redis Cluster DCS instances support cross-AZ deployment.
   You can specify an AZ for the standby node. When specifying AZs for nodes, use commas (,) to separate AZs.
-  Changing this creates a new instance.
+  Supports changes from single-AZ to cross-AZ.
 
 * `vpc_id` - (Required, String, ForceNew) The ID of VPC which the instance belongs to.
   Changing this creates a new instance resource.

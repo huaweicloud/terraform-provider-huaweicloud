@@ -1832,18 +1832,22 @@ data "huaweicloud_dcs_flavors" "test" {
 }
 
 resource "huaweicloud_dcs_instance" "test" {
-  name               = "%s"
-  engine_version     = "5.0"
-  password           = "Huawei_test"
-  engine             = "Redis"
-  port               = 6388
-  capacity           = 8
-  vpc_id             = data.huaweicloud_vpc.test.id
-  subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  maintain_begin     = "06:00:00"
-  maintain_end       = "07:00:00"
+  name           = "%s"
+  engine_version = "5.0"
+  password       = "Huawei_test"
+  engine         = "Redis"
+  port           = 6388
+  capacity       = 8
+  vpc_id         = data.huaweicloud_vpc.test.id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.id
+  flavor         = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin = "06:00:00"
+  maintain_end   = "07:00:00"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
 }`, instanceName)
 }
 
@@ -1867,18 +1871,22 @@ data "huaweicloud_dcs_flavors" "test" {
 }
 
 resource "huaweicloud_dcs_instance" "test" {
-  name               = "%s"
-  engine_version     = "5.0"
-  password           = "Huawei_test"
-  engine             = "Redis"
-  port               = 6388
-  capacity           = 4
-  vpc_id             = data.huaweicloud_vpc.test.id
-  subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  maintain_begin     = "06:00:00"
-  maintain_end       = "07:00:00"
+  name           = "%s"
+  engine_version = "5.0"
+  password       = "Huawei_test"
+  engine         = "Redis"
+  port           = 6388
+  capacity       = 4
+  vpc_id         = data.huaweicloud_vpc.test.id
+  subnet_id      = data.huaweicloud_vpc_subnet.test.id
+  flavor         = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin = "06:00:00"
+  maintain_end   = "07:00:00"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
 }`, instanceName)
 }
 

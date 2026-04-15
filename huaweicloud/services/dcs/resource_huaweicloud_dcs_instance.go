@@ -40,6 +40,7 @@ var (
 // @API DCS POST /v2/{project_id}/instances
 // @API DCS GET /v2/{project_id}/instances/{instance_id}
 // @API DCS PUT /v2/{project_id}/instance/{instance_id}/whitelist
+// @API DCS GET /v2/{project_id}/instance/{instance_id}/groups
 // @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/async-configs
 // @API DCS PUT /v2/{project_id}/{instance_id}/client-ip-transparent-transmission
@@ -127,7 +128,6 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "schema: Required",
 			},
@@ -452,7 +452,6 @@ func ResourceDcsInstance() *schema.Resource {
 			"available_zones": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ForceNew:     true,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 				AtLeastOneOf: []string{"available_zones", "availability_zones"},
 				Deprecated:   "Deprecated, please use `availability_zones` instead",
@@ -977,7 +976,6 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("engine", utils.PathSearch("engine", instance, nil)),
 		d.Set("engine_version", utils.PathSearch("engine_version", instance, nil)),
 		d.Set("flavor", utils.PathSearch("spec_code", instance, nil)),
-		d.Set("availability_zones", utils.PathSearch("az_codes", instance, nil)),
 		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
 		d.Set("vpc_name", utils.PathSearch("vpc_name", instance, nil)),
 		d.Set("subnet_id", utils.PathSearch("subnet_id", instance, nil)),
@@ -1016,6 +1014,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
 
+	mErr = multierror.Append(mErr, setDcsInstanceAzCodes(d, client))
 	mErr = multierror.Append(mErr, setDcsInstanceCapacity(d, instance))
 	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceBigKeyAutoScan(d, client)...)
@@ -1233,6 +1232,30 @@ func setDcsInstanceAutoScaling(d *schema.ResourceData, client *golangsdk.Service
 	return d.Set("auto_scaling", autoScaling)
 }
 
+// the az codes order may be different from the input az codes order, so it is needed to get the az codes from groups
+func setDcsInstanceAzCodes(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instance/{instance_id}/groups",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching DCS instance(%s) group replication: %s", d.Id(), err)
+		return nil
+	}
+
+	azCodeSearchPath := "group_list[0].replication_list[?replication_role=='%s']|[0].az_code"
+	masterAzCode := utils.PathSearch(fmt.Sprintf(azCodeSearchPath, "master"), getRespBody, "").(string)
+	slaveAzCode := utils.PathSearch(fmt.Sprintf(azCodeSearchPath, "slave"), getRespBody, "").(string)
+
+	azCodes := []string{masterAzCode}
+	if slaveAzCode != "" && masterAzCode != slaveAzCode {
+		azCodes = append(azCodes, slaveAzCode)
+	}
+
+	return d.Set("availability_zones", azCodes)
+}
+
 func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	instanceID string) diag.Diagnostics {
 	params, needStartParams, err := getParameters(client, instanceID, d.Get("parameters").(*schema.Set).List())
@@ -1384,6 +1407,13 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("auto_scaling") {
 		err = updateAutoScaling(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("availability_zones", "available_zones") {
+		err = updateAvailabilityZones(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1919,6 +1949,33 @@ func deleteAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient) 
 	return nil
 }
 
+func updateAvailabilityZones(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	azIds, err := getAzId(d, client)
+	if err != nil {
+		return err
+	}
+	_, err = updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v2/{project_id}/instances/{instance_id}/available-zones",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    buildUpdateAvailabilityZonesBodyParams(azIds),
+		isRetry:             true,
+		isWaitInstanceReady: true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance availability zones: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateAvailabilityZonesBodyParams(azIds []string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"new_available_zones": azIds,
+		"execute_immediately": true,
+	}
+	return bodyParams
+}
+
 func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -2017,12 +2074,80 @@ func getAzCode(d *schema.ResourceData, client *golangsdk.ServiceClient) ([]strin
 	return azCodes, nil
 }
 
+func getAzId(d *schema.ResourceData, client *golangsdk.ServiceClient) ([]string, error) {
+	var azIds []string
+	availabilityZones, ok := d.GetOk("availability_zones")
+	if ok {
+		availableZonesIds, err := getAvailableZoneIdByCode(client, availabilityZones.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		azIds = availableZonesIds
+	} else {
+		azIds = utils.ExpandToStringList(d.Get("available_zones").([]interface{}))
+	}
+	return azIds, nil
+}
+
+func getAvailableZoneIdByCode(client *golangsdk.ServiceClient, azCodes []interface{}) ([]string, error) {
+	azIds := make([]string, 0, len(azCodes))
+	if len(azCodes) == 0 {
+		return azIds, errors.New("availability_zones are required")
+	}
+
+	availableZones, err := getAvailableZone(client)
+	if err != nil {
+		return nil, err
+	}
+
+	mapping := make(map[string]string)
+	for _, v := range availableZones {
+		id := utils.PathSearch("id", v, "").(string)
+		code := utils.PathSearch("code", v, "").(string)
+		mapping[code] = id
+	}
+
+	for _, code := range azCodes {
+		azCode := code.(string)
+		if _, ok := mapping[azCode]; !ok {
+			return azIds, fmt.Errorf("invalid available zone code: %s", azCode)
+		}
+		azIds = append(azIds, mapping[azCode])
+	}
+
+	return azIds, nil
+}
+
 func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface{}) ([]string, error) {
 	azCodes := make([]string, 0, len(azIds))
 	if len(azIds) == 0 {
-		return azCodes, fmt.Errorf("availability_zones are required")
+		return azCodes, errors.New("availability_zones are required")
 	}
 
+	availableZones, err := getAvailableZone(client)
+	if err != nil {
+		return nil, err
+	}
+
+	mapping := make(map[string]string)
+	for _, v := range availableZones {
+		id := utils.PathSearch("id", v, "").(string)
+		code := utils.PathSearch("code", v, "").(string)
+		mapping[id] = code
+	}
+
+	for _, id := range azIds {
+		azID := id.(string)
+		if _, ok := mapping[azID]; !ok {
+			return azCodes, fmt.Errorf("invalid available zone code: %s", azID)
+		}
+		azCodes = append(azCodes, mapping[azID])
+	}
+
+	return azCodes, nil
+}
+
+func getAvailableZone(client *golangsdk.ServiceClient) ([]interface{}, error) {
 	var (
 		httpUrl = "v2/available-zones"
 	)
@@ -2042,20 +2167,5 @@ func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface
 	}
 
 	availableZones := utils.PathSearch("available_zones", getRespBody, make([]interface{}, 0)).([]interface{})
-	mapping := make(map[string]string)
-	for _, v := range availableZones {
-		id := utils.PathSearch("id", v, "").(string)
-		code := utils.PathSearch("code", v, "").(string)
-		mapping[id] = code
-	}
-
-	for _, id := range azIds {
-		azID := id.(string)
-		if _, ok := mapping[azID]; !ok {
-			return azCodes, fmt.Errorf("invalid available zone code: %s", azID)
-		}
-		azCodes = append(azCodes, mapping[azID])
-	}
-
-	return azCodes, nil
+	return availableZones, nil
 }
