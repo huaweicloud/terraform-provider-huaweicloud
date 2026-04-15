@@ -3053,6 +3053,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_ips_rule_mode_change":               cfw.ResourceCfwIpsRuleModeChange(),
 			"huaweicloud_cfw_export_logs":                        cfw.ResourceExportLogs(),
 			"huaweicloud_cfw_delete_ip_blacklist":                cfw.ResourceDeleteIpBlacklist(),
+			"huaweicloud_cfw_export_acl_rule":                    cfw.ResourceExportAclRule(),
 			"huaweicloud_cfw_export_ip_blacklist":                cfw.ResourceExportIpBlacklist(),
 			"huaweicloud_cfw_eip_all_protection_switch":          cfw.ResourceEipAllProtectionSwitch(),
 			"huaweicloud_cfw_ip_blacklist_retry":                 cfw.ResourceIpBlacklistRetry(),
