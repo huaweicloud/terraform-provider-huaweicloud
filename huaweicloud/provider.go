@@ -3846,6 +3846,7 @@ func Provider() *schema.Provider {
 			// DataArts Studio - Management Center
 			"huaweicloud_dataarts_studio_data_connection": dataarts.ResourceDataConnection(),
 			"huaweicloud_dataarts_studio_instance":        dataarts.ResourceStudioInstance(),
+			"huaweicloud_dataarts_studio_workspace_user":  dataarts.ResourceStudioWorkspaceUser(),
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_batch_publish":          dataarts.ResourceArchitectureBatchPublish(),
 			"huaweicloud_dataarts_architecture_batch_publishment":      dataarts.ResourceArchitectureBatchPublishment(),
