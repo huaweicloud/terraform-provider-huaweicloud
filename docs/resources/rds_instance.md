@@ -485,7 +485,7 @@ $ terraform import huaweicloud_rds_instance.instance_1 <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `db`, `restore`,`param_group_id`,
-`power_action`, `availability_zone`, `read_write_permissions`, `rotate_day`, `secret_id`, `secret_name`, `secret_version`,
+`power_action`, `read_write_permissions`, `rotate_day`, `secret_id`, `secret_name`, `secret_version`,
 `dss_pool_id`, `lower_case_table_names`, `slow_log_show_original_status`, `charging_mode`, `period_unit`, `period`,
 `auto_renew`, `auto_pay`, `is_flexus`. It is generally recommended running `terraform plan` after importing a RDS instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
@@ -497,7 +497,7 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "restore", "param_group_id", "power_action", "availability_zone", "read_write_permissions", "rotate_day",
+      "db", "restore", "param_group_id", "power_action", "read_write_permissions", "rotate_day",
       "secret_id", "secret_name", "secret_version", "dss_pool_id", "lower_case_table_names", "slow_log_show_original_status",
       "charging_mode", "period_unit", "period", "auto_renew", "auto_pay", "is_flexus",
     ]

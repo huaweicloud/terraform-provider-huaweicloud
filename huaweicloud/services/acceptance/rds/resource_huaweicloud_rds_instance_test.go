@@ -138,7 +138,6 @@ func TestAccRdsInstance_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"db",
 					"status",
-					"availability_zone",
 					"slow_log_show_original_status",
 				},
 			},
@@ -713,7 +712,6 @@ func TestAccRdsInstance_flexus(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"availability_zone",
 					"auto_renew",
 					"period",
 					"period_unit",
@@ -762,9 +760,9 @@ resource "huaweicloud_rds_instance" "test" {
   minor_version_auto_upgrade_enabled = true
 
   db {
-    type     = "PostgreSQL"
-    version  = "12"
-    port     = 8634
+    type    = "PostgreSQL"
+    version = "16"
+    port    = 8634
   }
   volume {
     type = "CLOUDSSD"
@@ -811,7 +809,7 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "12"
+    version  = "16"
     port     = 8636
   }
   volume {
@@ -852,7 +850,7 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "12"
+    version  = "16"
     port     = 8634
   }
   volume {
@@ -893,7 +891,7 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "12"
+    version  = "16"
     port     = 8634
   }
   volume {
@@ -1720,7 +1718,7 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "12"
+    version  = "16"
   }
 
   volume {
@@ -1750,7 +1748,7 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "12"
+    version  = "16"
   }
   volume {
     type = "CLOUDSSD"

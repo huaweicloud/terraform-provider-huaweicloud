@@ -908,6 +908,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		mErr = multierror.Append(mErr, setSecondLevelMonitoring(d, client)...)
 	}
 
+	mErr = multierror.Append(mErr, setAvailabilityZone(d, instance))
 	mErr = multierror.Append(mErr, setAutoUpgradeSwitchOption(d, client))
 	mErr = multierror.Append(mErr, setStorageUsedSpace(d, client))
 	mErr = multierror.Append(mErr, setReplicationStatus(d, client))
@@ -1156,6 +1157,18 @@ func setSecondLevelMonitoring(d *schema.ResourceData, client *golangsdk.ServiceC
 	errs = append(errs, d.Set("seconds_level_monitoring_enabled", utils.PathSearch("switch_option", getRespBody, nil)))
 	errs = append(errs, d.Set("seconds_level_monitoring_interval", utils.PathSearch("interval", getRespBody, nil)))
 	return errs
+}
+
+// lintignore:R014
+func setAvailabilityZone(d *schema.ResourceData, resp interface{}) error {
+	azSearchPath := "nodes[?role=='%s']|[0].availability_zone"
+	masterNodeAz := utils.PathSearch(fmt.Sprintf(azSearchPath, "master"), resp, "").(string)
+	slaveNodeAz := utils.PathSearch(fmt.Sprintf(azSearchPath, "slave"), resp, "").(string)
+	azs := []string{masterNodeAz}
+	if slaveNodeAz != "" {
+		azs = append(azs, slaveNodeAz)
+	}
+	return d.Set("availability_zone", azs)
 }
 
 func setAutoUpgradeSwitchOption(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
