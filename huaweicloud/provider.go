@@ -2221,6 +2221,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_sync_regions":              swr.DataSourceSyncRegions(),
 			"huaweicloud_swr_organizations":             swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":              swr.DataSourceRepositories(),
+			"huaweicloud_swr_signed_image_attachments":  swr.DataSourceSwrSignedImageAttachments(),
 			"huaweicloud_swrv3_repositories":            swr.DataSourceSwrv3Repositories(),
 			"huaweicloud_swr_shared_repositories":       swr.DataSourceSharedRepositories(),
 			"huaweicloud_swrv3_shared_repositories":     swr.DataSourceSwrv3SharedRepositories(),

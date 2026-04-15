@@ -500,6 +500,7 @@ var (
 	HW_SWR_REPOSITORY = os.Getenv("HW_SWR_REPOSITORY")
 	// The signature task is sign with image exist
 	HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED = os.Getenv("HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED")
+	HW_SWR_TAG                          = os.Getenv("HW_SWR_TAG")
 
 	HW_SCM_CERTIFICATE_ID          = os.Getenv("HW_SCM_CERTIFICATE_ID")
 	HW_SCM_CERTIFICATE_DOMAIN_NAME = os.Getenv("HW_SCM_CERTIFICATE_DOMAIN_NAME")
@@ -1908,6 +1909,14 @@ func TestAccPreCheckSWRDomian(t *testing.T) {
 func TestAccPreCheckSWRUser(t *testing.T) {
 	if HW_SWR_USER == "" {
 		t.Skip("HW_SWR_USER must be set for CCE autopilot addon tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSWRSignedImageAttachments(t *testing.T) {
+	if HW_SWR_ORGANIZATION == "" || HW_SWR_REPOSITORY == "" || HW_SWR_TAG == "" {
+		t.Skip("HW_SWR_ORGANIZATION, HW_SWR_REPOSITORY and HW_SWR_TAG must be set for " +
+			"swr signed image attachments tests")
 	}
 }
 
