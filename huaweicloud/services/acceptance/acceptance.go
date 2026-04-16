@@ -675,6 +675,7 @@ var (
 
 	// Common
 	HW_DATAARTS_WORKSPACE_ID                               = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
+	HW_DATAARTS_INSTANCE_ID                                = os.Getenv("HW_DATAARTS_INSTANCE_ID")
 	HW_DATAARTS_CDM_NAME                                   = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID                                 = os.Getenv("HW_DATAARTS_MANAGER_ID")
 	HW_DATAARTS_BIZ_CATALOG_ID                             = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
@@ -3931,6 +3932,13 @@ func TestAccPreCheckASLifecycleHookName(t *testing.T) {
 func TestAccPreCheckDataArtsWorkSpaceID(t *testing.T) {
 	if HW_DATAARTS_WORKSPACE_ID == "" {
 		t.Skip("This environment does not support DataArts Studio tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsInstanceID(t *testing.T) {
+	if HW_DATAARTS_INSTANCE_ID == "" {
+		t.Skip("HW_DATAARTS_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 
