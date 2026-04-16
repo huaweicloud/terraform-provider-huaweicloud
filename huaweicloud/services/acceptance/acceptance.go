@@ -835,6 +835,8 @@ var (
 	HW_RDS_SUBSCRIBER_INSTANCE_ID          = os.Getenv("HW_RDS_SUBSCRIBER_INSTANCE_ID")
 	HW_RDS_NODE_ID                         = os.Getenv("HW_RDS_NODE_ID")
 
+	HW_RFS_STACK_NAME = os.Getenv("HW_RFS_STACK_NAME")
+
 	HW_DMS_KAFKA_INSTANCE_ID         = os.Getenv("HW_DMS_KAFKA_INSTANCE_ID")
 	HW_DMS_KAFKA_TOPIC_NAME          = os.Getenv("HW_DMS_KAFKA_TOPIC_NAME")
 	HW_DMS_KAFKA_CONSUMER_GROUP_NAME = os.Getenv("HW_DMS_KAFKA_CONSUMER_GROUP_NAME")
@@ -4534,6 +4536,13 @@ func TestAccPreCheckRdsSubscriberInstanceId(t *testing.T) {
 func TestAccPreCheckRdsNodeId(t *testing.T) {
 	if HW_RDS_NODE_ID == "" {
 		t.Skip("HW_RDS_NODE_ID must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRfsStackName(t *testing.T) {
+	if HW_RFS_STACK_NAME == "" {
+		t.Skip("HW_RFS_STACK_NAME must be set for RFS acceptance tests")
 	}
 }
 
