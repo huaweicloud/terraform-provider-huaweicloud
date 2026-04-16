@@ -1067,8 +1067,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_snapshots":                 css.DataSourceCssSnapshots(),
 			"huaweicloud_css_vpcep_connections":         css.DataSourceVpcepserviceConnections(),
 
-			// DataArts Studio Management Center
-			"huaweicloud_dataarts_studio_data_connections": dataarts.DataSourceStudioDataConnections(),
+			"huaweicloud_dataarts_studio_data_connections": dataarts.DataSourceDataConnections(),
 			"huaweicloud_dataarts_studio_workspaces":       dataarts.DataSourceDataArtsStudioWorkspaces(),
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
@@ -2015,8 +2014,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_intelligent_session_kill_history":   rds.DataSourceIntelligentSessionKillHistory(),
 			"huaweicloud_rds_intelligent_session_kill_statistic": rds.DataSourceIntelligentSessionKillStatistic(),
 
-			"huaweicloud_rfs_private_modules": rfs.DataSourcePrivateModules(),
-
 			"huaweicloud_rgc_home_region":                           rgc.DataSourceHomeRegion(),
 			"huaweicloud_rgc_pre_launch_check":                      rgc.DataSourcePreLaunchCheck(),
 			"huaweicloud_rgc_landing_zone_available_updates":        rgc.DataSourceLandingZoneAvailableUpdates(),
@@ -2799,7 +2796,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rfs_execution_plan": rfs.ResourceExecutionPlan(),
 			"huaweicloud_rfs_private_hook":   rfs.ResourcePrivateHook(),
-			"huaweicloud_rfs_private_module": rfs.ResourcePrivateModule(),
 			"huaweicloud_rfs_stack":          rfs.ResourceStack(),
 
 			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
@@ -2860,6 +2856,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_bandwidth_policy":        as.ResourceASBandWidthPolicy(),
 			"huaweicloud_as_planned_task":            as.ResourcePlannedTask(),
 			"huaweicloud_as_lifecycle_hook_callback": as.ResourceLifecycleHookCallBack(),
+			"huaweicloud_as_warm_pool":               as.ResourceAsWarmPool(),
 
 			"huaweicloud_asm_mesh": asm.ResourceAsmMesh(),
 
@@ -3058,11 +3055,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_ips_rule_mode_change":               cfw.ResourceCfwIpsRuleModeChange(),
 			"huaweicloud_cfw_export_logs":                        cfw.ResourceExportLogs(),
 			"huaweicloud_cfw_delete_ip_blacklist":                cfw.ResourceDeleteIpBlacklist(),
-			"huaweicloud_cfw_export_acl_rule":                    cfw.ResourceExportAclRule(),
 			"huaweicloud_cfw_export_ip_blacklist":                cfw.ResourceExportIpBlacklist(),
 			"huaweicloud_cfw_eip_all_protection_switch":          cfw.ResourceEipAllProtectionSwitch(),
 			"huaweicloud_cfw_ip_blacklist_retry":                 cfw.ResourceIpBlacklistRetry(),
-			"huaweicloud_cfw_ip_blacklist_switch":                cfw.ResourceIpBlacklistSwitch(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
