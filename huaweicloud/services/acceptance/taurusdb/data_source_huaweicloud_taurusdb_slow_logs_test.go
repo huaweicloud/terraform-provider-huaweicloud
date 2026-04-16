@@ -16,9 +16,9 @@ func TestAccDataSourceTaurusDBSlowLogs_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBMysqlInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBMysqlNodeId(t)
-			acceptance.TestAccPreCheckGaussDBMysqlTimeRange(t)
+			acceptance.TestAccPreCheckTaurusDBInstanceId(t)
+			acceptance.TestAccPreCheckTaurusDBNodeId(t)
+			acceptance.TestAccPreCheckTaurusDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -88,6 +88,6 @@ output "database_filter_is_useful" {
   [for v in data.huaweicloud_taurusdb_slow_logs.database_filter.slow_log_list[*].database : v == local.database]
   )
 }
-`, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_ID, acceptance.HW_GAUSSDB_MYSQL_NODE_ID, acceptance.HW_GAUSSDB_MYSQL_START_TIME,
-		acceptance.HW_GAUSSDB_MYSQL_END_TIME)
+`, acceptance.HW_TAURUSDB_INSTANCE_ID, acceptance.HW_TAURUSDB_NODE_ID, acceptance.HW_TAURUSDB_START_TIME,
+		acceptance.HW_TAURUSDB_END_TIME)
 }
