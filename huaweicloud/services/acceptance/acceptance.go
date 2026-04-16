@@ -838,6 +838,8 @@ var (
 	HW_DMS_KAFKA_TOPIC_NAME          = os.Getenv("HW_DMS_KAFKA_TOPIC_NAME")
 	HW_DMS_KAFKA_CONSUMER_GROUP_NAME = os.Getenv("HW_DMS_KAFKA_CONSUMER_GROUP_NAME")
 
+	HW_DMS_RABBITMQ_INSTANCE_ID = os.Getenv("HW_DMS_RABBITMQ_INSTANCE_ID")
+
 	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
 	HW_DMS_ROCKETMQ_GROUP_NAME  = os.Getenv("HW_DMS_ROCKETMQ_GROUP_NAME")
@@ -4575,6 +4577,13 @@ func TestAccPreCheckDMSKafkaTopicName(t *testing.T) {
 func TestAccPreCheckDMSKafkaConsumerGroupName(t *testing.T) {
 	if HW_DMS_KAFKA_CONSUMER_GROUP_NAME == "" {
 		t.Skip("HW_DMS_KAFKA_CONSUMER_GROUP_NAME must be set for DMS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
+	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
 	}
 }
 
