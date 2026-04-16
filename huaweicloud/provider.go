@@ -2797,11 +2797,12 @@ func Provider() *schema.Provider {
 			// V4 AOM resources.
 			"huaweicloud_aomv4_alarm_rule": aom.ResourceAlarmRuleV4(),
 
-			"huaweicloud_rfs_execution_plan": rfs.ResourceExecutionPlan(),
-			"huaweicloud_rfs_private_hook":   rfs.ResourcePrivateHook(),
-			"huaweicloud_rfs_private_module": rfs.ResourcePrivateModule(),
-			"huaweicloud_rfs_stack":          rfs.ResourceStack(),
-			"huaweicloud_rfs_template":       rfs.ResourceRfsTemplate(),
+			"huaweicloud_rfs_execution_plan":   rfs.ResourceExecutionPlan(),
+			"huaweicloud_rfs_private_hook":     rfs.ResourcePrivateHook(),
+			"huaweicloud_rfs_private_module":   rfs.ResourcePrivateModule(),
+			"huaweicloud_rfs_stack":            rfs.ResourceStack(),
+			"huaweicloud_rfs_template":         rfs.ResourceRfsTemplate(),
+			"huaweicloud_rfs_private_provider": rfs.ResourcePrivateProvider(),
 
 			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
 			"huaweicloud_api_gateway_environment": apigateway.ResourceEnvironment(),
