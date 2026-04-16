@@ -2016,6 +2016,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_intelligent_session_kill_statistic": rds.DataSourceIntelligentSessionKillStatistic(),
 
 			"huaweicloud_rfs_private_modules": rfs.DataSourcePrivateModules(),
+			"huaweicloud_rfs_stack_instances": rfs.DataSourceStackInstances(),
 
 			"huaweicloud_rgc_home_region":                           rgc.DataSourceHomeRegion(),
 			"huaweicloud_rgc_pre_launch_check":                      rgc.DataSourcePreLaunchCheck(),
