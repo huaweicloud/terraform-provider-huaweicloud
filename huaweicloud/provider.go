@@ -1131,6 +1131,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_migration_task_logs":                 dcs.DataSourceDcsMigrationTaskLogs(),
 			"huaweicloud_dcs_instance_expired_key_scan_histories": dcs.DataSourceDcsInstanceExpiredKeyScanHistories(),
 			"huaweicloud_dcs_center_tasks":                        dcs.DataSourceDcsCenterTasks(),
+			"huaweicloud_dcs_redis_run_logs":                      dcs.DataSourceDcsRedisRunLogs(),
 
 			"huaweicloud_dds_quotas":                                  dds.DataSourceDdsQuotas(),
 			"huaweicloud_dds_audit_logs":                              dds.DataSourceDdsAuditLogs(),
@@ -3230,6 +3231,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_online_data_migration_task_restart": dcs.ResourceDcsOnlineDataMigrationTaskRestart(),
 			"huaweicloud_dcs_migration_task_exchange_ip":         dcs.ResourceDcsMigrationTaskExchangeIp(),
 			"huaweicloud_dcs_migration_task_rollback_ip":         dcs.ResourceDcsMigrationTaskRollbackIp(),
+			"huaweicloud_dcs_redis_run_log_collect":              dcs.ResourceDcsRedisRunLogCollect(),
 
 			"huaweicloud_dds_database_role":                 dds.ResourceDatabaseRole(),
 			"huaweicloud_dds_database_user":                 dds.ResourceDatabaseUser(),
