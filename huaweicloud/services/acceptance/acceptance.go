@@ -843,7 +843,8 @@ var (
 	HW_DMS_KAFKA_TOPIC_NAME          = os.Getenv("HW_DMS_KAFKA_TOPIC_NAME")
 	HW_DMS_KAFKA_CONSUMER_GROUP_NAME = os.Getenv("HW_DMS_KAFKA_CONSUMER_GROUP_NAME")
 
-	HW_DMS_RABBITMQ_INSTANCE_ID = os.Getenv("HW_DMS_RABBITMQ_INSTANCE_ID")
+	HW_DMS_RABBITMQ_INSTANCE_ID             = os.Getenv("HW_DMS_RABBITMQ_INSTANCE_ID")
+	HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID = os.Getenv("HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID")
 
 	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
@@ -4618,6 +4619,13 @@ func TestAccPreCheckDMSKafkaConsumerGroupName(t *testing.T) {
 func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
 	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t *testing.T) {
+	if HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID must be set for restoring RabbitMQ recycle bin instance acceptance tests")
 	}
 }
 

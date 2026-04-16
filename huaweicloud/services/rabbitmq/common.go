@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/chnsz/golangsdk"
 
@@ -31,4 +32,25 @@ func handleMultiOperationsError(err error) (bool, error) {
 		}
 	}
 	return false, err
+}
+
+func getInstanceTaskById(client *golangsdk.ServiceClient, instanceId, taskId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/instances/{instance_id}/tasks/{task_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+	getPath = strings.ReplaceAll(getPath, "{task_id}", taskId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	resp, err := client.Request("GET", getPath, &opt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
 }
