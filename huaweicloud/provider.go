@@ -1133,6 +1133,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance_expired_key_scan_histories": dcs.DataSourceDcsInstanceExpiredKeyScanHistories(),
 			"huaweicloud_dcs_center_tasks":                        dcs.DataSourceDcsCenterTasks(),
 			"huaweicloud_dcs_redis_run_logs":                      dcs.DataSourceDcsRedisRunLogs(),
+			"huaweicloud_dcs_instance_parameter_modify_records":   dcs.DataSourceInstanceParameterModifyRecords(),
 
 			"huaweicloud_dds_quotas":                                  dds.DataSourceDdsQuotas(),
 			"huaweicloud_dds_audit_logs":                              dds.DataSourceDdsAuditLogs(),
