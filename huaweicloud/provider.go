@@ -4194,6 +4194,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_approval":                  vpcep.ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint":                  vpcep.ResourceVPCEndpoint(),
 			"huaweicloud_vpcep_service":                   vpcep.ResourceVPCEndpointService(),
+			"huaweicloud_vpcep_service_add_servers":       vpcep.ResourceVPCEndpointServiceAddServers(),
 			"huaweicloud_vpcep_service_upgrade":           vpcep.ResourceVPCServiceUpgrade(),
 			"huaweicloud_vpcep_service_connection_update": vpcep.ResourceVPCEndpointServiceConnectionUpdate(),
 
