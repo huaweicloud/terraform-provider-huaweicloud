@@ -2725,6 +2725,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_close_account_status":             organizations.DataSourceCloseAccountStatus(),
 			"huaweicloud_organizations_create_account_status":            organizations.DataSourceCreateAccountStatus(),
 			"huaweicloud_organizations_delegated_services":               organizations.DataSourceDelegatedServices(),
+			"huaweicloud_organizations_dry_run_policies":                 organizations.DataSourceDryRunPolicies(),
 			"huaweicloud_organizations_dry_run_policy_attached_entities": organizations.DataSourceDryRunPolicyAttachedEntities(),
 			"huaweicloud_organizations_effective_policies":               organizations.DataSourceEffectivePolicies(),
 			"huaweicloud_organizations_organization":                     organizations.DataSourceOrganization(),
