@@ -22,13 +22,13 @@ import (
 )
 
 // @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections
-// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes
-// @API DLI GET /v2.0/{project_id}/datasource/enhanced-connections/{id}
-// @API DLI PUT /v2.0/{project_id}/datasource/enhanced-connections/{id}
-// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/associate-queue
-// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/disassociate-queue
-// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}
-// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}
+// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/routes
+// @API DLI GET /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}
+// @API DLI PUT /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}
+// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/associate-queue
+// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/disassociate-queue
+// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/routes/{name}
+// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}
 func ResourceDatasourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatasourceConnectionCreate,
@@ -332,7 +332,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 	if d.HasChanges(updateDatasourceConnectionHostsChanges...) {
 		// updateDatasourceConnectionHosts: update hosts
 		var (
-			updateDatasourceConnectionHostsHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}"
+			updateDatasourceConnectionHostsHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}"
 			updateDatasourceConnectionHostsProduct = "dli"
 		)
 		updateDatasourceConnectionHostsClient, err := cfg.NewServiceClient(updateDatasourceConnectionHostsProduct, region)
@@ -343,7 +343,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 		updateDatasourceConnectionHostsPath := updateDatasourceConnectionHostsClient.Endpoint + updateDatasourceConnectionHostsHttpUrl
 		updateDatasourceConnectionHostsPath = strings.ReplaceAll(updateDatasourceConnectionHostsPath, "{project_id}",
 			updateDatasourceConnectionHostsClient.ProjectID)
-		updateDatasourceConnectionHostsPath = strings.ReplaceAll(updateDatasourceConnectionHostsPath, "{id}", d.Id())
+		updateDatasourceConnectionHostsPath = strings.ReplaceAll(updateDatasourceConnectionHostsPath, "{connection_id}", d.Id())
 
 		updateDatasourceConnectionHostsOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -378,7 +378,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 		delRaws := o.(*schema.Set).Difference(n.(*schema.Set))
 		if addRaws.Len() > 0 {
 			var (
-				updateDatasourceConnectionQueuesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}/associate-queue"
+				updateDatasourceConnectionQueuesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/associate-queue"
 				updateDatasourceConnectionQueuesProduct = "dli"
 			)
 			updateDatasourceConnectionQueuesClient, err := cfg.NewServiceClient(updateDatasourceConnectionQueuesProduct, region)
@@ -389,7 +389,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 			updateDatasourceConnectionQueuesPath := updateDatasourceConnectionQueuesClient.Endpoint + updateDatasourceConnectionQueuesHttpUrl
 			updateDatasourceConnectionQueuesPath = strings.ReplaceAll(updateDatasourceConnectionQueuesPath, "{project_id}",
 				updateDatasourceConnectionQueuesClient.ProjectID)
-			updateDatasourceConnectionQueuesPath = strings.ReplaceAll(updateDatasourceConnectionQueuesPath, "{id}", d.Id())
+			updateDatasourceConnectionQueuesPath = strings.ReplaceAll(updateDatasourceConnectionQueuesPath, "{connection_id}", d.Id())
 
 			updateDatasourceConnectionQueuesOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -415,7 +415,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 
 		if delRaws.Len() > 0 {
 			var (
-				deleteDatasourceConnectionQueuesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}/disassociate-queue"
+				deleteDatasourceConnectionQueuesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/disassociate-queue"
 				deleteDatasourceConnectionQueuesProduct = "dli"
 			)
 			deleteDatasourceConnectionQueuesClient, err := cfg.NewServiceClient(deleteDatasourceConnectionQueuesProduct, region)
@@ -426,7 +426,7 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 			deleteDatasourceConnectionQueuesPath := deleteDatasourceConnectionQueuesClient.Endpoint + deleteDatasourceConnectionQueuesHttpUrl
 			deleteDatasourceConnectionQueuesPath = strings.ReplaceAll(deleteDatasourceConnectionQueuesPath, "{project_id}",
 				deleteDatasourceConnectionQueuesClient.ProjectID)
-			deleteDatasourceConnectionQueuesPath = strings.ReplaceAll(deleteDatasourceConnectionQueuesPath, "{id}", d.Id())
+			deleteDatasourceConnectionQueuesPath = strings.ReplaceAll(deleteDatasourceConnectionQueuesPath, "{connection_id}", d.Id())
 
 			deleteDatasourceConnectionQueuesOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -485,12 +485,12 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 
 func addRoutes(connectionRouteClient *golangsdk.ServiceClient, id string, addRaws *schema.Set) error {
 	var (
-		addConnectionRouteHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}/routes"
+		addConnectionRouteHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/routes"
 	)
 
 	addConnectionRoutePath := connectionRouteClient.Endpoint + addConnectionRouteHttpUrl
 	addConnectionRoutePath = strings.ReplaceAll(addConnectionRoutePath, "{project_id}", connectionRouteClient.ProjectID)
-	addConnectionRoutePath = strings.ReplaceAll(addConnectionRoutePath, "{id}", id)
+	addConnectionRoutePath = strings.ReplaceAll(addConnectionRoutePath, "{connection_id}", id)
 
 	addConnectionRouteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -520,12 +520,12 @@ func addRoutes(connectionRouteClient *golangsdk.ServiceClient, id string, addRaw
 func removeRoutes(connectionRouteClient *golangsdk.ServiceClient, id string, raws *schema.Set) error {
 	for _, params := range raws.List() {
 		var (
-			removeDatasourceConnectionRoutesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}"
+			removeDatasourceConnectionRoutesHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/routes/{name}"
 		)
 		removeDatasourceConnectionRoutesPath := connectionRouteClient.Endpoint + removeDatasourceConnectionRoutesHttpUrl
 		removeDatasourceConnectionRoutesPath = strings.ReplaceAll(removeDatasourceConnectionRoutesPath, "{project_id}",
 			connectionRouteClient.ProjectID)
-		removeDatasourceConnectionRoutesPath = strings.ReplaceAll(removeDatasourceConnectionRoutesPath, "{id}", id)
+		removeDatasourceConnectionRoutesPath = strings.ReplaceAll(removeDatasourceConnectionRoutesPath, "{connection_id}", id)
 		removeDatasourceConnectionRoutesPath = strings.ReplaceAll(removeDatasourceConnectionRoutesPath, "{name}",
 			fmt.Sprintf("%v", utils.PathSearch("name", params, nil)))
 
@@ -590,7 +590,7 @@ func resourceDatasourceConnectionDelete(_ context.Context, d *schema.ResourceDat
 	region := cfg.GetRegion(d)
 
 	var (
-		deleteDatasourceConnectionHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}"
+		deleteDatasourceConnectionHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}"
 		deleteDatasourceConnectionProduct = "dli"
 	)
 	deleteDatasourceConnectionClient, err := cfg.NewServiceClient(deleteDatasourceConnectionProduct, region)
@@ -600,7 +600,7 @@ func resourceDatasourceConnectionDelete(_ context.Context, d *schema.ResourceDat
 
 	deleteDatasourceConnectionPath := deleteDatasourceConnectionClient.Endpoint + deleteDatasourceConnectionHttpUrl
 	deleteDatasourceConnectionPath = strings.ReplaceAll(deleteDatasourceConnectionPath, "{project_id}", deleteDatasourceConnectionClient.ProjectID)
-	deleteDatasourceConnectionPath = strings.ReplaceAll(deleteDatasourceConnectionPath, "{id}", d.Id())
+	deleteDatasourceConnectionPath = strings.ReplaceAll(deleteDatasourceConnectionPath, "{connection_id}", d.Id())
 
 	deleteDatasourceConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
