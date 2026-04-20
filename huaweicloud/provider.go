@@ -1072,6 +1072,7 @@ func Provider() *schema.Provider {
 			// DataArts Studio Management Center
 			"huaweicloud_dataarts_studio_data_connections":     dataarts.DataSourceStudioDataConnections(),
 			"huaweicloud_dataarts_studio_workspaces":           dataarts.DataSourceDataArtsStudioWorkspaces(),
+			"huaweicloud_dataarts_studio_workspace_users":      dataarts.DataSourceStudioWorkspaceUsers(),
 			"huaweicloud_dataarts_studio_workspace_user_roles": dataarts.DataSourceStudioWorkspaceUserRoles(),
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
