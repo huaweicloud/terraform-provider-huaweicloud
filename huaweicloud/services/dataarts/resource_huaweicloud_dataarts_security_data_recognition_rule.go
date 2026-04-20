@@ -16,9 +16,10 @@ import (
 )
 
 // @API DataArtsStudio POST /v1/{project_id}/security/data-classification/rule
-// @API DataArtsStudio DELETE /v1/{project_id}/security/data-classification/rule/{id}
 // @API DataArtsStudio GET /v1/{project_id}/security/data-classification/rule/{id}
 // @API DataArtsStudio PUT /v1/{project_id}/security/data-classification/rule/{id}
+// @API DataArtsStudio PUT /v1/{project_id}/security/data-classification/rule/switch-status/{id}
+// @API DataArtsStudio DELETE /v1/{project_id}/security/data-classification/rule/{id}
 func ResourceSecurityRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSecurityRuleCreate,
@@ -96,6 +97,7 @@ func ResourceSecurityRule() *schema.Resource {
 			},
 			"enable": {
 				Type:     schema.TypeBool,
+				Optional: true,
 				Computed: true,
 			},
 			"created_at": {
@@ -229,30 +231,66 @@ func resourceSecurityRuleRead(_ context.Context, d *schema.ResourceData, meta in
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func updateDataRecognitionRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v1/{project_id}/security/data-classification/rule/{id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildSecurityMoreHeaders(d.Get("workspace_id").(string)),
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateSecurityRuleBodyParams(d)),
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
+func updateDataRecognitionRuleStatus(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl = "v1/{project_id}/security/data-classification/rule/switch-status/{id}"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildSecurityMoreHeaders(d.Get("workspace_id").(string)),
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"enable": d.Get("enable"),
+		}),
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
 func resourceSecurityRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
 
-	updateRuleHttpUrl := "v1/{project_id}/security/data-classification/rule/{id}"
-	updateRuleProduct := "dataarts"
-
-	updateRuleClient, err := cfg.NewServiceClient(updateRuleProduct, region)
+	client, err := cfg.NewServiceClient("dataarts", region)
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio V1 Client: %s", err)
 	}
-	updateRulePath := updateRuleClient.Endpoint + updateRuleHttpUrl
-	updateRulePath = strings.ReplaceAll(updateRulePath, "{project_id}", updateRuleClient.ProjectID)
-	updateRulePath = strings.ReplaceAll(updateRulePath, "{id}", d.Id())
 
-	updateRuleOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
+	if d.HasChangeExcept("enable") {
+		err = updateDataRecognitionRule(client, d)
+		if err != nil {
+			return diag.Errorf("error updating DataArts Security data recognition rule: %s", err)
+		}
 	}
 
-	updateRuleOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateSecurityRuleBodyParams(d))
-	_, err = updateRuleClient.Request("PUT", updateRulePath, &updateRuleOpt)
-	if err != nil {
-		return diag.Errorf("error updating DataArts Security data recognition rule: %s", err)
+	if d.HasChange("enable") {
+		err = updateDataRecognitionRuleStatus(client, d)
+		if err != nil {
+			return diag.Errorf("error updating DataArts Security data recognition rule status: %s", err)
+		}
 	}
 
 	return resourceSecurityRuleRead(ctx, d, meta)

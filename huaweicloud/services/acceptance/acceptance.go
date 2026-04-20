@@ -679,12 +679,6 @@ var (
 	HW_DATAARTS_CDM_NAME                                   = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID                                 = os.Getenv("HW_DATAARTS_MANAGER_ID")
 	HW_DATAARTS_BIZ_CATALOG_ID                             = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
-	HW_DATAARTS_SECRECY_LEVEL_ID                           = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID")
-	HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE                    = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE")
-	HW_DATAARTS_CATEGORY_ID                                = os.Getenv("HW_DATAARTS_CATEGORY_ID")
-	HW_DATAARTS_CATEGORY_ID_UPDATE                         = os.Getenv("HW_DATAARTS_CATEGORY_ID_UPDATE")
-	HW_DATAARTS_BUILTIN_RULE_ID                            = os.Getenv("HW_DATAARTS_BUILTIN_RULE_ID")
-	HW_DATAARTS_BUILTIN_RULE_NAME                          = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
 	HW_DATAARTS_SUBJECT_ID                                 = os.Getenv("HW_DATAARTS_SUBJECT_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_ID                       = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_NAME                     = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
@@ -697,6 +691,10 @@ var (
 	HW_DATAARTS_REVIEWER_NAME       = os.Getenv("HW_DATAARTS_REVIEWER_NAME")
 	HW_DATAARTS_DLI_QUEUE_NAME      = os.Getenv("HW_DATAARTS_DLI_QUEUE_NAME")
 	HW_DATAARTS_INSTANCE_ID_IN_APIG = os.Getenv("HW_DATAARTS_INSTANCE_ID_IN_APIG")
+	// Security
+	HW_DATAARTS_SECURITY_DATA_CATEGORY_IDS             = os.Getenv("HW_DATAARTS_SECURITY_DATA_CATEGORY_IDS")
+	HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_ID   = os.Getenv("HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_ID")
+	HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_NAME = os.Getenv("HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_NAME")
 
 	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
 	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
@@ -3985,20 +3983,16 @@ func TestAccPreCheckDataArtsCdmName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDataArtsDataClassificationID(t *testing.T) {
-	if HW_DATAARTS_SECRECY_LEVEL_ID == "" || HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE == "" {
-		t.Skip("HW_DATAARTS_SECRECY_LEVEL_ID and HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE must be set for the acceptance test")
-	}
-
-	if HW_DATAARTS_CATEGORY_ID == "" || HW_DATAARTS_CATEGORY_ID_UPDATE == "" {
-		t.Skip("HW_DATAARTS_CATEGORY_ID and HW_DATAARTS_CATEGORY_ID_UPDATE must be set for the acceptance test")
+func TestAccPreCheckDataArtsSecurityDataCategoryIds(t *testing.T, n int) {
+	if HW_DATAARTS_SECURITY_DATA_CATEGORY_IDS == "" || len(strings.Split(HW_DATAARTS_SECURITY_DATA_CATEGORY_IDS, ",")) < n {
+		t.Skipf("at lease %d category ID(s) for HW_DATAARTS_SECURITY_DATA_CATEGORY_IDS must be set, separated by the comma (,) character", n)
 	}
 }
 
 // lintignore:AT003
 func TestAccPreCheckDataArtsBuiltinRule(t *testing.T) {
-	if HW_DATAARTS_BUILTIN_RULE_ID == "" || HW_DATAARTS_BUILTIN_RULE_NAME == "" {
-		t.Skip("HW_DATAARTS_BUILTIN_RULE_ID and HW_DATAARTS_BUILTIN_RULE_NAME must be set for the acceptance test")
+	if HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_ID == "" || HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_NAME == "" {
+		t.Skip("HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_ID and HW_DATAARTS_SECURITY_BUILTIN_RECOGNITION_RULE_NAME must be set for the acceptance test")
 	}
 }
 

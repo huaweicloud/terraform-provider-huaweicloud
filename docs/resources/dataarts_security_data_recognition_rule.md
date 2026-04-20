@@ -110,6 +110,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of data recognition rule.
 
+* `enable` - (Optional, Bool) Specifies whether the current data recognition rule is available.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -128,8 +130,6 @@ In addition to all arguments above, the following attributes are exported:
 * `secrecy_level_num` - The level of data secrecy.The larger the secrecy level number,
   the higher the secrecy level. Currently, a maximum of 10 levels of confidentiality can be created.
   It corresponds to `secrecy_level_id` one-to-one.
-
-* `enable` - Whether the current data recognition rule is available.
 
 ## Import
 
