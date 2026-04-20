@@ -357,7 +357,7 @@ func resourceGaussDBClientAuthConfigDelete(ctx context.Context, d *schema.Resour
 	})
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.200823"),
-			"error deleting GaussDB openGauss client auth config")
+			"error deleting GaussDB client auth config")
 	}
 
 	return nil

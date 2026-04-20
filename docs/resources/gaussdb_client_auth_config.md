@@ -14,6 +14,7 @@ Manages a GaussDB client auth config resource within HuaweiCloud.
 
 ```hcl
 variable "instance_id" {}
+
 resource "huaweicloud_gaussdb_client_auth_config" "test" {
   instance_id = var.instance_id
   type        = "host"
@@ -30,12 +31,12 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used.
- 
+
   Changing this parameter will create a new resource.
 
 * `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the GaussDB instance.
 
-* `type` - (Required, String, NonUpdatable) Specifies the client connection type. Valid values include **host** and **local**.
+* `type` - (Required, String, NonUpdatable) Specifies the client connection type. Valid values include **host**, **hostssl**, **hostnossl**.
 
 * `database` - (Required, String, NonUpdatable) Specifies the name of the database that the record matches.
   The value can be **all** or an existing database name.
@@ -47,7 +48,7 @@ The following arguments are supported:
   The value must be in CIDR format (e.g., `10.10.0.0/16`).
 
 * `method` - (Required, String) Specifies the authentication method used for the connection.
-  Valid values include **md5**, **sha256**, **password**, **reject**, **trust**, etc.
+  Valid values include **md5**, **sha256**, **sm3**, **reject**, **cert**, etc.
 
 ## Attribute Reference
 
@@ -65,7 +66,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The GaussDB client auth config can be imported using the `instance_id`, `type`, `database`, `user` and `address` separated by colons, e.g.
+The GaussDB client auth config can be imported using the `instance_id`, `type`, `database`, `user` and `address`
+separated by colons, e.g.
 
 ```bash
 $ terraform import huaweicloud_gaussdb_client_auth_config.test <instance_id>:<type>:<database>:<user>:<address>

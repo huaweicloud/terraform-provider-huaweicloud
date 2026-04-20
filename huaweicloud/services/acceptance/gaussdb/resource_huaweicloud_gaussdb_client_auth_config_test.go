@@ -102,6 +102,7 @@ func TestAccGaussDBClientAuthConfig_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
 			acceptance.TestAccPreCheckHighCostAllow(t)
+			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -115,8 +116,6 @@ func TestAccGaussDBClientAuthConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "user", "root"),
 					resource.TestCheckResourceAttr(rName, "address", "10.10.0.0/16"),
 					resource.TestCheckResourceAttr(rName, "method", "md5"),
-					//resource.TestCheckResourceAttrPair(rName, "instance_id",
-					//	"huaweicloud_gaussdb_instance.test", "id"),
 				),
 			},
 
@@ -138,38 +137,30 @@ func TestAccGaussDBClientAuthConfig_basic(t *testing.T) {
 	})
 }
 
-func testGaussDBClientAuthConfig_base() string {
-	return ""
-}
-
 func testGaussDBClientAuthConfig_basic() string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_gaussdb_client_auth_config" "test" {
-  instance_id = "e13bb1004b5e4bf899921a3ff348e431in14"
+  instance_id = "%s"
   type        = "host"
   database    = "all"
   user        = "root"
   address     = "10.10.0.0/16"
   method      = "md5"
 }
-`, testGaussDBClientAuthConfig_base())
+`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID)
 }
 
 func testGaussDBClientAuthConfig_update() string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_gaussdb_client_auth_config" "test" {
-  instance_id = "e13bb1004b5e4bf899921a3ff348e431in14"
+  instance_id = "%s"
   type        = "host"
   database    = "all"
   user        = "root"
   address     = "10.10.0.0/16"
   method      = "sha256" 
 }
-`, testGaussDBClientAuthConfig_base())
+`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID)
 }
 
 func testAccGaussDBClientAuthConfigImportStateFunc(name string) resource.ImportStateIdFunc {
