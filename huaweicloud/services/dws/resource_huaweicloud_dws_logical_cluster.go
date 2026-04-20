@@ -48,7 +48,7 @@ func ResourceLogicalCluster() *schema.Resource {
 			StateContext: resourceLogicalClusterImportState,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -270,8 +270,12 @@ func buildCreateRetryFunc(client *golangsdk.ServiceClient, createPath string, cr
 
 func waitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration) (interface{}, error) {
-	clusterName := d.Get("logical_cluster_name").(string)
-	expression := fmt.Sprintf("logical_clusters[?logical_cluster_name=='%s']|[0]", clusterName)
+	var (
+		clusterName = d.Get("logical_cluster_name").(string)
+		ringCount   = d.Get("cluster_rings").(*schema.Set).Len()
+		expression  = fmt.Sprintf("logical_clusters[?logical_cluster_name=='%s']|[0]", clusterName)
+	)
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
@@ -298,8 +302,8 @@ func waitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClie
 			return cluster, "PENDING", nil
 		},
 		Timeout:      timeout,
-		Delay:        30 * time.Second,
-		PollInterval: 30 * time.Second,
+		Delay:        time.Duration(5*ringCount) * time.Minute,
+		PollInterval: time.Duration(5*ringCount) * time.Minute,
 	}
 	return stateConf.WaitForStateContext(ctx)
 }
