@@ -36,7 +36,8 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the GaussDB instance.
 
-* `type` - (Required, String, NonUpdatable) Specifies the client connection type. Valid values include **host**, **hostssl**, **hostnossl**.
+* `type` - (Required, String, NonUpdatable) Specifies the client connection type. Valid values include **host**,
+  **hostssl**, **hostnossl**.
 
 * `database` - (Required, String, NonUpdatable) Specifies the name of the database that the record matches.
   The value can be **all** or an existing database name.
