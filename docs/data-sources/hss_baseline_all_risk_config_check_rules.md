@@ -13,9 +13,12 @@ Use this data source to get the list of HSS baseline all risk config check rules
 ## Example Usage
 
 ```hcl
+variable "enterprise_project_id" {}
+variable "check_type" {}
+
 data "huaweicloud_hss_baseline_all_risk_config_check_rules" "test" {
-  type       = "linux"
-  image_type = "private_image"
+  enterprise_project_id = enterprise_project_id
+  check_type            = var.check_type
 }
 ```
 
