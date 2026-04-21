@@ -2035,6 +2035,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rfs_stack_set_operation_metadata": rfs.DataSourceStackSetOperationMetadata(),
 			"huaweicloud_rfs_private_providers":            rfs.DataSourcePrivateProviders(),
 			"huaweicloud_rfs_templates":                    rfs.DataSourceRfsTemplates(),
+			"huaweicloud_rfs_template_versions":            rfs.DataSourceRfsTemplateVersions(),
 
 			"huaweicloud_rgc_home_region":                           rgc.DataSourceHomeRegion(),
 			"huaweicloud_rgc_pre_launch_check":                      rgc.DataSourcePreLaunchCheck(),
