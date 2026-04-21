@@ -3889,6 +3889,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_security_data_recognition_rule":       dataarts.ResourceSecurityRule(),
 			"huaweicloud_dataarts_security_data_recognition_rule_group": dataarts.ResourceSecurityDataRecognitionRuleGroup(),
 			"huaweicloud_dataarts_security_data_secrecy_level":          dataarts.ResourceSecurityDataSecrecyLevel(),
+			"huaweicloud_dataarts_security_dynamic_masking_policy":      dataarts.ResourceSecurityDynamicMaskingPolicy(),
 			"huaweicloud_dataarts_security_permission_set":              dataarts.ResourceSecurityPermissionSet(),
 			"huaweicloud_dataarts_security_permission_set_member":       dataarts.ResourceSecurityPermissionSetMember(),
 			"huaweicloud_dataarts_security_permission_set_privilege":    dataarts.ResourceSecurityPermissionSetPrivilege(),
