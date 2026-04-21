@@ -3882,11 +3882,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_factory_script":         dataarts.ResourceDataArtsFactoryScript(),
 			"huaweicloud_dataarts_factory_script_execute": dataarts.ResourceFactoryScriptExecute(),
 			// DataArts Security
-			"huaweicloud_dataarts_security_data_recognition_rule":    dataarts.ResourceSecurityRule(),
-			"huaweicloud_dataarts_security_data_secrecy_level":       dataarts.ResourceSecurityDataSecrecyLevel(),
-			"huaweicloud_dataarts_security_permission_set":           dataarts.ResourceSecurityPermissionSet(),
-			"huaweicloud_dataarts_security_permission_set_member":    dataarts.ResourceSecurityPermissionSetMember(),
-			"huaweicloud_dataarts_security_permission_set_privilege": dataarts.ResourceSecurityPermissionSetPrivilege(),
+			"huaweicloud_dataarts_security_data_recognition_rule":       dataarts.ResourceSecurityRule(),
+			"huaweicloud_dataarts_security_data_recognition_rule_group": dataarts.ResourceSecurityDataRecognitionRuleGroup(),
+			"huaweicloud_dataarts_security_data_secrecy_level":          dataarts.ResourceSecurityDataSecrecyLevel(),
+			"huaweicloud_dataarts_security_permission_set":              dataarts.ResourceSecurityPermissionSet(),
+			"huaweicloud_dataarts_security_permission_set_member":       dataarts.ResourceSecurityPermissionSetMember(),
+			"huaweicloud_dataarts_security_permission_set_privilege":    dataarts.ResourceSecurityPermissionSetPrivilege(),
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_api":             dataarts.ResourceDataServiceApi(),
 			"huaweicloud_dataarts_dataservice_api_action":      dataarts.ResourceDataServiceApiAction(),
