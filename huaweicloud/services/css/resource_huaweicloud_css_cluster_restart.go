@@ -14,7 +14,7 @@ import (
 )
 
 // @API CSS POST /v2.0/{project_id}/clusters/{cluster_id}/restart
-// @API CSS POST /v2.0/{project_id}/clusters/{cluster_id}/rolling_restart
+// @API CSS POST /v2.0/{project_id}/clusters/{cluster_id}/rolling-restart
 // @API CSS GET /v1.0/{project_id}/clusters/{cluster_id}
 func ResourceCssClusterRestart() *schema.Resource {
 	return &schema.Resource{
@@ -125,7 +125,7 @@ func restartCluster(v2client *golangsdk.ServiceClient, clusterId, restartType, v
 }
 
 func rollingRestartCluster(v2client *golangsdk.ServiceClient, clusterId, restartType, value string) error {
-	rollingRestartClusterHttpUrl := "v2.0/{project_id}/clusters/{cluster_id}/rolling_restart"
+	rollingRestartClusterHttpUrl := "v2.0/{project_id}/clusters/{cluster_id}/rolling-restart"
 	rollingRestartClusterPath := v2client.Endpoint + rollingRestartClusterHttpUrl
 	rollingRestartClusterPath = strings.ReplaceAll(rollingRestartClusterPath, "{project_id}", v2client.ProjectID)
 	rollingRestartClusterPath = strings.ReplaceAll(rollingRestartClusterPath, "{cluster_id}", clusterId)
