@@ -2034,6 +2034,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rfs_private_hook_versions":        rfs.DataSourcePrivateHookVersions(),
 			"huaweicloud_rfs_stack_instances":              rfs.DataSourceStackInstances(),
 			"huaweicloud_rfs_stack_resources":              rfs.DataSourceStackResources(),
+			"huaweicloud_rfs_stacks":                       rfs.DataSourceStacks(),
 			"huaweicloud_rfs_stack_set_operation_metadata": rfs.DataSourceStackSetOperationMetadata(),
 			"huaweicloud_rfs_private_providers":            rfs.DataSourcePrivateProviders(),
 			"huaweicloud_rfs_private_provider_versions":    rfs.DataSourcePrivateProviderVersions(),
