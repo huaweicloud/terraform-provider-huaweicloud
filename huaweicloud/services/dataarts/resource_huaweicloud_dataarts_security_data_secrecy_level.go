@@ -87,7 +87,12 @@ func resourceSecurityDataSecrecyLevelCreate(ctx context.Context, d *schema.Resou
 		region  = cfg.GetRegion(d)
 		httpUrl = "v1/{project_id}/security/data-classification/secrecy-level"
 		product = "dataarts"
+		lockKey = fmt.Sprintf("%s:secrecy_level", d.Get("workspace_id").(string))
 	)
+
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
@@ -179,7 +184,12 @@ func resourceSecurityDataSecrecyLevelUpdate(ctx context.Context, d *schema.Resou
 		region  = cfg.GetRegion(d)
 		httpUrl = "v1/{project_id}/security/data-classification/secrecy-level/{id}"
 		product = "dataarts"
+		lockKey = fmt.Sprintf("%s:secrecy_level", d.Get("workspace_id").(string))
 	)
+
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
@@ -211,7 +221,12 @@ func resourceSecurityDataSecrecyLevelDelete(_ context.Context, d *schema.Resourc
 		region  = cfg.GetRegion(d)
 		httpUrl = "v1/{project_id}/security/data-classification/secrecy-level/{id}"
 		product = "dataarts"
+		lockKey = fmt.Sprintf("%s:secrecy_level", d.Get("workspace_id").(string))
 	)
+
+	config.MutexKV.Lock(lockKey)
+	defer config.MutexKV.Unlock(lockKey)
+
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
