@@ -53,8 +53,6 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
-					resource.TestCheckResourceAttr(resourceName, "max_connection", "1000"),
-					resource.TestCheckResourceAttr(resourceName, "cps", "100"),
 					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
@@ -74,8 +72,6 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
-					resource.TestCheckResourceAttr(resourceName, "max_connection", "2000"),
-					resource.TestCheckResourceAttr(resourceName, "cps", "200"),
 				),
 			},
 			{
@@ -115,6 +111,24 @@ func TestAccElbV3Listener_with_port_ranges(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port_ranges.0.start_port", "8000"),
 					resource.TestCheckResourceAttr(resourceName, "port_ranges.0.end_port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+					resource.TestCheckResourceAttr(resourceName, "nat64_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "transparent_client_ip_enable", "false"),
+				),
+			},
+			{
+				Config: testAccElbV3ListenerConfig_with_port_ranges_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "forward_eip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_port", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_request_port", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_host", "true"),
+					resource.TestCheckResourceAttr(resourceName, "port_ranges.0.start_port", "8000"),
+					resource.TestCheckResourceAttr(resourceName, "port_ranges.0.end_port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+					resource.TestCheckResourceAttr(resourceName, "nat64_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "transparent_client_ip_enable", "true"),
 				),
 			},
 			{
@@ -370,6 +384,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 
 resource "huaweicloud_elb_listener" "test" {
@@ -379,8 +399,6 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = false
-  max_connection              = 1000
-  cps                         = 100
 
   idle_timeout     = 62
   request_timeout  = 63
@@ -415,6 +433,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 
 resource "huaweicloud_elb_listener" "test" {
@@ -424,8 +448,6 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
-  max_connection              = 2000
-  cps                         = 200
 
   idle_timeout     = 63
   request_timeout  = 64
@@ -468,6 +490,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 
 resource "huaweicloud_elb_listener" "test" {
@@ -475,6 +503,55 @@ resource "huaweicloud_elb_listener" "test" {
   description     = "test description"
   protocol        = "UDP"
   loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+
+  nat64_enable                 = "true"
+  transparent_client_ip_enable = "false"
+
+  port_ranges {
+    start_port = 8000
+    end_port   = 8080
+  }
+}
+`, rName)
+}
+
+func testAccElbV3ListenerConfig_with_port_ranges_update(rName string) string {
+	return fmt.Sprintf(`
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%[1]s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
+}
+
+resource "huaweicloud_elb_listener" "test" {
+  name            = "%[1]s"
+  description     = "test description"
+  protocol        = "UDP"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+
+  nat64_enable                 = "false"
+  transparent_client_ip_enable = "true"
 
   port_ranges {
     start_port = 8000
@@ -511,6 +588,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   tags = {
     key   = "value"
     owner = "terraform"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
   }
 }
 
@@ -573,6 +656,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     key   = "value"
     owner = "terraform"
   }
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 
 resource "huaweicloud_elb_pool" "test_update" {
@@ -629,6 +718,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }`, rName)
 }
 
@@ -795,6 +890,12 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id, l7_flavor_id
+    ]
+  }
 }
 `, common.TestVpc(rName), rName)
 }

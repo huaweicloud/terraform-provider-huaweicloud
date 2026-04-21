@@ -121,6 +121,9 @@ type Listener struct {
 
 	// Update protection reason
 	ProtectionReason string `json:"protection_reason"`
+
+	// Nat64 enable
+	Nat64Enable bool `json:"nat64_enable"`
 }
 
 type commonResult struct {

@@ -279,6 +279,22 @@ func ResourceListenerV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"transparent_client_ip_enable": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"nat64_enable": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -425,6 +441,14 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 			EnableQuicUpgrade: &enableQuicUpgrade,
 		}
 	}
+	if v, ok := d.GetOk("transparent_client_ip_enable"); ok {
+		transparentClientIpEnable, _ := strconv.ParseBool(v.(string))
+		createOpts.TransparentClientIP = &transparentClientIpEnable
+	}
+	if v, ok := d.GetOk("nat64_enable"); ok {
+		nat64Enable, _ := strconv.ParseBool(v.(string))
+		createOpts.Nat64Enable = &nat64Enable
+	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
@@ -525,6 +549,8 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("ssl_early_data_enable", listener.SslEarlyDataEnable),
 		d.Set("quic_listener_id", listener.QuicConfig.QuicListenerId),
 		d.Set("enterprise_project_id", listener.EnterpriseProjectID),
+		d.Set("nat64_enable", strconv.FormatBool(listener.Nat64Enable)),
+		d.Set("transparent_client_ip_enable", strconv.FormatBool(listener.TransparentClientIP)),
 		d.Set("created_at", listener.CreatedAt),
 		d.Set("updated_at", listener.UpdatedAt),
 	)
@@ -584,7 +610,7 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason",
 		"forward_elb", "forward_proto", "real_ip", "forward_tls_certificate", "forward_tls_cipher", "forward_tls_protocol",
 		"enable_member_retry", "proxy_protocol_enable", "sni_match_algo", "security_policy_id", "ssl_early_data_enable",
-		"quic_listener_id", "enable_quic_upgrade", "max_connection", "cps",
+		"quic_listener_id", "enable_quic_upgrade", "max_connection", "cps", "nat64_enable", "transparent_client_ip_enable",
 	}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
@@ -736,6 +762,14 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("ssl_early_data_enable") {
 		sslEarlyDataEnable := d.Get("ssl_early_data_enable").(bool)
 		updateOpts.SslEarlyDataEnable = &sslEarlyDataEnable
+	}
+	if d.HasChange("nat64_enable") {
+		nat64Enable, _ := strconv.ParseBool(d.Get("nat64_enable").(string))
+		updateOpts.Nat64Enable = &nat64Enable
+	}
+	if d.HasChange("transparent_client_ip_enable") {
+		transparentClientIpEnable, _ := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
+		updateOpts.TransparentClientIP = &transparentClientIpEnable
 	}
 
 	// if changing custom security policy to default security policy, the security_policy_id must be null

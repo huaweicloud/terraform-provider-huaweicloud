@@ -120,6 +120,9 @@ type CreateOpts struct {
 
 	// Protection reason
 	ProtectionReason string `json:"protection_reason,omitempty"`
+
+	// Nat64 enable
+	Nat64Enable *bool `json:"nat64_enable,omitempty"`
 }
 
 type IpGroup struct {
@@ -274,6 +277,9 @@ type UpdateOpts struct {
 
 	// Update protection reason
 	ProtectionReason *string `json:"protection_reason,omitempty"`
+
+	// Nat64 enable
+	Nat64Enable *bool `json:"nat64_enable,omitempty"`
 }
 
 // ToListenerUpdateMap builds a request body from UpdateOpts.

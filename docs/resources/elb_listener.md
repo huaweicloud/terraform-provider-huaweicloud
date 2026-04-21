@@ -187,6 +187,26 @@ The following arguments are supported:
   Value range: **0** to **1000000**. Defaults to **0**, indicating that the number is not limited. If the value is greater
   than the number defined in the load balancer specifications, the latter is used as the limit.
 
+* `transparent_client_ip_enable` - (Optional, String) Specifies whether to pass source IP addresses of the clients to
+  backend servers. This parameter is available only for TCP and UDP listeners of shared load balancers.
+  + If this function is enabled, the load balancer communicates with backend servers using client IP addresses. Ensure
+    that security group rules and access control policies are correctly configured.
+  + If this function is enabled, a server cannot serve as both a backend server and a client.
+  + If this function is enabled, the backend server specifications cannot be changed.
+
+  Value options:
+  + TCP or UDP listeners of shared load balancers: The value can be **true** or **false**, and the default value is
+    **false** if this parameter is not passed.
+  + HTTP or HTTPS listeners of shared load balancers: The value can only be **true**, and the default value is **true**
+    if this parameter is not passed.
+  + All listeners of dedicated load balancers: The value can only be **true**, and the default value is **true** if this
+    parameter is not passed.
+
+* `nat64_enable` - (Optional, String) Specifies whether to translate between IPv4 and IPv6 addresses. This option allows
+  a client to access IPv4 or IPv6 backend servers by accessing the IPv4 or IPv6 address of a load balancer. This option
+  can only be enabled for TCP and UDP listeners. `nat64_enable` is mutually exclusive with `transparent_client_ip_enable`.
+  Value options: **true** and **false**. Defaults to **false**.
+
 <a name="ELB_port_ranges"></a>
 The `port_ranges` block supports:
 
