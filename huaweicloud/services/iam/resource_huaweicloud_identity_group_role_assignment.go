@@ -32,15 +32,15 @@ var v3GroupRoleAssignmentNonUpdatableParams = []string{
 // @API IAM PUT /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 // @API IAM PUT /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
 // @API IAM PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
-// @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles/{role_id}
+// @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles/{role_id}
 // @API IAM GET /v3/domains/{domain_id}/groups/{group_id}/roles
 // @API IAM GET /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
 // @API IAM GET /v3/projects/{project_id}/groups/{group_id}/roles
-// @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles
+// @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles
 // @API IAM DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 // @API IAM DELETE /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
 // @API IAM DELETE /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
-// @API IAM DELETE /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles/{role_id}
+// @API IAM DELETE /v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles/{role_id}
 func ResourceV3GroupRoleAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceV3GroupRoleAssignmentCreate,
@@ -273,7 +273,7 @@ func CheckV3GroupRoleAssignmentWithEpsId(client *golangsdk.ServiceClient, groupI
 	return golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 			Method:    "GET",
-			URL:       "/v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles",
+			URL:       "/v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles",
 			RequestId: "NONE",
 			Body: []byte(fmt.Sprintf("the role (%s), which assigned to the enterprise project (%s), is not assigned to the group (%s)",
 				roleId, epsId, groupId)),
