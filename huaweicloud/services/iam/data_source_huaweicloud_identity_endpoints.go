@@ -15,7 +15,7 @@ import (
 )
 
 // @API IAM GET /v3/endpoints
-// @API IAM GET /v3/endpoints/{endpoints_id}
+// @API IAM GET /v3/endpoints/{endpoint_id}
 func DataSourceIdentityEndpoints() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityEndpointsRead,

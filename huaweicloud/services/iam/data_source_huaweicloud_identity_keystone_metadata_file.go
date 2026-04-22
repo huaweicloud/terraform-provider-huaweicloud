@@ -14,7 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// DataSourceIdentityKeystoneMetadataFile
 // @API IAM GET /v3-ext/auth/OS-FEDERATION/SSO/metadata
 func DataSourceIdentityKeystoneMetadataFile() *schema.Resource {
 	return &schema.Resource{
