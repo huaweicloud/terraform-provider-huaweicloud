@@ -872,6 +872,8 @@ var (
 
 	HW_DNS_ZONE_NAMES          = os.Getenv("HW_DNS_ZONE_NAMES")
 	HW_DNS_ZONE_RETRIEVAL_NAME = os.Getenv("HW_DNS_ZONE_RETRIEVAL_NAME")
+
+	HW_GEMINIDB_INSTANCE_ID = os.Getenv("HW_GEMINIDB_INSTANCE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -5102,5 +5104,12 @@ func TestAccPreCheckDnsZoneRetrievalName(t *testing.T) {
 func TestAccPreCheckV3UserPassword(t *testing.T) {
 	if HW_IDENTITY_ORIGINAL_PASSWORD == "" || HW_IDENTITY_NEW_PASSWORD == "" {
 		t.Skipf("HW_IDENTITY_ORIGINAL_PASSWORD and HW_IDENTITY_NEW_PASSWORD must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGeminidbInstanceId(t *testing.T) {
+	if HW_GEMINIDB_INSTANCE_ID == "" {
+		t.Skipf("HW_GEMINIDB_INSTANCE_ID must be set for the acceptance test")
 	}
 }

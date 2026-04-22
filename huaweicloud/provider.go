@@ -1395,6 +1395,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_redis_instance":               geminidb.DataSourceGaussRedisInstance(),
 			"huaweicloud_gaussdb_redis_flavors":                geminidb.DataSourceGaussDBRedisFlavors(),
 			"huaweicloud_gaussdb_influx_instances":             geminidb.DataSourceGaussDBInfluxInstances(),
+			"huaweicloud_geminidb_accounts":                    geminidb.DataSourceGeminidbAccounts(),
 
 			"huaweicloud_gaussdb_storage_types":             gaussdb.DataSourceGaussDbStorageTypes(),
 			"huaweicloud_gaussdb_datastores":                gaussdb.DataSourceGaussDbDatastores(),
