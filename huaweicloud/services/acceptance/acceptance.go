@@ -744,6 +744,7 @@ var (
 	HW_DCS_BEGIN_TIME        = os.Getenv("HW_DCS_BEGIN_TIME")
 	HW_DCS_END_TIME          = os.Getenv("HW_DCS_END_TIME")
 	HW_DCS_OBS_BUCKET_NAME   = os.Getenv("HW_DCS_OBS_BUCKET_NAME")
+	HW_DCS_BACKUP_ID         = os.Getenv("HW_DCS_BACKUP_ID")
 
 	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
 
@@ -4211,6 +4212,13 @@ func TestAccPreCheckDcsTimeRange(t *testing.T) {
 func TestAccPreCheckDcsObsBucketName(t *testing.T) {
 	if HW_DCS_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_DCS_OBS_BUCKET_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcsBackupId(t *testing.T) {
+	if HW_DCS_BACKUP_ID == "" {
+		t.Skip("HW_DCS_BACKUP_ID must be set for the acceptance test")
 	}
 }
 
