@@ -2837,6 +2837,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aomv4_alarm_rule": aom.ResourceAlarmRuleV4(),
 
 			"huaweicloud_rfs_execution_plan":              rfs.ResourceExecutionPlan(),
+			"huaweicloud_rfs_apply_execution_plan":        rfs.ResourceApplyExecutionPlan(),
 			"huaweicloud_rfs_execution_plan_v2":           rfs.ResourceExecutionPlanV2(),
 			"huaweicloud_rfs_private_hook":                rfs.ResourcePrivateHook(),
 			"huaweicloud_rfs_private_module":              rfs.ResourcePrivateModule(),

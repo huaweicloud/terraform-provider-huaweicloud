@@ -176,6 +176,12 @@ The `summary` block supports:
 
 * `resource_import` - The number of resources to be imported.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+
 ## Import
 
 Execution plans can be imported using `stack_name` and `execution_plan_name` separated by a slash, e.g.
