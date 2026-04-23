@@ -1094,12 +1094,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_factory_resources": dataarts.DataSourceFactoryResources(),
 			"huaweicloud_dataarts_factory_scripts":   dataarts.DataSourceFactoryScripts(),
 			// DataArts Security
-			"huaweicloud_dataarts_security_data_recognition_rules":      dataarts.DataSourceSecurityDataRecognitionRules(),
-			"huaweicloud_dataarts_security_dynamic_masking_policies":    dataarts.DataSourceSecurityDynamicMaskingPolicies(),
-			"huaweicloud_dataarts_security_permission_sets":             dataarts.DataSourceSecurityPermissionSets(),
-			"huaweicloud_dataarts_security_permission_set_members":      dataarts.DataSourceSecurityPermissionSetMembers(),
-			"huaweicloud_dataarts_security_permission_set_privileges":   dataarts.DataSourceSecurityPermissionSetPrivileges(),
-			"huaweicloud_dataarts_security_workspace_associated_queues": dataarts.DataSourceSecurityWorkspaceAssociatedQueues(),
+			"huaweicloud_dataarts_security_data_recognition_rules":       dataarts.DataSourceSecurityDataRecognitionRules(),
+			"huaweicloud_dataarts_security_dynamic_masking_policies":     dataarts.DataSourceSecurityDynamicMaskingPolicies(),
+			"huaweicloud_dataarts_security_permission_sets":              dataarts.DataSourceSecurityPermissionSets(),
+			"huaweicloud_dataarts_security_permission_set_members":       dataarts.DataSourceSecurityPermissionSetMembers(),
+			"huaweicloud_dataarts_security_permission_set_privileges":    dataarts.DataSourceSecurityPermissionSetPrivileges(),
+			"huaweicloud_dataarts_security_resource_permission_policies": dataarts.DataSourceSecurityResourcePermissionPolicies(),
+			"huaweicloud_dataarts_security_workspace_associated_queues":  dataarts.DataSourceSecurityWorkspaceAssociatedQueues(),
 			// DataArts Catalog
 			"huaweicloud_dataarts_catalog_metadata_tasks": dataarts.DataSourceCatalogMetadataTasks(),
 
