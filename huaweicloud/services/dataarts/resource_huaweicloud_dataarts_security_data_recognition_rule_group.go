@@ -162,7 +162,7 @@ func resourceSecurityDataRecognitionRuleGroupCreate(ctx context.Context, d *sche
 	return resourceSecurityDataRecognitionRuleGroupRead(ctx, d, meta)
 }
 
-func listSecurityDataRecognitionRuleGroups(client *golangsdk.ServiceClient, workspaceId string) ([]interface{}, error) {
+func listSecurityDataRecognitionRuleGroups(client *golangsdk.ServiceClient, workspaceId string, queryParams ...string) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/security/data-classification/rule/group?limit={limit}"
 		limit   = 100
@@ -173,6 +173,9 @@ func listSecurityDataRecognitionRuleGroups(client *golangsdk.ServiceClient, work
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+	if len(queryParams) > 0 && queryParams[0] != "" {
+		listPath += queryParams[0]
+	}
 
 	opts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
