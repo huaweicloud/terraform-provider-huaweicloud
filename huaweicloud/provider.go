@@ -3240,6 +3240,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
 			"huaweicloud_css_snapshot_restore":            css.ResourceSnapshotRestore(),
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
+			"huaweicloud_css_vpcep_connections_update":    css.ResourceCssVpcepserviceConnectionsUpdate(),
 
 			"huaweicloud_dbss_audit_risk_rule_action": dbss.ResourceRiskRuleAction(),
 			"huaweicloud_dbss_ecs_database":           dbss.ResourceAddEcsDatabase(),
