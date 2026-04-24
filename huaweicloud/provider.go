@@ -2037,6 +2037,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_intelligent_session_kill_statistic": rds.DataSourceIntelligentSessionKillStatistic(),
 
 			"huaweicloud_rfs_execution_plans":              rfs.DataSourceRfsExecutionPlans(),
+			"huaweicloud_rfs_execution_plan_items":         rfs.DataSourceRfsExecutionPlanItems(),
 			"huaweicloud_rfs_execution_plan_prices":        rfs.DataSourceExecutionPlanPrices(),
 			"huaweicloud_rfs_private_module_versions":      rfs.DataSourcePrivateModuleVersions(),
 			"huaweicloud_rfs_private_modules":              rfs.DataSourcePrivateModules(),
