@@ -1087,8 +1087,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_dataservice_instances":       dataarts.DataSourceDataServiceInstances(),
 			"huaweicloud_dataarts_dataservice_messages":        dataarts.DataSourceDataServiceMessages(),
 			// DataArts Quality
-			"huaweicloud_dataarts_quality_rule_templates": dataarts.DataSourceQualityRuleTemplates(),
-			"huaweicloud_dataarts_quality_tasks":          dataarts.DataSourceQualityTasks(),
+			"huaweicloud_dataarts_quality_consistency_tasks": dataarts.DataSourceQualityConsistencyTasks(),
+			"huaweicloud_dataarts_quality_rule_templates":    dataarts.DataSourceQualityRuleTemplates(),
+			"huaweicloud_dataarts_quality_tasks":             dataarts.DataSourceQualityTasks(),
 			// DataArts Factory
 			"huaweicloud_dataarts_factory_jobs":      dataarts.DataSourceFactoryJobs(),
 			"huaweicloud_dataarts_factory_resources": dataarts.DataSourceFactoryResources(),
