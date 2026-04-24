@@ -14,7 +14,7 @@ func TestAccDataSourceDataServiceAuthorizedApps_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
-		all = "data.huaweicloud_dataarts_dataservice_authorized_apps.test"
+		all = "data.huaweicloud_dataarts_dataservice_api_authorized_apps.test"
 		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
@@ -28,7 +28,7 @@ func TestAccDataSourceDataServiceAuthorizedApps_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceDataServiceAuthorizedApps_basic_step1(name),
+				Config: testAccDataSourceDataServiceApiAuthorizedApps_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "apps.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -36,13 +36,13 @@ func TestAccDataSourceDataServiceAuthorizedApps_basic(t *testing.T) {
 			},
 			{
 				// Cancel the authorization, prepare to destroy the environment.
-				Config: testAccDataSourceDataServiceAuthorizedApps_basic_step2(name),
+				Config: testAccDataSourceDataServiceApiAuthorizedApps_basic_step2(name),
 			},
 		},
 	})
 }
 
-func testAccDataSourceDataServiceAuthorizedApps_basic_step1(name string) string {
+func testAccDataSourceDataServiceApiAuthorizedApps_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -56,7 +56,7 @@ resource "huaweicloud_dataarts_dataservice_api_auth" "test" {
   app_ids     = slice(huaweicloud_dataarts_dataservice_app.test[*].id, 0, 2)
 }
 
-data "huaweicloud_dataarts_dataservice_authorized_apps" "test" {
+data "huaweicloud_dataarts_dataservice_api_authorized_apps" "test" {
   depends_on = [huaweicloud_dataarts_dataservice_api_auth.test]
 
   workspace_id = "%[2]s"
@@ -67,6 +67,6 @@ data "huaweicloud_dataarts_dataservice_authorized_apps" "test" {
 `, testAccDataServiceApiAuth_base(name), acceptance.HW_DATAARTS_WORKSPACE_ID)
 }
 
-func testAccDataSourceDataServiceAuthorizedApps_basic_step2(name string) string {
+func testAccDataSourceDataServiceApiAuthorizedApps_basic_step2(name string) string {
 	return testAccDataServiceApiAuth_basic_step2(name)
 }

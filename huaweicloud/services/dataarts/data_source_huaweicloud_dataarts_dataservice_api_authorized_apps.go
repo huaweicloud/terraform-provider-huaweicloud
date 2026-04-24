@@ -17,9 +17,9 @@ import (
 )
 
 // @API DataArtsStudio GET /v1/{project_id}/service/authorize/apis/{api_id}
-func DataSourceDataServiceAuthorizedApps() *schema.Resource {
+func DataSourceDataServiceApiAuthorizedApps() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDataServiceAuthorizedAppsRead,
+		ReadContext: dataSourceDataServiceApiAuthorizedAppsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -52,14 +52,14 @@ func DataSourceDataServiceAuthorizedApps() *schema.Resource {
 			"apps": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        dataServiceAuthorizedAppElemSchema(),
+				Elem:        dataServiceApiAuthorizedAppElemSchema(),
 				Description: `All APPs authorized by API.`,
 			},
 		},
 	}
 }
 
-func dataServiceAuthorizedAppElemSchema() *schema.Resource {
+func dataServiceApiAuthorizedAppElemSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -100,7 +100,7 @@ func dataServiceAuthorizedAppElemSchema() *schema.Resource {
 			"static_params": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        dataServiceAuthorizedAppStaticParamElemSchema(),
+				Elem:        dataServiceApiAuthorizedAppStaticParamElemSchema(),
 				Description: `The configuration of the static parameters.`,
 			},
 		},
@@ -108,7 +108,7 @@ func dataServiceAuthorizedAppElemSchema() *schema.Resource {
 	return &sc
 }
 
-func dataServiceAuthorizedAppStaticParamElemSchema() *schema.Resource {
+func dataServiceApiAuthorizedAppStaticParamElemSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -126,7 +126,7 @@ func dataServiceAuthorizedAppStaticParamElemSchema() *schema.Resource {
 	return &sc
 }
 
-func queryDataServiceAuthorizedApps(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func queryDataServiceApiAuthorizedApps(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/service/authorize/apis/{api_id}?limit=100"
 		offset  = 0
@@ -166,7 +166,7 @@ func queryDataServiceAuthorizedApps(client *golangsdk.ServiceClient, d *schema.R
 	return result, nil
 }
 
-func flattenDataServiceAuthorizedApps(apps []interface{}) []interface{} {
+func flattenDataServiceApiAuthorizedApps(apps []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(apps))
 
 	for _, app := range apps {
@@ -175,17 +175,20 @@ func flattenDataServiceAuthorizedApps(apps []interface{}) []interface{} {
 			"name":              utils.PathSearch("app_name", app, nil),
 			"instance_id":       utils.PathSearch("instance_id", app, nil),
 			"instance_name":     utils.PathSearch("instance_name", app, nil),
-			"expired_at":        utils.FormatTimeStampRFC3339(int64(utils.PathSearch("api_using_time", app, float64(0)).(float64))/1000, false),
-			"approved_at":       utils.FormatTimeStampRFC3339(int64(utils.PathSearch("approve_time", app, float64(0)).(float64))/1000, false),
 			"relationship_type": utils.PathSearch("relationship_type", app, nil),
-			"static_params":     flattenDataServiceAppStaticParams(utils.PathSearch("static_params", app, make([]interface{}, 0)).([]interface{})),
+			"expired_at": utils.FormatTimeStampRFC3339(
+				int64(utils.PathSearch("api_using_time", app, float64(0)).(float64))/1000, false),
+			"approved_at": utils.FormatTimeStampRFC3339(
+				int64(utils.PathSearch("approve_time", app, float64(0)).(float64))/1000, false),
+			"static_params": flattenDataServiceApiAppStaticParams(
+				utils.PathSearch("static_params", app, make([]interface{}, 0)).([]interface{})),
 		})
 	}
 
 	return result
 }
 
-func flattenDataServiceAppStaticParams(staticParams []interface{}) []interface{} {
+func flattenDataServiceApiAppStaticParams(staticParams []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(staticParams))
 
 	for _, staticParam := range staticParams {
@@ -198,7 +201,7 @@ func flattenDataServiceAppStaticParams(staticParams []interface{}) []interface{}
 	return result
 }
 
-func dataSourceDataServiceAuthorizedAppsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceDataServiceApiAuthorizedAppsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -208,7 +211,7 @@ func dataSourceDataServiceAuthorizedAppsRead(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
-	authorizedApps, err := queryDataServiceAuthorizedApps(client, d)
+	apiAuthorizedApps, err := queryDataServiceApiAuthorizedApps(client, d)
 	if err != nil {
 		return diag.Errorf("error getting Data Service API (%s) for DataArts Studio", d.Id())
 	}
@@ -221,7 +224,7 @@ func dataSourceDataServiceAuthorizedAppsRead(_ context.Context, d *schema.Resour
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("apps", flattenDataServiceAuthorizedApps(authorizedApps)),
+		d.Set("apps", flattenDataServiceApiAuthorizedApps(apiAuthorizedApps)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }

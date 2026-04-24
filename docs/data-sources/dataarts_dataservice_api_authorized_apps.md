@@ -1,12 +1,12 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_authorized_apps"
+page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_api_authorized_apps"
 description: |-
   Use this data source to get the list of authorized APPs under specified API within HuaweiCloud.
 ---
 
-# huaweicloud_dataarts_dataservice_authorized_apps
+# huaweicloud_dataarts_dataservice_api_authorized_apps
 
 Use this data source to get the list of authorized APPs under specified API within HuaweiCloud.
 
@@ -16,7 +16,7 @@ Use this data source to get the list of authorized APPs under specified API with
 variable "workspace_id" {}
 variable "authorized_api_id" {}
 
-data "huaweicloud_dataarts_dataservice_authorized_apps" "test" {
+data "huaweicloud_dataarts_dataservice_api_authorized_apps" "test" {
   workspace_id = var.workspace_id
   dlm_type     = "EXCLUSIVE"
   api_id       = var.authorized_api_id

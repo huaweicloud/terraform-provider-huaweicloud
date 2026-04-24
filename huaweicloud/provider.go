@@ -1079,13 +1079,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_model_statistic":       dataarts.DataSourceArchitectureModelStatistic(),
 			"huaweicloud_dataarts_architecture_table_models":          dataarts.DataSourceArchitectureTableModels(),
 			// DataArts DataService
-			"huaweicloud_dataarts_dataservice_apis":            dataarts.DataSourceDataServiceApis(),
-			"huaweicloud_dataarts_dataservice_approvers":       dataarts.DataSourceDataServiceApprovers(),
-			"huaweicloud_dataarts_dataservice_apps":            dataarts.DataSourceDataServiceApps(),
-			"huaweicloud_dataarts_dataservice_authorized_apps": dataarts.DataSourceDataServiceAuthorizedApps(),
-			"huaweicloud_dataarts_dataservice_catalog_apis":    dataarts.DataSourceDataServiceCatalogApis(),
-			"huaweicloud_dataarts_dataservice_instances":       dataarts.DataSourceDataServiceInstances(),
-			"huaweicloud_dataarts_dataservice_messages":        dataarts.DataSourceDataServiceMessages(),
+			"huaweicloud_dataarts_dataservice_api_authorized_apps": dataarts.DataSourceDataServiceApiAuthorizedApps(),
+			"huaweicloud_dataarts_dataservice_apis":                dataarts.DataSourceDataServiceApis(),
+			"huaweicloud_dataarts_dataservice_approvers":           dataarts.DataSourceDataServiceApprovers(),
+			"huaweicloud_dataarts_dataservice_apps":                dataarts.DataSourceDataServiceApps(),
+			"huaweicloud_dataarts_dataservice_catalog_apis":        dataarts.DataSourceDataServiceCatalogApis(),
+			"huaweicloud_dataarts_dataservice_instances":           dataarts.DataSourceDataServiceInstances(),
+			"huaweicloud_dataarts_dataservice_messages":            dataarts.DataSourceDataServiceMessages(),
 			// DataArts Quality
 			"huaweicloud_dataarts_quality_rule_templates": dataarts.DataSourceQualityRuleTemplates(),
 			"huaweicloud_dataarts_quality_tasks":          dataarts.DataSourceQualityTasks(),
@@ -2631,6 +2631,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":    cce.DataSourceNode(),
+
+			// DataArts DataService
+			"huaweicloud_dataarts_dataservice_authorized_apps": dataarts.DataSourceDataServiceApiAuthorizedApps(),
 
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
