@@ -54,6 +54,21 @@ func TestAccStack_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccStack_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "Create by acc test update"),
+					resource.TestCheckResourceAttr(rName, "enable_auto_rollback", "true"),
+					resource.TestCheckResourceAttr(rName, "enable_deletion_protection", "false"),
+					resource.TestCheckResourceAttr(rName, "agency.0.provider_name", "huaweicloud"),
+					resource.TestCheckResourceAttr(rName, "agency.0.name", "rf_admin_trust"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -61,6 +76,8 @@ func TestAccStack_basic(t *testing.T) {
 					"agency",
 					"template_body",
 					"vars_body",
+					"enable_auto_rollback",
+					"enable_deletion_protection",
 				},
 			},
 		},
@@ -72,6 +89,22 @@ func testAccStack_basic(name string) string {
 resource "huaweicloud_rfs_stack" "test" {
   name        = "%[1]s"
   description = "Create by acc test"
+}
+`, name)
+}
+
+func testAccStack_basic_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rfs_stack" "test" {
+  name                       = "%[1]s"
+  description                = "Create by acc test update"
+  enable_auto_rollback       = true
+  enable_deletion_protection = false
+
+  agency {
+    provider_name = "huaweicloud"
+    name          = "rf_admin_trust"
+  }
 }
 `, name)
 }

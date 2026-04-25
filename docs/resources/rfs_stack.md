@@ -124,13 +124,26 @@ The following arguments are supported:
   The name must start with a lowercase letter and end with a lowercase letter or digit.
   Change this parameter will create a new resource.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the resource stack, which contain maximum of
+* `description` - (Optional, String) Specifies the description of the resource stack, which contain maximum of
   `255` characters.  
-  Change this parameter will create a new resource.
 
-* `agency` - (Optional, List, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
-  Change this parameter will create a new resource.
-  The [object](#stack_agency) structure is documented below.
+* `agency` - (Optional, List) Specifies the configuration of the agencies authorized to IAC.  
+  The [agency](#stack_agency) structure is documented below.
+
+* `enable_auto_rollback` - (Optional, Bool) Specifies whether to enable automatic rollback.  
+  If enabled, the stack resources will rollback automatically to the last stable state with deployment failure.
+  The default value is **false**.
+
+* `enable_deletion_protection` - (Optional, Bool) Specifies whether to enable delete protection.  
+  The default value is **false**.
+
+-> For fields `description`, `agency`, `enable_auto_rollback`, and `enable_deletion_protection`, Editing operations have
+  the following limitations:
+  <br/>1. A stack cannot be updated if it is in a non-final state (ending with **IN_PROGRESS**). The states may include
+  **DEPLOYMENT_IN_PROGRESS**, **DELETION_IN_PROGRESS**, and **ROLLBACK_IN_PROGRESS**.
+  <br/>2. If the value of `enable_auto_rollback` is changed from **false** to **true**, the stack state is determined
+  more strictly. A stack cannot be updated if it is in a state ending with **FAILED**. The states may include
+  **DEPLOYMENT_FAILED**, **ROLLBACK_FAILED**, and **DELETION_FAILED**.
 
 * `template_body` - (Optional, String) Specifies the HCL/JSON template content for deployment resources.  
   This parameter and `template_uri` are alternative and required if `vars_body` is set.
@@ -145,26 +158,15 @@ The following arguments are supported:
 * `vars_uri` - (Optional, String) Specifies the OBS address where the variable (**.tfvars**) file corresponding to the
   HCL/JSON template located, which describes the target status of the deployment resources.
 
-* `enable_auto_rollback` - (Optional, Bool, ForceNew) Specifies whether to enable automatic rollback.  
-  If enabled, the stack resources will rollback automatically to the last stable state with deployment failure.
-  The default value is **false**.
-  Change this parameter will create a new resource.
-
-* `enable_deletion_protection` - (Optional, Bool, ForceNew) Specifies whether to enable delete protection.  
-  The default value is **false**.
-  Change this parameter will create a new resource.
-
 * `retain_all_resources` - (Optional, Bool) Specifies whether to reserve resources when deleting the resource stack.  
   The default value is **false**.
 
 <a name="stack_agency"></a>
 The `agency` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the name of IAM agency authorized to IAC account.  
-  Change this parameter will create a new resource.
+* `name` - (Required, String) Specifies the name of IAM agency authorized to IAC account.  
 
-* `provider_name` - (Required, String, ForceNew) Specifies the name of the provider corresponding to the IAM agency.  
-  Change this parameter will create a new resource.
+* `provider_name` - (Required, String) Specifies the name of the provider corresponding to the IAM agency.  
 
 ## Attribute Reference
 

@@ -2,6 +2,7 @@ package rfs
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -25,6 +26,7 @@ import (
 // @API RFS POST /v1/{project_id}/stacks/{stack_name}/deployments
 // @API RFS GET /v1/{project_id}/stacks/{stack_name}/events
 // @API RFS POST /v1/{project_id}/stacks/{stack_name}/deletion
+// @API RFS PATCH /v1/{project_id}/stacks/{stack_name}
 func ResourceStack() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStackCreate,
@@ -59,19 +61,16 @@ func ResourceStack() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "The description of the resource stack.",
 			},
 			"agency": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"provider_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: utils.SchemaDesc(
 								"The name of the provider corresponding to the IAM agency.",
 								utils.SchemaDescInput{
@@ -82,7 +81,6 @@ func ResourceStack() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: utils.SchemaDesc(
 								"The name of IAM agency authorized to IAC account for resources modification.",
 								utils.SchemaDescInput{
@@ -124,13 +122,11 @@ func ResourceStack() *schema.Resource {
 			"enable_auto_rollback": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Whether to enable automatic rollback.",
 			},
 			"enable_deletion_protection": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Whether to enable delete protection.",
 			},
 			"retain_all_resources": {
@@ -446,7 +442,108 @@ func resourceStackUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	if d.HasChanges("description", "enable_deletion_protection", "enable_auto_rollback", "agency") {
+		if err := updateStack(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceStackRead(ctx, d, meta)
+}
+
+func buildUpdateStackAgenciesParams(rawArray []interface{}) []map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		rst = append(rst, map[string]interface{}{
+			"provider_name": utils.ValueIgnoreEmpty(rawMap["provider_name"]),
+			"agency_name":   utils.ValueIgnoreEmpty(rawMap["name"]),
+		})
+	}
+	return rst
+}
+
+func buildUpdateStackBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"description":                utils.ValueIgnoreEmpty(d.Get("description")),
+		"stack_id":                   d.Id(),
+		"enable_deletion_protection": d.Get("enable_deletion_protection"),
+		"enable_auto_rollback":       d.Get("enable_auto_rollback"),
+		"agencies":                   buildUpdateStackAgenciesParams(d.Get("agency").([]interface{})),
+	}
+}
+
+func handleRetryUpdateStackError(err error) (bool, error) {
+	if err == nil {
+		// The operation was executed successfully and does not need to be executed again.
+		return false, nil
+	}
+	if errCode, ok := err.(golangsdk.ErrDefault403); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode := utils.PathSearch("error_code", apiError, "").(string)
+		if errorCode == "" {
+			return false, errors.New("unable to find error code from API response")
+		}
+
+		// Resource stacks in the "IN PROGRESS" state do not support modification operations and will report
+		// error code "RF.10012519".
+		if errorCode == "RF.10012519" {
+			return true, err
+		}
+	}
+	// Operation execution failed due to some resource or server issues, no need to try again.
+	return false, err
+}
+
+func updateStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		stackName    = d.Get("name").(string)
+		httpUrl      = "v1/{project_id}/stacks/{stack_name}"
+		requestId, _ = uuid.GenerateUUID()
+	)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{stack_name}", stackName)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateStackBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("PATCH", requestPath, &requestOpt)
+		retry, err := handleRetryUpdateStackError(err)
+		return nil, retry, err
+	}
+
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating RFS stack: %s", err)
+	}
+
+	return nil
 }
 
 func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
