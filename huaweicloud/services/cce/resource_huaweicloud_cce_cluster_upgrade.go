@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -38,6 +39,13 @@ var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", 
 	"strategy.*.type",
 	"strategy.*.in_place_rolling_update",
 	"strategy.*.in_place_rolling_update.*.user_defined_step",
+	"skipped_check_item_list",
+	"skipped_check_item_list.*.name",
+	"skipped_check_item_list.*.resource_selector",
+	"skipped_check_item_list.*.resource_selector.*.key",
+	"skipped_check_item_list.*.resource_selector.*.values",
+	"skipped_check_item_list.*.resource_selector.*.operator",
+	"is_only_upgrade",
 }
 
 func ResourceClusterUpgrade() *schema.Resource {
@@ -185,8 +193,11 @@ func ResourceClusterUpgrade() *schema.Resource {
 				},
 			},
 			"is_only_upgrade": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
 			},
 			"is_snapshot": {
 				Type:     schema.TypeBool,
@@ -229,9 +240,13 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 				"nodePoolOrder": d.Get("nodepool_order"),
 				"strategy":      buildClusterUpgradeStrategyOpts(d),
 				"targetVersion": targetVersion,
-				"isOnlyUpgrade": d.Get("is_only_upgrade"),
 			},
 		},
+	}
+
+	if v, ok := d.GetOk("is_only_upgrade"); ok {
+		isOnlyUpgradeRaw, _ := strconv.ParseBool(v.(string))
+		result["spec"].(map[string]interface{})["clusterUpgradeAction"].(map[string]interface{})["isOnlyUpgrade"] = isOnlyUpgradeRaw
 	}
 	return result, nil
 }
@@ -524,7 +539,7 @@ func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 
 	preCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
+		JSONBody: utils.RemoveNil(map[string]interface{}{
 			"kind":       "PreCheckTask",
 			"apiVersion": "v3",
 			"spec": map[string]interface{}{
@@ -533,7 +548,7 @@ func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 				"targetVersion":        targetVersion,
 				"skippedCheckItemList": skippedCheckItemList,
 			},
-		},
+		}),
 	}
 	preCheckResp, err := client.Request("POST", preCheckPath, &preCheckOpt)
 	if err != nil {

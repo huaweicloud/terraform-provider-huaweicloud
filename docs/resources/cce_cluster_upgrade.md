@@ -124,6 +124,9 @@ The following arguments are supported:
 * `strategy` - (Required, List, NonUpdatable) Specifies the upgrade strategy.
   The [strategy](#strategy) structure is documented below.
 
+* `skipped_check_item_list` - (Optional, List, NonUpdatable) Specifies the skipped check items
+  The [skipped_check_item_list](#skipped_check_item_list) structure is documented below.
+
 * `addons` - (Optional, List, NonUpdatable) Specifies the add-on configuration list
   The [addons](#addons) structure is documented below.
 
@@ -135,6 +138,11 @@ The following arguments are supported:
   The key is the node pool ID, **DefaultPool** indicates the default pool.
   The value is the priority of the node pool. **0** indicating the lowest priority.
   A larger value indicates a higher priority.
+
+* `is_only_upgrade` - (Optional, String, NonUpdatable) Specifies whether to perform pre-upgrade checks during the cluster
+  upgrade process. The default is **false**, meaning pre-upgrade checks will be performed. If you called the pre-upgrade
+  check API in your cluster upgrade orchestration, setting this encapsulated field to **true** during the upgrade will
+  prevent an additional check from being performed. Value options: **true**, **false**.
 
 * `is_snapshot` - (Optional, Bool, NonUpdatable) Specifies whether the cluster is snapshotted.
 
@@ -176,6 +184,24 @@ The `strategy` block supports:
 * `in_place_rolling_update` - (Optional, List, NonUpdatable) Specifies the in-place upgrade settings.
   It's mandatory when the `type` is set to **inPlaceRollingUpdate**.
   The [in_place_rolling_update](#in_place_rolling_update) structure is documented below.
+
+<a name="skipped_check_item_list"></a>
+The `skipped_check_item_list` block supports:
+
+* `name` - (Optional, String, NonUpdatable) Specifies the name of the skipped checked item.
+
+* `resource_selector` - (Optional, List, NonUpdatable) Specifies the resource tag selector. This parameter is available
+  only for node check, but not for cluster check or add-on check.
+  The [resource_selector](#resource_selector) structure is documented below.
+
+<a name="resource_selector"></a>
+The `resource_selector` block supports:
+
+* `key` - (Required, String, NonUpdatable) Specifies the tag key.
+
+* `operator` - (Required, String, NonUpdatable) Specifies the logical operators of labels. Value options: **In**.
+
+* `values` - (Optional, String, NonUpdatable) Specifies the tag value list.
 
 <a name="in_place_rolling_update"></a>
 The `in_place_rolling_update` block supports:
