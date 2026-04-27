@@ -113,6 +113,7 @@ var (
 	HW_CNAD_PROJECT_OBJECT_ID = os.Getenv("HW_CNAD_PROJECT_OBJECT_ID")
 
 	HW_OBS_DESTINATION_BUCKET  = os.Getenv("HW_OBS_DESTINATION_BUCKET")
+	HW_OBS_AGENCY_NAME         = os.Getenv("HW_OBS_AGENCY_NAME")
 	HW_OBS_ENDPOINT            = os.Getenv("HW_OBS_ENDPOINT")
 	HW_OBS_OBJECT_STORAGE_PATH = os.Getenv("HW_OBS_OBJECT_STORAGE_PATH")
 	HW_OBS_USER_DOMAIN_NAME1   = os.Getenv("HW_OBS_USER_DOMAIN_NAME1")
@@ -1774,6 +1775,13 @@ func TestAccPreCheckOBS(t *testing.T) {
 func TestAccPreCheckOBSDestinationBucket(t *testing.T) {
 	if HW_OBS_DESTINATION_BUCKET == "" {
 		t.Skip("HW_OBS_DESTINATION_BUCKET must be set for OBS destination tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOBSAgencyName(t *testing.T) {
+	if HW_OBS_AGENCY_NAME == "" {
+		t.Skip("HW_OBS_AGENCY_NAME must be set for OBS tests")
 	}
 }
 
