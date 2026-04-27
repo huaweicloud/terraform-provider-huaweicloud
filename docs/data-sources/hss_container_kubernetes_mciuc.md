@@ -13,7 +13,17 @@ Use this data source to get the container kubernetes multi cloud image upload co
 ## Example Usage
 
 ```hcl
-data "huaweicloud_hss_container_kubernetes_mciuc" "test" {}
+variable "image_repo" {}
+variable "organization" {}
+variable "username" {}
+variable "password" {}
+
+data "huaweicloud_hss_container_kubernetes_mciuc" "test" {
+  image_repo   = var.image_repo
+  organization = var.organization
+  username     = var.username
+  password     = var.password
+}
 ```
 
 ## Argument Reference
