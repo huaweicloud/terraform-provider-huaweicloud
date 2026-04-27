@@ -20,9 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ModelArts DELETE /v2/{project_id}/datasets/{datasetId}
-// @API ModelArts GET /v2/{project_id}/datasets/{datasetId}
-// @API ModelArts PUT /v2/{project_id}/datasets/{datasetId}
+// @API ModelArts DELETE /v2/{project_id}/datasets/{dataset_id}
+// @API ModelArts GET /v2/{project_id}/datasets/{dataset_id}
+// @API ModelArts PUT /v2/{project_id}/datasets/{dataset_id}
 // @API ModelArts POST /v2/{project_id}/datasets
 func ResourceDataset() *schema.Resource {
 	return &schema.Resource{

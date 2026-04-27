@@ -27,9 +27,9 @@ var networkNonUpdatableParams = []string{
 }
 
 // @API ModelArts POST /v1/{project_id}/networks
-// @API ModelArts GET /v1/{project_id}/networks/{id}
-// @API ModelArts PATCH /v1/{project_id}/networks/{id}
-// @API ModelArts DELETE /v1/{project_id}/networks/{id}
+// @API ModelArts GET /v1/{project_id}/networks/{network_name}
+// @API ModelArts PATCH /v1/{project_id}/networks/{network_name}
+// @API ModelArts DELETE /v1/{project_id}/networks/{network_name}
 func ResourceNetwork() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkCreate,
@@ -227,11 +227,11 @@ func createNetwork(client *golangsdk.ServiceClient, d *schema.ResourceData) (int
 }
 
 func GetNetworkById(client *golangsdk.ServiceClient, networkId string) (interface{}, error) {
-	httpURL := "v1/{project_id}/networks/{id}"
+	httpURL := "v1/{project_id}/networks/{network_name}"
 
 	getPath := client.Endpoint + httpURL
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{id}", networkId)
+	getPath = strings.ReplaceAll(getPath, "{network_name}", networkId)
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -483,10 +483,10 @@ func waitForNetworkConnectionsUpdateCompleted(ctx context.Context, client *golan
 }
 
 func updateNetworkConnections(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	httpURL := "v1/{project_id}/networks/{id}"
+	httpURL := "v1/{project_id}/networks/{network_name}"
 	updatePath := client.Endpoint + httpURL
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+	updatePath = strings.ReplaceAll(updatePath, "{network_name}", d.Id())
 
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -538,10 +538,10 @@ func waitForNetworkDeleteCompleted(ctx context.Context, client *golangsdk.Servic
 }
 
 func deleteNetwork(client *golangsdk.ServiceClient, networkId string) error {
-	httpURL := "v1/{project_id}/networks/{id}"
+	httpURL := "v1/{project_id}/networks/{network_name}"
 	deletePath := client.Endpoint + httpURL
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{id}", networkId)
+	deletePath = strings.ReplaceAll(deletePath, "{network_name}", networkId)
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

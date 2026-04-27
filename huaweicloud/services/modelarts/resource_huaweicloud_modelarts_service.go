@@ -24,9 +24,9 @@ import (
 )
 
 // @API ModelArts POST /v1/{project_id}/services
-// @API ModelArts DELETE /v1/{project_id}/services/{id}
-// @API ModelArts GET /v1/{project_id}/services/{id}
-// @API ModelArts PUT /v1/{project_id}/services/{id}
+// @API ModelArts DELETE /v1/{project_id}/services/{service_id}
+// @API ModelArts GET /v1/{project_id}/services/{service_id}
+// @API ModelArts PUT /v1/{project_id}/services/{service_id}
 func ResourceModelartsService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelartsServiceCreate,
@@ -578,7 +578,7 @@ func serviceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
 			var (
-				createServiceWaitingHttpUrl = "v1/{project_id}/services/{id}"
+				createServiceWaitingHttpUrl = "v1/{project_id}/services/{service_id}"
 				createServiceWaitingProduct = "modelarts"
 			)
 			createServiceWaitingClient, err := cfg.NewServiceClient(createServiceWaitingProduct, region)
@@ -588,7 +588,7 @@ func serviceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData
 
 			createServiceWaitingPath := createServiceWaitingClient.Endpoint + createServiceWaitingHttpUrl
 			createServiceWaitingPath = strings.ReplaceAll(createServiceWaitingPath, "{project_id}", createServiceWaitingClient.ProjectID)
-			createServiceWaitingPath = strings.ReplaceAll(createServiceWaitingPath, "{id}", d.Id())
+			createServiceWaitingPath = strings.ReplaceAll(createServiceWaitingPath, "{service_id}", d.Id())
 
 			createServiceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -643,7 +643,7 @@ func resourceModelartsServiceRead(_ context.Context, d *schema.ResourceData, met
 
 	// getService: Query the ModelArts service.
 	var (
-		getServiceHttpUrl = "v1/{project_id}/services/{id}"
+		getServiceHttpUrl = "v1/{project_id}/services/{service_id}"
 		getServiceProduct = "modelarts"
 	)
 	getServiceClient, err := cfg.NewServiceClient(getServiceProduct, region)
@@ -653,7 +653,7 @@ func resourceModelartsServiceRead(_ context.Context, d *schema.ResourceData, met
 
 	getServicePath := getServiceClient.Endpoint + getServiceHttpUrl
 	getServicePath = strings.ReplaceAll(getServicePath, "{project_id}", getServiceClient.ProjectID)
-	getServicePath = strings.ReplaceAll(getServicePath, "{id}", d.Id())
+	getServicePath = strings.ReplaceAll(getServicePath, "{service_id}", d.Id())
 
 	getServiceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -819,7 +819,7 @@ func resourceModelartsServiceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// updateService: update the ModelArts service.
 	var (
-		updateServiceHttpUrl = "v1/{project_id}/services/{id}"
+		updateServiceHttpUrl = "v1/{project_id}/services/{service_id}"
 		updateServiceProduct = "modelarts"
 	)
 	updateServiceClient, err := cfg.NewServiceClient(updateServiceProduct, region)
@@ -829,7 +829,7 @@ func resourceModelartsServiceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	updateServicePath := updateServiceClient.Endpoint + updateServiceHttpUrl
 	updateServicePath = strings.ReplaceAll(updateServicePath, "{project_id}", updateServiceClient.ProjectID)
-	updateServicePath = strings.ReplaceAll(updateServicePath, "{id}", d.Id())
+	updateServicePath = strings.ReplaceAll(updateServicePath, "{service_id}", d.Id())
 
 	updateServiceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -895,7 +895,7 @@ func resourceModelartsServiceDelete(ctx context.Context, d *schema.ResourceData,
 
 	// deleteService: delete ModelArts service
 	var (
-		deleteServiceHttpUrl = "v1/{project_id}/services/{id}"
+		deleteServiceHttpUrl = "v1/{project_id}/services/{service_id}"
 		deleteServiceProduct = "modelarts"
 	)
 	deleteServiceClient, err := cfg.NewServiceClient(deleteServiceProduct, region)
@@ -905,7 +905,7 @@ func resourceModelartsServiceDelete(ctx context.Context, d *schema.ResourceData,
 
 	deleteServicePath := deleteServiceClient.Endpoint + deleteServiceHttpUrl
 	deleteServicePath = strings.ReplaceAll(deleteServicePath, "{project_id}", deleteServiceClient.ProjectID)
-	deleteServicePath = strings.ReplaceAll(deleteServicePath, "{id}", d.Id())
+	deleteServicePath = strings.ReplaceAll(deleteServicePath, "{service_id}", d.Id())
 
 	deleteServiceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -935,7 +935,7 @@ func deleteServiceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
 			var (
-				deleteServiceWaitingHttpUrl = "v1/{project_id}/services/{id}"
+				deleteServiceWaitingHttpUrl = "v1/{project_id}/services/{service_id}"
 				deleteServiceWaitingProduct = "modelarts"
 			)
 			deleteServiceWaitingClient, err := cfg.NewServiceClient(deleteServiceWaitingProduct, region)
@@ -945,7 +945,7 @@ func deleteServiceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 
 			deleteServiceWaitingPath := deleteServiceWaitingClient.Endpoint + deleteServiceWaitingHttpUrl
 			deleteServiceWaitingPath = strings.ReplaceAll(deleteServiceWaitingPath, "{project_id}", deleteServiceWaitingClient.ProjectID)
-			deleteServiceWaitingPath = strings.ReplaceAll(deleteServiceWaitingPath, "{id}", d.Id())
+			deleteServiceWaitingPath = strings.ReplaceAll(deleteServiceWaitingPath, "{service_id}", d.Id())
 
 			deleteServiceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
