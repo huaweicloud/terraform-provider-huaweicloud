@@ -2038,6 +2038,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_publication_monitor":                rds.DataSourceRdsPublicationMonitor(),
 			"huaweicloud_rds_subscriptions":                      rds.DataSourceRdsSubscriptions(),
 			"huaweicloud_rds_subscription_monitor":               rds.DataSourceRdsSubscriptionMonitor(),
+			"huaweicloud_rds_publication_subscription_profiles":  rds.DataSourceRdsPublicationSubscriptionProfiles(),
 			"huaweicloud_rds_configurable_distributor_instances": rds.DataSourceRdsConfigurableDistributorInstances(),
 			"huaweicloud_rds_configurable_subscriber_instances":  rds.DataSourceRdsConfigurableSubscriberInstances(),
 			"huaweicloud_rds_remote_databases":                   rds.DataSourceRemoteDatabases(),
