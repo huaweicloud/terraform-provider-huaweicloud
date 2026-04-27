@@ -741,12 +741,13 @@ var (
 	// The OBS agency name list of the DWS data source. Using commas (,) to separate multiple names.
 	HW_DWS_OBS_AGENCY_NAMES = os.Getenv("HW_DWS_OBS_AGENCY_NAMES")
 
-	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
-	HW_DCS_INSTANCE_ID       = os.Getenv("HW_DCS_INSTANCE_ID")
-	HW_DCS_BEGIN_TIME        = os.Getenv("HW_DCS_BEGIN_TIME")
-	HW_DCS_END_TIME          = os.Getenv("HW_DCS_END_TIME")
-	HW_DCS_OBS_BUCKET_NAME   = os.Getenv("HW_DCS_OBS_BUCKET_NAME")
-	HW_DCS_BACKUP_ID         = os.Getenv("HW_DCS_BACKUP_ID")
+	HW_DCS_ACCOUNT_WHITELIST  = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
+	HW_DCS_INSTANCE_ID        = os.Getenv("HW_DCS_INSTANCE_ID")
+	HW_DCS_BEGIN_TIME         = os.Getenv("HW_DCS_BEGIN_TIME")
+	HW_DCS_END_TIME           = os.Getenv("HW_DCS_END_TIME")
+	HW_DCS_OBS_BUCKET_NAME    = os.Getenv("HW_DCS_OBS_BUCKET_NAME")
+	HW_DCS_BACKUP_ID          = os.Getenv("HW_DCS_BACKUP_ID")
+	HW_DCS_BACKGROUND_TASK_ID = os.Getenv("HW_DCS_BACKGROUND_TASK_ID")
 
 	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
 
@@ -4222,6 +4223,13 @@ func TestAccPreCheckDcsTimeRange(t *testing.T) {
 func TestAccPreCheckDcsObsBucketName(t *testing.T) {
 	if HW_DCS_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_DCS_OBS_BUCKET_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcsBackgroundTaskId(t *testing.T) {
+	if HW_DCS_BACKGROUND_TASK_ID == "" {
+		t.Skip("HW_DCS_BACKGROUND_TASK_ID must be set for the acceptance test")
 	}
 }
 
