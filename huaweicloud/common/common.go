@@ -381,26 +381,26 @@ func GetEipsbyAddresses(client *golangsdk.ServiceClient, addresses []string, eps
 	return allEips, nil
 }
 
-// GetResourceIDsByOrder returns resource IDs from an order.
-func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
-	if strings.TrimSpace(orderId) == "" {
-		return nil, fmt.Errorf("order id is empty")
-	}
-	listOpts := resources.ListOpts{
-		OrderId:          orderId,
-		OnlyMainResource: onlyMainResource,
-	}
-	resp, err := resources.List(client, listOpts)
-	if err != nil {
-		return nil, fmt.Errorf("error getting order (%s) details: %s", orderId, err)
-	}
-	if resp == nil || resp.TotalCount < 1 {
-		return nil, fmt.Errorf("error getting order (%s) details: response empty", orderId)
-	}
+// // GetResourceIDsByOrder returns resource IDs from an order.
+// func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
+// 	if strings.TrimSpace(orderId) == "" {
+// 		return nil, fmt.Errorf("order id is empty")
+// 	}
+// 	listOpts := resources.ListOpts{
+// 		OrderId:          orderId,
+// 		OnlyMainResource: onlyMainResource,
+// 	}
+// 	resp, err := resources.List(client, listOpts)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("error getting order (%s) details: %s", orderId, err)
+// 	}
+// 	if resp == nil || resp.TotalCount < 1 {
+// 		return nil, fmt.Errorf("error getting order (%s) details: response empty", orderId)
+// 	}
 
-	rst := make([]string, len(resp.Resources))
-	for i, v := range resp.Resources {
-		rst[i] = v.ResourceId
-	}
-	return rst, nil
-}
+// 	rst := make([]string, len(resp.Resources))
+// 	for i, v := range resp.Resources {
+// 		rst[i] = v.ResourceId
+// 	}
+// 	return rst, nil
+// }
