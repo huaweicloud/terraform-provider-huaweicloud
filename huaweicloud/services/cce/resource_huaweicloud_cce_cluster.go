@@ -568,7 +568,7 @@ func buildResourceClusterExtendParams(d *schema.ResourceData, cfg *config.Config
 	}
 	if isPrePaid || billingMode == 1 {
 		res["isAutoRenew"] = "false"
-		res["isAutoPay"] = common.GetAutoPay(d)
+		res["isAutoPay"] = cbc.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {
@@ -1344,7 +1344,7 @@ func resourceClusterResize(ctx context.Context, cfg *config.Config, d *schema.Re
 	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
-		opts.ExtendParam.IsAutoPay = common.GetAutoPay(d)
+		opts.ExtendParam.IsAutoPay = cbc.GetAutoPay(d)
 	}
 
 	resp, err := clusters.Resize(cceClient, clusterID, opts)

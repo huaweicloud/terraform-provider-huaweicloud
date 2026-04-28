@@ -332,7 +332,7 @@ func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 		billing["period_type"] = d.Get("period_unit").(string)
 		billing["period_num"] = d.Get("period").(int)
 		billing["is_auto_renew"], _ = strconv.ParseBool(d.Get("auto_renew").(string))
-		billing["is_auto_pay"], _ = strconv.ParseBool(common.GetAutoPay(d))
+		billing["is_auto_pay"], _ = strconv.ParseBool(cbc.GetAutoPay(d))
 	}
 
 	return utils.RemoveNil(billing)

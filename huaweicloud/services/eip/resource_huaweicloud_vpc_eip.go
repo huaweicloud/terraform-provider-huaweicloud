@@ -306,7 +306,7 @@ func buildVpcEipCreateOpts(cfg *config.Config, d *schema.ResourceData, isPrePaid
 			PeriodType:  d.Get("period_unit").(string),
 			PeriodNum:   d.Get("period").(int),
 			IsAutoRenew: d.Get("auto_renew").(string),
-			IsAutoPay:   common.GetAutoPay(d),
+			IsAutoPay:   cbc.GetAutoPay(d),
 		}
 	}
 	return result, nil
@@ -626,7 +626,7 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config
 				Size: newMap["size"].(int),
 			},
 			ExtendParam: &bandwidthsv2.ExtendParam{
-				IsAutoPay: common.GetAutoPay(d),
+				IsAutoPay: cbc.GetAutoPay(d),
 			},
 		}
 		log.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)

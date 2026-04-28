@@ -1,20 +1,14 @@
 package cbc
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	// "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	// "github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
-	// "github.com/chnsz/golangsdk/openstack/networking/v1/eips"
-	// "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	// "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	// "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // PaySubscriptionOrder is a method used to pay for a subscription order.
@@ -43,6 +37,20 @@ func buildPaySubscriptionOrderBodyParams(orderId string) map[string]interface{} 
 	}
 }
 
+// GetAutoPay is a method to return whether order is auto pay according to the user input.
+// auto_pay parameter inputs and returns:
+//
+//	false: false
+//	true, empty: true
+//
+// Before using this function, make sure the parameter behavior is auto pay (the default value is "true").
+func GetAutoPay(d *schema.ResourceData) string {
+	if val, ok := d.GetOk("auto_pay"); ok && val.(string) == "false" {
+		return "false"
+	}
+	return "true"
+}
+
 func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) error {
 	if enabled == "true" {
 		return resources.EnableAutoRenew(c, resourceId)
@@ -53,7 +61,7 @@ func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) err
 // GetResourceIDsByOrder returns resource IDs from an order.
 func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
 	if strings.TrimSpace(orderId) == "" {
-		return nil, fmt.Errorf("order id is empty")
+		return nil, errors.New("order id is empty")
 	}
 	listOpts := resources.ListOpts{
 		OrderId:          orderId,

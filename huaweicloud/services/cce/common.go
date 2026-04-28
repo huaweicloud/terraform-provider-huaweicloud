@@ -10,7 +10,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -259,7 +259,7 @@ func buildExtendParams(d *schema.ResourceData) map[string]interface{} {
 	if isPrePaid || billingMode == 1 {
 		res["chargingMode"] = 1
 		res["isAutoRenew"] = "false"
-		res["isAutoPay"] = common.GetAutoPay(d)
+		res["isAutoPay"] = cbc.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {

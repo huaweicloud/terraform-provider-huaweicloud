@@ -726,7 +726,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		extendParam.PeriodType = d.Get("period_unit").(string)
 		extendParam.PeriodNum = d.Get("period").(int)
 		extendParam.IsAutoRenew = d.Get("auto_renew").(string)
-		extendParam.IsAutoPay = common.GetAutoPay(d)
+		extendParam.IsAutoPay = cbc.GetAutoPay(d)
 	} else if chargingMode == "spot" {
 		extendParam.MarketType = "spot"
 		extendParam.SpotPrice = d.Get("spot_maximum_price").(string)
@@ -1264,7 +1264,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 
 		extendParam := &cloudservers.ResizeExtendParam{
-			AutoPay: common.GetAutoPay(d),
+			AutoPay: cbc.GetAutoPay(d),
 		}
 		resizeOpts := &cloudservers.ResizeOpts{
 			FlavorRef:   newFlavorId,
@@ -1322,7 +1322,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
 			extendOpts.ChargeInfo = &cloudvolumes.ExtendChargeOpts{
-				IsAutoPay: common.GetAutoPay(d),
+				IsAutoPay: cbc.GetAutoPay(d),
 			}
 		}
 

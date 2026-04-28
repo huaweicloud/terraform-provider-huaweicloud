@@ -268,20 +268,6 @@ func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
 	}
 }
 
-// GetAutoPay is a method to return whether order is auto pay according to the user input.
-// auto_pay parameter inputs and returns:
-//
-//	false: false
-//	true, empty: true
-//
-// Before using this function, make sure the parameter behavior is auto pay (the default value is "true").
-func GetAutoPay(d *schema.ResourceData) string {
-	if val, ok := d.GetOk("auto_pay"); ok && val.(string) == "false" {
-		return "false"
-	}
-	return "true"
-}
-
 func HasFilledOpt(d *schema.ResourceData, param string) bool {
 	_, b := d.GetOk(param)
 	return b

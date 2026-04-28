@@ -370,7 +370,7 @@ func buildBssParamBodyParams(d *schema.ResourceData) map[string]interface{} {
 			"periodType":   utils.ValueIgnoreEmpty(d.Get("period_unit")),
 			"periodNum":    utils.ValueIgnoreEmpty(d.Get("period")),
 			"isAutoRenew":  utils.ValueIgnoreEmpty(d.Get("auto_renew")),
-			"isAutoPay":    utils.ValueIgnoreEmpty(common.GetAutoPay(d)),
+			"isAutoPay":    utils.ValueIgnoreEmpty(cbc.GetAutoPay(d)),
 		}
 	}
 
@@ -733,7 +733,7 @@ func buildUpdateVolumeSizeBodyParams(d *schema.ResourceData) map[string]interfac
 
 	if d.Get("charging_mode").(string) == "prePaid" {
 		bodyParams["bssParam"] = map[string]interface{}{
-			"isAutoPay": common.GetAutoPay(d),
+			"isAutoPay": cbc.GetAutoPay(d),
 		}
 	}
 
@@ -805,7 +805,7 @@ func buildUpdateVolumeTypeBodyParams(d *schema.ResourceData) map[string]interfac
 
 	if d.Get("charging_mode").(string) == "prePaid" {
 		bodyParams["bssParam"] = map[string]interface{}{
-			"isAutoPay": common.GetAutoPay(d),
+			"isAutoPay": cbc.GetAutoPay(d),
 		}
 	}
 
