@@ -1256,7 +1256,7 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		if err != nil || len(resourceIDs) == 0 {
 			return diag.Errorf("error getting resource IDs: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceIDs[0]); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceIDs[0]); err != nil {
 			return diag.Errorf("error updating the auto-renew of DRS job (%s): %s", d.Id(), err)
 		}
 	}

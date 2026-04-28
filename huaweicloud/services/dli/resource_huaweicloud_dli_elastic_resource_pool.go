@@ -506,7 +506,7 @@ func resourceElasticResourcePoolUpdate(ctx context.Context, d *schema.ResourceDa
 			return diag.Errorf("error creating BSS client: %s", err)
 		}
 
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the elastic resource pool (%s): %s", resourceId, err)
 		}
 	}

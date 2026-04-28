@@ -43,6 +43,13 @@ func buildPaySubscriptionOrderBodyParams(orderId string) map[string]interface{} 
 	}
 }
 
+func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) error {
+	if enabled == "true" {
+		return resources.EnableAutoRenew(c, resourceId)
+	}
+	return resources.DisableAutoRenew(c, resourceId)
+}
+
 // GetResourceIDsByOrder returns resource IDs from an order.
 func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
 	if strings.TrimSpace(orderId) == "" {

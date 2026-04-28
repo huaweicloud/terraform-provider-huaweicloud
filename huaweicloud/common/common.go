@@ -282,13 +282,6 @@ func GetAutoPay(d *schema.ResourceData) string {
 	return "true"
 }
 
-func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) error {
-	if enabled == "true" {
-		return resources.EnableAutoRenew(c, resourceId)
-	}
-	return resources.DisableAutoRenew(c, resourceId)
-}
-
 func HasFilledOpt(d *schema.ResourceData, param string) bool {
 	_, b := d.GetOk(param)
 	return b

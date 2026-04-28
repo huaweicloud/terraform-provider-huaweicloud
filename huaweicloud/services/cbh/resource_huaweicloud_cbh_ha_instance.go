@@ -799,7 +799,7 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 				"master instance resource ID is not found in list API response", id)
 		}
 
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), masterResourceId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), masterResourceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the CBH HA instance (%s): %s", id, err)
 		}
 	}
