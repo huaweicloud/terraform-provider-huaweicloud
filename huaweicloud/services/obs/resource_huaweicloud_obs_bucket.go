@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -362,6 +363,16 @@ func ResourceObsBucket() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"kms_data_encryption": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"bucket_key_enabled": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -468,7 +479,15 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	if d.HasChanges("encryption", "sse_algorithm", "kms_key_id", "kms_key_project_id") {
+	encryptionChangeFields := []string{
+		"encryption",
+		"sse_algorithm",
+		"kms_key_id",
+		"kms_key_project_id",
+		"kms_data_encryption",
+		"bucket_key_enabled",
+	}
+	if d.HasChanges(encryptionChangeFields...) {
 		if err := resourceObsBucketEncryptionUpdate(conf, obsClientWithSignature, d); err != nil {
 			return diag.FromErr(err)
 		}
@@ -796,6 +815,14 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 			if raw, ok := d.GetOk("kms_key_id"); ok {
 				input.KMSMasterKeyID = raw.(string)
 				input.ProjectID = d.Get("kms_key_project_id").(string)
+			}
+
+			if raw, ok := d.GetOk("kms_data_encryption"); ok {
+				input.KMSDataEncryption = raw.(string)
+			}
+
+			if raw, ok := d.GetOk("bucket_key_enabled"); ok {
+				input.BucketKeyEnabled = raw.(string) == "true"
 			}
 		}
 
@@ -1326,6 +1353,8 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 					d.Set("kms_key_id", nil),
 					d.Set("kms_key_project_id", nil),
 					d.Set("sse_algorithm", nil),
+					d.Set("kms_data_encryption", nil),
+					d.Set("bucket_key_enabled", nil),
 				)
 				if mErr.ErrorOrNil() != nil {
 					return fmt.Errorf("error saving encryption of OBS bucket %s: %s", bucket, mErr)
@@ -1345,6 +1374,8 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 			d.Set("kms_key_id", output.KMSMasterKeyID),
 			d.Set("kms_key_project_id", output.ProjectID),
 			d.Set("sse_algorithm", sseAlgorithm),
+			d.Set("kms_data_encryption", output.KMSDataEncryption),
+			d.Set("bucket_key_enabled", strconv.FormatBool(output.BucketKeyEnabled)),
 		)
 	} else {
 		mErr = multierror.Append(mErr,
@@ -1352,6 +1383,8 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 			d.Set("kms_key_id", nil),
 			d.Set("kms_key_project_id", nil),
 			d.Set("sse_algorithm", nil),
+			d.Set("kms_data_encryption", nil),
+			d.Set("bucket_key_enabled", nil),
 		)
 	}
 	if mErr.ErrorOrNil() != nil {

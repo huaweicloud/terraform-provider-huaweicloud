@@ -168,8 +168,8 @@ func TestAccObsBucket_parallelFS(t *testing.T) {
 }
 
 func TestAccObsBucket_encryption(t *testing.T) {
-	rInt := acctest.RandInt()
-	resourceName := "huaweicloud_obs_bucket.bucket"
+	resourceName := "huaweicloud_obs_bucket.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -180,58 +180,47 @@ func TestAccObsBucket_encryption(t *testing.T) {
 		CheckDestroy:      testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccObsBucket_basic(rInt),
+				Config: testAccObsBucket_encryption(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
-					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "bucket", rName),
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_data_encryption", "SM4"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
 					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
-					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "bucket_domain_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "bucket_version"),
 				),
 			},
 			{
-				Config: testAccObsBucket_encryption(rInt),
+				Config: testAccObsBucket_encryption_update1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", rName),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "bucket_key_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "kms_key_id"),
-				),
-			},
-			{
-				Config: testAccObsBucket_encryptionByDefaultKMSMasterKey(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
-					resource.TestCheckResourceAttr(resourceName, "kms_key_id", ""),
-				),
-			},
-			{
-				Config: testAccObsBucket_encryptionBySSEObsMode(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
-					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "AES256"),
-				),
-			},
-			{
-				Config: testAccObsBucket_updateEncryptionToSSEKMSMode(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_data_encryption", "SM4"),
 					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
 				),
 			},
 			{
-				Config: testAccObsBucket_basic(rInt),
+				Config: testAccObsBucket_encryption_update2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
-					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
-					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
-					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
-					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
-					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", ""),
+					resource.TestCheckResourceAttr(resourceName, "bucket_key_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_data_encryption", ""),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "AES256"),
+				),
+			},
+			{
+				Config: testAccObsBucket_encryption_update3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
 				),
 			},
 		},
@@ -587,48 +576,53 @@ resource "huaweicloud_obs_bucket" "bucket" {
 `, randInt)
 }
 
-func testAccObsBucket_encryption(randInt int) string {
+func testAccObsBucket_encryption(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias    = "kms-%d"
+resource "huaweicloud_obs_bucket" "test" {
+  bucket              = "%s"
+  storage_class       = "STANDARD"
+  acl                 = "private"
+  encryption          = true
+  sse_algorithm       = "kms"
+  kms_data_encryption = "SM4"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName)
+}
+
+func testAccObsBucket_encryption_update1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[1]s"
   pending_days = "7"
 }
 
-resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "tf-test-bucket-%d"
-  storage_class = "STANDARD"
-  acl           = "private"
-  encryption    = true
-  kms_key_id    = huaweicloud_kms_key.key_1.id
+resource "huaweicloud_obs_bucket" "test" {
+  bucket              = "%[1]s"
+  storage_class       = "STANDARD"
+  acl                 = "private"
+  encryption          = true
+  sse_algorithm       = "kms"
+  kms_key_id          = huaweicloud_kms_key.test.id
+  kms_data_encryption = "SM4"
+  bucket_key_enabled  = "true"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, randInt, randInt)
+`, rName)
 }
 
-func testAccObsBucket_encryptionByDefaultKMSMasterKey(randInt int) string {
+func testAccObsBucket_encryption_update2(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "tf-test-bucket-%d"
-  storage_class = "STANDARD"
-  acl           = "private"
-  encryption    = true
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, randInt)
-}
-
-func testAccObsBucket_encryptionBySSEObsMode(randInt int) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "tf-test-bucket-%d"
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[1]s"
   storage_class = "STANDARD"
   acl           = "private"
   encryption    = true
@@ -639,13 +633,13 @@ resource "huaweicloud_obs_bucket" "bucket" {
     key = "value"
   }
 }
-`, randInt)
+`, rName)
 }
 
-func testAccObsBucket_updateEncryptionToSSEKMSMode(randInt int) string {
+func testAccObsBucket_encryption_update3(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "tf-test-bucket-%d"
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[1]s"
   storage_class = "STANDARD"
   acl           = "private"
   encryption    = true
@@ -656,7 +650,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
     key = "value"
   }
 }
-`, randInt)
+`, rName)
 }
 
 func testAccObsBucket_epsId(randInt int, enterpriseProjectId string) string {
