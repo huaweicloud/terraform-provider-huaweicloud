@@ -1,3 +1,88 @@
+Version 3.26.3
+
+New Features:
+
+1. Added new APIs for Object Tagging.
+2. Supported encryption configuration during bucket creation.
+
+Bug Fixes:
+
+1. Fixed an issue where Content-Length was set to 0 when uploading a 0KB object using chunked mode.
+
+-----------------------------------------------------------------------------------
+
+Version 3.25.9
+
+New Features:
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Fixed an issue where the first byte could not be downloaded using range.
+
+-----------------------------------------------------------------------------------
+
+Version 3.25.4
+
+New Features:
+1. Supports passing metadata when use UploadFile method.
+
+Documentation & Demo:
+
+Resolved Issues:
+
+-----------------------------------------------------------------------------------
+
+Version 3.25.3
+
+New Features:
+1. Added BPA feature.
+2. Added intelligent tiering feature.
+
+Documentation & Demo:
+1. Added descriptions about BPA APIs.
+
+Resolved Issues:
+
+-----------------------------------------------------------------------------------
+
+Version 3.24.9
+
+New Features:
+1. Added list POSIX Object API.
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Optimize error log printing.
+
+-----------------------------------------------------------------------------------
+
+Version 3.24.6
+
+New Features:
+1. Supports passing metadata when use CopyObject and InitiateMultipartUpload method.
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Fixed the issue where bucket acl configuration failed in some scenarios.
+2. Fixed the issue where data transmission exception in retry scenarios.
+
+-----------------------------------------------------------------------------------
+
+Version 3.24.3
+
+New Features:
+1. Added directory accesslable-related APIs, including SetDirAccesslabel, GetDirAccesslabel, and DeleteDirAccesslabel.
+
+Documentation & Demo:
+1. Added descriptions about directory accesslable-related APIs.
+
+Resolved Issues:
+
+-----------------------------------------------------------------------------------
+
 Version 3.23.12
 
 New Features:

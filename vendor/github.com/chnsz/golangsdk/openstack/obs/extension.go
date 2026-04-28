@@ -13,6 +13,11 @@
 package obs
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -59,4 +64,40 @@ func WithCustomHeader(key string, value string) extensionHeaders {
 		headers[key] = []string{value}
 		return nil
 	}
+}
+
+func PreprocessCallbackInputToSHA256(callbackInput *CallbackInput) (output string, err error) {
+
+	if callbackInput == nil {
+		return "", fmt.Errorf("the parameter can not be nil")
+	}
+
+	if callbackInput.CallbackUrl == "" {
+		return "", fmt.Errorf("the parameter [CallbackUrl] can not be empty")
+	}
+
+	if callbackInput.CallbackBody == "" {
+		return "", fmt.Errorf("the parameter [CallbackBody] can not be empty")
+	}
+
+	callbackBuffer := bytes.NewBuffer([]byte{})
+	callbackEncoder := json.NewEncoder(callbackBuffer)
+	// 避免HTML字符转义
+	callbackEncoder.SetEscapeHTML(false)
+	err = callbackEncoder.Encode(callbackInput)
+	if err != nil {
+		return "", err
+	}
+	callbackVal := base64.StdEncoding.EncodeToString(removeEndNewlineCharacter(callbackBuffer))
+	// 计算SHA256哈希
+	hash := sha256.Sum256([]byte(callbackVal))
+
+	// 将哈希转换为十六进制字符串
+	return hex.EncodeToString(hash[:]), nil
+
+}
+
+// Encode函数会默认在json结尾增加换行符，导致base64转码结果与其他方式不一致，需要去掉末尾的换行符
+func removeEndNewlineCharacter(callbackBuffer *bytes.Buffer) []byte {
+	return callbackBuffer.Bytes()[:callbackBuffer.Len()-1]
 }

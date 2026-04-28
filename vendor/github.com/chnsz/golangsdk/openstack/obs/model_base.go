@@ -239,7 +239,7 @@ type BucketLoggingStatus struct {
 
 // Transition defines transition property in LifecycleRule
 type Transition struct {
-	XMLName      xml.Name         `xml:"Transition"`
+	XMLName      xml.Name         `xml:"Transition" json:"-"`
 	Date         time.Time        `xml:"Date,omitempty"`
 	Days         int              `xml:"Days,omitempty"`
 	StorageClass StorageClassType `xml:"StorageClass"`
@@ -247,7 +247,7 @@ type Transition struct {
 
 // Expiration defines expiration property in LifecycleRule
 type Expiration struct {
-	XMLName                   xml.Name  `xml:"Expiration"`
+	XMLName                   xml.Name  `xml:"Expiration" json:"-"`
 	Date                      time.Time `xml:"Date,omitempty"`
 	Days                      int       `xml:"Days,omitempty"`
 	ExpiredObjectDeleteMarker string    `xml:"ExpiredObjectDeleteMarker,omitempty"`
@@ -255,20 +255,20 @@ type Expiration struct {
 
 // NoncurrentVersionTransition defines noncurrentVersion transition property in LifecycleRule
 type NoncurrentVersionTransition struct {
-	XMLName        xml.Name         `xml:"NoncurrentVersionTransition"`
+	XMLName        xml.Name         `xml:"NoncurrentVersionTransition" json:"-"`
 	NoncurrentDays int              `xml:"NoncurrentDays"`
 	StorageClass   StorageClassType `xml:"StorageClass"`
 }
 
 // NoncurrentVersionExpiration defines noncurrentVersion expiration property in LifecycleRule
 type NoncurrentVersionExpiration struct {
-	XMLName        xml.Name `xml:"NoncurrentVersionExpiration"`
+	XMLName        xml.Name `xml:"NoncurrentVersionExpiration" json:"-"`
 	NoncurrentDays int      `xml:"NoncurrentDays"`
 }
 
 // AbortIncompleteMultipartUpload defines abortIncomplete expiration property in LifecycleRule
 type AbortIncompleteMultipartUpload struct {
-	XMLName             xml.Name `xml:"AbortIncompleteMultipartUpload"`
+	XMLName             xml.Name `xml:"AbortIncompleteMultipartUpload" json:"-"`
 	DaysAfterInitiation int      `xml:"DaysAfterInitiation"`
 }
 
@@ -286,17 +286,20 @@ type LifecycleRule struct {
 }
 
 type LifecycleFilter struct {
-	XMLName xml.Name `xml:"Filter"`
+	XMLName xml.Name `xml:"Filter" json:"-"`
 	Prefix  string   `xml:"And>Prefix,omitempty"`
 	Tags    []Tag    `xml:"And>Tag,omitempty"`
 }
 
 // BucketEncryptionConfiguration defines the bucket encryption configuration
 type BucketEncryptionConfiguration struct {
-	XMLName        xml.Name `xml:"ServerSideEncryptionConfiguration"`
-	SSEAlgorithm   string   `xml:"Rule>ApplyServerSideEncryptionByDefault>SSEAlgorithm"`
-	KMSMasterKeyID string   `xml:"Rule>ApplyServerSideEncryptionByDefault>KMSMasterKeyID,omitempty"`
-	ProjectID      string   `xml:"Rule>ApplyServerSideEncryptionByDefault>ProjectID,omitempty"`
+	XMLName                 xml.Name `xml:"ServerSideEncryptionConfiguration"`
+	SSEAlgorithm            string   `xml:"Rule>ApplyServerSideEncryptionByDefault>SSEAlgorithm"`
+	KMSMasterKeyID          string   `xml:"Rule>ApplyServerSideEncryptionByDefault>KMSMasterKeyID,omitempty"`
+	KMSDataEncryption       string   `xml:"Rule>ApplyServerSideEncryptionByDefault>KMSDataEncryption,omitempty"`
+	ProjectID               string   `xml:"Rule>ApplyServerSideEncryptionByDefault>ProjectID,omitempty"`
+	BucketKeyEnabled        bool     `xml:"Rule>BucketKeyEnabled,omitempty"`
+	BucketKeyRotationPeriod int64    `xml:"Rule>BucketKeyRotationPeriod,omitempty"`
 }
 
 // ReplicationRule defines bucket cross-region replication rule
@@ -394,6 +397,24 @@ type Part struct {
 type BucketPayer struct {
 	XMLName xml.Name  `xml:"RequestPaymentConfiguration"`
 	Payer   PayerType `xml:"Payer"`
+}
+
+type PublicAccessBlockConfiguration struct {
+	XMLName               xml.Name `xml:"PublicAccessBlockConfiguration"`
+	BlockPublicAcls       bool     `xml:"BlockPublicAcls"`
+	IgnorePublicAcls      bool     `xml:"IgnorePublicAcls"`
+	BlockPublicPolicy     bool     `xml:"BlockPublicPolicy"`
+	RestrictPublicBuckets bool     `xml:"RestrictPublicBuckets"`
+}
+
+type PolicyPublicStatus struct {
+	XMLName  xml.Name `xml:"PolicyStatus"`
+	IsPublic bool     `xml:"IsPublic"`
+}
+
+type BucketPublicStatus struct {
+	XMLName  xml.Name `xml:"BucketStatus"`
+	IsPublic bool     `xml:"IsPublic"`
 }
 
 // HttpHeader defines the standard metadata

@@ -14,6 +14,7 @@ package obs
 
 import (
 	"io"
+	"strconv"
 )
 
 type IRepeatable interface {
@@ -112,6 +113,22 @@ func (header SseKmsHeader) GetKey() string {
 	return header.Key
 }
 
+func (header SseKmsHeader) GetDataEncryption() string {
+	return header.DataEncryption
+}
+
+func (header SseKmsHeader) GetBucketKeyEnabled() bool {
+	return header.BucketKeyEnabled
+}
+
+func (header SseKmsHeader) GetProjectId() string {
+	return header.ProjectID
+}
+
+func (header SseKmsHeader) GetRotationPeriod() int64 {
+	return header.RotationPeriod
+}
+
 // GetEncryption gets the Encryption field value from SseCHeader
 func (header SseCHeader) GetEncryption() string {
 	if header.Encryption != "" {
@@ -137,17 +154,33 @@ func (header SseCHeader) GetKeyMD5() string {
 	return ""
 }
 
-func setSseHeader(headers map[string][]string, sseHeader ISseHeader, sseCOnly bool, isObs bool) {
+func setSseHeader(headers map[string][]string, sseHeader ISseHeader, sseCOnly bool, sseKmsOnly bool, isObs bool) {
 	if sseHeader != nil {
-		if sseCHeader, ok := sseHeader.(SseCHeader); ok {
+		if sseCHeader, ok := sseHeader.(SseCHeader); !sseKmsOnly && ok {
 			setHeaders(headers, HEADER_SSEC_ENCRYPTION, []string{sseCHeader.GetEncryption()}, isObs)
 			setHeaders(headers, HEADER_SSEC_KEY, []string{sseCHeader.GetKey()}, isObs)
 			setHeaders(headers, HEADER_SSEC_KEY_MD5, []string{sseCHeader.GetKeyMD5()}, isObs)
 		} else if sseKmsHeader, ok := sseHeader.(SseKmsHeader); !sseCOnly && ok {
-			sseKmsHeader.isObs = isObs
 			setHeaders(headers, HEADER_SSEKMS_ENCRYPTION, []string{sseKmsHeader.GetEncryption()}, isObs)
 			if sseKmsHeader.GetKey() != "" {
 				setHeadersNext(headers, HEADER_SSEKMS_KEY_OBS, HEADER_SSEKMS_KEY_AMZ, []string{sseKmsHeader.GetKey()}, isObs)
+			}
+
+			if sseKmsHeader.GetProjectId() != "" {
+				setHeaders(headers, HEADER_SSEKMS_KEY_PROJECT, []string{sseKmsHeader.GetProjectId()}, isObs)
+			}
+
+			if sseKmsHeader.GetDataEncryption() != "" {
+				setHeaders(headers, HEADER_SSEKMS_DATA_ENCRYPTION, []string{sseKmsHeader.GetDataEncryption()}, isObs)
+			}
+
+			if sseKmsHeader.GetBucketKeyEnabled() {
+				setHeaders(headers, HEADER_SSEKMS_ENCRYPT_BUCKET_KEY_ENABLED, []string{"true"}, isObs)
+			}
+
+			if sseKmsHeader.GetRotationPeriod() >= 0 {
+				ret := strconv.FormatInt(sseKmsHeader.GetRotationPeriod(), 10)
+				setHeaders(headers, HEADER_SSEKMS_ENCRYPT_BUCKET_KEY_ROTATION_PERIOD, []string{ret}, isObs)
 			}
 		}
 	}

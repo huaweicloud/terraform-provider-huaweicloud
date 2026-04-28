@@ -20,9 +20,13 @@ type ISseHeader interface {
 
 // SseKmsHeader defines the SseKms header
 type SseKmsHeader struct {
-	Encryption string
-	Key        string
-	isObs      bool
+	Encryption       string
+	DataEncryption   string
+	BucketKeyEnabled bool
+	RotationPeriod   int64
+	Key              string
+	ProjectID        string
+	isObs            bool
 }
 
 // SseCHeader defines the SseC header

@@ -93,9 +93,17 @@ func (obsClient ObsClient) CreateBrowserBasedSignature(input *CreateBrowserBased
 		originPolicySlice = append(originPolicySlice, "[\"starts-with\", \"$key\", \"\"],")
 	}
 
+	for _, v := range input.RangeParams {
+		originPolicySlice = append(originPolicySlice, fmt.Sprintf("[\"%s\", %d, %d],", v.RangeName, v.Lower, v.Upper))
+	}
+
+	lastIndex := len(originPolicySlice) - 1
+	originPolicySlice[lastIndex] = strings.TrimSuffix(originPolicySlice[lastIndex], ",")
+
 	originPolicySlice = append(originPolicySlice, "]}")
 
 	originPolicy := strings.Join(originPolicySlice, "")
+
 	policy := Base64Encode([]byte(originPolicy))
 	var signature string
 	if obsClient.conf.signature == SignatureV4 {

@@ -46,6 +46,32 @@ func (obsClient ObsClient) ListObjects(input *ListObjectsInput, extensions ...ex
 	return
 }
 
+// ListPosixObjects lists objects in a posix.
+//
+// You can use this API to list objects in a posix. By default, a maximum of 1000 objects are listed.
+func (obsClient ObsClient) ListPosixObjects(input *ListPosixObjectsInput, extensions ...extensionOptions) (output *ListPosixObjectsOutput, err error) {
+	if input == nil {
+		return nil, errors.New("ListPosixObjects is nil")
+	}
+	output = &ListPosixObjectsOutput{}
+	err = obsClient.doActionWithBucket("ListPosixObjects", HTTP_GET, input.Bucket, input, output, extensions)
+	if err != nil {
+		output = nil
+	} else {
+		if location, ok := output.ResponseHeaders[HEADER_BUCKET_REGION]; ok {
+			output.Location = location[0]
+		}
+		if output.EncodingType == "url" {
+			err = decodeListPosixObjectsOutput(output)
+			if err != nil {
+				doLog(LEVEL_ERROR, "Failed to get ListPosixObjectsOutput with error: %v.", err)
+				output = nil
+			}
+		}
+	}
+	return
+}
+
 // ListVersions lists versioning objects in a bucket.
 //
 // You can use this API to list versioning objects in a bucket. By default, a maximum of 1000 versioning objects are listed.
@@ -97,6 +123,52 @@ func (obsClient ObsClient) SetObjectMetadata(input *SetObjectMetadataInput, exte
 		ParseSetObjectMetadataOutput(output)
 	}
 	return
+}
+
+// GetObjectTagging gets object tags
+func (obsClient ObsClient) GetObjectTagging(input *GetObjectTaggingInput, extensions ...extensionOptions) (output *GetObjectTaggingOutput, err error) {
+	if input == nil {
+		return nil, errors.New("GetObjectTaggingInput is nil")
+	}
+	output = &GetObjectTaggingOutput{}
+	err = obsClient.doActionWithBucketAndKey("GetObjectTagging", HTTP_GET, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		return nil, err
+	}
+	updateVersionId(&output.ObjectTaggingOutput)
+	return output, nil
+}
+
+// SetObjectTagging sets object tags
+func (obsClient ObsClient) SetObjectTagging(input *SetObjectTaggingInput, extensions ...extensionOptions) (output *SetObjectTaggingOutput, err error) {
+	if input == nil {
+		return nil, errors.New("SetObjectTaggingInput is nil")
+	}
+
+	output = &SetObjectTaggingOutput{}
+	err = obsClient.doActionWithBucketAndKey("SetObjectTagging", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		return nil, err
+	}
+
+	updateVersionId(&output.ObjectTaggingOutput)
+	return output, nil
+}
+
+// DeleteObjectTagging deletes object tags
+func (obsClient ObsClient) DeleteObjectTagging(input *DeleteObjectTaggingInput, extensions ...extensionOptions) (output *DeleteObjectTaggingOutput, err error) {
+	if input == nil {
+		return nil, errors.New("DeleteObjectTaggingInput is nil")
+	}
+
+	output = &DeleteObjectTaggingOutput{}
+	err = obsClient.doActionWithBucketAndKey("DeleteObjectTagging", HTTP_DELETE, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		return nil, err
+	}
+
+	updateVersionId(&output.ObjectTaggingOutput)
+	return output, nil
 }
 
 // DeleteObject deletes an object.
@@ -221,6 +293,9 @@ func (obsClient ObsClient) GetAttribute(input *GetAttributeInput, extensions ...
 func (obsClient ObsClient) GetObject(input *GetObjectInput, extensions ...extensionOptions) (output *GetObjectOutput, err error) {
 	if input == nil {
 		return nil, errors.New("GetObjectInput is nil")
+	}
+	if input.Range != "" && !strings.HasPrefix(input.Range, "bytes=") {
+		return nil, errors.New("Range should start with [bytes=]")
 	}
 	output = &GetObjectOutput{}
 	err = obsClient.doActionWithBucketAndKeyWithProgress(GET_OBJECT, HTTP_GET, input.Bucket, input.Key, input, output, extensions, nil)
@@ -499,6 +574,42 @@ func (obsClient ObsClient) RenameFolder(input *RenameFolderInput, extensions ...
 	}
 	output = &RenameFolderOutput{}
 	err = obsClient.doActionWithBucketAndKey("RenameFolder", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) SetDirAccesslabel(input *SetDirAccesslabelInput, extensions ...extensionOptions) (output *BaseModel, err error) {
+	if input == nil {
+		return nil, errors.New("SetDirAccesslabelInput is nil")
+	}
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucketAndKeyV2("SetDirAccesslabel", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) GetDirAccesslabel(input *GetDirAccesslabelInput, extensions ...extensionOptions) (output *GetDirAccesslabelOutput, err error) {
+	if input == nil {
+		return nil, errors.New("GetDirAccesslabelInput is nil")
+	}
+	output = &GetDirAccesslabelOutput{}
+	err = obsClient.doActionWithBucketAndKeyV2("GetDirAccesslabel", HTTP_GET, input.Bucket, input.Key, input, output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) DeleteDirAccesslabel(input *DeleteDirAccesslabelInput, extensions ...extensionOptions) (output *BaseModel, err error) {
+	if input == nil {
+		return nil, errors.New("DeleteDirAccesslabelInput is nil")
+	}
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucketAndKeyV2("DeleteDirAccesslabel", HTTP_DELETE, input.Bucket, input.Key, input, output, extensions)
 	if err != nil {
 		output = nil
 	}
