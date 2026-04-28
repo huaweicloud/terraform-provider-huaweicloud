@@ -21,6 +21,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -1251,7 +1252,7 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 
 	if d.HasChange("auto_renew") {
 		// resource_id is different from job_id
-		resourceIDs, err := common.GetResourceIDsByOrder(bssClient, d.Get("order_id").(string), 1)
+		resourceIDs, err := cbc.GetResourceIDsByOrder(bssClient, d.Get("order_id").(string), 1)
 		if err != nil || len(resourceIDs) == 0 {
 			return diag.Errorf("error getting resource IDs: %s", err)
 		}
@@ -1408,7 +1409,7 @@ func waitForOrderDetail(ctx context.Context, bssV2Client *golangsdk.ServiceClien
 		Pending: []string{"pending"},
 		Target:  []string{"complete"},
 		Refresh: func() (interface{}, string, error) {
-			resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, orderId, 1)
+			resourceIDs, err := cbc.GetResourceIDsByOrder(bssV2Client, orderId, 1)
 			if err != nil {
 				if strings.Contains(err.Error(), "response empty") {
 					return resourceIDs, "pending", nil
@@ -1461,7 +1462,7 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, orderId, 1)
+		resourceIDs, err := cbc.GetResourceIDsByOrder(bssV2Client, orderId, 1)
 		if err != nil {
 			return diag.Errorf("error getting resource IDs: %s", err)
 		}

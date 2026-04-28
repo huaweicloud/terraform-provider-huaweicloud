@@ -1,9 +1,20 @@
 package cbc
 
 import (
+	"fmt"
 	"strings"
 
+	// "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
+	// "github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
+	// "github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+	// "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
+	// "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	// "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // PaySubscriptionOrder is a method used to pay for a subscription order.
@@ -30,4 +41,28 @@ func buildPaySubscriptionOrderBodyParams(orderId string) map[string]interface{} 
 		"use_coupon":   "NO",
 		"use_discount": "NO",
 	}
+}
+
+// GetResourceIDsByOrder returns resource IDs from an order.
+func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
+	if strings.TrimSpace(orderId) == "" {
+		return nil, fmt.Errorf("order id is empty")
+	}
+	listOpts := resources.ListOpts{
+		OrderId:          orderId,
+		OnlyMainResource: onlyMainResource,
+	}
+	resp, err := resources.List(client, listOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error getting order (%s) details: %s", orderId, err)
+	}
+	if resp == nil || resp.TotalCount < 1 {
+		return nil, fmt.Errorf("error getting order (%s) details: response empty", orderId)
+	}
+
+	rst := make([]string, len(resp.Resources))
+	for i, v := range resp.Resources {
+		rst[i] = v.ResourceId
+	}
+	return rst, nil
 }
