@@ -77,6 +77,7 @@ var (
 	HW_CBR_DESTINATION_VAULT_ID   = os.Getenv("HW_CBR_DESTINATION_VAULT_ID")   // The destination vault ID.
 
 	HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED = os.Getenv("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED")
+	HW_VPC_BANDWIDTH_NAME                  = os.Getenv("HW_VPC_BANDWIDTH_NAME")
 	HW_VPC_EIP_POOL_ENABLED                = os.Getenv("HW_VPC_EIP_POOL_ENABLED")
 
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
@@ -4726,6 +4727,13 @@ func TestAccPreCheckVpcEipPoolEnabled(t *testing.T) {
 func TestAccPreCheckVpcEipBandwidthAddOnPackageEnabled(t *testing.T) {
 	if HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED == "" {
 		t.Skip("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVpcEipBandwidthName(t *testing.T) {
+	if HW_VPC_BANDWIDTH_NAME == "" {
+		t.Skip("HW_VPC_BANDWIDTH_NAME must be set for the acceptance test")
 	}
 }
 
