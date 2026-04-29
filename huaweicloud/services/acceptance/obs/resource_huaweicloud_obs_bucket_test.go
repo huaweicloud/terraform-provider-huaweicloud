@@ -227,6 +227,51 @@ func TestAccObsBucket_encryption(t *testing.T) {
 	})
 }
 
+func TestAccObsBucket_encryptionWithPfs(t *testing.T) {
+	resourceName := "huaweicloud_obs_bucket.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+			acceptance.TestAccPreCheckProjectID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucket_encryptionWithPfs(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", rName),
+					resource.TestCheckResourceAttr(resourceName, "bucket_key_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_data_encryption", "SM4"),
+					resource.TestCheckResourceAttr(resourceName, "kms_key_project_id", acceptance.HW_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_id", "huaweicloud_kms_key.test", "id"),
+				),
+			},
+			{
+				Config: testAccObsBucket_encryptionWithPfs_update1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", rName),
+					resource.TestCheckResourceAttr(resourceName, "bucket_key_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_data_encryption", "SM4"),
+					resource.TestCheckResourceAttr(resourceName, "kms_key_project_id", acceptance.HW_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_id", "huaweicloud_kms_key.test_another", "id"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccObsBucket_versioning(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket.bucket"
@@ -651,6 +696,50 @@ resource "huaweicloud_obs_bucket" "test" {
   }
 }
 `, rName)
+}
+
+func testAccObsBucket_encryptionWithPfs(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[1]s"
+  pending_days = "7"
+}
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket              = "%[1]s"
+  storage_class       = "STANDARD"
+  acl                 = "private"
+  parallel_fs         = true
+  encryption          = true
+  sse_algorithm       = "kms"
+  bucket_key_enabled  = "true"
+  kms_key_id          = huaweicloud_kms_key.test.id
+  kms_key_project_id  = "%[2]s"
+  kms_data_encryption = "SM4"
+}
+`, rName, acceptance.HW_PROJECT_ID)
+}
+
+func testAccObsBucket_encryptionWithPfs_update1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test_another" {
+  key_alias    = "%[1]s_another"
+  pending_days = "7"
+}
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket              = "%[1]s"
+  storage_class       = "STANDARD"
+  acl                 = "private"
+  parallel_fs         = true
+  encryption          = true
+  sse_algorithm       = "kms"
+  bucket_key_enabled  = "true"
+  kms_key_id          = huaweicloud_kms_key.test_another.id
+  kms_key_project_id  = "%[2]s"
+  kms_data_encryption = "SM4"
+}
+`, rName, acceptance.HW_PROJECT_ID)
 }
 
 func testAccObsBucket_epsId(randInt int, enterpriseProjectId string) string {

@@ -163,6 +163,28 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 ```
 
+### using parallel file system with encryption
+
+```hcl
+variable "kms_key_id" {}
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket              = "test-hang-3"
+  storage_class       = "STANDARD"
+  acl                 = "private"
+  parallel_fs         = true
+  encryption          = true
+  sse_algorithm       = "kms"
+  bucket_key_enabled  = "true"
+  kms_key_id          = var.kms_key_id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -220,6 +242,10 @@ The following arguments are supported:
 
 * `parallel_fs` - (Optional, Bool, ForceNew) Whether enable a bucket as a parallel file system. Changing this will
   create a new bucket.
+
+  -> Currently, the parallel file system only supports KMS mode encryption. When configuring encryption for a parallel
+  file system, the following fields must be configured simultaneously: `encryption`, `sse_algorithm`, `kms_key_id`, and
+  `bucket_key_enabled`.
 
 * `multi_az` - (Optional, Bool, ForceNew) Whether enable the multi-AZ mode for the bucket. When the multi-AZ mode is
   enabled, data in the bucket is duplicated and stored in multiple AZs.
