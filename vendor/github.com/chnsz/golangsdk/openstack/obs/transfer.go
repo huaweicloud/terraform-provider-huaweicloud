@@ -97,6 +97,9 @@ func (task *uploadPartTask) Run() interface{} {
 	input.SourceFile = task.SourceFile
 	input.Offset = task.Offset
 	input.PartSize = task.PartSize
+	input.ContentMD5 = task.ContentMD5
+	input.ContentSHA256 = task.ContentSHA256
+
 	extensions := task.extensions
 
 	var output *UploadPartOutput
@@ -140,7 +143,7 @@ func updateCheckpointFile(fc interface{}, checkpointFilePath string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(checkpointFilePath, result, 0666)
+	err = ioutil.WriteFile(checkpointFilePath, result, 0640)
 	return err
 }
 
@@ -180,7 +183,14 @@ func getCheckpointFile(ufc *UploadCheckpoint, uploadFileStat os.FileInfo, input 
 func prepareUpload(ufc *UploadCheckpoint, uploadFileStat os.FileInfo, input *UploadFileInput, obsClient *ObsClient, extensions []extensionOptions) error {
 	initiateInput := &InitiateMultipartUploadInput{}
 	initiateInput.ObjectOperationInput = input.ObjectOperationInput
-	initiateInput.ContentType = input.ContentType
+	initiateInput.HttpHeader = HttpHeader{
+		CacheControl:       input.CacheControl,
+		ContentEncoding:    input.ContentEncoding,
+		ContentType:        input.ContentType,
+		ContentDisposition: input.ContentDisposition,
+		ContentLanguage:    input.ContentLanguage,
+		HttpExpires:        input.HttpExpires,
+	}
 	initiateInput.EncodingType = input.EncodingType
 	var output *InitiateMultipartUploadOutput
 	var err error
@@ -531,7 +541,7 @@ func (task *downloadPartTask) Run() interface{} {
 	getObjectInput.IfUnmodifiedSince = task.IfUnmodifiedSince
 	getObjectInput.RangeStart = task.RangeStart
 	getObjectInput.RangeEnd = task.RangeEnd
-
+	getObjectInput.Range = fmt.Sprintf("bytes=%d-%d", getObjectInput.RangeStart, getObjectInput.RangeEnd)
 	var output *GetObjectOutput
 	var err error
 	if len(task.extensions) != 0 {
@@ -634,7 +644,7 @@ func sliceObject(objectSize, partSize int64, dfc *DownloadCheckpoint) {
 }
 
 func createFile(tempFileURL string, fileSize int64) error {
-	fd, err := syscall.Open(tempFileURL, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	fd, err := syscall.Open(tempFileURL, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0640)
 	if err != nil {
 		doLog(LEVEL_WARN, "Failed to open temp download file [%s].", tempFileURL)
 		return err
@@ -671,7 +681,7 @@ func prepareTempFile(tempFileURL string, fileSize int64) error {
 	if err == nil {
 		return nil
 	}
-	fd, err := os.OpenFile(tempFileURL, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	fd, err := os.OpenFile(tempFileURL, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0640)
 	if err != nil {
 		doLog(LEVEL_ERROR, "Failed to open temp download file [%s].", tempFileURL)
 		return err
@@ -780,7 +790,7 @@ func (obsClient ObsClient) resumeDownload(input *DownloadFileInput, extensions [
 }
 
 func updateDownloadFile(filePath string, rangeStart int64, output *GetObjectOutput) error {
-	fd, err := os.OpenFile(filePath, os.O_WRONLY, 0666)
+	fd, err := os.OpenFile(filePath, os.O_WRONLY, 0640)
 	if err != nil {
 		doLog(LEVEL_ERROR, "Failed to open file [%s].", filePath)
 		return err

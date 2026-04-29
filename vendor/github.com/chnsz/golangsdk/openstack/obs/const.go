@@ -13,7 +13,7 @@
 package obs
 
 const (
-	OBS_SDK_VERSION        = "3.23.12"
+	OBS_SDK_VERSION        = "3.26.3"
 	USER_AGENT             = "obs-sdk-go/" + OBS_SDK_VERSION
 	HEADER_PREFIX          = "x-amz-"
 	HEADER_PREFIX_META     = "x-amz-meta-"
@@ -50,6 +50,7 @@ const (
 	HEADER_GRANT_FULL_CONTROL_DELIVERED_OBS = "grant-full-control-delivered"
 	HEADER_REQUEST_ID                       = "request-id"
 	HEADER_ERROR_CODE                       = "error-code"
+	HEADER_ERROR_INDICATOR                  = "x-reserved-indicator"
 	HEADER_ERROR_MESSAGE                    = "error-message"
 	HEADER_BUCKET_REGION                    = "bucket-region"
 	HEADER_ACCESS_CONRTOL_ALLOW_ORIGIN      = "access-control-allow-origin"
@@ -100,9 +101,13 @@ const (
 	HEADER_SSEC_KEY        = "server-side-encryption-customer-key"
 	HEADER_SSEC_KEY_MD5    = "server-side-encryption-customer-key-MD5"
 
-	HEADER_SSEKMS_ENCRYPTION      = "server-side-encryption"
-	HEADER_SSEKMS_KEY             = "server-side-encryption-aws-kms-key-id"
-	HEADER_SSEKMS_ENCRYPT_KEY_OBS = "server-side-encryption-kms-key-id"
+	HEADER_SSEKMS_ENCRYPTION                         = "server-side-encryption"
+	HEADER_SSEKMS_DATA_ENCRYPTION                    = "server-side-data-encryption"
+	HEADER_SSEKMS_KEY                                = "server-side-encryption-aws-kms-key-id"
+	HEADER_SSEKMS_ENCRYPT_KEY_OBS                    = "server-side-encryption-kms-key-id"
+	HEADER_SSEKMS_KEY_PROJECT                        = "sse-kms-key-project-id"
+	HEADER_SSEKMS_ENCRYPT_BUCKET_KEY_ENABLED         = "server-side-encryption-bucket-key-enabled"
+	HEADER_SSEKMS_ENCRYPT_BUCKET_KEY_ROTATION_PERIOD = "server-side-encryption-bucket-key-rotation-period"
 
 	HEADER_SSEC_COPY_SOURCE_ENCRYPTION = "copy-source-server-side-encryption-customer-algorithm"
 	HEADER_SSEC_COPY_SOURCE_KEY        = "copy-source-server-side-encryption-customer-key"
@@ -117,10 +122,13 @@ const (
 	headerFSFileInterface = "fs-file-interface"
 
 	HEADER_DATE_CAMEL                          = "Date"
+	HEADER_DATE                                = "date"
 	HEADER_HOST_CAMEL                          = "Host"
 	HEADER_HOST                                = "host"
 	HEADER_AUTH_CAMEL                          = "Authorization"
 	HEADER_MD5_CAMEL                           = "Content-MD5"
+	HEADER_SHA256_CAMEL                        = "Content-SHA256"
+	HEADER_SHA256                              = "content-sha256"
 	HEADER_LOCATION_CAMEL                      = "Location"
 	HEADER_CONTENT_LENGTH_CAMEL                = "Content-Length"
 	HEADER_CONTENT_TYPE_CAML                   = "Content-Type"
@@ -197,11 +205,19 @@ const (
 	MIN_PART_SIZE     = 100 * 1024
 	DEFAULT_PART_SIZE = 9 * 1024 * 1024
 	MAX_PART_NUM      = 10000
+	MAX_LOG_SIZE      = 1000
 
-	GET_OBJECT    = "GetObject"
-	PUT_OBJECT    = "PutObject"
-	PUT_FILE      = "PutFile"
-	APPEND_OBJECT = "AppendObject"
+	GET_OBJECT                  = "GetObject"
+	PUT_OBJECT                  = "PutObject"
+	PUT_FILE                    = "PutFile"
+	APPEND_OBJECT               = "AppendObject"
+	MAX_CERT_XML_BODY_SIZE      = 40 * 1024
+	CERT_ID_SIZE                = 16
+	MAX_CERTIFICATE_NAME_LENGTH = 63
+	MIN_CERTIFICATE_NAME_LENGTH = 3
+	CERTIFICATE_FIELD_NAME      = "CERTIFICATE ID SIZE"
+	NAME_LENGTH                 = "Name Length"
+	XML_SIZE                    = "XML SIZE"
 )
 
 var (
@@ -210,6 +226,7 @@ var (
 	allowedRequestHTTPHeaderMetadataNames = map[string]bool{
 		"content-type":                   true,
 		"content-md5":                    true,
+		"content-sha256":                 true,
 		"content-length":                 true,
 		"content-language":               true,
 		"expires":                        true,
@@ -232,15 +249,18 @@ var (
 		"last-modified":                  true,
 		"content-range":                  true,
 		"accept-encoding":                true,
+		"x-hic-info":                     true,
+		"safe-area":                      true,
 	}
 
 	allowedLogResponseHTTPHeaderNames = map[string]bool{
-		"content-type":   true,
-		"etag":           true,
-		"connection":     true,
-		"content-length": true,
-		"date":           true,
-		"server":         true,
+		"content-type":         true,
+		"etag":                 true,
+		"connection":           true,
+		"content-length":       true,
+		"date":                 true,
+		"server":               true,
+		"x-reserved-indicator": true,
 	}
 
 	allowedResourceParameterNames = map[string]bool{
@@ -290,6 +310,19 @@ var (
 		"rename":                       true,
 		"customdomain":                 true,
 		"mirrorbacktosource":           true,
+		"x-obs-accesslabel":            true,
+		"object-lock":                  true,
+		"retention":                    true,
+		"x-obs-security-token":         true,
+		"truncate":                     true,
+		"length":                       true,
+		"inventory":                    true,
+		"directcoldaccess":             true,
+		"attname":                      true,
+		"cdnnotifyconfiguration":       true,
+		"publicaccessblock":            true,
+		"bucketstatus":                 true,
+		"policystatus":                 true,
 	}
 
 	obsStorageClasses = []string{
@@ -297,5 +330,6 @@ var (
 		string(StorageClassWarm),
 		string(StorageClassCold),
 		string(StorageClassDeepArchive),
+		string(StorageClassIntelligentTiering),
 	}
 )

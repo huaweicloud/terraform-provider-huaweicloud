@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CFW POST /v1/{project_id}/address-groups/batch-delete
+// @API CFW POST /v1/{project_id}/address-sets/batch-delete
 func ResourceBatchDeleteAddressGroups() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBatchDeleteAddressGroupsCreate,

@@ -122,9 +122,9 @@ func FormatUtcNow(format string) string {
 	return time.Now().UTC().Format(format)
 }
 
-// FormatNow gets a textual representation of the format time value
-func FormatNow(format string) string {
-	return time.Now().Format(format)
+// FormatNowWithLoc gets a textual representation of the format time value with loc
+func FormatNowWithLoc(format string, loc *time.Location) string {
+	return time.Now().In(loc).Format(format)
 }
 
 // FormatUtcToRfc1123 gets a textual representation of the RFC1123 format time value
@@ -183,6 +183,19 @@ func Base64Md5(value []byte) string {
 	return Base64Encode(Md5(value))
 }
 
+// Base64Md5OrSha256 returns the md5 or sha256 value of input with Base64Encode
+func Base64Md5OrSha256(value []byte, enableSha256 bool) string {
+	if enableSha256 {
+		return Base64Sha256(value)
+	}
+	return Base64Md5(value)
+}
+
+// Base64Sha256 returns the sha256 value of input with Base64Encode
+func Base64Sha256(value []byte) string {
+	return Base64Encode(Sha256Hash(value))
+}
+
 // Sha256Hash returns sha256 checksum
 func Sha256Hash(value []byte) []byte {
 	hash := sha256.New()
@@ -215,6 +228,14 @@ func TransToXml(value interface{}) ([]byte, error) {
 		return []byte{}, nil
 	}
 	return xml.Marshal(value)
+}
+
+// TransToJSON wrapper of json.Marshal
+func TransToJSON(value interface{}) ([]byte, error) {
+	if value == nil {
+		return []byte{}, nil
+	}
+	return json.Marshal(value)
 }
 
 // Hex wrapper of hex.EncodeToString
@@ -624,4 +645,23 @@ func GetReaderLen(reader io.Reader) (int64, error) {
 		err = fmt.Errorf("can't get reader content length,unkown reader type")
 	}
 	return contentLength, err
+}
+
+func validateLength(value int, minLen int, maxLen int, fieldName string) error {
+	if minLen > maxLen {
+		return fmt.Errorf("Min Value can not be greater than Max Value")
+	}
+	if minLen == maxLen && value != minLen {
+		return fmt.Errorf("%s length must be %d characters. (value len: %d)", fieldName, maxLen, value)
+	}
+	if value < minLen || value > maxLen {
+		return fmt.Errorf("%s length must be between %d and %d characters. (value len: %d)", fieldName, minLen, maxLen, value)
+	}
+	return nil
+}
+
+func updateVersionId(objectTaggingOutput *ObjectTaggingOutput) {
+	if versionID, ok := objectTaggingOutput.ResponseHeaders[HEADER_VERSION_ID]; ok && len(versionID) > 0 {
+		objectTaggingOutput.VersionId = versionID[0]
+	}
 }

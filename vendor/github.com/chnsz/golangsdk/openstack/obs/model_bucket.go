@@ -14,6 +14,7 @@ package obs
 
 import (
 	"encoding/xml"
+	"time"
 )
 
 // DeleteBucketCustomDomainInput is the input parameter of DeleteBucketCustomDomain function
@@ -22,20 +23,27 @@ type DeleteBucketCustomDomainInput struct {
 	CustomDomain string
 }
 
-// GetBucketCustomDomainOuput is the result of GetBucketCustomdomain function
-type GetBucketCustomDomainOuput struct {
+// GetBucketCustomDomainOutput is the result of GetBucketCustomDomain function
+type GetBucketCustomDomainOutput struct {
 	BaseModel
 	Domains []Domain `xml:"Domains"`
 }
 
-// SetBucketCustomDomainInput is the input parameter of SetBucketCustomDomain function
+type CustomDomainConfiguration struct {
+	Name             string `xml:"Name"`
+	CertificateId    string `xml:"CertificateId,omitempty"`
+	Certificate      string `xml:"Certificate"`
+	CertificateChain string `xml:"CertificateChain,omitempty"`
+	PrivateKey       string `xml:"PrivateKey"`
+}
 type SetBucketCustomDomainInput struct {
-	Bucket       string
-	CustomDomain string
+	Bucket                    string
+	CustomDomain              string
+	CustomDomainConfiguration *CustomDomainConfiguration `json:"customDomainConfiguration"` //optional
 }
 
-// GetBucketMirrorBackToSourceOuput is the result of GetBucketMirrorBackToSource function
-type GetBucketMirrorBackToSourceOuput struct {
+// GetBucketMirrorBackToSourceOutput is the result of GetBucketMirrorBackToSource function
+type GetBucketMirrorBackToSourceOutput struct {
 	BaseModel
 	Rules string `json:"body"`
 }
@@ -47,8 +55,9 @@ type SetBucketMirrorBackToSourceInput struct {
 
 // Content defines the object content properties
 type Domain struct {
-	DomainName string `xml:"DomainName"`
-	CreateTime string `xml:"CreateTime"`
+	DomainName    string `xml:"DomainName"`
+	CreateTime    string `xml:"CreateTime"`
+	CertificateId string `xml:"CertificateId"`
 }
 
 // ListBucketsInput is the input parameter of ListBuckets function
@@ -90,6 +99,14 @@ type CreateBucketInput struct {
 	BucketRedundancy            BucketRedundancyType `xml:"-"`
 	IsFusionAllowUpgrade        bool                 `xml:"-"`
 	IsRedundancyAllowALT        bool                 `xml:"-"`
+	SseHeader                   ISseHeader
+}
+
+type CreateBucketOutput struct {
+	BaseModel
+	Date      time.Time `xml:"-"`
+	Location  string    `xml:"-"`
+	SseHeader ISseHeader
 }
 
 // SetBucketStoragePolicyInput is the input parameter of SetBucketStoragePolicy function
@@ -183,6 +200,7 @@ type GetBucketPolicyOutput struct {
 type SetBucketCorsInput struct {
 	Bucket string `xml:"-"`
 	BucketCors
+	EnableSha256 bool `xml:"-"`
 }
 
 // GetBucketCorsOutput is the result of GetBucketCors function
@@ -253,7 +271,7 @@ type GetBucketLoggingConfigurationOutput struct {
 
 // BucketLifecycleConfiguration defines the bucket lifecycle configuration
 type BucketLifecycleConfiguration struct {
-	XMLName        xml.Name        `xml:"LifecycleConfiguration"`
+	XMLName        xml.Name        `xml:"LifecycleConfiguration" json:"-"`
 	LifecycleRules []LifecycleRule `xml:"Rule"`
 }
 
@@ -261,6 +279,7 @@ type BucketLifecycleConfiguration struct {
 type SetBucketLifecycleConfigurationInput struct {
 	Bucket string `xml:"-"`
 	BucketLifecycleConfiguration
+	EnableSha256 bool `xml:"-"`
 }
 
 // GetBucketLifecycleConfigurationOutput is the result of GetBucketLifecycleConfiguration function
@@ -297,6 +316,7 @@ type GetBucketReplicationOutput struct {
 type SetBucketTaggingInput struct {
 	Bucket string `xml:"-"`
 	BucketTagging
+	EnableSha256 bool `xml:"-"`
 }
 
 // GetBucketTaggingOutput is the result of GetBucketTagging function
@@ -388,4 +408,50 @@ type GetBucketFSStatusInput struct {
 type GetBucketFSStatusOutput struct {
 	GetBucketMetadataOutput
 	FSStatus FSStatusType
+}
+
+type SetDirAccesslabelInput struct {
+	BaseDirAccesslabelInput
+	Accesslabel []string
+}
+
+type GetDirAccesslabelInput struct {
+	BaseDirAccesslabelInput
+}
+
+type GetDirAccesslabelOutput struct {
+	BaseModel
+	Accesslabel []string
+}
+
+type DeleteDirAccesslabelInput struct {
+	BaseDirAccesslabelInput
+	Accesslabel []string
+}
+
+type BaseDirAccesslabelInput struct {
+	Bucket      string
+	Key         string
+	Accesslabel []string
+}
+
+// PutBucketPublicAccessBlockInput is the input parameter of PutBucketPublicAccessBlock function
+type PutBucketPublicAccessBlockInput struct {
+	Bucket string `xml:"-"`
+	PublicAccessBlockConfiguration
+}
+
+type GetBucketPublicAccessBlockOutput struct {
+	BaseModel
+	PublicAccessBlockConfiguration
+}
+
+type GetBucketPublicStatusOutput struct {
+	BaseModel
+	BucketPublicStatus
+}
+
+type GetBucketPolicyPublicStatusOutput struct {
+	BaseModel
+	PolicyPublicStatus
 }

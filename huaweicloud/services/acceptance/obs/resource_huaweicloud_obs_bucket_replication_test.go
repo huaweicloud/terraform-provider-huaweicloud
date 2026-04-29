@@ -29,7 +29,6 @@ func TestAccObsBucketReplication_basic(t *testing.T) {
 	var obj interface{}
 
 	bucketName := acceptance.RandomAccResourceNameWithDash()
-	agencyName := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_obs_bucket_replication.replica"
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -43,16 +42,17 @@ func TestAccObsBucketReplication_basic(t *testing.T) {
 			// The source bucket and target bucket must belong to different regions of the same account.
 			// https://support.huaweicloud.com/intl/en-us/ugobs-obs/obs_41_0034.html
 			acceptance.TestAccPreCheckOBSDestinationBucket(t)
+			acceptance.TestAccPreCheckOBSAgencyName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccObsBucketReplication_basic(agencyName, bucketName, acceptance.HW_OBS_DESTINATION_BUCKET),
+				Config: testAccObsBucketReplication_basic(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "bucket", bucketName),
-					resource.TestCheckResourceAttr(rName, "agency", agencyName),
+					resource.TestCheckResourceAttr(rName, "agency", acceptance.HW_OBS_AGENCY_NAME),
 					resource.TestCheckResourceAttr(rName, "destination_bucket", acceptance.HW_OBS_DESTINATION_BUCKET),
 					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
 					resource.TestCheckResourceAttr(rName, "rule.0.enabled", "true"),
@@ -61,7 +61,7 @@ func TestAccObsBucketReplication_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccObsBucketReplication_update_1(agencyName, bucketName, acceptance.HW_OBS_DESTINATION_BUCKET),
+				Config: testAccObsBucketReplication_update_1(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "rule.#", "2"),
@@ -76,7 +76,7 @@ func TestAccObsBucketReplication_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccObsBucketReplication_update_2(agencyName, bucketName, acceptance.HW_OBS_DESTINATION_BUCKET),
+				Config: testAccObsBucketReplication_update_2(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
@@ -94,50 +94,40 @@ func TestAccObsBucketReplication_basic(t *testing.T) {
 	})
 }
 
-func testAccObsBucketReplication_base(agencyName, bucketName string) string {
+func testAccObsBucketReplication_base(bucketName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_identity_agency" "agency" {
-  name                   = "%s"
-  description            = "This is an iam agency for obs bucket replication"
-  delegated_service_name = "op_svc_obs"
-
-  domain_roles = [
-    "OBS Administrator",
-  ]
-}
-
 resource "huaweicloud_obs_bucket" "source" {
   bucket        = "%s"
   storage_class = "STANDARD"
   acl           = "private"
 }
-`, agencyName, bucketName)
+`, bucketName)
 }
 
-func testAccObsBucketReplication_basic(agencyName, bucketName, destinationName string) string {
+func testAccObsBucketReplication_basic(bucketName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_obs_bucket_replication" "replica" {
   bucket             = huaweicloud_obs_bucket.source.bucket
-  destination_bucket = "%s"
-  agency             = huaweicloud_identity_agency.agency.name
+  destination_bucket = "%[2]s"
+  agency             = "%[3]s"
 
   rule {
     prefix = "abc"
   }
 }
-`, testAccObsBucketReplication_base(agencyName, bucketName), destinationName)
+`, testAccObsBucketReplication_base(bucketName), acceptance.HW_OBS_DESTINATION_BUCKET, acceptance.HW_OBS_AGENCY_NAME)
 }
 
-func testAccObsBucketReplication_update_1(agencyName, bucketName, destinationName string) string {
+func testAccObsBucketReplication_update_1(bucketName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_obs_bucket_replication" "replica" {
   bucket             = huaweicloud_obs_bucket.source.bucket
-  destination_bucket = "%s"
-  agency             = huaweicloud_identity_agency.agency.name
+  destination_bucket = "%[2]s"
+  agency             = "%[3]s"
 
   rule {
     prefix = "imgs/"
@@ -149,19 +139,19 @@ resource "huaweicloud_obs_bucket_replication" "replica" {
     history_enabled = true
   }
 }
-`, testAccObsBucketReplication_base(agencyName, bucketName), destinationName)
+`, testAccObsBucketReplication_base(bucketName), acceptance.HW_OBS_DESTINATION_BUCKET, acceptance.HW_OBS_AGENCY_NAME)
 }
 
-func testAccObsBucketReplication_update_2(agencyName, bucketName, destinationName string) string {
+func testAccObsBucketReplication_update_2(bucketName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_obs_bucket_replication" "replica" {
   bucket             = huaweicloud_obs_bucket.source.bucket
-  destination_bucket = "%s"
-  agency             = huaweicloud_identity_agency.agency.name
+  destination_bucket = "%[2]s"
+  agency             = "%[3]s"
 
   rule {}
 }
-`, testAccObsBucketReplication_base(agencyName, bucketName), destinationName)
+`, testAccObsBucketReplication_base(bucketName), acceptance.HW_OBS_DESTINATION_BUCKET, acceptance.HW_OBS_AGENCY_NAME)
 }

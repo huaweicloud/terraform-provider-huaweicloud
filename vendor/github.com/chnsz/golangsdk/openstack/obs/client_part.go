@@ -106,6 +106,7 @@ func (obsClient ObsClient) UploadPart(_input *UploadPartInput, extensions ...ext
 	input.PartNumber = _input.PartNumber
 	input.UploadId = _input.UploadId
 	input.ContentMD5 = _input.ContentMD5
+	input.ContentSHA256 = _input.ContentSHA256
 	input.SourceFile = _input.SourceFile
 	input.Offset = _input.Offset
 	input.PartSize = _input.PartSize
@@ -151,6 +152,7 @@ func (obsClient ObsClient) UploadPart(_input *UploadPartInput, extensions ...ext
 			input.PartSize = fileSize - input.Offset
 		}
 		fileReaderWrapper.totalCount = input.PartSize
+		fileReaderWrapper.mark = input.Offset
 		if _, err = fd.Seek(input.Offset, io.SeekStart); err != nil {
 			return nil, err
 		}
@@ -238,6 +240,9 @@ func (obsClient ObsClient) CopyPart(input *CopyPartInput, extensions ...extensio
 	}
 	if strings.TrimSpace(input.CopySourceKey) == "" {
 		return nil, errors.New("Source key is empty")
+	}
+	if input.CopySourceRange != "" && !strings.HasPrefix(input.CopySourceRange, "bytes=") {
+		return nil, errors.New("Source Range should start with [bytes=]")
 	}
 
 	output = &CopyPartOutput{}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -38,6 +39,13 @@ var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", 
 	"strategy.*.type",
 	"strategy.*.in_place_rolling_update",
 	"strategy.*.in_place_rolling_update.*.user_defined_step",
+	"skipped_check_item_list",
+	"skipped_check_item_list.*.name",
+	"skipped_check_item_list.*.resource_selector",
+	"skipped_check_item_list.*.resource_selector.*.key",
+	"skipped_check_item_list.*.resource_selector.*.values",
+	"skipped_check_item_list.*.resource_selector.*.operator",
+	"is_only_upgrade",
 }
 
 func ResourceClusterUpgrade() *schema.Resource {
@@ -150,6 +158,47 @@ func ResourceClusterUpgrade() *schema.Resource {
 						},
 					}},
 			},
+			"skipped_check_item_list": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"resource_selector": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"operator": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"is_only_upgrade": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
 			"is_snapshot": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -193,6 +242,11 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 				"targetVersion": targetVersion,
 			},
 		},
+	}
+
+	if v, ok := d.GetOk("is_only_upgrade"); ok {
+		isOnlyUpgradeRaw, _ := strconv.ParseBool(v.(string))
+		result["spec"].(map[string]interface{})["clusterUpgradeAction"].(map[string]interface{})["isOnlyUpgrade"] = isOnlyUpgradeRaw
 	}
 	return result, nil
 }
@@ -307,6 +361,35 @@ func buildClusterUpgradeInPlaceRollingUpdateOpts(inPlaceRollingUpdateRaw []inter
 	return nil
 }
 
+func buildClusterUpgradeSkippedCheckItemListOpts(d *schema.ResourceData) []map[string]interface{} {
+	raw := d.Get("skipped_check_item_list").([]interface{})
+	if len(raw) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(raw))
+	for _, v := range raw {
+		item, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		obj := map[string]interface{}{
+			"name": utils.ValueIgnoreEmpty(item["name"]),
+		}
+		rsRaw := item["resource_selector"].([]interface{})
+		if len(rsRaw) > 0 {
+			rs := rsRaw[0].(map[string]interface{})
+			obj["resourceSelector"] = map[string]interface{}{
+				"key":      rs["key"],
+				"values":   rs["values"],
+				"operator": rs["operator"],
+			}
+		}
+		result = append(result, obj)
+	}
+	return result
+}
+
 func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.CceV3Client(cfg.GetRegion(d))
@@ -345,7 +428,8 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	// precheck
-	createPreCheckResp, err := createPreCheck(client, clusterID, exactCurrentVersion, exactTargetVersion)
+	createPreCheckResp, err := createPreCheck(client, clusterID, exactCurrentVersion, exactTargetVersion,
+		buildClusterUpgradeSkippedCheckItemListOpts(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE cluster precheck: %s", err)
 	}
@@ -446,7 +530,8 @@ func createWorkflow(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 	return utils.FlattenResponse(workflowResp)
 }
 
-func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
+func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string,
+	skippedCheckItemList []map[string]interface{}) (interface{}, error) {
 	preCheckHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck"
 	preCheckPath := client.Endpoint + preCheckHttpUrl
 	preCheckPath = strings.ReplaceAll(preCheckPath, "{project_id}", client.ProjectID)
@@ -454,15 +539,16 @@ func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 
 	preCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
+		JSONBody: utils.RemoveNil(map[string]interface{}{
 			"kind":       "PreCheckTask",
 			"apiVersion": "v3",
 			"spec": map[string]interface{}{
-				"clusterID":      clusterID,
-				"clusterVersion": currentVersion,
-				"targetVersion":  targetVersion,
+				"clusterID":            clusterID,
+				"clusterVersion":       currentVersion,
+				"targetVersion":        targetVersion,
+				"skippedCheckItemList": skippedCheckItemList,
 			},
-		},
+		}),
 	}
 	preCheckResp, err := client.Request("POST", preCheckPath, &preCheckOpt)
 	if err != nil {

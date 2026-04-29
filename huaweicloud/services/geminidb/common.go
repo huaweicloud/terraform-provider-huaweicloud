@@ -271,3 +271,60 @@ func handleDeletionError(err error) (bool, error) {
 	}
 	return false, err
 }
+
+func checkGeminiDbJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Completed"},
+		Refresh:      geminiDbJobRefreshFunc(client, jobID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GeminiDB job (%s) to be completed: %s ", jobID, err)
+	}
+	return nil
+}
+
+func geminiDbJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			getJobStatusHttpUrl = "v3/{project_id}/jobs?id={job_id}"
+		)
+
+		getJobStatusPath := client.Endpoint + getJobStatusHttpUrl
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{project_id}", client.ProjectID)
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{job_id}", jobId)
+
+		getJobStatusOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
+		if err != nil {
+			return nil, "Failed", err
+		}
+
+		getJobStatusRespBody, err := utils.FlattenResponse(getJobStatusResp)
+		if err != nil {
+			return nil, "Failed", err
+		}
+
+		status := utils.PathSearch("jobs[0].status", getJobStatusRespBody, "").(string)
+		if status == "" {
+			return nil, "Failed", errors.New("job is not found")
+		}
+		if status == "Failed" {
+			return getJobStatusRespBody, "Failed", nil
+		}
+		if status == "Completed" {
+			return getJobStatusRespBody, "Completed", nil
+		}
+
+		return getJobStatusRespBody, "Pending", nil
+	}
+}
