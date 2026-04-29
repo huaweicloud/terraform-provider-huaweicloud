@@ -50,6 +50,7 @@ var (
 		"resource_huaweicloud_obs_bucket_object":                  true,
 		"resource_huaweicloud_obs_bucket_object_acl":              true,
 		"resource_huaweicloud_obs_bucket_replication":             true,
+		"resource_huaweicloud_obs_bucket_bpa":                     true,
 		"resource_huaweicloud_ram_organization":                   true,
 	}
 )
