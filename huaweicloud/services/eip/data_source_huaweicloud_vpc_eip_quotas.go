@@ -2,8 +2,8 @@ package eip
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -84,16 +84,16 @@ func dataSourceVpcEipQuotasRead(_ context.Context, d *schema.ResourceData, meta 
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v1/%s/quotas"
+		httpUrl = "v1/{project_id}/quotas"
 	)
 
-	client, err := cfg.NewServiceClient("vpc", region)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
-	requestPath := client.Endpoint + fmt.Sprintf(httpUrl, client.ProjectID)
-	requestPath += buildListQuotasQueryParams(d)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
