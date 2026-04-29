@@ -41,6 +41,7 @@ func TestAccDatasourceArchitectureTableModels_basic(t *testing.T) {
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
 			acceptance.TestAccPreCheckDataArtsSubjectID(t)
 			acceptance.TestAccPreCheckDataArtsConnectionID(t)
+			acceptance.TestAccPreCheckDataArtsArchitectureTableModelTags(t, 1)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -97,6 +98,12 @@ func TestAccDatasourceArchitectureTableModels_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(byEnName, "tables.0.attributes.0.is_primary_key", "true"),
 					resource.TestCheckResourceAttr(byEnName, "tables.0.attributes.0.not_null", "true"),
 					resource.TestCheckResourceAttr(byEnName, "tables.0.attributes.0.is_partition_key", "false"),
+					resource.TestCheckResourceAttr(byEnName, "tables.0.attributes.0.tags.#", "1"),
+					resource.TestCheckResourceAttrSet(byEnName, "tables.0.attributes.0.tags.0.id"),
+					resource.TestCheckResourceAttrSet(byEnName, "tables.0.attributes.0.tags.0.name"),
+					resource.TestMatchResourceAttr(byEnName, "tables.0.tags.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(byEnName, "tables.0.tags.0.id"),
+					resource.TestCheckResourceAttrSet(byEnName, "tables.0.tags.0.name"),
 					resource.TestMatchResourceAttr(dataSource, "tables.0.attributes.0.created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestMatchResourceAttr(dataSource, "tables.0.attributes.0.updated_at",
@@ -167,6 +174,15 @@ resource "huaweicloud_dataarts_architecture_model" "test" {
   dw_type      = "DLI"
 }
 
+locals {
+  tags = [
+    for item in split(",", "%[5]s") : {
+      id   = try(split("|", item)[0], "NOT_FOUND")
+      name = try(split("|", item)[1], "NOT_FOUND")
+    }
+  ]
+}
+
 resource "huaweicloud_dataarts_architecture_table_model" "test" {
   workspace_id                 = "%[1]s"
   model_id                     = huaweicloud_dataarts_architecture_model.test.id
@@ -201,12 +217,26 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
     is_primary_key   = true
     not_null         = true
     is_partition_key = false
+
+    tags {
+      id   = lookup(local.tags[0], "id", "NOT_FOUND") 
+      name = lookup(local.tags[0], "name", "NOT_FOUND")
+    }
   }
 
   dirty_out_database = "%[2]s"
   dirty_out_switch   = true
   dirty_out_prefix   = "prefix_test"
   dirty_out_suffix   = "suffix_test"
+
+  dynamic "tags" {
+    for_each = local.tags
+
+    content {
+      id   = tags.value["id"]
+      name = tags.value["name"]
+    }
+  }
 }
 
 data "huaweicloud_dataarts_architecture_table_models" "test" {
@@ -345,5 +375,6 @@ locals {
 output "is_creator_filter_useful" {
   value = length(local.creator_filter_result) > 0 && alltrue(local.creator_filter_result)
 }
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_SUBJECT_ID, acceptance.HW_DATAARTS_CONNECTION_ID)
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_SUBJECT_ID, acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_ARCHITECTURE_TABLE_MODEL_TAGS)
 }

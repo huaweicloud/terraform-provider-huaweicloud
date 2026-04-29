@@ -159,6 +159,25 @@ func ResourceArchitectureTableModel() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"tags": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The ID of the tag.`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The name of the tag.`,
+									},
+								},
+							},
+							Description: `The tags to be attached to the attribute.`,
+						},
 						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -558,6 +577,25 @@ func ResourceArchitectureTableModel() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the tag.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the tag.`,
+						},
+					},
+				},
+				Description: `The tags to be attached to the table model.`,
+			},
 			"parent_table_code": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -720,6 +758,7 @@ func buildCreateOrUpdateTableModelBodyParams(d *schema.ResourceData) map[string]
 		"dirty_out_prefix":               utils.ValueIgnoreEmpty(d.Get("dirty_out_prefix")),
 		"dirty_out_suffix":               utils.ValueIgnoreEmpty(d.Get("dirty_out_suffix")),
 		"partition_conf":                 utils.ValueIgnoreEmpty(d.Get("partition_conf")),
+		"tags":                           buildArchitectureTableModelTags(d.Get("tags").(*schema.Set)),
 	}
 	return bodyParams
 }
@@ -749,6 +788,7 @@ func buildTableModelRequestBodyAttributes(rawParams *schema.Set) []map[string]in
 			"extend_field":               utils.ValueIgnoreEmpty(raw["extend_field"]),
 			"not_null":                   utils.ValueIgnoreEmpty(raw["not_null"]),
 			"code":                       utils.ValueIgnoreEmpty(raw["code"]),
+			"tags":                       buildArchitectureTableModelTags(raw["tags"].(*schema.Set)),
 		}
 		attributes = append(attributes, params)
 	}
@@ -878,6 +918,22 @@ func buildTableModelRequestBodyMappingsSourceFields(rawParams interface{}) []map
 	return sourceFileds
 }
 
+func buildArchitectureTableModelTags(tags *schema.Set) []map[string]interface{} {
+	if tags.Len() == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, tags.Len())
+	for _, tag := range tags.List() {
+		result = append(result, map[string]interface{}{
+			"id":       utils.PathSearch("id", tag, nil),
+			"tag_name": utils.PathSearch("name", tag, nil),
+		})
+	}
+
+	return result
+}
+
 func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -910,6 +966,7 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 	tableModel := utils.PathSearch("data.value", getTableModelRespBody, nil)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		// Required parameters.
 		d.Set("workspace_id", workspaceID),
 		d.Set("model_id", utils.PathSearch("model_id", tableModel, nil)),
 		d.Set("dw_type", utils.PathSearch("dw_type", tableModel, nil)),
@@ -917,35 +974,41 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("physical_table_name", utils.PathSearch("tb_name", tableModel, nil)),
 		d.Set("table_name", utils.PathSearch("logic_tb_name", tableModel, nil)),
 		d.Set("description", utils.PathSearch("description", tableModel, nil)),
+		d.Set("attributes", flattenAttributes(utils.PathSearch("attributes", tableModel, make([]interface{}, 0)))),
+		// Optional parameters.
 		d.Set("configs", utils.PathSearch("configs", tableModel, nil)),
 		d.Set("dw_id", utils.PathSearch("dw_id", tableModel, nil)),
-		d.Set("parent_table_id", utils.PathSearch("parent_table_id", tableModel, nil)),
-		d.Set("related_logic_table_model_id", utils.PathSearch("related_logic_table_id", tableModel, nil)),
-		d.Set("related_logic_model_id", utils.PathSearch("related_logic_table_model_id", tableModel, nil)),
-		d.Set("owner", utils.PathSearch("owner", tableModel, nil)),
-		d.Set("table_type", utils.PathSearch("table_type", tableModel, nil)),
-		d.Set("compression", utils.PathSearch("compression", tableModel, nil)),
-		d.Set("code", utils.PathSearch("code", tableModel, nil)),
-		d.Set("distribute", utils.PathSearch("distribute", tableModel, nil)),
-		d.Set("distribute_column", utils.PathSearch("distribute_column", tableModel, nil)),
-		d.Set("parent_table_name", utils.PathSearch("parent_table_name", tableModel, nil)),
-		d.Set("parent_table_code", utils.PathSearch("parent_table_code", tableModel, nil)),
-		d.Set("related_logic_model_name", utils.PathSearch("related_logic_table_model_name", tableModel, nil)),
-		d.Set("related_logic_table_model_name", utils.PathSearch("related_logic_table_name", tableModel, nil)),
-		d.Set("data_format", utils.PathSearch("data_format", tableModel, nil)),
-		d.Set("dlf_task_id", utils.PathSearch("dlf_task_id", tableModel, nil)),
-		d.Set("use_recently_partition", utils.PathSearch("use_recently_partition", tableModel, false)),
-		d.Set("reversed", utils.PathSearch("reversed", tableModel, false)),
 		d.Set("db_name", utils.PathSearch("db_name", tableModel, nil)),
 		d.Set("queue_name", utils.PathSearch("queue_name", tableModel, nil)),
 		d.Set("schema", utils.PathSearch("schema", tableModel, nil)),
 		d.Set("obs_location", utils.PathSearch("obs_location", tableModel, nil)),
-		d.Set("dw_name", utils.PathSearch("dw_name", tableModel, nil)),
+		d.Set("parent_table_id", utils.PathSearch("parent_table_id", tableModel, nil)),
+		d.Set("related_logic_table_model_id", utils.PathSearch("related_logic_table_id", tableModel, nil)),
+		d.Set("related_logic_model_id", utils.PathSearch("related_logic_table_model_id", tableModel, nil)),
+		d.Set("owner", utils.PathSearch("owner", tableModel, nil)),
 		d.Set("dirty_out_switch", utils.PathSearch("dirty_out_switch", tableModel, false)),
 		d.Set("dirty_out_database", utils.PathSearch("dirty_out_database", tableModel, nil)),
 		d.Set("dirty_out_prefix", utils.PathSearch("dirty_out_prefix", tableModel, nil)),
 		d.Set("dirty_out_suffix", utils.PathSearch("dirty_out_suffix", tableModel, nil)),
 		d.Set("partition_conf", utils.PathSearch("partition_conf", tableModel, nil)),
+		d.Set("relations", flattenRelations(utils.PathSearch("relations", tableModel, make([]interface{}, 0)))),
+		d.Set("mappings", flattenMappings(utils.PathSearch("mappings", tableModel, make([]interface{}, 0)))),
+		d.Set("table_type", utils.PathSearch("table_type", tableModel, nil)),
+		d.Set("compression", utils.PathSearch("compression", tableModel, nil)),
+		d.Set("code", utils.PathSearch("code", tableModel, nil)),
+		d.Set("distribute", utils.PathSearch("distribute", tableModel, nil)),
+		d.Set("distribute_column", utils.PathSearch("distribute_column", tableModel, nil)),
+		d.Set("data_format", utils.PathSearch("data_format", tableModel, nil)),
+		d.Set("dlf_task_id", utils.PathSearch("dlf_task_id", tableModel, nil)),
+		d.Set("use_recently_partition", utils.PathSearch("use_recently_partition", tableModel, false)),
+		d.Set("reversed", utils.PathSearch("reversed", tableModel, false)),
+		d.Set("parent_table_name", utils.PathSearch("parent_table_name", tableModel, nil)),
+		d.Set("related_logic_model_name", utils.PathSearch("related_logic_table_model_name", tableModel, nil)),
+		d.Set("related_logic_table_model_name", utils.PathSearch("related_logic_table_name", tableModel, nil)),
+		d.Set("dw_name", utils.PathSearch("dw_name", tableModel, nil)),
+		d.Set("tags", flattenArchitectureTableModelTags(utils.PathSearch("tags", tableModel, make([]interface{}, 0)).([]interface{}))),
+		// Attributes.
+		d.Set("parent_table_code", utils.PathSearch("parent_table_code", tableModel, nil)),
 		d.Set("extend_info", utils.PathSearch("extend_info", tableModel, nil)),
 		d.Set("tb_guid", utils.PathSearch("tb_guid", tableModel, nil)),
 		d.Set("logic_tb_guid", utils.PathSearch("logic_tb_guid", tableModel, nil)),
@@ -958,9 +1021,6 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("has_related_physical_table", utils.PathSearch("has_related_physical_table", tableModel, false)),
 		d.Set("has_related_logic_table", utils.PathSearch("has_related_logic_table", tableModel, false)),
 		d.Set("is_partition", utils.PathSearch("is_partition", tableModel, false)),
-		d.Set("attributes", flattenAttributes(utils.PathSearch("attributes", tableModel, make([]interface{}, 0)))),
-		d.Set("relations", flattenRelations(utils.PathSearch("relations", tableModel, make([]interface{}, 0)))),
-		d.Set("mappings", flattenMappings(utils.PathSearch("mappings", tableModel, make([]interface{}, 0)))),
 		d.Set("physical_table_status", utils.PathSearch("physical_table", tableModel, nil)),
 		d.Set("dev_physical_table_status", utils.PathSearch("dev_physical_table", tableModel, nil)),
 		d.Set("technical_asset_status", utils.PathSearch("technical_asset", tableModel, nil)),
@@ -988,19 +1048,21 @@ func flattenAttributes(rawParams interface{}) []map[string]interface{} {
 			continue
 		}
 		params := map[string]interface{}{
-			"name":                       utils.PathSearch("name_ch", val, nil),
-			"name_en":                    utils.PathSearch("name_en", val, nil),
-			"data_type":                  utils.PathSearch("data_type", val, nil),
-			"data_type_extend":           utils.PathSearch("data_type_extend", val, nil),
-			"description":                utils.PathSearch("description", val, nil),
-			"stand_row_id":               utils.PathSearch("stand_row_id", val, nil),
-			"related_logic_attr_id":      utils.PathSearch("related_logic_attr_id", val, nil),
-			"is_partition_key":           utils.PathSearch("is_partition_key", val, false),
-			"is_primary_key":             utils.PathSearch("is_primary_key", val, false),
-			"is_foreign_key":             utils.PathSearch("is_foreign_key", val, false),
-			"extend_field":               utils.PathSearch("extend_field", val, false),
-			"not_null":                   utils.PathSearch("not_null", val, false),
-			"code":                       utils.PathSearch("code", val, nil),
+			"name":                  utils.PathSearch("name_ch", val, nil),
+			"name_en":               utils.PathSearch("name_en", val, nil),
+			"data_type":             utils.PathSearch("data_type", val, nil),
+			"data_type_extend":      utils.PathSearch("data_type_extend", val, nil),
+			"description":           utils.PathSearch("description", val, nil),
+			"stand_row_id":          utils.PathSearch("stand_row_id", val, nil),
+			"related_logic_attr_id": utils.PathSearch("related_logic_attr_id", val, nil),
+			"is_partition_key":      utils.PathSearch("is_partition_key", val, false),
+			"is_primary_key":        utils.PathSearch("is_primary_key", val, false),
+			"is_foreign_key":        utils.PathSearch("is_foreign_key", val, false),
+			"extend_field":          utils.PathSearch("extend_field", val, false),
+			"not_null":              utils.PathSearch("not_null", val, false),
+			"code":                  utils.PathSearch("code", val, nil),
+			"tags": flattenArchitectureTableModelTags(utils.PathSearch("tags",
+				val, make([]interface{}, 0)).([]interface{})),
 			"id":                         utils.PathSearch("id", val, nil),
 			"related_logic_attr_name":    utils.PathSearch("related_logic_attr_name", val, nil),
 			"related_logic_attr_name_en": utils.PathSearch("related_logic_attr_name_en", val, nil),
@@ -1145,6 +1207,21 @@ func flattenMappingsSourceFields(rawParams interface{}) []map[string]interface{}
 			"changed":              utils.PathSearch("changed", val, false),
 		}
 		rst[i] = params
+	}
+	return rst
+}
+
+func flattenArchitectureTableModelTags(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, 0, len(tags))
+	for _, tag := range tags {
+		rst = append(rst, map[string]interface{}{
+			"id":   utils.PathSearch("tag_id", tag, nil),
+			"name": utils.PathSearch("tag_name", tag, nil),
+		})
 	}
 	return rst
 }

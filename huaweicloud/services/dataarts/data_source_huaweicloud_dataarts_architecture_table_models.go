@@ -265,6 +265,25 @@ func TableModelSchema() *schema.Resource {
 							Computed:    true,
 							Description: `The latest update time of the attribute, in RFC3339 format.`,
 						},
+						"tags": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The ID of the tag.`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The name of the tag.`,
+									},
+								},
+							},
+							Description: `The tags associated with the attribute.`,
+						},
 					},
 				},
 			},
@@ -438,6 +457,25 @@ func TableModelSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The latest update time of the table model, in RFC3339 format.`,
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the tag.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the tag.`,
+						},
+					},
+				},
+				Description: `The tags associated with the table model.`,
+			},
 		},
 	}
 	return &sc
@@ -595,6 +633,8 @@ func flattenGetArchitectureTableModels(all []interface{}) []interface{} {
 			"updated_by":                 utils.PathSearch("update_by", table, nil),
 			"created_at":                 formtTimeToRFC3339(utils.PathSearch("create_time", table, "").(string)),
 			"updated_at":                 formtTimeToRFC3339(utils.PathSearch("update_time", table, "").(string)),
+			"tags": flattenArchitectureTableModelsTags(utils.PathSearch("tags",
+				table, make([]interface{}, 0)).([]interface{})),
 		})
 	}
 	return result
@@ -625,9 +665,26 @@ func flattenTablesAttrs(attrs []interface{}) []map[string]interface{} {
 			"not_null":         utils.PathSearch("not_null", val, false),
 			"created_at":       formtTimeToRFC3339(utils.PathSearch("create_time", val, "").(string)),
 			"updated_at":       formtTimeToRFC3339(utils.PathSearch("update_time", val, "").(string)),
+			"tags": flattenArchitectureTableModelsTags(utils.PathSearch("tags",
+				val, make([]interface{}, 0)).([]interface{})),
 		}
 	}
 
+	return rst
+}
+
+func flattenArchitectureTableModelsTags(tags []interface{}) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, 0, len(tags))
+	for _, tag := range tags {
+		rst = append(rst, map[string]interface{}{
+			"id":   utils.PathSearch("tag_id", tag, nil),
+			"name": utils.PathSearch("tag_name", tag, nil),
+		})
+	}
 	return rst
 }
 

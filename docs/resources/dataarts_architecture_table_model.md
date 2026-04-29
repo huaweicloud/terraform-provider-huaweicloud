@@ -189,6 +189,10 @@ The following arguments are supported:
 
 * `reversed` - (Optional, Bool) Specifies whether the table model is reversed.
 
+* `tags` - (Optional, List) Specifies the tag list to be attached to the table model.  
+  The [tags](#architecture_table_model_tags) structure is documented below.  
+  Only tags that exist in the Data Catalog can be added.
+
 <a name="block--attributes"></a>
 The `attributes` block supports:
 
@@ -226,6 +230,10 @@ The `attributes` block supports:
 * `is_primary_key` - (Optional, Bool) Specifies the attribute is primary key or not.
 
 * `not_null` - (Optional, Bool) Specifies the attribute is not null or null.
+
+* `tags` - (Optional, List) Specifies the tag list to be attached to the attribute.  
+  The [tags](#architecture_table_model_tags) structure is documented below.  
+  Only tags that exist in the Data Catalog can be added.
 
 <a name="block--relations"></a>
 The `relations` block supports:
@@ -323,6 +331,13 @@ The `join_fields` block supports:
 * `field1_name` - (Optional, String) Specifies the attribute English name.
 
 * `field2_name` - (Optional, String) Specifies the attribute English name.
+
+<a name="architecture_table_model_tags"></a>
+The `tags` block supports:
+
+* `id` - (Required, String) Specifies the ID of the tag.
+
+* `name` - (Required, String) Specifies the name of the tag.
 
 ## Attribute Reference
 

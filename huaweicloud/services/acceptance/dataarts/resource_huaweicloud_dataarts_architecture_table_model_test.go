@@ -51,6 +51,7 @@ func TestAccResourceArchitectureTableModel_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
 			acceptance.TestAccPreCheckDataArtsSubjectID(t)
+			acceptance.TestAccPreCheckDataArtsArchitectureTableModelTags(t, 3)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -66,16 +67,23 @@ func TestAccResourceArchitectureTableModel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.name_en", "key_en"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.data_type", "INTEGER"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.ordinal", "1"),
+					resource.TestCheckResourceAttr(resourceName, "attributes.0.tags.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "attributes.0.tags.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "attributes.0.tags.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.name", "key2"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.name_en", "key2_en"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.data_type", "INTEGER"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.ordinal", "2"),
+					resource.TestCheckResourceAttr(resourceName, "attributes.1.tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "has_related_logic_table", "false"),
 					resource.TestCheckResourceAttr(resourceName, "has_related_physical_table", "false"),
 					resource.TestCheckResourceAttr(resourceName, "is_partition", "false"),
 					resource.TestCheckResourceAttr(resourceName, "compression", "NO"),
 					resource.TestCheckResourceAttr(resourceName, "table_type", "DWS_ROW"),
 					resource.TestCheckResourceAttr(resourceName, "reversed", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "tags.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "tags.0.name"),
 					resource.TestCheckResourceAttrSet(resourceName, "catalog_path"),
 					resource.TestCheckResourceAttrSet(resourceName, "env_type"),
 					resource.TestCheckResourceAttrSet(resourceName, "extend_info"),
@@ -98,15 +106,20 @@ func TestAccResourceArchitectureTableModel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.name_en", "key_en"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.data_type", "INTEGER"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.0.ordinal", "1"),
-					resource.TestCheckResourceAttr(resourceName, "attributes.1.name", "key2"),
+					resource.TestCheckResourceAttr(resourceName, "attributes.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "attributes.1.name", "key2_update"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.name_en", "key2_en"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.data_type", "INTEGER"),
 					resource.TestCheckResourceAttr(resourceName, "attributes.1.ordinal", "2"),
+					resource.TestCheckResourceAttr(resourceName, "attributes.1.tags.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "attributes.1.tags.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "attributes.1.tags.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "has_related_logic_table", "false"),
 					resource.TestCheckResourceAttr(resourceName, "has_related_physical_table", "false"),
 					resource.TestCheckResourceAttr(resourceName, "is_partition", "false"),
 					resource.TestCheckResourceAttr(resourceName, "compression", "NO"),
 					resource.TestCheckResourceAttr(resourceName, "table_type", "DWS_ROW"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttrSet(resourceName, "catalog_path"),
 					resource.TestCheckResourceAttrSet(resourceName, "env_type"),
 					resource.TestCheckResourceAttrSet(resourceName, "extend_info"),
@@ -126,6 +139,27 @@ func TestAccResourceArchitectureTableModel_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccArchitectureTableModel_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dataarts_architecture_model" "test"{
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
+  type         = "THIRD_NF"
+  physical     = true
+  dw_type      = "DWS"
+}
+
+locals {
+  tags = [
+    for item in split(",", "%[3]s") : {
+      id   = try(split("|", item)[0], "NOT_FOUND")
+      name = try(split("|", item)[1], "NOT_FOUND")
+    }
+  ]
+}
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_ARCHITECTURE_TABLE_MODEL_TAGS)
 }
 
 func testAccArchitectureTableModel_basic(name string) string {
@@ -149,6 +183,15 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
     name_en   = "key_en"
     data_type = "INTEGER"
     ordinal   = "1"
+
+    dynamic "tags" {
+      for_each = try(slice(local.tags, 0, 1), [])
+
+      content {
+        id   = tags.value["id"]
+        name = tags.value["name"]
+      }
+    }
   }
   attributes {
     name      = "key2"
@@ -156,8 +199,17 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
     data_type = "INTEGER"
     ordinal   = "2"
   }
+
+  dynamic "tags" {
+    for_each = try(slice(local.tags, 0, 2), [])
+
+    content {
+      id   = tags.value["id"]
+      name = tags.value["name"]
+    }
+  }
 }
-`, testAccModel_basic(name), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_SUBJECT_ID, name)
+`, testAccArchitectureTableModel_base(name), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_SUBJECT_ID, name)
 }
 
 func testAccArchitectureTableModel_update(name string) string {
@@ -183,11 +235,29 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
     ordinal   = "1"
   }
   attributes {
-    name      = "key2"
+    name      = "key2_update"
     name_en   = "key2_en"
     data_type = "INTEGER"
     ordinal   = "2"
+
+    dynamic "tags" {
+      for_each = try(slice(local.tags, 1, 3), [])
+
+      content {
+        id   = tags.value["id"]
+        name = tags.value["name"]
+      }
+    }
+  }
+
+  dynamic "tags" {
+    for_each = try(slice(local.tags, 1, 3), [])
+
+    content {
+      id   = tags.value["id"]
+      name = tags.value["name"]
+    }
   }
 }
-`, testAccModel_basic(name), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_SUBJECT_ID, name)
+`, testAccArchitectureTableModel_base(name), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_SUBJECT_ID, name)
 }

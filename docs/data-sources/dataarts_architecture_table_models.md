@@ -174,6 +174,9 @@ The `tables` block supports:
 
 * `updated_at` - The latest update time of the table model, in RFC3339 format.
 
+* `tags` - The tag list associated with the table model.  
+  The [tags](#architecture_table_models_tags) structure is documented below.
+
 <a name="tables_attributes"></a>
 The `attributes` block supports:
 
@@ -215,3 +218,13 @@ The `attributes` block supports:
 * `created_at` - The creation time of the attribute, in RFC3339 format.
 
 * `updated_at` - The latest update time of the attribute, in RFC3339 format.
+
+* `tags` - The tag list associated with the attribute.
+  The [tags](#architecture_table_models_tags) structure is documented below.
+
+<a name="architecture_table_models_tags"></a>
+The `tags` block supports:
+
+* `id` - The ID of the tag.
+
+* `name` - The name of the tag.
