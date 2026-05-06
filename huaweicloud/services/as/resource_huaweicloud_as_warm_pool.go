@@ -20,9 +20,9 @@ import (
 
 var warmPoolNonUpdatableParams = []string{"scaling_group_id"}
 
-// @API AS PUT /v2/{project_id}/scaling_group/{scaling_group_id}/warm-pool
-// @API AS GET /v2/{project_id}/scaling_group/{scaling_group_id}/warm-pool
-// @API AS DELETE /v2/{project_id}/scaling_group/{scaling_group_id}/warm-pool
+// @API AS PUT /v2/{project_id}/scaling_groups/{scaling_group_id}/warm-pool
+// @API AS GET /v2/{project_id}/scaling_groups/{scaling_group_id}/warm-pool
+// @API AS DELETE /v2/{project_id}/scaling_groups/{scaling_group_id}/warm-pool
 func ResourceAsWarmPool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAsWarmPoolCreateOrUpdate,
