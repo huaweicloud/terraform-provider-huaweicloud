@@ -576,6 +576,7 @@ var (
 	HW_MODELARTS_DEVSERVER_IMAGE_ID                   = os.Getenv("HW_MODELARTS_DEVSERVER_IMAGE_ID")
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
+	HW_MODELARTS_WORKFLOW_ID                          = os.Getenv("HW_MODELARTS_WORKFLOW_ID")
 
 	HW_AOM_ALARM_EVENT_SN                        = os.Getenv("HW_AOM_ALARM_EVENT_SN")
 	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
@@ -3398,6 +3399,13 @@ func TestAccPreCheckModelArtsResourcePoolName(t *testing.T) {
 func TestAccPreCheckModelArtsResourcePoolBatchResize(t *testing.T) {
 	if HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME == "" {
 		t.Skip("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME must be set for ModelArts resource pool acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsWorkflowId(t *testing.T) {
+	if HW_MODELARTS_WORKFLOW_ID == "" {
+		t.Skip("HW_MODELARTS_WORKFLOW_ID must be set for ModelArts acceptance test")
 	}
 }
 
