@@ -107,6 +107,8 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "terraformTest"),
 					resource.TestCheckResourceAttr(resourceName, "minor_version_auto_upgrade_enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_dns_names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.status"),
 				),
 			},
 			{
