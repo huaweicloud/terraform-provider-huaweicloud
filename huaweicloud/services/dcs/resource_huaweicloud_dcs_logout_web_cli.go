@@ -15,17 +15,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var dcsLoginWebCliNonUpdatableParams = []string{"instance_id", "password"}
+var dcsLogoutWebCliNonUpdatableParams = []string{"instance_id", "client_id"}
 
-// @API DCS POST /v2/{project_id}/instances/{instance_id}/webcli/auth
-func ResourceDcsLoginWebCli() *schema.Resource {
+// @API DCS POST /v2/{project_id}/instances/{instance_id}/webcli/logout
+func ResourceDcsLogoutWebCli() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDcsLoginWebCliCreate,
-		ReadContext:   resourceDcsLoginWebCliRead,
-		UpdateContext: resourceDcsLoginWebCliUpdate,
-		DeleteContext: resourceDcsLoginWebCliDelete,
+		CreateContext: resourceDcsLogoutWebCliCreate,
+		ReadContext:   resourceDcsLogoutWebCliRead,
+		UpdateContext: resourceDcsLogoutWebCliUpdate,
+		DeleteContext: resourceDcsLogoutWebCliDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(dcsLoginWebCliNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(dcsLogoutWebCliNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -37,14 +37,10 @@ func ResourceDcsLoginWebCli() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": {
+			"client_id": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
-			},
-			"client_id": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -56,12 +52,12 @@ func ResourceDcsLoginWebCli() *schema.Resource {
 	}
 }
 
-func resourceDcsLoginWebCliCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDcsLogoutWebCliCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	var (
-		httpUrl = "v2/{project_id}/instances/{instance_id}/webcli/auth"
+		httpUrl = "v2/{project_id}/instances/{instance_id}/webcli/logout"
 		product = "dcs"
 	)
 
@@ -77,8 +73,8 @@ func resourceDcsLoginWebCliCreate(_ context.Context, d *schema.ResourceData, met
 	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceID)
 
 	reqBody := make(map[string]interface{})
-	if v, ok := d.GetOk("password"); ok {
-		reqBody["password"] = v.(string)
+	if v, ok := d.GetOk("client_id"); ok {
+		reqBody["client_id"] = v.(string)
 	}
 
 	createOpt := golangsdk.RequestOpts{
@@ -86,22 +82,14 @@ func resourceDcsLoginWebCliCreate(_ context.Context, d *schema.ResourceData, met
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		KeepResponseBody: true,
+		OkCodes: []int{
+			200, 204,
+		},
 	}
 
-	resp, err := client.Request("POST", createPath, &createOpt)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating DCS login web cli resource: %s", err)
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.Errorf("error parsing DCS login response: %s", err)
-	}
-
-	clientID := utils.PathSearch("client_id", respBody, "").(string)
-	if clientID == "" {
-		return diag.Errorf("client_id not found in login response")
+		return diag.Errorf("error creating DCS logout web cli resource: %s", err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -111,23 +99,19 @@ func resourceDcsLoginWebCliCreate(_ context.Context, d *schema.ResourceData, met
 
 	d.SetId(generateUUID)
 
-	if err := d.Set("client_id", clientID); err != nil {
-		return diag.Errorf("failed to set client_id: %s", err)
-	}
-
 	return nil
 }
 
-func resourceDcsLoginWebCliRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDcsLogoutWebCliRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDcsLoginWebCliUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDcsLogoutWebCliUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDcsLoginWebCliDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting DCS WebCli login resource is not supported. The resource is only removed from the state"
+func resourceDcsLogoutWebCliDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := "Deleting DCS WebCli logout resource is not supported. The resource is only removed from the state"
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

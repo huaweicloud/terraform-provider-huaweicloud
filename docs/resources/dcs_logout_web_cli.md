@@ -1,23 +1,24 @@
 ---
 subcategory: "Distributed Cache Service (DCS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dcs_login_web_cli"
+page_title: "HuaweiCloud: huaweicloud_dcs_logout_web_cli"
 description: |-
-  Manages a DCS login web cli resource within HuaweiCloud.
+  Manages a DCS logout web cli resource within HuaweiCloud.
 ---
 
-# huaweicloud_dcs_login_web_cli
+# huaweicloud_dcs_logout_web_cli
 
-Manages a DCS login web cli resource within HuaweiCloud.
+Manages a DCS logout web cli resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
+variable "client_id" {}
 
-resource "huaweicloud_dcs_login_web_cli" "test" {
+resource "huaweicloud_dcs_logout_web_cli" "test" {
   instance_id = var.instance_id
-  password    = "Huawei_test"
+  client_id   = var.client_id
 }
 ```
 
@@ -30,12 +31,10 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the DCS instance.
 
-* `password` - (Optional, String, NonUpdatable) The password of the DCS instance.
+* `client_id` - (Optional, String, NonUpdatable) Specifies the client ID returned by the WebCli authentication.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
-
-* `client_id` - The client ID returned by the WebCli authentication.
