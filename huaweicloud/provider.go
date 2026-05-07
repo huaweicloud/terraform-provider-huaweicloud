@@ -2053,6 +2053,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_intelligent_session_kill_statistic": rds.DataSourceIntelligentSessionKillStatistic(),
 			"huaweicloud_rds_auto_ces_alarm":                     rds.DataSourceRdsAutoCesAlarm(),
 			"huaweicloud_rds_agent_jobs":                         rds.DataSourceAgentJobs(),
+			"huaweicloud_rds_agent_job_histories":                rds.DataSourceAgentJobHistories(),
 
 			"huaweicloud_rfs_execution_plans":              rfs.DataSourceRfsExecutionPlans(),
 			"huaweicloud_rfs_execution_plan_items":         rfs.DataSourceRfsExecutionPlanItems(),
