@@ -2403,6 +2403,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_internet_gateways":              eip.DataSourceVPCInternetGateways(),
 			"huaweicloud_eip_publicip_count":                 eip.DataSourceEipPublicipCount(),
 			"huaweicloud_eip_publicip_types":                 eip.DataSourceEipPublicipTypes(),
+			"huaweicloud_eip_publicip_instances_count":       eip.DataSourcePublicipInstancesCount(),
 			"huaweicloud_global_eip_quotas":                  eip.DataSourceGlobalEipQuotas(),
 			"huaweicloud_global_eip_pools":                   eip.DataSourceGlobalEIPPools(),
 			"huaweicloud_global_eip_bindings":                eip.DataSourceGlobalEipBindings(),
