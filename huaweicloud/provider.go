@@ -3297,6 +3297,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_background_task_delete":             dcs.ResourceDcsBackgroundTaskDelete(),
 			"huaweicloud_dcs_backup":                             dcs.ResourceDcsBackup(),
 			"huaweicloud_dcs_custom_template":                    dcs.ResourceCustomTemplate(),
+			"huaweicloud_dcs_web_cli_command_execute":            dcs.ResourceDcsWebCliCommandExecute(),
 			"huaweicloud_dcs_hotkey_analysis":                    dcs.ResourceHotKeyAnalysis(),
 			"huaweicloud_dcs_bigkey_analysis":                    dcs.ResourceBigKeyAnalysis(),
 			"huaweicloud_dcs_offline_key_analysis":               dcs.ResourceOfflineKeyAnalysis(),
