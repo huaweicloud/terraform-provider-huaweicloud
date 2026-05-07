@@ -11,8 +11,7 @@ description: |-
 Use this resource to operate a DataArts Architecture approvals batch action within HuaweiCloud.
 
 -> This resource is only a one-time action resource for operating approvals. Deleting this resource will not
-   clear the corresponding request record, but will only remove the resource information from the tfstate file,
-   but will only remove the resource information from the tfstate file.
+   clear the corresponding request record, but will only remove the resource information from the tfstate file.
 
 ## Example Usage
 

@@ -183,8 +183,7 @@ func resourceArchitectureApprovalsBatchActionUpdate(_ context.Context, _ *schema
 
 func resourceArchitectureApprovalsBatchActionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	msg := `This resource is only a one-time action resource for operating approvals. Deleting this resource will not
-clear the corresponding request record, but will only remove the resource information from the tfstate file,
-but will only remove the resource information from the tfstate file.`
+clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
