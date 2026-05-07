@@ -3494,6 +3494,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_drs_job":                            drs.ResourceDrsJob(),
 			"huaweicloud_drs_job_primary_standby_switch":     drs.ResourceDRSPrimaryStandbySwitch(),
+			"huaweicloud_drs_name_validation":                drs.ResourceDrsNameValidation(),
 			"huaweicloud_drs_download_batch_create_template": drs.ResourceDownloadBatchCreateTemplate(),
 			"huaweicloud_drs_stop_job":                       drs.ResourceStopJob(),
 
