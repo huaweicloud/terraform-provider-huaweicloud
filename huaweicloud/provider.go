@@ -4507,8 +4507,9 @@ func Provider() *schema.Provider {
 			// Legacy
 			"huaweicloud_apig_plugin_associate": apig.ResourcePluginBatchApisAssociate(),
 
-			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
-			"huaweicloud_dds_instance_recovery":    dds.ResourceDDSInstanceRestore(),
+			"huaweicloud_networking_eip_associate":                eip.ResourceEIPAssociate(),
+			"huaweicloud_global_batch_detach_internet_bandwidths": eip.ResourceBatchDetachInternetBandwidths(),
+			"huaweicloud_dds_instance_recovery":                   dds.ResourceDDSInstanceRestore(),
 
 			"huaweicloud_dws_public_domain_associate": dws.ResourceClusterPublicDomainAssociate(),
 
