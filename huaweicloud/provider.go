@@ -1311,6 +1311,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_subscriptions":      drs.DataSourceDrsSubscriptions(),
 			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_drivers":            drs.DataSourceDrsDrivers(),
+			"huaweicloud_drs_connections":        drs.DataSourceDrsConnections(),
 
 			// EventGrid
 			"huaweicloud_eg_connections":           eg.DataSourceConnections(),
