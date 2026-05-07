@@ -72,6 +72,6 @@ The `jobs` block supports:
   + **merge**
   + **queue_reader**
 
-* `profile_id` - The profile ID. This parameter is valid when the job type is replication.
+* `profile_id` - The profile ID. This parameter is valid when `job_type` is **replication**.
 
-* `profile_name` - The profile name. This parameter is valid when the job type is replication.
+* `profile_name` - The profile name. This parameter is valid when `job_type` is **replication**.
