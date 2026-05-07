@@ -669,6 +669,7 @@ var (
 	HW_CSS_DATASTORE_ID        = os.Getenv("HW_CSS_DATASTORE_ID")
 	HW_CSS_AZ_MIGRATE_AGENCY   = os.Getenv("HW_CSS_AZ_MIGRATE_AGENCY")
 	HW_CSS_CLUSTER_ID          = os.Getenv("HW_CSS_CLUSTER_ID")
+	HW_CSS_TARGET_CLUSTER_ID   = os.Getenv("HW_CSS_TARGET_CLUSTER_ID")
 	HW_CSS_LOGSTASH_CLUSTER_ID = os.Getenv("HW_CSS_LOGSTASH_CLUSTER_ID")
 
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
@@ -3932,6 +3933,13 @@ func TestAccPreCheckCSSClusterId(t *testing.T) {
 func TestAccPreCheckCSSLogStashClusterId(t *testing.T) {
 	if HW_CSS_LOGSTASH_CLUSTER_ID == "" {
 		t.Skip("HW_CSS_LOGSTASH_CLUSTER_ID must be set for the css logstash cluster acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCSSLogIngestionSetting(t *testing.T) {
+	if HW_CSS_CLUSTER_ID == "" || HW_CSS_TARGET_CLUSTER_ID == "" {
+		t.Skip("HW_CSS_CLUSTER_ID and HW_CSS_TARGET_CLUSTER_ID must be set for the acceptance test")
 	}
 }
 
