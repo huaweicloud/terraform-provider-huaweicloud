@@ -574,6 +574,7 @@ var (
 	HW_MODELARTS_USER_LOGIN_PASSWORD                  = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 	HW_MODELARTS_DEVSERVER_FLAVOR                     = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
 	HW_MODELARTS_DEVSERVER_IMAGE_ID                   = os.Getenv("HW_MODELARTS_DEVSERVER_IMAGE_ID")
+	HW_MODELARTS_RESOURCE_POOL_ID                     = os.Getenv("HW_MODELARTS_RESOURCE_POOL_ID")
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
 
@@ -3384,6 +3385,13 @@ func TestAccPreCheckModelartsUserLoginPassword(t *testing.T) {
 func TestAccPreCheckModelartsDevServer(t *testing.T) {
 	if HW_MODELARTS_DEVSERVER_FLAVOR == "" || HW_MODELARTS_DEVSERVER_IMAGE_ID == "" {
 		t.Skip("HW_MODELARTS_DEVSERVER_FLAVOR and HW_MODELARTS_DEVSERVER_IMAGE_ID must be set for ModelArts DevServer acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsResourcePoolId(t *testing.T) {
+	if HW_MODELARTS_RESOURCE_POOL_ID == "" {
+		t.Skip("HW_MODELARTS_RESOURCE_POOL_ID must be set for ModelArts acceptance test")
 	}
 }
 
