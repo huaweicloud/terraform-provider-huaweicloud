@@ -16,9 +16,9 @@ func TestAccDataSourceTaurusDBRestoredTables_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBMysqlInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBMysqlDatabaseName(t)
-			acceptance.TestAccPreCheckGaussDBMysqlTableName(t)
+			acceptance.TestAccPreCheckTaurusDBInstanceId(t)
+			acceptance.TestAccPreCheckTaurusDBDatabaseName(t)
+			acceptance.TestAccPreCheckTaurusDBTableName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -79,5 +79,5 @@ output "table_name_filter_is_useful" {
   [for v in data.huaweicloud_taurusdb_restored_tables.table_name_filter.databases[*].tables : length(v) > 0]
   )
 }
-`, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_ID, acceptance.HW_GAUSSDB_MYSQL_DATABASE_NAME, acceptance.HW_GAUSSDB_MYSQL_TABLE_NAME)
+`, acceptance.HW_TAURUSDB_INSTANCE_ID, acceptance.HW_TAURUSDB_DATABASE_NAME, acceptance.HW_TAURUSDB_TABLE_NAME)
 }

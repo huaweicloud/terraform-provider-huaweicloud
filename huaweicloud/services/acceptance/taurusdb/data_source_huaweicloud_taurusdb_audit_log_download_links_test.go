@@ -16,9 +16,9 @@ func TestAccDataSourceTaurusDBAuditLogDownloadLinks_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBMysqlInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBMysqlNodeId(t)
-			acceptance.TestAccPreCheckGaussDBMysqlTimeRange(t)
+			acceptance.TestAccPreCheckTaurusDBInstanceId(t)
+			acceptance.TestAccPreCheckTaurusDBNodeId(t)
+			acceptance.TestAccPreCheckTaurusDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -61,6 +61,6 @@ data "huaweicloud_taurusdb_audit_log_download_links" "node_id_filter" {
 output "node_id_filter_is_useful" {
   value = length(data.huaweicloud_taurusdb_audit_log_download_links.node_id_filter.links) > 0
 }
-`, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_ID, acceptance.HW_GAUSSDB_MYSQL_NODE_ID, acceptance.HW_GAUSSDB_MYSQL_START_TIME,
-		acceptance.HW_GAUSSDB_MYSQL_END_TIME)
+`, acceptance.HW_TAURUSDB_INSTANCE_ID, acceptance.HW_TAURUSDB_NODE_ID, acceptance.HW_TAURUSDB_START_TIME,
+		acceptance.HW_TAURUSDB_END_TIME)
 }

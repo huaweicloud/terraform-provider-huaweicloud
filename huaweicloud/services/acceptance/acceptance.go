@@ -271,16 +271,16 @@ var (
 	HW_BUILD_IMAGE_URL         = os.Getenv("HW_BUILD_IMAGE_URL")         // SWR Image URL for component deployment
 	HW_BUILD_IMAGE_URL_UPDATED = os.Getenv("HW_BUILD_IMAGE_URL_UPDATED") // SWR Image URL for component deployment update
 
-	HW_GAUSSDB_MYSQL_INSTANCE_ID               = os.Getenv("HW_GAUSSDB_MYSQL_INSTANCE_ID")
-	HW_GAUSSDB_MYSQL_NODE_ID                   = os.Getenv("HW_GAUSSDB_MYSQL_NODE_ID")
-	HW_GAUSSDB_MYSQL_DATABASE_NAME             = os.Getenv("HW_GAUSSDB_MYSQL_DATABASE_NAME")
-	HW_GAUSSDB_MYSQL_TABLE_NAME                = os.Getenv("HW_GAUSSDB_MYSQL_TABLE_NAME")
-	HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID = os.Getenv("HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID")
-	HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME         = os.Getenv("HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME")
-	HW_GAUSSDB_MYSQL_BACKUP_END_TIME           = os.Getenv("HW_GAUSSDB_MYSQL_BACKUP_END_TIME")
-	HW_GAUSSDB_MYSQL_JOB_ID                    = os.Getenv("HW_GAUSSDB_MYSQL_JOB_ID")
-	HW_GAUSSDB_MYSQL_START_TIME                = os.Getenv("HW_GAUSSDB_MYSQL_START_TIME")
-	HW_GAUSSDB_MYSQL_END_TIME                  = os.Getenv("HW_GAUSSDB_MYSQL_END_TIME")
+	HW_TAURUSDB_INSTANCE_ID               = os.Getenv("HW_TAURUSDB_INSTANCE_ID")
+	HW_TAURUSDB_NODE_ID                   = os.Getenv("HW_TAURUSDB_NODE_ID")
+	HW_TAURUSDB_DATABASE_NAME             = os.Getenv("HW_TAURUSDB_DATABASE_NAME")
+	HW_TAURUSDB_TABLE_NAME                = os.Getenv("HW_TAURUSDB_TABLE_NAME")
+	HW_TAURUSDB_INSTANCE_CONFIGURATION_ID = os.Getenv("HW_TAURUSDB_INSTANCE_CONFIGURATION_ID")
+	HW_TAURUSDB_BACKUP_BEGIN_TIME         = os.Getenv("HW_TAURUSDB_BACKUP_BEGIN_TIME")
+	HW_TAURUSDB_BACKUP_END_TIME           = os.Getenv("HW_TAURUSDB_BACKUP_END_TIME")
+	HW_TAURUSDB_JOB_ID                    = os.Getenv("HW_TAURUSDB_JOB_ID")
+	HW_TAURUSDB_START_TIME                = os.Getenv("HW_TAURUSDB_START_TIME")
+	HW_TAURUSDB_END_TIME                  = os.Getenv("HW_TAURUSDB_END_TIME")
 
 	HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID = os.Getenv("HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID")
 	HW_GAUSSDB_OPENGAUSS_JOB_ID                = os.Getenv("HW_GAUSSDB_OPENGAUSS_JOB_ID")
@@ -2257,65 +2257,65 @@ func TestAccPreCheckImageUrlUpdated(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlInstanceId(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_INSTANCE_ID == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_INSTANCE_ID must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBInstanceId(t *testing.T) {
+	if HW_TAURUSDB_INSTANCE_ID == "" {
+		t.Skip("HW_TAURUSDB_INSTANCE_ID must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlNodeId(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_NODE_ID == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_NODE_ID must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBNodeId(t *testing.T) {
+	if HW_TAURUSDB_NODE_ID == "" {
+		t.Skip("HW_TAURUSDB_NODE_ID must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlDatabaseName(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_DATABASE_NAME == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_DATABASE_NAME must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBDatabaseName(t *testing.T) {
+	if HW_TAURUSDB_DATABASE_NAME == "" {
+		t.Skip("HW_TAURUSDB_DATABASE_NAME must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlTableName(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_TABLE_NAME == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_TABLE_NAME must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBTableName(t *testing.T) {
+	if HW_TAURUSDB_TABLE_NAME == "" {
+		t.Skip("HW_TAURUSDB_TABLE_NAME must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlInstanceConfigurationId(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBInstanceConfigurationId(t *testing.T) {
+	if HW_TAURUSDB_INSTANCE_CONFIGURATION_ID == "" {
+		t.Skip("HW_TAURUSDB_INSTANCE_CONFIGURATION_ID must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlBackupBeginTime(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBBackupBeginTime(t *testing.T) {
+	if HW_TAURUSDB_BACKUP_BEGIN_TIME == "" {
+		t.Skip("HW_TAURUSDB_BACKUP_BEGIN_TIME must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlBackupEndTime(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_BACKUP_END_TIME == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_BACKUP_END_TIME must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBBackupEndTime(t *testing.T) {
+	if HW_TAURUSDB_BACKUP_END_TIME == "" {
+		t.Skip("HW_TAURUSDB_BACKUP_END_TIME must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlJobId(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_JOB_ID == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_JOB_ID must be set for GaussDB MySQL acceptance tests.")
+func TestAccPreCheckTaurusDBJobId(t *testing.T) {
+	if HW_TAURUSDB_JOB_ID == "" {
+		t.Skip("HW_TAURUSDB_JOB_ID must be set for TaurusDB acceptance tests.")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBMysqlTimeRange(t *testing.T) {
-	if HW_GAUSSDB_MYSQL_START_TIME == "" || HW_GAUSSDB_MYSQL_END_TIME == "" {
-		t.Skip("HW_GAUSSDB_MYSQL_START_TIME and HW_GAUSSDB_MYSQL_END_TIME must be set for GaussDB MySQL acceptance tests")
+func TestAccPreCheckTaurusDBTimeRange(t *testing.T) {
+	if HW_TAURUSDB_START_TIME == "" || HW_TAURUSDB_END_TIME == "" {
+		t.Skip("HW_TAURUSDB_START_TIME and HW_TAURUSDB_END_TIME must be set for TaurusDB acceptance tests")
 	}
 }
 

@@ -17,7 +17,7 @@ func TestAccTaurusDBConfigurationDataSource_basic(t *testing.T) {
 				Config: testAccTaurusDBConfigurationDataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_taurusdb_configuration.test", "name", "Default-GaussDB-for-MySQL 8.0"),
+						"data.huaweicloud_taurusdb_configuration.test", "name", "Default-TaurusDB V2.0"),
 				),
 			},
 		},
@@ -26,6 +26,6 @@ func TestAccTaurusDBConfigurationDataSource_basic(t *testing.T) {
 
 const testAccTaurusDBConfigurationDataSource_basic = `
 data "huaweicloud_taurusdb_configuration" "test" {
-  name = "Default-GaussDB-for-MySQL 8.0"
+  name = "Default-TaurusDB V2.0"
 }
 `
