@@ -1922,6 +1922,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_resource_flavors":  modelarts.DataSourceResourceFlavors(),
 			"huaweicloud_modelarts_service_flavors":   modelarts.DataSourceServiceFlavors(),
 			"huaweicloud_modelarts_services":          modelarts.DataSourceServices(),
+			"huaweicloud_modelarts_workspace_quotas":  modelarts.DataSourceWorkspaceQuotas(),
 			"huaweicloud_modelarts_workspaces":        modelarts.DataSourceWorkspaces(),
 			// Resource management via V2 APIs.
 			"huaweicloud_modelartsv2_node_pool_nodes":     modelarts.DataSourceV2NodePoolNodes(),
