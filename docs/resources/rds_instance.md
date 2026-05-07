@@ -427,6 +427,9 @@ In addition to all arguments above, the following attributes are exported:
 * `nodes` - Indicates the instance nodes information.
   The [nodes](#nodes_struct) structure is documented below.
 
+* `auto_scaling` - Indicates the instance auto-scaling policy.
+  The [auto_scaling](#auto_scaling_struct) structure is documented below.
+
 * `private_ips` - Indicates the private IP address list. It is a blank string until an ECS is created.
 
 * `private_dns_names` - Indicates the private domain name list of the DB instance.
@@ -454,6 +457,29 @@ The `nodes` block contains:
   respectively.
 
 * `status` - Indicates the node status.
+
+<a name="auto_scaling_struct"></a>
+The `auto_scaling` block contains:
+
+* `status` - Indicates whether auto-scaling is enabled. The value can be:
+  + **ON**: Auto scaling is enabled.
+  + **OFF**: Auto scaling is disabled.
+
+* `monitor_cycle` - Indicates the observation window, in seconds.
+
+* `silence_cycle` - Indicates the silent period, in seconds.
+
+* `enlarge_threshold` - Indicates the threshold for triggering auto scale-up, in percentage.
+
+* `max_flavor` - Indicates the maximum specifications.
+
+* `reduce_enabled` - Indicates whether auto scale-down is enabled. The value can be:
+  + **ON**: Auto scale-down is enabled.
+  + **OFF**: Auto scale-down is disabled.
+
+* `reduce_threshold` - Indicates the threshold for triggering auto scale-down, in percentage.
+
+* `min_flavor` - Indicates the minimum specifications.
 
 <a name="RdsInstance_MsdtcHostsResp"></a>
 The `msdtc_hosts` block supports:

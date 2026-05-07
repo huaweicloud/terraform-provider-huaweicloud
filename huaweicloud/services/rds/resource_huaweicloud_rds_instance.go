@@ -55,6 +55,7 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/storage-used-space
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/replication/status
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/migrateslave
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
@@ -431,6 +432,46 @@ func ResourceRdsInstance() *schema.Resource {
 			"is_flexus": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"auto_scaling": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"monitor_cycle": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"silence_cycle": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"enlarge_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_flavor": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"reduce_enabled": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"reduce_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"min_flavor": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"nodes": {
 				Type:     schema.TypeList,
@@ -912,6 +953,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	mErr = multierror.Append(mErr, setAutoUpgradeSwitchOption(d, client))
 	mErr = multierror.Append(mErr, setStorageUsedSpace(d, client))
 	mErr = multierror.Append(mErr, setReplicationStatus(d, client))
+	mErr = multierror.Append(mErr, setAutoScaling(d, client))
 
 	diagErr := setRdsInstanceParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
@@ -1218,6 +1260,35 @@ func setReplicationStatus(d *schema.ResourceData, client *golangsdk.ServiceClien
 		return nil
 	}
 	return d.Set("replication_status", utils.PathSearch("replication_status", getRespBody, nil))
+}
+
+func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/auto-scaling/policy",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error retrieving RDS instance(%s) auto scaling: %s", d.Id(), err)
+		return nil
+	}
+	return d.Set("auto_scaling", flattenAutoScalingResponseBody(getRespBody))
+}
+
+func flattenAutoScalingResponseBody(resp interface{}) []interface{} {
+	rst := []interface{}{
+		map[string]interface{}{
+			"status":            utils.PathSearch("status", resp, nil),
+			"monitor_cycle":     utils.PathSearch("monitor_cycle", resp, nil),
+			"silence_cycle":     utils.PathSearch("silence_cycle", resp, nil),
+			"enlarge_threshold": utils.PathSearch("enlarge_threshold", resp, nil),
+			"max_flavor":        utils.PathSearch("max_flavor", resp, nil),
+			"reduce_enabled":    utils.PathSearch("reduce_enabled", resp, nil),
+			"reduce_threshold":  utils.PathSearch("reduce_threshold", resp, nil),
+			"min_flavor":        utils.PathSearch("min_flavor", resp, nil),
+		},
+	}
+	return rst
 }
 
 func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
