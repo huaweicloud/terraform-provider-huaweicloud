@@ -692,6 +692,8 @@ var (
 	HW_DATAARTS_ARCHITECTURE_TABLE_MODEL_TAGS = os.Getenv("HW_DATAARTS_ARCHITECTURE_TABLE_MODEL_TAGS")
 	HW_DATAARTS_ARCHITECTURE_USER_ID          = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_NAME        = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
+	// The secrecy level non-UUID format IDs, multiple IDs separated by commas (,).
+	HW_DATAARTS_ARCHITECTURE_SECRECY_LEVEL_IDS = os.Getenv("HW_DATAARTS_ARCHITECTURE_SECRECY_LEVEL_IDS")
 	// Management Center
 	HW_DATAARTS_CONNECTION_ID   = os.Getenv("HW_DATAARTS_CONNECTION_ID")
 	HW_DATAARTS_CONNECTION_NAME = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
@@ -4069,6 +4071,13 @@ func TestAccPreCheckDataArtsConnectionID(t *testing.T) {
 func TestAccPreCheckDataArtsArchitectureReviewer(t *testing.T) {
 	if HW_DATAARTS_ARCHITECTURE_USER_ID == "" || HW_DATAARTS_ARCHITECTURE_USER_NAME == "" {
 		t.Skip("HW_DATAARTS_ARCHITECTURE_USER_ID and HW_DATAARTS_ARCHITECTURE_USER_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsArchitectureSecrecyLevelIds(t *testing.T, min int) {
+	if HW_DATAARTS_ARCHITECTURE_SECRECY_LEVEL_IDS == "" || len(strings.Split(HW_DATAARTS_ARCHITECTURE_SECRECY_LEVEL_IDS, ",")) < min {
+		t.Skipf("At lease %d secrecy level ID(s) for HW_DATAARTS_ARCHITECTURE_SECRECY_LEVEL_IDS must be set, separated by the comma (,)", min)
 	}
 }
 
