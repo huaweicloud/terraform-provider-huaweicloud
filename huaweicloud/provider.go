@@ -4261,6 +4261,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_scheduled_task_cancel":      taurusdb.ResourceTaurusDBScheduledTaskCancel(),
 			"huaweicloud_taurusdb_scheduled_task_delete":      taurusdb.ResourceTaurusDBScheduledTaskDelete(),
 			"huaweicloud_taurusdb_instant_task_delete":        taurusdb.ResourceTaurusDBInstantTaskDelete(),
+			"huaweicloud_taurusdb_node_sessions_kill":         taurusdb.ResourceTaurusDBNodeSessionsKill(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
 			"huaweicloud_tms_tags":          tms.ResourceTmsTag(),
