@@ -77,6 +77,7 @@ var (
 	HW_CBR_DESTINATION_VAULT_ID   = os.Getenv("HW_CBR_DESTINATION_VAULT_ID")   // The destination vault ID.
 
 	HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED = os.Getenv("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED")
+	HW_VPC_BANDWIDTH_ID                    = os.Getenv("HW_VPC_BANDWIDTH_ID")
 	HW_VPC_BANDWIDTH_NAME                  = os.Getenv("HW_VPC_BANDWIDTH_NAME")
 	HW_VPC_EIP_POOL_ENABLED                = os.Getenv("HW_VPC_EIP_POOL_ENABLED")
 	HW_VPC_EIP_PUBLICIP_POOL_ID            = os.Getenv("HW_VPC_EIP_PUBLICIP_POOL_ID")
@@ -447,6 +448,7 @@ var (
 
 	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
 	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
+	HW_EIP_IDS     = os.Getenv("HW_EIP_IDS")
 
 	HW_CES_ALARM_TEMPLATE_ID = os.Getenv("HW_CES_ALARM_TEMPLATE_ID")
 	HW_CES_START_TIME        = os.Getenv("HW_CES_START_TIME")
@@ -4821,6 +4823,13 @@ func TestAccPreCheckVpcEipBandwidthAddOnPackageEnabled(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckVpcEipBandwidthId(t *testing.T) {
+	if HW_VPC_BANDWIDTH_ID == "" {
+		t.Skip("HW_VPC_BANDWIDTH_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckVpcEipBandwidthName(t *testing.T) {
 	if HW_VPC_BANDWIDTH_NAME == "" {
 		t.Skip("HW_VPC_BANDWIDTH_NAME must be set for the acceptance test")
@@ -4975,6 +4984,13 @@ func TestAccPrecheckDscAlarmTopicID(t *testing.T) {
 func TestAccPrecheckEipIDAndIP(t *testing.T) {
 	if HW_EIP_ID == "" || HW_EIP_ADDRESS == "" {
 		t.Skip("HW_EIP_ID and HW_EIP_ADDRESS must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckEipIDS(t *testing.T) {
+	if HW_EIP_IDS == "" {
+		t.Skip("HW_EIP_IDS must be set for the acceptance test")
 	}
 }
 
