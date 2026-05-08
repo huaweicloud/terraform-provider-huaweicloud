@@ -3275,6 +3275,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_scan_task":                   css.ResourceScanTask(),
 			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
 			"huaweicloud_css_snapshot_restore":            css.ResourceSnapshotRestore(),
+			"huaweicloud_css_snapshot_setting":            css.ResourceSnapshotSetting(),
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_css_vpcep_connections_update":    css.ResourceCssVpcepserviceConnectionsUpdate(),
 
