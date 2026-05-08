@@ -1302,6 +1302,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dnsv21_ptrrecords":                dns.DataSourceDNSV21PtrRecords(),
 
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
+			"huaweicloud_drs_job_links":          drs.DataSourceJobLinks(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
 
 			// EventGrid
