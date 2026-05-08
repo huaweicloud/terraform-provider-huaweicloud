@@ -2383,6 +2383,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_diagnosis_statistics":     taurusdb.DataSourceTaurusDBDiagnosisStatistics(),
 			"huaweicloud_taurusdb_diagnosis_instances":      taurusdb.DataSourceTaurusDBDiagnosisInstances(),
 			"huaweicloud_taurusdb_audit_log_download_links": taurusdb.DataSourceTaurusDBAuditLogDownloadLinks(),
+			"huaweicloud_taurusdb_node_sessions":            taurusdb.DataSourceTaurusDBNodeSessions(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
