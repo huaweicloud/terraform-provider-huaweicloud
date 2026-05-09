@@ -141,6 +141,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					"db",
 					"status",
 					"slow_log_show_original_status",
+					"default_backup_method",
 				},
 			},
 		},
@@ -760,6 +761,7 @@ resource "huaweicloud_rds_instance" "test" {
   private_dns_name_prefix            = "terraformTest"
   slow_log_show_original_status      = "on"
   minor_version_auto_upgrade_enabled = true
+  default_backup_method              = "PHYSICALBACKUP"
 
   db {
     type    = "PostgreSQL"
@@ -807,6 +809,7 @@ resource "huaweicloud_rds_instance" "test" {
   private_dns_name_prefix            = "terraformTestUpdate"
   slow_log_show_original_status      = "off"
   minor_version_auto_upgrade_enabled = false
+  default_backup_method              = "EBACKUP"
 
   db {
     password = "Huangwei!120521"
