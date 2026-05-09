@@ -320,6 +320,10 @@ The following arguments are supported:
 * `slow_log_show_original_status` - (Optional, String) Specifies the slow log show original status of the instance.
   Only **MySQL** and **PostgreSQL** are supported. Value options: **on**, **off**.
 
+* `default_backup_method` - (Optional, String) Specifies the backup method. Only PostgreSQL is supported. Value options:
+  + **EBACKUP**: CBR snapshot backup
+  + **PHYSICALBACKUP**: physical backup(OBS)
+
 The `db` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are **MySQL**, **PostgreSQL**,
@@ -513,9 +517,9 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason. The missing attributes include: `db`, `restore`,`param_group_id`,
 `power_action`, `read_write_permissions`, `rotate_day`, `secret_id`, `secret_name`, `secret_version`,
 `dss_pool_id`, `lower_case_table_names`, `slow_log_show_original_status`, `charging_mode`, `period_unit`, `period`,
-`auto_renew`, `auto_pay`, `is_flexus`. It is generally recommended running `terraform plan` after importing a RDS instance.
-You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
-with the instance. Also, you can ignore changes as below.
+`auto_renew`, `auto_pay`, `is_flexus`, `default_backup_method`. It is generally recommended running `terraform plan`
+after importing a RDS instance. You can then decide if changes should be applied to the instance, or the resource
+definition should be updated to align with the instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_rds_instance" "instance_1" {
@@ -525,7 +529,7 @@ resource "huaweicloud_rds_instance" "instance_1" {
     ignore_changes = [
       "db", "restore", "param_group_id", "power_action", "read_write_permissions", "rotate_day",
       "secret_id", "secret_name", "secret_version", "dss_pool_id", "lower_case_table_names", "slow_log_show_original_status",
-      "charging_mode", "period_unit", "period", "auto_renew", "auto_pay", "is_flexus",
+      "charging_mode", "period_unit", "period", "auto_renew", "auto_pay", "is_flexus", "default_backup_method"
     ]
   }
 }

@@ -393,6 +393,10 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"default_backup_method": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tags": common.TagsSchema(),
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -723,6 +727,12 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	if d.Get("minor_version_auto_upgrade_enabled").(bool) {
 		if err = updateAutoUpgradeSwitchOption(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("default_backup_method"); ok {
+		if err = updateDefaultBackupMethod(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1446,6 +1456,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateAutoUpgradeSwitchOption(ctx, d, client); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateDefaultBackupMethod(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -2428,6 +2442,31 @@ func updateAutoUpgradeSwitchOption(ctx context.Context, d *schema.ResourceData, 
 func buildAutoUpgradeSwitchOptionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"switch_option": d.Get("minor_version_auto_upgrade_enabled"),
+	}
+	return bodyParams
+}
+
+func updateDefaultBackupMethod(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("default_backup_method") {
+		return nil
+	}
+
+	_, err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/backups/config",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildDefaultBackupMethodBodyParams(d),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance(%s) default backup method: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildDefaultBackupMethodBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"default_backup_method": d.Get("default_backup_method"),
 	}
 	return bodyParams
 }
