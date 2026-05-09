@@ -1922,6 +1922,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_devserver_flavors": modelarts.DataSourceDevServerFlavors(),
 			"huaweicloud_modelarts_model_templates":   modelarts.DataSourceModelTemplates(),
 			"huaweicloud_modelarts_models":            modelarts.DataSourceModels(),
+			"huaweicloud_modelarts_networks":          modelarts.DataSourceNetworks(),
 			"huaweicloud_modelarts_notebook_flavors":  modelarts.DataSourceNotebookFlavors(),
 			"huaweicloud_modelarts_notebook_images":   modelarts.DataSourceNotebookImages(),
 			"huaweicloud_modelarts_notebooks":         modelarts.DataSourceNotebooks(),
