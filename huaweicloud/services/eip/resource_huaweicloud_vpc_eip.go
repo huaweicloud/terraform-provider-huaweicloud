@@ -132,7 +132,25 @@ func ResourceVpcEIPV1() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: "schema: Deprecated",
+							Description: "The port id.",
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The IP description.",
+						},
+						"associate_instance_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The IP associate instance type.",
+						},
+						"associate_instance_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The IP associate instance id.",
 						},
 					},
 				},
@@ -538,6 +556,10 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 			d.Set("associate_id", resp.AssociateInstanceID),
 			d.Set("instance_type", resp.Vnic.IntsanceType),
 			d.Set("instance_id", resp.Vnic.IntsanceID),
+			d.Set("name", resp.Alias),
+			d.Set("description", utils.PathSearch("description", resp, "")),
+
+			//
 		)
 	}
 
@@ -600,6 +622,36 @@ func updateEipPortId(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceDat
 		err := bindPort(vpcV1Client, resourceId, newPort, timeout)
 		if err != nil {
 			return fmt.Errorf("error binding EIP (%s) to port (%s): %s", resourceId, newPort, err)
+		}
+	}
+	return nil
+}
+
+func updateEipV3Info(vpcV3Client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	resourceId := d.Id()
+	timeout := d.Timeout(schema.TimeoutUpdate)
+	old, new := d.GetChange("publicip.0.associate_instance_id")
+	oldAssociateInstanceId := old.(string)
+	newAssociateInstanceId := new.(string)
+
+	if oldAssociateInstanceId != "" {
+		err := unbindPort(vpcV3Client, resourceId, oldAssociateInstanceId, timeout)
+		if err != nil {
+			log.Printf("[WARN] Error trying to unbind EIP (%s): %s", resourceId, err)
+		}
+	}
+	if newAssociateInstanceId != "" {
+		err := bindPort(vpcV3Client, resourceId, newAssociateInstanceId, timeout)
+		if err != nil {
+			return fmt.Errorf("error binding EIP (%s) to port (%s): %s", resourceId, newAssociateInstanceId, err)
+		}
+	}
+
+	_, newDescription := d.GetChange("publicip.0.description")
+	if newDescription != "" {
+		err := bindPort(vpcV3Client, resourceId, newDescription.(string), timeout)
+		if err != nil {
+			return fmt.Errorf("error binding EIP (%s) to port (%s): %s", resourceId, newDescription, err)
 		}
 	}
 	return nil
@@ -678,6 +730,11 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating VPC v2 client: %s", err)
 	}
 
+	vpcV3Client, err := cfg.NetworkingV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
+	}
+
 	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating BSS V2 client: %s", err)
@@ -693,6 +750,20 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	if d.HasChange("publicip.0.port_id") {
 		err = updateEipPortId(vpcV1Client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("publicip.0.description", "publicip.0.associate_instance_type", "publicip.0.associate_instance_id") {
+		err = updateEipV3Info(vpcV3Client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("name", "publicip.0.ip_version") {
+		err = updateEipConfig(vpcV1Client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
