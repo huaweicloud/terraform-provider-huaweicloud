@@ -1934,6 +1934,7 @@ func Provider() *schema.Provider {
 			// Resource management via V2 APIs.
 			"huaweicloud_modelartsv2_node_pool_nodes":         modelarts.DataSourceV2NodePoolNodes(),
 			"huaweicloud_modelartsv2_plugins":                 modelarts.DataSourceV2Plugins(),
+			"huaweicloud_modelartsv2_plugin_templates":        modelarts.DataSourceV2PluginTemplates(),
 			"huaweicloud_modelartsv2_resource_pool_nodes":     modelarts.DataSourceV2ResourcePoolNodes(),
 			"huaweicloud_modelartsv2_resource_pool_workloads": modelarts.DataSourceResourcePoolWorkloads(),
 			"huaweicloud_modelartsv2_resource_pools":          modelarts.DataSourceV2ResourcePools(),
