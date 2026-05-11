@@ -2005,6 +2005,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_database_privileges":          rds.DataSourceRdsMysqlDatabasePrivileges(),
 			"huaweicloud_rds_mysql_accounts":                     rds.DataSourceRdsMysqlAccounts(),
 			"huaweicloud_rds_mysql_binlog":                       rds.DataSourceRdsMysqlBinlog(),
+			"huaweicloud_rds_merged_binlog_files":                rds.DataSourceMergedBinlogFiles(),
 			"huaweicloud_rds_mysql_proxy_flavors":                rds.DataSourceRdsMysqlProxyFlavors(),
 			"huaweicloud_rds_mysql_proxies":                      rds.DataSourceRdsMysqlProxies(),
 			"huaweicloud_rds_parametergroups":                    rds.DataSourceParametergroups(),
