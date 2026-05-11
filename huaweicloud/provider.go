@@ -3927,6 +3927,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_resource_pool":                   modelarts.ResourceModelartsResourcePool(),
 			"huaweicloud_modelarts_resource_pool_node_batch_resize": modelarts.ResourceResourcePoolNodeBatchResize(),
 			"huaweicloud_modelarts_service":                         modelarts.ResourceModelartsService(),
+			"huaweicloud_modelarts_training_experiment":             modelarts.ResourceTrainingExperiment(),
 			"huaweicloud_modelarts_workspace":                       modelarts.ResourceModelartsWorkspace(),
 			// Resource management via V2 APIs.
 			"huaweicloud_modelartsv2_node_batch_delete":      modelarts.ResourceV2NodeBatchDelete(),
