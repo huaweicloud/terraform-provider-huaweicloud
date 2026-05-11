@@ -24,16 +24,16 @@ import (
 // @API DataArtsStudio POST /v2/{project_id}/design/standards
 // @API DataArtsStudio GET /v2/{project_id}/design/standards
 // @API DataArtsStudio PUT /v2/{project_id}/design/standards/{id}
-// @API DataArtsStudio GET //v2/{project_id}/design/standards/{id}
+// @API DataArtsStudio GET /v2/{project_id}/design/standards/{id}
 // @API DataArtsStudio DELETE /v2/{project_id}/design/standards
-func ResourceDataStandard() *schema.Resource {
+func ResourceArchitectureDataStandard() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDataStandardCreate,
-		UpdateContext: resourceDataStandardUpdate,
-		ReadContext:   resourceDataStandardRead,
-		DeleteContext: resourceDataStandardDelete,
+		CreateContext: resourceArchitectureDataStandardCreate,
+		UpdateContext: resourceArchitectureDataStandardUpdate,
+		ReadContext:   resourceArchitectureDataStandardRead,
+		DeleteContext: resourceArchitectureDataStandardDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceDataStandardImportState,
+			StateContext: resourceArchitectureDataStandardImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -210,7 +210,7 @@ func dataStandardNewBizSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceDataStandardCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -251,7 +251,7 @@ func resourceDataStandardCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 	d.SetId(standardId)
 
-	return resourceDataStandardRead(ctx, d, meta)
+	return resourceArchitectureDataStandardRead(ctx, d, meta)
 }
 
 func buildCreateDataStandardBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -278,7 +278,7 @@ func buildCreateDataStandardRequestBodyValue(rawArray []interface{}) []map[strin
 	return rst
 }
 
-func resourceDataStandardRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -403,7 +403,7 @@ func flattenGetDataStandardResponseBodyNewBiz(resp interface{}) []interface{} {
 	return rst
 }
 
-func resourceDataStandardUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -445,7 +445,7 @@ func resourceDataStandardUpdate(ctx context.Context, d *schema.ResourceData, met
 			return diag.Errorf("error updating DataArts Architecture data standard: %s", err)
 		}
 	}
-	return resourceDataStandardRead(ctx, d, meta)
+	return resourceArchitectureDataStandardRead(ctx, d, meta)
 }
 
 func getDataStandard(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
@@ -515,7 +515,7 @@ func buildUpdateDataStandardRequestBodyValue(d *schema.ResourceData, dataStandar
 	return rst
 }
 
-func resourceDataStandardDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -556,8 +556,8 @@ func buildDeleteDataStandardBodyParams(d *schema.ResourceData) map[string]interf
 	return bodyParams
 }
 
-// resourceDataStandardImportState use to import an id with format <workspace_id>/<id>
-func resourceDataStandardImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+// resourceArchitectureDataStandardImportState use to import an id with format <workspace_id>/<id>
+func resourceArchitectureDataStandardImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import ID, must be <workspace_id>/<id>")

@@ -26,12 +26,12 @@ import (
 // @API DataArtsStudio GET /v2/{project_id}/design/biz-metrics/{id}
 // @API DataArtsStudio PUT /v2/{project_id}/design/biz-metrics
 // @API DataArtsStudio DELETE /v2/{project_id}/design/biz-metrics
-func ResourceBusinessMetric() *schema.Resource {
+func ResourceArchitectureBusinessMetric() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceBusinessMetricCreate,
-		UpdateContext: resourceBusinessMetricUpdate,
-		ReadContext:   resourceBusinessMetricRead,
-		DeleteContext: resourceBusinessMetricDelete,
+		CreateContext: resourceArchitectureBusinessMetricCreate,
+		UpdateContext: resourceArchitectureBusinessMetricUpdate,
+		ReadContext:   resourceArchitectureBusinessMetricRead,
+		DeleteContext: resourceArchitectureBusinessMetricDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDataArtsStudioImportState,
 		},
@@ -214,7 +214,7 @@ func ResourceBusinessMetric() *schema.Resource {
 	}
 }
 
-func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -250,7 +250,7 @@ func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	d.SetId(metricId)
 
-	return resourceBusinessMetricRead(ctx, d, meta)
+	return resourceArchitectureBusinessMetricRead(ctx, d, meta)
 }
 
 func buildCreateOrUpdateBusinessMetricBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -277,7 +277,7 @@ func buildCreateOrUpdateBusinessMetricBodyParams(d *schema.ResourceData) map[str
 	}
 }
 
-func resourceBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -289,7 +289,7 @@ func resourceBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
-	getResp, err := readBusinessMetric(client, d)
+	getResp, err := readArchitectureBusinessMetric(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
 			"error retrieving DataArts Architecture business metric")
@@ -344,7 +344,7 @@ func resourceBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func readBusinessMetric(client *golangsdk.ServiceClient, d *schema.ResourceData) (*http.Response, error) {
+func readArchitectureBusinessMetric(client *golangsdk.ServiceClient, d *schema.ResourceData) (*http.Response, error) {
 	getPath := client.Endpoint + "v2/{project_id}/design/biz-metrics/{id}"
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{id}", d.Id())
@@ -356,7 +356,7 @@ func readBusinessMetric(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	return client.Request("GET", getPath, &getOpt)
 }
 
-func resourceBusinessMetricUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureBusinessMetricUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -383,10 +383,10 @@ func resourceBusinessMetricUpdate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error updating DataArts Architecture business metric: %s", err)
 	}
-	return resourceBusinessMetricRead(ctx, d, meta)
+	return resourceArchitectureBusinessMetricRead(ctx, d, meta)
 }
 
-func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureBusinessMetricDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -403,7 +403,7 @@ func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, met
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
-		JSONBody:         buildDeleteBusinessMetricBodyParams(d),
+		JSONBody:         buildDeleteArchitectureBusinessMetricBodyParams(d),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -413,7 +413,7 @@ func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, met
 
 	// Successful deletion API call does not guarantee that the resource is successfully deleted.
 	// Call the details API to confirm that the resource has been successfully deleted.
-	_, err = readBusinessMetric(client, d)
+	_, err = readArchitectureBusinessMetric(client, d)
 	if err == nil {
 		return diag.Errorf("error deleting DataArts Architecture business metric: the business metric still exists")
 	}
@@ -422,7 +422,7 @@ func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, met
 		"error deleting DataArts Architecture business metric")
 }
 
-func buildDeleteBusinessMetricBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildDeleteArchitectureBusinessMetricBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"ids": []string{d.Id()},
 	}
@@ -431,12 +431,16 @@ func buildDeleteBusinessMetricBodyParams(d *schema.ResourceData) map[string]inte
 
 func resourceDataArtsStudioImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	partLength := len(parts)
-
-	if partLength == 2 {
-		d.SetId(parts[1])
-		return []*schema.ResourceData{d}, d.Set("workspace_id", parts[0])
+	importedId := d.Id()
+	parts := strings.SplitN(importedId, "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<workspace_id>/<id>', but got '%s'", importedId)
 	}
-	return nil, fmt.Errorf("invalid format specified for import id, must be <workspace_id>/<id>")
+
+	d.SetId(parts[1])
+	mErr := multierror.Append(nil,
+		d.Set("workspace_id", parts[0]),
+	)
+
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

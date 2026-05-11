@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDataStandardResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getArchitectureDataStandardResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getDataStandard: query DataArts Architecture data standard
 	var (
@@ -77,7 +77,7 @@ func buildGetDataStandardQueryParams(directoryID string, offset int) string {
 	return fmt.Sprintf("?directory_id=%v&limit=100&offset=%v", directoryID, offset)
 }
 
-func TestAccDataStandard_basic(t *testing.T) {
+func TestAccArchitectureDataStandard_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -86,7 +86,7 @@ func TestAccDataStandard_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getDataStandardResourceFunc,
+		getArchitectureDataStandardResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -98,7 +98,7 @@ func TestAccDataStandard_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDataStandard_basic(name),
+				Config: testArchitectureDataStandard_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "directory_id",
@@ -112,7 +112,7 @@ func TestAccDataStandard_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDataStandard_basic_update(name),
+				Config: testArchitectureDataStandard_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "directory_id",
@@ -130,7 +130,7 @@ func TestAccDataStandard_basic(t *testing.T) {
 	})
 }
 
-func testDataStandard_basic(name string) string {
+func testArchitectureDataStandard_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -156,7 +156,7 @@ resource "huaweicloud_dataarts_architecture_data_standard" "test" {
 `, testAccArchitectureDirectory_basic(name), acceptance.HW_DATAARTS_WORKSPACE_ID, name)
 }
 
-func testDataStandard_basic_update(name string) string {
+func testArchitectureDataStandard_basic_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 

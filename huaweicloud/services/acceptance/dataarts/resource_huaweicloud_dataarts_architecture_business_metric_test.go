@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getBusinessMetricResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getArchitectureBusinessMetricResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
 		httpUrl = "v2/{project_id}/design/biz-metrics/{id}"
@@ -42,7 +42,7 @@ func getBusinessMetricResourceFunc(cfg *config.Config, state *terraform.Resource
 	return utils.FlattenResponse(getResp)
 }
 
-func TestAccBusinessMetric_basic(t *testing.T) {
+func TestAccArchitectureBusinessMetric_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -51,7 +51,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getBusinessMetricResourceFunc,
+		getArchitectureBusinessMetricResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -64,7 +64,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testBusinessMetric_basic(name),
+				Config: testArchitectureBusinessMetric_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -96,7 +96,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testBusinessMetric_basic_update1(name),
+				Config: testArchitectureBusinessMetric_basic_update1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -128,7 +128,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testBusinessMetric_basic_update2(name),
+				Config: testArchitectureBusinessMetric_basic_update2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -169,7 +169,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 	})
 }
 
-func testBusinessMetric_basic(name string) string {
+func testArchitectureBusinessMetric_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
@@ -195,7 +195,7 @@ resource "huaweicloud_dataarts_architecture_business_metric" "test" {
 `, name, acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_BIZ_CATALOG_ID)
 }
 
-func testBusinessMetric_basic_update1(name string) string {
+func testArchitectureBusinessMetric_basic_update1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
@@ -221,7 +221,7 @@ resource "huaweicloud_dataarts_architecture_business_metric" "test" {
 `, name, acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_BIZ_CATALOG_ID)
 }
 
-func testBusinessMetric_basic_update2(name string) string {
+func testArchitectureBusinessMetric_basic_update2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
