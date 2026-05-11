@@ -1981,8 +1981,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_instances_filter":             ram.DataSourceResourceInstancesFilter(),
 			"huaweicloud_ram_resource_instances_count":              ram.DataSourceResourceInstancesCount(),
 
-			"huaweicloud_rds_flavors":                            rds.DataSourceRdsFlavors(),
 			"huaweicloud_rds_available_flavors":                  rds.DataSourceRdsAvailableFlavors(),
+			"huaweicloud_rds_available_upgrade_small_versions":   rds.DataSourceAvailableUpgradeSmallVersions(),
 			"huaweicloud_rds_engine_versions":                    rds.DataSourceRdsEngineVersionsV3(),
 			"huaweicloud_rds_instances":                          rds.DataSourceRdsInstances(),
 			"huaweicloud_rds_instance_parameters_histories":      rds.DataSourceRdsInstanceParameterHistories(),
