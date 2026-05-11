@@ -29,10 +29,10 @@ var tableModelErrCodes = []string{
 // @API DataArtsStudio PUT /v2/{project_id}/design/table-model
 func ResourceArchitectureTableModel() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTableModelCreate,
-		ReadContext:   resourceTableModelRead,
-		UpdateContext: resourceTableModelUpdate,
-		DeleteContext: resourceTableModelDelete,
+		CreateContext: resourceArchitectureTableModelCreate,
+		ReadContext:   resourceArchitectureTableModelRead,
+		UpdateContext: resourceArchitectureTableModelUpdate,
+		DeleteContext: resourceArchitectureTableModelDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDataArtsStudioImportState,
@@ -684,7 +684,7 @@ func ResourceArchitectureTableModel() *schema.Resource {
 	}
 }
 
-func resourceTableModelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureTableModelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	createTableModelHttpUrl := "v2/{project_id}/design/table-model"
 	createTableModelProduct := "dataarts"
@@ -716,7 +716,7 @@ func resourceTableModelCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(modelId)
 
-	return resourceTableModelRead(ctx, d, meta)
+	return resourceArchitectureTableModelRead(ctx, d, meta)
 }
 
 func buildCreateOrUpdateTableModelBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -934,7 +934,7 @@ func buildArchitectureTableModelTags(tags *schema.Set) []map[string]interface{} 
 	return result
 }
 
-func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureTableModelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -1226,7 +1226,7 @@ func flattenArchitectureTableModelTags(tags []interface{}) []map[string]interfac
 	return rst
 }
 
-func resourceTableModelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureTableModelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	updateTableModelHttpUrl := "v2/{project_id}/design/table-model"
@@ -1251,10 +1251,10 @@ func resourceTableModelUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	return resourceTableModelRead(ctx, d, meta)
+	return resourceArchitectureTableModelRead(ctx, d, meta)
 }
 
-func resourceTableModelDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureTableModelDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	deleteTableModelHttpUrl := "v2/{project_id}/design/table-model"
 	deleteTableModelProduct := "dataarts"

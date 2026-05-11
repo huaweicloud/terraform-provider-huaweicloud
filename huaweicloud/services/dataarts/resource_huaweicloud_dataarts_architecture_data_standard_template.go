@@ -24,12 +24,12 @@ import (
 // @API DataArtsStudio POST /v2/{project_id}/design/standards/templates/action
 // @API DataArtsStudio GET /v2/{project_id}/design/standards/templates
 // @API DataArtsStudio DELETE /v2/{project_id}/design/standards/templates
-func ResourceDataStandardTemplate() *schema.Resource {
+func ResourceArchitectureDataStandardTemplate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDataStandardTemplateCreate,
-		ReadContext:   resourceDataStandardTemplateRead,
-		UpdateContext: resourceDataStandardTemplateUpdate,
-		DeleteContext: resourceDataStandardTemplateDelete,
+		CreateContext: resourceArchitectureDataStandardTemplateCreate,
+		ReadContext:   resourceArchitectureDataStandardTemplateRead,
+		UpdateContext: resourceArchitectureDataStandardTemplateUpdate,
+		DeleteContext: resourceArchitectureDataStandardTemplateDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceArchitectureDataStandardTemplateImportState,
 		},
@@ -165,7 +165,7 @@ func dataStandardTemplateCustomFieldSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceDataStandardTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -216,7 +216,7 @@ func resourceDataStandardTemplateCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	return resourceDataStandardTemplateRead(ctx, d, meta)
+	return resourceArchitectureDataStandardTemplateRead(ctx, d, meta)
 }
 
 func buildInitDataStandardTemplateBodyParams(d *schema.ResourceData, systemDefaultFields,
@@ -271,7 +271,7 @@ func buildCreateDataStandardTemplateRequestBodyCustomField(rawParams interface{}
 	return nil
 }
 
-func resourceDataStandardTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -306,7 +306,7 @@ func resourceDataStandardTemplateRead(_ context.Context, d *schema.ResourceData,
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDataStandardTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -354,7 +354,7 @@ func resourceDataStandardTemplateUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	return resourceDataStandardTemplateRead(ctx, d, meta)
+	return resourceArchitectureDataStandardTemplateRead(ctx, d, meta)
 }
 
 func buildUpdateDataStandardTemplateBodyParams(updateOptionalFields, updateCustomFields []interface{}) map[string]interface{} {
@@ -535,7 +535,7 @@ func flattenGetDataStandardTemplateResponseBodyCustomField(resp interface{}) []i
 	return rst
 }
 
-func resourceDataStandardTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDataStandardTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

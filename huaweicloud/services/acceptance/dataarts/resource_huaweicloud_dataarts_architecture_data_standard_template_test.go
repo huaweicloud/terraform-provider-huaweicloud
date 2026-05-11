@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDataStandardTemplateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getArchitectureDataStandardTemplateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getDataStandardTemplate: query DataArts Architecture data standard template
 	var (
@@ -55,7 +55,7 @@ func getDataStandardTemplateResourceFunc(cfg *config.Config, state *terraform.Re
 	return getDataStandardTemplateRespBody, nil
 }
 
-func TestAccDataStandardTemplate_basic(t *testing.T) {
+func TestAccArchitectureDataStandardTemplate_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -64,7 +64,7 @@ func TestAccDataStandardTemplate_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getDataStandardTemplateResourceFunc,
+		getArchitectureDataStandardTemplateResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -76,7 +76,7 @@ func TestAccDataStandardTemplate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDataStandardTemplate_basic(name),
+				Config: testArchitectureDataStandardTemplate_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -99,7 +99,7 @@ func TestAccDataStandardTemplate_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDataStandardTemplate_update(name),
+				Config: testArchitectureDataStandardTemplate_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -116,7 +116,7 @@ func TestAccDataStandardTemplate_basic(t *testing.T) {
 	})
 }
 
-func testDataStandardTemplate_basic(name string) string {
+func testArchitectureDataStandardTemplate_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_data_standard_template" "test" {
   workspace_id = "%[1]s"
@@ -149,7 +149,7 @@ resource "huaweicloud_dataarts_architecture_data_standard_template" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
 }
 
-func testDataStandardTemplate_update(name string) string {
+func testArchitectureDataStandardTemplate_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_data_standard_template" "test" {
   workspace_id = "%[1]s"
