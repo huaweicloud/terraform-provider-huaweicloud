@@ -1279,8 +1279,7 @@ func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient) err
 		pathParams: map[string]string{"instance_id": d.Id()},
 	})
 	if err != nil {
-		log.Printf("[WARN] error retrieving RDS instance(%s) auto scaling: %s", d.Id(), err)
-		return nil
+		return d.Set("auto_scaling", make([]interface{}, 0))
 	}
 	return d.Set("auto_scaling", flattenAutoScalingResponseBody(getRespBody))
 }
