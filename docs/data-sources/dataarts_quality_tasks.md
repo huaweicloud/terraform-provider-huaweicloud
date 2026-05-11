@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_quality_tasks"
+page_title: "HuaweiCloud: huaweicloud_dataarts_quality_tasks"
 description: |-
   Use this data source to get the list of quality tasks within HuaweiCloud.
 ---

@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_message_approve"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_message_approve"
 description: |-
   Use this resource to approve the API message for DataArts Data Service within HuaweiCloud.
 ---

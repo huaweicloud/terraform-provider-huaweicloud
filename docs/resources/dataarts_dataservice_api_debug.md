@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_api_debug"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_api_debug"
 description: |-
   Use this resource to debug API for DataArts Data Service within HuaweiCloud.
 ---

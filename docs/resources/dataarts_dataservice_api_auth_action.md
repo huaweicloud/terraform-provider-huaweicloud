@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_api_auth_action"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_api_auth_action"
 description: |-
   Use this resource to authorize an API for DataArts Data Service within HuaweiCloud.
 ---

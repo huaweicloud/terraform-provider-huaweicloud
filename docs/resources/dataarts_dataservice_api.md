@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_api"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_api"
 description: |-
   Use this resource to manage API under data service catalog within HuaweiCloud
 ---

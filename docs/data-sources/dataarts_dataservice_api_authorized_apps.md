@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_api_authorized_apps"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_api_authorized_apps"
 description: |-
   Use this data source to get the list of authorized APPs under specified API within HuaweiCloud.
 ---

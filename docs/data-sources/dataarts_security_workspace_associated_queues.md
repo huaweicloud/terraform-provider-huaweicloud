@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_security_workspace_associated_queues"
+page_title: "HuaweiCloud: huaweicloud_dataarts_security_workspace_associated_queues"
 description: |-
   Use this data source to get the list of workspace associated queues within HuaweiCloud.
 ---
