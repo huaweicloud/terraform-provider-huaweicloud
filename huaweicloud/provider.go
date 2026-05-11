@@ -4275,6 +4275,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_account":                    taurusdb.ResourceTaurusDBAccount(),
 			"huaweicloud_taurusdb_account_privilege":          taurusdb.ResourceTaurusDBAccountPrivilege(),
 			"huaweicloud_taurusdb_sql_control_rule":           taurusdb.ResourceTaurusDBSqlControlRule(),
+			"huaweicloud_taurusdb_sql_auto_throttling":        taurusdb.ResourceTaurusDBSqlAutoThrottling(),
 			"huaweicloud_taurusdb_parameter_template":         taurusdb.ResourceTaurusDBTemplate(),
 			"huaweicloud_taurusdb_parameter_template_apply":   taurusdb.ResourceTaurusDBTemplateApply(),
 			"huaweicloud_taurusdb_parameter_template_compare": taurusdb.ResourceTaurusDBTemplateCompare(),
