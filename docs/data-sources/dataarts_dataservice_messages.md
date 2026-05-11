@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_messages"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_messages"
 description: |-
   Use this data source to get the list of approval messages within HuaweiCloud.
 ---

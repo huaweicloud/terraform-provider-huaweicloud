@@ -1,7 +1,7 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCLoud: huaweicloud_dataarts_dataservice_approvers"
+page_title: "HuaweiCloud: huaweicloud_dataarts_dataservice_approvers"
 description: |-
   Use this data source to get the list of approvers for DataArts Studio Data Service within HuaweiCloud.
 ---
