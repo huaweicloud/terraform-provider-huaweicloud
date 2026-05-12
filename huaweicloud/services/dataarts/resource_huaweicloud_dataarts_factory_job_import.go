@@ -25,6 +25,7 @@ var factoryJobImportNonUpdatableParams = []string{
 }
 
 // @API DataArtsStudio POST /v1/{project_id}/jobs/import
+// @API DataArtsStudio GET /v1/{project_id}/system-tasks/{task_id}
 func ResourceFactoryJobImport() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFactoryJobImportCreate,
