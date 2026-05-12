@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -124,19 +123,13 @@ func resourceEipBandwidthRuleCreate(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate request ID: %s", err)
-	}
-
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestPath = strings.ReplaceAll(requestPath, "{bandwidth_id}", bandwidthId)
 
 	opt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Content-Type": "application/json",
 		},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildEipBandwidthRuleBodyParams(d)),
