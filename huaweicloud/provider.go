@@ -1089,6 +1089,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_dataservice_approvers":           dataarts.DataSourceDataServiceApprovers(),
 			"huaweicloud_dataarts_dataservice_apps":                dataarts.DataSourceDataServiceApps(),
 			"huaweicloud_dataarts_dataservice_app_authorized_apis": dataarts.DataSourceDataServiceAppAuthorizedApis(),
+			"huaweicloud_dataarts_dataservice_catalogs":            dataarts.DataSourceDataServiceCatalogs(),
 			"huaweicloud_dataarts_dataservice_catalog_apis":        dataarts.DataSourceDataServiceCatalogApis(),
 			"huaweicloud_dataarts_dataservice_instances":           dataarts.DataSourceDataServiceInstances(),
 			"huaweicloud_dataarts_dataservice_messages":            dataarts.DataSourceDataServiceMessages(),
