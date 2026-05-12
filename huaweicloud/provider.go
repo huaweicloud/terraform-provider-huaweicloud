@@ -1306,6 +1306,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job_links":          drs.DataSourceJobLinks(),
 			"huaweicloud_drs_job_monitor_data":   drs.DataSourceDrsJobMonitorData(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
+			"huaweicloud_drs_subscriptions":      drs.DataSourceDrsSubscriptions(),
 			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 
 			// EventGrid
