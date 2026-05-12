@@ -3913,7 +3913,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_devserver":                       modelarts.ResourceDevServer(),
 			"huaweicloud_modelarts_devserver_action":                modelarts.ResourceDevServerAction(),
 			"huaweicloud_modelarts_model":                           modelarts.ResourceModelartsModel(),
-			"huaweicloud_modelarts_network":                         modelarts.ResourceModelartsNetwork(),
+			"huaweicloud_modelarts_network":                         modelarts.ResourceNetwork(),
 			"huaweicloud_modelarts_notebook":                        modelarts.ResourceNotebook(),
 			"huaweicloud_modelarts_notebook_mount_storage":          modelarts.ResourceNotebookMountStorage(),
 			"huaweicloud_modelarts_resource_pool":                   modelarts.ResourceModelartsResourcePool(),
