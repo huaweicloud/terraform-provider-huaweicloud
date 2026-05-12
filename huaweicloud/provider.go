@@ -1934,7 +1934,6 @@ func Provider() *schema.Provider {
 			// Resource management via V2 APIs.
 			"huaweicloud_modelartsv2_node_pool_nodes":         modelarts.DataSourceV2NodePoolNodes(),
 			"huaweicloud_modelartsv2_plugins":                 modelarts.DataSourceV2Plugins(),
-			"huaweicloud_modelartsv2_plugin_templates":        modelarts.DataSourceV2PluginTemplates(),
 			"huaweicloud_modelartsv2_resource_pool_nodes":     modelarts.DataSourceV2ResourcePoolNodes(),
 			"huaweicloud_modelartsv2_resource_pool_workloads": modelarts.DataSourceResourcePoolWorkloads(),
 			"huaweicloud_modelartsv2_resource_pools":          modelarts.DataSourceV2ResourcePools(),
@@ -3605,6 +3604,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_instance":           geminidb.ResourceGeminiDbInstance(),
 			"huaweicloud_geminidb_account":            geminidb.ResourceGeminidbAccount(),
 			"huaweicloud_geminidb_database_operation": geminidb.ResourceGeminiDBDatabaseOperation(),
+			"huaweicloud_geminidb_backup":             geminidb.ResourceGeminiDBBackup(),
 
 			"huaweicloud_gaussdb_cassandra_instance":  geminidb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_redis_instance":      geminidb.ResourceGaussRedisInstanceV3(),

@@ -25,7 +25,7 @@ var geminiDbAccountNonUpdatableParams = []string{
 	"name",
 }
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances
 // @API GaussDBforNoSQL GET /v3/{project_id}/jobs
 // @API GaussDBforNoSQL GET /v3/{project_id}/redis/instances/{instance_id}/db-users
 // @API GaussDBforNoSQL POST /v3/{project_id}/redis/instances/{instance_id}/db-users
