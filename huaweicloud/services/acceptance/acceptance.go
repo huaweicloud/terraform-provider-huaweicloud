@@ -688,6 +688,7 @@ var (
 	HW_DATAARTS_INSTANCE_ID    = os.Getenv("HW_DATAARTS_INSTANCE_ID")
 	HW_DATAARTS_CDM_NAME       = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID     = os.Getenv("HW_DATAARTS_MANAGER_ID")
+	HW_DATAARTS_MODEL_ID       = os.Getenv("HW_DATAARTS_MODEL_ID")
 	HW_DATAARTS_BIZ_CATALOG_ID = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
 	HW_DATAARTS_SUBJECT_ID     = os.Getenv("HW_DATAARTS_SUBJECT_ID")
 	// Architecture
@@ -4035,6 +4036,13 @@ func TestAccPreCheckDataArtsDataServiceApigInstanceId(t *testing.T) {
 func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 	if HW_DATAARTS_MANAGER_ID == "" {
 		t.Skip("This environment does not support DataArts Studio permission set tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsModelID(t *testing.T) {
+	if HW_DATAARTS_MODEL_ID == "" {
+		t.Skip("HW_DATAARTS_MODEL_ID must be set for the acceptance test")
 	}
 }
 
