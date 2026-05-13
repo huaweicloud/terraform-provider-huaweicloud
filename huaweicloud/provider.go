@@ -4336,6 +4336,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_global_eip":                              eip.ResourceGlobalEIP(),
 			"huaweicloud_global_eip_associate":                    eip.ResourceGlobalEIPAssociate(),
 			"huaweicloud_global_eip_internet_bandwidth_associate": eip.ResourceInternetBandwidthAssociate(),
+			"huaweicloud_global_eip_segment_bandwidth_associate":  eip.ResourceSegmentBandwidthAssociate(),
 
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
