@@ -442,6 +442,7 @@ var (
 	HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK")
 	HW_DC_CONNECT_GATEWAY_ID              = os.Getenv("HW_DC_CONNECT_GATEWAY_ID")
 	HW_GLOBAL_EIP_ID                      = os.Getenv("HW_GLOBAL_EIP_ID")
+	HW_GLOBAL_INTERNET_BANDWIDTH_ID       = os.Getenv("HW_GLOBAL_INTERNET_BANDWIDTH_ID")
 
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
@@ -2833,6 +2834,13 @@ func TestAccPreCheckDcConnectGatewayId(t *testing.T) {
 func TestAccPreCheckGlobalEipId(t *testing.T) {
 	if HW_GLOBAL_EIP_ID == "" {
 		t.Skip("HW_GLOBAL_EIP_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGlobalInternetBandwidthId(t *testing.T) {
+	if HW_GLOBAL_INTERNET_BANDWIDTH_ID == "" {
+		t.Skip("HW_GLOBAL_INTERNET_BANDWIDTH_ID must be set for this acceptance test")
 	}
 }
 
