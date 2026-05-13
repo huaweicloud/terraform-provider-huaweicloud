@@ -40,6 +40,8 @@ data "huaweicloud_identity_user_token_info" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `catalog` - service catalog information, including the services and endpoints the user has access to. This field will
   not be returned if **nocatalog** parameter is set to **true**.
   The [catalog](#IdentityToken_Catalog) structure is documented below.

@@ -43,6 +43,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `default` - Whether the route table is default or not.
 
 * `description` - The supplementary information about the route table.

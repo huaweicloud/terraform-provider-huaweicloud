@@ -56,6 +56,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `api_versions` - The list of the API history versions that matched filter parameters.  
   The [api_versions](#apig_api_versions) structure is documented below.
 

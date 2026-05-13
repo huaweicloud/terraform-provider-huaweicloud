@@ -34,6 +34,8 @@ data "huaweicloud_identity_services" "test" {}
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `services` - Indicates service information list
   The [services](#IdentityServices_Services) structure is documented below.
 

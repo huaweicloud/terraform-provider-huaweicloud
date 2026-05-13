@@ -35,6 +35,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `items` - The list of Geo IP rules.
   The [items](#items_struct) structure is documented below.
 

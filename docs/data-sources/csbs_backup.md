@@ -50,6 +50,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - Provides the backup description.
 
 * `auto_trigger` - Specifies whether automatic trigger is enabled.

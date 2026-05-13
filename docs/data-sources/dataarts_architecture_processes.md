@@ -39,6 +39,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `processes` - The list of processes that matched filter parameters.  
   The [processes](#dataarts_architecture_processes) structure is documented below.
 

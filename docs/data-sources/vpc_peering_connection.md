@@ -58,4 +58,6 @@ must match exactly one VPC peering connection whose data will be exported as att
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - The description of the VPC Peering Connection.

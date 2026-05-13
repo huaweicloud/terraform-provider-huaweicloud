@@ -47,3 +47,9 @@ data "huaweicloud_nat_gateway" "test" {
   and (>) are not allowed.
 
 * `status` - (Optional, String) Specifies the status of the NAT gateway.
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The data source ID.

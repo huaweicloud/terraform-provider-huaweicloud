@@ -30,6 +30,8 @@ data "huaweicloud_identity_user_projects" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `projects` - Indicates the details of the projects.
   The [projects](#IdentityUserProjects_Projects) structure is documented below.
 

@@ -71,4 +71,6 @@ Exactly one of `domain_id` or `project_id` must be specified.
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `result` - Indicates whether the group has the role assignment in the scope.

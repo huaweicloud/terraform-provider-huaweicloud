@@ -62,6 +62,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `members` - The list of permission set associated members that match the filter parameters.  
   The [members](#dataarts_security_permission_set_associated_members_attr) structure is documented below.
 

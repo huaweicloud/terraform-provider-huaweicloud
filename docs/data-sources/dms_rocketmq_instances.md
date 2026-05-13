@@ -37,7 +37,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - .
+* `id` - The data source ID.
 
 * `instances` - Indicates the list of DMS RocketMQ instances.
   The [Instance](#DmsRocketMQInstances_Instance) structure is documented below.

@@ -36,6 +36,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `versions` - The list of IAM policy versions.
   The [versions](#Identityv5_policy_versions) structure is documented below.
 

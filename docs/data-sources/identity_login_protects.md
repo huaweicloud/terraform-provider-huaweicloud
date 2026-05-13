@@ -28,6 +28,8 @@ data "huaweicloud_identity_login_protects" "test2" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `login_protects` - Indicates the login status protection information list.
   The [login_protects](#IdentityLoginProtects_LoginProtects) structure is documented below.
 

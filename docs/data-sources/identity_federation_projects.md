@@ -26,6 +26,8 @@ data "huaweicloud_identity_federation_projects" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `projects` - Indicates the details of the projects.
   The [projects](#IdentityFederationProjects_Projects) structure is documented below.
 

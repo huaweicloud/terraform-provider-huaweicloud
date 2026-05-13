@@ -62,6 +62,8 @@ data "huaweicloud_identity_access_key" "test3" {}
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `credentials` - The credentials carrying user information.
   The [credentials](#IdentityAccessKey_credentials) structure is documented below.
 

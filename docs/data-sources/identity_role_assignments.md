@@ -81,6 +81,8 @@ data "huaweicloud_identity_role_assignments" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `role_assignments` - Indicates authorization information.
   The [role_assignments](#IdentityRoleAssignments_Assignments) structure is documented below.
 

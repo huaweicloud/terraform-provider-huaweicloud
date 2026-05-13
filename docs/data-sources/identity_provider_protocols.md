@@ -35,6 +35,8 @@ The following arguments are supported:
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `protocols` - Indicates the protocol Information List.
   The [protocols](#IdentityProtocols_Protocols) structure is documented below.
 

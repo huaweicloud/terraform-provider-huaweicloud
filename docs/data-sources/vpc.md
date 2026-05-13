@@ -42,6 +42,8 @@ filters must match exactly one VPC whose data will be exported as attributes.
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - The supplementary information about the VPC. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
 

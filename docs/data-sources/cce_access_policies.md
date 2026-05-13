@@ -29,6 +29,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `access_policy_list` - The access policy data in cce cluster.
 
   The [access_policy_list](#access_policy_list_struct) structure is documented below.

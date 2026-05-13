@@ -27,4 +27,6 @@ data "huaweicloud_identity_keystone_metadata_file" "test2" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `metadata_file` - Indicates the keystone metadata file.

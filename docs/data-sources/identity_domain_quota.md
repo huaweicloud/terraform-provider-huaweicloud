@@ -30,6 +30,8 @@ data "huaweicloud_identity_domain_quota" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `resources` - Indicates the resource info list.
   The [resources](#IdentityDomainQuota_Resources) structure is documented below.
 

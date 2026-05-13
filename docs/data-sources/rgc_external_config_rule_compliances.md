@@ -33,6 +33,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `config_rule_compliances` - Information about the external config rule compliance status.
 
 The [config_rule_compliances](#config_rule_compliances) structure is documented below.

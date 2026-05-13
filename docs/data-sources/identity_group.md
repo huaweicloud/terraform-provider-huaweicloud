@@ -29,6 +29,8 @@ data "huaweicloud_identity_group" "group" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `domain_id` - Indicates the domain the group belongs to.
 
 * `users` - Indicates the users the group contains. Structure is documented below.

@@ -49,6 +49,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `roles` - The list of user roles that matched filter parameters.
   The [roles](#dataarts_studio_workspace_user_roles_attr) structure is documented below.
 

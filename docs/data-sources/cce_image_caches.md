@@ -29,6 +29,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `image_caches` - The image caches data in cce cluster.
 
   The [image_caches](#image_caches_struct) structure is documented below.

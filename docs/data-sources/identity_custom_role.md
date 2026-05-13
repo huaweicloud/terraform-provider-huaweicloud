@@ -39,6 +39,8 @@ data "huaweicloud_identity_custom_role" "policy" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `policy` - The content of the custom policy in JSON format.
 
 * `catalog` - The catalog of the custom policy. The value is **CUSTOMED**.

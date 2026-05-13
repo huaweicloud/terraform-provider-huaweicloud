@@ -40,4 +40,6 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `qps` - The QPS value of CC attack protection.

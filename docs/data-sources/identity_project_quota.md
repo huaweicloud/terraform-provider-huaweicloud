@@ -26,6 +26,8 @@ data "huaweicloud_identity_project_quota" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `resources` - Indicates the resource info list.
   The [resources](#IdentityProjectQuota_Resources) structure is documented below.
 

@@ -95,6 +95,8 @@ WorkSpace | huaweicloud_workspace_desktop<br>
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - Provides supplementary information about the enterprise project.
 
 * `created_at` - Specifies the time (UTC) when the enterprise project was created. Example: 2018-05-18T06:49:06Z

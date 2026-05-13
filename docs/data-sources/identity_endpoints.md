@@ -40,6 +40,8 @@ The following arguments are supported:
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `endpoints` - Indicates service endpoint information.
   The [endpoint](#IdentityEndpoint_endpoints) structure is documented below.
 

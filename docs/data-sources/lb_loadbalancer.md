@@ -43,6 +43,8 @@ data "huaweicloud_lb_loadbalancer" "test" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `tags` - The tags associated with the load balancer.
 
 * `vip_port_id` - The ID of the port bound to the private IP address of the load balancer.

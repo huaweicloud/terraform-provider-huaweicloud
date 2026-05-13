@@ -29,6 +29,8 @@ data "huaweicloud_identity_regions" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `regions` - The information of region list.  
   The [regions](#identity_regions_regions) structure is documented below.
 

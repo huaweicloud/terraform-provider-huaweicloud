@@ -38,6 +38,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - Specifies the backup policy description.
 
 * `provider_id` - Provides the Backup provider ID.

@@ -32,6 +32,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `policy_users` - Indicates the list of IAM users attached to the policy.
   The [policy_users](#IdentityPolicyUsers_List) structure is documented below.
 

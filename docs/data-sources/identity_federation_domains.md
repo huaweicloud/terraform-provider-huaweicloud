@@ -26,6 +26,8 @@ data "huaweicloud_identity_federation_domains" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `domains` - Indicates the account information list.
   The [domains](#IdentityFederationDomains_Domains) structure is documented below.
 

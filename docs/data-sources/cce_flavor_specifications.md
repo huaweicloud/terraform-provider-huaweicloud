@@ -35,6 +35,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `cluster_flavor_specs` - The cluster flavors for sale.
 
   The [cluster_flavor_specs](#cluster_flavor_specs_struct) structure is documented below.
