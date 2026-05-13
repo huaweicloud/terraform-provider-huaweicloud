@@ -42,6 +42,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `description` - The description of the vbs backup.
 
 * `availability_zone` - The AZ where the backup resides.

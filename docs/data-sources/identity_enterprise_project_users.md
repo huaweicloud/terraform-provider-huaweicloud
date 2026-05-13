@@ -26,6 +26,8 @@ data "huaweicloud_identity_enterprise_project_users" "users" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `users` - Indicates the user information.
   The [users](#IdentityEnterpriseProjects_Users) structure is documented below.
 

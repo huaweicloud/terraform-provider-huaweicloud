@@ -31,6 +31,8 @@ data "huaweicloud_identity_security_compliance" "security_compliance3" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `password_regex` - Indicates the regular expression for password strength policy.
 
 * `password_regex_description` - Indicates the description of the password strength policy.

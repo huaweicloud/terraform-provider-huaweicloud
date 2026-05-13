@@ -47,6 +47,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `metadata_tasks` - The list of metadata tasks that matched filter parameters.  
   The [metadata_tasks](#dataarts_catalog_metadata_tasks) structure is documented below.
 

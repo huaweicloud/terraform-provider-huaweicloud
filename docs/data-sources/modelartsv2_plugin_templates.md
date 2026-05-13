@@ -37,6 +37,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `plugin_templates` - The list of plugin templates that matched filter parameters.  
   The [plugin_templates](#modelarts_plugin_templates) structure is documented below.
 

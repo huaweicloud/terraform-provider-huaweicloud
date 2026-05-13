@@ -35,6 +35,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `scripts` - The list of scripts that matched filter parameters.  
   The [scripts](#dataarts_factory_scripts) structure is documented below.
 

@@ -61,6 +61,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `approvals` - The list of approvals that matched filter parameters.  
   The [approvals](#dataarts_architecture_approvals) structure is documented below.
 

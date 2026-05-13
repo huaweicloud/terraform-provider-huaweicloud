@@ -31,6 +31,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
 * `description` - The description of the IEC network ACL.
 * `status` - The status of the IEC network ACL.
 * `inbound_rules` - A list of the IDs of ingress rules associated with the IEC network ACL.

@@ -39,4 +39,6 @@ filters must match exactly one route whose data will be exported as attributes.
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `nexthop` - The next hop of the route. If the route type is peering, it will provide VPC peering connection ID.

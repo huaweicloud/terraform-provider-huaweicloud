@@ -33,6 +33,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `images` - An array of one or more image. The images object structure is documented below.
 
 The `images` block supports:

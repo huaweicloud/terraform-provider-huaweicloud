@@ -55,6 +55,8 @@ filters must match exactly one subnet whose data will be exported as attributes.
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `dns_list` - The IP address list of DNS servers on the subnet.
 
 * `dhcp_enable` - Whether the DHCP is enabled.

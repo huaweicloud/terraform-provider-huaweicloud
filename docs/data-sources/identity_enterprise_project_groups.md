@@ -26,6 +26,8 @@ data "huaweicloud_identity_enterprise_project_groups" "groups" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `groups` - Indicates the users the group contains.
   The [groups](#IdentityEnterpriseProjects_Groups) structure is documented below.
 

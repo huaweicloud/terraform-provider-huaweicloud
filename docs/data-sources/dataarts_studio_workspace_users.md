@@ -33,6 +33,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `users` - The list of workspace users.  
   The [users](#dataarts_studio_workspace_users_attr) structure is documented below.
 

@@ -54,6 +54,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `members` - The list of the channel members that matched filter parameters.  
   The [members](#apig_channel_members) structure is documented below.
 

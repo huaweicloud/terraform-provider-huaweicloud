@@ -32,6 +32,8 @@ data "huaweicloud_vpc_eip" "by_address" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `name` - The name of the EIP.
 
 * `status` - The status of the EIP.

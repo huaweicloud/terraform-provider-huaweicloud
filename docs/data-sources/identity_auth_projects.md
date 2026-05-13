@@ -22,6 +22,8 @@ This data source doesn't need argument.
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `projects` - Indicates the details of the projects.
   The [projects](#IdentityAuthProjects_Projects) structure is documented below.
 

@@ -49,6 +49,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `rules` - The list of the exception rules that matched filter parameters.  
   The [rules](#dws_cluster_exception_rules) structure is documented below.
 

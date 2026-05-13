@@ -38,6 +38,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `ttl_in_days` - The storage duration.
 
 * `log_configs` - Log config information.

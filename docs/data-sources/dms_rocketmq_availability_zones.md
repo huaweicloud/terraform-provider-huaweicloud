@@ -27,6 +27,8 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `id` - The data source ID.
+
 * `availability_zones` - The list of availability zones.  
   The [availability_zones](#rocketmq_availability_zones_attr) structure is documented below.
 

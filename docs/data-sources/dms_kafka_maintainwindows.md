@@ -27,6 +27,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `maintain_windows` - The list of the maintain windows.  
   The [maintain_windows](#kafka_maintain_windows_attribute) attribute is documented below.
 

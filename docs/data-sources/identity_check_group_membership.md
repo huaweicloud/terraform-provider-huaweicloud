@@ -32,4 +32,6 @@ data "huaweicloud_identity_check_group_membership" "test" {
 
 ## Attribute Reference
 
+* `id` - The data source ID.
+
 * `result` - Indicates whether the user is in the group.

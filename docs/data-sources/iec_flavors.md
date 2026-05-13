@@ -44,6 +44,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `flavors` - An array of one or more flavors. The flavors object structure is documented below.
 
 The `flavors` block supports:

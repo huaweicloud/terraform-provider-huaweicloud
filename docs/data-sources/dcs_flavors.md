@@ -58,6 +58,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `flavors` - A list of DCS flavors.
   The [flavors](#flavors_struct) structure is documented below.
 

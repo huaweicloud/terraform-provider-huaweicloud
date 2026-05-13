@@ -81,6 +81,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - The data source ID.
+
 * `permission_sets` - The list of permission sets that match the filter parameters.  
   The [permission_sets](#dataarts_security_permission_sets_attr) structure is documented below.
 
