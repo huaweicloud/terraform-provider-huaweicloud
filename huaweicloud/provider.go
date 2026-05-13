@@ -3953,6 +3953,7 @@ func Provider() *schema.Provider {
 			// Resource management via V2 APIs.
 			"huaweicloud_modelartsv2_node_batch_delete":      modelarts.ResourceV2NodeBatchDelete(),
 			"huaweicloud_modelartsv2_node_batch_lock":        modelarts.ResourceV2NodeBatchLock(),
+			"huaweicloud_modelartsv2_node_batch_migrate":     modelarts.ResourceV2NodeBatchMigrate(),
 			"huaweicloud_modelartsv2_node_batch_reboot":      modelarts.ResourceV2NodeBatchReboot(),
 			"huaweicloud_modelartsv2_node_batch_reset":       modelarts.ResourceV2NodeBatchReset(),
 			"huaweicloud_modelartsv2_node_batch_unlock":      modelarts.ResourceV2NodeBatchUnlock(),

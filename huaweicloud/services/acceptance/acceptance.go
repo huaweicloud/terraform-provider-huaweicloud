@@ -578,7 +578,7 @@ var (
 	HW_MODELARTS_USER_LOGIN_PASSWORD                  = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 	HW_MODELARTS_DEVSERVER_FLAVOR                     = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
 	HW_MODELARTS_DEVSERVER_IMAGE_ID                   = os.Getenv("HW_MODELARTS_DEVSERVER_IMAGE_ID")
-	HW_MODELARTS_RESOURCE_POOL_ID                     = os.Getenv("HW_MODELARTS_RESOURCE_POOL_ID")
+	HW_MODELARTS_RESOURCE_POOL_IDS                    = os.Getenv("HW_MODELARTS_RESOURCE_POOL_IDS")
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
 	HW_MODELARTS_WORKFLOW_ID                          = os.Getenv("HW_MODELARTS_WORKFLOW_ID")
@@ -3431,9 +3431,10 @@ func TestAccPreCheckModelartsDevServer(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckModelArtsResourcePoolId(t *testing.T) {
-	if HW_MODELARTS_RESOURCE_POOL_ID == "" {
-		t.Skip("HW_MODELARTS_RESOURCE_POOL_ID must be set for ModelArts acceptance test")
+func TestAccPreCheckModelArtsResourcePoolIds(t *testing.T, min int) {
+	if HW_MODELARTS_RESOURCE_POOL_IDS == "" || len(strings.Split(HW_MODELARTS_RESOURCE_POOL_IDS, ",")) < min {
+		t.Skipf("At least %d ModelArts resource pool IDs must be supported during the HW_MODELARTS_RESOURCE_POOL_IDS, "+
+			"separated by commas (,).", min)
 	}
 }
 
