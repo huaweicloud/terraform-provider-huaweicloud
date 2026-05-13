@@ -1,13 +1,9 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product ModelArts
-// ---------------------------------------------------------------
-
 package modelarts
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -15,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -23,135 +20,172 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var networkNonUpdatableParams = []string{
+	"name",
+	"cidr",
+	"workspace_id",
+}
+
+// @API ModelArts POST /v1/{project_id}/networks
 // @API ModelArts GET /v1/{project_id}/networks/{id}
 // @API ModelArts PATCH /v1/{project_id}/networks/{id}
 // @API ModelArts DELETE /v1/{project_id}/networks/{id}
-// @API ModelArts POST /v1/{project_id}/networks
-func ResourceModelartsNetwork() *schema.Resource {
+func ResourceNetwork() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceModelartsNetworkCreate,
-		UpdateContext: resourceModelartsNetworkUpdate,
-		ReadContext:   resourceModelartsNetworkRead,
-		DeleteContext: resourceModelartsNetworkDelete,
+		CreateContext: resourceNetworkCreate,
+		ReadContext:   resourceNetworkRead,
+		UpdateContext: resourceNetworkUpdate,
+		DeleteContext: resourceNetworkDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(networkNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the network is located.`,
 			},
+
+			// Required parameters.
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `The name of network.`,
+				Description: `The name of the network.`,
 			},
 			"cidr": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `Network CIDR.`,
+				Description: `The CIDR of the network.`,
 			},
+
+			// Optional parameters.
 			"workspace_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
-				Description: `Workspace ID, which defaults to 0.`,
+				Description: `The ID of the workspace to which the network belongs.`,
 			},
 			"peer_connections": {
 				Type:        schema.TypeList,
-				Elem:        modelartsNetworkPeerConnectionSchema(),
 				Optional:    true,
-				Description: `List of networks that can be connected in peer mode.`,
+				Elem:        networkPeeringConnectionSchema(),
+				Description: `The list of peering connections that can be connected to the network.`,
 			},
+			"sfs_turbos": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        networkSfsTurboSchema(),
+				Description: `The list of SFS Turbos that can be connected to the network.`,
+			},
+
+			// Attributes.
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The status of network.`,
+				Description: `The status of the network.`,
+			},
+			"subnet_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the subnet which the network is associated.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
 }
 
-func modelartsNetworkPeerConnectionSchema() *schema.Resource {
-	sc := schema.Resource{
+func networkPeeringConnectionSchema() *schema.Resource {
+	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `ID of the peer VPC.`,
+				Description: `The ID of the VPC to which the peering connection belongs.`,
 			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `ID of the peer subnet.`,
+				Description: `The ID of the subnet to which the peering connection belongs.`,
 			},
 		},
 	}
-	return &sc
 }
 
-func resourceModelartsNetworkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createNetwork: create a Modelarts network.
-	var (
-		createNetworkHttpUrl = "v1/{project_id}/networks"
-		createNetworkProduct = "modelarts"
-	)
-	createNetworkClient, err := cfg.NewServiceClient(createNetworkProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating ModelArts client: %s", err)
-	}
-
-	createNetworkPath := createNetworkClient.Endpoint + createNetworkHttpUrl
-	createNetworkPath = strings.ReplaceAll(createNetworkPath, "{project_id}", createNetworkClient.ProjectID)
-
-	createNetworkOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
+func networkSfsTurboSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the SFS Turbo to be associated.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the SFS Turbo to be associated.`,
+			},
 		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+}
+
+func buildNetworkPeerConnections(peeringConncetions []interface{}) []map[string]interface{} {
+	if len(peeringConncetions) < 1 {
+		return nil
 	}
 
-	createNetworkOpt.JSONBody = utils.RemoveNil(buildCreateNetworkBodyParams(d))
-	createNetworkResp, err := createNetworkClient.Request("POST", createNetworkPath, &createNetworkOpt)
-	if err != nil {
-		return diag.Errorf("error creating Modelarts network: %s", err)
+	result := make([]map[string]interface{}, 0, len(peeringConncetions))
+	for _, peeringConnection := range peeringConncetions {
+		result = append(result, map[string]interface{}{
+			"peerVpcId":    utils.ValueIgnoreEmpty(utils.PathSearch("vpc_id", peeringConnection, "")),
+			"peerSubnetId": utils.ValueIgnoreEmpty(utils.PathSearch("subnet_id", peeringConnection, "")),
+		})
 	}
 
-	createNetworkRespBody, err := utils.FlattenResponse(createNetworkResp)
-	if err != nil {
-		return diag.FromErr(err)
+	return result
+}
+
+func buildNetworkSfsTurboConnections(subnetId string, sfsTurboConnections []interface{}) []map[string]interface{} {
+	if len(sfsTurboConnections) < 1 {
+		return nil
 	}
 
-	id := utils.PathSearch("metadata.name", createNetworkRespBody, nil)
-	if id == nil {
-		return diag.Errorf("error creating Modelarts network: ID is not found in API response")
+	result := make([]map[string]interface{}, 0, len(sfsTurboConnections))
+	for _, sfsTurboConnection := range sfsTurboConnections {
+		result = append(result, map[string]interface{}{
+			"name":     utils.ValueIgnoreEmpty(utils.PathSearch("name", sfsTurboConnection, "")),
+			"sfsId":    utils.ValueIgnoreEmpty(utils.PathSearch("id", sfsTurboConnection, "")),
+			"subnetId": subnetId,
+		})
 	}
-	d.SetId(id.(string))
 
-	err = createNetworkWaitingForStateCompleted(ctx, createNetworkClient, id.(string), d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts network (%s) creation to complete: %s", d.Id(), err)
-	}
-	return resourceModelartsNetworkRead(ctx, d, meta)
+	return result
 }
 
 func buildCreateNetworkBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
+	return map[string]interface{}{
 		"apiVersion": "v1",
 		"kind":       "Network",
 		"metadata": map[string]interface{}{
@@ -162,309 +196,373 @@ func buildCreateNetworkBodyParams(d *schema.ResourceData) map[string]interface{}
 		},
 		"spec": map[string]interface{}{
 			"cidr": d.Get("cidr"),
-			"connection": map[string]interface{}{
-				"peerConnectionList": buildNetworkRequestBodyPeerConnection(d.Get("peer_connections")),
-			},
 		},
 	}
-	return bodyParams
 }
 
-func buildNetworkRequestBodyPeerConnection(rawParams interface{}) []map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return []map[string]interface{}{}
-		}
+func createNetwork(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpURL := "v1/{project_id}/networks"
 
-		rst := make([]map[string]interface{}, len(rawArray))
-		for i, v := range rawArray {
-			raw := v.(map[string]interface{})
-			rst[i] = map[string]interface{}{
-				"peerVpcId":    utils.ValueIgnoreEmpty(raw["vpc_id"]),
-				"peerSubnetId": utils.ValueIgnoreEmpty(raw["subnet_id"]),
-			}
-		}
-		return rst
+	createPath := client.Endpoint + httpURL
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateNetworkBodyParams(d)),
 	}
-	return []map[string]interface{}{}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(createResp)
 }
 
-func createNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, t time.Duration) error {
+func GetNetworkById(client *golangsdk.ServiceClient, networkId string) (interface{}, error) {
+	httpURL := "v1/{project_id}/networks/{id}"
+
+	getPath := client.Endpoint + httpURL
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", networkId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(requestResp)
+}
+
+func refreshNetworkStatusFunc(client *golangsdk.ServiceClient, networkId string, targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := GetNetworkById(client, networkId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
+				return "RESOURCE_NOT_FOUND", "COMPLETED", nil
+			}
+			return respBody, "ERROR", err
+		}
+
+		status := utils.PathSearch("status.phase", respBody, "").(string)
+		if utils.StrSliceContains(targets, status) {
+			return respBody, "COMPLETED", nil
+		}
+
+		return respBody, "PENDING", nil
+	}
+}
+
+func waitForNetworkCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			getModelartsNetworkRespBody, err := getModelartsNetwork(client, networkId)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			statusRaw := utils.PathSearch(`status.phase`, getModelartsNetworkRespBody, "")
-
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"Active",
-			}
-			if utils.StrSliceContains(targetStatus, status) {
-				return getModelartsNetworkRespBody, "COMPLETED", nil
-			}
-
-			pendingStatus := []string{
-				"Creating", "",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return getModelartsNetworkRespBody, "PENDING", nil
-			}
-
-			return getModelartsNetworkRespBody, status, nil
-		},
-		Timeout:      t,
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshNetworkStatusFunc(client, networkId, []string{"Active"}),
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
 }
 
-func resourceModelartsNetworkRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
 
 	client, err := cfg.NewServiceClient("modelarts", region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
-	// getModelartsNetwork: Query the Modelarts network.
-	getModelartsNetworkRespBody, err := getModelartsNetwork(client, d.Id())
+
+	respBody, err := createNetwork(client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Modelarts network")
+		return diag.Errorf("error creating network: %s", err)
 	}
 
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("name", utils.PathSearch(`metadata.labels."os.modelarts/name"`, getModelartsNetworkRespBody, nil)),
-		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, getModelartsNetworkRespBody, nil)),
-		d.Set("cidr", utils.PathSearch("spec.cidr", getModelartsNetworkRespBody, nil)),
-		d.Set("peer_connections", flattenGetNetworkResponseBodyPeerConnection(getModelartsNetworkRespBody)),
-		d.Set("status", utils.PathSearch("status.phase", getModelartsNetworkRespBody, nil)),
-	)
+	resourceId := utils.PathSearch("metadata.name", respBody, "").(string)
+	if resourceId == "" {
+		return diag.Errorf("unable to find the network ID from the API response")
+	}
+	d.SetId(resourceId)
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	if err = waitForNetworkCreateCompleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for the network (%s) creation to complete: %s", d.Id(), err)
+	}
+
+	respBody, err = GetNetworkById(client, d.Id())
+	if err != nil {
+		return diag.Errorf("error retrieving network (%s): %s", d.Id(), err)
+	}
+	// To ensure that subsequent SFS Turbo mounting can proceed normally, the subnet_id must be set in advance.
+	subnetId := utils.PathSearch("status.subnets[0].networkId", respBody, "").(string)
+	if subnetId == "" {
+		return diag.Errorf("unable to find the subnet ID from the API response")
+	}
+	d.Set("subnet_id", subnetId)
+
+	return resourceNetworkUpdate(ctx, d, meta)
 }
 
-func getModelartsNetwork(client *golangsdk.ServiceClient, networkId string) (interface{}, error) {
-	var (
-		getModelartsNetworkHttpUrl = "v1/{project_id}/networks/{id}"
-	)
-
-	getModelartsNetworkPath := client.Endpoint + getModelartsNetworkHttpUrl
-	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{project_id}", client.ProjectID)
-	getModelartsNetworkPath = strings.ReplaceAll(getModelartsNetworkPath, "{id}", networkId)
-
-	getModelartsNetworkOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getModelartsNetworkResp, err := client.Request("GET", getModelartsNetworkPath, &getModelartsNetworkOpt)
-
-	if err != nil {
-		return nil, err
-	}
-
-	getModelartsNetworkRespBody, err := utils.FlattenResponse(getModelartsNetworkResp)
-	if err != nil {
-		return nil, err
-	}
-	return getModelartsNetworkRespBody, nil
-}
-
-func flattenGetNetworkResponseBodyPeerConnection(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenNetworkPeerConnections(peeringConnections []interface{}) []map[string]interface{} {
+	if len(peeringConnections) < 1 {
 		return nil
 	}
-	curJson := utils.PathSearch("spec.connection.peerConnectionList", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		rst = append(rst, map[string]interface{}{
-			"vpc_id":    utils.PathSearch("peerVpcId", v, nil),
-			"subnet_id": utils.PathSearch("peerSubnetId", v, nil),
+
+	result := make([]map[string]interface{}, 0, len(peeringConnections))
+	for _, peeringConnection := range peeringConnections {
+		result = append(result, map[string]interface{}{
+			"vpc_id":    utils.PathSearch("peerVpcId", peeringConnection, ""),
+			"subnet_id": utils.PathSearch("peerSubnetId", peeringConnection, ""),
 		})
 	}
-	return rst
+	return result
 }
 
-func resourceModelartsNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func flattenNetworkSfsTurboConnections(sfsTurboConnections []interface{}) []map[string]interface{} {
+	if len(sfsTurboConnections) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(sfsTurboConnections))
+	for _, sfsTurboConnection := range sfsTurboConnections {
+		result = append(result, map[string]interface{}{
+			"id":   utils.PathSearch("sfsId", sfsTurboConnection, ""),
+			"name": utils.PathSearch("name", sfsTurboConnection, ""),
+		})
+	}
+	return result
+}
+
+func resourceNetworkRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		networkId = d.Id()
 	)
+
 	client, err := cfg.NewServiceClient("modelarts", region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	updateNetworkChanges := []string{
-		"peer_connections",
+	respBody, err := GetNetworkById(client, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving network (%s)", networkId))
 	}
 
-	if d.HasChanges(updateNetworkChanges...) {
-		// updateNetwork: update the ModelArts network.
-		updateNetworkHttpUrl := "v1/{project_id}/networks/{id}"
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		// Required parameters.
+		d.Set("name", utils.PathSearch(`metadata.labels."os.modelarts/name"`, respBody, nil)),
+		d.Set("cidr", utils.PathSearch("spec.cidr", respBody, nil)),
+		// Optional parameters.
+		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, respBody, nil)),
+		d.Set("peer_connections", flattenNetworkPeerConnections(utils.PathSearch("spec.connection.peerConnectionList",
+			respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("sfs_turbos", flattenNetworkSfsTurboConnections(utils.PathSearch("spec.connection.sfsTurboConnectionList",
+			respBody, make([]interface{}, 0)).([]interface{}))),
+		// Attributes.
+		d.Set("status", utils.PathSearch("status.phase", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("status.subnets[0].networkId", respBody, nil)),
+	)
 
-		updateNetworkPath := client.Endpoint + updateNetworkHttpUrl
-		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", client.ProjectID)
-		updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{id}", networkId)
-
-		updateNetworkOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/merge-patch+json"},
-		}
-
-		updateNetworkOpt.JSONBody = buildUpdateNetworkBodyParams(d)
-		_, err = client.Request("PATCH", updateNetworkPath, &updateNetworkOpt)
-		if err != nil {
-			return diag.Errorf("error updating Modelarts network: %s", err)
-		}
-		err = updateNetworkWaitingForStateCompleted(ctx, client, networkId, d.Get("peer_connections").([]interface{}),
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.Errorf("error waiting for the Modelarts network (%s) update to complete: %s", d.Id(), err)
-		}
-	}
-	return resourceModelartsNetworkRead(ctx, d, meta)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func buildUpdateNetworkBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
+	return map[string]interface{}{
 		"spec": map[string]interface{}{
 			"connection": map[string]interface{}{
-				"peerConnectionList": buildNetworkRequestBodyPeerConnection(d.Get("peer_connections")),
+				"peerConnectionList":     buildNetworkPeerConnections(d.Get("peer_connections").([]interface{})),
+				"sfsTurboConnectionList": buildNetworkSfsTurboConnections(d.Get("subnet_id").(string), d.Get("sfs_turbos").([]interface{})),
 			},
 		},
 	}
-	return bodyParams
 }
 
-func updateNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, peerConnections []interface{},
-	t time.Duration) error {
+func parseNetworkAssociatedPeerConnections(connections []interface{}) []interface{} {
+	if len(connections) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(connections))
+	for _, connection := range connections {
+		result = append(result, fmt.Sprintf("%s:%s", utils.PathSearch("peerVpcId|vpc_id", connection, ""),
+			utils.PathSearch("peerSubnetId|subnet_id", connection, "")))
+	}
+
+	return result
+}
+
+func checkAllPeeringConnectionsExist(remoteConnections, localConnections []interface{}) bool {
+	if len(localConnections) < 1 || len(remoteConnections) < 1 {
+		return true
+	}
+
+	return utils.SliceContainsAnother(remoteConnections, localConnections)
+}
+
+func checkAllSfsTurboConnectionsExistAndActive(remoteConnections, localSfsTurboIds []interface{}) bool {
+	if len(localSfsTurboIds) < len(remoteConnections) {
+		// The removal of SFS Turbos is in progress.
+		// The operation is considered complete when corresponding SFS Turbo status records are cleared.
+		return false
+	}
+
+	for _, localSfsTurboId := range localSfsTurboIds {
+		if remoteConnection := utils.PathSearch(fmt.Sprintf("[?sfsId == '%s']|[0]", localSfsTurboId),
+			remoteConnections, nil); remoteConnection == nil || utils.PathSearch("status", remoteConnection, "").(string) != "Active" {
+			return false
+		}
+	}
+	return true
+}
+
+func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			networkId        = d.Id()
+			localConnections = parseNetworkAssociatedPeerConnections(d.Get("peer_connections").([]interface{}))
+		)
+
+		respBody, err := GetNetworkById(client, networkId)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		remoteConnections := parseNetworkAssociatedPeerConnections(utils.PathSearch("spec.connection.peerConnectionList",
+			respBody, make([]interface{}, 0)).([]interface{}))
+		if !checkAllPeeringConnectionsExist(remoteConnections, localConnections) {
+			log.Printf("some peer connections are not found, remote: %v, local: %v", remoteConnections, localConnections)
+			return "Missing Some Peer Connections", "PENDING", nil
+		}
+
+		remoteSfsTurboConnections := utils.PathSearch("status.connectionStatus.sfsTurboStatus", respBody, make([]interface{}, 0)).([]interface{})
+		localSfsTurboIds := utils.PathSearch("[*].id", d.Get("sfs_turbos").([]interface{}), make([]interface{}, 0)).([]interface{})
+		if !checkAllSfsTurboConnectionsExistAndActive(remoteSfsTurboConnections, localSfsTurboIds) {
+			log.Printf("some SFS Turbo connections are not found, remote: %v, local: %v", remoteSfsTurboConnections, localSfsTurboIds)
+			return "Missing Some SFS Turbo Connections", "PENDING", nil
+		}
+
+		return respBody, "COMPLETED", nil
+	}
+}
+
+func waitForNetworkConnectionsUpdateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			getModelartsNetworkRespBody, err := getModelartsNetwork(client, networkId)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			// if peer_connections is empty, then check status.connectionStatus.peerConnectionStatus is empty
-			if len(peerConnections) == 0 {
-				if utils.PathSearch(`length(status.connectionStatus.peerConnectionStatus)`, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
-					return getModelartsNetworkRespBody, "PENDING", nil
-				}
-
-				return getModelartsNetworkRespBody, "COMPLETED", nil
-			}
-
-			// if peer_connections is not empty, then check those connections are all
-			// in `status.connectionStatus.peerConnectionStatus` and the status is `Active`
-			for _, v := range peerConnections {
-				raw := v.(map[string]interface{})
-				peerVpcId := utils.ValueIgnoreEmpty(raw["vpc_id"])
-				peerSubnetId := utils.ValueIgnoreEmpty(raw["subnet_id"])
-
-				searchAbnormalJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
-                     && peerSubnetId=='%s' && phase=='Abnormal'])`, peerVpcId, peerSubnetId)
-				if utils.PathSearch(searchAbnormalJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) > 0 {
-					return nil, "ERROR", fmt.Errorf("error updating peer_connections, vpc_id: %s, subnet_id: %s", peerVpcId, peerSubnetId)
-				}
-
-				searchActiveJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
-                     && peerSubnetId=='%s' && phase=='Active'])`, peerVpcId, peerSubnetId)
-				if utils.PathSearch(searchActiveJsonPath, getModelartsNetworkRespBody, float64(0)).(float64) == 0 {
-					return getModelartsNetworkRespBody, "PENDING", nil
-				}
-			}
-
-			return getModelartsNetworkRespBody, "COMPLETED", nil
-		},
-		Timeout:      t,
-		Delay:        30 * time.Second,
-		PollInterval: 30 * time.Second,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshNetworkConnectionsFunc(client, d),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
 }
 
-func resourceModelartsNetworkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// deleteNetwork: delete Modelarts network
+func updateNetworkConnections(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpURL := "v1/{project_id}/networks/{id}"
+	updatePath := client.Endpoint + httpURL
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/merge-patch+json",
+		},
+		JSONBody: buildUpdateNetworkBodyParams(d),
+	}
+
+	_, err := client.Request("PATCH", updatePath, &updateOpt)
+	if err != nil {
+		return err
+	}
+
+	return waitForNetworkConnectionsUpdateCompleted(ctx, client, d)
+}
+
+func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		deleteNetworkHttpUrl = "v1/{project_id}/networks/{id}"
-		deleteNetworkProduct = "modelarts"
-		cfg                  = meta.(*config.Config)
-		region               = cfg.GetRegion(d)
-		networkId            = d.Id()
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
 
-	deleteNetworkClient, err := cfg.NewServiceClient(deleteNetworkProduct, region)
+	client, err := cfg.NewServiceClient("modelarts", region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	deleteNetworkPath := deleteNetworkClient.Endpoint + deleteNetworkHttpUrl
-	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{project_id}", deleteNetworkClient.ProjectID)
-	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{id}", networkId)
-
-	deleteNetworkOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	if d.HasChanges("peer_connections", "sfs_turbos") {
+		if err = updateNetworkConnections(ctx, client, d); err != nil {
+			return diag.Errorf("error updating network connections: %s", err)
+		}
 	}
-
-	_, err = deleteNetworkClient.Request("DELETE", deleteNetworkPath, &deleteNetworkOpt)
-	if err != nil {
-		return diag.Errorf("error deleting Modelarts network: %s", err)
-	}
-
-	err = deleteNetworkWaitingForStateCompleted(ctx, deleteNetworkClient, networkId, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts network (%s) deletion to complete: %s", networkId, err)
-	}
-	return nil
+	return resourceNetworkRead(ctx, d, meta)
 }
 
-func deleteNetworkWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string, t time.Duration) error {
+func waitForNetworkDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			_, err := getModelartsNetwork(client, networkId)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					var obj = map[string]string{"code": "COMPLETED"}
-					return obj, "COMPLETED", nil
-				}
-
-				return nil, "ERROR", err
-			}
-
-			return nil, "PENDING", nil
-		},
-		Timeout:      t,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshNetworkStatusFunc(client, networkId, nil),
+		Timeout:      timeout,
 		Delay:        20 * time.Second,
-		PollInterval: 10 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
+}
+
+func deleteNetwork(client *golangsdk.ServiceClient, networkId string) error {
+	httpURL := "v1/{project_id}/networks/{id}"
+	deletePath := client.Endpoint + httpURL
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", networkId)
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("DELETE", deletePath, &deleteOpt)
+	return err
+}
+
+func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		networkId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
+
+	err = deleteNetwork(client, networkId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting network (%s)", networkId))
+	}
+
+	if err = waitForNetworkDeleteCompleted(ctx, client, networkId, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error waiting for the network (%s) deletion to complete: %s", networkId, err)
+	}
+	return nil
 }

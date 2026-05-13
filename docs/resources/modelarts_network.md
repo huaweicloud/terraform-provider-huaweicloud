@@ -2,22 +2,29 @@
 subcategory: "AI Development Platform (ModelArts)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_modelarts_network"
-description: ""
+description: |-
+  Manages a Modelarts network resource within HuaweiCloud.  
 ---
 
 # huaweicloud_modelarts_network
 
 Manages a Modelarts network resource within HuaweiCloud.  
-A maximum of 15 networks can be created.
 
 ## Example Usage
 
 ```hcl
-variable "cidr" {}
+variable "network_name" {}
+variable "peering_vpc_id" {}
+variable "peering_subnet_id" {}
 
 resource "huaweicloud_modelarts_network" "test" {
-  name = "demo"
-  cidr = var.cidr
+  name = var.network_name
+  cidr = "10.168.0.0/16"
+
+  peer_connections {
+    vpc_id    = var.peering_vpc_id
+    subnet_id = var.peering_subnet_id
+  }
 }
 ```
 
@@ -25,45 +32,52 @@ resource "huaweicloud_modelarts_network" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
+* `region` - (Optional, String, ForceNew) Specifies the region where the network is located.  
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) The name of network.  
-  The name can contain `4` to `32` characters, only lowercase letters, digits and hyphens (-) are allowed.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the network.  
+  The valid value is limited from `4` to `32`, only lowercase letters, digits and hyphens (-) are allowed.
   The name must start with a lowercase letter and end with a lowercase letter or digit.
 
-  Changing this parameter will create a new resource.
+* `cidr` - (Required, String, NonUpdatable) Specifies the CIDR of the network.  
+  It's recommanded to configure CIDR block as following ranges:
+  + **10.0.0.0/8-24**
+  + **172.16.0.0/12-24**
+  + **192.168.0.0/16-24**
 
-* `cidr` - (Required, String, ForceNew) Network CIDR.
-  Valid CIDR blocks are 10.0.0.0/8-24, 172.16.0.0/12-24, and 192.168.0.0/16-24.  
+* `workspace_id` - (Optional, String, NonUpdatable) Specifies the ID of the workspace to which the network belongs.  
+  Defaults to **0** (default workspace).  
 
-  Changing this parameter will create a new resource.
+* `peer_connections` - (Optional, List) Specifies the list of peering connections that can be connected to the
+  network.  
+  The [peer_connections](#modelarts_network_peer_connections) structure is documented below.
 
-* `workspace_id` - (Optional, String, ForceNew) Workspace ID, which defaults to 0.  
+* `sfs_turbos` - (Optional, List) Specifies the list of SFS Turbos that can be connected to the network.  
+  The [sfs_turbos](#modelarts_network_sfs_turbos) structure is documented below.
 
-  Changing this parameter will create a new resource.
-
-* `peer_connections` - (Optional, List) List of networks that can be connected in peer mode.
-The [peer_connections](#ModelartsNetwork_PeerConnection) structure is documented below.
-
-<a name="ModelartsNetwork_PeerConnection"></a>
+<a name="modelarts_network_peer_connections"></a>
 The `peer_connections` block supports:
 
-* `vpc_id` - (Required, String) Interconnect VPC ID.  
+* `vpc_id` - (Required, String) Specifies the ID of the VPC to which the peering connection belongs.
 
-* `subnet_id` - (Required, String) Interconnect subnet ID.  
+* `subnet_id` - (Required, String) Specifies the ID of the subnet to which the peering connection belongs.
+
+<a name="modelarts_network_sfs_turbos"></a>
+The `sfs_turbos` block supports:
+
+* `id` - (Required, String) Specifies the ID of the SFS Turbo to be associated.
+
+* `name` - (Required, String) Specifies the name of the SFS Turbo to be associated.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID, the format is **{name}-{project_id}**.
 
-* `status` - The status of network.  
-  Value options are as follows:
-    + **Creating**: The network is being created.
-    + **Active**: The network is available.
-    + **Abnormal**: The network is in an error state.
+* `status` - The status of the network.
+
+* `subnet_id` - The ID of the subnet which the network is associated.
 
 ## Timeouts
 
@@ -75,8 +89,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The modelarts network can be imported using the `id`, e.g.
+The network can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_modelarts_network.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_modelarts_network.test <id>
 ```
