@@ -26,7 +26,10 @@ func TestAccDataResourcePoolWorkloads_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckModelArtsResourcePoolIds(t, 1)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -63,10 +66,20 @@ func TestAccDataResourcePoolWorkloads_basic(t *testing.T) {
 	})
 }
 
+func testAccDataResourcePoolWorkloads_base() string {
+	return fmt.Sprintf(`
+locals {
+  resource_pood_ids = split(",", "%[1]s")
+}
+`, acceptance.HW_MODELARTS_RESOURCE_POOL_IDS)
+}
+
 func testAccDataResourcePoolWorkloads_basic() string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_modelartsv2_resource_pool_workloads" "all" {
-  pool_id = "%[1]s"
+  pool_id = local.resource_pood_ids[0]
 }
 
 # Filter by type
@@ -75,8 +88,8 @@ locals {
 }
 
 data "huaweicloud_modelartsv2_resource_pool_workloads" "filter_by_type" {
-  pool_id = "%[1]s"
-  type      = local.type[0]
+  pool_id = local.resource_pood_ids[0]
+  type    = local.type[0]
 }
 
 locals {
@@ -96,8 +109,8 @@ locals {
 }
 
 data "huaweicloud_modelartsv2_resource_pool_workloads" "filter_by_status" {
-  pool_id = "%[1]s"
-  status    = local.status[0]
+  pool_id = local.resource_pood_ids[0]
+  status  = local.status[0]
 }
 
 locals {
@@ -113,9 +126,9 @@ output "is_status_filter_useful" {
 
 # Filter by sort
 data "huaweicloud_modelartsv2_resource_pool_workloads" "filter_by_sort" {
-  pool_id = "%[1]s"
-  sort      = "create_time"
-  ascend    = true
+  pool_id = local.resource_pood_ids[0]
+  sort    = "create_time"
+  ascend  = true
 }
 
 locals {
@@ -125,5 +138,5 @@ locals {
 
 output "is_sort_filter_useful" {
   value = local.is_ascending
-}`, acceptance.HW_MODELARTS_RESOURCE_POOL_ID)
+}`, testAccDataResourcePoolWorkloads_base())
 }

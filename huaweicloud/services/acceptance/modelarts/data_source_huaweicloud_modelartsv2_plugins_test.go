@@ -17,7 +17,10 @@ func TestAccDataV2Plugins_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckModelArtsResourcePoolIds(t, 1)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -50,10 +53,20 @@ func TestAccDataV2Plugins_basic(t *testing.T) {
 	})
 }
 
+func testAccDataV2Plugins_base() string {
+	return fmt.Sprintf(`
+locals {
+  resource_pood_ids = split(",", "%[1]s")
+}
+`, acceptance.HW_MODELARTS_RESOURCE_POOL_IDS)
+}
+
 func testAccDataV2Plugins_basic() string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_modelartsv2_plugins" "test" {
-  pool_id = "%[1]s"
+  pool_id = local.resource_pood_ids[0]
 }
-`, acceptance.HW_MODELARTS_RESOURCE_POOL_ID)
+`, testAccDataV2Plugins_base())
 }
