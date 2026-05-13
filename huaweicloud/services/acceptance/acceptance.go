@@ -443,6 +443,8 @@ var (
 	HW_DC_CONNECT_GATEWAY_ID              = os.Getenv("HW_DC_CONNECT_GATEWAY_ID")
 	HW_GLOBAL_EIP_ID                      = os.Getenv("HW_GLOBAL_EIP_ID")
 	HW_GLOBAL_INTERNET_BANDWIDTH_ID       = os.Getenv("HW_GLOBAL_INTERNET_BANDWIDTH_ID")
+	HW_GLOBAL_EIP_SEGMENT_ID              = os.Getenv("HW_GLOBAL_EIP_SEGMENT_ID")
+	HW_GLOBAL_EIP_BANDWIDTH_ID            = os.Getenv("HW_GLOBAL_EIP_BANDWIDTH_ID")
 
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
@@ -2841,6 +2843,20 @@ func TestAccPreCheckGlobalEipId(t *testing.T) {
 func TestAccPreCheckGlobalInternetBandwidthId(t *testing.T) {
 	if HW_GLOBAL_INTERNET_BANDWIDTH_ID == "" {
 		t.Skip("HW_GLOBAL_INTERNET_BANDWIDTH_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGlobalEipSegmentId(t *testing.T) {
+	if HW_GLOBAL_EIP_SEGMENT_ID == "" {
+		t.Skip("HW_GLOBAL_EIP_SEGMENT_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGlobalEipBandwidthId(t *testing.T) {
+	if HW_GLOBAL_EIP_BANDWIDTH_ID == "" {
+		t.Skip("HW_GLOBAL_EIP_BANDWIDTH_ID must be set for this acceptance test")
 	}
 }
 
