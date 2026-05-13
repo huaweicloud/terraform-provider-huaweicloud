@@ -1305,11 +1305,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dnsv21_ptrrecords":                dns.DataSourceDNSV21PtrRecords(),
 
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
+			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_job_links":          drs.DataSourceJobLinks(),
 			"huaweicloud_drs_job_monitor_data":   drs.DataSourceDrsJobMonitorData(),
+			"huaweicloud_drs_job_object_support": drs.DataSourceDrsJobObjectSupport(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
 			"huaweicloud_drs_subscriptions":      drs.DataSourceDrsSubscriptions(),
-			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_drivers":            drs.DataSourceDrsDrivers(),
 
 			// EventGrid
