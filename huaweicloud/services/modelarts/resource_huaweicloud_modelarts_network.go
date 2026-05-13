@@ -147,6 +147,11 @@ func networkSfsTurboSchema() *schema.Resource {
 				Required:    true,
 				Description: `The name of the SFS Turbo to be associated.`,
 			},
+			"uri": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The export location URI of the associated SFS Turbo in network.`,
+			},
 		},
 	}
 }
@@ -331,16 +336,18 @@ func flattenNetworkPeerConnections(peeringConnections []interface{}) []map[strin
 	return result
 }
 
-func flattenNetworkSfsTurboConnections(sfsTurboConnections []interface{}) []map[string]interface{} {
+func flattenNetworkSfsTurboConnections(sfsTurboConnections, sfsTurboStatuses []interface{}) []map[string]interface{} {
 	if len(sfsTurboConnections) < 1 {
 		return nil
 	}
 
 	result := make([]map[string]interface{}, 0, len(sfsTurboConnections))
 	for _, sfsTurboConnection := range sfsTurboConnections {
+		sfsTurboId := utils.PathSearch("sfsId", sfsTurboConnection, "").(string)
 		result = append(result, map[string]interface{}{
-			"id":   utils.PathSearch("sfsId", sfsTurboConnection, ""),
+			"id":   sfsTurboId,
 			"name": utils.PathSearch("name", sfsTurboConnection, ""),
+			"uri":  utils.PathSearch(fmt.Sprintf("[?sfsId == '%s']|[0].ipAddr", sfsTurboId), sfsTurboStatuses, ""),
 		})
 	}
 	return result
@@ -372,8 +379,9 @@ func resourceNetworkRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, respBody, nil)),
 		d.Set("peer_connections", flattenNetworkPeerConnections(utils.PathSearch("spec.connection.peerConnectionList",
 			respBody, make([]interface{}, 0)).([]interface{}))),
-		d.Set("sfs_turbos", flattenNetworkSfsTurboConnections(utils.PathSearch("spec.connection.sfsTurboConnectionList",
-			respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("sfs_turbos", flattenNetworkSfsTurboConnections(
+			utils.PathSearch("spec.connection.sfsTurboConnectionList", respBody, make([]interface{}, 0)).([]interface{}),
+			utils.PathSearch("status.connectionStatus.sfsTurboStatus", respBody, make([]interface{}, 0)).([]interface{}))),
 		// Attributes.
 		d.Set("status", utils.PathSearch("status.phase", respBody, nil)),
 		d.Set("subnet_id", utils.PathSearch("status.subnets[0].networkId", respBody, nil)),
