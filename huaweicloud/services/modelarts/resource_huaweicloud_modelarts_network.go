@@ -81,7 +81,13 @@ func ResourceNetwork() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        networkPeeringConnectionSchema(),
-				Description: `The list of networks that can be connected in peering mode.`,
+				Description: `The list of peering connections that can be connected to the network.`,
+			},
+			"sfs_turbos": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        networkSfsTurboSchema(),
+				Description: `The list of SFS Turbos that can be connected to the network.`,
 			},
 
 			// Attributes.
@@ -89,6 +95,11 @@ func ResourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The status of the network.`,
+			},
+			"subnet_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the subnet which the network is associated.`,
 			},
 
 			// Internal parameters.
@@ -123,6 +134,23 @@ func networkPeeringConnectionSchema() *schema.Resource {
 	}
 }
 
+func networkSfsTurboSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the SFS Turbo to be associated.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the SFS Turbo to be associated.`,
+			},
+		},
+	}
+}
+
 func buildNetworkPeerConnections(peeringConncetions []interface{}) []map[string]interface{} {
 	if len(peeringConncetions) < 1 {
 		return nil
@@ -133,6 +161,23 @@ func buildNetworkPeerConnections(peeringConncetions []interface{}) []map[string]
 		result = append(result, map[string]interface{}{
 			"peerVpcId":    utils.ValueIgnoreEmpty(utils.PathSearch("vpc_id", peeringConnection, "")),
 			"peerSubnetId": utils.ValueIgnoreEmpty(utils.PathSearch("subnet_id", peeringConnection, "")),
+		})
+	}
+
+	return result
+}
+
+func buildNetworkSfsTurboConnections(subnetId string, sfsTurboConnections []interface{}) []map[string]interface{} {
+	if len(sfsTurboConnections) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(sfsTurboConnections))
+	for _, sfsTurboConnection := range sfsTurboConnections {
+		result = append(result, map[string]interface{}{
+			"name":     utils.ValueIgnoreEmpty(utils.PathSearch("name", sfsTurboConnection, "")),
+			"sfsId":    utils.ValueIgnoreEmpty(utils.PathSearch("id", sfsTurboConnection, "")),
+			"subnetId": subnetId,
 		})
 	}
 
@@ -151,9 +196,6 @@ func buildCreateNetworkBodyParams(d *schema.ResourceData) map[string]interface{}
 		},
 		"spec": map[string]interface{}{
 			"cidr": d.Get("cidr"),
-			"connection": map[string]interface{}{
-				"peerConnectionList": buildNetworkPeerConnections(d.Get("peer_connections").([]interface{})),
-			},
 		},
 	}
 }
@@ -260,7 +302,18 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error waiting for the network (%s) creation to complete: %s", d.Id(), err)
 	}
 
-	return resourceNetworkRead(ctx, d, meta)
+	respBody, err = GetNetworkById(client, d.Id())
+	if err != nil {
+		return diag.Errorf("error retrieving network (%s): %s", d.Id(), err)
+	}
+	// To ensure that subsequent SFS Turbo mounting can proceed normally, the subnet_id must be set in advance.
+	subnetId := utils.PathSearch("status.subnets[0].networkId", respBody, "").(string)
+	if subnetId == "" {
+		return diag.Errorf("unable to find the subnet ID from the API response")
+	}
+	d.Set("subnet_id", subnetId)
+
+	return resourceNetworkUpdate(ctx, d, meta)
 }
 
 func flattenNetworkPeerConnections(peeringConnections []interface{}) []map[string]interface{} {
@@ -273,6 +326,21 @@ func flattenNetworkPeerConnections(peeringConnections []interface{}) []map[strin
 		result = append(result, map[string]interface{}{
 			"vpc_id":    utils.PathSearch("peerVpcId", peeringConnection, ""),
 			"subnet_id": utils.PathSearch("peerSubnetId", peeringConnection, ""),
+		})
+	}
+	return result
+}
+
+func flattenNetworkSfsTurboConnections(sfsTurboConnections []interface{}) []map[string]interface{} {
+	if len(sfsTurboConnections) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(sfsTurboConnections))
+	for _, sfsTurboConnection := range sfsTurboConnections {
+		result = append(result, map[string]interface{}{
+			"id":   utils.PathSearch("sfsId", sfsTurboConnection, ""),
+			"name": utils.PathSearch("name", sfsTurboConnection, ""),
 		})
 	}
 	return result
@@ -297,12 +365,18 @@ func resourceNetworkRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		// Required parameters.
 		d.Set("name", utils.PathSearch(`metadata.labels."os.modelarts/name"`, respBody, nil)),
-		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, respBody, nil)),
 		d.Set("cidr", utils.PathSearch("spec.cidr", respBody, nil)),
+		// Optional parameters.
+		d.Set("workspace_id", utils.PathSearch(`metadata.labels."os.modelarts/workspace.id"`, respBody, nil)),
 		d.Set("peer_connections", flattenNetworkPeerConnections(utils.PathSearch("spec.connection.peerConnectionList",
 			respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("sfs_turbos", flattenNetworkSfsTurboConnections(utils.PathSearch("spec.connection.sfsTurboConnectionList",
+			respBody, make([]interface{}, 0)).([]interface{}))),
+		// Attributes.
 		d.Set("status", utils.PathSearch("status.phase", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("status.subnets[0].networkId", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -312,31 +386,49 @@ func buildUpdateNetworkBodyParams(d *schema.ResourceData) map[string]interface{}
 	return map[string]interface{}{
 		"spec": map[string]interface{}{
 			"connection": map[string]interface{}{
-				"peerConnectionList": buildNetworkPeerConnections(d.Get("peer_connections").([]interface{})),
+				"peerConnectionList":     buildNetworkPeerConnections(d.Get("peer_connections").([]interface{})),
+				"sfsTurboConnectionList": buildNetworkSfsTurboConnections(d.Get("subnet_id").(string), d.Get("sfs_turbos").([]interface{})),
 			},
 		},
 	}
 }
 
-func parseNetworkAssociatedPeerConnections(connections []interface{}) []string {
+func parseNetworkAssociatedPeerConnections(connections []interface{}) []interface{} {
 	if len(connections) < 1 {
 		return nil
 	}
 
-	result := make([]string, 0, len(connections))
+	result := make([]interface{}, 0, len(connections))
 	for _, connection := range connections {
-		result = append(result, fmt.Sprintf("%s:%s", utils.PathSearch("peerVpcId|vpc_id", connection, ""), utils.PathSearch("peerSubnetId|subnet_id", connection, "")))
+		result = append(result, fmt.Sprintf("%s:%s", utils.PathSearch("peerVpcId|vpc_id", connection, ""),
+			utils.PathSearch("peerSubnetId|subnet_id", connection, "")))
 	}
 
 	return result
 }
 
-func checkAllPeerConnectionsExist(remoteConnections, localConnections []string) bool {
+func checkAllPeeringConnectionsExist(remoteConnections, localConnections []interface{}) bool {
 	if len(localConnections) < 1 || len(remoteConnections) < 1 {
 		return true
 	}
 
-	return utils.IsSliceContainsAnyAnotherSliceElement(remoteConnections, localConnections, true, true)
+	return utils.SliceContainsAnother(remoteConnections, localConnections)
+}
+
+func checkAllSfsTurboConnectionsExistAndActive(remoteConnections, localSfsTurboIds []interface{}) bool {
+	if len(localSfsTurboIds) < len(remoteConnections) {
+		// The removal of SFS Turbos is in progress.
+		// The operation is considered complete when corresponding SFS Turbo status records are cleared.
+		return false
+	}
+
+	for _, localSfsTurboId := range localSfsTurboIds {
+		if remoteConnection := utils.PathSearch(fmt.Sprintf("[?sfsId == '%s']|[0]", localSfsTurboId),
+			remoteConnections, nil); remoteConnection == nil || utils.PathSearch("status", remoteConnection, "").(string) != "Active" {
+			return false
+		}
+	}
+	return true
 }
 
 func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
@@ -353,9 +445,16 @@ func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.Re
 
 		remoteConnections := parseNetworkAssociatedPeerConnections(utils.PathSearch("spec.connection.peerConnectionList",
 			respBody, make([]interface{}, 0)).([]interface{}))
-		if !checkAllPeerConnectionsExist(remoteConnections, localConnections) {
+		if !checkAllPeeringConnectionsExist(remoteConnections, localConnections) {
 			log.Printf("some peer connections are not found, remote: %v, local: %v", remoteConnections, localConnections)
 			return "Missing Some Peer Connections", "PENDING", nil
+		}
+
+		remoteSfsTurboConnections := utils.PathSearch("status.connectionStatus.sfsTurboStatus", respBody, make([]interface{}, 0)).([]interface{})
+		localSfsTurboIds := utils.PathSearch("[*].id", d.Get("sfs_turbos").([]interface{}), make([]interface{}, 0)).([]interface{})
+		if !checkAllSfsTurboConnectionsExistAndActive(remoteSfsTurboConnections, localSfsTurboIds) {
+			log.Printf("some SFS Turbo connections are not found, remote: %v, local: %v", remoteSfsTurboConnections, localSfsTurboIds)
+			return "Missing Some SFS Turbo Connections", "PENDING", nil
 		}
 
 		return respBody, "COMPLETED", nil
@@ -408,7 +507,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	if d.HasChange("peer_connections") {
+	if d.HasChanges("peer_connections", "sfs_turbos") {
 		if err = updateNetworkConnections(ctx, client, d); err != nil {
 			return diag.Errorf("error updating network connections: %s", err)
 		}
@@ -430,11 +529,11 @@ func waitForNetworkDeleteCompleted(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
-func deleteNetwork(ctx context.Context, client *golangsdk.ServiceClient, networkID string) error {
+func deleteNetwork(client *golangsdk.ServiceClient, networkId string) error {
 	httpURL := "v1/{project_id}/networks/{id}"
 	deletePath := client.Endpoint + httpURL
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{id}", networkID)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", networkId)
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -457,7 +556,7 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = deleteNetwork(ctx, client, networkId)
+	err = deleteNetwork(client, networkId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting network (%s)", networkId))
 	}

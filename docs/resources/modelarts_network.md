@@ -2,7 +2,8 @@
 subcategory: "AI Development Platform (ModelArts)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_modelarts_network"
-description: ""
+description: |-
+  Manages a Modelarts network resource within HuaweiCloud.  
 ---
 
 # huaweicloud_modelarts_network
@@ -39,7 +40,7 @@ The following arguments are supported:
   The name must start with a lowercase letter and end with a lowercase letter or digit.
 
 * `cidr` - (Required, String, NonUpdatable) Specifies the CIDR of the network.  
-  It's recommand to configure CIDR block as following ranges:
+  It's recommanded to configure CIDR block as following ranges:
   + **10.0.0.0/8-24**
   + **172.16.0.0/12-24**
   + **192.168.0.0/16-24**
@@ -47,8 +48,12 @@ The following arguments are supported:
 * `workspace_id` - (Optional, String, NonUpdatable) Specifies the ID of the workspace to which the network belongs.  
   Defaults to **0** (default workspace).  
 
-* `peer_connections` - (Optional, List) Specifies the list of networks that can be connected in peering mode.  
-The [peer_connections](#modelarts_network_peer_connections) structure is documented below.
+* `peer_connections` - (Optional, List) Specifies the list of peering connections that can be connected to the
+  network.  
+  The [peer_connections](#modelarts_network_peer_connections) structure is documented below.
+
+* `sfs_turbos` - (Optional, List) Specifies the list of SFS Turbos that can be connected to the network.  
+  The [sfs_turbos](#modelarts_network_sfs_turbos) structure is documented below.
 
 <a name="modelarts_network_peer_connections"></a>
 The `peer_connections` block supports:
@@ -57,6 +62,13 @@ The `peer_connections` block supports:
 
 * `subnet_id` - (Required, String) Specifies the ID of the subnet to which the peering connection belongs.
 
+<a name="modelarts_network_sfs_turbos"></a>
+The `sfs_turbos` block supports:
+
+* `id` - (Required, String) Specifies the ID of the SFS Turbo to be associated.
+
+* `name` - (Required, String) Specifies the name of the SFS Turbo to be associated.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -64,6 +76,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID, the format is **{name}-{project_id}**.
 
 * `status` - The status of the network.
+
+* `subnet_id` - The ID of the subnet which the network is associated.
 
 ## Timeouts
 
