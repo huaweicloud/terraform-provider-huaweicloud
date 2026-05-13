@@ -132,17 +132,23 @@ func dataSourceGeminiDBFlavorsRead(_ context.Context, d *schema.ResourceData, me
 }
 
 func buildListGeminiDBFlavorsQueryParams(d *schema.ResourceData) string {
-	queryParams := "?"
-	if engineName, ok := d.GetOk("engine_name"); ok {
-		queryParams = fmt.Sprintf("%s&engine_name=%v", queryParams, engineName)
+	queryParams := ""
+
+	if v, ok := d.GetOk("engine_name"); ok {
+		queryParams = fmt.Sprintf("%s&engine_name=%v", queryParams, v)
 	}
-	if mode, ok := d.GetOk("mode"); ok {
-		queryParams = fmt.Sprintf("%s&mode=%v", queryParams, mode)
+	if v, ok := d.GetOk("mode"); ok {
+		queryParams = fmt.Sprintf("%s&mode=%v", queryParams, v)
 	}
-	if productType, ok := d.GetOk("product_type"); ok {
-		queryParams = fmt.Sprintf("%s&product_type=%v", queryParams, productType)
+	if v, ok := d.GetOk("product_type"); ok {
+		queryParams = fmt.Sprintf("%s&product_type=%v", queryParams, v)
 	}
-	return strings.TrimSuffix(queryParams, "&")
+
+	if queryParams != "" {
+		queryParams = "?" + queryParams[1:]
+	}
+
+	return queryParams
 }
 
 func flattenListGeminiDBFlavors(resp interface{}) []interface{} {

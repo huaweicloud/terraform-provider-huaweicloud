@@ -1424,6 +1424,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_influx_instances":             geminidb.DataSourceGaussDBInfluxInstances(),
 
 			"huaweicloud_geminidb_accounts":          geminidb.DataSourceGeminiDbAccounts(),
+			"huaweicloud_geminidb_backups":           geminidb.DataSourceGeminiDBBackups(),
 			"huaweicloud_geminidb_database_versions": geminidb.DataSourceDatabaseVersions(),
 			"huaweicloud_geminidb_flavors":           geminidb.DataSourceGeminiDBFlavors(),
 			"huaweicloud_geminidb_quotas":            geminidb.DataSourceQuotas(),
