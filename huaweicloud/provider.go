@@ -4116,6 +4116,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_agent_job_switch":                rds.ResourceAgentJobSwitch(),
 			"huaweicloud_rds_agent_job_restart":               rds.ResourceAgentJobRestart(),
 			"huaweicloud_rds_agent_job_modify":                rds.ResourceAgentJobModify(),
+			"huaweicloud_rds_event_operate":                   rds.ResourceEventOperate(),
 
 			"huaweicloud_rgc_account":                      rgc.ResourceAccount(),
 			"huaweicloud_rgc_account_enroll":               rgc.ResourceAccountEnroll(),
