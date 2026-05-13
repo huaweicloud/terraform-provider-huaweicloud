@@ -75,9 +75,17 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID, the format is **{name}-{project_id}**.
 
+* `sfs_turbos` - The list of SFS Turbos that can be connected to the network.  
+  The [sfs_turbos](#modelarts_network_sfs_turbos_attr) structure is documented below.
+
 * `status` - The status of the network.
 
 * `subnet_id` - The ID of the subnet which the network is associated.
+
+<a name="modelarts_network_sfs_turbos_attr"></a>
+The `sfs_turbos` block supports:
+
+* `uri` - The export location URI of the associated SFS Turbo in network.
 
 ## Timeouts
 
