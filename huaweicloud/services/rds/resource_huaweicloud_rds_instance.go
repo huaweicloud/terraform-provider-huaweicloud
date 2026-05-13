@@ -397,6 +397,11 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"delete_backup_selection": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+			},
 			"tags": common.TagsSchema(),
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -733,6 +738,12 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	if _, ok := d.GetOk("default_backup_method"); ok {
 		if err = updateDefaultBackupMethod(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("delete_backup_selection"); ok {
+		if err = updateDeleteBackupSelection(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1459,6 +1470,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateDefaultBackupMethod(ctx, d, client); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateDeleteBackupSelection(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -2466,6 +2481,32 @@ func updateDefaultBackupMethod(ctx context.Context, d *schema.ResourceData, clie
 func buildDefaultBackupMethodBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"default_backup_method": d.Get("default_backup_method"),
+	}
+	return bodyParams
+}
+
+func updateDeleteBackupSelection(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("delete_backup_selection") {
+		return nil
+	}
+
+	_, err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/backups/delete-selection",
+		httpMethod:       "POST",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildDeleteBackupSelectionBodyParams(d),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance(%s) delete backup selection: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildDeleteBackupSelectionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	deleteBackupSelection, _ := strconv.ParseBool(d.Get("delete_backup_selection").(string))
+	bodyParams := map[string]interface{}{
+		"selection": deleteBackupSelection,
 	}
 	return bodyParams
 }

@@ -1141,13 +1141,14 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  depends_on        = [huaweicloud_networking_secgroup_rule.ingress]
-  name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  tde_enabled       = true
+  depends_on              = [huaweicloud_networking_secgroup_rule.ingress]
+  name                    = "%[2]s"
+  flavor                  = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id       = data.huaweicloud_networking_secgroup.test.id
+  subnet_id               = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                  = data.huaweicloud_vpc.test.id
+  tde_enabled             = true
+  delete_backup_selection = false
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -1188,12 +1189,14 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  depends_on        = [huaweicloud_networking_secgroup_rule.ingress]
-  name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
+  depends_on              = [huaweicloud_networking_secgroup_rule.ingress]
+  name                    = "%[2]s"
+  flavor                  = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id       = data.huaweicloud_networking_secgroup.test.id
+  subnet_id               = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                  = data.huaweicloud_vpc.test.id
+  collation               = "Chinese_PRC_CI_AI"
+  delete_backup_selection = true
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -1207,7 +1210,7 @@ resource "huaweicloud_rds_instance" "test" {
   }
 
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 40
   }
 }
