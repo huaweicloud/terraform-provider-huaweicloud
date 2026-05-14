@@ -4088,6 +4088,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instance":                        rds.ResourceRdsInstance(),
 			"huaweicloud_rds_instance_restart":                rds.ResourceInstanceRestart(),
 			"huaweicloud_rds_instance_eip_associate":          rds.ResourceRdsInstanceEipAssociate(),
+			"huaweicloud_rds_standby_instance_rebuild":        rds.ResourceStandbyInstanceRebuild(),
 			"huaweicloud_rds_parametergroup":                  rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_parametergroup_apply":            rds.ResourceConfigurationApply(),
 			"huaweicloud_rds_parametergroup_copy":             rds.ResourceRdsConfigurationCopy(),
