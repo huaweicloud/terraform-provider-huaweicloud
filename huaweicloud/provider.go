@@ -2437,6 +2437,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_global_eip_quotas":                  eip.DataSourceGlobalEipQuotas(),
 			"huaweicloud_global_eip_pools":                   eip.DataSourceGlobalEIPPools(),
 			"huaweicloud_global_eip_bindings":                eip.DataSourceGlobalEipBindings(),
+			"huaweicloud_global_eip_segments":                eip.DataSourceGlobalEipSegments(),
 			"huaweicloud_global_eip_segment_support_masks":   eip.DataSourceGlobalEipSegmentSupportMasks(),
 			"huaweicloud_global_eip_support_regions":         eip.DataSourceGlobalEipSupportRegions(),
 			"huaweicloud_global_eip_access_sites":            eip.DataSourceGlobalEIPAccessSites(),
