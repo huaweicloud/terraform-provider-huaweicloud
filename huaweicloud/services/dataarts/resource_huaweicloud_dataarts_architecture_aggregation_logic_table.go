@@ -248,6 +248,12 @@ func ResourceArchitectureAggregationLogicTable() *schema.Resource {
 				Computed:    true,
 				Description: `The type of the database table.`,
 			},
+			"model_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The ID of the model to which the aggregation logic table belongs.`,
+			},
 			"distribute": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -376,11 +382,6 @@ func ResourceArchitectureAggregationLogicTable() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The dimension group code of the derivative metric.`,
-			},
-			"model_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The ID of the model to which the aggregation logic table belongs.`,
 			},
 			"created_by": {
 				Type:        schema.TypeString,
@@ -538,6 +539,7 @@ func buildCreateArchitectureAggregationLogicTableBodyParams(d *schema.ResourceDa
 		"schema":              utils.ValueIgnoreEmpty(d.Get("schema")),
 		"table_attributes":    buildArchitectureAggregationLogicTableAttributes(d.Get("table_attributes").([]interface{})),
 		"table_type":          utils.ValueIgnoreEmpty(d.Get("table_type")),
+		"model_id":            utils.ValueIgnoreEmpty(d.Get("model_id")),
 		"distribute":          utils.ValueIgnoreEmpty(d.Get("distribute")),
 		"distribute_column":   utils.ValueIgnoreEmpty(d.Get("distribute_column")),
 		"compression":         utils.ValueIgnoreEmpty(d.Get("compression")),
@@ -925,6 +927,7 @@ func buildUpdateArchitectureAggregationLogicTableBodyParams(d *schema.ResourceDa
 		"schema":              utils.ValueIgnoreEmpty(d.Get("schema")),
 		"table_attributes":    buildArchitectureAggregationLogicTableAttributes(d.Get("table_attributes").([]interface{})),
 		"table_type":          utils.ValueIgnoreEmpty(d.Get("table_type")),
+		"model_id":            utils.ValueIgnoreEmpty(d.Get("model_id")),
 		"distribute":          utils.ValueIgnoreEmpty(d.Get("distribute")),
 		"distribute_column":   utils.ValueIgnoreEmpty(d.Get("distribute_column")),
 		"compression":         utils.ValueIgnoreEmpty(d.Get("compression")),

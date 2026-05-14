@@ -106,6 +106,9 @@ The following arguments are supported:
 
 * `description` - (Required, String) Specifies the description of the aggregation logic table.
 
+* `model_id` - (Optional, String) Specifies the ID of the model to which the aggregation logic table belongs.  
+  If omitted, the aggregation logic table will be created in the default model.
+
 * `alias` - (Optional, String) Specifies the alias of the aggregation logic table.
 
 * `queue_name` - (Optional, String) Specifies the queue name corresponding to the DLI data connection.  
@@ -284,8 +287,6 @@ In addition to all arguments above, the following attributes are exported:
 * `group_name` - The name of the dimension group of the derivative metric.
 
 * `group_code` - The dimension group code of the derivative metric.
-
-* `model_id` - The ID of the model to which the aggregation logic table belongs.
 
 * `created_by` - The account name of the user who created the aggregation logic table.
 

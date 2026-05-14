@@ -59,6 +59,7 @@ func TestAccArchitectureAggregationLogicTable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "alias", fmt.Sprintf("%s_alias", name)),
 					resource.TestCheckResourceAttr(rName, "queue_name", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "table_type", "MANAGED"),
+					resource.TestCheckResourceAttrSet(rName, "model_id"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(rName, "sql", fmt.Sprintf("SELECT * FROM %s", name)),
 					resource.TestCheckResourceAttr(rName, "partition_conf", "name is not null"),
@@ -131,6 +132,7 @@ func TestAccArchitectureAggregationLogicTable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "queue_name", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "table_type", "EXTERNAL"),
 					resource.TestCheckResourceAttrPair(rName, "obs_location", "huaweicloud_dli_table.test", "bucket_location"),
+					resource.TestCheckResourceAttrPair(rName, "model_id", "huaweicloud_dataarts_architecture_model.test", "id"),
 					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(rName, "sql", fmt.Sprintf("SELECT name FROM %s", name)),
 					resource.TestCheckResourceAttr(rName, "partition_conf", "key1_en is not null"),
@@ -336,6 +338,15 @@ resource "huaweicloud_dataarts_architecture_batch_publishment" "test" {
     }
   }
 }
+
+resource "huaweicloud_dataarts_architecture_model" "test" {
+  workspace_id = "%[2]s"
+  name         = "%[1]s"
+  type         = "DM"
+  physical     = true
+  dw_type      = "DLI"
+  level        = "DM"
+}
 `, name, acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_ARCHITECTURE_USER_ID, acceptance.HW_DATAARTS_ARCHITECTURE_USER_NAME)
 }
 
@@ -444,6 +455,7 @@ resource "huaweicloud_dataarts_architecture_aggregation_logic_table" "test" {
   queue_name    = "%[5]s"
   table_type    = "EXTERNAL"
   obs_location  = huaweicloud_dli_table.test.bucket_location
+  model_id      = huaweicloud_dataarts_architecture_model.test.id
 
   table_attributes {
     name_ch          = "key2_ch"
