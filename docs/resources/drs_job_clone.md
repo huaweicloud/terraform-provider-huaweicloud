@@ -36,10 +36,9 @@ The following arguments are supported:
 
 * `job_id` - (Required, String, NonUpdatable) Specifies the ID of the source DRS job to be cloned.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the cloned DRS job.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the cloned DRS job.
   The name must be between 4 and 50 characters long, start with a letter, and can contain letters, digits,
   hyphens (-), or underscores (_). It cannot contain other special characters and must be unique.
-  Changing this creates a new resource.
 
 * `task_version` - (Optional, String, NonUpdatable) Specifies the task version. For new UX tasks, the value is **2.0**.
   The default value is empty, and this parameter can be ignored.

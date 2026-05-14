@@ -1310,6 +1310,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dnsv21_ptrrecords":                dns.DataSourceDNSV21PtrRecords(),
 
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
+			"huaweicloud_drs_batch_get_params":   drs.DataSourceDrsBatchGetParams(),
 			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_job_links":          drs.DataSourceJobLinks(),
 			"huaweicloud_drs_job_monitor_data":   drs.DataSourceDrsJobMonitorData(),
