@@ -1452,10 +1452,11 @@ func geminiDbInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, instance
 		if utils.StrSliceContains([]string{"abnormal", "createfail", "enlargefail"}, status) {
 			return instance, "ERROR", fmt.Errorf("the instance status is: %s", status)
 		}
-		if status == "normal" {
+		actions := utils.PathSearch("actions", instance, make([]interface{}, 0)).([]interface{})
+		if status == "normal" && len(actions) == 0 {
 			return instance, "ACTIVE", nil
 		}
-		return instance, status, nil
+		return instance, "PENDING", nil
 	}
 }
 
