@@ -3637,6 +3637,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_database_operation": geminidb.ResourceGeminiDBDatabaseOperation(),
 			"huaweicloud_geminidb_instance":           geminidb.ResourceGeminiDbInstance(),
 			"huaweicloud_geminidb_memory_mapping":     geminidb.ResourceMemoryMapping(),
+			"huaweicloud_geminidb_recycle_policy":     geminidb.ResourceGeminiDBRecyclePolicy(),
 
 			"huaweicloud_gaussdb_cassandra_instance":  geminidb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_redis_instance":      geminidb.ResourceGaussRedisInstanceV3(),
