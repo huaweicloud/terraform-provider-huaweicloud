@@ -490,6 +490,8 @@ var (
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The service account token of the CCE cluster
+	HW_CCE_CLUSTER_SERVICE_ACCOUNT_TOKEN = os.Getenv("HW_CCE_CLUSTER_SERVICE_ACCOUNT_TOKEN")
 	// The absolute chart path of the CCE
 	HW_CCE_CHART_PATH = os.Getenv("HW_CCE_CHART_PATH")
 	// The cluster name of the CCE
@@ -3068,6 +3070,13 @@ func TestAccPreCheckWorkloadName(t *testing.T) {
 func TestAccPreCheckCceClusterId(t *testing.T) {
 	if HW_CCE_CLUSTER_ID == "" {
 		t.Skip("HW_CCE_CLUSTER_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCceClusterServiceAccountToken(t *testing.T) {
+	if HW_CCE_CLUSTER_SERVICE_ACCOUNT_TOKEN == "" {
+		t.Skip("HW_CCE_CLUSTER_SERVICE_ACCOUNT_TOKEN must be set for this acceptance test")
 	}
 }
 
