@@ -739,6 +739,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_chart_values":                       cce.DataSourceCCEShowChartValues(),
 			"huaweicloud_cce_cluster_upgrade_info":               cce.DataSourceCceClusterUpgradeInfo(),
 			"huaweicloud_cce_cluster_pod_identity_assume_agency": cce.DataSourceCCEClusterPodIdentityAssumeAgency(),
+			"huaweicloud_cce_cluster_pod_identity_associations":  cce.DataSourceCCEClusterPodIdentityAssociations(),
 
 			"huaweicloud_cce_autopilot_addon_templates":      cceautopilot.DataSourceCceAutopilotAddonTemplates(),
 			"huaweicloud_cce_autopilot_clusters":             cceautopilot.DataSourceCceAutopilotClusters(),
