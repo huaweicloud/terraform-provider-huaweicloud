@@ -1076,6 +1076,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_studio_workspace_users":      dataarts.DataSourceStudioWorkspaceUsers(),
 			"huaweicloud_dataarts_studio_workspace_user_roles": dataarts.DataSourceStudioWorkspaceUserRoles(),
 			// DataArts Architecture
+			"huaweicloud_dataarts_architecture_aggregation_logic_tables":         dataarts.DataSourceArchitectureAggregationLogicTables(),
 			"huaweicloud_dataarts_architecture_approvals":                        dataarts.DataSourceArchitectureApprovals(),
 			"huaweicloud_dataarts_architecture_data_standard_template_customs":   dataarts.DataSourceArchitectureDataStandardTemplateCustoms(),
 			"huaweicloud_dataarts_architecture_data_standard_template_optionals": dataarts.DataSourceArchitectureDataStandardTemplateOptionals(),
