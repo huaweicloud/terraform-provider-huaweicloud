@@ -88,6 +88,7 @@ The `models` block supports:
 * `type` - The workspace type.  
   + **THIRD_NF**
   + **DIMENSION**
+  + **DM**
 
 * `biz_catalog_ids` - The associated business catalog IDs.
 
