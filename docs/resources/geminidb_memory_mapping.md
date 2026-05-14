@@ -18,7 +18,7 @@ Manages a memory mapping resource within HuaweiCloud.
 var "source_instance_id" {}
 var "target_instance_id" {}
 
-data "huaweicloud_geminidb_memory_mapping" "test" {
+resource "huaweicloud_geminidb_memory_mapping" "test" {
   source_instance_id = var.source_instance_id
   target_instance_id = var.target_instance_id
 }
