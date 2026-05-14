@@ -15,7 +15,7 @@ Manages a GeminiDB account resource within HuaweiCloud.
 ```hcl
 var "instance_id" {}
 
-data "huaweicloud_geminidb_account" "test" {
+resource "huaweicloud_geminidb_account" "test" {
   instance_id = var.instance_id
   name        = "test_account"
   password    = "Test@1234567"
