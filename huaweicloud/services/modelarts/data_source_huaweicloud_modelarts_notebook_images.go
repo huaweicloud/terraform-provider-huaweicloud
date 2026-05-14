@@ -2,16 +2,18 @@ package modelarts
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"strconv"
+	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -22,61 +24,125 @@ func DataSourceNotebookImages() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the images are located.`,
 			},
+
+			// Optional parameters.
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the image to be queried.`,
 			},
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "BUILD_IN",
+				Description: `The type of the image to be queried.`,
+			},
+			"namespace": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the namespace to which images belong.`,
+			},
+			"workspace_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The workspace ID to which images belong.`,
+			},
+			"cpu_arch": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The CPU architecture of the image to be queried.`,
+			},
+
+			// Deprecated parameters.
 			"organization": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: utils.SchemaDesc(
+					`The name of the organization (namespace) to which images belong`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
-			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "BUILD_IN",
-				ValidateFunc: validation.StringInSlice([]string{"BUILD_IN", "DEDICATED"}, false),
-			},
-			"cpu_arch": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"x86_64", "aarch64"}, false),
-			},
-			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+
+			// Attributes.
 			"images": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of images that match the filter parameters.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the image.`,
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the image.`,
+						},
+						"namespace": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the namespace to which the image belongs.`,
+						},
+						"workspace_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The workspace ID to which the image belongs.`,
+						},
+						"resource_categories": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The resource categories of the image.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"dev_services": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The dev services of the image.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"service_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The service type of the image.`,
+						},
+						"show_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the image to be displayed.`,
 						},
 						"swr_path": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The storage path of the image.`,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"cpu_arch": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the image.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Description: `The description of the image.`,
+							Computed:    true,
+						},
+						"cpu_arch": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The CPU architecture of the image.`,
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The status of the image.`,
 						},
 					},
 				},
@@ -85,71 +151,126 @@ func DataSourceNotebookImages() *schema.Resource {
 	}
 }
 
-func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ModelArtsV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
+func buildListNotebookImagesQueryParams(d *schema.ResourceData) string {
+	res := ""
+
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, v)
 	}
 
-	listOpts := notebook.ListImageOpts{
-		Name:        d.Get("name").(string),
-		Namespace:   d.Get("organization").(string),
-		Type:        d.Get("type").(string),
-		WorkspaceId: d.Get("workspace_id").(string),
-		Offset:      0,
+	if v, ok := d.GetOk("organization"); ok {
+		res = fmt.Sprintf("%s&namespace=%v", res, v)
 	}
 
-	page, err := notebook.ListImages(client, listOpts)
-	if err != nil {
-		return diag.Errorf("unable to retrieve ModelArts notebook images: %s ", err)
+	if v, ok := d.GetOk("type"); ok {
+		res = fmt.Sprintf("%s&type=%v", res, v)
 	}
 
-	p, err := page.AllPages()
-	if err != nil {
-		return diag.Errorf("error querying ModelArts notebook images: %s", err)
-	}
-	images, err := notebook.ExtractImages(p)
-	if err != nil {
-		return diag.Errorf("error querying ModelArts notebook images: %s", err)
+	if v, ok := d.GetOk("workspace_id"); ok {
+		res = fmt.Sprintf("%s&workspace_id=%v", res, v)
 	}
 
-	if len(images) == 0 {
-		return diag.Errorf("no data found. Please change your search criteria and try again")
+	return res
+}
+
+func listNotebookImages(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/images?limit={limit}"
+		limit   = 200
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+	listPath += buildListNotebookImagesQueryParams(d)
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	filter := map[string]interface{}{
-		"Arch": d.Get("cpu_arch"),
-	}
-
-	filterImages, err := utils.FilterSliceWithField(images, filter)
-	if err != nil {
-		return diag.Errorf("filter ModelArts notebook images failed: %s", err)
-	}
-	log.Printf("[DEBUG] filter %d ModelArts notebook images from %d through options %v", len(filterImages), len(images), filter)
-
-	var rst []map[string]interface{}
-	var ids []string
-	for _, v := range filterImages {
-		img := v.(notebook.ImageDetail)
-		item := map[string]interface{}{
-			"id":          img.Id,
-			"name":        img.Name,
-			"type":        img.Type,
-			"swr_path":    img.SwrPath,
-			"description": img.Description,
-			"cpu_arch":    img.Arch,
+	for {
+		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &listOpt)
+		if err != nil {
+			return nil, err
 		}
-		rst = append(rst, item)
-		ids = append(ids, img.Id)
+
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+
+		images := utils.PathSearch("data", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, images...)
+		if len(images) < limit {
+			break
+		}
+		offset += len(images)
 	}
 
-	err = d.Set("images", rst)
+	return result, nil
+}
+
+func manualFilterNotebookImages(images []interface{}, architecture string) []interface{} {
+	if architecture != "" {
+		return utils.PathSearch(fmt.Sprintf("[?arch=='%s']", architecture), images, make([]interface{}, 0)).([]interface{})
+	}
+	return images
+}
+
+func flattenNotebookImages(images []interface{}) []interface{} {
+	if len(images) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(images))
+	for _, image := range images {
+		result = append(result, map[string]interface{}{
+			"id":                  utils.PathSearch("id", image, nil),
+			"name":                utils.PathSearch("name", image, nil),
+			"namespace":           utils.PathSearch("namespace", image, nil),
+			"workspace_id":        utils.PathSearch("workspace_id", image, nil),
+			"resource_categories": utils.PathSearch("resource_categories", image, nil),
+			"dev_services":        utils.PathSearch("dev_services", image, nil),
+			"service_type":        utils.PathSearch("service_type", image, nil),
+			"show_name":           utils.PathSearch("show_name", image, nil),
+			"swr_path":            utils.PathSearch("swr_path", image, nil),
+			"type":                utils.PathSearch("type", image, nil),
+			"description":         utils.PathSearch("description", image, nil),
+			"cpu_arch":            utils.PathSearch("arch", image, nil),
+			"status":              utils.PathSearch("status", image, nil),
+		})
+	}
+
+	return result
+}
+
+func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("modelarts", region)
 	if err != nil {
-		return diag.Errorf("set images err:%s", err)
+		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	d.SetId(hashcode.Strings(ids))
-	return nil
+	images, err := listNotebookImages(client, d)
+	if err != nil {
+		return diag.Errorf("error listing ModelArts notebook images: %s", err)
+	}
+
+	randomUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("error generating UUID: %s", err)
+	}
+	d.SetId(randomUUID)
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("images", flattenNotebookImages(manualFilterNotebookImages(images, d.Get("cpu_arch").(string)))),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
