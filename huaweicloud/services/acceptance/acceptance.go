@@ -483,7 +483,8 @@ var (
 	HW_CFW_SERVICE_GROUP_ID          = os.Getenv("HW_CFW_SERVICE_GROUP_ID")
 	HW_CFW_SERVICE_GROUP_MEMBER_ID   = os.Getenv("HW_CFW_SERVICE_GROUP_MEMBER_ID")
 
-	HW_DRS_JOB_ID = os.Getenv("HW_DRS_JOB_ID")
+	HW_DRS_JOB_ID  = os.Getenv("HW_DRS_JOB_ID")
+	HW_DRS_JOB_IDS = os.Getenv("HW_DRS_JOB_IDS")
 
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
 	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
@@ -2927,6 +2928,13 @@ func TestAccPreCheckCfw(t *testing.T) {
 func TestAccPreCheckDrsJobId(t *testing.T) {
 	if HW_DRS_JOB_ID == "" {
 		t.Skip("HW_DRS_JOB_ID must be set for DRS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDrsJobIds(t *testing.T) {
+	if HW_DRS_JOB_IDS == "" {
+		t.Skip("HW_DRS_JOB_IDS must be set for DRS acceptance tests")
 	}
 }
 
