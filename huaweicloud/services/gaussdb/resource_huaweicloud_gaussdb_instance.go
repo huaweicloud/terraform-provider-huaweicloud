@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,6 +47,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/coordinators
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
 // @API GaussDB PUT /v3/{project_id}/configurations/{config_id}/apply
@@ -289,6 +291,11 @@ func ResourceGaussDbInstance() *schema.Resource {
 				},
 				Optional: true,
 				Computed: true,
+			},
+			"delete_coordinator_node_id_list": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"tags": common.TagsSchema(),
 			"force_import": {
@@ -1129,8 +1136,8 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 			return diag.FromErr(err)
 		}
 	}
-	if d.HasChange("coordinator_num") {
-		if err = expandInstanceCoordinatorNumber(ctx, d, client, bssClient); err != nil {
+	if d.HasChanges("coordinator_num", "delete_coordinator_node_id_list") {
+		if err = updateInstanceCoordinatorNumber(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1296,13 +1303,31 @@ func buildExpandInstanceShardingNumberBodyParams(expandSize int) map[string]inte
 	return bodyParams
 }
 
-func expandInstanceCoordinatorNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+func updateInstanceCoordinatorNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	if d.HasChange("delete_coordinator_node_id_list") && !d.HasChange("coordinator_num") {
+		return errors.New("coordinator_num should be modified simultaneously when delete coordinator nodes")
+	}
+
 	oRaw, nRaw := d.GetChange("coordinator_num")
 	if nRaw.(int) < oRaw.(int) {
-		return fmt.Errorf("error expanding coordinator for instance: new number must be larger than the old one")
+		v, ok := d.GetOk("delete_coordinator_node_id_list")
+		if !ok {
+			return errors.New("the nodes to be deleted should be specified using delete_coordinator_node_id_list" +
+				" when delete coordinator node")
+		}
+		deleteCoordinatorNodeIdList := v.(*schema.Set)
+		if deleteCoordinatorNodeIdList.Len() != oRaw.(int)-nRaw.(int) {
+			return errors.New("the number of the nodes to be deleted specified by delete_coordinator_node_id_list" +
+				" is differs from the reduction amount in coordinator_num")
+		}
+		return deleteInstanceCoordinatorNode(ctx, d, client, bssClient, deleteCoordinatorNodeIdList.List())
 	}
-	expandSize := nRaw.(int) - oRaw.(int)
 
+	expandSize := nRaw.(int) - oRaw.(int)
+	return expandInstanceCoordinatorNumber(ctx, d, client, bssClient, expandSize)
+}
+
+func expandInstanceCoordinatorNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient, expandSize int) error {
 	updateBodyParams := utils.RemoveNil(buildExpandInstanceCoordinatorNumberBodyParams(d, expandSize))
 	return updateInstanceVolumeAndRelatedHaNumbers(ctx, client, bssClient, d, updateBodyParams)
 }
@@ -1320,6 +1345,35 @@ func buildExpandInstanceCoordinatorNumberBodyParams(d *schema.ResourceData, expa
 			"coordinators": coordinators,
 		},
 		"is_auto_pay": "true",
+	}
+	return bodyParams
+}
+
+func deleteInstanceCoordinatorNode(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient,
+	deleteCoordinatorNodeIdList []interface{}) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/coordinators",
+		httpMethod:           "DELETE",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildDeleteInstanceCoordinatorNodeBodyParams(deleteCoordinatorNodeIdList),
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		delay:                60,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "orderId",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error deleting GaussDB instance coordinator nodes: %s", err)
+	}
+
+	return nil
+}
+
+func buildDeleteInstanceCoordinatorNodeBodyParams(deleteCoordinatorNodeIdList []interface{}) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"node_id_list": deleteCoordinatorNodeIdList,
 	}
 	return bodyParams
 }
