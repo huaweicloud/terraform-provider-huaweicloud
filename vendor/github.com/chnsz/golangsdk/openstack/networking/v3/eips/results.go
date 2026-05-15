@@ -17,6 +17,7 @@ type PublicIp struct {
 	BillingInfo         string   `json:"billing_info"`
 	CreatedAt           string   `json:"created_at"`
 	UpdatedAt           string   `json:"updated_at"`
+	Description         string   `json:"description"`
 	Tags                []string `json:"tags"`
 
 	AssociateInstanceType string `json:"associate_instance_type"`
