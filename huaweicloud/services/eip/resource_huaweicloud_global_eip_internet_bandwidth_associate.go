@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -28,6 +29,11 @@ func ResourceInternetBandwidthAssociate() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew([]string{
+			"global_eip_id",
+			"internet_bandwidth_id",
+		}),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -42,6 +48,12 @@ func ResourceInternetBandwidthAssociate() *schema.Resource {
 			"internet_bandwidth_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"internet_bandwidth_info": {
 				Type:     schema.TypeList,
