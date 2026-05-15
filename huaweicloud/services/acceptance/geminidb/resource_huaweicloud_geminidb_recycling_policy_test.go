@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRecyclePolicyResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
+func getRecyclingPolicyResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("geminidb", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating GeminiDB client: %s", err)
@@ -34,7 +34,7 @@ func getRecyclePolicyResourceFunc(cfg *config.Config, _ *terraform.ResourceState
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving GeminiDB recycle policy: %s", err)
+		return nil, fmt.Errorf("error retrieving GeminiDB recycling policy: %s", err)
 	}
 
 	respBody, err := utils.FlattenResponse(getResp)
@@ -49,14 +49,14 @@ func getRecyclePolicyResourceFunc(cfg *config.Config, _ *terraform.ResourceState
 	return respBody, nil
 }
 
-func TestAccGeminiDBRecyclePolicy_basic(t *testing.T) {
+func TestAccGeminiDBRecyclingPolicy_basic(t *testing.T) {
 	var obj interface{}
-	rName := "huaweicloud_geminidb_recycle_policy.test"
+	rName := "huaweicloud_geminidb_recycling_policy.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getRecyclePolicyResourceFunc,
+		getRecyclingPolicyResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -67,14 +67,14 @@ func TestAccGeminiDBRecyclePolicy_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGeminiDBRecyclePolicy_basic(7),
+				Config: testAccGeminiDBRecyclingPolicy_basic(7),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "retention_period_in_days", "7"),
 				),
 			},
 			{
-				Config: testAccGeminiDBRecyclePolicy_basic(3),
+				Config: testAccGeminiDBRecyclingPolicy_basic(3),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "retention_period_in_days", "3"),
@@ -89,9 +89,9 @@ func TestAccGeminiDBRecyclePolicy_basic(t *testing.T) {
 	})
 }
 
-func testAccGeminiDBRecyclePolicy_basic(retentionPeriodInDays int) string {
+func testAccGeminiDBRecyclingPolicy_basic(retentionPeriodInDays int) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_geminidb_recycle_policy" "test" {
+resource "huaweicloud_geminidb_recycling_policy" "test" {
   retention_period_in_days = %#v
 }
 `, retentionPeriodInDays)
