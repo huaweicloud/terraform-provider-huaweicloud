@@ -66,6 +66,7 @@ const (
 // @API EIP POST /v2.0/{project_id}/publicips/{id}/tags/action
 // @API EIP GET /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v1/{project_id}/bandwidths/{id}
+// @API EIP PUT /v3/{project_id}/eip/publicips/{publicip_id}
 // @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -195,6 +196,11 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The enterprise project ID to which the EIP belongs.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the EIP.`,
 			},
 			"tags": common.TagsSchema(),
 
@@ -417,6 +423,18 @@ func resourceVpcEipCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if _, ok := d.GetOk("description"); ok {
+		vpcV3Client, err := cfg.NewServiceClient("vpc", region)
+		if err != nil {
+			return diag.Errorf("error creating VPC v3 client: %s", err)
+		}
+
+		err = updateEipDescription(d, vpcV3Client)
+		if err != nil {
+			return diag.Errorf("error setting description of EIP (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceVpcEipRead(ctx, d, meta)
 }
 
@@ -533,12 +551,13 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 	if err != nil {
 		log.Printf("[WARN] failed to fetch the info for EIP (%s) from v3 API: %s", resourceId, err)
 	} else {
-		mErr = multierror.Append(nil,
+		mErr = multierror.Append(mErr,
 			d.Set("updated_at", resp.UpdatedAt),
 			d.Set("associate_type", resp.AssociateInstanceType),
 			d.Set("associate_id", resp.AssociateInstanceID),
 			d.Set("instance_type", resp.Vnic.IntsanceType),
 			d.Set("instance_id", resp.Vnic.IntsanceID),
+			d.Set("description", resp.Description),
 		)
 	}
 
@@ -604,6 +623,37 @@ func updateEipPortId(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceDat
 		}
 	}
 	return nil
+}
+
+func updateEipDescription(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	requestPath := client.Endpoint + "v3/{project_id}/eip/publicips/{publicip_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{publicip_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		KeepResponseBody: true,
+		JSONBody:         buildUpdatePublicipBodyParams(d),
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+
+	if err != nil {
+		return fmt.Errorf("error updating EIP description: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdatePublicipBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"publicip": map[string]interface{}{
+			"description": d.Get("description").(string),
+		},
+	}
+
+	return bodyParams
 }
 
 func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
@@ -752,6 +802,18 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			ProjectId:    cfg.GetProjectID(region),
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("description") {
+		vpcV3Client, err := cfg.NewServiceClient("vpc", region)
+		if err != nil {
+			return diag.Errorf("error creating VPC v3 client: %s", err)
+		}
+
+		err = updateEipDescription(d, vpcV3Client)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}

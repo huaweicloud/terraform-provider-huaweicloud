@@ -56,6 +56,7 @@ func TestAccVpcEip_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "traffic"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "description", "vpc eip description"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
@@ -71,6 +72,7 @@ func TestAccVpcEip_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "bandwidth"),
+					resource.TestCheckResourceAttr(resourceName, "description", "vpc eip description update"),
 				),
 			},
 			{
@@ -358,7 +360,8 @@ func TestAccVpcEip_deprecated(t *testing.T) {
 func testAccVpcEip_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
-  name = "%[1]s"
+  name        = "%[1]s"
+  description = "vpc eip description"
 
   publicip {
     type       = "5_bgp"
@@ -383,7 +386,8 @@ resource "huaweicloud_vpc_eip" "test" {
 func testAccVpcEip_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
-  name = "%[1]s"
+  name        = "%[1]s"
+  description = "vpc eip description update"
 
   publicip {
     type       = "5_bgp"

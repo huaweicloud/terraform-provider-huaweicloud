@@ -71,6 +71,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the EIP belongs.
 
+* `description` - (Optional, String) Specifies the description of the EIP.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the EIP.
 
 * `charging_mode` - (Optional, String) Specifies the charging mode of the EIP.  
