@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccOpenGaussInstanceUpgrade_basic(t *testing.T) {
+func TestAccGaussDbInstanceUpgrade_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_gaussdb_instance_upgrade.test"
@@ -18,7 +18,7 @@ func TestAccOpenGaussInstanceUpgrade_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccOpenGaussInstanceUpgrade_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstanceUpgrade_basic(rName),
+				Config: testAccGaussDbInstanceUpgrade_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 				),
@@ -40,7 +40,7 @@ func TestAccOpenGaussInstanceUpgrade_basic(t *testing.T) {
 	})
 }
 
-func testAccOpenGaussInstanceUpgrade_base(rName string) string {
+func testAccGaussDbInstanceUpgrade_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -106,7 +106,7 @@ data "huaweicloud_gaussdb_upgrade_versions" "test" {
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstanceUpgrade_basic(rName string) string {
+func testAccGaussDbInstanceUpgrade_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -119,5 +119,5 @@ resource "huaweicloud_gaussdb_instance_upgrade" "test" {
   upgrade_type   = local.upgrade_versions.upgrade_type_list[0].upgrade_type
   upgrade_action = local.upgrade_versions.upgrade_type_list[0].upgrade_action_list[0].upgrade_action
   target_version = local.upgrade_versions.target_version
-}`, testAccOpenGaussInstanceUpgrade_base(rName))
+}`, testAccGaussDbInstanceUpgrade_base(rName))
 }

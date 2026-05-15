@@ -24,9 +24,9 @@ func TestAccGaussDbInstancesDataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstancesDataSource_basic(rName),
+				Config: testAccGaussDbInstancesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOpenGaussInstancesDataSourceID(dataSourceName),
+					testAccCheckGaussDbInstancesDataSourceID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.sharding_num", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.coordinator_num", "2"),
@@ -50,9 +50,9 @@ func TestAccGaussDbInstancesDataSource_haModeCentralized(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstancesDataSource_haModeCentralized(rName),
+				Config: testAccGaussDbInstancesDataSource_haModeCentralized(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOpenGaussInstancesDataSourceID(dataSourceName),
+					testAccCheckGaussDbInstancesDataSourceID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.replica_num", "3"),
 					resource.TestCheckResourceAttr(dataSourceName, "instances.0.volume.0.size", "40"),
@@ -62,7 +62,7 @@ func TestAccGaussDbInstancesDataSource_haModeCentralized(t *testing.T) {
 	})
 }
 
-func testAccCheckOpenGaussInstancesDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckGaussDbInstancesDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -77,7 +77,7 @@ func testAccCheckOpenGaussInstancesDataSourceID(n string) resource.TestCheckFunc
 	}
 }
 
-func testAccOpenGaussInstancesDataSource_basic(rName string) string {
+func testAccGaussDbInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -87,10 +87,10 @@ data "huaweicloud_gaussdb_instances" "test" {
     huaweicloud_gaussdb_instance.test,
   ]
 }
-`, testAccOpenGaussInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5)), 2))
+`, testAccGaussDbInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5)), 2))
 }
 
-func testAccOpenGaussInstancesDataSource_haModeCentralized(rName string) string {
+func testAccGaussDbInstancesDataSource_haModeCentralized(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -100,5 +100,5 @@ data "huaweicloud_gaussdb_instances" "test" {
     huaweicloud_gaussdb_instance.test,
   ]
 }
-`, testAccOpenGaussInstance_haModeCentralized(rName, fmt.Sprintf("%s@123", acctest.RandString(5))))
+`, testAccGaussDbInstance_haModeCentralized(rName, fmt.Sprintf("%s@123", acctest.RandString(5))))
 }

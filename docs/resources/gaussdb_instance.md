@@ -112,7 +112,7 @@ The following arguments are supported:
 
 * `subnet_id` - (Required, String, NonUpdatable) Specifies the network ID of VPC subnet to which the instance belongs.
 
-* `security_group_id` - (Optional, String, NonUpdatable) Specifies the security group ID to which the instance belongs.
+* `security_group_id` - (Optional, String) Specifies the security group ID to which the instance belongs.
   If the `port` parameter is specified, please ensure that the TCP ports in the inbound rule of security group
   includes the `100` ports starting with the database port.
   (For example, if the database port is `8,000`, the TCP port must include the range from `8,000` to `8,100`.)
