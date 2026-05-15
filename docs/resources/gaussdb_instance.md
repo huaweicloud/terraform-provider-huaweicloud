@@ -134,9 +134,10 @@ The following arguments are supported:
 * `sharding_num` - (Optional, Int) Specifies the sharding number.  
   The valid value is range form `1` to `9`.
 
-* `coordinator_num` - (Optional, Int) Specifies the coordinator number.  
-  The valid value is range form `1` to `9`.
+* `coordinator_num` - (Optional, Int) Specifies the coordinator number.
+  The valid value is range from `1` to `9`.
   The value must not be greater than twice value of `sharding_num`.
+  When reduce the value, the delete nodes ids should be specified by `delete_coordinator_node_id_list`.
 
 * `replica_num` - (Optional, Int, NonUpdatable) The replica number. The valid values are `2` and `3`.
   Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
@@ -183,6 +184,9 @@ The following arguments are supported:
 
 * `advance_features` - (Optional, List) Specifies the advanced features.
   The [advance_features](#advance_features_struct) structure is documented below.
+
+* `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
+  `coordinator_num` should be modified simultaneously when the value is modified.
 
 * `charging_mode` - (Optional, String, NonUpdatable) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
