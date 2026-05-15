@@ -21,6 +21,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -319,7 +320,7 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), quotaId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), quotaId); err != nil {
 			return diag.Errorf("error updating the auto_renew of the HSS quota (%s): %s", quotaId, err)
 		}
 	}

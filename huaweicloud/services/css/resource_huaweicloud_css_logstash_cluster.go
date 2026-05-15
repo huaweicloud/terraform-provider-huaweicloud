@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -786,7 +787,7 @@ func updateChangingModeOrAutoRenew(ctx context.Context, d *schema.ResourceData, 
 			return err
 		}
 	} else if d.HasChange("auto_renew") {
-		if err := common.UpdateAutoRenew(bssClient, autoRenew, clusterID); err != nil {
+		if err := cbc.UpdateAutoRenew(bssClient, autoRenew, clusterID); err != nil {
 			return fmt.Errorf("error updating the auto-renew of the CSS cluster (%s): %s", clusterID, err)
 		}
 	}

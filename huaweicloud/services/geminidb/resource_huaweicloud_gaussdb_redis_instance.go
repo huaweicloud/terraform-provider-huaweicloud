@@ -22,6 +22,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -426,7 +427,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 			ChargingMode: d.Get("charging_mode").(string),
 			PeriodType:   d.Get("period_unit").(string),
 			PeriodNum:    d.Get("period").(int),
-			IsAutoPay:    common.GetAutoPay(d),
+			IsAutoPay:    cbc.GetAutoPay(d),
 			IsAutoRenew:  d.Get("auto_renew").(string),
 		}
 		createOpts.ChargeInfo = chargeInfo
@@ -713,7 +714,7 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 	}
 
 	if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
 		}
 	}
@@ -785,7 +786,7 @@ func gaussRedisInstanceUpdateVolumeSize(ctx context.Context, d *schema.ResourceD
 		Size: d.Get("volume_size").(int),
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		extendOpts.IsAutoPay = common.GetAutoPay(d)
+		extendOpts.IsAutoPay = cbc.GetAutoPay(d)
 	}
 
 	var res *instances.ExtendResponse
@@ -887,7 +888,7 @@ func gaussRedisInstanceEnlargeNodeNum(ctx context.Context, d *schema.ResourceDat
 		Num: expandSize,
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		enlargeNodeOpts.IsAutoPay = common.GetAutoPay(d)
+		enlargeNodeOpts.IsAutoPay = cbc.GetAutoPay(d)
 	}
 	log.Printf("[DEBUG] enlarge node options: %+v", enlargeNodeOpts)
 
@@ -1037,7 +1038,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 		},
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		resizeOpts.IsAutoPay = common.GetAutoPay(d)
+		resizeOpts.IsAutoPay = cbc.GetAutoPay(d)
 	}
 
 	var res *instances.ExtendResponse

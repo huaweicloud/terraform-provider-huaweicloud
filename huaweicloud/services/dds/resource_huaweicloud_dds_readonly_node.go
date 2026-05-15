@@ -20,6 +20,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -266,7 +267,7 @@ func waitForPrePaidOrderCompleted(ctx context.Context, cfg *config.Config, d *sc
 		return "", err
 	}
 
-	resourceIds, err := common.GetResourceIDsByOrder(bssClient, orderId, 0)
+	resourceIds, err := cbc.GetResourceIDsByOrder(bssClient, orderId, 0)
 	if err != nil {
 		return "", fmt.Errorf("error retrieving resource IDs of DDS instance readonly node order (%s): %s", orderId, err)
 	}

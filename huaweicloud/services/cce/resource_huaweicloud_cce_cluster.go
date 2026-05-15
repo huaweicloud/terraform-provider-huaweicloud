@@ -23,6 +23,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -567,7 +568,7 @@ func buildResourceClusterExtendParams(d *schema.ResourceData, cfg *config.Config
 	}
 	if isPrePaid || billingMode == 1 {
 		res["isAutoRenew"] = "false"
-		res["isAutoPay"] = common.GetAutoPay(d)
+		res["isAutoPay"] = cbc.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {
@@ -1152,7 +1153,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the CCE cluster (%s): %s", clusterId, err)
 		}
 	}
@@ -1343,7 +1344,7 @@ func resourceClusterResize(ctx context.Context, cfg *config.Config, d *schema.Re
 	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
-		opts.ExtendParam.IsAutoPay = common.GetAutoPay(d)
+		opts.ExtendParam.IsAutoPay = cbc.GetAutoPay(d)
 	}
 
 	resp, err := clusters.Resize(cceClient, clusterID, opts)

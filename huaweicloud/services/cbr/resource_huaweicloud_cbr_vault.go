@@ -18,6 +18,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -331,7 +332,7 @@ func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 		billing["period_type"] = d.Get("period_unit").(string)
 		billing["period_num"] = d.Get("period").(int)
 		billing["is_auto_renew"], _ = strconv.ParseBool(d.Get("auto_renew").(string))
-		billing["is_auto_pay"], _ = strconv.ParseBool(common.GetAutoPay(d))
+		billing["is_auto_pay"], _ = strconv.ParseBool(cbc.GetAutoPay(d))
 	}
 
 	return utils.RemoveNil(billing)
@@ -1283,7 +1284,7 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), vaultId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), vaultId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the vault (%s): %s", vaultId, err)
 		}
 	}

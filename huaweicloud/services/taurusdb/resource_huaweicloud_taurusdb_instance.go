@@ -28,6 +28,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -713,7 +714,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 			PeriodType:   d.Get("period_unit").(string),
 			PeriodNum:    d.Get("period").(int),
 			IsAutoRenew:  d.Get("auto_renew").(string),
-			IsAutoPay:    common.GetAutoPay(d),
+			IsAutoPay:    cbc.GetAutoPay(d),
 		}
 		createOpts.ChargeInfo = chargeInfo
 	}
@@ -1490,7 +1491,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
 		}
 	}
@@ -1612,7 +1613,7 @@ func updateInstanceFlavor(ctx context.Context, client, bssClient *golangsdk.Serv
 		},
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		resizeOpts.IsAutoPay = common.GetAutoPay(d)
+		resizeOpts.IsAutoPay = cbc.GetAutoPay(d)
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.Resize(client, d.Id(), resizeOpts).ExtractJobResponse()
@@ -1690,7 +1691,7 @@ func createInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 		Priorities: priorities,
 	}
 	if d.Get("charging_mode") == "prePaid" {
-		createReplicaOpts.IsAutoPay = common.GetAutoPay(d)
+		createReplicaOpts.IsAutoPay = cbc.GetAutoPay(d)
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.CreateReplica(client, d.Id(), createReplicaOpts).ExtractJobResponse()
@@ -1815,7 +1816,7 @@ func deleteInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 func updateInstanceVolumeSize(ctx context.Context, client, bssClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	extendOpts := instances.ExtendVolumeOpts{
 		Size:      d.Get("volume_size").(int),
-		IsAutoPay: common.GetAutoPay(d),
+		IsAutoPay: cbc.GetAutoPay(d),
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()

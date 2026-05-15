@@ -268,27 +268,6 @@ func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
 	}
 }
 
-// GetAutoPay is a method to return whether order is auto pay according to the user input.
-// auto_pay parameter inputs and returns:
-//
-//	false: false
-//	true, empty: true
-//
-// Before using this function, make sure the parameter behavior is auto pay (the default value is "true").
-func GetAutoPay(d *schema.ResourceData) string {
-	if val, ok := d.GetOk("auto_pay"); ok && val.(string) == "false" {
-		return "false"
-	}
-	return "true"
-}
-
-func UpdateAutoRenew(c *golangsdk.ServiceClient, enabled, resourceId string) error {
-	if enabled == "true" {
-		return resources.EnableAutoRenew(c, resourceId)
-	}
-	return resources.DisableAutoRenew(c, resourceId)
-}
-
 func HasFilledOpt(d *schema.ResourceData, param string) bool {
 	_, b := d.GetOk(param)
 	return b
@@ -379,28 +358,4 @@ func GetEipsbyAddresses(client *golangsdk.ServiceClient, addresses []string, eps
 		return nil, fmtp.Errorf("Unable to retrieve eips: %s ", err)
 	}
 	return allEips, nil
-}
-
-// GetResourceIDsByOrder returns resource IDs from an order.
-func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
-	if strings.TrimSpace(orderId) == "" {
-		return nil, fmt.Errorf("order id is empty")
-	}
-	listOpts := resources.ListOpts{
-		OrderId:          orderId,
-		OnlyMainResource: onlyMainResource,
-	}
-	resp, err := resources.List(client, listOpts)
-	if err != nil {
-		return nil, fmt.Errorf("error getting order (%s) details: %s", orderId, err)
-	}
-	if resp == nil || resp.TotalCount < 1 {
-		return nil, fmt.Errorf("error getting order (%s) details: response empty", orderId)
-	}
-
-	rst := make([]string, len(resp.Resources))
-	for i, v := range resp.Resources {
-		rst[i] = v.ResourceId
-	}
-	return rst, nil
 }

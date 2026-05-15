@@ -18,6 +18,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -259,7 +260,7 @@ func resourceHAInstanceCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error waiting for CBH HA instance order (%s) complete: %s", orderId, err)
 	}
 
-	resourceIDs, err := common.GetResourceIDsByOrder(bssClient, orderId, 1)
+	resourceIDs, err := cbc.GetResourceIDsByOrder(bssClient, orderId, 1)
 	if err != nil {
 		return diag.Errorf("error retrieving resource IDs of CBH HA instance order (%s): %s", orderId, err)
 	}
@@ -798,7 +799,7 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 				"master instance resource ID is not found in list API response", id)
 		}
 
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), masterResourceId); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), masterResourceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the CBH HA instance (%s): %s", id, err)
 		}
 	}

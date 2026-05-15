@@ -25,6 +25,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -305,7 +306,7 @@ func buildVpcEipCreateOpts(cfg *config.Config, d *schema.ResourceData, isPrePaid
 			PeriodType:  d.Get("period_unit").(string),
 			PeriodNum:   d.Get("period").(int),
 			IsAutoRenew: d.Get("auto_renew").(string),
-			IsAutoPay:   common.GetAutoPay(d),
+			IsAutoPay:   cbc.GetAutoPay(d),
 		}
 	}
 	return result, nil
@@ -625,7 +626,7 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config
 				Size: newMap["size"].(int),
 			},
 			ExtendParam: &bandwidthsv2.ExtendParam{
-				IsAutoPay: common.GetAutoPay(d),
+				IsAutoPay: cbc.GetAutoPay(d),
 			},
 		}
 		log.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
@@ -731,7 +732,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.FromErr(err)
 		}
 	} else if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the EIP (%s): %s", d.Id(), err)
 		}
 	}

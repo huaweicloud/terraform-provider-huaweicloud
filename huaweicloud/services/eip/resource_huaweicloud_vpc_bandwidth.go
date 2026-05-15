@@ -18,6 +18,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 )
 
 // @API EIP POST /v2.0/{project_id}/bandwidths/change-to-period
@@ -278,7 +279,7 @@ func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, m
 			return err
 		}
 	} else if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), bwID); err != nil {
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), bwID); err != nil {
 			return diag.Errorf("error updating the auto-renew of the bandwidth (%s): %s", bwID, err)
 		}
 	}
