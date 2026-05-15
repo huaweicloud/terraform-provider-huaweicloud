@@ -34,6 +34,11 @@ resource "huaweicloud_modelarts_notebook" "test" {
     type = "EVS"
     size = 5
   }
+
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
+  }
 }
 ```
 
@@ -92,6 +97,8 @@ The following arguments are supported:
 
 * `workspace_id` - (Optional, String, NonUpdatable) Specifies the workspace ID to which the notebook belongs.  
   The default value is **0** (default workspace).
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the notebook.
 
 <a name="modelarts_notebook_volume"></a>
 The `volume` block supports:

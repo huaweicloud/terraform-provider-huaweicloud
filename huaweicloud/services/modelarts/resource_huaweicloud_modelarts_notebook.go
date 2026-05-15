@@ -37,12 +37,14 @@ var (
 	}
 )
 
-// @API ModelArts POST /v1/{project_id}/notebooks/{id}/start
-// @API ModelArts POST /v1/{project_id}/notebooks/{id}/stop
 // @API ModelArts POST /v1/{project_id}/notebooks
 // @API ModelArts GET /v1/{project_id}/notebooks/{id}
 // @API ModelArts GET /v1/{project_id}/notebooks/{instance_id}/storage
+// @API ModelArts POST /v1/{project_id}/notebooks/{resource_id}/tags/create
+// @API ModelArts DELETE /v1/{project_id}/notebooks/{resource_id}/tags/delete
 // @API ModelArts PUT /v1/{project_id}/notebooks/{id}
+// @API ModelArts POST /v1/{project_id}/notebooks/{id}/stop
+// @API ModelArts POST /v1/{project_id}/notebooks/{id}/start
 // @API ModelArts DELETE /v1/{project_id}/notebooks/{id}
 func ResourceNotebook() *schema.Resource {
 	return &schema.Resource{
@@ -161,6 +163,7 @@ func ResourceNotebook() *schema.Resource {
 				Computed:    true,
 				Description: `The workspace ID to which the notebook belongs.`,
 			},
+			"tags": common.TagsSchema(`The tags of the notebook.`),
 
 			// Attributes.
 			"auto_stop_enabled": {
@@ -374,6 +377,108 @@ func waitForNotebookStatusCompleted(ctx context.Context, client *golangsdk.Servi
 	return nil
 }
 
+func buildNotebookTagsBodyParams(tags map[string]interface{}) map[string]interface{} {
+	if len(tags) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(tags))
+	for k, v := range tags {
+		result = append(result, map[string]interface{}{
+			"key":   k,
+			"value": v,
+		})
+	}
+
+	return map[string]interface{}{
+		"tags": result,
+	}
+}
+
+func deleteNotebookTags(client *golangsdk.ServiceClient, workspaceId, notebookId string, tags map[string]interface{}) error {
+	httpUrl := "v1/{project_id}/notebooks/{resource_id}/tags/delete"
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{resource_id}", notebookId)
+	if workspaceId != "" {
+		deletePath += fmt.Sprintf("?workspace_id=%s", workspaceId)
+	}
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: buildNotebookTagsBodyParams(tags),
+		OkCodes:  []int{204},
+	}
+
+	_, err := client.Request("DELETE", deletePath, &opt)
+	return err
+}
+
+func createNotebookTags(client *golangsdk.ServiceClient, workspaceId, notebookId string, tags map[string]interface{}) error {
+	httpUrl := "v1/{project_id}/notebooks/{resource_id}/tags/create"
+
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{resource_id}", notebookId)
+	if workspaceId != "" {
+		createPath += fmt.Sprintf("?workspace_id=%s", workspaceId)
+	}
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: buildNotebookTagsBodyParams(tags),
+		OkCodes:  []int{204},
+	}
+
+	_, err := client.Request("POST", createPath, &opt)
+	return err
+}
+
+func updateNotebookTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		workspaceId    = d.Get("workspace_id").(string)
+		notebookId     = d.Id()
+		oldRaw, newRaw = d.GetChange("tags")
+		oldTags        = oldRaw.(map[string]interface{})
+		newTags        = newRaw.(map[string]interface{})
+		removeTags     = make(map[string]interface{})
+		addTags        = make(map[string]interface{})
+	)
+
+	for k, oldVal := range oldTags {
+		if newVal, ok := newTags[k]; !ok || newVal != oldVal {
+			removeTags[k] = oldVal
+		}
+	}
+	if len(removeTags) > 0 {
+		err := deleteNotebookTags(client, workspaceId, notebookId, removeTags)
+		if err != nil {
+			return err
+		}
+	}
+
+	for k, newVal := range newTags {
+		if oldVal, ok := oldTags[k]; !ok || oldVal != newVal {
+			addTags[k] = newVal
+		}
+	}
+	if len(addTags) > 0 {
+		err := createNotebookTags(client, workspaceId, notebookId, addTags)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
@@ -399,6 +504,13 @@ func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta in
 	err = waitForNotebookStatusCompleted(ctx, client, resourceId, []string{"RUNNING"}, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	if d.HasChange("tags") {
+		err = updateNotebookTags(client, d)
+		if err != nil {
+			return diag.Errorf("error creating ModelArts notebook tags: %s", err)
+		}
 	}
 
 	return resourceNotebookRead(ctx, d, meta)
@@ -513,6 +625,7 @@ func resourceNotebookRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("allowed_access_ips", utils.PathSearch("endpoints[?service=='SSH']|[0].allowed_access_ips", respBody, nil)),
 		d.Set("pool_id", utils.PathSearch("pool.id", respBody, nil)),
 		d.Set("workspace_id", utils.PathSearch("workspace_id", respBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", respBody, nil))),
 		// Attributes.
 		d.Set("auto_stop_enabled", utils.PathSearch("lease.enable", respBody, false)),
 		d.Set("status", utils.PathSearch("status", respBody, nil)),
@@ -696,6 +809,13 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		err = startNotebook(ctx, client, notebookId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("error start ModelArts notebook (%s): %s", notebookId, err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = updateNotebookTags(client, d)
+		if err != nil {
+			return diag.Errorf("error updating ModelArts notebook tags: %s", err)
 		}
 	}
 

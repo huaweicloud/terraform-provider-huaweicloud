@@ -67,6 +67,9 @@ func TestAccNotebook_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(managed, "created_at"),
 					resource.TestCheckResourceAttrSet(managed, "updated_at"),
 					resource.TestCheckResourceAttrSet(managed, "url"),
+					resource.TestCheckResourceAttr(managed, "tags.%", "2"),
+					resource.TestCheckResourceAttr(managed, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(managed, "tags.key", "value"),
 					// Dedicated notebook
 					rcDedicated.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dedicated, "name", name+"-dedicated"),
@@ -89,6 +92,7 @@ func TestAccNotebook_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dedicated, "updated_at"),
 					resource.TestCheckResourceAttrSet(dedicated, "url"),
 					resource.TestCheckResourceAttrSet(dedicated, "ssh_uri"),
+					resource.TestCheckResourceAttr(dedicated, "tags.%", "0"),
 				),
 			},
 			{
@@ -112,6 +116,9 @@ func TestAccNotebook_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(managed, "created_at"),
 					resource.TestCheckResourceAttrSet(managed, "updated_at"),
 					resource.TestCheckResourceAttrSet(managed, "url"),
+					resource.TestCheckResourceAttr(managed, "tags.%", "2"),
+					resource.TestCheckResourceAttr(managed, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(managed, "tags.owner", "terraform"),
 					// Dedicated notebook
 					rcDedicated.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dedicated, "name", updateName+"-dedicated"),
@@ -134,6 +141,9 @@ func TestAccNotebook_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dedicated, "updated_at"),
 					resource.TestCheckResourceAttrSet(dedicated, "url"),
 					resource.TestCheckResourceAttrSet(dedicated, "ssh_uri"),
+					resource.TestCheckResourceAttr(dedicated, "tags.%", "2"),
+					resource.TestCheckResourceAttr(dedicated, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(dedicated, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -305,6 +315,11 @@ resource "huaweicloud_modelarts_notebook" "managed" {
     ownership = "MANAGED"
     size      = 10
   }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 
 resource "huaweicloud_modelarts_notebook" "dedicated" {
@@ -340,6 +355,11 @@ resource "huaweicloud_modelarts_notebook" "managed" {
     ownership = "MANAGED"
     size      = 20
   }
+
+  tags = {
+    foo   = "baar"
+    owner = "terraform"
+  }
 }
 
 resource "huaweicloud_modelarts_notebook" "dedicated" {
@@ -356,6 +376,11 @@ resource "huaweicloud_modelarts_notebook" "dedicated" {
     ownership = "DEDICATED"
     uri       = format("%%s:/", huaweicloud_modelarts_network.test.sfs_turbos[0].uri)
     id        = huaweicloud_sfs_turbo.test.id
+  }
+
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
   }
 }
 `, baseConfig, name)
