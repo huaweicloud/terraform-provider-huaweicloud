@@ -87,8 +87,6 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
-						"data.huaweicloud_gaussdb_flavors.test", "flavors.0.spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "password", password),
 					resource.TestCheckResourceAttr(resourceName, "ha.0.mode", "enterprise"),
@@ -106,6 +104,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "off"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "on"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.name"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.status"),
@@ -133,6 +132,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "1000"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "off"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -252,45 +252,31 @@ func testAccOpenGaussInstance_base(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-// opengauss requires more sg ports open
-resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  ethertype         = "IPv4"
-  direction         = "ingress"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
 }
-
-resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  ethertype         = "IPv4"
-  direction         = "egress"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-`, common.TestBaseNetwork(rName))
-}
-
-func testAccOpenGaussInstance_basic(rName, password string, replicaNum int) string {
-	return fmt.Sprintf(`
-%[1]s
 
 data "huaweicloud_gaussdb_flavors" "test" {
   version = "8.201"
   ha_mode = "enterprise"
 }
 
-resource "huaweicloud_gaussdb_instance" "test" {
-  depends_on = [
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
-  ]
+locals {
+  flavors = [for v in data.huaweicloud_gaussdb_flavors.test.flavors : v if alltrue([for k,v in v.az_status : v == "normal"])]
+}
+`, common.TestVpc(rName), rName)
+}
 
+func testAccOpenGaussInstance_basic(rName, password string, replicaNum int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  flavor            = local.flavors[0].spec_code
   name              = "%[2]s"
   password          = "%[3]s"
   sharding_num      = 1
@@ -341,19 +327,14 @@ func testAccOpenGaussInstance_update(rName, password string, replicaNum int) str
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_gaussdb_flavors" "test" {
-  version = "8.201"
-  ha_mode = "enterprise"
-}
-
 resource "huaweicloud_gaussdb_parameter_template" "test" {
   name           = "%[2]s"
-  engine_version = "8.210"
+  engine_version = "8.218"
   instance_mode  = "independent"
 
   parameters {
-    name  = "cn:auto_explain_log_min_duration"
-    value = "1000"
+    name  = "cma:log_max_count"
+    value = "5000"
   }
 
   parameters {
@@ -363,16 +344,11 @@ resource "huaweicloud_gaussdb_parameter_template" "test" {
 }
 
 resource "huaweicloud_gaussdb_instance" "test" {
-  depends_on = [
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
-  ]
-
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  flavor            = local.flavors[0].spec_code
   name              = "%[2]s-update"
   password          = "%[3]s"
   sharding_num      = 2
@@ -416,6 +392,11 @@ resource "huaweicloud_gaussdb_instance" "test" {
     foo_update = "bar"
     key        = "value_update"
   }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
 }
 `, testAccOpenGaussInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }

@@ -35,15 +35,21 @@ const (
 var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id", "subnet_id", "vpc_id", "ha", "ha.*.mode",
 	"ha.*.replication_mode", "ha.*.consistency", "ha.*.instance_mode", "volume.*.type", "replica_num", "security_group_id",
 	"port", "disk_encryption_id", "enable_force_switch", "enable_single_float_ip", "time_zone", "datastore",
-	"datastore.*.engine", "datastore.*.version", "charging_mode", "period_unit", "period",
+	"datastore.*.engine", "datastore.*.version",
 }
 
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB POST /v3/{project_id}/instances
 // @API GaussDB GET /v3/{project_id}/jobs
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/restart
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/mysql-compatibility
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/advance-features
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDB GET /v3.1/{project_id}/instances/{instance_id}/configurations
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/balance
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/error-log/switch/status
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/advance-features
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
@@ -51,6 +57,8 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
 // @API GaussDB PUT /v3/{project_id}/configurations/{config_id}/apply
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/mysql-compatibility
+// @API GaussDB PUT /v3/{project_id}/instances/change-charge-mode
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/tag
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -1207,7 +1215,15 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	if d.HasChange("auto_renew") {
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return diag.Errorf("error updating the charging mode of the GaussDB instance (%s): %s", d.Id(),
+				"only support changing post-paid instance to pre-paid")
+		}
+		if err = updateBillingModeToPeriod(ctx, d, client, bssClient); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
 		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
@@ -1654,6 +1670,39 @@ func gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client *golangsdk.ServiceClient,
 
 		return features, "Completed", nil
 	}
+}
+
+func updateBillingModeToPeriod(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/change-charge-mode",
+		httpMethod:           "PUT",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     utils.RemoveNil(buildUpdateBillingModeToPeriodBodyParams(d)),
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		checkOrderExpression: "order_ids[0]",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance(%s) billing mode from post-paid to pre-paid: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func buildUpdateBillingModeToPeriodBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"entity_ids": []string{d.Id()},
+		"charge_info": map[string]interface{}{
+			"period_type": utils.ValueIgnoreEmpty(d.Get("period_unit")),
+			"period_num":  utils.ValueIgnoreEmpty(d.Get("period")),
+			"is_auto_pay": true,
+		},
+	}
+	if d.Get("auto_renew").(string) == "true" {
+		bodyParams["is_auto_renew"] = true
+	}
+	return bodyParams
 }
 
 func addInstanceTags(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, addTags map[string]interface{}) error {
