@@ -3513,6 +3513,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zone_retrieval_verify":     dns.ResourceDNSZoneRetrievalVerify(),
 
 			"huaweicloud_drs_job":                            drs.ResourceDrsJob(),
+			"huaweicloud_drs_batch_pause_task":               drs.ResourceBatchPauseTask(),
 			"huaweicloud_drs_lts_config":                     drs.ResourceDrsLtsConfig(),
 			"huaweicloud_drs_job_clone":                      drs.ResourceDrsJobClone(),
 			"huaweicloud_drs_job_primary_standby_switch":     drs.ResourceDRSPrimaryStandbySwitch(),
