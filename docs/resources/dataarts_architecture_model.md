@@ -47,7 +47,11 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the model name.
 
-* `type` - (Required, String) Specifies the model type. The valid values are **THIRD_NF** and **DIMENSION**.
+* `type` - (Required, String) Specifies the model type.  
+  The valid values are as follows:
+  + **THIRD_NF**
+  + **DIMENSION**
+  + **DM**
 
 * `description` - (Optional, String) Specifies the description of model.
 
@@ -62,7 +66,12 @@ The following arguments are supported:
   + **MYSQL**
   + **ORACLE**
 
-* `level` - (Optional, String) Specifies the data warehouse layer. Valid values are **SDI** and **DWI**.
+* `level` - (Optional, String) Specifies the data warehouse layer.  
+  The valid values are as follows:
+  + **SDI**
+  + **DWI**
+  + **DWR**
+  + **DM**
 
 ## Attribute Reference
 
