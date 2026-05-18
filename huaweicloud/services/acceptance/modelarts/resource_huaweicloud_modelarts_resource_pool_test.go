@@ -2,55 +2,24 @@ package modelarts
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/modelarts"
 )
 
 func getModelartsResourcePoolResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	var (
-		getModelartsResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
-		getModelartsResourcePoolProduct = "modelarts"
-	)
-	getModelartsResourcePoolClient, err := cfg.NewServiceClient(getModelartsResourcePoolProduct, region)
+	client, err := cfg.NewServiceClient("modelarts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	getModelartsResourcePoolPath := getModelartsResourcePoolClient.Endpoint + getModelartsResourcePoolHttpUrl
-	getModelartsResourcePoolPath = strings.ReplaceAll(getModelartsResourcePoolPath, "{project_id}", getModelartsResourcePoolClient.ProjectID)
-	getModelartsResourcePoolPath = strings.ReplaceAll(getModelartsResourcePoolPath, "{id}", state.Primary.ID)
-
-	getModelartsResourcePoolOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getModelartsResourcePoolResp, err := getModelartsResourcePoolClient.Request("GET", getModelartsResourcePoolPath,
-		&getModelartsResourcePoolOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Modelarts resource pool: %s", err)
-	}
-
-	getModelartsResourcePoolRespBody, err := utils.FlattenResponse(getModelartsResourcePoolResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Modelarts resource pool: %s", err)
-	}
-
-	return getModelartsResourcePoolRespBody, nil
+	return modelarts.GetResourcePoolById(client, state.Primary.ID)
 }
 
 func TestAccModelartsResourcePool_basic(t *testing.T) {

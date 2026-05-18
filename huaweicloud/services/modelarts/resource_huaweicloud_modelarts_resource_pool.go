@@ -787,6 +787,41 @@ func getServerIdsByNodeNames(actionNodeNames []interface{}, actionNodes []interf
 	return serverIds
 }
 
+func waitForResourcePoolScopeStatusesCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshResourcePoolScopeStatuses(client, resourcePoolId),
+		Timeout:      timeout,
+		Delay:        45 * time.Second,
+		PollInterval: 30 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshResourcePoolScopeStatuses(client *golangsdk.ServiceClient, resourcePoolId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		scopes, err := GetResourcePoolById(client, resourcePoolId)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		var (
+			scopesStatuses = utils.PathSearch("status.scope", scopes, make([]interface{}, 0)).([]interface{})
+			targetStatus   = []string{"Enabled", "Disabled"}
+		)
+
+		for _, scopeStatus := range scopesStatuses {
+			if !utils.StrSliceContains(targetStatus, utils.PathSearch("state", scopeStatus, "").(string)) {
+				return "SCOPE_STATUS_PENDING", "PENDING", nil
+			}
+		}
+		return "SCOPE_STATUS_COMPLETED", "COMPLETED", nil
+	}
+}
+
 func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -853,6 +888,12 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 
 	if err := d.Set("server_ids", getServerIdsByNodeNames(actionNodeNames, actionNodes.([]interface{}))); err != nil {
 		log.Printf("[ERROR] error setting the server IDs for creating resource pool (%s): %s", resourcePoolId, err)
+	}
+
+	// Subsequent resource deployment can only proceed normally when all job types are enabled.
+	err = waitForResourcePoolScopeStatusesCompleted(ctx, client, resourcePoolId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		log.Printf("[ERROR] error waiting for the scope statuses of resource pool (%s) creation to complete: %s", resourcePoolId, err)
 	}
 
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
@@ -1169,18 +1210,23 @@ func buildResourcePoolResourcesCreatingStep(creatingSteps []interface{}) map[str
 }
 
 func resourceModelartsResourcePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg            = meta.(*config.Config)
+		region         = cfg.GetRegion(d)
+		resourcePoolId = d.Id()
+	)
 
-	var mErr *multierror.Error
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
 
-	getModelartsResourcePoolRespBody, err := queryResourcePool(cfg, region, d)
+	getModelartsResourcePoolRespBody, err := GetResourcePoolById(client, resourcePoolId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Modelarts resource pool")
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch(`metadata.labels."os.modelarts/name"`,
 			getModelartsResourcePoolRespBody, nil)),
@@ -1222,26 +1268,16 @@ func resourceModelartsResourcePoolRead(_ context.Context, d *schema.ResourceData
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func queryResourcePool(cfg *config.Config, region string, d *schema.ResourceData) (interface{}, error) {
+func GetResourcePoolById(client *golangsdk.ServiceClient, resourcePoolId string) (interface{}, error) {
 	var (
-		getModelartsResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
-		getModelartsResourcePoolProduct = "modelarts"
+		httpUrl = "v2/{project_id}/pools/{id}"
 	)
-	getModelartsResourcePoolClient, err := cfg.NewServiceClient(getModelartsResourcePoolProduct, region)
-	if err != nil {
-		return nil, golangsdk.ErrDefault404{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("error creating ModelArts client: %s", err)),
-			},
-		}
-	}
 
-	getModelartsResourcePoolPath := getModelartsResourcePoolClient.Endpoint + getModelartsResourcePoolHttpUrl
-	getModelartsResourcePoolPath = strings.ReplaceAll(getModelartsResourcePoolPath, "{project_id}",
-		getModelartsResourcePoolClient.ProjectID)
-	getModelartsResourcePoolPath = strings.ReplaceAll(getModelartsResourcePoolPath, "{id}", d.Id())
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", resourcePoolId)
 
-	getModelartsResourcePoolOpt := golangsdk.RequestOpts{
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -1249,18 +1285,12 @@ func queryResourcePool(cfg *config.Config, region string, d *schema.ResourceData
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	}
 
-	getModelartsResourcePoolResp, err := getModelartsResourcePoolClient.Request("GET", getModelartsResourcePoolPath,
-		&getModelartsResourcePoolOpt)
-
+	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return nil, err
 	}
 
-	getModelartsResourcePoolRespBody, err := utils.FlattenResponse(getModelartsResourcePoolResp)
-	if err != nil {
-		return nil, err
-	}
-	return getModelartsResourcePoolRespBody, nil
+	return utils.FlattenResponse(requestResp)
 }
 
 func flattenResourcePoolResourcesRootVolume(rootVolume interface{}) []map[string]interface{} {
@@ -2163,7 +2193,7 @@ func resourceModelartsResourcePoolDelete(ctx context.Context, d *schema.Resource
 	}
 
 	// When there is no node in the resource pool, the resource pool will be automatically deleted.
-	_, err = queryResourcePool(cfg, region, d)
+	_, err = GetResourcePoolById(client, resourcePoolName)
 	if _, ok := err.(golangsdk.ErrDefault404); ok {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting resource pool (%s)", resourcePoolName))
 	}
@@ -2183,7 +2213,7 @@ func resourceModelartsResourcePoolDelete(ctx context.Context, d *schema.Resource
 		}
 	}
 
-	err = deleteResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = deleteResourcePoolWaitingForStateCompleted(ctx, client, resourcePoolName, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("error waiting for the Modelarts resource pool (%s) deletion to complete: %s", d.Id(), err)
 	}
@@ -2242,14 +2272,12 @@ func unsubscribePrePaidBillingNodes(ctx context.Context, client, bssClient *gola
 	return nil
 }
 
-func deleteResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func deleteResourcePoolWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-			res, err := queryResourcePool(cfg, region, d)
+			res, err := GetResourcePoolById(client, resourcePoolId)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					res = map[string]string{"code": "COMPLETED"}
