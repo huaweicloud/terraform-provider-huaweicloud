@@ -37,9 +37,9 @@ const (
 // @API ModelArts POST /v2/{project_id}/pools
 // @API ModelArts GET /v1/{project_id}/orders
 // @API ModelArts GET /v1/{project_id}/orders/{order_name}
-// @API ModelArts GET /v2/{project_id}/pools/{id}
-// @API ModelArts PATCH /v2/{project_id}/pools/{id}
-// @API ModelArts DELETE /v2/{project_id}/pools/{id}
+// @API ModelArts GET /v2/{project_id}/pools/{pool_name}
+// @API ModelArts PATCH /v2/{project_id}/pools/{pool_name}
+// @API ModelArts DELETE /v2/{project_id}/pools/{pool_name}
 // @API ModelArts GET /v2/{project_id}/pools/{pool_name}/nodes
 func ResourceModelartsResourcePool() *schema.Resource {
 	return &schema.Resource{
@@ -1270,12 +1270,12 @@ func resourceModelartsResourcePoolRead(_ context.Context, d *schema.ResourceData
 
 func GetResourcePoolById(client *golangsdk.ServiceClient, resourcePoolId string) (interface{}, error) {
 	var (
-		httpUrl = "v2/{project_id}/pools/{id}"
+		httpUrl = "v2/{project_id}/pools/{pool_name}"
 	)
 
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{id}", resourcePoolId)
+	getPath = strings.ReplaceAll(getPath, "{pool_name}", resourcePoolId)
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -1563,7 +1563,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 
 	if d.HasChanges(updateResourcePoolChanges...) {
 		var (
-			updateResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
+			updateResourcePoolHttpUrl = "v2/{project_id}/pools/{pool_name}"
 			updateResourcePoolProduct = "modelarts"
 		)
 		client, err := cfg.NewServiceClient(updateResourcePoolProduct, region)
@@ -1573,7 +1573,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 
 		updateResourcePoolPath := client.Endpoint + updateResourcePoolHttpUrl
 		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{project_id}", client.ProjectID)
-		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{id}", resourcePoolId)
+		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{pool_name}", resourcePoolId)
 
 		updateResourcePoolOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,

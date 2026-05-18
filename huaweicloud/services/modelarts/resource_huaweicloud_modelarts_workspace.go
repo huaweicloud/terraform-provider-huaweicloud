@@ -24,9 +24,9 @@ import (
 )
 
 // @API ModelArts POST /v1/{project_id}/workspaces
-// @API ModelArts DELETE /v1/{project_id}/workspaces/{id}
-// @API ModelArts GET /v1/{project_id}/workspaces/{id}
-// @API ModelArts PUT /v1/{project_id}/workspaces/{id}
+// @API ModelArts DELETE /v1/{project_id}/workspaces/{workspace_id}
+// @API ModelArts GET /v1/{project_id}/workspaces/{workspace_id}
+// @API ModelArts PUT /v1/{project_id}/workspaces/{workspace_id}
 func ResourceModelartsWorkspace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelartsWorkspaceCreate,
@@ -191,7 +191,7 @@ func resourceModelartsWorkspaceRead(_ context.Context, d *schema.ResourceData, m
 
 	// getWorkspace: Query the Modelarts workspace.
 	var (
-		getWorkspaceHttpUrl = "v1/{project_id}/workspaces/{id}"
+		getWorkspaceHttpUrl = "v1/{project_id}/workspaces/{workspace_id}"
 		getWorkspaceProduct = "modelarts"
 	)
 	getWorkspaceClient, err := cfg.NewServiceClient(getWorkspaceProduct, region)
@@ -201,7 +201,7 @@ func resourceModelartsWorkspaceRead(_ context.Context, d *schema.ResourceData, m
 
 	getWorkspacePath := getWorkspaceClient.Endpoint + getWorkspaceHttpUrl
 	getWorkspacePath = strings.ReplaceAll(getWorkspacePath, "{project_id}", getWorkspaceClient.ProjectID)
-	getWorkspacePath = strings.ReplaceAll(getWorkspacePath, "{id}", d.Id())
+	getWorkspacePath = strings.ReplaceAll(getWorkspacePath, "{workspace_id}", d.Id())
 
 	getWorkspaceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -267,7 +267,7 @@ func resourceModelartsWorkspaceUpdate(ctx context.Context, d *schema.ResourceDat
 	if d.HasChanges(updateWorkspaceChanges...) {
 		// updateWorkspace: update the Modelarts workspace.
 		var (
-			updateWorkspaceHttpUrl = "v1/{project_id}/workspaces/{id}"
+			updateWorkspaceHttpUrl = "v1/{project_id}/workspaces/{workspace_id}"
 			updateWorkspaceProduct = "modelarts"
 		)
 		updateWorkspaceClient, err := cfg.NewServiceClient(updateWorkspaceProduct, region)
@@ -277,7 +277,7 @@ func resourceModelartsWorkspaceUpdate(ctx context.Context, d *schema.ResourceDat
 
 		updateWorkspacePath := updateWorkspaceClient.Endpoint + updateWorkspaceHttpUrl
 		updateWorkspacePath = strings.ReplaceAll(updateWorkspacePath, "{project_id}", updateWorkspaceClient.ProjectID)
-		updateWorkspacePath = strings.ReplaceAll(updateWorkspacePath, "{id}", d.Id())
+		updateWorkspacePath = strings.ReplaceAll(updateWorkspacePath, "{workspace_id}", d.Id())
 
 		updateWorkspaceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -331,7 +331,7 @@ func resourceModelartsWorkspaceDelete(ctx context.Context, d *schema.ResourceDat
 
 	// deleteWorkspace: delete Modelarts workspace
 	var (
-		deleteWorkspaceHttpUrl = "v1/{project_id}/workspaces/{id}"
+		deleteWorkspaceHttpUrl = "v1/{project_id}/workspaces/{workspace_id}"
 		deleteWorkspaceProduct = "modelarts"
 	)
 	deleteWorkspaceClient, err := cfg.NewServiceClient(deleteWorkspaceProduct, region)
@@ -341,7 +341,7 @@ func resourceModelartsWorkspaceDelete(ctx context.Context, d *schema.ResourceDat
 
 	deleteWorkspacePath := deleteWorkspaceClient.Endpoint + deleteWorkspaceHttpUrl
 	deleteWorkspacePath = strings.ReplaceAll(deleteWorkspacePath, "{project_id}", deleteWorkspaceClient.ProjectID)
-	deleteWorkspacePath = strings.ReplaceAll(deleteWorkspacePath, "{id}", d.Id())
+	deleteWorkspacePath = strings.ReplaceAll(deleteWorkspacePath, "{workspace_id}", d.Id())
 
 	deleteWorkspaceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -371,7 +371,7 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
 			var (
-				deleteWorkspaceWaitingHttpUrl = "v1/{project_id}/workspaces/{id}"
+				deleteWorkspaceWaitingHttpUrl = "v1/{project_id}/workspaces/{workspace_id}"
 				deleteWorkspaceWaitingProduct = "modelarts"
 			)
 			deleteWorkspaceWaitingClient, err := cfg.NewServiceClient(deleteWorkspaceWaitingProduct, region)
@@ -381,7 +381,7 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 
 			deleteWorkspaceWaitingPath := deleteWorkspaceWaitingClient.Endpoint + deleteWorkspaceWaitingHttpUrl
 			deleteWorkspaceWaitingPath = strings.ReplaceAll(deleteWorkspaceWaitingPath, "{project_id}", deleteWorkspaceWaitingClient.ProjectID)
-			deleteWorkspaceWaitingPath = strings.ReplaceAll(deleteWorkspaceWaitingPath, "{id}", d.Id())
+			deleteWorkspaceWaitingPath = strings.ReplaceAll(deleteWorkspaceWaitingPath, "{workspace_id}", d.Id())
 
 			deleteWorkspaceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
