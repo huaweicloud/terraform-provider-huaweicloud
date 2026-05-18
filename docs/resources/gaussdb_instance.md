@@ -188,17 +188,16 @@ The following arguments are supported:
 * `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
   `coordinator_num` should be modified simultaneously when the value is modified.
 
-* `charging_mode` - (Optional, String, NonUpdatable) Specifies the charging mode of opengauss instance.
-  The valid values are as follows:
+* `charging_mode` - (Optional, String) Specifies the charging mode of GaussDB instance. The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.
   + **postPaid**: the pay-per-use billing mode.
 
   Defaults to **postPaid**.
 
-* `period_unit` - (Optional, String, NonUpdatable) Specifies the charging period unit of opengauss instance.
+* `period_unit` - (Optional, String) Specifies the charging period unit of GaussDB instance.
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
-* `period` - (Optional, Int, NonUpdatable) Specifies the charging period of opengauss instance.
+* `period` - (Optional, Int) Specifies the charging period of GaussDB instance.
   If `period_unit` is set to **month**, the value ranges from 1 to 9.
   If `period_unit` is set to **year**, the value ranges from 1 to 5.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.

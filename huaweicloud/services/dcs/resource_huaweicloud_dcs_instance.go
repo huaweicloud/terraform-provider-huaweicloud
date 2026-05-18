@@ -65,6 +65,7 @@ var (
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/resize
 // @API DCS POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/resources/subnet
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/available-zones
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
