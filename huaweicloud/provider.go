@@ -3526,6 +3526,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job_primary_standby_switch":     drs.ResourceDRSPrimaryStandbySwitch(),
 			"huaweicloud_drs_name_validation":                drs.ResourceDrsNameValidation(),
 			"huaweicloud_drs_download_batch_create_template": drs.ResourceDownloadBatchCreateTemplate(),
+			"huaweicloud_drs_job_configuration_update":       drs.ResourceJobConfigurationUpdate(),
 			"huaweicloud_drs_stop_job":                       drs.ResourceStopJob(),
 
 			"huaweicloud_dws_alarm_subscription":              dws.ResourceDwsAlarmSubs(),
