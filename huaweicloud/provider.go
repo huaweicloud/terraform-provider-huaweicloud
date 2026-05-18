@@ -1321,6 +1321,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_batch_progresses":   drs.DataSourceDrsBatchProgresses(),
 			"huaweicloud_drs_job_configurations": drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_job_links":          drs.DataSourceJobLinks(),
+			"huaweicloud_drs_job_metering":       drs.DataSourceDrsJobMetering(),
 			"huaweicloud_drs_job_monitor_data":   drs.DataSourceDrsJobMonitorData(),
 			"huaweicloud_drs_job_object_support": drs.DataSourceDrsJobObjectSupport(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
