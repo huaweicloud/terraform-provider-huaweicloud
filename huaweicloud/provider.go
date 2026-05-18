@@ -1155,6 +1155,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance_nodes":                      dcs.DataSourceDcsInstanceNodes(),
 			"huaweicloud_dcs_batch_instance_nodes":                dcs.DataSourceDcsBatchInstanceNodes(),
 			"huaweicloud_dcs_templates":                           dcs.DataSourceTemplates(),
+			"huaweicloud_dcs_tags":                                dcs.DataSourceDcsTags(),
 			"huaweicloud_dcs_template_detail":                     dcs.DataSourceTemplateDetail(),
 			"huaweicloud_dcs_backup_file_links":                   dcs.DataSourceBackupFileLinks(),
 			"huaweicloud_dcs_backups":                             dcs.DataSourceBackups(),
