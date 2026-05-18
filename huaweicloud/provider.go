@@ -2460,6 +2460,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_global_eip_segment_support_masks":     eip.DataSourceGlobalEipSegmentSupportMasks(),
 			"huaweicloud_global_eip_internet_bandwidth_limits": eip.DataSourceGlobalEipInternetBandwidthLimits(),
 			"huaweicloud_global_eip_support_regions":           eip.DataSourceGlobalEipSupportRegions(),
+			"huaweicloud_global_eip_tenant_support_regions":    eip.DataSourceGlobalEipTenantSupportRegions(),
 			"huaweicloud_global_eip_access_sites":              eip.DataSourceGlobalEIPAccessSites(),
 			"huaweicloud_global_internet_bandwidths":           eip.DataSourceGlobalInternetBandwidths(),
 			"huaweicloud_global_internet_bandwidth_tags":       eip.DataSourceGlobalInternetBandwidthTags(),
