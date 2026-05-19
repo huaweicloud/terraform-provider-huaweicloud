@@ -1174,6 +1174,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_redis_log_download_link":             dcs.DataSourceDcsRedisLogDownloadLink(),
 			"huaweicloud_dcs_redis_run_logs":                      dcs.DataSourceDcsRedisRunLogs(),
 			"huaweicloud_dcs_secondary_dim_monitored_objects":     dcs.DataSourceDcsSecondaryDimMonitoredObjects(),
+			"huaweicloud_dcs_ssl_cert_download":                   dcs.DataSourceDcsSslCertDownload(),
 			"huaweicloud_dcs_instance_parameter_modify_records":   dcs.DataSourceInstanceParameterModifyRecords(),
 
 			"huaweicloud_dds_quotas":                                  dds.DataSourceDdsQuotas(),
