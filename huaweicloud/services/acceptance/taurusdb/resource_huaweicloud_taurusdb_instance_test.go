@@ -14,10 +14,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/taurusdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func TestAccTaurusDBInstance_basic(t *testing.T) {
-	var instance instances.TaurusDBInstance
+	var instance interface{}
 
 	name := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
@@ -350,13 +352,18 @@ func testAccCheckTaurusDBInstanceDestroy(s *terraform.State) error {
 		return fmt.Errorf("error creating GaussDB client: %s", err)
 	}
 
+	instanceId := ""
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_taurusdb_instance" {
 			continue
 		}
 
-		v, err := instances.Get(client, rs.Primary.ID).Extract()
-		if err == nil && v.Id == rs.Primary.ID {
+		v, err := taurusdb.GetInstanceDetail(client, rs.Primary.ID)
+		instanceIdRaw := utils.PathSearch("id", v, nil)
+		if instanceIdRaw != nil {
+			instanceId = instanceIdRaw.(string)
+		}
+		if err == nil && instanceId == rs.Primary.ID {
 			return fmt.Errorf("instance <%s> still exists", rs.Primary.ID)
 		}
 	}
@@ -364,7 +371,7 @@ func testAccCheckTaurusDBInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTaurusDBInstanceExists(n string, instance *instances.TaurusDBInstance) resource.TestCheckFunc {
+func testAccCheckTaurusDBInstanceExists(n string, instance interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -375,17 +382,17 @@ func testAccCheckTaurusDBInstanceExists(n string, instance *instances.TaurusDBIn
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := cfg.GaussdbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating TaurusDB client: %s", err)
 		}
 
-		found, err := instances.Get(client, rs.Primary.ID).Extract()
+		found, err := taurusdb.GetInstanceDetail(client, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
-		if found.Id != rs.Primary.ID {
+		if found == nil {
 			return fmt.Errorf("instance <%s> not found", rs.Primary.ID)
 		}
 		instance = found

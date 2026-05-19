@@ -21,7 +21,7 @@ import (
 )
 
 // @API TaurusDB POST /v3/{project_id}/logs/lts-configs
-// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
+// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}
 // @API TaurusDB GET /v3/{project_id}/logs/lts-configs
 // @API TaurusDB DELETE /v3/{project_id}/logs/lts-configs
 func ResourceTaurusDBLtsLog() *schema.Resource {
@@ -104,7 +104,7 @@ func resourceTaurusDBLtsLogCreateOrUpdate(ctx context.Context, d *schema.Resourc
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Get("instance_id").(string)),
-		WaitTarget:   []string{"ACTIVE"},
+		WaitTarget:   []string{"normal"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -217,7 +217,7 @@ func resourceTaurusDBLtsLogDelete(ctx context.Context, d *schema.ResourceData, m
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Get("instance_id").(string)),
-		WaitTarget:   []string{"ACTIVE"},
+		WaitTarget:   []string{"normal"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,

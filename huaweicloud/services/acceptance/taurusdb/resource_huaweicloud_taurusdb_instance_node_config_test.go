@@ -19,7 +19,7 @@ import (
 func getResourceInstanceNodeConfig(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	var (
-		httpUrl = "v3/{project_id}/instances/details?instance_ids={instance_id}"
+		httpUrl = "v3.1/{project_id}/instances/details?instance_ids={instance_id}"
 		product = "gaussdb"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -127,7 +127,7 @@ func testAccTaurusDBInstanceNodeConfig_basic(rName, nodeName string) string {
 
 resource "huaweicloud_taurusdb_instance_node_config" "test" {
   instance_id = huaweicloud_taurusdb_instance.test.id
-  node_id     = huaweicloud_taurusdb_instance.test.nodes[0].id
+  node_id     = huaweicloud_taurusdb_instance.test.nodes[1].id
   name        = "%[2]s"
   priority    = "3"
 }`, testAccTaurusDBInstanceNodeConfig_base(rName), nodeName)
@@ -139,7 +139,7 @@ func testAccTaurusDBInstanceNodeConfig_basic_update(rName, updateNodeName string
 
 resource "huaweicloud_taurusdb_instance_node_config" "test" {
   instance_id = huaweicloud_taurusdb_instance.test.id
-  node_id     = huaweicloud_taurusdb_instance.test.nodes[0].id
+  node_id     = huaweicloud_taurusdb_instance.test.nodes[1].id
   name        = "%[2]s"
   priority    = "5"
 }`, testAccTaurusDBInstanceNodeConfig_base(rName), updateNodeName)
