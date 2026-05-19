@@ -585,6 +585,9 @@ var (
 	HW_MODELARTS_RESOURCE_POOL_NAME                   = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
 	HW_MODELARTS_WORKFLOW_ID                          = os.Getenv("HW_MODELARTS_WORKFLOW_ID")
+	HW_MODELARTS_ALGORITHM_ENGINE_ID                  = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_ID")
+	HW_MODELARTS_ALGORITHM_ENGINE_NAME                = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_NAME")
+	HW_MODELARTS_ALGORITHM_IMAGE_URL                  = os.Getenv("HW_MODELARTS_ALGORITHM_IMAGE_URL")
 
 	HW_AOM_ALARM_EVENT_SN                        = os.Getenv("HW_AOM_ALARM_EVENT_SN")
 	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
@@ -3474,6 +3477,14 @@ func TestAccPreCheckModelArtsResourcePoolBatchResize(t *testing.T) {
 func TestAccPreCheckModelArtsWorkflowId(t *testing.T) {
 	if HW_MODELARTS_WORKFLOW_ID == "" {
 		t.Skip("HW_MODELARTS_WORKFLOW_ID must be set for ModelArts acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsAlgorithm(t *testing.T) {
+	if HW_MODELARTS_ALGORITHM_ENGINE_ID == "" || HW_MODELARTS_ALGORITHM_ENGINE_NAME == "" || HW_MODELARTS_ALGORITHM_IMAGE_URL == "" {
+		t.Skip("HW_MODELARTS_ALGORITHM_ENGINE_ID, HW_MODELARTS_ALGORITHM_ENGINE_NAME and HW_MODELARTS_ALGORITHM_IMAGE_URL must be set " +
+			"for ModelArts algorithm acceptance test")
 	}
 }
 
