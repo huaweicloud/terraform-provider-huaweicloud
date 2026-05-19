@@ -44,11 +44,15 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/mysql-compatibility
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/advance-features
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/wdr-snapshot/status
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/asp/status
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDB GET /v3.1/{project_id}/instances/{instance_id}/configurations
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/balance
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/error-log/switch/status
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/advance-features
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/wdr-snapshot/status
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/asp/status
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/security-group
@@ -300,6 +304,16 @@ func ResourceGaussDbInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"wdr_snapshot_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"asp_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"delete_coordinator_node_id_list": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -538,6 +552,18 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	if _, ok := d.GetOk("advance_features"); ok {
 		if err = updateAdvanceFeatures(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if v, ok := d.GetOk("wdr_snapshot_status"); ok && v != "ON" {
+		if err = updateWdrSnapshotStatus(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if v, ok := d.GetOk("asp_status"); ok && v != "ON" {
+		if err = updateAspStatus(ctx, client, d, schema.TimeoutCreate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -814,6 +840,8 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 	mErr = multierror.Append(mErr, setBalanceStatus(d, client))
 	mErr = multierror.Append(mErr, setErrorLogSwitchStatus(d, client))
 	mErr = multierror.Append(mErr, setAdvanceFeatures(d, client))
+	mErr = multierror.Append(mErr, setWdrSnapshotStatus(d, client))
+	mErr = multierror.Append(mErr, setAspStatus(d, client))
 
 	diagErr := setGaussDBMySQLParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
@@ -1024,7 +1052,7 @@ func setErrorLogSwitchStatus(d *schema.ResourceData, client *golangsdk.ServiceCl
 func setAdvanceFeatures(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	features, err := getAdvanceFeatures(client, d.Id())
 	if err != nil {
-		log.Printf("[WARN] error retrieving GaussDB(%s) error log switch status: %s", d.Id(), err)
+		log.Printf("[WARN] error retrieving GaussDB(%s) advance features: %s", d.Id(), err)
 		return nil
 	}
 
@@ -1058,6 +1086,54 @@ func getAdvanceFeatures(client *golangsdk.ServiceClient, instanceId string) ([]i
 
 	features := utils.PathSearch("features", getRespBody, make([]interface{}, 0)).([]interface{})
 	return features, nil
+}
+
+func setWdrSnapshotStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	status, err := getWdrSnapshotStatus(client, d.Id())
+	if err != nil {
+		log.Printf("[WARN] error retrieving GaussDB(%s) wdr snapshot status: %s", d.Id(), err)
+		return nil
+	}
+
+	return d.Set("wdr_snapshot_status", status)
+}
+
+func getWdrSnapshotStatus(client *golangsdk.ServiceClient, instanceId string) (string, error) {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/wdr-snapshot/status",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": instanceId},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	status := utils.PathSearch("status", getRespBody, "").(string)
+	return status, nil
+}
+
+func setAspStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	status, err := getAspStatus(client, d.Id())
+	if err != nil {
+		log.Printf("[WARN] error retrieving GaussDB(%s) asp status: %s", d.Id(), err)
+		return nil
+	}
+
+	return d.Set("asp_status", status)
+}
+
+func getAspStatus(client *golangsdk.ServiceClient, instanceId string) (string, error) {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/asp/status",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": instanceId},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	status := utils.PathSearch("status", getRespBody, "").(string)
+	return status, nil
 }
 
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1181,6 +1257,18 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	} else if d.HasChange("auto_renew") {
 		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("wdr_snapshot_status") {
+		if err = updateWdrSnapshotStatus(ctx, client, d, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("asp_status") {
+		if err = updateAspStatus(ctx, client, d, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1584,7 +1672,7 @@ func updateAdvanceFeatures(ctx context.Context, client *golangsdk.ServiceClient,
 		pathParams:       map[string]string{"instance_id": d.Id()},
 		updateBodyParams: buildUpdateAdvanceFeaturesBodyParams(d),
 		isRetry:          true,
-		timeout:          schema.TimeoutUpdate,
+		timeout:          timeout,
 	})
 	if err != nil {
 		return fmt.Errorf("error updating GaussDB instance advance features: %s", err)
@@ -1648,6 +1736,118 @@ func gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client *golangsdk.ServiceClient,
 		}
 
 		return features, "Completed", nil
+	}
+}
+
+func updateWdrSnapshotStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/wdr-snapshot/status",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateWdrSnapshotStatusBodyParams(d),
+		isRetry:          true,
+		timeout:          timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance wdr snapshot status: %s", err)
+	}
+
+	return checkWdrSnapshotStatusJobFinish(ctx, d, client, timeout)
+}
+
+func buildUpdateWdrSnapshotStatusBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"status": d.Get("wdr_snapshot_status"),
+	}
+	return bodyParams
+}
+
+func checkWdrSnapshotStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	timeout string) error {
+	wdrSnapshotStatus := d.Get("wdr_snapshot_status").(string)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDbWdrSnapshotStatusRefreshFunc(client, d.Id(), wdrSnapshotStatus),
+		Timeout:      d.Timeout(timeout),
+		Delay:        5,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GaussDB wdr snapshot status job (%s) to be completed", err)
+	}
+	return nil
+}
+
+func gaussDbWdrSnapshotStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
+	wdrSnapshotStatus string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		rawStatus, err := getWdrSnapshotStatus(client, instanceId)
+		if err != nil {
+			return nil, "Error", err
+		}
+
+		if wdrSnapshotStatus != rawStatus {
+			return rawStatus, "Pending", nil
+		}
+
+		return rawStatus, "Completed", nil
+	}
+}
+
+func updateAspStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/asp/status",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateAspStatusBodyParams(d),
+		isRetry:          true,
+		timeout:          timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance advance features: %s", err)
+	}
+
+	return checkAspStatusJobFinish(ctx, d, client, timeout)
+}
+
+func buildUpdateAspStatusBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"status": d.Get("asp_status"),
+	}
+	return bodyParams
+}
+
+func checkAspStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	timeout string) error {
+	aspStatus := d.Get("asp_status").(string)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDbAspStatusRefreshFunc(client, d.Id(), aspStatus),
+		Timeout:      d.Timeout(timeout),
+		Delay:        5,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GaussDB asp status job (%s) to be completed", err)
+	}
+	return nil
+}
+
+func gaussDbAspStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
+	aspStatus string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		rawStatus, err := getAspStatus(client, instanceId)
+		if err != nil {
+			return nil, "Error", err
+		}
+
+		if aspStatus != rawStatus {
+			return rawStatus, "Pending", nil
+		}
+
+		return rawStatus, "Completed", nil
 	}
 }
 
