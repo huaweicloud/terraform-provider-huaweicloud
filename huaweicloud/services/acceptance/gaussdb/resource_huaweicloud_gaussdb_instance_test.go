@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getOpenGaussInstanceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getGaussDbInstanceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	var (
 		httpUrl = "v3/{project_id}/instances?id={instance_id}"
@@ -53,7 +53,7 @@ func getOpenGaussInstanceFunc(cfg *config.Config, state *terraform.ResourceState
 	return instance, nil
 }
 
-func TestAccOpenGaussInstance_basic(t *testing.T) {
+func TestAccGaussDbInstance_basic(t *testing.T) {
 	var (
 		instance     instances.GaussDBInstance
 		resourceName = "huaweicloud_gaussdb_instance.test"
@@ -65,7 +65,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -78,7 +78,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstance_basic(rName, password, 3),
+				Config: testAccGaussDbInstance_basic(rName, password, 3),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
@@ -86,7 +86,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
-						"huaweicloud_networking_secgroup.test", "id"),
+						"huaweicloud_networking_secgroup.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "password", password),
 					resource.TestCheckResourceAttr(resourceName, "ha.0.mode", "enterprise"),
@@ -117,11 +117,13 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccOpenGaussInstance_update(rName, newPassword, 3),
+				Config: testAccGaussDbInstance_update(rName, newPassword, 3),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "sharding_num", "2"),
 					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
 					resource.TestCheckResourceAttr(resourceName, "replica_num", "3"),
@@ -141,7 +143,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	})
 }
 
-func TestAccOpenGaussInstance_flavor(t *testing.T) {
+func TestAccGaussDbInstance_flavor(t *testing.T) {
 	var (
 		instance     instances.GaussDBInstance
 		resourceName = "huaweicloud_gaussdb_instance.test"
@@ -152,7 +154,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -165,7 +167,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstance_flavor(rName, password),
+				Config: testAccGaussDbInstance_flavor(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
@@ -174,7 +176,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccOpenGaussInstance_flavor_update(rName, password),
+				Config: testAccGaussDbInstance_flavor_update(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
@@ -186,7 +188,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 	})
 }
 
-func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
+func TestAccGaussDbInstance_haModeCentralized(t *testing.T) {
 	var (
 		instance     instances.GaussDBInstance
 		resourceName = "huaweicloud_gaussdb_instance.test"
@@ -198,7 +200,7 @@ func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&instance,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -211,7 +213,7 @@ func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstance_haModeCentralized(rName, password),
+				Config: testAccGaussDbInstance_haModeCentralized(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -230,7 +232,7 @@ func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccOpenGaussInstance_haModeCentralizedUpdate(rName, newPassword),
+				Config: testAccGaussDbInstance_haModeCentralizedUpdate(rName, newPassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
@@ -246,13 +248,15 @@ func TestAccOpenGaussInstance_haModeCentralized(t *testing.T) {
 	})
 }
 
-func testAccOpenGaussInstance_base(rName string) string {
+func testAccGaussDbInstance_base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_networking_secgroup" "test" {
+  count = 2
+
   name = "%s"
 }
 
@@ -267,14 +271,14 @@ locals {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccOpenGaussInstance_basic(rName, password string, replicaNum int) string {
+func testAccGaussDbInstance_basic(rName, password string, replicaNum int) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_gaussdb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
 
   flavor            = local.flavors[0].spec_code
   name              = "%[2]s"
@@ -320,10 +324,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
     key = "value"
   }
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstance_update(rName, password string, replicaNum int) string {
+func testAccGaussDbInstance_update(rName, password string, replicaNum int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -346,7 +350,7 @@ resource "huaweicloud_gaussdb_parameter_template" "test" {
 resource "huaweicloud_gaussdb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test[1].id
 
   flavor            = local.flavors[0].spec_code
   name              = "%[2]s-update"
@@ -398,10 +402,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
   period        = 1
   auto_renew    = "true"
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstance_flavor(rName, password string) string {
+func testAccGaussDbInstance_flavor(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -443,10 +447,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
     size = 40
   }
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstance_flavor_update(rName, password string) string {
+func testAccGaussDbInstance_flavor_update(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -488,10 +492,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
     size = 40
   }
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstance_haModeCentralized(rName, password string) string {
+func testAccGaussDbInstance_haModeCentralized(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -536,10 +540,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
   period        = 1
   auto_renew    = "true"
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstance_haModeCentralizedUpdate(rName, password string) string {
+func testAccGaussDbInstance_haModeCentralizedUpdate(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -590,5 +594,5 @@ resource "huaweicloud_gaussdb_instance" "test" {
   period        = 1
   auto_renew    = "true"
 }
-`, testAccOpenGaussInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -33,7 +32,7 @@ const (
 )
 
 var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id", "subnet_id", "vpc_id", "ha", "ha.*.mode",
-	"ha.*.replication_mode", "ha.*.consistency", "ha.*.instance_mode", "volume.*.type", "replica_num", "security_group_id",
+	"ha.*.replication_mode", "ha.*.consistency", "ha.*.instance_mode", "volume.*.type", "replica_num",
 	"port", "disk_encryption_id", "enable_force_switch", "enable_single_float_ip", "time_zone", "datastore",
 	"datastore.*.engine", "datastore.*.version",
 }
@@ -52,6 +51,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/advance-features
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/coordinators
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
@@ -728,89 +728,38 @@ func initializeParameters(ctx context.Context, d *schema.ResourceData, client *g
 }
 
 func openMysqlCompatibilityPort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/mysql-compatibility"
-	)
-
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateOpt.JSONBody = buildUpdateMysqlCompatibilityPortBodyParams(d)
-	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
-	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"ACTIVE"},
-		Timeout:      d.Timeout(timeout),
-		DelayTimeout: 10 * time.Second,
-		PollInterval: 10 * time.Second,
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/mysql-compatibility",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   buildUpdateMysqlCompatibilityPortBodyParams(d),
+		isRetry:            true,
+		timeout:            timeout,
+		delay:              10,
+		checkJobExpression: "job_id",
 	})
 	if err != nil {
-		return fmt.Errorf("error opening GaussDB OpenGauss instance (%s) MySQL compatibility port: %s", d.Id(), err)
+		return fmt.Errorf("error updating GaussDB instance MySQL compatibility port: %s", err)
 	}
 
-	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
-	if err != nil {
-		return err
-	}
-	jobId := utils.PathSearch("job_id", updateRespBody, nil)
-	if jobId == nil {
-		return fmt.Errorf("error opening GaussDB OpenGauss instance MySQL compatibility port: job_id is not " +
-			"found in API response")
-	}
-	return checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 10, d.Timeout(timeout))
+	return nil
 }
 
 func restartGaussDBOpenGaussInstance(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/restart"
-	)
-
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
-	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"ACTIVE"},
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 10 * time.Second,
-		PollInterval: 10 * time.Second,
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/restart",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		isRetry:            true,
+		timeout:            schema.TimeoutCreate,
+		delay:              10,
+		checkJobExpression: "job_id",
 	})
 	if err != nil {
-		return fmt.Errorf("error restarting GaussDB OpenGauss instance (%s): %s", d.Id(), err)
+		return fmt.Errorf("error restarting GaussDB instance: %s", err)
 	}
 
-	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
-	if err != nil {
-		return err
-	}
-	jobId := utils.PathSearch("job_id", updateRespBody, nil)
-	if jobId == nil {
-		return fmt.Errorf("error restarting GaussDB OpenGauss instance name: job_id is not found in API response")
-	}
-
-	return checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 30, d.Timeout(schema.TimeoutUpdate))
+	return nil
 }
 
 func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1139,6 +1088,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if d.HasChange("security_group_id") {
+		if err = updateInstanceSecurityGroupId(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("sharding_num") {
 		if err = expandInstanceShardingNumber(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
@@ -1292,6 +1247,30 @@ func updateInstancePassword(ctx context.Context, d *schema.ResourceData, client 
 func buildUpdateInstancePasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"password": d.Get("password"),
+	}
+	return bodyParams
+}
+
+func updateInstanceSecurityGroupId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/security-group",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildUpdateInstanceSecurityGroupIdBodyParams(d)),
+		timeout:            schema.TimeoutUpdate,
+		delay:              10,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance name: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceSecurityGroupIdBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"security_group_id": d.Get("security_group_id"),
 	}
 	return bodyParams
 }

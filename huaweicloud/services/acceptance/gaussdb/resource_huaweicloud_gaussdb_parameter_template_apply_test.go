@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccOpenGaussParameterTemplateApply_basic(t *testing.T) {
+func TestAccGaussDbParameterTemplateApply_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_gaussdb_instance.test"
@@ -18,7 +18,7 @@ func TestAccOpenGaussParameterTemplateApply_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccOpenGaussParameterTemplateApply_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussParameterTemplateApply_basic(rName),
+				Config: testAccGaussDbParameterTemplateApply_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 				),
@@ -40,7 +40,7 @@ func TestAccOpenGaussParameterTemplateApply_basic(t *testing.T) {
 	})
 }
 
-func testAccOpenGaussParameterTemplateApply_base(rName string) string {
+func testAccGaussDbParameterTemplateApply_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -118,7 +118,7 @@ resource "huaweicloud_gaussdb_parameter_template" "test" {
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussParameterTemplateApply_basic(rName string) string {
+func testAccGaussDbParameterTemplateApply_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -126,5 +126,5 @@ resource "huaweicloud_gaussdb_parameter_template_apply" "test" {
   config_id   = huaweicloud_gaussdb_parameter_template.test.id
   instance_id = huaweicloud_gaussdb_instance.test.id
 }
-`, testAccOpenGaussParameterTemplateApply_base(rName))
+`, testAccGaussDbParameterTemplateApply_base(rName))
 }

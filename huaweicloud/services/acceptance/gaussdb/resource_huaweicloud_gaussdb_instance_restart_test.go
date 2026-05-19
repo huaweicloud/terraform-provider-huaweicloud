@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
+func TestAccGaussDbInstanceRestart_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_gaussdb_instance_restart.test"
@@ -18,7 +18,7 @@ func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getOpenGaussInstanceFunc,
+		getGaussDbInstanceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -31,7 +31,7 @@ func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstanceRestart_basic(rName),
+				Config: testAccGaussDbInstanceRestart_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 				),
@@ -40,7 +40,7 @@ func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
 	})
 }
 
-func testAccOpenGaussInstanceRestart_base(rName string) string {
+func testAccGaussDbInstanceRestart_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -97,11 +97,11 @@ resource "huaweicloud_gaussdb_instance" "test" {
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstanceRestart_basic(rName string) string {
+func testAccGaussDbInstanceRestart_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_gaussdb_instance_restart" "test" {
   instance_id = huaweicloud_gaussdb_instance.test.id
-}`, testAccOpenGaussInstanceRestart_base(rName))
+}`, testAccGaussDbInstanceRestart_base(rName))
 }
