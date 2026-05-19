@@ -774,6 +774,7 @@ var (
 	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
 
 	HW_GEMINIDB_MAPPING_ID = os.Getenv("HW_GEMINIDB_MAPPING_ID")
+	HW_GEMINIDB_NODE_ID    = os.Getenv("HW_GEMINIDB_NODE_ID")
 
 	HW_LTS_AGENCY_STREAM_NAME = os.Getenv("HW_LTS_AGENCY_STREAM_NAME")
 	HW_LTS_AGENCY_STREAM_ID   = os.Getenv("HW_LTS_AGENCY_STREAM_ID")
@@ -4392,6 +4393,13 @@ func TestAccPreCheckElbGatewayType(t *testing.T) {
 func TestAccPreCheckGeminiDBMappingId(t *testing.T) {
 	if HW_GEMINIDB_MAPPING_ID == "" {
 		t.Skip("HW_GEMINIDB_MAPPING_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGeminiDBNodeId(t *testing.T) {
+	if HW_GEMINIDB_NODE_ID == "" {
+		t.Skip("HW_GEMINIDB_NODE_ID must be set for the acceptance test")
 	}
 }
 
