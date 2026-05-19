@@ -82,7 +82,8 @@ func dataSourceInstanceGroupsRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DAS client: %s", err)
 	}
 
-	resp, err := listInstanceGroups(client, d)
+	queryParams := buildInstanceGroupsQueryParams(d)
+	resp, err := ListInstanceGroups(client, queryParams)
 	if err != nil {
 		return diag.Errorf("error querying DAS instance groups: %s", err)
 	}
@@ -111,7 +112,8 @@ func buildInstanceGroupsQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func listInstanceGroups(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+// ListInstanceGroups queries the instance groups with optional query parameters.
+func ListInstanceGroups(client *golangsdk.ServiceClient, queryParams string) ([]interface{}, error) {
 	var (
 		httpUrl = "v3/{project_id}/batch-inspection/instance-group?limit={limit}"
 		limit   = 200
@@ -122,7 +124,7 @@ func listInstanceGroups(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
-	listPath += buildInstanceGroupsQueryParams(d)
+	listPath += queryParams
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
