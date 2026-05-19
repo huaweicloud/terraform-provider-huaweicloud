@@ -2473,6 +2473,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_global_internet_bandwidths":           eip.DataSourceGlobalInternetBandwidths(),
 			"huaweicloud_global_internet_bandwidth_tags":       eip.DataSourceGlobalInternetBandwidthTags(),
 			"huaweicloud_global_eips":                          eip.DataSourceGlobalEIPs(),
+			"huaweicloud_global_eips_by_tags":                  eip.DataSourceGlobalEipsByTags(),
 			"huaweicloud_global_eip_tags":                      eip.DataSourceGlobalEipTags(),
 			"huaweicloud_global_internet_bandwidths_by_tags":   eip.DataSourceGlobalInternetBandwidthsByTags(),
 
