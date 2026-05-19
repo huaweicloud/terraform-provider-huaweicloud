@@ -1166,6 +1166,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_primary_dim_monitored_objects":       dcs.DataSourceDcsPrimaryDimMonitoredObjects(),
 			"huaweicloud_dcs_accounts":                            dcs.DataSourceDcsAccounts(),
 			"huaweicloud_dcs_clients":                             dcs.DataSourceDcsClients(),
+			"huaweicloud_dcs_cluster_instance_topology":           dcs.DataSourceDcsClusterInstanceTopology(),
 			"huaweicloud_dcs_diagnosis_tasks":                     dcs.DataSourceDcsDiagnosisTasks(),
 			"huaweicloud_dcs_migration_tasks":                     dcs.DataSourceDcsMigrationTasks(),
 			"huaweicloud_dcs_migration_task_logs":                 dcs.DataSourceDcsMigrationTaskLogs(),
