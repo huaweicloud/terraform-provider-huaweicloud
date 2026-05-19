@@ -22,8 +22,8 @@ import (
 
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/nodes/name
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/priority
-// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
-// @API TaurusDB GET /v3/{project_id}/instances/details
+// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}
+// @API TaurusDB GET /v3.1/{project_id}/instances/details
 // @API TaurusDB GET /v3/{project_id}/jobs
 func ResourceTaurusDBNodeConfig() *schema.Resource {
 	return &schema.Resource{
@@ -208,7 +208,7 @@ func updateNodePriority(ctx context.Context, d *schema.ResourceData, client *gol
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, instanceId),
-		WaitTarget:   []string{"ACTIVE"},
+		WaitTarget:   []string{"normal"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -238,7 +238,7 @@ func resourceTaurusDBNodeConfigRead(_ context.Context, d *schema.ResourceData, m
 	var mErr *multierror.Error
 
 	var (
-		httpUrl = "v3/{project_id}/instances/details?instance_ids={instance_id}"
+		httpUrl = "v3.1/{project_id}/instances/details?instance_ids={instance_id}"
 		product = "gaussdb"
 	)
 	client, err := cfg.NewServiceClient(product, region)

@@ -135,7 +135,7 @@ func resourceTaurusDBBackupCreate(ctx context.Context, d *schema.ResourceData, m
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Get("instance_id").(string)),
-		WaitTarget:   []string{"ACTIVE"},
+		WaitTarget:   []string{"normal"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,

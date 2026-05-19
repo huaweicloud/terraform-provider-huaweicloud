@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}/backups/restore/tables
 func DataSourceTaurusDBRestoredTables() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceTaurusDBRestoredTablesRead,
@@ -122,14 +123,13 @@ func dataSourceTaurusDBRestoredTablesRead(_ context.Context, d *schema.ResourceD
 	return nil
 }
 
-// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/backups/restore/tables
 func (w *MysqlRestoredTablesDSWrapper) ShowRestoreTables() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "gaussdb")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v3/{project_id}/instances/{instance_id}/backups/restore/tables"
+	uri := "/v3.1/{project_id}/instances/{instance_id}/backups/restore/tables"
 	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
 	params := map[string]any{
 		"restore_time":    w.Get("restore_time"),

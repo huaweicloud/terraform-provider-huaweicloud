@@ -325,7 +325,6 @@ func resourceTaurusDBSqlAutoThrottlingDelete(_ context.Context, d *schema.Resour
 	if err != nil {
 		return diag.Errorf("error deleting TaurusDB SQL auto throttling: %s", err)
 	}
-
 	return nil
 }
 
