@@ -185,6 +185,14 @@ The following arguments are supported:
 * `advance_features` - (Optional, List) Specifies the advanced features.
   The [advance_features](#advance_features_struct) structure is documented below.
 
+* `wdr_snapshot_status` - (Optional, String) Specifies the WDR snapshot status. Value options:
+  + **ON**: WDR snapshot is enabled.
+  + **OFF**: WDR snapshot is disabled.
+
+* `asp_status` - (Optional, String) Specifies the ASP generation status. Value options:
+  + **ON**: ASP generation is enabled.
+  + **OFF**: ASP generation is disabled.
+
 * `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
   `coordinator_num` should be modified simultaneously when the value is modified.
 
