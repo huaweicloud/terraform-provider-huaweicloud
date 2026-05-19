@@ -319,7 +319,7 @@ func (c *HttpHelper) requestNoPage() {
 	case "PATCH":
 		response, err = c.client.Patch(c.url, c.body, &c.result.Body, c.requestOpts)
 	case "DELETE":
-		response, err = c.client.DeleteWithBodyResp(c.url, c.body, &c.result.Body, c.requestOpts)
+		response, err = c.client.DeleteWithResponse(c.url, &c.result.Body, c.requestOpts)
 	}
 
 	c.result.Err = err
