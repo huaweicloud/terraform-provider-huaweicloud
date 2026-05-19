@@ -1329,6 +1329,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job_object_support": drs.DataSourceDrsJobObjectSupport(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
 			"huaweicloud_drs_object_mappings":    drs.DataSourceDrsObjectMappings(),
+			"huaweicloud_drs_quotas":             drs.DataSourceDrsQuotas(),
 			"huaweicloud_drs_subscriptions":      drs.DataSourceDrsSubscriptions(),
 			"huaweicloud_drs_tags":               drs.DataSourceDrsTags(),
 			"huaweicloud_drs_timelines":          drs.DataSourceDrsTimelines(),
