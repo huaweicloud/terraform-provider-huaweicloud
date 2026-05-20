@@ -13,18 +13,14 @@ func TestAccDataSourceDatasetVersions_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_modelarts_dataset_versions.test"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
-	name := acceptance.RandomAccResourceName()
-	obsName := acceptance.RandomAccResourceNameWithDash()
+	name := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOBS(t)
-		},
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceDatasetVersions_basic(name, obsName),
+				Config: testAccDataSourceDatasetVersions_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(dataSourceName, "versions.0.id",
@@ -52,7 +48,7 @@ func TestAccDataSourceDatasetVersions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceDatasetVersions_name(name, obsName),
+				Config: testAccDataSourceDatasetVersions_name(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "versions.#", "0"),
@@ -62,10 +58,20 @@ func TestAccDataSourceDatasetVersions_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceDatasetVersions_basic(rName, obsName string) string {
-	datasetVersion := testAccDatasetVersion_basic(rName, obsName)
+func testAccDataSourceDatasetVersions_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_modelarts_dataset_version" "test" {
+  name       = "%[2]s"
+  dataset_id = huaweicloud_modelarts_dataset.test.id
+}
+`, testAccDatasetVersion_base(name), name)
+}
+
+func testAccDataSourceDatasetVersions_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 data "huaweicloud_modelarts_dataset_versions" "test" {
   dataset_id  = huaweicloud_modelarts_dataset.test.id
@@ -75,13 +81,12 @@ data "huaweicloud_modelarts_dataset_versions" "test" {
     huaweicloud_modelarts_dataset_version.test
   ]
 }
-`, datasetVersion)
+`, testAccDataSourceDatasetVersions_base(name))
 }
 
-func testAccDataSourceDatasetVersions_name(rName, obsName string) string {
-	datasetVersion := testAccDatasetVersion_basic(rName, obsName)
+func testAccDataSourceDatasetVersions_name(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_modelarts_dataset_versions" "test" {
   dataset_id  = huaweicloud_modelarts_dataset.test.id
@@ -92,5 +97,5 @@ data "huaweicloud_modelarts_dataset_versions" "test" {
     huaweicloud_modelarts_dataset_version.test
   ]
 }
-`, datasetVersion)
+`, testAccDataSourceDatasetVersions_base(name))
 }

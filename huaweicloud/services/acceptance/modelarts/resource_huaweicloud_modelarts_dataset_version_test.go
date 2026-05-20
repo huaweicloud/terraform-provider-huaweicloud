@@ -29,11 +29,10 @@ func getDatasetVersionResourceFunc(cfg *config.Config, state *terraform.Resource
 	return version.Get(client, datasetId, versionId)
 }
 
-func TestAccDatasetVersionResource_basic(t *testing.T) {
+func TestAccDatasetVersion_basic(t *testing.T) {
 	var instance dataset.CreateOpts
 	resourceName := "huaweicloud_modelarts_dataset_version.test"
-	name := acceptance.RandomAccResourceName()
-	obsName := acceptance.RandomAccResourceNameWithDash()
+	name := acceptance.RandomAccResourceNameWithDash()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -42,19 +41,16 @@ func TestAccDatasetVersionResource_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOBS(t)
-		},
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasetVersion_basic(name, obsName),
+				Config: testAccDatasetVersion_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "description", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "split_ratio", "1.00"),
 					resource.TestCheckResourceAttr(resourceName, "hard_example", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "1"),
@@ -80,15 +76,61 @@ func TestAccDatasetVersionResource_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasetVersion_basic(rName, obsName string) string {
-	datasetConfig := testAccDateset_basic(rName, obsName)
+func testAccDatasetVersion_base(name string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "%[1]s"
+  acl           = "private"
+  force_destroy = true
+
+  lifecycle {
+    ignore_changes = [
+      cors_rule,
+    ]
+  }
+}
+
+resource "huaweicloud_obs_bucket_object" "input" {
+  bucket  = huaweicloud_obs_bucket.bucket.bucket
+  key     = "input/t1"
+  content = "some_bucket_content"
+}
+
+resource "huaweicloud_obs_bucket_object" "output" {
+  bucket  = huaweicloud_obs_bucket.bucket.bucket
+  key     = "output/t2"
+  content = "some_bucket_content"
+}
+
+resource "huaweicloud_modelarts_dataset" "test" {
+	name        = "%[1]s"
+	type        = 1
+	output_path = "/${huaweicloud_obs_bucket.bucket.bucket}/output/"
+	description = "Created by terraform script"
+	data_source {
+	  path = "/${huaweicloud_obs_bucket.bucket.bucket}/input/"
+	}
+  
+	labels {
+	  name = "%[1]s"
+	}
+  
+	depends_on = [
+	  huaweicloud_obs_bucket_object.input,
+	  huaweicloud_obs_bucket_object.output
+	]
+  }
+`, name)
+}
+
+func testAccDatasetVersion_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_modelarts_dataset_version" "test" {
   name        = "%[2]s"
   dataset_id  = huaweicloud_modelarts_dataset.test.id
-  description = "%[2]s"
+  description = "Created by terraform script"
 }
-`, datasetConfig, rName)
+`, testAccDatasetVersion_base(name), name)
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDatesetResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDatasetResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.ModelArtsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ModelArts v1 client, err=%s", err)
@@ -22,17 +22,14 @@ func getDatesetResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	return dataset.Get(client, state.Primary.ID, dataset.GetOpts{})
 }
 
-func TestAccResourceDateset_basic(t *testing.T) {
-	var instance dataset.CreateOpts
-	resourceName := "huaweicloud_modelarts_dataset.test"
-	name := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
-	obsName := acceptance.RandomAccResourceNameWithDash()
+func TestAccDataset_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getDatesetResourceFunc,
+		resourceName = "huaweicloud_modelarts_dataset.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDatasetResourceFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,34 +41,34 @@ func TestAccResourceDateset_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDateset_basic(name, obsName),
+				Config: testAccDataset_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "1"),
 					resource.TestCheckResourceAttr(resourceName, "status", "1"),
 					resource.TestCheckResourceAttr(resourceName, "data_format", "Default"),
-					resource.TestCheckResourceAttr(resourceName, "output_path", fmt.Sprintf("/%s/%s/", obsName, "output")),
-					resource.TestCheckResourceAttr(resourceName, "description", name),
+					resource.TestCheckResourceAttr(resourceName, "output_path", fmt.Sprintf("/%s/%s/", name, "output")),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.data_type", "0"),
-					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", obsName, "input")),
+					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", name, "input")),
 					resource.TestCheckResourceAttr(resourceName, "labels.0.name", name),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
-				Config: testAccDateset_basic(updateName, obsName),
+				Config: testAccDataset_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttr(resourceName, "type", "1"),
 					resource.TestCheckResourceAttr(resourceName, "status", "1"),
 					resource.TestCheckResourceAttr(resourceName, "data_format", "Default"),
-					resource.TestCheckResourceAttr(resourceName, "output_path", fmt.Sprintf("/%s/%s/", obsName, "output")),
-					resource.TestCheckResourceAttr(resourceName, "description", updateName),
+					resource.TestCheckResourceAttr(resourceName, "output_path", fmt.Sprintf("/%s/%s/", name, "output")),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "data_source.0.data_type", "0"),
-					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", obsName, "input")),
-					resource.TestCheckResourceAttr(resourceName, "labels.0.name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "data_source.0.path", fmt.Sprintf("/%s/%s/", name, "input")),
+					resource.TestCheckResourceAttr(resourceName, "labels.0.name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
@@ -84,10 +81,10 @@ func TestAccResourceDateset_basic(t *testing.T) {
 	})
 }
 
-func testAccDatesetObs(obsName string) string {
+func testAccDataset_basic_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "%s"
+  bucket        = "%[1]s"
   acl           = "private"
   force_destroy = true
 
@@ -109,25 +106,24 @@ resource "huaweicloud_obs_bucket_object" "output" {
   key     = "output/t2"
   content = "some_bucket_content"
 }
-`, obsName)
+`, name)
 }
 
-func testAccDateset_basic(rName, obsName string) string {
-	obsConfig := testAccDatesetObs(obsName)
+func testAccDataset_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_modelarts_dataset" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   type        = 1
   output_path = "/${huaweicloud_obs_bucket.bucket.bucket}/output/"
-  description = "%s"
+  description = "Created by terraform script"
   data_source {
     path = "/${huaweicloud_obs_bucket.bucket.bucket}/input/"
   }
 
   labels {
-    name = "%s"
+    name = "%[2]s"
   }
 
   depends_on = [
@@ -135,5 +131,29 @@ resource "huaweicloud_modelarts_dataset" "test" {
     huaweicloud_obs_bucket_object.output
   ]
 }
-`, obsConfig, rName, rName, rName)
+`, testAccDataset_basic_base(name), name)
+}
+
+func testAccDataset_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_modelarts_dataset" "test" {
+  name        = "%[2]s-update"
+  type        = 1
+  output_path = "/${huaweicloud_obs_bucket.bucket.bucket}/output/"
+  data_source {
+    path = "/${huaweicloud_obs_bucket.bucket.bucket}/input/"
+  }
+
+  labels {
+    name = "%[2]s-update"
+  }
+
+  depends_on = [
+    huaweicloud_obs_bucket_object.input,
+    huaweicloud_obs_bucket_object.output
+  ]
+}
+`, testAccDataset_basic_base(name), name)
 }
