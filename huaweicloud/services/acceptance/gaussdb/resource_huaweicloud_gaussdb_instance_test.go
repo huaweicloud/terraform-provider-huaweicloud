@@ -89,6 +89,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 						"huaweicloud_networking_secgroup.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "password", password),
+					resource.TestCheckResourceAttr(resourceName, "port", "9000"),
 					resource.TestCheckResourceAttr(resourceName, "ha.0.mode", "enterprise"),
 					resource.TestCheckResourceAttr(resourceName, "ha.0.replication_mode", "sync"),
 					resource.TestCheckResourceAttr(resourceName, "ha.0.consistency", "eventual"),
@@ -123,6 +124,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
+					resource.TestCheckResourceAttr(resourceName, "port", "8000"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
@@ -212,7 +214,7 @@ func TestAccGaussDbInstance_node_num(t *testing.T) {
 	})
 }
 
-func TestAccGaussDbInstance_node_nsssum_prepaid(t *testing.T) {
+func TestAccGaussDbInstance_node_num_prepaid(t *testing.T) {
 	var (
 		instance     instances.GaussDBInstance
 		resourceName = "huaweicloud_gaussdb_instance.test"
@@ -394,6 +396,7 @@ resource "huaweicloud_gaussdb_instance" "test" {
   flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s"
   password          = "%[3]s"
+  port              = "9000"
   sharding_num      = 1
   coordinator_num   = 2
   availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
@@ -467,6 +470,7 @@ resource "huaweicloud_gaussdb_instance" "test" {
   flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s-update"
   password          = "%[3]s"
+  port              = "8000"
   sharding_num      = 1
   coordinator_num   = 2
   configuration_id  = huaweicloud_gaussdb_parameter_template.test.id

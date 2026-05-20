@@ -33,7 +33,7 @@ const (
 
 var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id", "subnet_id", "vpc_id", "ha", "ha.*.mode",
 	"ha.*.replication_mode", "ha.*.consistency", "ha.*.instance_mode", "volume.*.type", "replica_num",
-	"port", "disk_encryption_id", "enable_force_switch", "enable_single_float_ip", "time_zone", "datastore",
+	"disk_encryption_id", "enable_force_switch", "enable_single_float_ip", "time_zone", "datastore",
 	"datastore.*.engine", "datastore.*.version",
 }
 
@@ -55,6 +55,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/asp/status
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/port
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/coordinators
@@ -1164,6 +1165,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if d.HasChange("port") {
+		if err = updateInstancePort(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("security_group_id") {
 		if err = updateInstanceSecurityGroupId(ctx, d, client); err != nil {
 			return diag.FromErr(err)
@@ -1341,12 +1348,43 @@ func buildUpdateInstancePasswordBodyParams(d *schema.ResourceData) map[string]in
 	return bodyParams
 }
 
+func updateInstancePort(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	portRaw := d.Get("port")
+	port, err := strconv.Atoi(portRaw.(string))
+	if err != nil {
+		return fmt.Errorf("error converting port to number: %s", err)
+	}
+	_, err = updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/port",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildUpdateInstancePortBodyParams(port)),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		delay:              10,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance port: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstancePortBodyParams(port int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"port": port,
+	}
+	return bodyParams
+}
+
 func updateInstanceSecurityGroupId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
 		httpUrl:            "v3/{project_id}/instances/{instance_id}/security-group",
 		httpMethod:         "PUT",
 		pathParams:         map[string]string{"instance_id": d.Id()},
 		updateBodyParams:   utils.RemoveNil(buildUpdateInstanceSecurityGroupIdBodyParams(d)),
+		isRetry:            true,
 		timeout:            schema.TimeoutUpdate,
 		delay:              10,
 		checkJobExpression: "job_id",
