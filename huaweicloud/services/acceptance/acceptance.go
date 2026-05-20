@@ -720,6 +720,8 @@ var (
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID   = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID")
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME")
 
+	HW_DAS_INSTANCE_IDS = os.Getenv("HW_DAS_INSTANCE_IDS")
+
 	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
 	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
 
@@ -4184,6 +4186,15 @@ func TestAccPreCheckDataArtsSecurityPermissionSetMember(t *testing.T) {
 	if HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID == "" || HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME == "" {
 		t.Skip("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID and HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME " +
 			"must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDasInstanceIds(t *testing.T, min int) {
+	// The instance supports RDS, GaussDB, TaurusDB, DDM, DDS
+	if HW_DAS_INSTANCE_IDS == "" || len(strings.Split(HW_DAS_INSTANCE_IDS, ",")) < min {
+		t.Skipf("At least %d Instance IDs must be supported during the HW_DAS_INSTANCE_IDS, "+
+			"separated by commas (,).", min)
 	}
 }
 
