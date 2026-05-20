@@ -78,7 +78,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGaussDbInstance_basic(rName, password, 3),
+				Config: testAccGaussDbInstance_basic(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
@@ -96,7 +96,6 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
 					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "2"),
-					resource.TestCheckResourceAttr(resourceName, "replica_num", "3"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "20:00-21:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
@@ -119,16 +118,15 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGaussDbInstance_update(rName, newPassword, 3),
+				Config: testAccGaussDbInstance_update(rName, newPassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test.1", "id"),
-					resource.TestCheckResourceAttr(resourceName, "sharding_num", "2"),
-					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
-					resource.TestCheckResourceAttr(resourceName, "replica_num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "80"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
@@ -141,6 +139,124 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"advance_features",
+					"auto_renew",
+					"period",
+					"period_unit",
+					"replica_num",
+					"availability_zone",
+					"configuration_id",
+					"parameters",
+				},
+			},
+		},
+	})
+}
+
+func TestAccGaussDbInstance_node_num(t *testing.T) {
+	var (
+		instance     instances.GaussDBInstance
+		resourceName = "huaweicloud_gaussdb_instance.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		password     = fmt.Sprintf("%s@123", acctest.RandString(5))
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getGaussDbInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDbInstance_node_num(rName, password, 1, 2),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "2"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_node_num(rName, password, 2, 3),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "2"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_node_num(rName, password, 1, 3),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccGaussDbInstance_node_nsssum_prepaid(t *testing.T) {
+	var (
+		instance     instances.GaussDBInstance
+		resourceName = "huaweicloud_gaussdb_instance.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		password     = fmt.Sprintf("%s@123", acctest.RandString(5))
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getGaussDbInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDbInstance_node_num_prepaid(rName, password, 1, 2),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "2"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_node_num_prepaid(rName, password, 2, 3),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "2"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_node_num_prepaid(rName, password, 1, 3),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sharding_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "coordinator_num", "3"),
 				),
 			},
 		},
@@ -263,19 +379,10 @@ resource "huaweicloud_networking_secgroup" "test" {
 
   name = "%s"
 }
-
-data "huaweicloud_gaussdb_flavors" "test" {
-  version = "8.201"
-  ha_mode = "enterprise"
-}
-
-locals {
-  flavors = [for v in data.huaweicloud_gaussdb_flavors.test.flavors : v if alltrue([for k,v in v.az_status : v == "normal"])]
-}
 `, common.TestVpc(rName), rName)
 }
 
-func testAccGaussDbInstance_basic(rName, password string, replicaNum int) string {
+func testAccGaussDbInstance_basic(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -284,19 +391,18 @@ resource "huaweicloud_gaussdb_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test[0].id
 
-  flavor            = local.flavors[0].spec_code
+  flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s"
   password          = "%[3]s"
   sharding_num      = 1
   coordinator_num   = 2
-  replica_num       = %[4]d
   availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])
 
   wdr_snapshot_status   = "OFF"
   asp_status            = "OFF"
-  enterprise_project_id = "%[5]s"
+  enterprise_project_id = "%[4]s"
 
   ha {
     mode             = "enterprise"
@@ -330,10 +436,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
     key = "value"
   }
 }
-`, testAccGaussDbInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccGaussDbInstance_update(rName, password string, replicaNum int) string {
+func testAccGaussDbInstance_update(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -358,12 +464,11 @@ resource "huaweicloud_gaussdb_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test[1].id
 
-  flavor            = local.flavors[0].spec_code
+  flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s-update"
   password          = "%[3]s"
-  sharding_num      = 2
-  coordinator_num   = 3
-  replica_num       = %[4]d
+  sharding_num      = 1
+  coordinator_num   = 2
   configuration_id  = huaweicloud_gaussdb_parameter_template.test.id
   availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
                       data.huaweicloud_availability_zones.test.names[1], 
@@ -371,7 +476,7 @@ resource "huaweicloud_gaussdb_instance" "test" {
 
   wdr_snapshot_status   = "ON"
   asp_status            = "ON"
-  enterprise_project_id = "%[5]s"
+  enterprise_project_id = "%[4]s"
 
   ha {
     mode             = "enterprise"
@@ -410,7 +515,82 @@ resource "huaweicloud_gaussdb_instance" "test" {
   period        = 1
   auto_renew    = "true"
 }
-`, testAccGaussDbInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+`, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_node_num(rName, password string, shardingNum, coordinatorNum int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+
+  flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
+  name              = "%[2]s"
+  password          = "%[3]s"
+  sharding_num      = %[4]d
+  coordinator_num   = %[5]d
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  enterprise_project_id = "%[6]s"
+
+  ha {
+    mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "eventual"
+    instance_mode    = "enterprise"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, testAccGaussDbInstance_base(rName), rName, password, shardingNum, coordinatorNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_node_num_prepaid(rName, password string, shardingNum, coordinatorNum int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test[0].id
+
+  flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
+  name              = "%[2]s"
+  password          = "%[3]s"
+  sharding_num      = %[4]d
+  coordinator_num   = %[5]d
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  enterprise_project_id = "%[6]s"
+
+  ha {
+    mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "eventual"
+    instance_mode    = "enterprise"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+}
+`, testAccGaussDbInstance_base(rName), rName, password, shardingNum, coordinatorNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccGaussDbInstance_flavor(rName, password string) string {

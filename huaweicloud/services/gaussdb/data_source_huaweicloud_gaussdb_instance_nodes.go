@@ -153,7 +153,7 @@ func dataSourceGaussdbOpengaussInstanceNodesRead(_ context.Context, d *schema.Re
 	return nil
 }
 
-// @API GAUSSDBFOROPENGAUSS GET /v3/{project_id}/instances/{instance_id}/components
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/components
 func (w *OpengaussInstanceNodesDSWrapper) ListComponentInfos() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "opengauss")
 	if err != nil {
