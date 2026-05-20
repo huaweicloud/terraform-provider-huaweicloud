@@ -1162,6 +1162,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_backups":                             dcs.DataSourceBackups(),
 			"huaweicloud_dcs_background_tasks":                    dcs.DataSourceDcsBackgroundTasks(),
 			"huaweicloud_dcs_hotkey_analyses":                     dcs.DataSourceDcsHotkeyAnalyses(),
+			"huaweicloud_dcs_instance_engine_version":             dcs.DataSourceDcsInstanceEngineVersion(),
 			"huaweicloud_dcs_bigkey_analyses":                     dcs.DataSourceDcsBigkeyAnalyses(),
 			"huaweicloud_dcs_offline_key_analyses":                dcs.DataSourceOfflineKeyAnalyses(),
 			"huaweicloud_dcs_primary_dim_monitored_objects":       dcs.DataSourceDcsPrimaryDimMonitoredObjects(),
