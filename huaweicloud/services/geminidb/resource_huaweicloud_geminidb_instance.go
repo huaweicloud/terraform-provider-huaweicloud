@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,22 +31,24 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 	"availability_zone_detail.*.secondary_availability_zone", "charging_mode", "period_unit", "period",
 }
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances
-// @API GaussDBforNoSQL GET /v3/{project_id}/jobs
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/name
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/password
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/ssl-option
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/port
-// @API GaussDBforNoSQL PUT /v3.1/{project_id}/configurations/{config_id}/apply
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/volume
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/resize
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/enlarge-node
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/reduce-node
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/security-group
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/instances/{instance_id}
+// @API GeminiDB POST /v3/{project_id}/instances
+// @API GeminiDB GET /v3/{project_id}/jobs
+// @API GeminiDB GET /v3/{project_id}/instances
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/name
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/password
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/ssl-option
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/port
+// @API GeminiDB PUT /v3.1/{project_id}/configurations/{config_id}/apply
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/volume
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/resize
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/enlarge-node
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/reduce-node
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/security-group
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/tags/action
+// @API GeminiDB DELETE /v3/{project_id}/instances/{instance_id}
+// @API GeminiDB PUT /v3/{project_id}/instances/disk-auto-expansion
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -162,6 +165,18 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Optional: true,
 				MaxItems: 1,
 				Elem:     geminiDbInstanceAvailabilityZoneDetailSchema(),
+			},
+			"switch_option": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     geminiDbInstanceAutomaticScalePolicSchema(),
 			},
 			"delete_node_list": {
 				Type:     schema.TypeSet,
@@ -444,6 +459,29 @@ func geminiDbInstanceDualActiveInfoSchema() *schema.Resource {
 	return &sc
 }
 
+func geminiDbInstanceAutomaticScalePolicSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"step": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -513,7 +551,60 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	// lintignore:R018
 	time.Sleep(360 * time.Second)
 
+	// setting auto enlarge policy
+	if v, ok := d.GetOk("switch_option"); ok && v.(string) == "on" {
+		err = updateAutoEnlargePolicy(client, d, d.Id())
+		if err != nil {
+			return diag.Errorf("error setting GeminiDB auto enlarge policy: %s", err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
+}
+
+func updateAutoEnlargePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, instanceId string) error {
+	httpUrl := "v3/{project_id}/instances/disk-auto-expansion"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+
+	updateOpt := golangsdk.RequestOpts{
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildAutoEnlargePolicyBodyParams(d, instanceId)),
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+
+	return err
+}
+
+func buildAutoEnlargePolicyBodyParams(d *schema.ResourceData, instanceId string) map[string]interface{} {
+	params := map[string]interface{}{
+		"instance_ids":  []string{instanceId},
+		"switch_option": utils.ValueIgnoreEmpty(d.Get("switch_option")),
+		"policy":        buildPolicyInfoBodyParams(d.Get("policy").([]interface{})),
+	}
+
+	return params
+}
+
+func buildPolicyInfoBodyParams(policyInfo []interface{}) map[string]interface{} {
+	if len(policyInfo) == 0 {
+		return nil
+	}
+
+	policy, ok := policyInfo[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	result := map[string]interface{}{
+		"threshold": utils.ValueIgnoreEmpty(utils.PathSearch("threshold", policy, nil)),
+		"step":      utils.ValueIgnoreEmpty(utils.PathSearch("step", policy, nil)),
+		"size":      utils.ValueIgnoreEmpty(utils.PathSearch("size", policy, nil)),
+	}
+
+	return result
 }
 
 func buildCreateGeminiDbInstanceBodyParams(d *schema.ResourceData, region, epsId string) map[string]interface{} {
@@ -684,7 +775,59 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 		mErr = multierror.Append(mErr, err)
 	}
 
+	// set auto enlarge policy parameters
+	policy, err := getAutoEnlargePolicyInfo(client, d.Id())
+	if err != nil {
+		log.Printf("[Warn] error retrieving GeminiDB auto enlarge policy information")
+	}
+
+	if v, ok := policy.(map[string]interface{}); ok && len(v) > 0 {
+		mErr = multierror.Append(mErr,
+			d.Set("policy", flattenPolicyInfo(utils.PathSearch("policy", policy, nil))),
+			d.Set("switch_option", "on"),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("policy", make([]interface{}, 0)),
+			d.Set("switch_option", "off"),
+		)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getAutoEnlargePolicyInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/instances/{instance_id}/disk-auto-expansion"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+	getOpts := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func flattenPolicyInfo(policyInfo interface{}) []map[string]interface{} {
+	if policyInfo == nil {
+		return nil
+	}
+
+	result := map[string]interface{}{
+		"threshold": utils.PathSearch("threshold", policyInfo, nil),
+		"step":      utils.PathSearch("step", policyInfo, nil),
+		"size":      utils.PathSearch("size", policyInfo, nil),
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func flattenGeminiDbInstanceResponseBodyDatastore(instance interface{}) []interface{} {
@@ -924,6 +1067,14 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 		if err = cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// update auto enlarge policy
+	if d.HasChanges("switch_option", "policy") {
+		err = updateAutoEnlargePolicy(client, d, d.Id())
+		if err != nil {
+			return diag.Errorf("error updating GeminiDB auto enlarge policy: %s", err)
 		}
 	}
 

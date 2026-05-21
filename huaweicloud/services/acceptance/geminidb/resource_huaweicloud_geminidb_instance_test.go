@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -333,6 +334,87 @@ func TestAccGeminiDbInstance_dynamodb(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ssl_option", "off"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"flavor.0.storage",
+					"ssl_option",
+					"delete_node_list",
+				},
+			},
+		},
+	})
+}
+
+func TestAccGeminiDbInstance_autoEnlargePolicy(t *testing.T) {
+	var obj interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_geminidb_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getGeminiDbInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGeminiDBAutoEnlargePolicy_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.type", "redis"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.storage_engine", "rocksDB"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "Cluster"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.size", "16"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.storage", "ULTRAHIGH"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor.0.spec_code",
+						"data.huaweicloud_gaussdb_nosql_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy.0.threshold"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy.0.step"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy.0.size"),
+				),
+			},
+			{
+				Config: testAccGeminiDBAutoEnlargePolicy_update_step1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
+					resource.TestCheckResourceAttr(resourceName, "policy.0.threshold", "85"),
+					resource.TestCheckResourceAttr(resourceName, "policy.0.step", "15"),
+					resource.TestCheckResourceAttr(resourceName, "policy.0.size", "20"),
+				),
+			},
+			{
+				Config: testAccGeminiDBAutoEnlargePolicy_upate_step2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "switch_option", "off"),
 				),
 			},
 			{
@@ -711,4 +793,127 @@ resource "huaweicloud_geminidb_instance" "test" {
   }
 }
 `, testAccGeminiDbInstance_base(rName), updateName)
+}
+
+func testAccGeminiDBAutoEnlargePolicy_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name                  = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "test_1234"
+  mode              = "Cluster"
+
+  datastore {
+    type           = "redis"
+    version        = "5.0"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "3"
+    size      = "16"
+    storage   = "ULTRAHIGH"
+    spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  switch_option = "on"
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccGeminiDBAutoEnlargePolicy_update_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "test_1234"
+  mode              = "Cluster"
+
+  datastore {
+    type           = "redis"
+    version        = "5.0"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "3"
+    size      = "16"
+    storage   = "ULTRAHIGH"
+    spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  switch_option = "on"
+
+  policy {
+    threshold = 85
+    step      = 15
+    size      = 20
+  }
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccGeminiDBAutoEnlargePolicy_upate_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "test_1234"
+  mode              = "Cluster"
+
+  datastore {
+    type           = "redis"
+    version        = "5.0"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "3"
+    size      = "16"
+    storage   = "ULTRAHIGH"
+    spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  switch_option = "off"
+}
+`, common.TestBaseNetwork(name), name)
 }
