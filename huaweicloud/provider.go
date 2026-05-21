@@ -1152,6 +1152,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_maintainwindow":                      dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_instances":                           dcs.DataSourceDcsInstance(),
 			"huaweicloud_dcs_instance_shards":                     dcs.DataSourceDcsInstanceShards(),
+			"huaweicloud_dcs_instance_status":                     dcs.DataSourceDcsInstanceStatus(),
 			"huaweicloud_dcs_instance_nodes":                      dcs.DataSourceDcsInstanceNodes(),
 			"huaweicloud_dcs_batch_instance_nodes":                dcs.DataSourceDcsBatchInstanceNodes(),
 			"huaweicloud_dcs_templates":                           dcs.DataSourceTemplates(),
