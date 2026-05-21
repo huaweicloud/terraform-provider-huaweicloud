@@ -1006,6 +1006,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_tags":                 cts.DataSourceCtsTags(),
 			"huaweicloud_cts_users":                cts.DataSourceCtsUsers(),
 
+			"huaweicloud_das_database_users":  das.DataSourceDatabaseUsers(),
 			"huaweicloud_das_instance_groups": das.DataSourceInstanceGroups(),
 
 			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
