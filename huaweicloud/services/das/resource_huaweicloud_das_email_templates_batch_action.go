@@ -15,20 +15,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var emailBatchSubscriptionNonUpdatableParams = []string{
+var emailTemplatesBatchActionNonUpdatableParams = []string{
 	"subscribe",
 	"email_template_ids",
 }
 
 // @API DAS POST /v3/{project_id}/batch-inspection/batch-subscribe
-func ResourceEmailBatchSubscription() *schema.Resource {
+func ResourceEmailTemplatesBatchAction() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceEmailBatchSubscriptionCreate,
-		ReadContext:   resourceEmailBatchSubscriptionRead,
-		UpdateContext: resourceEmailBatchSubscriptionUpdate,
-		DeleteContext: resourceEmailBatchSubscriptionDelete,
+		CreateContext: resourceEmailTemplatesBatchActionCreate,
+		ReadContext:   resourceEmailTemplatesBatchActionRead,
+		UpdateContext: resourceEmailTemplatesBatchActionUpdate,
+		DeleteContext: resourceEmailTemplatesBatchActionDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(emailBatchSubscriptionNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(emailTemplatesBatchActionNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -66,14 +66,14 @@ func ResourceEmailBatchSubscription() *schema.Resource {
 	}
 }
 
-func buildEmailBatchSubscriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildEmailTemplatesBatchActionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"subscribe":              d.Get("subscribe"),
 		"email_template_id_list": d.Get("email_template_ids"),
 	}
 }
 
-func resourceEmailBatchSubscriptionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEmailTemplatesBatchActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -91,7 +91,7 @@ func resourceEmailBatchSubscriptionCreate(ctx context.Context, d *schema.Resourc
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: buildEmailBatchSubscriptionBodyParams(d),
+		JSONBody: buildEmailTemplatesBatchActionBodyParams(d),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -105,18 +105,18 @@ func resourceEmailBatchSubscriptionCreate(ctx context.Context, d *schema.Resourc
 	}
 	d.SetId(randomUUID)
 
-	return resourceEmailBatchSubscriptionRead(ctx, d, meta)
+	return resourceEmailTemplatesBatchActionRead(ctx, d, meta)
 }
 
-func resourceEmailBatchSubscriptionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceEmailTemplatesBatchActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceEmailBatchSubscriptionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceEmailTemplatesBatchActionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceEmailBatchSubscriptionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceEmailTemplatesBatchActionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is a one-time action resource for subscribing to email templates. Deleting this resource
 will not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
