@@ -3552,6 +3552,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_drs_batch_delete_jobs":              drs.ResourceBatchDeleteJobs(),
 			"huaweicloud_drs_batch_pause_task":               drs.ResourceBatchPauseTask(),
+			"huaweicloud_drs_batch_retry_task":               drs.ResourceBatchRetryTask(),
 			"huaweicloud_drs_download_batch_create_template": drs.ResourceDownloadBatchCreateTemplate(),
 			"huaweicloud_drs_job":                            drs.ResourceDrsJob(),
 			"huaweicloud_drs_job_clone":                      drs.ResourceDrsJobClone(),
