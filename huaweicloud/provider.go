@@ -4027,6 +4027,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelartsv2_service":                modelarts.ResourceV2Service(),
 			"huaweicloud_modelartsv2_service_action":         modelarts.ResourceV2ServiceAction(),
 			"huaweicloud_modelartsv2_workflow_schedule":      modelarts.ResourceV2WorkflowSchedule(),
+			"huaweicloud_modelartsv2_workflow_subscription":  modelarts.ResourceV2WorkflowSubscription(),
 
 			"huaweicloud_metastudio_instance": metastudio.ResourceMetaStudio(),
 
