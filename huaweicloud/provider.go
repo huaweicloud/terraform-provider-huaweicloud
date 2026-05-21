@@ -1334,6 +1334,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_object_compare":         drs.DataSourceDrsObjectCompare(),
 			"huaweicloud_drs_object_mappings":        drs.DataSourceDrsObjectMappings(),
 			"huaweicloud_drs_quotas":                 drs.DataSourceDrsQuotas(),
+			"huaweicloud_drs_replay_progress":        drs.DataSourceDrsReplayProgress(),
 			"huaweicloud_drs_subscriptions":          drs.DataSourceDrsSubscriptions(),
 			"huaweicloud_drs_tags":                   drs.DataSourceDrsTags(),
 			"huaweicloud_drs_timelines":              drs.DataSourceDrsTimelines(),
