@@ -1171,15 +1171,17 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("sharding_num") {
-		if err = expandInstanceShardingNumber(ctx, d, client, bssClient); err != nil {
+		if err = updateInstanceShardingNumber(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
 		}
 	}
+
 	if d.HasChanges("coordinator_num", "delete_coordinator_node_id_list") {
 		if err = updateInstanceCoordinatorNumber(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
 		}
 	}
+
 	if d.HasChange("volume") {
 		if err = updateInstanceVolumeSize(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
@@ -1363,15 +1365,44 @@ func buildUpdateInstanceSecurityGroupIdBodyParams(d *schema.ResourceData) map[st
 	return bodyParams
 }
 
-func expandInstanceShardingNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+func updateInstanceShardingNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
 	oRaw, nRaw := d.GetChange("sharding_num")
 	if nRaw.(int) < oRaw.(int) {
-		return fmt.Errorf("error expanding shard for instance: new num must be larger than the old one")
+		shrinkSize := oRaw.(int) - nRaw.(int)
+		return shrinkInstanceShardingNumber(ctx, d, client, bssClient, shrinkSize)
 	}
 	expandSize := nRaw.(int) - oRaw.(int)
 
-	updateBodyParams := utils.RemoveNil(buildExpandInstanceShardingNumberBodyParams(expandSize))
-	return updateInstanceVolumeAndRelatedHaNumbers(ctx, client, bssClient, d, updateBodyParams)
+	expandInstanceShardingNumberBodyParams := utils.RemoveNil(buildExpandInstanceShardingNumberBodyParams(expandSize))
+	return updateInstanceVolumeAndRelatedHaNumbers(ctx, client, bssClient, d, expandInstanceShardingNumberBodyParams)
+}
+
+func shrinkInstanceShardingNumber(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient, shrinkSize int) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/sharding",
+		httpMethod:           "DELETE",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildShrinkInstanceShardBodyParams(shrinkSize),
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		delay:                180,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error deleting GaussDB instance shard nodes: %s", err)
+	}
+
+	return nil
+}
+
+func buildShrinkInstanceShardBodyParams(shrinkSize int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"contraction_num": shrinkSize,
+	}
+	return bodyParams
 }
 
 func buildExpandInstanceShardingNumberBodyParams(expandSize int) map[string]interface{} {
@@ -1443,7 +1474,7 @@ func deleteInstanceCoordinatorNode(ctx context.Context, d *schema.ResourceData, 
 		timeout:              schema.TimeoutUpdate,
 		delay:                60,
 		checkJobExpression:   "job_id",
-		checkOrderExpression: "orderId",
+		checkOrderExpression: "order_id",
 		bssClient:            bssClient,
 		isWaitInstanceReady:  true,
 	})
@@ -1502,7 +1533,7 @@ func updateInstanceVolumeAndRelatedHaNumbers(ctx context.Context, client, bssCli
 		timeout:              schema.TimeoutUpdate,
 		delay:                180,
 		checkJobExpression:   "job_id",
-		checkOrderExpression: "orderId",
+		checkOrderExpression: "order_id",
 		bssClient:            bssClient,
 		isWaitInstanceReady:  true,
 	})

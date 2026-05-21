@@ -85,7 +85,7 @@ data "huaweicloud_gaussdb_instance" "test" {
     huaweicloud_gaussdb_instance.test,
   ]
 }
-`, testAccGaussDbInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5)), 2))
+`, testAccGaussDbInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5))))
 }
 
 func testAccGaussDbInstanceDataSource_haModeCentralized(rName string) string {
