@@ -1,12 +1,12 @@
 ---
 subcategory: "DAS"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_das_email_batch_subscription"
+page_title: "HuaweiCloud: huaweicloud_das_email_templates_batch_action"
 description: |-
   Use this resource to batch subscribe or unsubscribe email templates within HuaweiCloud.
 ---
 
-# huaweicloud_das_email_batch_subscription
+# huaweicloud_das_email_templates_batch_action
 
 Use this resource to batch subscribe or unsubscribe email templates within HuaweiCloud.
 
@@ -22,7 +22,7 @@ variable "email_template_ids" {
   type = list(string)
 }
 
-resource "huaweicloud_das_email_batch_subscription" "test" {
+resource "huaweicloud_das_email_templates_batch_action" "test" {
   subscribe          = true
   email_template_ids = var.email_template_ids
 }
