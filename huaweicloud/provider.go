@@ -3994,6 +3994,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_model":                           modelarts.ResourceModelartsModel(),
 			"huaweicloud_modelarts_network":                         modelarts.ResourceNetwork(),
 			"huaweicloud_modelarts_notebook":                        modelarts.ResourceNotebook(),
+			"huaweicloud_modelarts_notebook_image_store":            modelarts.ResourceNotebookImageStore(),
 			"huaweicloud_modelarts_notebook_mount_storage":          modelarts.ResourceNotebookMountStorage(),
 			"huaweicloud_modelarts_resource_pool":                   modelarts.ResourceModelartsResourcePool(),
 			"huaweicloud_modelarts_resource_pool_node_batch_resize": modelarts.ResourceResourcePoolNodeBatchResize(),
