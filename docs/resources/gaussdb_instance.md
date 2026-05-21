@@ -117,7 +117,7 @@ The following arguments are supported:
   includes the `100` ports starting with the database port.
   (For example, if the database port is `8,000`, the TCP port must include the range from `8,000` to `8,100`.)
 
-* `port` - (Optional, String, NonUpdatable) Specifies the port information. Defaults to `8,000`.
+* `port` - (Optional, String) Specifies the port information. Defaults to `8,000`.
   The valid values are as follows:
   + `2,378` to `2,380`
   + `4999` to `5,000`
