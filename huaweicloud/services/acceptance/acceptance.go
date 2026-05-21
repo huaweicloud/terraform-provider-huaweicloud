@@ -272,6 +272,7 @@ var (
 	HW_BUILD_IMAGE_URL_UPDATED = os.Getenv("HW_BUILD_IMAGE_URL_UPDATED") // SWR Image URL for component deployment update
 
 	HW_TAURUSDB_INSTANCE_ID               = os.Getenv("HW_TAURUSDB_INSTANCE_ID")
+	HW_TAURUSDB_HTAP_INSTANCE_ID          = os.Getenv("HW_TAURUSDB_HTAP_INSTANCE_ID")
 	HW_TAURUSDB_NODE_ID                   = os.Getenv("HW_TAURUSDB_NODE_ID")
 	HW_TAURUSDB_NODE_SESSION_ID           = os.Getenv("HW_TAURUSDB_NODE_SESSION_ID")
 	HW_TAURUSDB_DATABASE_NAME             = os.Getenv("HW_TAURUSDB_DATABASE_NAME")
@@ -2283,6 +2284,13 @@ func TestAccPreCheckImageUrlUpdated(t *testing.T) {
 func TestAccPreCheckTaurusDBInstanceId(t *testing.T) {
 	if HW_TAURUSDB_INSTANCE_ID == "" {
 		t.Skip("HW_TAURUSDB_INSTANCE_ID must be set for TaurusDB acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckTaurusDBHtapInstanceId(t *testing.T) {
+	if HW_TAURUSDB_HTAP_INSTANCE_ID == "" {
+		t.Skip("HW_TAURUSDB_HTAP_INSTANCE_ID must be set for TaurusDB Htap acceptance tests.")
 	}
 }
 
