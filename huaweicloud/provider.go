@@ -1963,6 +1963,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_dataset_versions":  modelarts.DataSourceDatasetVerions(),
 			"huaweicloud_modelarts_datasets":          modelarts.DataSourceDatasets(),
 			"huaweicloud_modelarts_devserver_flavors": modelarts.DataSourceDevServerFlavors(),
+			"huaweicloud_modelarts_devserver_plugins": modelarts.DataSourceDevServerPlugins(),
 			"huaweicloud_modelarts_model_templates":   modelarts.DataSourceModelTemplates(),
 			"huaweicloud_modelarts_models":            modelarts.DataSourceModels(),
 			"huaweicloud_modelarts_networks":          modelarts.DataSourceNetworks(),
