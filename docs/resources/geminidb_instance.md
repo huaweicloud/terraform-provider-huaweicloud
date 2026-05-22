@@ -129,6 +129,18 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
+* `switch_option` - (Optional, String) Specifies whether the autoscaling is enabled.
+  The valid values are as follows:
+  + **on**: Storage autoscaling is enabled.
+  + **off**: Storage autoscaling is disabled.
+
+* `policy` - (Optional, List) Specifies the autoscaling policy for storage space.
+  The [policy](#policy_struct) structure is documented below.
+
+-> 1. The parameters `switch_option` and `policy` are used to configuration autoscaling policy for GeminiDB instance.
+  <br/>2. the `policy` supports update only when the `switch_option` is set to **on**.
+  <br/>3. Currently, only **GeminiDB Cassandra** and **GeminiDB Redis** instances are supported.
+
 * `delete_node_list` - (Optional, List) Specifies the ID of the nodes to be deleted. Make sure that the node
   can be deleted. This parameter can not be specified when add nodes. When delete nodes, if this parameter is specified,
   then the nodes specified by this parameter will be deleted, and id this parameter is not transferred, the nodes will be
@@ -220,6 +232,34 @@ The `availability_zone_detail` block supports:
 
 * `secondary_availability_zone` - (Required, String, NonUpdatable) Specifies the standby AZ, which must be a single AZ
   and be different from the primary AZ.
+
+<a name="policy_struct"></a>
+The `policy` block supports:
+
+* `threshold` - (Optional, Int) Specifies the threshold for triggering autoscaling.
+  + For GeminiDB Cassandra instances, the value can be `80`, `85`, or `90`, and the default value is `90`.
+  + For GeminiDB Redis instances, the value can be `60`, `65`, `70`, `75`, `80`, `85`, or `90`, and the
+  default value is `80`.
+
+* `step` - (Optional, Int) Specifies the autoscaling step (s%).
+  + For GeminiDB Cassandra instances, the value can be `10`, `15`, or `20`, and the default value is `10`.
+  After autoscaling is enabled, storage space will increase by s% automatically.
+  + For GeminiDB Redis instances, the value can be `10`, `15`, or `20`, and the default value is `20`.
+  When the storage usage is greater than 98%: If the total storage is less than 600 GB, the storage usage
+  after autoscaling (used storage space/total storage space) will be less than 85%. If the total storage is greater
+  than or equal to 600 GB, the system automatically scales up the storage space by over 90 GB.
+  + For GeminiDB Cassandra instances, if the autoscaling step is not a multiple of 10, round it up.
+  The value after the decimal point is rounded. The minimum step is 100 GB by default.
+  + For GeminiDB Redis instances, the value after the decimal point is rounded. The minimum step is 1 GB by default.
+  + If there is insufficient balance in your account, the autoscaling may failed for yearly/monthly instances.
+
+* `size` - (Optional, Int) Specifies the storage limit in GB that autoscaling can increase storage space to.
+  + For GeminiDB Cassandra instances, the storage upper limit ≥ current storage + 100 GB. The storage upper limit
+  cannot exceed the maximum storage supported by the current specifications. Learn more details , refer to
+  [Instance Specifications](https://support.huaweicloud.com/intl/en-us/cassandraug-nosql/nosql_05_0017.html).
+  + For GeminiDB Redis instances, the storage upper limit ≥ Current storage + 1 GB. The storage upper limit cannot
+  exceed the maximum storage supported by the current specifications. Learn more details , refer to
+  [GeminiDB Redis Instance Specifications](https://support.huaweicloud.com/intl/en-us/redisug-nosql/nosql_05_0059.html).
 
 ## Attribute Reference
 
