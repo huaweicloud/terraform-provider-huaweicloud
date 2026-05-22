@@ -16,8 +16,8 @@ func TestAccDataSourceGaussDbErrorLogs_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussTimeRange(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -39,5 +39,5 @@ data "huaweicloud_gaussdb_error_logs" "test" {
   start_time  = "%[2]s"
   end_time    = "%[3]s"
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME, acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }

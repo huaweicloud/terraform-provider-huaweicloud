@@ -16,7 +16,7 @@ func TestAccDataSourceGaussDbSqlTemplates_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -64,5 +64,5 @@ output "sql_model_filter_is_useful" {
   v == local.sql_model]
   )
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID)
 }

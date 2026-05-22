@@ -13,7 +13,7 @@ func TestAccOpenGaussTaskDelete_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussJobId(t)
+			acceptance.TestAccPreCheckGaussDBJobId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
@@ -30,5 +30,5 @@ func testAccOpenGaussTaskDelete_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_gaussdb_task_delete" "test" {
   job_id = "%[1]s"
-}`, acceptance.HW_GAUSSDB_OPENGAUSS_JOB_ID)
+}`, acceptance.HW_GAUSSDB_JOB_ID)
 }
