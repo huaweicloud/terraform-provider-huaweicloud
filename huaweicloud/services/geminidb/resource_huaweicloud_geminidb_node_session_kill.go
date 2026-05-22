@@ -21,7 +21,7 @@ var nodeSessionKillNonUpdatableParams = []string{
 	"session_ids",
 }
 
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/redis/nodes/{node_id}/sessions
+// @API GeminiDB DELETE /v3/{project_id}/redis/nodes/{node_id}/sessions
 func ResourceNodeSessionKill() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeSessionKillCreate,

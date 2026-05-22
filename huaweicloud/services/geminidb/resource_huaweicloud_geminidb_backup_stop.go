@@ -20,9 +20,9 @@ var geminiDBBackupStopNonUpdatableParams = []string{
 	"backup_id",
 }
 
-// @API GaussDBforNoSQL PUT /v3/{project_id}/backups/{backup_id}
-// @API GaussDBforNoSQL GET /v4/{project_id}/backups
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances
+// @API GeminiDB PUT /v3/{project_id}/backups/{backup_id}
+// @API GeminiDB GET /v4/{project_id}/backups
+// @API GeminiDB GET /v3/{project_id}/instances
 func ResourceGeminiDBBackupStop() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBBackupStopCreate,

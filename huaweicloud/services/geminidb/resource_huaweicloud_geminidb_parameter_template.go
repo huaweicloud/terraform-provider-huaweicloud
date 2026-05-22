@@ -24,10 +24,10 @@ var geminiDBParameterTemplateNonUpdatableParams = []string{
 	"datastore.*.mode",
 }
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/configurations
-// @API GaussDBforNoSQL PUT /v3/{project_id}/configurations/{config_id}
-// @API GaussDBforNoSQL GET /v3/{project_id}/configurations/{config_id}
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/configurations/{config_id}
+// @API GeminiDB POST /v3/{project_id}/configurations
+// @API GeminiDB PUT /v3/{project_id}/configurations/{config_id}
+// @API GeminiDB GET /v3/{project_id}/configurations/{config_id}
+// @API GeminiDB DELETE /v3/{project_id}/configurations/{config_id}
 func ResourceGeminiDBParameterTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBParameterTemplateCreate,

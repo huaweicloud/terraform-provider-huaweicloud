@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{instance_id}/sessions
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/sessions
 func DataSourceInstanceSessions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceInstanceSessionsRead,

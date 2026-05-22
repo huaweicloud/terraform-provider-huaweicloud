@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{instance_id}/databases
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/databases
 func DataSourceGeminiDBTableRestoredDatabases() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGeminiDBTableRestoredDatabasesRead,

@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3.1/{project_id}/flavors
+// @API GeminiDB GET /v3.1/{project_id}/flavors
 func DataSourceGeminiDBFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGeminiDBFlavorsRead,

@@ -20,10 +20,10 @@ import (
 
 var memoryMappingNonUpdatableParams = []string{"source_instance_id", "target_instance_id"}
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/dbcache/mapping
-// @API GaussDBforNoSQL GET /v3/{project_id}/dbcache/mappings
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/dbcache/mapping
-// @API GaussDBforNoSQL GET /v3/{project_id}/jobs
+// @API GeminiDB POST /v3/{project_id}/dbcache/mapping
+// @API GeminiDB GET /v3/{project_id}/dbcache/mappings
+// @API GeminiDB DELETE /v3/{project_id}/dbcache/mapping
+// @API GeminiDB GET /v3/{project_id}/jobs
 func ResourceMemoryMapping() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMemoryMappingCreate,

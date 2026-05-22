@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/quotas
+// @API GeminiDB GET /v3/{project_id}/quotas
 func DataSourceQuotas() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceQuotasRead,

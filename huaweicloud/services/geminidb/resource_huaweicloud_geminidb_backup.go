@@ -29,11 +29,11 @@ var geminiDBBackupNonUpdatableParams = []string{
 	"database_tables.*.table_names",
 }
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/jobs
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances
-// @API GaussDBforNoSQL GET /v4/{project_id}/backups
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/backups
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/backups/{backup_id}
+// @API GeminiDB GET /v3/{project_id}/jobs
+// @API GeminiDB GET /v3/{project_id}/instances
+// @API GeminiDB GET /v4/{project_id}/backups
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/backups
+// @API GeminiDB DELETE /v3/{project_id}/backups/{backup_id}
 func ResourceGeminiDBBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBBackupCreate,
