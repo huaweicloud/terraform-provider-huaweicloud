@@ -17,8 +17,8 @@ func TestAccDataSourceGaussDbSqlThrottlingTasks_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussTimeRange(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -89,7 +89,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   }
 }
 
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, name, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME, acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, name, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }
 
 func testDataSourceGaussdbOpengaussSqlThrottlingTasks_basic(name string) string {
@@ -236,6 +236,6 @@ data "huaweicloud_gaussdb_sql_throttling_tasks" "end_time_filter" {
 output "end_time_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_sql_throttling_tasks.end_time_filter.limit_task_list) > 0
 }
-`, testDataSourceGaussdbOpengaussSqlThrottlingTasks_base(name), acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, name,
-		acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME, acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, testDataSourceGaussdbOpengaussSqlThrottlingTasks_base(name), acceptance.HW_GAUSSDB_INSTANCE_ID, name,
+		acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }

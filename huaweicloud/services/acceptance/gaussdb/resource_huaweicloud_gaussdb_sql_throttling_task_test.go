@@ -89,8 +89,8 @@ func TestAccOpenGaussSqlThrottlingTask_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussTimeRange(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -99,7 +99,7 @@ func TestAccOpenGaussSqlThrottlingTask_basic(t *testing.T) {
 				Config: testOpenGaussSqlThrottlingTask_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "task_scope", "SQL"),
 					resource.TestCheckResourceAttr(rName, "limit_type", "SQL_ID"),
 					resource.TestCheckResourceAttrPair(rName, "limit_type_value",
@@ -155,8 +155,8 @@ func TestAccOpenGaussSqlThrottlingTask_sql_type(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussTimeRange(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -165,7 +165,7 @@ func TestAccOpenGaussSqlThrottlingTask_sql_type(t *testing.T) {
 				Config: testOpenGaussSqlThrottlingTask_sql_type(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "task_scope", "SQL"),
 					resource.TestCheckResourceAttr(rName, "limit_type", "SQL_TYPE"),
 					resource.TestCheckResourceAttr(rName, "limit_type_value", "update"),
@@ -219,7 +219,7 @@ func TestAccOpenGaussSqlThrottlingTask_session(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -228,7 +228,7 @@ func TestAccOpenGaussSqlThrottlingTask_session(t *testing.T) {
 				Config: testOpenGaussSqlThrottlingTask_session(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_GAUSSDB_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "task_scope", "SESSION"),
 					resource.TestCheckResourceAttr(rName, "limit_type", "SESSION_ACTIVE_MAX_COUNT"),
 					resource.TestCheckResourceAttr(rName, "limit_type_value", "CPU_OR_MEMORY"),
@@ -294,8 +294,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
     sql_id  = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
   }
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, name, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME,
-		acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, name, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }
 
 func testOpenGaussSqlThrottlingTask_update(updateName string) string {
@@ -328,8 +327,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
     sql_id  = data.huaweicloud_gaussdb_sql_templates.test.node_limit_sql_model_list[1].sql_id
   }
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, updateName, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME,
-		acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, updateName, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }
 
 func testOpenGaussSqlThrottlingTask_sql_type(name string) string {
@@ -350,8 +348,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   key_words        = "aaa,bbb,ccc"
   databases        = data.huaweicloud_gaussdb_instances.test.databases[0].name
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, name, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME,
-		acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, name, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }
 
 func testOpenGaussSqlThrottlingTask_sql_type_update(updateName string) string {
@@ -371,8 +368,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   key_words        = "aaa,fff,ggg,kkk"
   databases        = data.huaweicloud_gaussdb_instances.test.databases[1].name
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, updateName, acceptance.HW_GAUSSDB_OPENGAUSS_START_TIME,
-		acceptance.HW_GAUSSDB_OPENGAUSS_END_TIME)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, updateName, acceptance.HW_GAUSSDB_START_TIME, acceptance.HW_GAUSSDB_END_TIME)
 }
 
 func testOpenGaussSqlThrottlingTask_session(name string) string {
@@ -387,7 +383,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   cpu_utilization    = 20
   memory_utilization = 40
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, name)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, name)
 }
 
 func testOpenGaussSqlThrottlingTask_session_update(updateName string) string {
@@ -402,7 +398,7 @@ resource "huaweicloud_gaussdb_sql_throttling_task" "test" {
   cpu_utilization    = 50
   memory_utilization = 80
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_INSTANCE_ID, updateName)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, updateName)
 }
 
 func testOpenGaussSqlThrottlingTaskImportState(name string) resource.ImportStateIdFunc {

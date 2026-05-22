@@ -284,11 +284,11 @@ var (
 	HW_TAURUSDB_START_TIME                = os.Getenv("HW_TAURUSDB_START_TIME")
 	HW_TAURUSDB_END_TIME                  = os.Getenv("HW_TAURUSDB_END_TIME")
 
-	HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID = os.Getenv("HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID")
-	HW_GAUSSDB_OPENGAUSS_JOB_ID                = os.Getenv("HW_GAUSSDB_OPENGAUSS_JOB_ID")
-	HW_GAUSSDB_OPENGAUSS_INSTANCE_ID           = os.Getenv("HW_GAUSSDB_OPENGAUSS_INSTANCE_ID")
-	HW_GAUSSDB_OPENGAUSS_START_TIME            = os.Getenv("HW_GAUSSDB_OPENGAUSS_START_TIME")
-	HW_GAUSSDB_OPENGAUSS_END_TIME              = os.Getenv("HW_GAUSSDB_OPENGAUSS_END_TIME")
+	HW_GAUSSDB_PARAMETER_TEMPLATE_ID = os.Getenv("HW_GAUSSDB_PARAMETER_TEMPLATE_ID")
+	HW_GAUSSDB_JOB_ID                = os.Getenv("HW_GAUSSDB_JOB_ID")
+	HW_GAUSSDB_INSTANCE_ID           = os.Getenv("HW_GAUSSDB_INSTANCE_ID")
+	HW_GAUSSDB_START_TIME            = os.Getenv("HW_GAUSSDB_START_TIME")
+	HW_GAUSSDB_END_TIME              = os.Getenv("HW_GAUSSDB_END_TIME")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -2359,31 +2359,30 @@ func TestAccPreCheckTaurusDBTimeRange(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBOpenGaussParameterTemplateId(t *testing.T) {
-	if HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID == "" {
-		t.Skip("HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID must be set for GaussDB OpenGauss acceptance tests")
+func TestAccPreCheckGaussDBParameterTemplateId(t *testing.T) {
+	if HW_GAUSSDB_PARAMETER_TEMPLATE_ID == "" {
+		t.Skip("HW_GAUSSDB_PARAMETER_TEMPLATE_ID must be set for GaussDB acceptance tests")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBOpenGaussJobId(t *testing.T) {
-	if HW_GAUSSDB_OPENGAUSS_JOB_ID == "" {
-		t.Skip("HW_GAUSSDB_OPENGAUSS_JOB_ID must be set for GaussDB OpenGauss acceptance tests")
+func TestAccPreCheckGaussDBJobId(t *testing.T) {
+	if HW_GAUSSDB_JOB_ID == "" {
+		t.Skip("HW_GAUSSDB_JOB_ID must be set for GaussDB acceptance tests")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBOpenGaussInstanceId(t *testing.T) {
-	if HW_GAUSSDB_OPENGAUSS_INSTANCE_ID == "" {
-		t.Skip("HW_GAUSSDB_OPENGAUSS_INSTANCE_ID must be set for GaussDB OpenGauss acceptance tests")
+func TestAccPreCheckGaussDBInstanceId(t *testing.T) {
+	if HW_GAUSSDB_INSTANCE_ID == "" {
+		t.Skip("HW_GAUSSDB_INSTANCE_ID must be set for GaussDB acceptance tests")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckGaussDBOpenGaussTimeRange(t *testing.T) {
-	if HW_GAUSSDB_OPENGAUSS_START_TIME == "" || HW_GAUSSDB_OPENGAUSS_END_TIME == "" {
-		t.Skip("HW_GAUSSDB_OPENGAUSS_START_TIME and HW_GAUSSDB_OPENGAUSS_END_TIME must be set for GaussDB " +
-			"OpenGauss acceptance tests")
+func TestAccPreCheckGaussDBTimeRange(t *testing.T) {
+	if HW_GAUSSDB_START_TIME == "" || HW_GAUSSDB_END_TIME == "" {
+		t.Skip("HW_GAUSSDB_START_TIME and HW_GAUSSDB_END_TIME must be set for GaussDB acceptance tests")
 	}
 }
 

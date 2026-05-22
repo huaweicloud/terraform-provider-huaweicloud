@@ -16,7 +16,7 @@ func TestAccDataSourceGaussDbPtModifyRecords_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckGaussDBOpenGaussParameterTemplateId(t)
+			acceptance.TestAccPreCheckGaussDBParameterTemplateId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -41,5 +41,5 @@ func testDataSourceGaussdbOpengaussPtModifyRecords_basic() string {
 data "huaweicloud_gaussdb_pt_modify_records" "test" {
   config_id = "%s"
 }
-`, acceptance.HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID)
+`, acceptance.HW_GAUSSDB_PARAMETER_TEMPLATE_ID)
 }

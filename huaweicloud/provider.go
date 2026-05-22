@@ -3729,6 +3729,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_sync_sql_throttling_task":   gaussdb.ResourceGaussDbSyncSqlThrottlingTask(),
 			"huaweicloud_gaussdb_quota":                      gaussdb.ResourceGaussDbQuota(),
 			"huaweicloud_gaussdb_sql_throttling_task":        gaussdb.ResourceGaussDbSqlThrottlingTask(),
+			"huaweicloud_gaussdb_asp_collect":                gaussdb.ResourceGaussDbAspCollect(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
