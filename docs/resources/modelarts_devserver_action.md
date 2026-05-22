@@ -36,9 +36,16 @@ The following arguments are supported:
   The valid values are as follows:
   + **start**: The DevServer can be started only when the DevServer is stopped, stop failure, or start failure.
   + **stop**: The DevServer can be stopped only when it is running or stop failure.
+  + **reboot**: The DevServer can be rebooted only when it is running.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 20 minutes.

@@ -90,6 +90,10 @@ func TestAccDevServer_basic(t *testing.T) {
 				Config:      testAccDevServer_doAction(name, password, "start", true),
 				ExpectError: regexp.MustCompile(`unable to start DevServer \([a-f0-9-]+\)`),
 			},
+			// Rebooting the DevServer.
+			{
+				Config: testAccDevServer_doAction(name, password, "reboot", false),
+			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
