@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v4/{project_id}/backups
+// @API GeminiDB GET /v4/{project_id}/backups
 func DataSourceGeminiDBBackups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGeminiDBBackupsRead,

@@ -22,7 +22,7 @@ var geminiDbDatabaseOperationNonUpdatableParams = []string{
 	"db_id",
 }
 
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/databases
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/databases
 func ResourceGeminiDBDatabaseOperation() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBDatabaseOperationCreate,

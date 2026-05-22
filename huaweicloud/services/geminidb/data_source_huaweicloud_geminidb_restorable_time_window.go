@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{instance_id}/backups/restorable-time-periods
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/backups/restorable-time-periods
 func DataSourceGeminiDBRestorableTimeWindow() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGeminiDBRestorableTimeWindowRead,

@@ -29,10 +29,10 @@ var memoryRuleNonUpdatableParams = []string{
 	"key_separator",
 }
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/dbcache/rule
-// @API GaussDBforNoSQL GET /v3/{project_id}/dbcache/rules
-// @API GaussDBforNoSQL PUT /v3/{project_id}/dbcache/rule
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/dbcache/rule
+// @API GeminiDB POST /v3/{project_id}/dbcache/rule
+// @API GeminiDB GET /v3/{project_id}/dbcache/rules
+// @API GeminiDB PUT /v3/{project_id}/dbcache/rule
+// @API GeminiDB DELETE /v3/{project_id}/dbcache/rule
 func ResourceMemoryRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMemoryRuleCreate,

@@ -15,8 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/recycle-policy
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances/recycle-policy
+// @API GeminiDB PUT /v3/{project_id}/instances/recycle-policy
+// @API GeminiDB GET /v3/{project_id}/instances/recycle-policy
 func ResourceGeminiDBRecyclingPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBRecyclingPolicyCreateOrUpdate,

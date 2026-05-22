@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/dbcache/rules
+// @API GeminiDB GET /v3/{project_id}/dbcache/rules
 func DataSourceMemoryRules() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceMemoryRulesRead,
