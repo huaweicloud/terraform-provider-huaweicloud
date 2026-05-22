@@ -105,15 +105,13 @@ The following arguments are supported:
 * `time_zone` - (Required, String) Specifies the time zone.
 
 * `email` - (Optional, String) Specifies the email address.  
-  Use either `email` or `topic`/`topic_urn` to receive notifications.
 
 * `topic` - (Optional, String) Specifies the topic ID.  
-  Use either `email` or `topic`/`topic_urn` to receive notifications.
 
 * `topic_urn` - (Optional, String) Specifies the topic URN.  
-  Use either `email` or `topic`/`topic_urn` to receive notifications.
 
-  -> The `topic` and `topic_urn` must be used at the same time.
+-> 1.Use either `email` or `topic` to create email template.  
+   2.The `topic` and `topic_urn` must be used at the same time.
 
 * `obs_bucket_name` - (Optional, String) Specifies the OBS bucket name.  
   The diagnosis report will be uploaded to the target OBS bucket.
