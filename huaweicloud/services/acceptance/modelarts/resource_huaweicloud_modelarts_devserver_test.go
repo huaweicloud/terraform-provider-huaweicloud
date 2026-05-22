@@ -50,7 +50,7 @@ func TestAccDevServer_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "flavor", acceptance.HW_MODELARTS_DEVSERVER_FLAVOR),
+					resource.TestCheckResourceAttr(resourceName, "resource_flavor", acceptance.HW_MODELARTS_DEVSERVER_FLAVOR),
 					resource.TestCheckResourceAttrSet(resourceName, "architecture"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
@@ -61,6 +61,8 @@ func TestAccDevServer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestMatchResourceAttr(resourceName, "created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					// Deprecated parameters.
+					resource.TestCheckResourceAttrSet(resourceName, "flavor"),
 				),
 			},
 			{
@@ -77,7 +79,7 @@ func TestAccDevServer_basic(t *testing.T) {
 			// Stopping the stopped DevServer.
 			{
 				Config:      testAccDevServer_doAction(name, password, "stop", true),
-				ExpectError: regexp.MustCompile(`Resource.Server '[a-f0-9-]+' is not allowed STOP: STOPPED`),
+				ExpectError: regexp.MustCompile(`unable to stop DevServer \([a-f0-9-]+\)`),
 			},
 			// Starting the DevServer.
 			{
@@ -86,7 +88,7 @@ func TestAccDevServer_basic(t *testing.T) {
 			// Starting the running DevServer.
 			{
 				Config:      testAccDevServer_doAction(name, password, "start", true),
-				ExpectError: regexp.MustCompile(`Resource.Server '[a-f0-9-]+' is not allowed START: RUNNING`),
+				ExpectError: regexp.MustCompile(`unable to start DevServer \([a-f0-9-]+\)`),
 			},
 			{
 				ResourceName:      resourceName,
@@ -112,7 +114,7 @@ func testAccDevServer_basic(isAutoRenew bool, name, password string) string {
 
 resource "huaweicloud_modelarts_devserver" "test" {
   name              = "%[2]s"
-  flavor            = "%[3]s"
+  resource_flavor   = "%[3]s"
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
