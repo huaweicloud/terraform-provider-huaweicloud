@@ -18,12 +18,17 @@ import (
 
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/start
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/stop
+// @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/reboot
 // @API ModelArts GET /v1/{project_id}/dev-servers/{id}
 func ResourceDevServerAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDevServerActionCreate,
 		ReadContext:   resourceDevServerActionRead,
 		DeleteContext: resourceDevServerActionDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -56,8 +61,9 @@ func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 		devServerId        = d.Get("devserver_id").(string)
 		action             = d.Get("action").(string)
 		actionCompletedMap = map[string]string{
-			"start": "RUNNING",
-			"stop":  "STOPPED",
+			"start":  "RUNNING",
+			"stop":   "STOPPED",
+			"reboot": "RUNNING",
 		}
 	)
 
@@ -109,7 +115,7 @@ func refreshDevServerActionStatusFunc(client *golangsdk.ServiceClient, devServer
 		}
 
 		status := utils.PathSearch("status", respBody, "").(string)
-		if utils.StrSliceContains([]string{"START_FAILED", "ERROR", "STOP_FAILED"}, status) {
+		if utils.StrSliceContains([]string{"START_FAILED", "ERROR", "STOP_FAILED", "REBOOT_FAILED"}, status) {
 			return respBody, "ERROR", fmt.Errorf("unexpected status (%s)", status)
 		}
 

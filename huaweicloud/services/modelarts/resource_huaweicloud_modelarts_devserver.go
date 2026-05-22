@@ -55,11 +55,18 @@ func ResourceDevServer() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the DevServer.`,
 			},
-			"flavor": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The flavor of the DevServer.`,
+			"resource_flavor": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The resource flavor of the DevServer.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+				ExactlyOneOf: []string{"flavor"},
 			},
 			"architecture": {
 				Type:        schema.TypeString,
@@ -193,6 +200,21 @@ func ResourceDevServer() *schema.Resource {
 				Computed:    true,
 				Description: `The creation time of the DevServer, in RFC3339 format.`,
 			},
+
+			// Deprecated parameters.
+			"flavor": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The flavor of the DevServer.`,
+					utils.SchemaDescInput{
+						Required:   true,
+						Deprecated: true,
+					},
+				),
+			},
 		},
 	}
 }
@@ -200,7 +222,7 @@ func ResourceDevServer() *schema.Resource {
 func buildCreateDevServerBodyParams(d *schema.ResourceData, epsId string) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  d.Get("name"),
-		"flavor":                d.Get("flavor"),
+		"resource_flavor":       utils.ValueIgnoreEmpty(d.Get("resource_flavor")),
 		"network":               buildDevServerNetwork(d),
 		"image_id":              d.Get("image_id"),
 		"server_type":           utils.ValueIgnoreEmpty(d.Get("type")),
@@ -211,6 +233,8 @@ func buildCreateDevServerBodyParams(d *schema.ResourceData, epsId string) map[st
 		"enterprise_project_id": utils.ValueIgnoreEmpty(epsId),
 		"key_pair_name":         utils.ValueIgnoreEmpty(d.Get("key_pair_name")),
 		"userdata":              utils.ValueIgnoreEmpty(d.Get("user_data")),
+		// Deprecated parameters.
+		"flavor": utils.ValueIgnoreEmpty(d.Get("flavor")),
 	}
 
 	if d.Get("charging_mode").(string) == "PRE_PAID" {
@@ -339,14 +363,24 @@ func refreshDevServerStatusFunc(client *golangsdk.ServiceClient, serverId string
 	return func() (interface{}, string, error) {
 		respBody, err := GetDevServerById(client, serverId)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
 				return "deleted", "DELETED", nil
 			}
 			return nil, "ERROR", err
 		}
 
 		status := utils.PathSearch("status", respBody, "").(string)
-		if utils.StrSliceContains([]string{"CREATE_FAILED", "ERROR", "DELETE_FAILED"}, status) {
+		unexpectedStatuses := []string{
+			"CREATE_FAILED",
+			"ERROR",
+			"DELETE_FAILED",
+			"START_FAILED",
+			"STOP_FAILED",
+			"REBOOT_FAILED",
+			"CHANGINGOS_FAILED",
+			"REINSTALLINGOS_FAILED",
+		}
+		if utils.StrSliceContains(unexpectedStatuses, status) {
 			return respBody, "ERROR", fmt.Errorf("unexpected status (%s)", status)
 		}
 
@@ -482,7 +516,7 @@ func resourceDevServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", respBody, nil)),
-		d.Set("flavor", utils.PathSearch("flavor", respBody, nil)),
+		d.Set("resource_flavor", utils.PathSearch("resource_flavor", respBody, nil)),
 		d.Set("architecture", utils.PathSearch("image.arch", respBody, nil)),
 		d.Set("vpc_id", utils.PathSearch("vpc_id", respBody, nil)),
 		d.Set("image_id", utils.PathSearch("image.image_id", respBody, nil)),
@@ -491,6 +525,8 @@ func resourceDevServerRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("charging_mode", utils.PathSearch("charging_mode", respBody, nil)),
 		d.Set("created_at",
 			utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_at", respBody, float64(0)).(float64))/1000, false)),
+		// Deprecated parameters.
+		d.Set("flavor", utils.PathSearch("flavor", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -597,8 +633,8 @@ func deleteDevServerById(client *golangsdk.ServiceClient, devServerId string) er
 
 func waitForDevServerDeleted(ctx context.Context, client *golangsdk.ServiceClient, devServerId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"RUNNING", "DELETING"},
-		Target:       []string{"DELETED"},
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
 		Refresh:      refreshDevServerStatusFunc(client, devServerId, nil),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,

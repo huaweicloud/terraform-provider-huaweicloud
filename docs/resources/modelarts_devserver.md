@@ -23,7 +23,7 @@ variable "admin_pass" {}
 
 resource "huaweicloud_modelarts_devserver" "test" {
   name              = var.server_name
-  flavor            = var.server_flavor
+  resource_flavor   = var.server_flavor
   vpc_id            = var.vpc_id
   subnet_id         = var.subnet_id
   security_group_id = var.security_group_id
@@ -55,7 +55,7 @@ The following arguments are supported:
   The name valid length is limited from `1` to `64`, only English letters, digits, underscores (_) and hyphens (-) are
   allowed.
 
-* `flavor` - (Required, String, ForceNew) Specifies the flavor of the DevServer.
+* `resource_flavor` - (Required, String, ForceNew) Specifies the resource flavor of the DevServer.
   Changing this creates a new resource.  
   For the flavor, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html)
   to submit a service ticket to apply for the flavor.
