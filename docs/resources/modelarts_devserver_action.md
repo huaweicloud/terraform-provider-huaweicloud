@@ -28,15 +28,28 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `devserver_id` - (Required, String, ForceNew) Specifies the ID of the DevServer.
-  Changing this creates a new resource.
+* `devserver_id` - (Required, String, NonUpdatable) Specifies the ID of the DevServer.
 
-* `action` - (Required, String, ForceNew) Specifies the action type of the DevServer.
-  Changing this creates a new resource.  
+* `action` - (Required, String, NonUpdatable) Specifies the action type of the DevServer.
   The valid values are as follows:
   + **start**: The DevServer can be started only when the DevServer is stopped, stop failure, or start failure.
   + **stop**: The DevServer can be stopped only when it is running or stop failure.
   + **reboot**: The DevServer can be rebooted only when it is running.
+  + **changeos**: The DevServer OS image can be changed only when the DevServer is stopped.
+  + **reinstallos**: The DevServer OS image can be reinstalled only when the DevServer is stopped.
+
+* `admin_pass` - (Optional, String, NonUpdatable) Specifies the login password of the DevServer.
+
+* `key_pair_name` - (Optional, String, NonUpdatable) Specifies the key pair name of the DevServer.  
+  
+-> Exactly one of `admin_pass` and `key_pair_name` must be set if the value of `action` parameter is **changeos** or
+   **reinstallos**.
+
+* `image_id` - (Optional, String, NonUpdatable) Specifies the image ID used to change the OS image.  
+  This parameter is required when the value of `action` parameter is **changeos**.
+
+* `user_data` - (Optional, String, NonUpdatable) Specifies the user data to be injected into the DevServer during the OS
+  operation.
 
 ## Attribute Reference
 
