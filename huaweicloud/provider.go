@@ -1085,6 +1085,7 @@ func Provider() *schema.Provider {
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_aggregation_logic_tables":         dataarts.DataSourceArchitectureAggregationLogicTables(),
 			"huaweicloud_dataarts_architecture_approvals":                        dataarts.DataSourceArchitectureApprovals(),
+			"huaweicloud_dataarts_architecture_business_metrics":                 dataarts.DataSourceArchitectureBusinessMetrics(),
 			"huaweicloud_dataarts_architecture_data_standard_template_customs":   dataarts.DataSourceArchitectureDataStandardTemplateCustoms(),
 			"huaweicloud_dataarts_architecture_data_standard_template_optionals": dataarts.DataSourceArchitectureDataStandardTemplateOptionals(),
 			"huaweicloud_dataarts_architecture_models":                           dataarts.DataSourceArchitectureModels(),
