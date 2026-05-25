@@ -3380,6 +3380,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_css_vpcep_connections_update":    css.ResourceCssVpcepserviceConnectionsUpdate(),
 
+			"huaweicloud_das_binlog_parse_task":            das.ResourceBinlogParseTask(),
 			"huaweicloud_das_database_user":                das.ResourceDatabaseUser(),
 			"huaweicloud_das_email_template":               das.ResourceEmailTemplate(),
 			"huaweicloud_das_email_templates_batch_action": das.ResourceEmailTemplatesBatchAction(),
