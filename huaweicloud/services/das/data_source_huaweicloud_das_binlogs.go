@@ -284,10 +284,10 @@ func flattenBinlogTaskInfo(taskInfo map[string]interface{}) []map[string]interfa
 		"backup_id":     utils.PathSearch("backup_id", taskInfo, nil),
 		"status":        utils.PathSearch("status", taskInfo, nil),
 		"err_msg":       utils.PathSearch("err_msg", taskInfo, nil),
-		"created_at": utils.FormatTimeStampRFC3339(
-			utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("gmt_create", taskInfo, "").(string))/1000, false),
-		"updated_at": utils.FormatTimeStampRFC3339(
-			utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("gmt_modified", taskInfo, "").(string))/1000, false),
+		"created_at": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("gmt_create",
+			taskInfo, float64(0)).(float64))/1000, false),
+		"updated_at": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("gmt_modified",
+			taskInfo, float64(0)).(float64))/1000, false),
 	})
 
 	return result
