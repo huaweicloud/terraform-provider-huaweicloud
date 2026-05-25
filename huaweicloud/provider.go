@@ -1006,9 +1006,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_tags":                 cts.DataSourceCtsTags(),
 			"huaweicloud_cts_users":                cts.DataSourceCtsUsers(),
 
-			"huaweicloud_das_binlogs":         das.DataSourceBinlogs(),
-			"huaweicloud_das_database_users":  das.DataSourceDatabaseUsers(),
-			"huaweicloud_das_instance_groups": das.DataSourceInstanceGroups(),
+			"huaweicloud_das_binlogs":            das.DataSourceBinlogs(),
+			"huaweicloud_das_database_users":     das.DataSourceDatabaseUsers(),
+			"huaweicloud_das_inspection_reports": das.DataSourceInspectionReports(),
+			"huaweicloud_das_instance_groups":    das.DataSourceInstanceGroups(),
 
 			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
 			"huaweicloud_cdm_flavors":               cdm.DataSourceCdmFlavors(),
