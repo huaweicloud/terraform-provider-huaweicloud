@@ -20,12 +20,25 @@ var (
 	devserverActionNonUpdatableParams = []string{
 		"devserver_id",
 		"action",
+		"admin_pass",
+		"key_pair_name",
+		"image_id",
+		"user_data",
+	}
+	actionCompletedMap = map[string][]string{
+		"start":       {"RUNNING"},
+		"stop":        {"STOPPED"},
+		"reboot":      {"RUNNING"},
+		"changeos":    {"RUNNING"},
+		"reinstallos": {"RUNNING"},
 	}
 )
 
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/start
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/stop
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/reboot
+// @API ModelArts POST /v1/{project_id}/dev-servers/{id}/changeos
+// @API ModelArts POST /v1/{project_id}/dev-servers/{id}/reinstallos
 // @API ModelArts GET /v1/{project_id}/dev-servers/{id}
 func ResourceDevServerAction() *schema.Resource {
 	return &schema.Resource{
@@ -60,6 +73,29 @@ func ResourceDevServerAction() *schema.Resource {
 				Description: `The action type of the DevServer.`,
 			},
 
+			// Optional parameters.
+			"admin_pass": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: `The login password of the DevServer.`,
+			},
+			"key_pair_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The key pair name used to log in to the DevServer.`,
+			},
+			"image_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The image ID used to change the operating system.`,
+			},
+			"user_data": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user data to be injected into the DevServer during the OS operation.`,
+			},
+
 			// Internal parameters.
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -74,35 +110,58 @@ func ResourceDevServerAction() *schema.Resource {
 	}
 }
 
-func operateDevServerAction(client *golangsdk.ServiceClient, devServerId, action string) error {
-	httpUrl := "v1/{project_id}/dev-servers/{id}/{action}"
-	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
-	httpUrl = strings.ReplaceAll(httpUrl, "{id}", devServerId)
-	httpUrl = strings.ReplaceAll(httpUrl, "{action}", action)
+func parseDevServerActionRequestMethod(action string) string {
+	switch action {
+	case "changeos", "reinstallos":
+		return "POST"
+	default:
+		return "PUT"
+	}
+}
+
+func buildDevServerActionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"admin_pass":    utils.ValueIgnoreEmpty(d.Get("admin_pass")),
+		"key_pair_name": utils.ValueIgnoreEmpty(d.Get("key_pair_name")),
+		"image_id":      utils.ValueIgnoreEmpty(d.Get("image_id")),
+		"user_data":     utils.ValueIgnoreEmpty(d.Get("user_data")),
+	}
+}
+
+func operateDevServerAction(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		devServerId = d.Get("devserver_id").(string)
+		action      = d.Get("action").(string)
+		httpUrl     = "v1/{project_id}/dev-servers/{id}/{action}"
+	)
+
+	actionPath := client.Endpoint + httpUrl
+	actionPath = strings.ReplaceAll(actionPath, "{project_id}", client.ProjectID)
+	actionPath = strings.ReplaceAll(actionPath, "{id}", devServerId)
+	actionPath = strings.ReplaceAll(actionPath, "{action}", action)
 
 	actionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	if action == "start" {
+
+	switch action {
+	case "start":
 		// For the "start" type, the request body parameter must be specified, so set an empty object for it.
 		actionOpt.JSONBody = map[string]interface{}{}
+	case "changeos", "reinstallos":
+		actionOpt.JSONBody = utils.RemoveNil(buildDevServerActionBodyParams(d))
 	}
 
-	_, err := client.Request("POST", httpUrl, &actionOpt)
+	_, err := client.Request(parseDevServerActionRequestMethod(action), actionPath, &actionOpt)
 	return err
 }
 
 func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg                = meta.(*config.Config)
-		region             = cfg.GetRegion(d)
-		devServerId        = d.Get("devserver_id").(string)
-		action             = d.Get("action").(string)
-		actionCompletedMap = map[string][]string{
-			"start":  {"RUNNING"},
-			"stop":   {"STOPPED"},
-			"reboot": {"RUNNING"},
-		}
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		devServerId = d.Get("devserver_id").(string)
+		action      = d.Get("action").(string)
 	)
 
 	client, err := cfg.NewServiceClient("modelarts", region)
@@ -110,7 +169,7 @@ func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = operateDevServerAction(client, devServerId, action)
+	err = operateDevServerAction(client, d)
 	if err != nil {
 		return diag.Errorf("unable to %s DevServer (%s): %s", action, devServerId, err)
 	}
