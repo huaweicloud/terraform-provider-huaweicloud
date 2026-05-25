@@ -28,11 +28,9 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `devserver_id` - (Required, String, ForceNew) Specifies the ID of the DevServer.
-  Changing this creates a new resource.
+* `devserver_id` - (Required, String, NonUpdatable) Specifies the ID of the DevServer.
 
-* `action` - (Required, String, ForceNew) Specifies the action type of the DevServer.
-  Changing this creates a new resource.  
+* `action` - (Required, String, NonUpdatable) Specifies the action type of the DevServer.
   The valid values are as follows:
   + **start**: The DevServer can be started only when the DevServer is stopped, stop failure, or start failure.
   + **stop**: The DevServer can be stopped only when it is running or stop failure.

@@ -2,18 +2,25 @@ package modelarts
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+var (
+	devserverActionNonUpdatableParams = []string{
+		"devserver_id",
+		"action",
+	}
 )
 
 // @API ModelArts PUT /v1/{project_id}/dev-servers/{id}/start
@@ -24,7 +31,10 @@ func ResourceDevServerAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDevServerActionCreate,
 		ReadContext:   resourceDevServerActionRead,
+		UpdateContext: resourceDevServerActionUpdate,
 		DeleteContext: resourceDevServerActionDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(devserverActionNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -37,45 +47,39 @@ func ResourceDevServerAction() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			// Required parameters.
 			"devserver_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The ID of the DevServer.`,
 			},
 			"action": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The action type of the DevServer.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true},
+				),
 			},
 		},
 	}
 }
 
-func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg                = meta.(*config.Config)
-		region             = cfg.GetRegion(d)
-		httpUrl            = "v1/{project_id}/dev-servers/{id}/{action}"
-		devServerId        = d.Get("devserver_id").(string)
-		action             = d.Get("action").(string)
-		actionCompletedMap = map[string]string{
-			"start":  "RUNNING",
-			"stop":   "STOPPED",
-			"reboot": "RUNNING",
-		}
-	)
+func operateDevServerAction(client *golangsdk.ServiceClient, devServerId, action string) error {
+	httpUrl := "v1/{project_id}/dev-servers/{id}/{action}"
+	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
+	httpUrl = strings.ReplaceAll(httpUrl, "{id}", devServerId)
+	httpUrl = strings.ReplaceAll(httpUrl, "{action}", action)
 
-	client, err := cfg.NewServiceClient("modelarts", region)
-	if err != nil {
-		return diag.Errorf("error creating ModelArts client: %s", err)
-	}
-
-	actionPath := client.Endpoint + httpUrl
-	actionPath = strings.ReplaceAll(actionPath, "{project_id}", client.ProjectID)
-	actionPath = strings.ReplaceAll(actionPath, "{id}", devServerId)
-	actionPath = strings.ReplaceAll(actionPath, "{action}", action)
 	actionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -84,7 +88,29 @@ func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 		actionOpt.JSONBody = map[string]interface{}{}
 	}
 
-	_, err = client.Request("PUT", actionPath, &actionOpt)
+	_, err := client.Request("POST", httpUrl, &actionOpt)
+	return err
+}
+
+func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg                = meta.(*config.Config)
+		region             = cfg.GetRegion(d)
+		devServerId        = d.Get("devserver_id").(string)
+		action             = d.Get("action").(string)
+		actionCompletedMap = map[string][]string{
+			"start":  {"RUNNING"},
+			"stop":   {"STOPPED"},
+			"reboot": {"RUNNING"},
+		}
+	)
+
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
+
+	err = operateDevServerAction(client, devServerId, action)
 	if err != nil {
 		return diag.Errorf("unable to %s DevServer (%s): %s", action, devServerId, err)
 	}
@@ -92,7 +118,7 @@ func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      refreshDevServerActionStatusFunc(client, devServerId, actionCompletedMap[action]),
+		Refresh:      refreshDevServerStatusFunc(client, devServerId, actionCompletedMap[action]),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -104,29 +130,14 @@ func resourceDevServerActionCreate(ctx context.Context, d *schema.ResourceData, 
 
 	d.SetId(devServerId)
 
-	return nil
-}
-
-func refreshDevServerActionStatusFunc(client *golangsdk.ServiceClient, devServerId string, target string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		respBody, err := GetDevServerById(client, devServerId)
-		if err != nil {
-			return nil, "ERROR", err
-		}
-
-		status := utils.PathSearch("status", respBody, "").(string)
-		if utils.StrSliceContains([]string{"START_FAILED", "ERROR", "STOP_FAILED", "REBOOT_FAILED"}, status) {
-			return respBody, "ERROR", fmt.Errorf("unexpected status (%s)", status)
-		}
-
-		if status == target {
-			return respBody, "COMPLETED", nil
-		}
-		return "continue", "PENDING", nil
-	}
+	return resourceDevServerActionRead(ctx, d, meta)
 }
 
 func resourceDevServerActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceDevServerActionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 

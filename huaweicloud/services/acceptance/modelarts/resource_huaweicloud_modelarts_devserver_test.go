@@ -146,11 +146,13 @@ func testAccDevServer_doAction(name, password, actionType string, doRetryAction 
 resource "huaweicloud_modelarts_devserver_action" "test" {
   devserver_id = huaweicloud_modelarts_devserver.test.id
   action       = "%[2]s"
+
+  enable_force_new = "true"
 }
 
 variable "is_retry_devserver_action" {
   type    = bool
-  default = "%[3]v"
+  default = %[3]v
 }
 
 resource "huaweicloud_modelarts_devserver_action" "expect_err" {
@@ -160,6 +162,8 @@ resource "huaweicloud_modelarts_devserver_action" "expect_err" {
 
   devserver_id = huaweicloud_modelarts_devserver.test.id
   action       = "%[2]s"
+
+  enable_force_new = "true"
 }
 `, testAccDevServer_basic(false, name, password), actionType, doRetryAction)
 }
