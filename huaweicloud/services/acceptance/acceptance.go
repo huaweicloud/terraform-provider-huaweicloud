@@ -910,6 +910,7 @@ var (
 	HW_SMN_SUBSCRIBED_TOPIC_URN = os.Getenv("HW_SMN_SUBSCRIBED_TOPIC_URN")
 	HW_SMN_SUBSCRIBE_ID         = os.Getenv("HW_SMN_SUBSCRIBE_ID")
 	HW_SMN_SUBSCRIBE_TOKEN      = os.Getenv("HW_SMN_SUBSCRIBE_TOKEN")
+	HW_SMN_TOPIC_URN            = os.Getenv("HW_SMN_TOPIC_URN")
 
 	HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS = os.Getenv("HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS")
 	HW_SERVICESTAGE_ZIP_STORAGE_URLS     = os.Getenv("HW_SERVICESTAGE_ZIP_STORAGE_URLS")
@@ -5354,6 +5355,13 @@ func TestAccPrecheckSmnSubscribeId(t *testing.T) {
 func TestAccPrecheckSmnSubscribeToken(t *testing.T) {
 	if HW_SMN_SUBSCRIBE_TOKEN == "" {
 		t.Skip("HW_SMN_SUBSCRIBE_TOKEN must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSmnTopicUrn(t *testing.T) {
+	if HW_SMN_TOPIC_URN == "" {
+		t.Skip("HW_SMN_TOPIC_URN must be set for the acceptance test")
 	}
 }
 
