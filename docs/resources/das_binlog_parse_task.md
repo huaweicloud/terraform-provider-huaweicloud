@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `user_id` - (Required, String, NonUpdatable) Specifies the user ID of the database connection.
 
-  -> You can use [data.huaweicloud_das_database_users](../data-sources/das_database_users.md) to get user IDs.
+  -> You can use `huaweicloud_das_database_users` data source to get user IDs.
 
 * `binlog_type` - (Required, String, NonUpdatable) Specifies the binlog type.  
   The valid values are as follows:
