@@ -3416,6 +3416,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance_node_ip_remove":            dcs.ResourceDcsInstanceNodeIpRemove(),
 			"huaweicloud_dcs_instance_expired_key_scan":          dcs.ResourceDcsInstanceExpiredKeyScan(),
 			"huaweicloud_dcs_instance_expired_key_scan_task":     dcs.ResourceDcsInstanceExpiredKeyScanTask(),
+			"huaweicloud_dcs_instance_minor_version_upgrade":     dcs.ResourceInstanceMinorVersionUpgrade(),
 			"huaweicloud_dcs_login_web_cli":                      dcs.ResourceDcsLoginWebCli(),
 			"huaweicloud_dcs_logout_web_cli":                     dcs.ResourceDcsLogoutWebCli(),
 			"huaweicloud_dcs_master_standby_switch":              dcs.ResourceDcsMasterStandbySwitch(),
