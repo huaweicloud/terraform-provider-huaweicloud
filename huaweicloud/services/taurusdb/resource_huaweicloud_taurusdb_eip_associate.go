@@ -95,7 +95,7 @@ func resourceTaurusDBEipAssociateCreate(ctx context.Context, d *schema.ResourceD
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, instanceID),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		PollInterval: 10 * time.Second,
 	})
@@ -221,7 +221,7 @@ func resourceTaurusDBEipAssociateDelete(ctx context.Context, d *schema.ResourceD
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, instanceID),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		PollInterval: 10 * time.Second,
 	})

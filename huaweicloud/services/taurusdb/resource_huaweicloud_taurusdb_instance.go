@@ -2,7 +2,6 @@ package taurusdb
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -68,7 +67,7 @@ type ctxType string
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/slowlog/modify
-// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API TaurusDB GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/sql-filter/switch
@@ -579,21 +578,18 @@ func resourceGaussDBDataStore(d *schema.ResourceData) instances.DataStoreOpt {
 
 func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		v, err := GetInstanceDetail(client, instanceID)
+		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
-			var errDefault404 golangsdk.ErrDefault404
-			if errors.As(err, &errDefault404) {
-				return v, "deleted", nil
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return v, "DELETED", nil
 			}
 			return nil, "", err
 		}
-		if v == nil {
-			// Return an empty map instead of nil to avoid "couldn't find resource" error
-			// The state "deleted" indicates the resource has been successfully deleted
-			return map[string]interface{}{}, "deleted", nil
+
+		if v.Id == "" {
+			return v, "DELETED", nil
 		}
-		status := utils.PathSearch("status", v, "").(string)
-		return v, status, nil
+		return v, v.Status, nil
 	}
 }
 
@@ -607,20 +603,23 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	// If force_import set, try to import it instead of creating
 	if common.HasFilledOpt(d, "force_import") {
 		log.Printf("[DEBUG] the TaurusDB instance force_import is set, try to import it instead of creating")
-		listBody := map[string]interface{}{
-			"name": d.Get("name").(string),
+		listOpts := instances.ListTaurusDBInstanceOpts{
+			Name: d.Get("name").(string),
 		}
-		allInstances, err := getInstancesList(client, utils.RemoveNil(listBody))
+		pages, err := instances.List(client, listOpts).AllPages()
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		if len(allInstances) > 0 {
-			instance := allInstances[0].(map[string]interface{})
-			if instanceId := instance["id"].(string); instanceId != "" {
-				d.SetId(instanceId)
-				return resourceGaussDBInstanceRead(ctx, d, meta)
-			}
+		allInstances, err := instances.ExtractTaurusDBInstances(pages)
+		if err != nil {
+			return diag.Errorf("unable to retrieve instances: %s ", err)
+		}
+		if allInstances.TotalCount > 0 {
+			instance := allInstances.Instances[0]
+			log.Printf("[DEBUG] found existing mysql instance %s with name %s", instance.Id, instance.Name)
+			d.SetId(instance.Id)
+			return resourceGaussDBInstanceRead(ctx, d, meta)
 		}
 	}
 
@@ -734,8 +733,8 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"creating"},
-		Target:       []string{"normal"},
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
 		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        180 * time.Second,
@@ -755,8 +754,8 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	// waiting for the instance to become ready again
 	// as instance will become BACKING UP state after ACTIVE
 	stateConf = &resource.StateChangeConf{
-		Pending:      []string{"creating"},
-		Target:       []string{"normal"},
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
 		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
@@ -912,7 +911,7 @@ func restartGaussDBMySQLInstance(ctx context.Context, client *golangsdk.ServiceC
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -928,102 +927,72 @@ func restartGaussDBMySQLInstance(ctx context.Context, client *golangsdk.ServiceC
 func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("gaussdb", region)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 	var mErr *multierror.Error
 
-	id := d.Id()
-	instanceDetail, err := GetInstanceDetail(client, id)
+	instanceID := d.Id()
+	instance, err := instances.Get(client, instanceID).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving TaurusDB instance")
 	}
-	idRaw := utils.PathSearch("id", instanceDetail, nil)
-	if instanceDetail == nil || idRaw == nil {
+	if instance.Id == "" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving TaurusDB instance")
 	}
 
-	instanceID := idRaw.(string)
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", instanceDetail, nil)),
-		d.Set("status", utils.PathSearch("status", instanceDetail, nil)),
-		d.Set("mode", utils.PathSearch("type", instanceDetail, nil)),
-		d.Set("vpc_id", utils.PathSearch("vpc_id", instanceDetail, nil)),
-		d.Set("subnet_id", utils.PathSearch("subnet_id", instanceDetail, nil)),
-		d.Set("security_group_id", utils.PathSearch("security_group_id", instanceDetail, nil)),
-		d.Set("configuration_id", utils.PathSearch("configuration_id", instanceDetail, nil)),
-		d.Set("dedicated_resource_id", utils.PathSearch("dedicated_resource_id", instanceDetail, nil)),
-		d.Set("db_user_name", utils.PathSearch("db_user_name", instanceDetail, nil)),
-		d.Set("time_zone", utils.PathSearch("time_zone", instanceDetail, nil)),
-		d.Set("availability_zone_mode", utils.PathSearch("az_mode", instanceDetail, nil)),
-		d.Set("master_availability_zone", utils.PathSearch("master_az_code", instanceDetail, nil)),
-		d.Set("description", utils.PathSearch("alias", instanceDetail, nil)),
-		d.Set("created_at", utils.PathSearch("created", instanceDetail, nil)),
-		d.Set("updated_at", utils.PathSearch("updated", instanceDetail, nil)),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("mode", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("configuration_id", instance.ConfigurationId),
+		d.Set("dedicated_resource_id", instance.DedicatedResourceId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("availability_zone_mode", instance.AZMode),
+		d.Set("master_availability_zone", instance.MasterAZ),
+		d.Set("description", instance.Alias),
+		d.Set("created_at", instance.Created),
+		d.Set("updated_at", instance.Updated),
 	)
 
-	// Set maintain_begin and maintain_end
-	if maintainWindowRaw := utils.PathSearch("maintenance_window", instanceDetail, nil); maintainWindowRaw != nil {
-		if maintainWindow, ok := maintainWindowRaw.(string); ok && maintainWindow != "" {
-			maintainWindowParts := strings.Split(maintainWindow, "-")
-			if len(maintainWindowParts) == 2 {
-				mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindowParts[0]))
-				mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindowParts[1]))
-			}
-		}
+	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
+	if len(maintainWindow) == 2 {
+		mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindow[0]))
+		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
 	}
 
-	// Set configuration_id
-	if configurationIdRaw := utils.PathSearch("configuration_id", instanceDetail, nil); configurationIdRaw != nil {
-		if configurationId, ok := configurationIdRaw.(string); ok && configurationId != "" {
-			mErr = multierror.Append(mErr, setConfigurationId(d, client, configurationId))
-		}
+	if instance.ConfigurationId != "" {
+		mErr = multierror.Append(mErr, setConfigurationId(d, client, instance.ConfigurationId))
 	}
 
-	// Set dedicated_resource_id
-	if dedicatedResourceIdRaw := utils.PathSearch("dedicated_resource_id", instanceDetail, nil); dedicatedResourceIdRaw != nil {
-		if dedicatedResourceId, ok := dedicatedResourceIdRaw.(string); ok && dedicatedResourceId != "" {
-			mErr = multierror.Append(mErr, setDedicatedResourceId(d, client, dedicatedResourceId))
-		}
+	if instance.DedicatedResourceId != "" {
+		mErr = multierror.Append(mErr, setDedicatedResourceId(d, client, instance.DedicatedResourceId))
 	}
 
-	// Set port
-	if portRaw := utils.PathSearch("port", instanceDetail, nil); portRaw != nil {
-		if portStr, ok := portRaw.(string); ok && portStr != "" {
-			if dbPort, err := strconv.Atoi(portStr); err == nil {
-				mErr = multierror.Append(mErr, d.Set("port", dbPort))
-			}
-		}
+	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
+		mErr = multierror.Append(mErr, d.Set("port", dbPort))
 	}
-
-	// Set private_write_ip
-	if privateWriteIpsRaw := utils.PathSearch("private_write_ips", instanceDetail, nil); privateWriteIpsRaw != nil {
-		if privateWriteIps, ok := privateWriteIpsRaw.([]interface{}); ok && len(privateWriteIps) > 0 {
-			mErr = multierror.Append(mErr, d.Set("private_write_ip", privateWriteIps[0]))
-		}
+	if len(instance.PrivateIps) > 0 {
+		mErr = multierror.Append(mErr, d.Set("private_write_ip", instance.PrivateIps[0]))
 	}
-
-	// Set private_dns_name and private_dns_name_prefix
-	if privateDNSNamesRaw := utils.PathSearch("private_dns_names", instanceDetail, nil); privateDNSNamesRaw != nil {
-		if privateDNSNames, ok := privateDNSNamesRaw.([]interface{}); ok && len(privateDNSNames) > 0 {
-			if dnsName, ok := privateDNSNames[0].(string); ok && dnsName != "" {
-				mErr = multierror.Append(mErr, d.Set("private_dns_name", dnsName))
-				if parts := strings.Split(dnsName, "."); len(parts) > 0 {
-					mErr = multierror.Append(mErr, d.Set("private_dns_name_prefix", parts[0]))
-				}
-			}
-		}
+	if len(instance.PrivateDnsNames) > 0 {
+		mErr = multierror.Append(mErr, d.Set("private_dns_name_prefix", strings.Split(instance.PrivateDnsNames[0], ".")[0]))
+		mErr = multierror.Append(mErr, d.Set("private_dns_name", instance.PrivateDnsNames[0]))
 	}
 
 	// set data store
-	mErr = multierror.Append(mErr, setDatastore(d, instanceDetail))
+	mErr = multierror.Append(mErr, setDatastore(d, instance.DataStore))
 	// set nodes, read_replicas, volume_size, flavor
-	mErr = multierror.Append(mErr, setNodes(d, instanceDetail)...)
+	mErr = multierror.Append(mErr, setNodes(d, instance.Nodes)...)
 	// set backup_strategy
-	mErr = multierror.Append(mErr, setBackupStrategy(d, instanceDetail))
+	mErr = multierror.Append(mErr, setBackupStrategy(d, instance.BackupStrategy))
 	// set proxy
 	mErr = multierror.Append(mErr, setProxy(d, client, instanceID)...)
 	// set audit log status
@@ -1088,164 +1057,77 @@ func setDedicatedResourceId(d *schema.ResourceData, client *golangsdk.ServiceCli
 	return nil
 }
 
-// parseNodeVolume extracts volume size and type from node data
-func parseNodeVolume(nodeRaw interface{}, volumeSize *int, volumeType *string) {
-	if volume := utils.PathSearch("volume", nodeRaw, nil); volume != nil {
-		if sizeRaw := utils.PathSearch("size", volume, nil); sizeRaw != nil {
-			if sizeFloat, ok := sizeRaw.(float64); ok && int(sizeFloat) > 0 {
-				*volumeSize = int(sizeFloat)
-			}
-		}
-
-		if typeRaw := utils.PathSearch("type", volume, nil); typeRaw != nil {
-			if typeStr, ok := typeRaw.(string); ok && typeStr != "" {
-				switch typeStr {
-				case "STANDARDPOOL":
-					*volumeType = "DL5"
-				case "POOL":
-					*volumeType = "DL6"
-				}
-			}
-		}
-	}
-}
-
-// countSlaveNodes counts the number of normal slave nodes
-func countSlaveNodes(nodeTypeRaw, nodeStatusRaw interface{}, slaveCount *int) {
-	if nodeType, ok := nodeTypeRaw.(string); ok && nodeType == "slave" {
-		if nodeStatus, ok := nodeStatusRaw.(string); ok && nodeStatus == "normal" {
-			*slaveCount++
-		}
-	}
-}
-
-// extractNodeFlavor extracts flavor from node data
-func extractNodeFlavor(nodeRaw interface{}) string {
-	if flavorRaw := utils.PathSearch("flavor_ref", nodeRaw, nil); flavorRaw != nil {
-		if nodeFlavor, ok := flavorRaw.(string); ok && nodeFlavor != "" {
-			return nodeFlavor
-		}
-	}
-	return ""
-}
-
-// buildNodeMap creates a node map from raw node data
-func buildNodeMap(nodeRaw interface{}) map[string]interface{} {
-	nodeID := utils.PathSearch("id", nodeRaw, nil)
-	nodeName := utils.PathSearch("name", nodeRaw, nil)
-	nodeTypeRaw := utils.PathSearch("type", nodeRaw, nil)
-	nodeStatusRaw := utils.PathSearch("status", nodeRaw, nil)
-	nodeAZ := utils.PathSearch("az_code", nodeRaw, nil)
-
-	node := map[string]interface{}{
-		"id":                nodeID,
-		"name":              nodeName,
-		"type":              nodeTypeRaw,
-		"status":            nodeStatusRaw,
-		"availability_zone": nodeAZ,
-	}
-
-	// Set private_read_ip with safe type assertion
-	if nodePrivateIpsRaw := utils.PathSearch("private_read_ips", nodeRaw, nil); nodePrivateIpsRaw != nil {
-		if nodePrivateIps, ok := nodePrivateIpsRaw.([]interface{}); ok && len(nodePrivateIps) > 0 {
-			node["private_read_ip"] = nodePrivateIps[0]
-		}
-	}
-
-	return node
-}
-
-func setNodes(d *schema.ResourceData, instance interface{}) []error {
-	nodesList := make([]map[string]interface{}, 0)
-	var errs []error
+func setNodes(d *schema.ResourceData, nodes []instances.Nodes) []error {
+	flavor := ""
 	slaveCount := 0
 	volumeSize := 0
 	volumeType := ""
-	flavor := ""
-
-	if nodesRaw := utils.PathSearch("nodes", instance, nil); nodesRaw != nil {
-		if nodes, ok := nodesRaw.([]interface{}); ok && len(nodes) > 0 {
-			for _, nodeRaw := range nodes {
-				node := buildNodeMap(nodeRaw)
-				parseNodeVolume(nodeRaw, &volumeSize, &volumeType)
-				nodesList = append(nodesList, node)
-
-				nodeTypeRaw := utils.PathSearch("type", nodeRaw, nil)
-				nodeStatusRaw := utils.PathSearch("status", nodeRaw, nil)
-				countSlaveNodes(nodeTypeRaw, nodeStatusRaw, &slaveCount)
-
-				if nodeFlavor := extractNodeFlavor(nodeRaw); nodeFlavor != "" {
-					flavor = nodeFlavor
-				}
+	nodesList := make([]map[string]interface{}, 0, 1)
+	for _, raw := range nodes {
+		node := map[string]interface{}{
+			"id":                raw.Id,
+			"name":              raw.Name,
+			"status":            raw.Status,
+			"type":              raw.Type,
+			"availability_zone": raw.AvailabilityZone,
+		}
+		if len(raw.PrivateIps) > 0 {
+			node["private_read_ip"] = raw.PrivateIps[0]
+		}
+		if raw.Volume.Size > 0 {
+			volumeSize = raw.Volume.Size
+		}
+		if raw.Volume.Type != "" {
+			if raw.Volume.Type == "STANDARDPOOL" {
+				volumeType = "DL5"
+			} else if raw.Volume.Type == "POOL" {
+				volumeType = "DL6"
 			}
 		}
-		errs = append(errs, d.Set("nodes", nodesList))
-		errs = append(errs, d.Set("read_replicas", slaveCount))
-		errs = append(errs, d.Set("volume_size", volumeSize))
-		errs = append(errs, d.Set("volume_type", volumeType))
-		if flavor != "" {
-			errs = append(errs, d.Set("flavor", flavor))
+		nodesList = append(nodesList, node)
+		if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
+			slaveCount++
 		}
+		if flavor == "" {
+			flavor = raw.Flavor
+		}
+	}
+	var errs []error
+	errs = append(errs, d.Set("nodes", nodesList))
+	errs = append(errs, d.Set("read_replicas", slaveCount))
+	errs = append(errs, d.Set("volume_size", volumeSize))
+	errs = append(errs, d.Set("volume_type", volumeType))
+	if flavor != "" {
+		log.Printf("[DEBUG] node flavor: %s", flavor)
+		errs = append(errs, d.Set("flavor", flavor))
 	}
 	return errs
 }
 
-func setDatastore(d *schema.ResourceData, meta interface{}) error {
-	var engine, version string
-
-	if engineRaw := utils.PathSearch("datastore.type", meta, nil); engineRaw != nil {
-		if e, ok := engineRaw.(string); ok {
-			engine = e
-		}
+func setDatastore(d *schema.ResourceData, datastore instances.DataStore) error {
+	dbList := make([]map[string]interface{}, 1)
+	db := map[string]interface{}{
+		"version": datastore.Version,
 	}
+	// normalize engine
+	engine := datastore.Type
 	if engine == "GaussDB(for MySQL)" {
 		engine = "gaussdb-mysql"
 	}
-
-	if versionRaw := utils.PathSearch("datastore.version", meta, nil); versionRaw != nil {
-		if v, ok := versionRaw.(string); ok {
-			version = v
-		}
-	}
-
-	datastore := []map[string]interface{}{
-		{
-			"engine":  engine,
-			"version": version,
-		},
-	}
-	return d.Set("datastore", datastore)
+	db["engine"] = engine
+	dbList[0] = db
+	return d.Set("datastore", dbList)
 }
 
-func setBackupStrategy(d *schema.ResourceData, meta interface{}) error {
+func setBackupStrategy(d *schema.ResourceData, strategy instances.BackupStrategy) error {
 	backupStrategyList := make([]map[string]interface{}, 1)
-	if backupStrategy := utils.PathSearch("backup_strategy", meta, nil); backupStrategy != nil {
-		var startTime, keepDaysStr string
-
-		if startTimeRaw := utils.PathSearch("start_time", backupStrategy, nil); startTimeRaw != nil {
-			if s, ok := startTimeRaw.(string); ok {
-				startTime = s
-			}
-		}
-
-		if keepDaysRaw := utils.PathSearch("keep_days", backupStrategy, nil); keepDaysRaw != nil {
-			if k, ok := keepDaysRaw.(string); ok {
-				keepDaysStr = k
-			}
-		}
-
-		backupStrategyMap := map[string]interface{}{
-			"start_time": startTime,
-		}
-
-		if keepDaysStr != "" {
-			if keepDays, err := strconv.Atoi(keepDaysStr); err == nil {
-				backupStrategyMap["keep_days"] = keepDays
-			}
-		}
-
-		backupStrategyList[0] = backupStrategyMap
+	backupStrategy := map[string]interface{}{
+		"start_time": strategy.StartTime,
 	}
+	if days, err := strconv.Atoi(strategy.KeepDays); err == nil {
+		backupStrategy["keep_days"] = days
+	}
+	backupStrategyList[0] = backupStrategy
 	return d.Set("backup_strategy", backupStrategyList)
 }
 
@@ -1535,12 +1417,11 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("private_dns_name_prefix") {
-		instanceDetail, err := GetInstanceDetail(client, instanceId)
+		instance, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		privateDNSNames := utils.PathSearch("private_dns_names", instanceDetail, make([]interface{}, 0)).([]interface{})
-		if len(privateDNSNames) == 0 || len(privateDNSNames[0].(string)) == 0 {
+		if len(instance.PrivateDnsNames) == 0 || len(instance.PrivateDnsNames[0]) == 0 {
 			err = applyPrivateDNSName(ctx, client, d, schema.TimeoutUpdate)
 			if err != nil {
 				return diag.FromErr(err)
@@ -1654,20 +1535,19 @@ func resourceGaussDBInstanceDelete(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:        []string{"normal", "abnormal"},
-		Target:         []string{"deleted"},
-		Refresh:        GaussDBInstanceStateRefreshFunc(client, instanceId),
-		Timeout:        d.Timeout(schema.TimeoutDelete),
-		Delay:          10 * time.Second,
-		MinTimeout:     10 * time.Second,
-		NotFoundChecks: 5,
+		Pending:    []string{"ACTIVE", "BACKING UP", "FAILED"},
+		Target:     []string{"DELETED"},
+		Refresh:    GaussDBInstanceStateRefreshFunc(client, instanceId),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("error waiting for instance (%s) to be deleted: %s ", instanceId, err)
 	}
-
+	log.Printf("[DEBUG] successfully deleted instance %s", instanceId)
 	return nil
 }
 
@@ -1686,7 +1566,7 @@ func updateInstanceName(ctx context.Context, client *golangsdk.ServiceClient, d 
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1714,7 +1594,7 @@ func updateInstancePassword(ctx context.Context, client *golangsdk.ServiceClient
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1744,7 +1624,7 @@ func updateInstanceFlavor(ctx context.Context, client, bssClient *golangsdk.Serv
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1767,17 +1647,14 @@ func updateInstanceFlavor(ctx context.Context, client, bssClient *golangsdk.Serv
 			return err
 		}
 		// check whether the order take effect
-		instanceDetail, err := GetInstanceDetail(client, d.Id())
+		instance, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {
 			return err
 		}
 		currFlavor := ""
-		nodes := utils.PathSearch("nodes", instanceDetail, make([]interface{}, 0)).([]interface{})
-		for _, raw := range nodes {
-			node := raw.(map[string]interface{})
-			flavor := utils.PathSearch("flavor_ref", node, nil).(string)
-			if flavor != "" {
-				currFlavor = flavor
+		for _, raw := range instance.Nodes {
+			if currFlavor == "" {
+				currFlavor = raw.Flavor
 				break
 			}
 		}
@@ -1825,7 +1702,7 @@ func createInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1854,17 +1731,13 @@ func createInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 			return err
 		}
 		// check whether the order take effect
-		instanceDetail, err := GetInstanceDetail(client, d.Id())
+		instance, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {
 			return err
 		}
 		slaveCount := 0
-		nodes := utils.PathSearch("nodes", instanceDetail, make([]interface{}, 0)).([]interface{})
-		for _, raw := range nodes {
-			node := raw.(map[string]interface{})
-			nodeType := utils.PathSearch("type", node, nil).(string)
-			nodeStatus := utils.PathSearch("status", node, nil).(string)
-			if nodeType == "slave" && (nodeStatus == "normal") {
+		for _, raw := range instance.Nodes {
+			if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 				slaveCount++
 			}
 		}
@@ -1882,7 +1755,7 @@ func deleteInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 	nodes := d.Get("nodes").([]interface{})
 	for _, nodeRaw := range nodes {
 		node := nodeRaw.(map[string]interface{})
-		if node["type"].(string) == "slave" && node["status"] == "normal" {
+		if node["type"].(string) == "slave" && node["status"] == "ACTIVE" {
 			slaveNodes = append(slaveNodes, node["id"].(string))
 		}
 	}
@@ -1900,7 +1773,7 @@ func deleteInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
 			WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-			WaitTarget:   []string{"normal"},
+			WaitTarget:   []string{"ACTIVE"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 10 * time.Second,
 			PollInterval: 10 * time.Second,
@@ -1924,17 +1797,13 @@ func deleteInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 		}
 	}
 	// check whether the order take effect
-	instanceDetail, err := GetInstanceDetail(client, d.Id())
+	instance, err := instances.Get(client, d.Id()).Extract()
 	if err != nil {
 		return err
 	}
 	slaveCount := 0
-	instanceNodes := utils.PathSearch("nodes", instanceDetail, make([]interface{}, 0)).([]interface{})
-	for _, raw := range instanceNodes {
-		node := raw.(map[string]interface{})
-		nodeType := utils.PathSearch("type", node, nil).(string)
-		nodeStatus := utils.PathSearch("status", node, nil).(string)
-		if nodeType == "slave" && (nodeStatus == "normal") {
+	for _, raw := range instance.Nodes {
+		if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 			slaveCount++
 		}
 	}
@@ -1958,7 +1827,7 @@ func updateInstanceVolumeSize(ctx context.Context, client, bssClient *golangsdk.
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1975,53 +1844,22 @@ func updateInstanceVolumeSize(ctx context.Context, client, bssClient *golangsdk.
 			return err
 		}
 		// check whether the order take effect
-		instanceDetail, err := GetInstanceDetail(client, d.Id())
+		instance, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {
 			return err
 		}
-		volumeSize := extractVolumeSizeFromNodes(instanceDetail)
+		volumeSize := 0
+		for _, raw := range instance.Nodes {
+			if raw.Volume.Size > 0 {
+				volumeSize = raw.Volume.Size
+				break
+			}
+		}
 		if volumeSize != d.Get("volume_size").(int) {
 			return fmt.Errorf("error updating volume for instance %s: order failed", d.Id())
 		}
 	}
 	return nil
-}
-
-// extractVolumeSizeFromNodes extracts the volume size from instance nodes
-func extractVolumeSizeFromNodes(instanceDetail interface{}) int {
-	volumeSize := 0
-	nodesRaw := utils.PathSearch("nodes", instanceDetail, nil)
-	if nodesRaw == nil {
-		return volumeSize
-	}
-
-	instanceNodes, ok := nodesRaw.([]interface{})
-	if !ok {
-		return volumeSize
-	}
-
-	for _, nodeRaw := range instanceNodes {
-		volumeRaw := utils.PathSearch("volume", nodeRaw, nil)
-		if volumeRaw == nil {
-			continue
-		}
-
-		volume, ok := volumeRaw.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		sizeRaw := utils.PathSearch("size", volume, nil)
-		if sizeRaw != nil {
-			// API returns size as integer (float64 in JSON decoding)
-			if sizeFloat, ok := sizeRaw.(float64); ok && int(sizeFloat) > 0 {
-				volumeSize = int(sizeFloat)
-				break
-			}
-		}
-	}
-
-	return volumeSize
 }
 
 func updateInstanceBackupStrategy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
@@ -2044,7 +1882,7 @@ func updateInstanceBackupStrategy(ctx context.Context, client *golangsdk.Service
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2083,7 +1921,7 @@ func enableInstanceProxy(ctx context.Context, client *golangsdk.ServiceClient, d
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2105,7 +1943,7 @@ func deleteInstanceProxy(ctx context.Context, client *golangsdk.ServiceClient, d
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2133,7 +1971,7 @@ func updateInstanceProxyNodeNum(ctx context.Context, client *golangsdk.ServiceCl
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
 			WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-			WaitTarget:   []string{"normal"},
+			WaitTarget:   []string{"ACTIVE"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 10 * time.Second,
 			PollInterval: 10 * time.Second,
@@ -2171,7 +2009,7 @@ func switchAuditLog(ctx context.Context, client *golangsdk.ServiceClient, d *sch
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2200,7 +2038,7 @@ func switchSQLFilter(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2226,7 +2064,7 @@ func updateConfiguration(ctx context.Context, d *schema.ResourceData, client *go
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2275,7 +2113,7 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, d *s
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2305,7 +2143,7 @@ func updatePrivateWriteIp(ctx context.Context, client *golangsdk.ServiceClient, 
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2332,7 +2170,7 @@ func updatePort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2359,7 +2197,7 @@ func updateSecurityGroup(ctx context.Context, client *golangsdk.ServiceClient, d
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 2 * time.Second,
 		PollInterval: 2 * time.Second,
@@ -2386,7 +2224,7 @@ func applyPrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, d
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 30 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -2413,7 +2251,7 @@ func updatePrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, 
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 30 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -2456,7 +2294,7 @@ func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Servic
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 30 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -2484,7 +2322,7 @@ func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 30 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -2554,7 +2392,7 @@ func updateAutoScaling(ctx context.Context, client *golangsdk.ServiceClient, d *
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(timeout),
 		DelayTimeout: 30 * time.Second,
 		PollInterval: 10 * time.Second,

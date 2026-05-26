@@ -83,7 +83,7 @@ func resourceTaurusDBProxyRestartCreate(ctx context.Context, d *schema.ResourceD
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, instanceId),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,

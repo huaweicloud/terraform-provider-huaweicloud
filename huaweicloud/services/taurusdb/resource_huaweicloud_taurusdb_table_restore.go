@@ -17,7 +17,7 @@ import (
 )
 
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/backups/restore/tables
-// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
 // @API TaurusDB GET /v3/{project_id}/jobs
 func ResourceTaurusDBTableRestore() *schema.Resource {
 	return &schema.Resource{
@@ -125,7 +125,7 @@ func resourceTaurusDBTableRestoreCreate(ctx context.Context, d *schema.ResourceD
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, instanceId),
-		WaitTarget:   []string{"normal"},
+		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
