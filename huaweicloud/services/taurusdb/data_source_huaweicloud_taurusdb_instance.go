@@ -2,22 +2,20 @@ package taurusdb
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API TaurusDB GET /v3.1/{project_id}/instances
-// @API TaurusDB GET /v3.1/{project_id}/instances/{instance_id}
+// @API TaurusDB GET /v3/{project_id}/instances
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
 func DataSourceTaurusDBInstance() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceTaurusDBInstanceRead,
@@ -166,169 +164,123 @@ func DataSourceTaurusDBInstance() *schema.Resource {
 func dataSourceTaurusDBInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("gaussdb", region)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	listBody := map[string]interface{}{
-		"name":      d.Get("name"),
-		"vpc_id":    d.Get("vpc_id"),
-		"subnet_id": d.Get("subnet_id"),
+	listOpts := instances.ListTaurusDBInstanceOpts{
+		Name:     d.Get("name").(string),
+		VpcId:    d.Get("vpc_id").(string),
+		SubnetId: d.Get("subnet_id").(string),
 	}
 
-	allInstances, err := getInstancesList(client, utils.RemoveNil(listBody))
-	if err != nil {
-		return diag.Errorf("error retrieving instances: %s", err)
-	}
-
-	if len(allInstances) < 1 {
-		return diag.Errorf("your query returned no results. " +
-			"please change your search criteria and try again.")
-	}
-
-	if len(allInstances) > 1 {
-		return diag.Errorf("your query returned more than one result." +
-			" please try a more specific search criteria")
-	}
-
-	instanceInList := allInstances[0].(map[string]interface{})
-	instanceID := instanceInList["id"].(string)
-	instanceDetail, err := GetInstanceDetail(client, instanceID)
+	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	instance := utils.PathSearch("instance", instanceDetail, nil)
+	allInstances, err := instances.ExtractTaurusDBInstances(pages)
+	if err != nil {
+		return diag.Errorf("unable to retrieve instances: %s", err)
+	}
 
-	d.SetId(instanceID)
+	if allInstances.TotalCount < 1 {
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
+	}
+
+	if allInstances.TotalCount > 1 {
+		return diag.Errorf("your query returned more than one result." +
+			" please try a more specific search criteria")
+	}
+
+	instanceID := allInstances.Instances[0].Id
+	instance, err := instances.Get(client, instanceID).Extract()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	log.Printf("[DEBUG] retrieved instance %s: %+v", instance.Id, instance)
+	d.SetId(instance.Id)
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", instance, nil)),
-		d.Set("status", utils.PathSearch("status", instance, nil)),
-		d.Set("mode", utils.PathSearch("type", instance, nil)),
-		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
-		d.Set("subnet_id", utils.PathSearch("subnet_id", instance, nil)),
-		d.Set("security_group_id", utils.PathSearch("security_group_id", instance, nil)),
-		d.Set("configuration_id", utils.PathSearch("configuration_id", instance, nil)),
-		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
-		d.Set("db_user_name", utils.PathSearch("db_user_name", instance, nil)),
-		d.Set("time_zone", utils.PathSearch("time_zone", instance, nil)),
-		d.Set("availability_zone_mode", utils.PathSearch("az_mode", instance, nil)),
-		d.Set("master_availability_zone", utils.PathSearch("master_az_code", instance, nil)),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("mode", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("configuration_id", instance.ConfigurationId),
+		d.Set("enterprise_project_id", instance.EnterpriseProjectId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("availability_zone_mode", instance.AZMode),
+		d.Set("master_availability_zone", instance.MasterAZ),
 	)
 
-	// Set port number with safe type assertion
-	if portRaw := utils.PathSearch("port", instanceInList, nil); portRaw != nil {
-		if portStr, ok := portRaw.(string); ok && portStr != "" {
-			if port, err := strconv.Atoi(portStr); err == nil {
-				mErr = multierror.Append(mErr, d.Set("port", port))
-			}
-		}
+	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
+		d.Set("port", dbPort)
+	}
+	if len(instance.PrivateIps) > 0 {
+		d.Set("private_write_ip", instance.PrivateIps[0])
 	}
 
-	// Set private_write_ip with safe type assertion
-	if privateWriteIpsRaw := utils.PathSearch("private_write_ips", instance, nil); privateWriteIpsRaw != nil {
-		if privateWriteIps, ok := privateWriteIpsRaw.([]interface{}); ok && len(privateWriteIps) > 0 {
-			mErr = multierror.Append(mErr, d.Set("private_write_ip", privateWriteIps[0]))
-		}
+	// set data store
+	dbList := make([]map[string]interface{}, 1)
+	db := map[string]interface{}{
+		"version": instance.DataStore.Version,
 	}
-
-	// Set datastore with safe type assertion
-	var engine, version string
-	if engineRaw := utils.PathSearch("datastore.type", instance, nil); engineRaw != nil {
-		if e, ok := engineRaw.(string); ok {
-			engine = e
-		}
-	}
+	// normalize engine
+	engine := instance.DataStore.Type
 	if engine == "GaussDB(for MySQL)" {
 		engine = "gaussdb-mysql"
 	}
-	if versionRaw := utils.PathSearch("datastore.version", instance, nil); versionRaw != nil {
-		if v, ok := versionRaw.(string); ok {
-			version = v
+	db["engine"] = engine
+	dbList[0] = db
+	d.Set("datastore", dbList)
+
+	// set nodes
+	flavor := ""
+	slaveCount := 0
+	nodesList := make([]map[string]interface{}, 0, 1)
+	for _, raw := range instance.Nodes {
+		node := map[string]interface{}{
+			"id":                raw.Id,
+			"name":              raw.Name,
+			"status":            raw.Status,
+			"type":              raw.Type,
+			"availability_zone": raw.AvailabilityZone,
+		}
+		if len(raw.PrivateIps) > 0 {
+			node["private_read_ip"] = raw.PrivateIps[0]
+		}
+		nodesList = append(nodesList, node)
+		if raw.Type == "slave" && raw.Status == "ACTIVE" {
+			slaveCount++
+		}
+		if flavor == "" {
+			flavor = raw.Flavor
 		}
 	}
-	datastore := []map[string]interface{}{
-		{
-			"engine":  engine,
-			"version": version,
-		},
-	}
-	mErr = multierror.Append(mErr, d.Set("datastore", datastore))
-
-	// Set nodes, read_replicas and flavor
-	nodesList, slaveCount, flavor := extractNodesInfo(instance)
-
-	mErr = multierror.Append(mErr,
-		d.Set("nodes", nodesList),
-		d.Set("read_replicas", slaveCount),
-	)
-
+	d.Set("nodes", nodesList)
+	d.Set("read_replicas", slaveCount)
 	if flavor != "" {
-		mErr = multierror.Append(mErr, d.Set("flavor", flavor))
+		log.Printf("[DEBUG] node flavor: %s", flavor)
+		d.Set("flavor", flavor)
 	}
 
-	// Set backup_strategy
-	backupStrategy := extractBackupStrategy(instance)
-	if backupStrategy != nil {
-		mErr = multierror.Append(mErr, d.Set("backup_strategy", []map[string]interface{}{backupStrategy}))
+	// set backup_strategy
+	backupStrategyList := make([]map[string]interface{}, 1)
+	backupStrategy := map[string]interface{}{
+		"start_time": instance.BackupStrategy.StartTime,
 	}
+	if days, err := strconv.Atoi(instance.BackupStrategy.KeepDays); err == nil {
+		backupStrategy["keep_days"] = days
+	}
+	backupStrategyList[0] = backupStrategy
+	d.Set("backup_strategy", backupStrategyList)
+
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-// GetInstanceDetail gets the details of a TaurusDB instance
-func GetInstanceDetail(client *golangsdk.ServiceClient, instanceID string) (interface{}, error) {
-	httpUrl := "v3.1/{project_id}/instances/{instance_id}"
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceID)
-	getOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-	resp, err := client.Request("GET", getPath, &getOpts)
-	if err != nil {
-		return nil, fmt.Errorf("error gettting TaurusDB instance (%s): %s", instanceID, err)
-	}
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving TaurusDB instance (%s): %s", instanceID, err)
-	}
-	return utils.PathSearch("instance", respBody, nil), nil
-}
-
-// extractBackupStrategy extracts backup strategy information from instance data
-func extractBackupStrategy(instance interface{}) map[string]interface{} {
-	backupStrategyRaw := utils.PathSearch("backup_strategy", instance, nil)
-	if backupStrategyRaw == nil {
-		return nil
-	}
-
-	var startTime string
-	if startTimeRaw := utils.PathSearch("start_time", backupStrategyRaw, nil); startTimeRaw != nil {
-		if s, ok := startTimeRaw.(string); ok {
-			startTime = s
-		}
-	}
-
-	backupStrategyMap := map[string]interface{}{
-		"start_time": startTime,
-	}
-
-	extractKeepDays(backupStrategyRaw, backupStrategyMap)
-
-	return backupStrategyMap
-}
-
-// extractKeepDays extracts keep_days from backup strategy
-func extractKeepDays(backupStrategyRaw interface{}, backupStrategyMap map[string]interface{}) {
-	if keepDaysRaw := utils.PathSearch("keep_days", backupStrategyRaw, nil); keepDaysRaw != nil {
-		if keepDaysStr, ok := keepDaysRaw.(string); ok && keepDaysStr != "" {
-			if keepDays, err := strconv.Atoi(keepDaysStr); err == nil {
-				backupStrategyMap["keep_days"] = keepDays
-			}
-		}
-	}
 }
