@@ -41,10 +41,50 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID, which is the same as `instance_id`.
+* `id` - The resource ID, which is the job ID.
+
+* `file_size` - The file size in KB.
+
+* `download_url` - The report download link. The link is valid for 30 minutes.
+
+* `status` - The collection status.  The valid values are as follows:
+  + **SUCCESS**: Collection successful.
+  + **FAILED**: Collection failed.
+  + **EXPORTING**: Collecting.
+
+* `file_name` - The ASP report file name.
+
+* `file_path` - The ASP report file save path.
+
+* `obs_bucket` - The OBS bucket information for storing the ASP report file.
+  The [obs_bucket](#obs_bucket_struct) structure is documented below.
+
+<a name="obs_bucket_struct"></a>
+The `obs_bucket` block supports:
+
+* `name` - The OBS bucket name.
+
+* `type` - The OBS bucket type.
+  The valid values are as follows:
+  + **common**: Public bucket.
+  + **aps**: Intelligent O&M dedicated bucket.
+
+* `url` - The OBS service access address.
+
+* `port` - The OBS service port number.
+
+* `domain_id` - The tenant ID.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
 * `create` - Default timeout is 30 minutes.
+
+## Import
+
+The GaussDB ASP collect can be imported using the `instance_id` and `id` separated by a slash, e.g.
+
+```bash
+$ terraform import huaweicloud_gaussdb_asp_collect.test <instance_id>/<id>
+```
