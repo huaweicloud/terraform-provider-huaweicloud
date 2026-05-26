@@ -26,6 +26,7 @@ var devServerNotExistCode = "ModelArts.6404" // DevServer does not exist.
 // @API ModelArts POST /v1/{project_id}/dev-servers
 // @API ModelArts GET /v1/{project_id}/dev-servers
 // @API ModelArts GET /v1/{project_id}/dev-servers/{id}
+// @API ModelArts PUT /v1/{project_id}/dev-servers/{id}
 // @API ModelArts DELETE /v1/{project_id}/dev-servers/{id}
 func ResourceDevServer() *schema.Resource {
 	return &schema.Resource{
@@ -52,7 +53,6 @@ func ResourceDevServer() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The name of the DevServer.`,
 			},
 			"resource_flavor": {
@@ -532,13 +532,45 @@ func resourceDevServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func buildUpdateDevServerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name": d.Get("name"),
+	}
+}
+
+func updateDevServerName(client *golangsdk.ServiceClient, devServerId string, d *schema.ResourceData) error {
+	httpUrl := "v1/{project_id}/dev-servers/{id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{id}", devServerId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateDevServerBodyParams(d),
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
 func resourceDevServerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		devServerId = d.Id()
+	)
+
+	if d.HasChange("name") {
+		client, err := cfg.NewServiceClient("modelarts", region)
+		if err != nil {
+			return diag.Errorf("error creating ModelArts client: %s", err)
+		}
+
+		if err = updateDevServerName(client, devServerId, d); err != nil {
+			return diag.Errorf("error updating the name of the DevServer (%s): %s", devServerId, err)
+		}
+	}
+
 	if d.HasChange("auto_renew") {
-		var (
-			cfg         = meta.(*config.Config)
-			region      = cfg.GetRegion(d)
-			devServerId = d.Id()
-		)
 		bssClient, err := cfg.NewServiceClient("bssv2", region)
 		if err != nil {
 			return diag.Errorf("error creating BSS client: %s", err)
@@ -547,6 +579,7 @@ func resourceDevServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error updating the auto_renew of the DevServer (%s): %s", devServerId, err)
 		}
 	}
+
 	return resourceDevServerRead(ctx, d, meta)
 }
 

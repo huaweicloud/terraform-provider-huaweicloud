@@ -31,7 +31,8 @@ func TestAccDevServer_basic(t *testing.T) {
 		resourceName = "huaweicloud_modelarts_devserver.test"
 		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDevServerResourceFunc)
 
-		name = acceptance.RandomAccResourceName()
+		name        = acceptance.RandomAccResourceName()
+		updatedName = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -70,42 +71,43 @@ func TestAccDevServer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDevServer_basic(name, false),
+				Config: testAccDevServer_basic(updatedName, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updatedName),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
 			// Stopping the DevServer.
 			{
-				Config: testAccDevServer_doAction(name, "stop", false),
+				Config: testAccDevServer_doAction(updatedName, "stop", false),
 			},
 			// Stopping the stopped DevServer.
 			{
-				Config:      testAccDevServer_doAction(name, "stop", true),
+				Config:      testAccDevServer_doAction(updatedName, "stop", true),
 				ExpectError: regexp.MustCompile(`unable to stop DevServer \([a-f0-9-]+\)`),
 			},
 			// Reinstalling the DevServer OS.
 			{
-				Config: testAccDevServer_doAction(name, "reinstallos", false),
+				Config: testAccDevServer_doAction(updatedName, "reinstallos", false),
 			},
 			// After reinstalling the DevServer OS, the status be changed to "RUNNING", and if we want to test the start
 			// action, we need to stop the DevServer first.
 			{
-				Config: testAccDevServer_doAction(name, "stop", false),
+				Config: testAccDevServer_doAction(updatedName, "stop", false),
 			},
 			// Starting the DevServer (after reinstall OS image).
 			{
-				Config: testAccDevServer_doAction(name, "start", false),
+				Config: testAccDevServer_doAction(updatedName, "start", false),
 			},
 			// Starting the running DevServer.
 			{
-				Config:      testAccDevServer_doAction(name, "start", true),
+				Config:      testAccDevServer_doAction(updatedName, "start", true),
 				ExpectError: regexp.MustCompile(`unable to start DevServer \([a-f0-9-]+\)`),
 			},
 			// Rebooting the DevServer.
 			{
-				Config: testAccDevServer_doAction(name, "reboot", false),
+				Config: testAccDevServer_doAction(updatedName, "reboot", false),
 			},
 			{
 				ResourceName:      resourceName,

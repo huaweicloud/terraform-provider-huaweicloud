@@ -50,8 +50,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the DevServer.
-  Changing this creates a new resource.  
+* `name` - (Required, String) Specifies the name of the DevServer.  
   The name valid length is limited from `1` to `64`, only English letters, digits, underscores (_) and hyphens (-) are
   allowed.
 
