@@ -1328,6 +1328,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dnsv21_ptrrecords":                dns.DataSourceDNSV21PtrRecords(),
 
 			"huaweicloud_drs_actions":                  drs.DataSourceDrsActions(),
+			"huaweicloud_drs_agency_permissions":       drs.DataSourceDrsAgencyPermissions(),
 			"huaweicloud_drs_availability_zones":       drs.DataSourceAvailabilityZones(),
 			"huaweicloud_drs_batch_get_params":         drs.DataSourceDrsBatchGetParams(),
 			"huaweicloud_drs_batch_progresses":         drs.DataSourceDrsBatchProgresses(),
