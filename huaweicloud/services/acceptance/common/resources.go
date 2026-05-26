@@ -42,14 +42,14 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 // TestBaseNetwork vpc, subnet, security group
-func TestBaseNetwork(name string) string {
+func TestBaseNetwork(name string, enterpriseProjectId ...string) string {
 	return fmt.Sprintf(`
 # base security group without default rules
 %s
 
 # base vpc and subnet
 %s
-`, TestSecGroup(name), TestVpc(name))
+`, TestSecGroup(name), TestVpc(name, enterpriseProjectId...))
 }
 
 // TestBaseComputeResources vpc, subnet, security group, availability zone, keypair, image, flavor
