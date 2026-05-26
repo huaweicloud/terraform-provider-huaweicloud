@@ -3727,6 +3727,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_backup_stop":                geminidb.ResourceGeminiDBBackupStop(),
 			"huaweicloud_geminidb_database_operation":         geminidb.ResourceGeminiDBDatabaseOperation(),
 			"huaweicloud_geminidb_instance":                   geminidb.ResourceGeminiDbInstance(),
+			"huaweicloud_geminidb_instance_restart":           geminidb.ResourceInstanceRestart(),
 			"huaweicloud_geminidb_memory_mapping":             geminidb.ResourceMemoryMapping(),
 			"huaweicloud_geminidb_memory_rule":                geminidb.ResourceMemoryRule(),
 			"huaweicloud_geminidb_node_session_kill":          geminidb.ResourceNodeSessionKill(),
