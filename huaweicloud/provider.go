@@ -1337,6 +1337,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_compare_policy":           drs.DataSourceDrsComparePolicy(),
 			"huaweicloud_drs_compare_progress":         drs.DataSourceDrsCompareProgress(),
 			"huaweicloud_drs_compare_result":           drs.DataSourceDrsCompareResult(),
+			"huaweicloud_drs_configuration_histories":  drs.DataSourceDrsConfigurationHistories(),
 			"huaweicloud_drs_db_object":                drs.DataSourceDrsDbObject(),
 			"huaweicloud_drs_data_processing_rules":    drs.DataSourceDrsDataProcessingRules(),
 			"huaweicloud_drs_job_configurations":       drs.DataSourceDrsJobConfigurations(),
