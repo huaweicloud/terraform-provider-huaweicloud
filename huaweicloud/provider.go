@@ -3394,6 +3394,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_vpcep_connections_update":    css.ResourceCssVpcepserviceConnectionsUpdate(),
 
 			"huaweicloud_das_binlog_parse_task":            das.ResourceBinlogParseTask(),
+			"huaweicloud_das_binlog_parse_task_export":     das.ResourceBinlogParseTaskExport(),
 			"huaweicloud_das_database_instance_connection": das.ResourceDatabaseInstanceConnection(),
 			"huaweicloud_das_database_user":                das.ResourceDatabaseUser(),
 			"huaweicloud_das_email_template":               das.ResourceEmailTemplate(),

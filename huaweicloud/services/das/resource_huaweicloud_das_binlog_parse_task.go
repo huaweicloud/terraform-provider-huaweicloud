@@ -217,7 +217,7 @@ func resourceBinlogParseTaskRead(_ context.Context, d *schema.ResourceData, meta
 
 	respBody, err := GetBinlogParseTask(client, userId, taskId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errorCodeStr",
 			binlogParseTaskNotFoundCodes...), fmt.Sprintf("error retrieving DAS binlog parse task (%s)", taskId))
 	}
 
@@ -275,7 +275,7 @@ func resourceBinlogParseTaskDelete(_ context.Context, d *schema.ResourceData, me
 
 	_, err = client.Request("GET", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errorCodeStr",
 			binlogParseTaskNotFoundCodes...), fmt.Sprintf("error deleting DAS binlog parse task (%s)", taskId))
 	}
 
