@@ -273,6 +273,7 @@ var (
 
 	HW_TAURUSDB_INSTANCE_ID               = os.Getenv("HW_TAURUSDB_INSTANCE_ID")
 	HW_TAURUSDB_HTAP_INSTANCE_ID          = os.Getenv("HW_TAURUSDB_HTAP_INSTANCE_ID")
+	HW_TAURUSDB_HTAP_NODE_ID              = os.Getenv("HW_TAURUSDB_HTAP_NODE_ID")
 	HW_TAURUSDB_NODE_ID                   = os.Getenv("HW_TAURUSDB_NODE_ID")
 	HW_TAURUSDB_NODE_SESSION_ID           = os.Getenv("HW_TAURUSDB_NODE_SESSION_ID")
 	HW_TAURUSDB_DATABASE_NAME             = os.Getenv("HW_TAURUSDB_DATABASE_NAME")
@@ -2300,6 +2301,13 @@ func TestAccPreCheckTaurusDBInstanceId(t *testing.T) {
 func TestAccPreCheckTaurusDBHtapInstanceId(t *testing.T) {
 	if HW_TAURUSDB_HTAP_INSTANCE_ID == "" {
 		t.Skip("HW_TAURUSDB_HTAP_INSTANCE_ID must be set for TaurusDB Htap acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckTaurusDBHtapNodeId(t *testing.T) {
+	if HW_TAURUSDB_HTAP_NODE_ID == "" {
+		t.Skip("HW_TAURUSDB_HTAP_NODE_ID must be set for TaurusDB Htap acceptance tests.")
 	}
 }
 
