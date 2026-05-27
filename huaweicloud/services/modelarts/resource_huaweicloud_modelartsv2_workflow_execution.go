@@ -545,7 +545,7 @@ func v2WorkflowExecutionConditionExecutionSchema() *schema.Resource {
 			"result": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The result of the condition execution.`,
+				Description: `The result of the condition execution, in JSON format.`,
 			},
 			"metric_list": {
 				Type:        schema.TypeList,
@@ -940,7 +940,7 @@ func flattenV2WorkflowExecutionConditionExecution(conditionExecution interface{}
 
 	return []map[string]interface{}{
 		{
-			"result": utils.PathSearch("result", conditionExecution, nil),
+			"result": utils.JsonToString(utils.PathSearch("result", conditionExecution, nil)),
 			"metric_list": flattenV2WorkflowExecutionMetricPairs(
 				utils.PathSearch("metric_list", conditionExecution, make([]interface{}, 0)).([]interface{})),
 		},
