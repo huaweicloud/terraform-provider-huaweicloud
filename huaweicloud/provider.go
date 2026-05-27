@@ -1753,6 +1753,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_change_files":                               hss.DataSourceChangeFiles(),
 			"huaweicloud_hss_overview_protection_statistics":             hss.DataSourceOverviewProtectionStatistics(),
 			"huaweicloud_hss_overview_agent_statistics":                  hss.DataSourceOverviewAgentStatistics(),
+			"huaweicloud_hss_overview_risk_score":                        hss.DataSourceOverviewRiskScore(),
 			"huaweicloud_hss_overview_hot_information":                   hss.DataSourceOverviewHotInformation(),
 			"huaweicloud_hss_agent_auto_upgrade_config":                  hss.DataSourceAgentAutoUpgradeConfig(),
 			"huaweicloud_hss_billing_version":                            hss.DataSourceBillingVersion(),
