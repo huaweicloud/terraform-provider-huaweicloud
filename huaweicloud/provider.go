@@ -3734,8 +3734,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_memory_rule":                geminidb.ResourceMemoryRule(),
 			"huaweicloud_geminidb_node_session_kill":          geminidb.ResourceNodeSessionKill(),
 			"huaweicloud_geminidb_parameter_template":         geminidb.ResourceGeminiDBParameterTemplate(),
-			"huaweicloud_geminidb_parameter_template_reset":   geminidb.ResourceGeminiDBParameterTemplateReset(),
 			"huaweicloud_geminidb_parameter_template_compare": geminidb.ResourceGeminiDBParameterTemplateCompare(),
+			"huaweicloud_geminidb_parameter_template_reset":   geminidb.ResourceGeminiDBParameterTemplateReset(),
+			"huaweicloud_geminidb_primary_standby_switch":     geminidb.ResourcePrimaryStandbySwitch(),
 			"huaweicloud_geminidb_recycling_policy":           geminidb.ResourceGeminiDBRecyclingPolicy(),
 
 			"huaweicloud_gaussdb_cassandra_instance":  geminidb.ResourceGeminiDBInstanceV3(),
