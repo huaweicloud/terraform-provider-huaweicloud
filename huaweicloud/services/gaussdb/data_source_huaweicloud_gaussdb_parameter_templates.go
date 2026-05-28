@@ -67,6 +67,10 @@ func DataSourceGaussDbParameterTemplates() *schema.Resource {
 							Computed:    true,
 							Description: `Indicates whether the parameter template is a custom template.`,
 						},
+						"node_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -147,6 +151,7 @@ func (w *OpengaussParameterTemplatesDSWrapper) listParamGroupTemplatesToSchema(b
 					"datastore_name":    configurations.Get("datastore_name").Value(),
 					"ha_mode":           configurations.Get("ha_mode").Value(),
 					"user_defined":      configurations.Get("user_defined").Value(),
+					"node_type":         configurations.Get("node_type").Value(),
 					"created_at":        configurations.Get("created").Value(),
 					"updated_at":        configurations.Get("updated").Value(),
 				}

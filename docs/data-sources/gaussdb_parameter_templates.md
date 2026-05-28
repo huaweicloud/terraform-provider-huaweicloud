@@ -53,6 +53,8 @@ The `configurations` block supports:
   + **false**: The parameter template is a default template.
   + **true**: The parameter template is a custom template.
 
+* `node_type` - Indicates the node type.
+
 * `created_at` - Indicates the creation time in the **yyyy-MM-dd HH:mm:ss** format.
 
 * `updated_at` - Indicates the update time in the **yyyy-MM-dd HH:mm:ss** format.
