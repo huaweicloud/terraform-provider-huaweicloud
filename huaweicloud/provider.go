@@ -1759,6 +1759,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_agent_auto_upgrade_config":                  hss.DataSourceAgentAutoUpgradeConfig(),
 			"huaweicloud_hss_billing_version":                            hss.DataSourceBillingVersion(),
 			"huaweicloud_hss_security_check_config":                      hss.DataSourceSecurityCheckConfig(),
+			"huaweicloud_hss_security_reports":                           hss.DataSourceSecurityReports(),
 			"huaweicloud_hss_baseline_security_checks_directories":       hss.DataSourceBaselineSecurityChecksDirectories(),
 			"huaweicloud_hss_baseline_security_checks_default_policy":    hss.DataSourceBaselineSecurityChecksDefaultPolicy(),
 			"huaweicloud_hss_baseline_security_checks_details":           hss.DataSourceBaselineSecurityChecksDetails(),
