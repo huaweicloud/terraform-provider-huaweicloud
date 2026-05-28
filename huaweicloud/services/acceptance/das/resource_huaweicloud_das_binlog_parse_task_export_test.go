@@ -30,7 +30,7 @@ func TestAccBinlogParseTaskExport_basic(t *testing.T) {
 		rName = "huaweicloud_das_binlog_parse_task_export.test"
 		rc    = acceptance.InitResourceCheck(rName, &obj, getBinlogParseTaskExportResourceFunc)
 
-		name = acceptance.RandomAccResourceName()
+		name = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +94,7 @@ func testAccBinlogParseTaskExportImportIdFunc(rName string) resource.ImportState
 func testAccBinlogParseTaskExport_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "test" {
-  bucket        = "tf-test-bucket"
+  bucket        = "%[1]s"
   acl           = "private"
   force_destroy = true
 }
