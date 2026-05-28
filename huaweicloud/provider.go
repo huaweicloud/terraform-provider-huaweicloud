@@ -1498,6 +1498,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_node_sessions":                 geminidb.DataSourceNodeSessions(),
 			"huaweicloud_geminidb_node_session_statistics":       geminidb.DataSourceNodeSessionStatistics(),
 			"huaweicloud_geminidb_pt_applicable_instances":       geminidb.DataSourceGeminiDBPtApplicableInstances(),
+			"huaweicloud_geminidb_pt_appliction_records":         geminidb.DataSourceGeminiDBPtApplicationRecords(),
 			"huaweicloud_geminidb_quotas":                        geminidb.DataSourceQuotas(),
 			"huaweicloud_geminidb_recycling_instances":           geminidb.DataSourceGeminiDBRecyclingInstances(),
 			"huaweicloud_geminidb_restorable_time_window":        geminidb.DataSourceGeminiDBRestorableTimeWindow(),
