@@ -394,6 +394,7 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.153"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy.#"),
@@ -412,6 +413,7 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "policy.0.size", "20"),
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.118"),
 				),
 			},
 			{
@@ -842,6 +844,9 @@ resource "huaweicloud_geminidb_instance" "test" {
 
   # enable password-free configuration
   config_ips = ["192.168.1.15","192.168.1.23/24"]
+
+  # update loadbalancer IP address
+  lb_ip_address = "192.168.0.153"
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -890,6 +895,7 @@ resource "huaweicloud_geminidb_instance" "test" {
 
   second_level_monitoring_enabled = "false"
   config_ips                      = ["192.168.1.15","192.168.1.23/24","192.168.1.38"]
+  lb_ip_address                   = "192.168.0.118"
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -931,6 +937,7 @@ resource "huaweicloud_geminidb_instance" "test" {
   switch_option                   = "off"
   second_level_monitoring_enabled = false
   config_ips                      = []
+  lb_ip_address                   = "192.168.0.118"
 }
 `, common.TestBaseNetwork(name), name)
 }
