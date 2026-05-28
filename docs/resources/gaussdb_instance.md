@@ -193,6 +193,10 @@ The following arguments are supported:
   + **ON**: ASP generation is enabled.
   + **OFF**: ASP generation is disabled.
 
+* `error_log_switch_status` - (Optional, String) Specifies whether error log collection is enabled. The value can be:
+  + **ON**: enabled
+  + **OFF**: disabled
+
 * `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
   `coordinator_num` should be modified simultaneously when the value is modified.
 
@@ -293,10 +297,6 @@ In addition to all arguments above, the following attributes are exported:
 * `switch_strategy` - Indicates the switch strategy.
 
 * `balance_status` - Indicates whether the host load is balanced due to a primary/standby switchover.
-
-* `error_log_switch_status` - Indicates whether error log collection is enabled. The value can be:
-  + **ON**: enabled
-  + **OFF**: disabled
 
 * `maintenance_window` - Indicates the maintenance window.
 
