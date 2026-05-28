@@ -141,6 +141,17 @@ The following arguments are supported:
   <br/>2. the `policy` supports update only when the `switch_option` is set to **on**.
   <br/>3. Currently, only **GeminiDB Cassandra** and **GeminiDB Redis** instances are supported.
 
+* `second_level_monitoring_enabled` - (Optional, String) Specifies whether second-level monitoring is enabled.
+  The valid values are **true** and **false**.
+
+  -> Currently, only for a proxy cluster GeminiDB Redis instances with `4` or more CPUs can be configuration.
+
+* `config_ips` - (Optional, List) Specifies the list of IP addresses and CIDR blocks for which password-free
+  configurations need to be set.
+  If the list is empty, the password-free configurations are cleared.
+
+  -> This parameter is valid and available for **GeminiDB Redis** instance.
+
 * `delete_node_list` - (Optional, List) Specifies the ID of the nodes to be deleted. Make sure that the node
   can be deleted. This parameter can not be specified when add nodes. When delete nodes, if this parameter is specified,
   then the nodes specified by this parameter will be deleted, and id this parameter is not transferred, the nodes will be

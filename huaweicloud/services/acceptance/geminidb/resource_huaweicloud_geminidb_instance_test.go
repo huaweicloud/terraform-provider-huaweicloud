@@ -351,7 +351,7 @@ func TestAccGeminiDbInstance_dynamodb(t *testing.T) {
 	})
 }
 
-func TestAccGeminiDbInstance_autoEnlargePolicy(t *testing.T) {
+func TestAccGeminiDbInstance_configuration(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_geminidb_instance.test"
@@ -370,7 +370,7 @@ func TestAccGeminiDbInstance_autoEnlargePolicy(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGeminiDBAutoEnlargePolicy_basic(rName),
+				Config: testAccGeminiDBConfiguration_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -392,6 +392,8 @@ func TestAccGeminiDbInstance_autoEnlargePolicy(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "flavor.0.spec_code",
 						"data.huaweicloud_gaussdb_nosql_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
+					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "2"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy.#"),
@@ -401,20 +403,23 @@ func TestAccGeminiDbInstance_autoEnlargePolicy(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGeminiDBAutoEnlargePolicy_update_step1(rName),
+				Config: testAccGeminiDBConfiguration_update_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.threshold", "85"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.step", "15"),
 					resource.TestCheckResourceAttr(resourceName, "policy.0.size", "20"),
+					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "3"),
 				),
 			},
 			{
-				Config: testAccGeminiDBAutoEnlargePolicy_upate_step2(rName),
+				Config: testAccGeminiDBConfiguration_update_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "off"),
+					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "0"),
 				),
 			},
 			{
@@ -795,20 +800,20 @@ resource "huaweicloud_geminidb_instance" "test" {
 `, testAccGeminiDbInstance_base(rName), updateName)
 }
 
-func testAccGeminiDBAutoEnlargePolicy_basic(name string) string {
+func testAccGeminiDBConfiguration_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
-  vcpus             = 2
+  vcpus             = 4
   engine            = "redis"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
 
 resource "huaweicloud_geminidb_instance" "test" {
-  name                  = "%[2]s"
+  name              = "%[2]s"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
@@ -829,19 +834,26 @@ resource "huaweicloud_geminidb_instance" "test" {
     spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   }
 
+  # setting auto enlarge policy
   switch_option = "on"
+
+  # enable second level monitor
+  second_level_monitoring_enabled = "true"
+
+  # enable password-free configuration
+  config_ips = ["192.168.1.15","192.168.1.23/24"]
 }
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccGeminiDBAutoEnlargePolicy_update_step1(name string) string {
+func testAccGeminiDBConfiguration_update_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
-  vcpus             = 2
+  vcpus             = 4
   engine            = "redis"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
@@ -875,18 +887,21 @@ resource "huaweicloud_geminidb_instance" "test" {
     step      = 15
     size      = 20
   }
+
+  second_level_monitoring_enabled = "false"
+  config_ips                      = ["192.168.1.15","192.168.1.23/24","192.168.1.38"]
 }
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccGeminiDBAutoEnlargePolicy_upate_step2(name string) string {
+func testAccGeminiDBConfiguration_update_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
-  vcpus             = 2
+  vcpus             = 4
   engine            = "redis"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
@@ -913,7 +928,9 @@ resource "huaweicloud_geminidb_instance" "test" {
     spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   }
 
-  switch_option = "off"
+  switch_option                   = "off"
+  second_level_monitoring_enabled = false
+  config_ips                      = []
 }
 `, common.TestBaseNetwork(name), name)
 }
