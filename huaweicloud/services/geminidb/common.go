@@ -328,3 +328,27 @@ func geminiDbJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resou
 		return getJobStatusRespBody, "Pending", nil
 	}
 }
+
+type getInstanceFieldParams struct {
+	httpUrl    string
+	httpMethod string
+	pathParams map[string]string
+}
+
+func getInstanceField(client *golangsdk.ServiceClient, params getInstanceFieldParams) (interface{}, error) {
+	getPath := client.Endpoint + params.httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	for pathParam, value := range params.pathParams {
+		getPath = strings.ReplaceAll(getPath, fmt.Sprintf("{%s}", pathParam), value)
+	}
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request(params.httpMethod, getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(getResp)
+}

@@ -49,6 +49,10 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB DELETE /v3/{project_id}/instances/{instance_id}
 // @API GeminiDB PUT /v3/{project_id}/instances/disk-auto-expansion
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/passwordless-config
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -177,6 +181,20 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Computed: true,
 				MaxItems: 1,
 				Elem:     geminiDbInstanceAutomaticScalePolicSchema(),
+			},
+			"second_level_monitoring_enabled": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"config_ips": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"delete_node_list": {
 				Type:     schema.TypeSet,
@@ -551,11 +569,28 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	// lintignore:R018
 	time.Sleep(360 * time.Second)
 
-	// setting auto enlarge policy
+	// Setting auto enlarge policy
 	if v, ok := d.GetOk("switch_option"); ok && v.(string) == "on" {
 		err = updateAutoEnlargePolicy(client, d, d.Id())
 		if err != nil {
 			return diag.Errorf("error setting GeminiDB auto enlarge policy: %s", err)
+		}
+	}
+
+	// Enable second level monitor
+	if v, ok := d.GetOk("second_level_monitoring_enabled"); ok && v.(string) == "true" {
+		err = updateSecondLevelMonitor(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Enable password-free configuration
+	configIps := utils.ExpandToStringList(d.Get("config_ips").(*schema.Set).List())
+	if len(configIps) > 0 {
+		err = updatePasswordFreeConfiguration(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -721,6 +756,54 @@ func buildCreateGeminiDbInstanceChargeInfoBody(d *schema.ResourceData) map[strin
 	return rst
 }
 
+func updateSecondLevelMonitor(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("second_level_monitoring_enabled") {
+		return nil
+	}
+
+	switchMonitor, _ := strconv.ParseBool(d.Get("second_level_monitoring_enabled").(string))
+
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: map[string]interface{}{"enabled": switchMonitor},
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating GeminiDB instance second level monitor: %s", err)
+	}
+
+	return nil
+}
+
+func updatePasswordFreeConfiguration(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("config_ips") {
+		return nil
+	}
+
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/passwordless-config",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdatePasswordFreeConfigurationBodyParams(d),
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating GeminiDB instance password-free configuration: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdatePasswordFreeConfigurationBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"config_ips": utils.ExpandToStringList(d.Get("config_ips").(*schema.Set).List()),
+	}
+
+	return bodyParams
+}
+
 func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -775,7 +858,7 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 		mErr = multierror.Append(mErr, err)
 	}
 
-	// set auto enlarge policy parameters
+	// Set auto enlarge policy parameters
 	policy, err := getAutoEnlargePolicyInfo(client, d.Id())
 	if err != nil {
 		log.Printf("[Warn] error retrieving GeminiDB auto enlarge policy information")
@@ -792,6 +875,12 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 			d.Set("switch_option", "off"),
 		)
 	}
+
+	// Set second level monitor
+	mErr = multierror.Append(mErr, getSecondLevelMonitorInfo(d, client))
+
+	// Set password-free configuration
+	mErr = multierror.Append(mErr, getPasswordFreeConfigurationInfo(d, client))
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -979,6 +1068,37 @@ func flattenGaussDBProxyResponseBodyDualActiveInfo(instance interface{}) []inter
 	return rst
 }
 
+func getSecondLevelMonitorInfo(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+
+	if err != nil {
+		log.Printf("[WARN] error retrieving GeminiDB instance second level monitor information: %s", err)
+		return nil
+	}
+
+	return d.Set("second_level_monitoring_enabled",
+		strconv.FormatBool(utils.PathSearch("enabled", getRespBody, false).(bool)))
+}
+
+func getPasswordFreeConfigurationInfo(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/passwordless-config",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+
+	if err != nil {
+		log.Printf("[WARN] error retrieving GeminiDB instance password-free configuration: %s", err)
+		return nil
+	}
+
+	return d.Set("config_ips", utils.PathSearch("config_ips", getRespBody, make([]interface{}, 0)).([]interface{}))
+}
+
 func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1070,12 +1190,24 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	// update auto enlarge policy
+	// Update auto enlarge policy
 	if d.HasChanges("switch_option", "policy") {
 		err = updateAutoEnlargePolicy(client, d, d.Id())
 		if err != nil {
 			return diag.Errorf("error updating GeminiDB auto enlarge policy: %s", err)
 		}
+	}
+
+	// Update second level monitor
+	err = updateSecondLevelMonitor(ctx, d, client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// Update password-free configuration
+	err = updatePasswordFreeConfiguration(ctx, d, client)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
