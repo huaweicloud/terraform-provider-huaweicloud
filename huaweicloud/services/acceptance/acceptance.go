@@ -488,6 +488,7 @@ var (
 
 	HW_DRS_COMPARE_JOB_ID = os.Getenv("HW_DRS_COMPARE_JOB_ID")
 	HW_DRS_DB_PASSWORD    = os.Getenv("HW_DRS_DB_PASSWORD")
+	HW_DRS_ENABLE_FLAG    = os.Getenv("HW_DRS_ENABLE_FLAG")
 	HW_DRS_JOB_ID         = os.Getenv("HW_DRS_JOB_ID")
 	HW_DRS_JOB_IDS        = os.Getenv("HW_DRS_JOB_IDS")
 
@@ -2977,6 +2978,13 @@ func TestAccPreCheckDrsCompareJobId(t *testing.T) {
 func TestAccPreCheckDrsDbPassword(t *testing.T) {
 	if HW_DRS_DB_PASSWORD == "" {
 		t.Skip("HW_DRS_DB_PASSWORD must be set for DRS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDRSEnableFlag(t *testing.T) {
+	if HW_DRS_ENABLE_FLAG == "" {
+		t.Skip("Skip the DRS acceptance tests.")
 	}
 }
 

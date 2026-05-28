@@ -1352,6 +1352,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_dirty_data":               drs.DataSourceDrsDirtyData(),
 			"huaweicloud_drs_disaster_monitoring_data": drs.DataSourceDrsDisasterMonitoringData(),
 			"huaweicloud_drs_health_compare_overview":  drs.DataSourceDrsHealthCompareOverview(),
+			"huaweicloud_drs_instances_by_tags":        drs.DataSourceDrsInstancesByTags(),
 			"huaweicloud_drs_job_configurations":       drs.DataSourceDrsJobConfigurations(),
 			"huaweicloud_drs_job_links":                drs.DataSourceJobLinks(),
 			"huaweicloud_drs_job_metering":             drs.DataSourceDrsJobMetering(),
