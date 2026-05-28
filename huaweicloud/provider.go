@@ -1090,6 +1090,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_approvals":                        dataarts.DataSourceArchitectureApprovals(),
 			"huaweicloud_dataarts_architecture_business_metrics":                 dataarts.DataSourceArchitectureBusinessMetrics(),
 			"huaweicloud_dataarts_architecture_code_tables":                      dataarts.DataSourceArchitectureCodeTables(),
+			"huaweicloud_dataarts_architecture_data_standards":                   dataarts.DataSourceArchitectureDataStandards(),
 			"huaweicloud_dataarts_architecture_data_standard_template_customs":   dataarts.DataSourceArchitectureDataStandardTemplateCustoms(),
 			"huaweicloud_dataarts_architecture_data_standard_template_optionals": dataarts.DataSourceArchitectureDataStandardTemplateOptionals(),
 			"huaweicloud_dataarts_architecture_directories":                      dataarts.DataSourceArchitectureDirectories(),
