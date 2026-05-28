@@ -923,6 +923,7 @@ var (
 
 	HW_GEMINIDB_INSATNCE_ID = os.Getenv("HW_GEMINIDB_INSATNCE_ID")
 	HW_GEMINIDB_BACKUP_ID   = os.Getenv("HW_GEMINIDB_BACKUP_ID")
+	HW_GEMINIDB_CONFIG_ID   = os.Getenv("HW_GEMINIDB_CONFIG_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -5435,5 +5436,12 @@ func TestAccCheckGeminidbInstanceID(t *testing.T) {
 func TestAccCheckGeminidbBackupID(t *testing.T) {
 	if HW_GEMINIDB_BACKUP_ID == "" {
 		t.Skip("HW_GEMINIDB_BACKUP_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccCheckGeminidbConfigID(t *testing.T) {
+	if HW_GEMINIDB_CONFIG_ID == "" {
+		t.Skip("HW_GEMINIDB_CONFIG_ID must be set for this acceptance test")
 	}
 }
