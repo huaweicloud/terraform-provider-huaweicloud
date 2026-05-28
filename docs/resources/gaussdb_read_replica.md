@@ -62,6 +62,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `component_names` - The component names of the read replica.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 GaussDB read replica can be imported using the `instance_id` and `id` separated by a slash, e.g.

@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -26,6 +27,11 @@ var gaussDbReadReplicaNonUpdatableParams = []string{
 	"configuration_id",
 }
 
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/readonly-nodes
+// @API GaussDB GET /v3/{project_id}/instances
+// @API GaussDB GET /v3/{project_id}/jobs
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/readonly-nodes
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/readonly-nodes
 func ResourceGaussDbReadReplica() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDbReadReplicaCreate,
@@ -315,7 +321,7 @@ func buildDeleteGaussDbReadReplicaBodyParams(d *schema.ResourceData) map[string]
 func resourceGaussDbReadReplicaImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
+		return nil, errors.New("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 
 	d.SetId(parts[1])
