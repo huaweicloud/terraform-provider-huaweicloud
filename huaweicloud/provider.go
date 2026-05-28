@@ -1010,6 +1010,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_binlogs":                       das.DataSourceBinlogs(),
 			"huaweicloud_das_database_instance_connections": das.DataSourceDatabaseInstanceConnections(),
 			"huaweicloud_das_database_users":                das.DataSourceDatabaseUsers(),
+			"huaweicloud_das_email_send_records":            das.DataSourceEmailSendRecords(),
 			"huaweicloud_das_inspection_reports":            das.DataSourceInspectionReports(),
 			"huaweicloud_das_instance_groups":               das.DataSourceInstanceGroups(),
 
