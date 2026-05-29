@@ -79,6 +79,7 @@ func DataSourceElbQuotas() *schema.Resource {
 			"certificate": {
 				Type:        schema.TypeInt,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the certificate quota.`,
 			},
 			"ipgroup_bindings": {

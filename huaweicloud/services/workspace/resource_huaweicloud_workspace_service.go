@@ -123,8 +123,9 @@ func assistAuthSchemaResource() *schema.Resource {
 				Optional: true,
 			},
 			"cert_content": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"rule": {
 				Type:     schema.TypeString,

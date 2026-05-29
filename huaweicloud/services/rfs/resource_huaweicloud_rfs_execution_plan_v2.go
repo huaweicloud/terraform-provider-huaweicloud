@@ -207,8 +207,9 @@ func varsStructureEncryptionKmsSchema() *schema.Resource {
 				Required: true,
 			},
 			"cipher_text": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 		},
 	}

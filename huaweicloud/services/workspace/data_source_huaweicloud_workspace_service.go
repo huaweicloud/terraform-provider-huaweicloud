@@ -234,6 +234,7 @@ func dataServiceAssistAuthSchema() *schema.Resource {
 			"cert_content": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The certificate content, in PEM format.`,
 			},
 			"rule_type": {

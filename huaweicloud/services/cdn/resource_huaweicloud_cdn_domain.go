@@ -41,9 +41,10 @@ var httpsConfig = schema.Schema{
 				Computed: true,
 			},
 			"certificate_body": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"private_key": {
 				Type:      schema.TypeString,

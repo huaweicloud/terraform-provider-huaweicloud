@@ -44,14 +44,16 @@ func ResourceKmsDataEncryptDecrypt() *schema.Resource {
 				ForceNew: true,
 			},
 			"plain_text": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"cipher_text": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"cipher_data": {
 				Type:     schema.TypeString,
@@ -62,8 +64,9 @@ func ResourceKmsDataEncryptDecrypt() *schema.Resource {
 				Computed: true,
 			},
 			"plain_text_base64": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 		},
 	}

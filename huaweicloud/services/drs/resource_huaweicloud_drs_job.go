@@ -561,9 +561,10 @@ func dbInfoSchemaResource() *schema.Resource {
 				Default:  false,
 			},
 			"ssl_cert_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"ssl_cert_name": {
 				Type:     schema.TypeString,

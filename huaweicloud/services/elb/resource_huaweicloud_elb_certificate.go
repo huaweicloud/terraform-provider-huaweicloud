@@ -57,21 +57,25 @@ func ResourceCertificateV3() *schema.Resource {
 			"private_key": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Sensitive:        true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 			"certificate": {
 				Type:             schema.TypeString,
 				Required:         true,
+				Sensitive:        true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 			"enc_certificate": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Sensitive:        true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 			"enc_private_key": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Sensitive:        true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 			"scm_certificate_id": {

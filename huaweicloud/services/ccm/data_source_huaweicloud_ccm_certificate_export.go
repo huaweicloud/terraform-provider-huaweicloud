@@ -35,31 +35,37 @@ func DataSourceCertificateExport() *schema.Resource {
 			"enc_private_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The encryption certificate private key. This attribute is only meaningful in the state secret certificate.`,
 			},
 			"entire_certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The certificate content and certificate chain.`,
 			},
 			"certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The certificate content.`,
 			},
 			"certificate_chain": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The certificate chain.`,
 			},
 			"private_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The private key of the certificate.`,
 			},
 			"enc_certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The encryption certificate content. This attribute is only meaningful in the state secret certificate.`,
 			},
 		},

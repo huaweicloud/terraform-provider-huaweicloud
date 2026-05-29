@@ -62,8 +62,9 @@ func ResourceIdentityCenterApplicationCertificate() *schema.Resource {
 				Computed: true,
 			},
 			"certificate": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"expiry_date": {
 				Type:     schema.TypeString,

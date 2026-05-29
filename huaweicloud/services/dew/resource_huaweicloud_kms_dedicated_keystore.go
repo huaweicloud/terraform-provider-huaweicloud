@@ -55,6 +55,7 @@ func ResourceKmsDedicatedKeystore() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the CA certificate of the dedicated HSM cluster.`,
 			},
 		},

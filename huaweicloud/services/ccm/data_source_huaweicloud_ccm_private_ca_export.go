@@ -35,11 +35,13 @@ func DataSourcePrivateCaExport() *schema.Resource {
 			"certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The certificate content.`,
 			},
 			"certificate_chain": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The content of the certificate chain.`,
 			},
 		},
