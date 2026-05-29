@@ -35,6 +35,7 @@ func DataSourceBmsInstancePassword() *schema.Resource {
 			"password": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the password in ciphertext.`,
 			},
 		},

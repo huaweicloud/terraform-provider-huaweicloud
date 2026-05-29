@@ -44,8 +44,9 @@ func DataSourceKubernetesContainerDetail() *schema.Resource {
 				Computed: true,
 			},
 			"service_password": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:      schema.TypeInt,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"service_port_list": {
 				Type:     schema.TypeList,

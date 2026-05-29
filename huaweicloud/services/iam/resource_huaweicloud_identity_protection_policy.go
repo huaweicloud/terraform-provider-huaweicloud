@@ -53,8 +53,9 @@ func ResourceIdentityProtectionPolicy() *schema.Resource {
 							Optional: true,
 						},
 						"password": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:      schema.TypeBool,
+							Optional:  true,
+							Sensitive: true,
 						},
 						"mobile": {
 							Type:     schema.TypeBool,

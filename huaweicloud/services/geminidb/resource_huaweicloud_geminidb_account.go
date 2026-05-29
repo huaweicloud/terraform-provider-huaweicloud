@@ -66,8 +66,9 @@ func ResourceGeminidbAccount() *schema.Resource {
 				Required: true,
 			},
 			"password": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"privilege": {
 				Type:     schema.TypeString,

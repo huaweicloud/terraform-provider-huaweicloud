@@ -43,8 +43,9 @@ func DataSourceRemoteDatabases() *schema.Resource {
 				Required: true,
 			},
 			"login_user_password": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"databases": {
 				Type:     schema.TypeList,

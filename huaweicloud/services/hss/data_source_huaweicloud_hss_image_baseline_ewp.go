@@ -31,9 +31,10 @@ func DataSourceImageBaselineEWP() *schema.Resource {
 				Optional: true,
 			},
 			"extended_weak_password": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:      schema.TypeList,
+				Computed:  true,
+				Sensitive: true,
+				Elem:      &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

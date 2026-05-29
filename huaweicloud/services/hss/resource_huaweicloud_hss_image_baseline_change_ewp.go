@@ -34,9 +34,10 @@ func ResourceImageBaselineChangeEWP() *schema.Resource {
 			},
 			// `extended_weak_password` can be set to an empty list.
 			"extended_weak_password": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:      schema.TypeList,
+				Optional:  true,
+				Sensitive: true,
+				Elem:      &schema.Schema{Type: schema.TypeString},
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
