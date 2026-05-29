@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `desired_node_count` - (Required, Int, NonUpdatable) Specifies the number of desired nodes.
 
-* `scale_groups` - (Required, List, NonUpdatable) Specifies the IDs of scale groups to scale.
+* `scale_groups` - (Required, List, NonUpdatable) Specifies the names of scale groups to scale.
   **default** indicates the default group.
 
 * `scalable_checking` - (Optional, String, NonUpdatable) Specifies the scalable checking.
