@@ -106,6 +106,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "on"),
 					resource.TestCheckResourceAttr(resourceName, "wdr_snapshot_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "asp_status", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "error_log_switch_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.name"),
@@ -113,7 +114,6 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.role"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.availability_zone"),
 					resource.TestCheckResourceAttr(resourceName, "balance_status", "true"),
-					resource.TestCheckResourceAttr(resourceName, "error_log_switch_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -138,6 +138,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "off"),
 					resource.TestCheckResourceAttr(resourceName, "wdr_snapshot_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "asp_status", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "error_log_switch_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
@@ -403,9 +404,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])
 
-  wdr_snapshot_status   = "OFF"
-  asp_status            = "OFF"
-  enterprise_project_id = "%[4]s"
+  wdr_snapshot_status     = "OFF"
+  asp_status              = "OFF"
+  error_log_switch_status = "ON"
+  enterprise_project_id   = "%[4]s"
 
   ha {
     mode             = "enterprise"
@@ -478,9 +480,10 @@ resource "huaweicloud_gaussdb_instance" "test" {
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])
 
-  wdr_snapshot_status   = "ON"
-  asp_status            = "ON"
-  enterprise_project_id = "%[4]s"
+  wdr_snapshot_status     = "ON"
+  asp_status              = "ON"
+  error_log_switch_status = "OFF"
+  enterprise_project_id   = "%[4]s"
 
   ha {
     mode             = "enterprise"

@@ -46,6 +46,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/advance-features
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/wdr-snapshot/status
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/asp/status
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/error-log/switch/{status}
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDB GET /v3.1/{project_id}/instances/{instance_id}/configurations
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/balance
@@ -315,6 +316,11 @@ func ResourceGaussDbInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"error_log_switch_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"delete_coordinator_node_id_list": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -399,10 +405,6 @@ func ResourceGaussDbInstance() *schema.Resource {
 			},
 			"balance_status": {
 				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"error_log_switch_status": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"nodes": {
@@ -565,6 +567,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	if v, ok := d.GetOk("asp_status"); ok && v != "ON" {
 		if err = updateAspStatus(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if v, ok := d.GetOk("error_log_switch_status"); ok && v == "ON" {
+		if err = updateErrorLogSwitchStatus(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1281,6 +1289,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if d.HasChange("error_log_switch_status") {
+		if err = updateErrorLogSwitchStatus(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
@@ -1885,6 +1899,22 @@ func buildUpdateAspStatusBodyParams(d *schema.ResourceData) map[string]interface
 		"status": d.Get("asp_status"),
 	}
 	return bodyParams
+}
+
+func updateErrorLogSwitchStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/error-log/switch/{status}",
+		httpMethod: "POST",
+		pathParams: map[string]string{
+			"instance_id": d.Id(),
+			"status":      d.Get("error_log_switch_status").(string),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB error log switch status: %s", err)
+	}
+
+	return nil
 }
 
 func checkAspStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
