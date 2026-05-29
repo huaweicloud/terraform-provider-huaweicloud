@@ -1550,6 +1550,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
+			"huaweicloud_hss_ai_component_detail":                        hss.DataSourceAiComponentDetail(),
 			"huaweicloud_hss_ai_component_statistics":                    hss.DataSourceAiComponentStatistics(),
 			"huaweicloud_hss_antivirus_handle_history":                   hss.DataSourceAntivirusHandleHistory(),
 			"huaweicloud_hss_app_agent_statistics":                       hss.DataSourceAppAgentStatistics(),
