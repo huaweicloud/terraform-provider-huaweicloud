@@ -53,6 +53,7 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/passwordless-config
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -196,6 +197,11 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"lb_ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"delete_node_list": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -252,10 +258,6 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"lb_ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"lb_port": {
 				Type:     schema.TypeString,
@@ -594,7 +596,32 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Update loadbalancer IP address
+	if err = modifyLoadbalancerIpAddress(ctx, client, d); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
+}
+
+func modifyLoadbalancerIpAddress(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	targetIpAddress, ok := d.GetOk("lb_ip_address")
+	if !ok {
+		return nil
+	}
+
+	instanceInfo, err := getGeminiDbInstance(client, d.Id())
+	if err != nil {
+		return fmt.Errorf("error query the instance information: %s", err)
+	}
+
+	sourceIpAddress := utils.PathSearch("lb_ip_address", instanceInfo, "").(string)
+	if targetIpAddress.(string) == sourceIpAddress {
+		return nil
+	}
+
+	err = updateLoadbalancerIpAddress(ctx, d, client)
+	return err
 }
 
 func updateAutoEnlargePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, instanceId string) error {
@@ -1210,6 +1237,12 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
+	// Update loadbalancer IP address
+	err = updateLoadbalancerIpAddress(ctx, d, client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -1579,6 +1612,35 @@ func buildUpdateGeminiDbInstanceBackupStrategyBodyParams(d *schema.ResourceData)
 			"period":     "1,2,3,4,5,6,7",
 		},
 	}
+	return bodyParams
+}
+
+func updateLoadbalancerIpAddress(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("lb_ip_address") {
+		return nil
+	}
+
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v3/{project_id}/instances/{instance_id}/lb",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    buildUpdateLoadbalancerIpAddressBodyParams(d),
+		isRetry:             true,
+		timeout:             schema.TimeoutUpdate,
+		checkJobExpression:  "job_id",
+		isWaitInstanceReady: true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GeminiDB instance loadbalancer IP address: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateLoadbalancerIpAddressBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"ip": d.Get("lb_ip_address"),
+	}
+
 	return bodyParams
 }
 

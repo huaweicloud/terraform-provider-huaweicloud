@@ -152,6 +152,11 @@ The following arguments are supported:
 
   -> This parameter is valid and available for **GeminiDB Redis** instance.
 
+* `lb_ip_address` - (Optional, String) Specifies the load balancer IP address.
+
+  -> This parameter is valid and available for **GeminiDB Influx** and **GeminiDB Redis** instances.
+    The instances across subnets are not supported.
+
 * `delete_node_list` - (Optional, List) Specifies the ID of the nodes to be deleted. Make sure that the node
   can be deleted. This parameter can not be specified when add nodes. When delete nodes, if this parameter is specified,
   then the nodes specified by this parameter will be deleted, and id this parameter is not transferred, the nodes will be
@@ -298,9 +303,6 @@ In addition to all arguments above, the following attributes are exported:
 * `time_zone` - Indicates the time zone.
 
 * `actions` - Indicates the operation that is executed on the instance.
-
-* `lb_ip_address` - Indicates the load balancer IP address. This parameter is returned only when a load balancer IP
-  address is assigned.
 
 * `lb_port` - Indicates the load balancer port. This parameter is returned only when a load balancer IP address is assigned.
 
