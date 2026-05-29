@@ -38,9 +38,10 @@ func ResourceDeviceCertificate() *schema.Resource {
 				ForceNew: true,
 			},
 			"content": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"space_id": {
 				Type:     schema.TypeString,
@@ -48,8 +49,9 @@ func ResourceDeviceCertificate() *schema.Resource {
 				ForceNew: true,
 			},
 			"verify_content": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"cn": {
 				Type:     schema.TypeString,

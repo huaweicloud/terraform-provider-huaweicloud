@@ -77,8 +77,9 @@ func osChangeSchema() *schema.Resource {
 				Required: true,
 			},
 			"adminpass": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"keyname": {
 				Type:     schema.TypeString,

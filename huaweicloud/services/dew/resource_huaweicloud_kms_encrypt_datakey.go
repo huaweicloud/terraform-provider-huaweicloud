@@ -48,6 +48,7 @@ func ResourceKmsEncryptDatakey() *schema.Resource {
 			"plain_text": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: `Specifies the plaintext of data encryption key.`,
 			},
 			"datakey_plain_length": {
@@ -68,6 +69,7 @@ func ResourceKmsEncryptDatakey() *schema.Resource {
 			"cipher_text": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The DEK ciphertext in hexadecimal.`,
 			},
 		},

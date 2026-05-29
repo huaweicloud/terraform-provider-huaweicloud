@@ -117,8 +117,9 @@ func DataSourceWafAttackEvents() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"cookie": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"status": {
 							Type:     schema.TypeString,

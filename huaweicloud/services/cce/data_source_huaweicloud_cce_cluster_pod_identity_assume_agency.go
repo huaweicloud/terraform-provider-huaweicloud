@@ -32,8 +32,9 @@ func DataSourceCCEClusterPodIdentityAssumeAgency() *schema.Resource {
 				Description: "Specifies the cluster ID.",
 			},
 			"token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"assumed_agency": {
 				Type:     schema.TypeList,
@@ -65,12 +66,14 @@ func DataSourceCCEClusterPodIdentityAssumeAgency() *schema.Resource {
 							Computed: true,
 						},
 						"secret_access_key": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"security_token": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"expiration": {
 							Type:     schema.TypeString,

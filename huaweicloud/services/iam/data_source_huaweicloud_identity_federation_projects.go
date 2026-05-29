@@ -23,8 +23,9 @@ func DataSourceIdentityFederationProjects() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"federation_token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Required:  true,
 			},
 
 			"projects": {

@@ -561,9 +561,10 @@ func dbInfoSchemaResource() *schema.Resource {
 				Default:  false,
 			},
 			"ssl_cert_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"ssl_cert_name": {
 				Type:     schema.TypeString,
@@ -576,9 +577,10 @@ func dbInfoSchemaResource() *schema.Resource {
 				ForceNew: true,
 			},
 			"ssl_cert_password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"kafka_security_config": {
 				Type:     schema.TypeList,
@@ -621,9 +623,10 @@ func dbInfoKafkaSecurityConfigSchemaResource() *schema.Resource {
 				ForceNew: true,
 			},
 			"trust_store_password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"endpoint_algorithm": {
 				Type:     schema.TypeString,
@@ -651,9 +654,10 @@ func dbInfoKafkaSecurityConfigSchemaResource() *schema.Resource {
 				ForceNew: true,
 			},
 			"key_store_password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"set_private_key_password": {
 				Type:     schema.TypeBool,
@@ -661,9 +665,10 @@ func dbInfoKafkaSecurityConfigSchemaResource() *schema.Resource {
 				ForceNew: true,
 			},
 			"key_password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 		},
 	}

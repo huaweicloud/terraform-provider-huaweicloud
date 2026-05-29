@@ -74,6 +74,7 @@ func ResourceKmsSign() *schema.Resource {
 			"signature": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The signature value.`,
 			},
 		},

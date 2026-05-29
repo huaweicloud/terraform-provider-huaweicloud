@@ -61,6 +61,7 @@ func ResourceSwrTemporaryLoginCommand() *schema.Resource {
 						"auth": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the base64-encoded authentication information.`,
 						},
 					},

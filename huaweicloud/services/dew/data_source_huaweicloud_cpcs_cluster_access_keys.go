@@ -72,6 +72,7 @@ func DataSourceCpcsClusterAccessKeys() *schema.Resource {
 						"access_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The access key value.`,
 						},
 						"key_name": {

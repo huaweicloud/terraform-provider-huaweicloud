@@ -79,6 +79,7 @@ func ResourceApigApplicationV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: "The APP key.",
 			},
 			"app_secret": {

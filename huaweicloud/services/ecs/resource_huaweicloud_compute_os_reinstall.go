@@ -73,8 +73,9 @@ func osReinstallSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"adminpass": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"keyname": {
 				Type:     schema.TypeString,

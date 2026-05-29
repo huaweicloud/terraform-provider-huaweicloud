@@ -58,6 +58,7 @@ func ResourceV3UserToken() *schema.Resource {
 			"token": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The token of the IAM user.`,
 			},
 			"expires_at": {

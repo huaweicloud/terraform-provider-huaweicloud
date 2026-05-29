@@ -174,6 +174,7 @@ func ruleEngineRulesAttrFlexibleOriginElemSchema() *schema.Resource {
 			"bucket_access_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The third-party object storage access key.`,
 			},
 			"bucket_region": {

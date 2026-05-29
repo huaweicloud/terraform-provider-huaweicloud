@@ -106,8 +106,9 @@ func ResourceCustomerGateway() *schema.Resource {
 				ConflictsWith: []string{"ip", "route_mode"},
 			},
 			"certificate_content": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"tags": common.TagsSchema(),
 			"certificate_id": {

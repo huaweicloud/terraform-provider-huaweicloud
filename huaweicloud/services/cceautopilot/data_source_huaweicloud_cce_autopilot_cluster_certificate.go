@@ -68,6 +68,7 @@ func DataSourceCceAutopilotClusterCertificate() *schema.Resource {
 									"certificate_authority_data": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: `The certificate authority data of the cluster certificate.`,
 									},
 									"insecure_skip_tls_verify": {
@@ -101,11 +102,13 @@ func DataSourceCceAutopilotClusterCertificate() *schema.Resource {
 									"client_certificate_data": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: `The client certificate data of the cluster certificate.`,
 									},
 									"client_key_data": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: `The client key data of the cluster certificate.`,
 									},
 								},

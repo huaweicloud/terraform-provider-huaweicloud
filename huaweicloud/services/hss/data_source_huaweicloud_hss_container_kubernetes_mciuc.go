@@ -45,6 +45,7 @@ func DataSourceHssContainerKubernetesMciuc() *schema.Resource {
 			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: `Specifies the password.`,
 			},
 			"plug_type": {

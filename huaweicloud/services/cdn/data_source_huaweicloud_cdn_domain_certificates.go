@@ -67,6 +67,7 @@ func domainCertificateSchema() *schema.Resource {
 			"certificate_body": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The content of the certificate.`,
 			},
 			"certificate_source": {

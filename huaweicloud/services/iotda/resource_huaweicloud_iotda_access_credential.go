@@ -40,8 +40,9 @@ func ResourceAccessCredential() *schema.Resource {
 				ForceNew: true,
 			},
 			"access_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"access_code": {
 				Type:     schema.TypeString,

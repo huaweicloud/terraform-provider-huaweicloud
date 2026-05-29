@@ -85,6 +85,7 @@ func organizationsAccountSchema() *schema.Resource {
 			"mobile_phone": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The mobile phone number.`,
 			},
 			"intl_number_prefix": {
@@ -95,6 +96,7 @@ func organizationsAccountSchema() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address associated with the account.`,
 			},
 		},

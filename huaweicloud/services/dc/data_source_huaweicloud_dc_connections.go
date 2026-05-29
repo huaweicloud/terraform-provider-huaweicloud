@@ -183,6 +183,7 @@ func DataSourceDcConnections() *schema.Resource {
 						"email": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The customer email information.`,
 						},
 						"onestopdc_status": {

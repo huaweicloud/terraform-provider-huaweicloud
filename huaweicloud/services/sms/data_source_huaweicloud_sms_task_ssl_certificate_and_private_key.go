@@ -40,6 +40,7 @@ func DataSourceSmsTaskSslCertificateAndPrivateKey() *schema.Resource {
 			"private_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the source private key.`,
 			},
 			"ca": {
@@ -50,21 +51,25 @@ func DataSourceSmsTaskSslCertificateAndPrivateKey() *schema.Resource {
 			"target_mgmt_cert": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the certificate of the target server for migration task management.`,
 			},
 			"target_mgmt_private_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the private key of the target server for migration task management.`,
 			},
 			"target_data_cert": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the certificate of the target server for data migration.`,
 			},
 			"target_data_private_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the private key of the target server for data migration.`,
 			},
 		},

@@ -77,6 +77,7 @@ func ResourceCdmLink() *schema.Resource {
 			"access_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				RequiredWith: []string{"secret_key"},
 			},
 

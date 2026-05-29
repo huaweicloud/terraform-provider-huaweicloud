@@ -411,6 +411,7 @@ func resourceSchemePipelineTriggers() *schema.Resource {
 			"security_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `Specifies the User token.`,
 			},
 			"hook_id": {

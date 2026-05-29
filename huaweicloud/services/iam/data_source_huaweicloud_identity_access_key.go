@@ -27,6 +27,7 @@ func DataSourceIdentityAccessKey() *schema.Resource {
 			"access_key": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				Sensitive:     true,
 				ConflictsWith: []string{"user_id"},
 			},
 			"credentials": {
@@ -39,8 +40,9 @@ func DataSourceIdentityAccessKey() *schema.Resource {
 							Computed: true,
 						},
 						"access": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"status": {
 							Type:     schema.TypeString,

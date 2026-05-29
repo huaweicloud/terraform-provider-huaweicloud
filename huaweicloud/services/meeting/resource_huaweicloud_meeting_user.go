@@ -151,9 +151,10 @@ func ResourceUser() *schema.Resource {
 				Default:  true,
 			},
 			"signature": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"status": {
 				Type:     schema.TypeInt,
@@ -179,8 +180,9 @@ func ResourceUser() *schema.Resource {
 				Computed: true,
 			},
 			"sip_number": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"type": {
 				Type:     schema.TypeInt,

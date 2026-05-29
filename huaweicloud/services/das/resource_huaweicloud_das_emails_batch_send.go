@@ -60,6 +60,7 @@ func ResourceEmailsBatchSend() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The email address.`,
 			},
 			"topic": {

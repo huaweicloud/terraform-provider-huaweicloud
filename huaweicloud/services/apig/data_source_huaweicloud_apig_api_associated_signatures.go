@@ -91,6 +91,7 @@ func DataSourceApiAssociatedSignatures() *schema.Resource {
 						"secret": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The signature secret.`,
 						},
 						"env_id": {

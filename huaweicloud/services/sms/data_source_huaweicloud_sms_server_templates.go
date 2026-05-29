@@ -230,6 +230,7 @@ func DataSourceSmsServerTemplates() *schema.Resource {
 						"target_password": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the server login password.`,
 						},
 						"image_id": {

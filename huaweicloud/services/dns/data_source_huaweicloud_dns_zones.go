@@ -114,6 +114,7 @@ func zoneSchema() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address of the administrator managing the zone.`,
 			},
 			"zone_type": {

@@ -47,12 +47,14 @@ func ResourceDmsRocketMQUser() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the access key of the user.`,
 			},
 			"secret_key": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the secret key of the user.`,
 			},
 			"white_remote_address": {

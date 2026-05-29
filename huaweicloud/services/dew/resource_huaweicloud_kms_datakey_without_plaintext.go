@@ -68,6 +68,7 @@ func ResourceKmsDatakeyWithoutPlaintext() *schema.Resource {
 			"cipher_text": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The encrypted ciphertext, Base64 encoded.`,
 			},
 		},

@@ -71,9 +71,10 @@ func ResourceSubscription() *schema.Resource {
 							ForceNew: true,
 						},
 						"client_secret": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"keyword": {
 							Type:     schema.TypeString,
@@ -81,9 +82,10 @@ func ResourceSubscription() *schema.Resource {
 							ForceNew: true,
 						},
 						"sign_secret": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"header": {
 							Type:     schema.TypeMap,

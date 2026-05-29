@@ -146,6 +146,7 @@ func dataArchitectureApprovalsElem() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: "The approver email of the approval.",
 			},
 			"msg": {

@@ -81,6 +81,7 @@ func DataSourceSignatures() *schema.Resource {
 						"secret": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The secret of the signature.`,
 						},
 						"algorithm": {

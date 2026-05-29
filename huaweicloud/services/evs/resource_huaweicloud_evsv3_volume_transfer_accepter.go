@@ -38,8 +38,9 @@ func ResourceV3VolumeTransferAccepter() *schema.Resource {
 				Required: true,
 			},
 			"auth_key": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,

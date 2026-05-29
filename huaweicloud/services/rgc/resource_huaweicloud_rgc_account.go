@@ -52,16 +52,18 @@ func ResourceAccount() *schema.Resource {
 				Required: true,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"identity_store_user_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"identity_store_email": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"parent_organizational_unit_name": {
 				Type:     schema.TypeString,
@@ -72,8 +74,9 @@ func ResourceAccount() *schema.Resource {
 				Required: true,
 			},
 			"phone": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"blueprint": {
 				Type:     schema.TypeList,

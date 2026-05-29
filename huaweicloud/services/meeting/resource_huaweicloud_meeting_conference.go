@@ -408,14 +408,16 @@ func ResourceConference() *schema.Resource {
 							}),
 						},
 						"phone": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"sms": {
 							Type:     schema.TypeString,
@@ -571,17 +573,20 @@ func ResourceConference() *schema.Resource {
 				Elem:     subconferenceSchemaResource(),
 			},
 			"join_password": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:      schema.TypeList,
+				Computed:  true,
+				Sensitive: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"host": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"guest": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 					},
 				},

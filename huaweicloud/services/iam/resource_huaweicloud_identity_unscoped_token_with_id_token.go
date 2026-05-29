@@ -39,12 +39,14 @@ func ResourceIdentityUnscopedTokenWithIdToken() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: "ID Token of the OpenID Connect Identity Provider",
 			},
 
 			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"username": {
 				Type:     schema.TypeString,

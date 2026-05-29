@@ -65,9 +65,10 @@ func ResourceMigrationTask() *schema.Resource {
 							ForceNew: true,
 						},
 						"access_key": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"secret_key": {
 							Type:      schema.TypeString,
@@ -158,9 +159,10 @@ func ResourceMigrationTask() *schema.Resource {
 							ForceNew: true,
 						},
 						"access_key": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"secret_key": {
 							Type:      schema.TypeString,

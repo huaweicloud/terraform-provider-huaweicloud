@@ -110,6 +110,7 @@ func DataSourceElbCertificates() *schema.Resource {
 						"certificate": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the certificate content.`,
 						},
 						"fingerprint": {
@@ -125,6 +126,7 @@ func DataSourceElbCertificates() *schema.Resource {
 						"private_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the private key of the certificate used by HTTPS listeners.`,
 						},
 						"common_name": {
@@ -135,6 +137,7 @@ func DataSourceElbCertificates() *schema.Resource {
 						"enc_certificate": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the body of the SM encryption certificate required by HTTPS listeners.`,
 						},
 						"scm_certificate_id": {
@@ -145,6 +148,7 @@ func DataSourceElbCertificates() *schema.Resource {
 						"enc_private_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Indicates the private key of the SM encryption certificate required by HTTPS listeners.`,
 						},
 						"expire_time": {

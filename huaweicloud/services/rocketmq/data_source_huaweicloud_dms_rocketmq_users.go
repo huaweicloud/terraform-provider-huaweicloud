@@ -33,8 +33,9 @@ func DataSourceDmsRocketMQUsers() *schema.Resource {
 				Required: true,
 			},
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"white_remote_address": {
 				Type:     schema.TypeString,
@@ -65,8 +66,9 @@ func usersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"access_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"white_remote_address": {
 				Type:     schema.TypeString,

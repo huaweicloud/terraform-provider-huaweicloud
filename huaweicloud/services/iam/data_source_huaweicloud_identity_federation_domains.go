@@ -23,8 +23,9 @@ func DataSourceIdentityFederationDomains() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"federation_token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 
 			"domains": {

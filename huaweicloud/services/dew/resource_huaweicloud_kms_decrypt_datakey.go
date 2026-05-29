@@ -48,6 +48,7 @@ func ResourceKmsDecryptDatakey() *schema.Resource {
 			"cipher_text": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: `Specifies the DEK ciphertext and metadata in hexadecimal string.`,
 			},
 			"datakey_cipher_length": {

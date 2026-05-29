@@ -55,6 +55,7 @@ func ResourceV3UnscopedTokenSaml() *schema.Resource {
 			"token": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The unscoped token.`,
 			},
 			"username": {

@@ -52,8 +52,9 @@ func DataSourceCCEClusterCertificate() *schema.Resource {
 							Computed: true,
 						},
 						"certificate_authority_data": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"insecure_skip_tls_verify": {
 							Type:     schema.TypeBool,
@@ -72,12 +73,14 @@ func DataSourceCCEClusterCertificate() *schema.Resource {
 							Computed: true,
 						},
 						"client_certificate_data": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"client_key_data": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 					},
 				},

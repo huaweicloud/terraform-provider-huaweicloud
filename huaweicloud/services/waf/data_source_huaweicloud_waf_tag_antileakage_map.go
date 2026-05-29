@@ -67,8 +67,9 @@ func DataSourceTagAntileakageMap() *schema.Resource {
 							Computed: true,
 						},
 						"phone": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						// The API does not return this parameter, and named `responseCode` in API document
 						"responsecode": {
@@ -76,8 +77,9 @@ func DataSourceTagAntileakageMap() *schema.Resource {
 							Computed: true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 					},
 				},

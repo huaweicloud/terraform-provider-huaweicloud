@@ -33,11 +33,13 @@ func ResourceV3UserInfo() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: "The email of the user.",
 			},
 			"mobile": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				AtLeastOneOf: []string{"email", "mobile"},
 				Description:  "The mobile phone number of the user.",
 			},

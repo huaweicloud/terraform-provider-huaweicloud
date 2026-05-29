@@ -85,11 +85,13 @@ func ResourceSwrEnterpriseInstanceRegistry() *schema.Resource {
 						"access_key": {
 							Type:        schema.TypeString,
 							Required:    true,
+							Sensitive:   true,
 							Description: `Specifies the access key.`,
 						},
 						"access_secret": {
 							Type:        schema.TypeString,
 							Required:    true,
+							Sensitive:   true,
 							Description: `Specifies the access secret.`,
 						},
 					},

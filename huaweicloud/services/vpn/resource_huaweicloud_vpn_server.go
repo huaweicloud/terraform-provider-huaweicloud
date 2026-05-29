@@ -192,6 +192,7 @@ func ResourceServer() *schema.Resource {
 						"content": {
 							Type:        schema.TypeString,
 							Required:    true,
+							Sensitive:   true,
 							Description: `Specifies the certificate content.`,
 						},
 						"name": {

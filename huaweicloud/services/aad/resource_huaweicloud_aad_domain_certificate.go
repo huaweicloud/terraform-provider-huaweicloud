@@ -60,11 +60,13 @@ func ResourceDomainCertificate() *schema.Resource {
 			"cert_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: "Specifies the certificate file content.",
 			},
 			"cert_key_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: "Specifies the private key file content.",
 			},
 			"enable_force_new": {

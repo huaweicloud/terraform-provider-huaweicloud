@@ -52,6 +52,7 @@ func ResourceHTTPSCertificate() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the certificate body.`,
 			},
 			"certificate_key": {
@@ -114,6 +115,7 @@ func gmCertificateSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the Chinese (SM) signature certificate body`,
 			},
 			"sign_certificate_key": {
@@ -127,6 +129,7 @@ func gmCertificateSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the Chinese (SM) encryption certificate body`,
 			},
 			"enc_certificate_key": {
@@ -167,6 +170,7 @@ func tlsCertificateSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the certificate body.`,
 			},
 			"certificate_key": {

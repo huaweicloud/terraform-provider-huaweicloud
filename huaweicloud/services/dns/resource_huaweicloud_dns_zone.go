@@ -80,6 +80,7 @@ func ResourceDNSZone() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address of the administrator managing the zone.`,
 			},
 			"zone_type": {
@@ -200,6 +201,7 @@ func dnsZoneDnssecInfos() *schema.Resource {
 			"signature": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the signature algorithm.`,
 			},
 			"signature_type": {

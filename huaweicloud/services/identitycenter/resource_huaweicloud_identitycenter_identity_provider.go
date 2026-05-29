@@ -63,6 +63,7 @@ func ResourceIdentityCenterIdentityProvider() *schema.Resource {
 			"idp_certificate": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				RequiredWith: []string{"entity_id", "login_url"},
 			},
 			"entity_id": {

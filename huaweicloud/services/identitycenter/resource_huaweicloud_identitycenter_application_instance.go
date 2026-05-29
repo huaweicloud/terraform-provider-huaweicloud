@@ -220,6 +220,7 @@ func ResourceIdentityCenterApplicationInstance() *schema.Resource {
 						"certificate": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `Specifies the certificate of the IAM Identity Center application instance.`,
 						},
 						"certificate_id": {

@@ -108,11 +108,13 @@ func DataSourceSwrEnterpriseInstanceRegistries() *schema.Resource {
 									"access_key": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: `Indicates the access key.`,
 									},
 									"access_secret": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: `Indicates the access secret.`,
 									},
 									"type": {
