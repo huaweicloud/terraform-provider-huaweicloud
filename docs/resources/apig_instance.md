@@ -65,6 +65,9 @@ The following arguments are supported:
   + **ENTERPRISE_IPV6**: IPv6 instance of the Enterprise Edition.
   + **PLATINUM_IPV6**: IPv6 instance of the Platinum Edition.
 
+  For more editions, please following values of the `spec_id` parameters in the
+  [documentation](https://support.huaweicloud.com/intl/en-us/api-apig/CreateInstanceV2.html#section4).
+
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC used to create the dedicated instance.  
   Changing this will create a new resource.
 
