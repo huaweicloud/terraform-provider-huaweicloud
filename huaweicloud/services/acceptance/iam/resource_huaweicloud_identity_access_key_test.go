@@ -2,7 +2,10 @@ package iam
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -100,6 +103,27 @@ resource "huaweicloud_identity_access_key" "test" {
   user_id     = huaweicloud_identity_user.test.id
   description = "Created by terraform script"
   secret_file = abspath("./credentials.csv")
+
+  # Check the mode of the credential file (created by huaweicloud_identity_access_key resource and with a default name)
+  # after the resource is created, want 600 access mode.
+  provisioner "local-exec" {
+    when    = create
+    command = <<-EOT
+      f="${abspath("./credentials.csv")}"
+      perms=$(stat -c '%%a' "$f")
+      if [ "$perms" != "600" ]; then
+        echo "ERROR: $f has mode $perms, expected 600" >&2
+        exit 1
+      fi
+    EOT
+  }
+
+  # Clean up the credential file (created by huaweicloud_identity_access_key resource and with a default name) after the
+  # test is completed.
+  provisioner "local-exec" {
+    command = format("rm -f %%s", abspath("./credentials.csv"))
+    when    = destroy
+  }
 }
 `, testAccV3AccessKey_basic_base(name))
 }
@@ -113,13 +137,73 @@ resource "huaweicloud_identity_access_key" "test" {
   secret_file = abspath("./credentials.csv")
   status      = "inactive"
 
-  # Clean up the credentials.csv file (created by huaweicloud_identity_access_key resource) after the test is completed.
+  # Check the mode of the credential file (created by huaweicloud_identity_access_key resource and with a default name)
+  # after the resource is created, want 600 access mode.
   provisioner "local-exec" {
-    command = "rm credentials.csv"
+    when    = create
+    command = <<-EOT
+      f="${abspath("./credentials.csv")}"
+      perms=$(stat -c '%%a' "$f")
+      if [ "$perms" != "600" ]; then
+        echo "ERROR: $f has mode $perms, expected 600" >&2
+        exit 1
+      fi
+    EOT
+  }
+
+  # Clean up the credential file (created by huaweicloud_identity_access_key resource and with a default name) after the
+  # test is completed.
+  provisioner "local-exec" {
+    command = format("rm -f %%s", abspath("./credentials.csv"))
     when    = destroy
   }
 }
 `, testAccV3AccessKey_basic_base(name))
+}
+
+// defaultV3AccessKeyCredentialFilePath returns the default credentials CSV path or the path specified by secret_file.
+func defaultV3AccessKeyCredentialFilePath(suffix ...string) (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("unable to get the workspace directory: %w", err)
+	}
+
+	fileName := "credentials.csv"
+	if len(suffix) > 0 {
+		fileName = fmt.Sprintf("credentials-%s.csv", strings.Join(suffix, "-"))
+	}
+	return filepath.Join(wd, fileName), nil
+}
+
+func testAccCheckV3AccessKeyDefaultCredentialFileMode600(suffix ...string) resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		path, err := defaultV3AccessKeyCredentialFilePath(suffix...)
+		if err != nil {
+			return err
+		}
+
+		info, err := os.Stat(path)
+		if err != nil {
+			return fmt.Errorf("credential file not found at %s: %w", path, err)
+		}
+		if info.Mode().Perm() != 0600 {
+			return fmt.Errorf("credential file %s has mode %o, expected 0600", path, info.Mode().Perm())
+		}
+		return nil
+	}
+}
+
+func testAccCleanupV3AccessKeyDefaultCredentialFile(suffix ...string) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		path, err := defaultV3AccessKeyCredentialFilePath(suffix...)
+		if err != nil {
+			return err
+		}
+		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("unable to remove credential file %s: %w", path, err)
+		}
+		return nil
+	}
 }
 
 func TestAccV3AccessKey_withoutSecretFileInput(t *testing.T) {
@@ -145,7 +229,10 @@ func TestAccV3AccessKey_withoutSecretFileInput(t *testing.T) {
 				VersionConstraint: "3.3.0",
 			},
 		},
-		CheckDestroy: rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rc.CheckResourceDestroy(),
+			testAccCleanupV3AccessKeyDefaultCredentialFile(name),
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccV3AccessKey_withoutSecretFileInput_step1(name),
@@ -156,6 +243,7 @@ func TestAccV3AccessKey_withoutSecretFileInput(t *testing.T) {
 					resource.TestMatchResourceAttr(resourceName, "create_time",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
 					resource.TestCheckNoResourceAttr(resourceName, "secret"),
+					testAccCheckV3AccessKeyDefaultCredentialFileMode600(name),
 				),
 			},
 		},
