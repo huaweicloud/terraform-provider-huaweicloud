@@ -157,6 +157,7 @@ func Provider() *schema.Provider {
 			"access_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				Description:  descriptions["access_key"],
 				RequiredWith: []string{"secret_key"},
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
@@ -168,6 +169,7 @@ func Provider() *schema.Provider {
 			"secret_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				Description:  descriptions["secret_key"],
 				RequiredWith: []string{"access_key"},
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
@@ -179,6 +181,7 @@ func Provider() *schema.Provider {
 			"security_token": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Sensitive:    true,
 				Description:  descriptions["security_token"],
 				RequiredWith: []string{"access_key"},
 				DefaultFunc:  schema.EnvDefaultFunc("HW_SECURITY_TOKEN", nil),
@@ -312,6 +315,7 @@ func Provider() *schema.Provider {
 						"id_token": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Sensitive:    true,
 							DefaultFunc:  schema.EnvDefaultFunc("HW_ASSUME_ROLE_ID_TOKEN", nil),
 							ExactlyOneOf: []string{"assume_role_with_oidc.0.id_token", "assume_role_with_oidc.0.id_token_file"},
 						},
@@ -356,6 +360,7 @@ func Provider() *schema.Provider {
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: descriptions["token"],
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"HW_AUTH_TOKEN",

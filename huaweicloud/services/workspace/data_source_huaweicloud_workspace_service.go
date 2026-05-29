@@ -223,6 +223,7 @@ func dataServiceAssistAuthSchema() *schema.Resource {
 			"app_secret": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The authentication service access password.`,
 			},
 			"auth_server_access_mode": {

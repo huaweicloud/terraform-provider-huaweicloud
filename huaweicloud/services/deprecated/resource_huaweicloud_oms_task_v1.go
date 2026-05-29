@@ -47,9 +47,10 @@ func ResourceMaasTaskV1() *schema.Resource {
 							ForceNew: true,
 						},
 						"ak": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Required:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"sk": {
 							Type:      schema.TypeString,
@@ -89,9 +90,10 @@ func ResourceMaasTaskV1() *schema.Resource {
 							ForceNew: true,
 						},
 						"ak": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Required:  true,
+							ForceNew:  true,
+							Sensitive: true,
 						},
 						"sk": {
 							Type:      schema.TypeString,

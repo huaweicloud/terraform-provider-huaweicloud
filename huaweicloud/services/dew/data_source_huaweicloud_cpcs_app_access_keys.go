@@ -67,6 +67,7 @@ func DataSourceCpcsAppAccessKeys() *schema.Resource {
 						"access_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The access key AK.`,
 						},
 						"app_name": {

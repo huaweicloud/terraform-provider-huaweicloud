@@ -112,6 +112,7 @@ func resourceKeypairAssociateServerAuthSchema() *schema.Resource {
 			"key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `Specifies the value of the key.`,
 			},
 		},

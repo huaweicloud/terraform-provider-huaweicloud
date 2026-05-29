@@ -223,11 +223,13 @@ func ruleEngineRuleActionsFlexibleOriginSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The third-party object storage access key.`,
 			},
 			"bucket_secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The third-party object storage secret key.`,
 			},
 			"bucket_region": {

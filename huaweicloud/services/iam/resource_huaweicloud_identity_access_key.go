@@ -58,6 +58,7 @@ func ResourceV3AccessKey() *schema.Resource {
 				Type:        schema.TypeString,
 				ForceNew:    true,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The PGP public key (base64 encoded) used to encrypt the storaged secret key.`,
 			},
 			"secret": {
@@ -74,6 +75,7 @@ func ResourceV3AccessKey() *schema.Resource {
 			"encrypted_secret": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The encrypted secret, which encoded in base64.`,
 			},
 			"user_name": {

@@ -23,8 +23,9 @@ func DataSourceIdentityUserTokenInfo() *schema.Resource {
 		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"no_catalog": {
 				Type:         schema.TypeString,

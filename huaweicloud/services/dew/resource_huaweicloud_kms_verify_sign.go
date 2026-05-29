@@ -55,6 +55,7 @@ func ResourceKmsVerifySign() *schema.Resource {
 			"signature": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: `Specifies the signature value to be verified.`,
 			},
 			"signing_algorithm": {

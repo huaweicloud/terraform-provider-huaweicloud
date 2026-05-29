@@ -90,6 +90,7 @@ func ResourceSnapshot() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Specifies the callback authentication key value.`,
 			},
 		},

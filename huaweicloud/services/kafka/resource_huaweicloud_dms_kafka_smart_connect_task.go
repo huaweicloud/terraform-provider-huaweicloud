@@ -68,6 +68,7 @@ func ResourceDmsKafkaSmartConnectTask() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the access key used to access the OBS bucket.`,
 			},
 			"secret_key": {

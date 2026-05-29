@@ -1017,9 +1017,10 @@ func ResourceDomain() *schema.Resource {
 							Computed: true,
 						},
 						"bucket_access_key": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							Computed:  true,
+							Sensitive: true,
 							Description: utils.SchemaDesc(
 								"Third-party object storage access key.",
 								utils.SchemaDescInput{
@@ -1028,9 +1029,10 @@ func ResourceDomain() *schema.Resource {
 							),
 						},
 						"bucket_secret_key": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							Computed:  true,
+							Sensitive: true,
 							Description: utils.SchemaDesc(
 								"Third-party object storage secret key.",
 								utils.SchemaDescInput{

@@ -80,11 +80,13 @@ func dataserviceAppSchema() *schema.Resource {
 			"app_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The key of the application.`,
 			},
 			"app_secret": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The secret of the application.`,
 			},
 			"created_at": {

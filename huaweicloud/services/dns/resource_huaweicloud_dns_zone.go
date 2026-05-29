@@ -201,6 +201,7 @@ func dnsZoneDnssecInfos() *schema.Resource {
 			"signature": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the signature algorithm.`,
 			},
 			"signature_type": {

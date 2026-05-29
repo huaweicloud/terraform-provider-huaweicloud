@@ -27,9 +27,10 @@ func ResourceIdentityTemporaryAccessKey() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"token": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"methods": {
 				Type:        schema.TypeString,
@@ -78,8 +79,9 @@ func ResourceIdentityTemporaryAccessKey() *schema.Resource {
 				Computed: true,
 			},
 			"secret": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"securitytoken": {
 				Type:     schema.TypeString,

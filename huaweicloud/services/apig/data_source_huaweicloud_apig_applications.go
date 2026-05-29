@@ -46,6 +46,7 @@ func DataSourceApplications() *schema.Resource {
 			"app_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: "Specifies the key of the application to be queried.",
 			},
 			"created_by": {
@@ -81,11 +82,13 @@ func DataSourceApplications() *schema.Resource {
 						"app_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: "The key of the application.",
 						},
 						"app_secret": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: "The secret of the application.",
 						},
 						"app_type": {

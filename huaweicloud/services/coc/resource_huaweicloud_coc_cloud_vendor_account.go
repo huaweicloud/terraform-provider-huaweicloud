@@ -52,8 +52,9 @@ func ResourceCloudVendorAccount() *schema.Resource {
 				Required: true,
 			},
 			"ak": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"sk": {
 				Type:      schema.TypeString,

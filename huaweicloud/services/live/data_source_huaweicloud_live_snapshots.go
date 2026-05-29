@@ -62,6 +62,7 @@ func DataSourceLiveSnapshots() *schema.Resource {
 						"call_back_auth_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Sensitive:   true,
 							Description: `The callback authentication key value.`,
 						},
 						"frequency": {

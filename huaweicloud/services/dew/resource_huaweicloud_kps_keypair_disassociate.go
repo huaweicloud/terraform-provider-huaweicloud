@@ -100,6 +100,7 @@ func resourceServerAuthSchema() *schema.Resource {
 			"key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `Specifies the value of the key.`,
 			},
 		},
