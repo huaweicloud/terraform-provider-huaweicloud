@@ -10,7 +10,8 @@ description: |-
 
 Manages a permanent Access Key resource within HuaweiCloud IAM service.
 
--> **NOTE:** You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
+-> You **must** have IAM admin privileges in your HuaweiCloud cloud to use this resource.<br>
+   The generated CSV file has the permission of `600` (`-rw-------`).
 
 ## Example Usage
 

@@ -99,7 +99,7 @@ func storeV3AccessKeyToCsvFile(path string, cred *credentials.Credential) error 
 		}
 	)
 
-	csvFile, err := os.Create(path)
+	csvFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
