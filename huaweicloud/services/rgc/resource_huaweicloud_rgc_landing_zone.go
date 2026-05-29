@@ -98,12 +98,14 @@ func ResourceLandingZone() *schema.Resource {
 										Optional: true,
 									},
 									"phone": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:      schema.TypeString,
+										Optional:  true,
+										Sensitive: true,
 									},
 									"account_email": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:      schema.TypeString,
+										Optional:  true,
+										Sensitive: true,
 									},
 								},
 							},
@@ -142,8 +144,9 @@ func ResourceLandingZone() *schema.Resource {
 				Default:  "STANDARD",
 			},
 			"identity_store_email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"identity_center_status": {
 				Type:     schema.TypeString,

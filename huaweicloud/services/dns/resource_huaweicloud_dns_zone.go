@@ -80,6 +80,7 @@ func ResourceDNSZone() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address of the administrator managing the zone.`,
 			},
 			"zone_type": {

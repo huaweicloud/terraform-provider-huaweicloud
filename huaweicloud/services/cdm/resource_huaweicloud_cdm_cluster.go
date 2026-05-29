@@ -117,16 +117,18 @@ func ResourceCdmCluster() *schema.Resource {
 			},
 
 			"email": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:      schema.TypeSet,
+				Optional:  true,
+				Sensitive: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 
 			"phone_num": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:      schema.TypeSet,
+				Optional:  true,
+				Sensitive: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

@@ -51,12 +51,14 @@ func ResourceCertificateApply() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the phone number of the applicant.`,
 			},
 			"applicant_email": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the email of the applicant.`,
 			},
 			"domain_method": {
@@ -117,12 +119,14 @@ func ResourceCertificateApply() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the technical contact phone number.`,
 			},
 			"contact_email": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Sensitive:   true,
 				Description: `Specifies the technical contact email.`,
 			},
 			"auto_dns_auth": {

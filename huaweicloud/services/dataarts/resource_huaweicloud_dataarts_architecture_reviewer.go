@@ -54,14 +54,16 @@ func ResourceArchitectureReviewer() *schema.Resource {
 				ForceNew: true,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"phone_number": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"reviewer_id": {
 				Type:     schema.TypeString,

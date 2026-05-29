@@ -31,8 +31,9 @@ func DataSourceReportsEmails() *schema.Resource {
 				Required: true,
 			},
 			"email_address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"emails": {
 				Type:     schema.TypeList,
@@ -40,8 +41,9 @@ func DataSourceReportsEmails() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"report_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"email_status": {
 							Type:     schema.TypeBool,

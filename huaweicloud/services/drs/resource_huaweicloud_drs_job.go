@@ -659,10 +659,9 @@ func dbInfoKafkaSecurityConfigSchemaResource() *schema.Resource {
 				Sensitive: true,
 			},
 			"set_private_key_password": {
-				Type:      schema.TypeBool,
-				Optional:  true,
-				ForceNew:  true,
-				Sensitive: true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 			"key_password": {
 				Type:      schema.TypeString,

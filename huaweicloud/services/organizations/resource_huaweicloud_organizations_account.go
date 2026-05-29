@@ -80,6 +80,7 @@ func ResourceAccount() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address of the account.`,
 			},
 			"phone": {
@@ -87,6 +88,7 @@ func ResourceAccount() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The mobile number of the account.`,
 			},
 			"intl_number_prefix": {

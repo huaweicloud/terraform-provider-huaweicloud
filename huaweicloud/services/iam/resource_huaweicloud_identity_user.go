@@ -57,12 +57,14 @@ func ResourceIdentityUser() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The email address.`,
 			},
 			"phone": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"country_code"},
+				Sensitive:    true,
 				Description:  `The mobile number.`,
 			},
 			"country_code": {

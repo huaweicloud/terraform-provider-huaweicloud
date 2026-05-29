@@ -90,6 +90,7 @@ func userSchema() *schema.Resource {
 			"user_email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email address of the user.`,
 			},
 			"total_desktops": {
@@ -100,6 +101,7 @@ func userSchema() *schema.Resource {
 			"user_phone": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The phone number of the user.`,
 			},
 			"active_type": {

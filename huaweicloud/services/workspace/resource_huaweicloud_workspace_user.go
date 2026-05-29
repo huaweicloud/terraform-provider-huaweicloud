@@ -57,12 +57,14 @@ func ResourceUser() *schema.Resource {
 				Description: `The activation mode of the user.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"phone": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The phone number of the user.`,
 			},
 			"password": {

@@ -98,6 +98,7 @@ func desktopUserBatchAttachDesktopSchema() *schema.Resource {
 			"user_email": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `The email of user.`,
 			},
 			"is_clear_data": {

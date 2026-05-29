@@ -81,11 +81,13 @@ func dataServiceApproverElem() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The email of the approver.`,
 			},
 			"phone_number": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The phone number of the approver.`,
 			},
 			"department": {

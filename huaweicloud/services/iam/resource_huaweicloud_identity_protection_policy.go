@@ -34,12 +34,14 @@ func ResourceIdentityProtectionPolicy() *schema.Resource {
 				Required: true,
 			},
 			"verification_mobile": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"verification_email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"self_management": {
 				Type:     schema.TypeList,
@@ -53,9 +55,8 @@ func ResourceIdentityProtectionPolicy() *schema.Resource {
 							Optional: true,
 						},
 						"password": {
-							Type:      schema.TypeBool,
-							Optional:  true,
-							Sensitive: true,
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 						"mobile": {
 							Type:     schema.TypeBool,

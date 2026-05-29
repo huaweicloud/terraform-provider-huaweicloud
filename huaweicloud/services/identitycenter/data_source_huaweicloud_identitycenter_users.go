@@ -61,6 +61,7 @@ func DataSourceIdentityCenterUsers() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				Description: `Specifies the email of the user.`,
 			},
 			"users": {
@@ -104,11 +105,13 @@ func identityCenterUsersUserSchema() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `Indicates the email of the user.`,
 			},
 			"phone_number": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The phone number of the user.`,
 			},
 			"user_type": {

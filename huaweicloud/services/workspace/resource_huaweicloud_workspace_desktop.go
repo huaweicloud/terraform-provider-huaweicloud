@@ -139,9 +139,10 @@ func ResourceDesktop() *schema.Resource {
 				ForceNew: true,
 			},
 			"user_email": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"user_group": {
 				Type:     schema.TypeString,
