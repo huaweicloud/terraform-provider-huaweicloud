@@ -90,18 +90,18 @@ resource "huaweicloud_identity_group_role_assignment" "test" {
 
 The following arguments are supported:
 
-* `group_id` - (Required, String, Nonupdatable) Specifies the ID of user group to which the role to be authorized
+* `group_id` - (Required, String, NonUpdatable) Specifies the ID of user group to which the role to be authorized
   belongs.
 
-* `role_id` - (Required, String, Nonupdatable) Specifies the ID of role to be authorized.
+* `role_id` - (Required, String, NonUpdatable) Specifies the ID of role to be authorized.
 
-* `domain_id` - (Optional, String, Nonupdatable) Specifies the domain to assign the role in.
+* `domain_id` - (Optional, String, NonUpdatable) Specifies the domain to assign the role in.
 
-* `project_id` - (Optional, String, Nonupdatable) Specifies the project to assign the role in.
+* `project_id` - (Optional, String, NonUpdatable) Specifies the project to assign the role in.
   If `project_id` is set to **all**, it means that the specified user group will be able to use all projects,
   including existing and future projects.
 
-* `enterprise_project_id` - (Optional, String, Nonupdatable) Specifies the enterprise project to assign the role in.
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project to assign the role in.
 
 -> Exactly one of `domain_id`, `project_id` and `enterprise_project_id` must be specified.
 
@@ -114,6 +114,12 @@ In addition to all arguments above, the following attributes are exported:
   + when the role is assigned in project, the format is `<group_id>/<role_id>/<project_id>` or
     `<group_id>/<role_id>/all`
   + when the role is assigned in enterprise project, the format is `<group_id>/<role_id>/<enterprise_project_id>`
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
 
 ## Import
 
