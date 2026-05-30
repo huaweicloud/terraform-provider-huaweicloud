@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -34,7 +35,7 @@ var v3GroupRoleAssignmentNonUpdatableParams = []string{
 // @API IAM PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 // @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles/{role_id}
 // @API IAM GET /v3/domains/{domain_id}/groups/{group_id}/roles
-// @API IAM GET /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
+// @API IAM HEAD /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
 // @API IAM GET /v3/projects/{project_id}/groups/{group_id}/roles
 // @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles
 // @API IAM DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
@@ -49,6 +50,10 @@ func ResourceV3GroupRoleAssignment() *schema.Resource {
 		DeleteContext: resourceV3GroupRoleAssignmentDelete,
 
 		CustomizeDiff: config.FlexibleForceNew(v3GroupRoleAssignmentNonUpdatableParams),
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceV3GroupRoleAssignmentImportState,
@@ -175,7 +180,92 @@ func resourceV3GroupRoleAssignmentCreate(ctx context.Context, d *schema.Resource
 
 	d.SetId(resourceId)
 
+	if _, ok := d.GetOk("domain_id"); ok {
+		err = checkAssignmentWithDomainIdComplete(ctx, iamV3Client, d)
+		if err != nil {
+			return diag.Errorf("error assigning role (%s) to group (%s): %s", roleId, groupId, err)
+		}
+	}
+	if _, ok := d.GetOk("project_id"); ok {
+		err = checkAssignmentWithProjectIdComplete(ctx, iamV3Client, d, cfg.DomainID)
+		if err != nil {
+			return diag.Errorf("error assigning role (%s) to group (%s): %s", roleId, groupId, err)
+		}
+	}
+	if _, ok := d.GetOk("enterprise_project_id"); ok {
+		err = checkAssignmentWithEpsIdComplete(ctx, iamV3P0Client, d)
+		if err != nil {
+			return diag.Errorf("error assigning role (%s) to group (%s): %s", roleId, groupId, err)
+		}
+	}
+
 	return resourceV3GroupRoleAssignmentRead(ctx, d, meta)
+}
+
+func checkAssignmentWithDomainIdComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := CheckV3GroupRoleAssignmentWithDomainId(client, d.Get("group_id").(string),
+			d.Get("role_id").(string), d.Get("domain_id").(string))
+		if err == nil {
+			return "", false, nil
+		}
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return "", true, err
+		}
+		return nil, false, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 2 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	return err
+}
+
+func checkAssignmentWithProjectIdComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, domainId string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := CheckV3GroupRoleAssignmentWithProjectId(client, d.Get("group_id").(string),
+			d.Get("role_id").(string), domainId, d.Get("project_id").(string))
+		if err == nil {
+			return "", false, nil
+		}
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return "", true, err
+		}
+		return nil, false, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 2 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	return err
+}
+
+func checkAssignmentWithEpsIdComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := CheckV3GroupRoleAssignmentWithEpsId(client, d.Get("group_id").(string),
+			d.Get("role_id").(string), d.Get("enterprise_project_id").(string))
+		if err == nil {
+			return "", false, nil
+		}
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return "", true, err
+		}
+		return nil, false, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 2 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	return err
 }
 
 func CheckV3GroupRoleAssignmentWithDomainId(client *golangsdk.ServiceClient, groupId, roleId, domainId string) error {
