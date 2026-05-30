@@ -57,64 +57,70 @@ resource "huaweicloud_cdn_certificate_associate_domains" "test" {
 
 The following arguments are supported:
 
-* `domain_names` - (Required, String, NonUpdatable) The list of domain names to associate with the certificate.  
+* `domain_names` - (Required, String, NonUpdatable) The list of domain names to associate with the certificate.
   When there are multiple domains, separate them with comma (,).
 
-* `https_switch` - (Required, Int, NonUpdatable) The HTTPS certificate configuration switch.  
+* `https_switch` - (Required, Int, NonUpdatable) The HTTPS certificate configuration switch.
   The valid values are as follows:
   + **0**: Disable HTTPS
   + **1**: Enable HTTPS
 
-* `access_origin_way` - (Optional, Int, NonUpdatable) The origin protocol configuration.  
+* `access_origin_way` - (Optional, Int, NonUpdatable) The origin protocol configuration.
   The valid values are as follows:
-  + **1**: Protocol follow
+  + **1**: same as user
   + **2**: HTTP protocol
   + **3**: HTTPS protocol
 
   Defaults to **2**.
 
-* `force_redirect_https` - (Optional, Int, NonUpdatable) Whether to enable HTTPS force redirect.  
-  The valid values are as follows:
-  + **0**: Disable
-  + **1**: Enable
+* `force_redirect_https` - (Optional, Int, NonUpdatable) Whether to enable HTTPS force redirect to HTTPS to force clients
+  to use HTTPS to access CDN PoPs. The valid values are as follows:
+  + **0**: Disabled
+  + **1**: Enabled
 
   Defaults to **0**.
 
-* `force_redirect_config` - (Optional, List, NonUpdatable) The force redirect configuration.  
+* `force_redirect_config` - (Optional, List, NonUpdatable) Whether to force clients to use HTTPS when accessing CDN PoPs.
   The [force_redirect_config](#cdn_force_redirect_config)structure is documented below.
 
-* `http2` - (Optional, Int, NonUpdatable) The HTTP/2 protocol switch.  
+* `http2` - (Optional, Int, NonUpdatable) Whether to enable HTTP/2 to allow clients to use HTTP/2 when accessing CDN PoPs.
   The valid values are as follows:
-  + **0**: Disable
-  + **1**: Enable
+  + **0**: Disabled
+  + **1**: Enabled
 
   Defaults to **0**.
 
 * `cert_name` - (Optional, String, NonUpdatable) The certificate name.
 
-* `certificate` - (Optional, String, NonUpdatable, Sensitive) The SSL certificate content in PEM format.
+* `certificate` - (Optional, String, NonUpdatable) The SSL certificate content. The certificate chain cannot exceed 20 KB.
+  + Only the PEM format is supported.
+  + This parameter is optional if a certificate is not required.
+  + This parameter is mandatory when a certificate is configured for the first time.
+  + A complete certificate chain is required.
 
-* `private_key` - (Optional, String, NonUpdatable, Sensitive) The SSL certificate private key content in PEM format.
+* `private_key` - (Optional, String, NonUpdatable) The private key of the SSL certificate.
+  + Only the PEM format is supported.
+  + This parameter is optional if a certificate is not required.
+  + This parameter is mandatory when a certificate is configured for the first time.
 
-* `certificate_type` - (Optional, Int, NonUpdatable) The certificate type.  
-  The valid values are as follows:
-  + **0**: Free certificate
-  + **1**: Paid certificate
+* `certificate_type` - (Optional, Int, NonUpdatable) The certificate type. The valid values are as follows:
+  + **0**: your certificate
+  + **2**: SSL Certificate Manager (SCM) certificate
 
   Defaults to **0**.
 
 <a name="cdn_force_redirect_config"></a>
 The `force_redirect_config` block supports:
 
-* `switch` - (Required, Int, NonUpdatable) The force redirect switch.  
-  The valid values are as follows:
-  + **0**: Disable
-  + **1**: Enable
+* `switch` - (Required, Int, NonUpdatable) Whether to enable force redirect to force clients to use HTTPS or HTTP to
+  access CDN PoPs. The valid values are as follows:
+  + **0**: Disabled
+  + **1**: Enabled
 
-* `redirect_type` - (Optional, String, NonUpdatable) The redirect type.  
+* `redirect_type` - (Optional, String, NonUpdatable) The protocol to which requests are forcibly redirected.
   The valid values are as follows:
-  + **http**: Redirect to HTTP
-  + **https**: Redirect to HTTPS
+  + **http**: force redirect to HTTP
+  + **https**: force redirect to HTTPS
 
 ## Attributes Reference
 

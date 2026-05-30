@@ -35,66 +35,49 @@ func ResourceCertificateAssociateDomains() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			// Required parameters.
 			"domain_names": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The list of domain names to associate with the certificate.`,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"https_switch": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				Description: `The HTTPS certificate configuration switch.`,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
-
-			// Optional parameters.
 			"access_origin_way": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     2,
-				Description: `The origin protocol configuration.`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"force_redirect_https": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     0,
-				Description: `Whether to enable HTTPS force redirect.`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"force_redirect_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				Elem:        forceRedirectConfigSchema(),
-				Description: `The force redirect configuration.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     forceRedirectConfigSchema(),
 			},
 			"http2": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     0,
-				Description: `The HTTP/2 protocol switch.`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"cert_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The certificate name.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"certificate": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: `The SSL certificate content in PEM format.`,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"private_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: `The SSL certificate private key content in PEM format.`,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"certificate_type": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     0,
-				Description: `The certificate type.`,
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 
 			// Internal parameters.
