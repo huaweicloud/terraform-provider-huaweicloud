@@ -1615,6 +1615,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_cluster_protect_overview":                   hss.DataSourceClusterProtectOverview(),
 			"huaweicloud_hss_cluster_protect_default_policies":           hss.DataSourceClusterProtectDefaultPolicies(),
 			"huaweicloud_hss_cluster_protect_protection_items":           hss.DataSourceClusterProtectProtectionItems(),
+			"huaweicloud_hss_common_hosts":                               hss.DataSourceCommonHosts(),
 			"huaweicloud_hss_cluster_protect_alarm_events":               hss.DataSourceClusterProtectAlarmEvents(),
 			"huaweicloud_hss_image_local_repositories":                   hss.DataSourceImageLocalRepositories(),
 			"huaweicloud_hss_image_local_hosts":                          hss.DataSourceImageLocalHosts(),
