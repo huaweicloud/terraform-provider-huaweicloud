@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_login_web_cli
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}/webcli/auth:
+        POST:
+            tag: DCS

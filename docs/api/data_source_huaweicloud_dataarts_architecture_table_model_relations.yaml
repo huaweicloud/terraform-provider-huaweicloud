@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dataarts_architecture_table_model_relations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v2/{project_id}/design/{model_id}/table-model/relation:
+        GET:
+            tag: DataArtsStudio

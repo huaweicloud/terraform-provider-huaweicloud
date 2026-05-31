@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_architecture_aggregation_logic_table
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v2/{project_id}/design/aggregation-logic-tables:
+        DELETE:
+            tag: DataArtsStudio
+        POST:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio
+    /v2/{project_id}/design/aggregation-logic-tables/{id}:
+        GET:
+            tag: DataArtsStudio

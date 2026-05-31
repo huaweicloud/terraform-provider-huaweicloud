@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: ModelArts
 paths:
-    /v2/{project_id}/datasets/{datasetId}/versions:
+    /v2/{project_id}/datasets/{dataset_id}/versions:
         GET:
             tag: ModelArts

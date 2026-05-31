@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_compare_job_cancel
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v3/{project_id}/jobs/{job_id}/compare/{compare_job_id}:
+        DELETE:
+            tag: DRS

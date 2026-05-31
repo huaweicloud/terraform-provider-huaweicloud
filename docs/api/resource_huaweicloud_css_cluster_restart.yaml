@@ -14,6 +14,6 @@ paths:
     /v2.0/{project_id}/clusters/{cluster_id}/restart:
         POST:
             tag: CSS
-    /v2.0/{project_id}/clusters/{cluster_id}/rolling_restart:
+    /v2.0/{project_id}/clusters/{cluster_id}/rolling-restart:
         POST:
             tag: CSS

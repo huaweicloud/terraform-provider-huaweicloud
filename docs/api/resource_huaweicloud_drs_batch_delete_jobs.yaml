@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_batch_delete_jobs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/jobs:
+        DELETE:
+            tag: DRS

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_driver_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/drivers:
+        DELETE:
+            tag: DRS

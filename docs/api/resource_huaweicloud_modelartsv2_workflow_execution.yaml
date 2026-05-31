@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelartsv2_workflow_execution
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/workflows/{workflow_id}/executions:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/workflows/{workflow_id}/executions/{execution_id}:
+        DELETE:
+            tag: ModelArts
+        GET:
+            tag: ModelArts
+        PUT:
+            tag: ModelArts

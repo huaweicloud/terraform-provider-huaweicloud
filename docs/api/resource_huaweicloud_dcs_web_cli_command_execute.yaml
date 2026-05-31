@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_web_cli_command_execute
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}/webcli/command:
+        POST:
+            tag: DCS

@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_wdr_snapshot_collect
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/wdr-snapshots:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/wdr-snapshots/collect:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDB

@@ -11,3 +11,6 @@ paths:
     /v1/{project_id}/jobs/import:
         POST:
             tag: DataArtsStudio
+    /v1/{project_id}/system-tasks/{task_id}:
+        GET:
+            tag: DataArtsStudio

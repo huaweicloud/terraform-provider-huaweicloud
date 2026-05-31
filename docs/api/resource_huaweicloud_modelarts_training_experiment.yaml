@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelarts_training_experiment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/training-experiments:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/training-experiments/{experiment_id}:
+        DELETE:
+            tag: ModelArts
+        GET:
+            tag: ModelArts
+        PUT:
+            tag: ModelArts

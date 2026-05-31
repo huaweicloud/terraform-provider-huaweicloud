@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/datasets:
         POST:
             tag: ModelArts
-    /v2/{project_id}/datasets/{datasetId}:
+    /v2/{project_id}/datasets/{dataset_id}:
         DELETE:
             tag: ModelArts
         GET:

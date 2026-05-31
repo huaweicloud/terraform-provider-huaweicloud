@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_email_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/batch-inspection/email-template:
+        DELETE:
+            tag: DAS
+        GET:
+            tag: DAS
+        POST:
+            tag: DAS
+        PUT:
+            tag: DAS

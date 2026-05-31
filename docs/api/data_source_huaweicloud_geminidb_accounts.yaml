@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: GaussDBforNoSQL
+    - name: GeminiDB
 paths:
     /v3/{project_id}/redis/instances/{instance_id}/db-users:
         GET:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelartsv2_workflow_schedule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/workflows/{workflow_id}/schedules:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/workflows/{workflow_id}/schedules/{schedule_id}:
+        DELETE:
+            tag: ModelArts
+        GET:
+            tag: ModelArts
+        PUT:
+            tag: ModelArts

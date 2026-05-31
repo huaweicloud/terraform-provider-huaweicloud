@@ -45,10 +45,37 @@ paths:
     /v3/{project_id}/instances/{instance_id}/action:
         POST:
             tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/advance-features:
+        GET:
+            tag: GaussDB
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/asp/status:
+        GET:
+            tag: GaussDB
+        PUT:
+            tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         PUT:
             tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/balance:
+        GET:
+            tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/configurations:
+        PUT:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/coordinators:
+        DELETE:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/error-log/switch/{status}:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/error-log/switch/status:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/mysql-compatibility:
+        POST:
+            tag: GaussDB
         PUT:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/name:
@@ -57,11 +84,28 @@ paths:
     /v3/{project_id}/instances/{instance_id}/password:
         POST:
             tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/port:
+        PUT:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/restart:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/security-group:
+        PUT:
+            tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/tag:
         DELETE:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/tags:
         POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/wdr-snapshot/status:
+        GET:
+            tag: GaussDB
+        PUT:
+            tag: GaussDB
+    /v3/{project_id}/instances/change-charge-mode:
+        PUT:
             tag: GaussDB
     /v3/{project_id}/jobs:
         GET:

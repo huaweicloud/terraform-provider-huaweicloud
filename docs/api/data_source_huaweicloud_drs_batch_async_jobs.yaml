@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_drs_batch_async_jobs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/batch-async-jobs:
+        GET:
+            tag: DRS

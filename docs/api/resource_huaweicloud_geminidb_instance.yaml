@@ -6,7 +6,7 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: GaussDBforNoSQL
+    - name: GeminiDB
 paths:
     /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
         POST:
@@ -24,48 +24,67 @@ paths:
             tag: BSS
     /v3.1/{project_id}/configurations/{config_id}/apply:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances:
         GET:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}:
         DELETE:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/disk-auto-expansion:
+        GET:
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/enlarge-node:
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/lb:
+        PUT:
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch:
+        GET:
+            tag: GeminiDB
+        PUT:
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/name:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/password:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/passwordless-config:
+        GET:
+            tag: GeminiDB
+        PUT:
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/port:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/reduce-node:
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/resize:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/security-group:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/ssl-option:
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/tags/action:
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/volume:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
+    /v3/{project_id}/instances/disk-auto-expansion:
+        PUT:
+            tag: GeminiDB
     /v3/{project_id}/jobs:
         GET:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB

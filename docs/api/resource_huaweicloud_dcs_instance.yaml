@@ -42,6 +42,9 @@ paths:
             tag: DCS
         PUT:
             tag: DCS
+    /v2/{project_id}/instances/{instance_id}/available-zones:
+        PUT:
+            tag: DCS
     /v2/{project_id}/instances/{instance_id}/bigkey/autoscan:
         GET:
             tag: DCS

@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_eip_update_publicip_pool
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{project_id}/eip/publicip-pools/{publicip_pool_id}:
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP

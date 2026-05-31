@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_architecture_approvals_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v2/{project_id}/design/approvals:
+        PUT:
+            tag: DataArtsStudio
+    /v2/{project_id}/design/approvals/action:
+        PUT:
+            tag: DataArtsStudio

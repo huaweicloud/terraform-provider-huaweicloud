@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_node_priority_config
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}/groups/{group_id}/replications/{node_id}/slave-priority:
+        POST:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/logical-nodes:
+        GET:
+            tag: DCS

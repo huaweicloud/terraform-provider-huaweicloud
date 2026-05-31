@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_batch_retry_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v3/{project_id}/jobs/batch-retry-task:
+        POST:
+            tag: DRS

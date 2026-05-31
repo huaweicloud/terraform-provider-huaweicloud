@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_email_templates_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/batch-inspection/batch-subscribe:
+        POST:
+            tag: DAS

@@ -11,6 +11,15 @@ paths:
     /v1/{project_id}/dev-servers/{id}:
         GET:
             tag: ModelArts
+    /v1/{project_id}/dev-servers/{id}/changeos:
+        POST:
+            tag: ModelArts
+    /v1/{project_id}/dev-servers/{id}/reboot:
+        PUT:
+            tag: ModelArts
+    /v1/{project_id}/dev-servers/{id}/reinstallos:
+        POST:
+            tag: ModelArts
     /v1/{project_id}/dev-servers/{id}/start:
         PUT:
             tag: ModelArts

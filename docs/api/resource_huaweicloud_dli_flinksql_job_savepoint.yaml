@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dli_flinksql_job_savepoint
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DLI
+paths:
+    /v1.0/{project_id}/streaming/jobs/{job_id}/savepoint:
+        POST:
+            tag: DLI

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_taurusdb_htap_primary_instance_databases
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TaurusDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/htap/databases:
+        POST:
+            tag: TaurusDB

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_smn_batch_set
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v3/{project_id}/jobs/batch-set-smn:
+        POST:
+            tag: DRS

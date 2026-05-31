@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_snapshot_setting
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/policy:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshots:
+        DELETE:
+            tag: CSS

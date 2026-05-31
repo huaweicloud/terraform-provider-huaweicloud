@@ -52,3 +52,6 @@ paths:
     /v3/{project_id}/eip/publicips/{id}:
         GET:
             tag: EIP
+    /v3/{project_id}/eip/publicips/{publicip_id}:
+        PUT:
+            tag: EIP

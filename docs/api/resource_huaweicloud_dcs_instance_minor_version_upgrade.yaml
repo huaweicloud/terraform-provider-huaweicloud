@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_instance_minor_version_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}/minor-version/upgrade:
+        POST:
+            tag: DCS

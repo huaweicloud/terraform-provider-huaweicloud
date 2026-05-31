@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_modelarts_workspace_quotas
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/quotas:
+        GET:
+            tag: ModelArts

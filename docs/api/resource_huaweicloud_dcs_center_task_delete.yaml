@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_center_task_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/tasks/{task_id}:
+        DELETE:
+            tag: DCS

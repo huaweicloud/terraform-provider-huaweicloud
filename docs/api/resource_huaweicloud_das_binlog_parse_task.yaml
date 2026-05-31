@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_binlog_parse_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/connections/{connection_id}/binlog-parse/create-task:
+        POST:
+            tag: DAS
+    /v3/{project_id}/connections/{connection_id}/binlog-parse/delete-task:
+        GET:
+            tag: DAS
+    /v3/{project_id}/connections/{connection_id}/binlog-parse/get-task-info:
+        GET:
+            tag: DAS

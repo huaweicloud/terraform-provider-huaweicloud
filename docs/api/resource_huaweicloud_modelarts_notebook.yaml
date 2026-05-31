@@ -24,6 +24,12 @@ paths:
     /v1/{project_id}/notebooks/{id}/stop:
         POST:
             tag: ModelArts
-    /v1/{project_id}/notebooks/{id}/storage:
+    /v1/{project_id}/notebooks/{instance_id}/storage:
         GET:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{resource_id}/tags/create:
+        POST:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{resource_id}/tags/delete:
+        DELETE:
             tag: ModelArts

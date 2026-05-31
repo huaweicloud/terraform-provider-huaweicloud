@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_history_transaction_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/instances/{instance_id}/transaction/switch:
+        GET:
+            tag: DAS
+        POST:
+            tag: DAS

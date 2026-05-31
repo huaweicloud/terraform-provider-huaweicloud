@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_standby_instance_rebuild
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/rebuild:
+        GET:
+            tag: RDS
+        PUT:
+            tag: RDS

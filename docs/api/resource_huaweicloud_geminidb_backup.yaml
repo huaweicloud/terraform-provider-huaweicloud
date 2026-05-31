@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_geminidb_backup
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/backups/{backup_id}:
+        DELETE:
+            tag: GeminiDB
+    /v3/{project_id}/instances:
+        GET:
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/backups:
+        POST:
+            tag: GeminiDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GeminiDB
+    /v4/{project_id}/backups:
+        GET:
+            tag: GeminiDB

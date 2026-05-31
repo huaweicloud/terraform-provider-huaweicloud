@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_geminidb_parameter_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/configurations:
+        POST:
+            tag: GeminiDB
+    /v3/{project_id}/configurations/{config_id}:
+        DELETE:
+            tag: GeminiDB
+        GET:
+            tag: GeminiDB
+        PUT:
+            tag: GeminiDB

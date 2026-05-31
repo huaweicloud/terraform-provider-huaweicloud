@@ -11,7 +11,7 @@ paths:
     /v1/{project_id}/networks:
         POST:
             tag: ModelArts
-    /v1/{project_id}/networks/{id}:
+    /v1/{project_id}/networks/{network_name}:
         DELETE:
             tag: ModelArts
         GET:

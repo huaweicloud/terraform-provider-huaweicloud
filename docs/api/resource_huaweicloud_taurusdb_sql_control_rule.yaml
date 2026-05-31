@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_taurusdb_sql_control_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TaurusDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/sql-filter/rules:
+        DELETE:
+            tag: TaurusDB
+        GET:
+            tag: TaurusDB
+        PUT:
+            tag: TaurusDB

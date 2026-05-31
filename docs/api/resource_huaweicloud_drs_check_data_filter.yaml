@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_check_data_filter
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/job/{job_id}/data-filtering/check:
+        POST:
+            tag: DRS

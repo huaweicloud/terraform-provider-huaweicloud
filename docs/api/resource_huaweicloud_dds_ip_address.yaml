@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dds_ip_address
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/create-ip:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/ip:
+        DELETE:
+            tag: DDS
+    /v3/{project_id}/jobs:
+        GET:
+            tag: DDS

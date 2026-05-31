@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_emails_batch_send
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/batch-inspection/batch-send-email:
+        POST:
+            tag: DAS
+    /v3/{project_id}/batch-inspection/check-credential:
+        POST:
+            tag: DAS
+    /v3/{project_id}/batch-inspection/save-credential:
+        POST:
+            tag: DAS

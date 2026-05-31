@@ -6,24 +6,24 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: GaussDBforNoSQL
+    - name: GeminiDB
 paths:
     /v3/{project_id}/instances:
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/jobs:
         GET:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/redis/instances/{instance_id}/db-users:
         DELETE:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
         GET:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
         POST:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/redis/instances/{instance_id}/db-users/password:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB
     /v3/{project_id}/redis/instances/{instance_id}/db-users/privilege:
         PUT:
-            tag: GaussDBforNoSQL
+            tag: GeminiDB

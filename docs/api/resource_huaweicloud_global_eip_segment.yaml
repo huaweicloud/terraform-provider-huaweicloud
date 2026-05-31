@@ -1,0 +1,29 @@
+info:
+    version: ""
+    title: resource_huaweicloud_global_eip_segment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{domain_id}/geip/jobs/{job_id}:
+        GET:
+            tag: EIP
+    /v3/{domain_id}/global-eip-segments:
+        POST:
+            tag: EIP
+    /v3/{domain_id}/global-eip-segments/{global_eip_segment_id}:
+        DELETE:
+            tag: EIP
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v3/global-eip-segment/{resource_id}/tags/create:
+        POST:
+            tag: EIP
+    /v3/global-eip-segment/{resource_id}/tags/delete:
+        POST:
+            tag: EIP

@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_instance_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/{project_id}/groups:
+        GET:
+            tag: LTS
+    /v2/{project_id}/groups/{log_group_id}/streams:
+        GET:
+            tag: LTS
+    /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
+        GET:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances/{instance_id}/logs/{log_type}:
+        DELETE:
+            tag: Kafka
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka

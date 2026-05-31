@@ -17,7 +17,7 @@ paths:
     /v2/{project_id}/pools:
         POST:
             tag: ModelArts
-    /v2/{project_id}/pools/{id}:
+    /v2/{project_id}/pools/{pool_name}:
         DELETE:
             tag: ModelArts
         GET:

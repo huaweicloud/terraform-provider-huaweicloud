@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_geminidb_backups
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v4/{project_id}/backups:
+        GET:
+            tag: GeminiDB

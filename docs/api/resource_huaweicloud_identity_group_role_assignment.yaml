@@ -22,7 +22,7 @@ paths:
         PUT:
             tag: IAM
     /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects:
-        GET:
+        HEAD:
             tag: IAM
     /v3/domains/{domain_id}/groups/{group_id}/roles:
         GET:

@@ -18,3 +18,5 @@ paths:
             tag: ModelArts
         GET:
             tag: ModelArts
+        PUT:
+            tag: ModelArts

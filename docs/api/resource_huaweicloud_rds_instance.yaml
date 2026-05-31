@@ -51,6 +51,9 @@ paths:
     /v3/{project_id}/instances/{instance_id}/alias:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/auto-scaling/policy:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         GET:
             tag: RDS
