@@ -13,7 +13,8 @@
               "email": {
                 "type": "string",
                 "description": "Specifies the email of the user.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "family_name": {
                 "type": "string",

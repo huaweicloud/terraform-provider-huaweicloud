@@ -1,0 +1,252 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_segments": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_instance_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_instance_site": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_instance_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_project_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_public_border_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_region": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_service_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "associate_instance_service_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "cidr": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "cidr_v6": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "freezen": {
+                "type": [
+                  "list",
+                  "bool"
+                ],
+                "optional": true
+              },
+              "geip_pool_name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "global_eip_segments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "cidr": "string",
+                      "cidr_v6": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enterprise_project_id": "string",
+                      "freezen": "bool",
+                      "freezen_info": "string",
+                      "geip_pool_name": "string",
+                      "id": "string",
+                      "internet_bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "ip_version": "number",
+                      "is_charged": "bool",
+                      "is_pre_paid": "bool",
+                      "isp": "string",
+                      "name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_bandwidth_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "internet_bandwidth_is_null": {
+                "type": [
+                  "list",
+                  "bool"
+                ],
+                "optional": true
+              },
+              "ip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ip_version": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "optional": true
+              },
+              "ipv6_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "isp": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "name_like": {
+                "type": "string",
+                "optional": true
+              },
+              "page_reverse": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "segment_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

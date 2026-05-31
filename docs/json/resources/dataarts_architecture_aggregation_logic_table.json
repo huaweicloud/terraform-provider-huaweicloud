@@ -1,0 +1,449 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_aggregation_logic_table": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "description": "The alias of the aggregation logic table.",
+                "optional": true
+              },
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API after the aggregation logic table is published.",
+                "computed": true
+              },
+              "business_asset": {
+                "type": "string",
+                "description": "The synchronization status of the business asset after the aggregation logic table is published.",
+                "computed": true
+              },
+              "compression": {
+                "type": "string",
+                "description": "The compression level of the DWS table.",
+                "optional": true,
+                "computed": true
+              },
+              "configs": {
+                "type": "string",
+                "description": "The additional configuration of the aggregation logic table, in JSON format.",
+                "optional": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the aggregation logic table, in RFC3339 format.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The account name of the user who created the aggregation logic table.",
+                "computed": true
+              },
+              "data_quality": {
+                "type": "string",
+                "description": "The status of the data quality job creation after the aggregation logic table is published.",
+                "computed": true
+              },
+              "db_name": {
+                "type": "string",
+                "description": "The name of the database corresponding to the data connection.",
+                "required": true
+              },
+              "del_type": {
+                "type": "string",
+                "description": "The deletion type when the aggregation logic table is deleted.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the aggregation logic table.",
+                "required": true
+              },
+              "dev_physical_table": {
+                "type": "string",
+                "description": "The status of the table creation in the development environment after the aggregation logic table is published.",
+                "computed": true
+              },
+              "dimension_group": {
+                "type": "string",
+                "description": "The ID of the statistical dimension of the derived indicator.",
+                "optional": true,
+                "computed": true
+              },
+              "dirty_out_database": {
+                "type": "string",
+                "description": "The output database of the dirty data.",
+                "optional": true
+              },
+              "dirty_out_prefix": {
+                "type": "string",
+                "description": "The prefix of the dirty data table.",
+                "optional": true
+              },
+              "dirty_out_suffix": {
+                "type": "string",
+                "description": "The suffix of the dirty data table.",
+                "optional": true
+              },
+              "dirty_out_switch": {
+                "type": "bool",
+                "description": "Whether to enable dirty data output switch.",
+                "optional": true
+              },
+              "distribute": {
+                "type": "string",
+                "description": "The distribution mode of the database.",
+                "optional": true,
+                "computed": true
+              },
+              "distribute_column": {
+                "type": "string",
+                "description": "The column used for hash distribution.",
+                "optional": true
+              },
+              "dlf_task": {
+                "type": "string",
+                "description": "The status of the DLF task after the aggregation logic table is published.",
+                "computed": true
+              },
+              "dlf_task_id": {
+                "type": "string",
+                "description": "The ID of the DLF task after the aggregation logic table is published.",
+                "computed": true
+              },
+              "dw_id": {
+                "type": "string",
+                "description": "The ID of the data connection.",
+                "required": true
+              },
+              "dw_name": {
+                "type": "string",
+                "description": "The name of the data connection.",
+                "computed": true
+              },
+              "dw_type": {
+                "type": "string",
+                "description": "The type of the data connection.",
+                "required": true
+              },
+              "env_type": {
+                "type": "string",
+                "description": "The publishing environment type of the aggregation logic table.",
+                "computed": true
+              },
+              "group_code": {
+                "type": "string",
+                "description": "The dimension group code of the derivative metric.",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "The name of the dimension group of the derivative metric.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "l3_id": {
+                "type": "string",
+                "description": "The ID of the business subject to which the aggregation logic table belongs.",
+                "required": true
+              },
+              "meta_data_link": {
+                "type": "string",
+                "description": "The status of the asset association after the aggregation logic table is published.",
+                "computed": true
+              },
+              "model_id": {
+                "type": "string",
+                "description": "The ID of the model to which the aggregation logic table belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "obs_location": {
+                "type": "string",
+                "description": "The OBS storage path of the external table.",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The asset owner of the aggregation logic table.",
+                "required": true
+              },
+              "partition_conf": {
+                "type": "string",
+                "description": "The partition expression of the aggregation logic table.",
+                "optional": true
+              },
+              "physical_table": {
+                "type": "string",
+                "description": "The status of the table creation in the production environment after the aggregation logic table is published.",
+                "computed": true
+              },
+              "pre_combine_field": {
+                "type": "string",
+                "description": "The column used for record combine or versioning.",
+                "optional": true
+              },
+              "publish_to_dlm": {
+                "type": "string",
+                "description": "The status of the DLM API generation after the aggregation logic table is published.",
+                "computed": true
+              },
+              "quality_id": {
+                "type": "string",
+                "description": "The ID of the data quality.",
+                "computed": true
+              },
+              "queue_name": {
+                "type": "string",
+                "description": "The queue name corresponding to the DLI data connection.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the aggregation logic table is located.",
+                "computed": true
+              },
+              "schema": {
+                "type": "string",
+                "description": "The name of the database schema.",
+                "optional": true
+              },
+              "secret_type": {
+                "type": "string",
+                "description": "The type of the data secrecy level.",
+                "optional": true
+              },
+              "sql": {
+                "type": "string",
+                "description": "The SQL statement of the aggregation logic table.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The publishing status of the aggregation logic table.",
+                "computed": true
+              },
+              "summary_status": {
+                "type": "string",
+                "description": "The synchronization status of the summary after the aggregation logic table is published.",
+                "computed": true
+              },
+              "table_type": {
+                "type": "string",
+                "description": "The type of the database table.",
+                "optional": true,
+                "computed": true
+              },
+              "tb_guid": {
+                "type": "string",
+                "description": "The technical catalog asset GUID after the aggregation logic table is published.",
+                "computed": true
+              },
+              "tb_logic_guid": {
+                "type": "string",
+                "description": "The business catalog asset GUID after the aggregation logic table is published.",
+                "computed": true
+              },
+              "tb_logic_name": {
+                "type": "string",
+                "description": "The display name in Chinese of the aggregation logic table.",
+                "required": true
+              },
+              "tb_name": {
+                "type": "string",
+                "description": "The physical table name in English of the aggregation logic table.",
+                "required": true
+              },
+              "technical_asset": {
+                "type": "string",
+                "description": "The synchronization status of the technical asset after the aggregation logic table is published.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The latest update time of the aggregation logic table, in RFC3339 format.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the aggregation logic table belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "self_defined_fields": {
+                "block": {
+                  "attributes": {
+                    "fd_name_ch": {
+                      "type": "string",
+                      "description": "The Chinese display name of the custom extended field.",
+                      "optional": true
+                    },
+                    "fd_name_en": {
+                      "type": "string",
+                      "description": "The English name of the custom extended field.",
+                      "optional": true
+                    },
+                    "fd_value": {
+                      "type": "string",
+                      "description": "The value of the custom extended field.",
+                      "optional": true
+                    },
+                    "not_null": {
+                      "type": "bool",
+                      "description": "Whether the custom extended field requires a value.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of user-defined extended fields for the aggregation logic table."
+                },
+                "nesting_mode": "list"
+              },
+              "table_attributes": {
+                "block": {
+                  "attributes": {
+                    "alias": {
+                      "type": "string",
+                      "description": "The alias of the attribute.",
+                      "optional": true
+                    },
+                    "attribute_type": {
+                      "type": "string",
+                      "description": "The configuration type of the attribute.",
+                      "optional": true
+                    },
+                    "data_type": {
+                      "type": "string",
+                      "description": "The data type of the attribute.",
+                      "required": true
+                    },
+                    "data_type_extend": {
+                      "type": "string",
+                      "description": "The data type extend field of attribute.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the attribute.",
+                      "optional": true
+                    },
+                    "domain_type": {
+                      "type": "string",
+                      "description": "The domain type of the attribute.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the attribute.",
+                      "computed": true
+                    },
+                    "is_partition_key": {
+                      "type": "bool",
+                      "description": "Whether the attribute is used as a partition key.",
+                      "optional": true
+                    },
+                    "is_primary_key": {
+                      "type": "bool",
+                      "description": "Whether the attribute is the primary key.",
+                      "optional": true
+                    },
+                    "name_ch": {
+                      "type": "string",
+                      "description": "The Chinese name of the attribute.",
+                      "required": true
+                    },
+                    "name_en": {
+                      "type": "string",
+                      "description": "The English name of the attribute.",
+                      "required": true
+                    },
+                    "not_null": {
+                      "type": "bool",
+                      "description": "Whether the attribute is not null.",
+                      "optional": true
+                    },
+                    "ordinal": {
+                      "type": "number",
+                      "description": "The sequence number of the attribute.",
+                      "computed": true
+                    },
+                    "ref_id": {
+                      "type": "string",
+                      "description": "The ID of the object referenced by the attribute.",
+                      "optional": true
+                    },
+                    "ref_name_ch": {
+                      "type": "string",
+                      "description": "The Chinese name of the object associated with the attribute.",
+                      "computed": true
+                    },
+                    "ref_name_en": {
+                      "type": "string",
+                      "description": "The English name of the object associated with the attribute.",
+                      "computed": true
+                    },
+                    "stand_row_id": {
+                      "type": "string",
+                      "description": "The ID of the data standard associated with the attribute.",
+                      "optional": true
+                    },
+                    "stand_row_name": {
+                      "type": "string",
+                      "description": "The name of the data standard associated with the attribute.",
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "secrecy_levels": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "The ID of the secrecy level.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the secrecy level.",
+                            "computed": true
+                          },
+                          "uuid": {
+                            "type": "string",
+                            "description": "The UUID of the secrecy level.",
+                            "computed": true
+                          }
+                        },
+                        "description": "The list of secrecy levels associated with the attribute."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The list of attributes of the aggregation logic table."
+                },
+                "nesting_mode": "list"
+              },
+              "table_attributes_origin": {
+                "block": {
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\nthe new value next time the change is made. The corresponding parameter name is 'table_attributes'."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

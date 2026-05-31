@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_email_send_records": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "description": "The database type.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "email": "string",
+                      "instance_health_reports": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_time": "string",
+                            "instance_id": "string",
+                            "instance_name": "string",
+                            "start_time": "string",
+                            "task_id": "string"
+                          }
+                        ]
+                      ],
+                      "send_time": "string",
+                      "status": "number",
+                      "topic_id": "string",
+                      "topic_urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of email send records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the email send records are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

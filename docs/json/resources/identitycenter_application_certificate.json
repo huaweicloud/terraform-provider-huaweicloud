@@ -15,7 +15,8 @@
               },
               "certificate": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "expiry_date": {
                 "type": "string",

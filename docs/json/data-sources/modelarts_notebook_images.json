@@ -7,6 +7,7 @@
             "attributes": {
               "cpu_arch": {
                 "type": "string",
+                "description": "The CPU architecture of the image to be queried.",
                 "optional": true
               },
               "id": {
@@ -21,34 +22,53 @@
                     {
                       "cpu_arch": "string",
                       "description": "string",
+                      "dev_services": [
+                        "list",
+                        "string"
+                      ],
                       "id": "string",
                       "name": "string",
+                      "namespace": "string",
+                      "resource_categories": [
+                        "list",
+                        "string"
+                      ],
+                      "service_type": "string",
+                      "show_name": "string",
+                      "status": "string",
                       "swr_path": "string",
-                      "type": "string"
+                      "type": "string",
+                      "workspace_id": "string"
                     }
                   ]
                 ],
+                "description": "The list of images that match the filter parameters.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the image to be queried.",
                 "optional": true
               },
-              "organization": {
+              "namespace": {
                 "type": "string",
+                "description": "The name of the namespace to which images belong.",
                 "optional": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the images are located.",
                 "computed": true
               },
               "type": {
                 "type": "string",
+                "description": "The type of the image to be queried.",
                 "optional": true,
                 "default": "BUILD_IN"
               },
               "workspace_id": {
                 "type": "string",
+                "description": "The workspace ID to which images belong.",
                 "optional": true
               }
             }

@@ -268,12 +268,14 @@
                                       "email": {
                                         "type": "string",
                                         "description": "Specifies the email address.",
-                                        "required": true
+                                        "required": true,
+                                        "sensitive": true
                                       },
                                       "phone_num": {
                                         "type": "string",
                                         "description": "Specifies the phone number.",
-                                        "required": true
+                                        "required": true,
+                                        "sensitive": true
                                       },
                                       "province": {
                                         "type": "string",

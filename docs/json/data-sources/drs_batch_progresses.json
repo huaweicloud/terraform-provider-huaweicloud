@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_batch_progresses": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "incre_trans_delay": "string",
+                      "incre_trans_delay_millis": "string",
+                      "job_id": "string",
+                      "process_time": "string",
+                      "progress": "string",
+                      "progress_map": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "completed": "string",
+                            "key": "string",
+                            "remaining_time": "string"
+                          }
+                        ]
+                      ],
+                      "remaining_time": "string",
+                      "task_mode": "string",
+                      "transfer_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

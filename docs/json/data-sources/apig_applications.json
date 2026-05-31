@@ -8,7 +8,8 @@
               "app_key": {
                 "type": "string",
                 "description": "Specifies the key of the application to be queried.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "application_id": {
                 "type": "string",

@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_sql_control_history_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql_filter_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_at": "number",
+                      "delete_at": "number",
+                      "expire_at": "number",
+                      "instance_id": "string",
+                      "max_concurrency": "number",
+                      "node_id": "string",
+                      "pattern": "string",
+                      "sql_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sql_type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

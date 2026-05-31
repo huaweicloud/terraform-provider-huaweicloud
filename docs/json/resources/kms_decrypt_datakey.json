@@ -8,7 +8,8 @@
               "cipher_text": {
                 "type": "string",
                 "description": "Specifies the DEK ciphertext and metadata in hexadecimal string.",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "data_key": {
                 "type": "string",

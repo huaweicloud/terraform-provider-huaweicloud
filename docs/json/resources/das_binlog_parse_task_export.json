@@ -1,0 +1,153 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_binlog_parse_task_export": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "description": "The OBS bucket name.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The task creation time, in RFC3339 format.",
+                "computed": true
+              },
+              "download_url": {
+                "type": "string",
+                "description": "The download URL of the exported file.",
+                "computed": true
+              },
+              "export_line_num": {
+                "type": "number",
+                "description": "The number of exported lines.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "computed": true
+              },
+              "last_record_time": {
+                "type": "string",
+                "description": "The last record time, in RFC3339 format.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the binlog parse task export is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The task status.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "number",
+                "description": "The binlog parse task ID.",
+                "required": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The user ID of the database connection.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "filter_condition": {
+                "block": {
+                  "attributes": {
+                    "db_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of database names to filter.",
+                      "optional": true
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "description": "The end time of the export range, in RFC3339 format.",
+                      "optional": true
+                    },
+                    "file_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of file names to filter.",
+                      "optional": true
+                    },
+                    "parse_double_insert": {
+                      "type": "bool",
+                      "description": "Whether to export UPDATE statements as two INSERT statements.",
+                      "optional": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "The start time of the export range, in RFC3339 format.",
+                      "optional": true
+                    },
+                    "tb_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of table names to filter.",
+                      "optional": true
+                    },
+                    "types": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of SQL types to filter.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "columns": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "The column name.",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The column value.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The list of columns to filter."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The filter conditions for the export task."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

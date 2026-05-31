@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_wdr_snapshot_collection_results": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "job_end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "job_id": {
+                "type": "string",
+                "optional": true
+              },
+              "job_start_time": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "wdr_snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "download_url": "string",
+                      "end_snapshot_id": "string",
+                      "end_time": "string",
+                      "error_msg": "string",
+                      "file_name": "string",
+                      "file_path": "string",
+                      "file_size": "number",
+                      "job_create_time": "string",
+                      "job_id": "string",
+                      "notes": "string",
+                      "obs_bucket": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_id": "string",
+                            "name": "string",
+                            "port": "number",
+                            "type": "string",
+                            "url": "string"
+                          }
+                        ]
+                      ],
+                      "start_snapshot_id": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "wdr_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "wdr_type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

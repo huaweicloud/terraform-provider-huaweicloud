@@ -38,7 +38,8 @@
                     "user_email": {
                       "type": "string",
                       "description": "The email of user.",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     },
                     "user_group": {
                       "type": "string",

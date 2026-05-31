@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_plugins": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "plugins": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_version": "string",
+                      "kind": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "template": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "inputs": "string",
+                                  "name": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "phase": "string",
+                            "reason": "string",
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "involved_object": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "api_version": "string",
+                                        "kind": "string",
+                                        "name": "string",
+                                        "namespace": "string",
+                                        "resource_version": "string",
+                                        "uid": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "limits": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "replicas": "number",
+                                  "requests": [
+                                    "map",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "values": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the plugins that matched filter parameters.",
+                "computed": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The ID of the resource pool.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the plugins are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

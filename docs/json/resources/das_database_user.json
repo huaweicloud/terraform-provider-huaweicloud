@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_database_user": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance to which the database user belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the database user.",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "The password of the database user.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the database user is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

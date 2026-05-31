@@ -357,7 +357,8 @@
                     "security_token": {
                       "type": "string",
                       "description": "Specifies the User token.",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     }
                   },
                   "block_types": {

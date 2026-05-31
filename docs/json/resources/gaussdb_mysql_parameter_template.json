@@ -36,13 +36,13 @@
               },
               "instance_configuration_id": {
                 "type": "string",
-                "description": "Specifies the parameter template ID of the GaussDB MySQL instance.",
+                "description": "Specifies the parameter template ID of the TaurusDB instance.",
                 "optional": true,
                 "forcenew": true
               },
               "instance_id": {
                 "type": "string",
-                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "description": "Specifies the ID of the TaurusDB instance.",
                 "optional": true,
                 "forcenew": true
               },

@@ -18,7 +18,8 @@
                 "type": "string",
                 "description": "The APP key.",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "app_secret": {
                 "type": "string",

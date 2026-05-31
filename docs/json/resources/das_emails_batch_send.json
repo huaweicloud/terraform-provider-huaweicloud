@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_emails_batch_send": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "description": "The access key used to access the OBS bucket.",
+                "optional": true,
+                "sensitive": true
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address.",
+                "optional": true,
+                "sensitive": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "obs_bucket_name": {
+                "type": "string",
+                "description": "The OBS bucket name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the email templates are located.",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "description": "The secret key used to access the OBS bucket.",
+                "optional": true,
+                "sensitive": true
+              },
+              "service_uri": {
+                "type": "string",
+                "description": "The service URI of the OBS bucket.",
+                "optional": true
+              },
+              "task_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of report IDs.",
+                "required": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "The topic ID.",
+                "optional": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "The topic URN.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

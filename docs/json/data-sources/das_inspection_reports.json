@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_inspection_reports": {
+          "block": {
+            "attributes": {
+              "asc": {
+                "type": "bool",
+                "description": "Whether to sort in ascending order.",
+                "optional": true
+              },
+              "datastore_type": {
+                "type": "string",
+                "description": "The database type.",
+                "required": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the inspection report, in RFC3339 format.",
+                "required": true
+              },
+              "health_rank": {
+                "type": "string",
+                "description": "The health rank of the inspection report.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the inspection reports are located.",
+                "computed": true
+              },
+              "reports": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cpu": "number",
+                      "created_time": "string",
+                      "disk_size": "number",
+                      "end_time": "string",
+                      "health_rank": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "lost_points_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "deducted_condition": "string",
+                            "deducted_formula": "string",
+                            "deducted_points": "number",
+                            "metric": "string",
+                            "metric_value": "number",
+                            "risk_level": "string",
+                            "suggestions": "string"
+                          }
+                        ]
+                      ],
+                      "mem": "number",
+                      "score": "number",
+                      "start_time": "string",
+                      "task_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of inspection reports that matched filter parameters.",
+                "computed": true
+              },
+              "sort_field": {
+                "type": "string",
+                "description": "The field used for sorting.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the inspection report, in RFC3339 format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

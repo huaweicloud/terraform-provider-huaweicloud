@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_ai_component_detail": {
+          "block": {
+            "attributes": {
+              "ai_application": {
+                "type": "string",
+                "optional": true
+              },
+              "ai_tool": {
+                "type": "string",
+                "optional": true
+              },
+              "catalogue": {
+                "type": "string",
+                "required": true
+              },
+              "category": {
+                "type": "string",
+                "required": true
+              },
+              "container_id": {
+                "type": "string",
+                "optional": true
+              },
+              "container_name": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ai_application": "string",
+                      "ai_tool": "string",
+                      "cmdline": "string",
+                      "container_id": "string",
+                      "container_name": "string",
+                      "first_scan_time": "number",
+                      "host_id": "string",
+                      "install_path": "string",
+                      "latest_scan_time": "number",
+                      "net_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "listen_ip": "string",
+                            "listen_port": "number",
+                            "listen_protocol": "string",
+                            "listen_status": "string"
+                          }
+                        ]
+                      ],
+                      "pid": "number",
+                      "ppid": "number",
+                      "server_ip": "string",
+                      "server_name": "string",
+                      "startup_path": "string",
+                      "startup_time": "number",
+                      "type": "string",
+                      "user": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "first_scan_time": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "optional": true
+              },
+              "installation_path": {
+                "type": "string",
+                "optional": true
+              },
+              "latest_scan_time": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "server_name": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

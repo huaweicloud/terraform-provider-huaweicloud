@@ -9,7 +9,8 @@
                 "type": "string",
                 "description": "Specifies the certificate body.",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "certificate_format": {
                 "type": "string",
@@ -68,7 +69,8 @@
                       "type": "string",
                       "description": "Specifies the Chinese (SM) encryption certificate body",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "enc_certificate_key": {
                       "type": "string",
@@ -81,7 +83,8 @@
                       "type": "string",
                       "description": "Specifies the Chinese (SM) signature certificate body",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "sign_certificate_key": {
                       "type": "string",
@@ -122,7 +125,8 @@
                       "type": "string",
                       "description": "Specifies the certificate body.",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "certificate_key": {
                       "type": "string",

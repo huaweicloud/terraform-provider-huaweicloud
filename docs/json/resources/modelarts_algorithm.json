@@ -1,0 +1,437 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_algorithm": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the algorithm is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "advanced_config": {
+                "block": {
+                  "block_types": {
+                    "auto_search": {
+                      "block": {
+                        "attributes": {
+                          "skip_search_params": {
+                            "type": "string",
+                            "description": "The hyperparameter combination to be excluded from search.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "algo_configs": {
+                            "block": {
+                              "attributes": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the search algorithm.",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "params": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "The key of the parameter.",
+                                        "optional": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "The type of the parameter.",
+                                        "optional": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "description": "The value of the parameter.",
+                                        "optional": true
+                                      }
+                                    },
+                                    "description": "The parameter list of the search algorithm."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "The algorithm configuration of search."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          },
+                          "reward_attrs": {
+                            "block": {
+                              "attributes": {
+                                "mode": {
+                                  "type": "string",
+                                  "description": "The search direction.",
+                                  "optional": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The metric name.",
+                                  "optional": true
+                                },
+                                "regex": {
+                                  "type": "string",
+                                  "description": "The metric regular expression.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The metric list of search."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          },
+                          "search_params": {
+                            "block": {
+                              "attributes": {
+                                "discrete_points_num": {
+                                  "type": "string",
+                                  "description": "The number of discrete samples for a continuous hyperparameter.",
+                                  "optional": true
+                                },
+                                "discrete_values": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "The list of discrete values for a discrete hyperparameter.",
+                                  "optional": true
+                                },
+                                "lower_bound": {
+                                  "type": "string",
+                                  "description": "The lower bound of the hyperparameter.",
+                                  "optional": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The hyperparameter name.",
+                                  "optional": true
+                                },
+                                "param_type": {
+                                  "type": "string",
+                                  "description": "The parameter type.",
+                                  "optional": true
+                                },
+                                "upper_bound": {
+                                  "type": "string",
+                                  "description": "The upper bound of the hyperparameter.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The parameter list of search."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        },
+                        "description": "The strategy configuration of hyperparameter search."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The advanced configuration of the algorithm."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "job_config": {
+                "block": {
+                  "attributes": {
+                    "boot_file": {
+                      "type": "string",
+                      "description": "The boot file path under the code directory.",
+                      "optional": true
+                    },
+                    "code_dir": {
+                      "type": "string",
+                      "description": "The code directory of the algorithm.",
+                      "optional": true
+                    },
+                    "command": {
+                      "type": "string",
+                      "description": "The container start command for custom image algorithm.",
+                      "optional": true
+                    },
+                    "parameters_customization": {
+                      "type": "bool",
+                      "description": "Whether the hyperparameter can be customized when creating a training job.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "engine": {
+                      "block": {
+                        "attributes": {
+                          "engine_id": {
+                            "type": "string",
+                            "description": "The ID of the engine specification.",
+                            "optional": true
+                          },
+                          "engine_name": {
+                            "type": "string",
+                            "description": "The name of the engine.",
+                            "optional": true
+                          },
+                          "engine_version": {
+                            "type": "string",
+                            "description": "The version of the engine version.",
+                            "optional": true
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "description": "The custom image URL of the algorithm.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The engine configuration of the algorithm."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "inputs": {
+                      "block": {
+                        "attributes": {
+                          "access_method": {
+                            "type": "string",
+                            "description": "The access method of the data input channel.",
+                            "optional": true
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the data input channel.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the data input channel.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "remote_constraints": {
+                            "block": {
+                              "attributes": {
+                                "attributes": {
+                                  "type": "string",
+                                  "description": "The attributes of the input data, in JSON format.",
+                                  "optional": true
+                                },
+                                "data_type": {
+                                  "type": "string",
+                                  "description": "The type of the data input.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The constraint of the data input."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "The data input list of the algorithm."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "outputs": {
+                      "block": {
+                        "attributes": {
+                          "access_method": {
+                            "type": "string",
+                            "description": "The access method of the data output channel.",
+                            "optional": true
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the data output channel.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the data output channel.",
+                            "required": true
+                          }
+                        },
+                        "description": "The data output list of the algorithm."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "parameters": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the parameter.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the parameter.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the parameter.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "constraint": {
+                            "block": {
+                              "attributes": {
+                                "editable": {
+                                  "type": "bool",
+                                  "description": "Whether the parameter is editable.",
+                                  "optional": true
+                                },
+                                "required": {
+                                  "type": "bool",
+                                  "description": "Whether the parameter is required.",
+                                  "optional": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "The type of the parameter.",
+                                  "required": true
+                                },
+                                "valid_range": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "The valid range list of the parameter value.",
+                                  "optional": true
+                                },
+                                "valid_type": {
+                                  "type": "string",
+                                  "description": "The valid type of the parameter value.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The constraint of the parameter."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          },
+                          "i18n_description": {
+                            "block": {
+                              "attributes": {
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description in the specified language.",
+                                  "optional": true
+                                },
+                                "language": {
+                                  "type": "string",
+                                  "description": "The language code.",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The list of running parameters of the algorithm."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The configuration of the algorithm."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the algorithm.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the algorithm.",
+                      "required": true
+                    },
+                    "workspace_id": {
+                      "type": "string",
+                      "description": "The ID of the workspace to which the algorithm belongs.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "tags": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key of the tag.",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The metadata of the algorithm."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "resource_requirements": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of the resource constraint.",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "The relationship between the key and values.",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of values corresponding to the key.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The resource constraint list of the algorithm."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

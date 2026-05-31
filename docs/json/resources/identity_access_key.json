@@ -18,7 +18,8 @@
               "encrypted_secret": {
                 "type": "string",
                 "description": "The encrypted secret, which encoded in base64.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",
@@ -33,7 +34,8 @@
                 "type": "string",
                 "description": "The PGP public key (base64 encoded) used to encrypt the storaged secret key.",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "secret": {
                 "type": "string",

@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_training_experiment": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the training experiment, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training experiment is located.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The latest update time of the training experiment, in RFC3339 format.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the training experiment.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the training experiment.",
+                      "required": true
+                    },
+                    "workspace_id": {
+                      "type": "string",
+                      "description": "The ID of the workspace to which the training experiment belongs.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The configuration of the training experiment."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_binlog_exported_parse_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the binlog exported parse tasks are located.",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "download_url": "string",
+                      "end_time": "string",
+                      "export_line_num": "number",
+                      "exported_task_id": "number",
+                      "instance_id": "string",
+                      "last_record_time": "string",
+                      "parsed_task_id": "number",
+                      "source_file_name": "string",
+                      "start_time": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of binlog exported parse tasks.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The database user ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

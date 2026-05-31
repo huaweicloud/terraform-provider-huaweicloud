@@ -5,6 +5,11 @@
         "huaweicloud_gaussdb_instance": {
           "block": {
             "attributes": {
+              "asp_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true
@@ -35,6 +40,13 @@
                 "type": "string",
                 "computed": true
               },
+              "delete_coordinator_node_id_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
               "disk_encryption_id": {
                 "type": "string",
                 "optional": true
@@ -61,6 +73,7 @@
               },
               "error_log_switch_status": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "flavor": {
@@ -189,6 +202,11 @@
               "vpc_id": {
                 "type": "string",
                 "required": true
+              },
+              "wdr_snapshot_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {

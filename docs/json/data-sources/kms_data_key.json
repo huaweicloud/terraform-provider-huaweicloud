@@ -7,7 +7,8 @@
             "attributes": {
               "cipher_text": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "datakey_length": {
                 "type": "string",
@@ -27,7 +28,8 @@
               },
               "plain_text": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_subjects": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "The start time for filtering, in RFC3339 format.",
+                "optional": true
+              },
+              "create_by": {
+                "type": "string",
+                "description": "The creator of the subject.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time for filtering, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "number",
+                "description": "The level of the subject.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name or code of the subject (fuzzy query).",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The owner of the subject.",
+                "optional": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The parent directory ID of the subject.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the subjects are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The business status of the subject.",
+                "optional": true
+              },
+              "subjects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "children": "string",
+                      "children_num": "number",
+                      "code": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "data_department": "string",
+                      "data_owner": "string",
+                      "data_owner_list": "string",
+                      "description": "string",
+                      "from_public": "bool",
+                      "guid": "string",
+                      "id": "string",
+                      "level": "number",
+                      "name": "string",
+                      "name_en": "string",
+                      "new_biz": "string",
+                      "ordinal": "number",
+                      "owner": "string",
+                      "parent_id": "string",
+                      "path": "string",
+                      "qualified_id": "string",
+                      "qualified_name": "string",
+                      "relations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "created_by": "string",
+                            "id": "string",
+                            "mappings": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "created_at": "string",
+                                  "created_by": "string",
+                                  "id": "string",
+                                  "relation_id": "string",
+                                  "source_field_id": "string",
+                                  "source_field_name": "string",
+                                  "target_field_id": "string",
+                                  "target_field_name": "string",
+                                  "updated_at": "string",
+                                  "updated_by": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string",
+                            "role": "string",
+                            "source_table_id": "string",
+                            "source_table_name": "string",
+                            "source_type": "string",
+                            "target_table_id": "string",
+                            "target_table_name": "string",
+                            "target_type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "self_defined_field": "string",
+                      "status": "string",
+                      "swap_order_id": "string",
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of subjects that matched filter parameters.",
+                "computed": true
+              },
+              "with_relation": {
+                "type": "bool",
+                "description": "Whether to include relation information.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the subjects belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

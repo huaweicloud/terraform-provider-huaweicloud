@@ -7,9 +7,8 @@
             "attributes": {
               "cidr": {
                 "type": "string",
-                "description": "Network CIDR.",
-                "required": true,
-                "forcenew": true
+                "description": "The CIDR of the network.",
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -17,25 +16,29 @@
               },
               "name": {
                 "type": "string",
-                "description": "The name of network.",
-                "required": true,
-                "forcenew": true
+                "description": "The name of the network.",
+                "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the network is located.",
                 "computed": true
               },
               "status": {
                 "type": "string",
-                "description": "The status of network.",
+                "description": "The status of the network.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the subnet which the network is associated.",
                 "computed": true
               },
               "workspace_id": {
                 "type": "string",
-                "description": "Workspace ID, which defaults to 0.",
+                "description": "The ID of the workspace to which the network belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               }
             },
             "block_types": {
@@ -44,16 +47,39 @@
                   "attributes": {
                     "subnet_id": {
                       "type": "string",
-                      "description": "ID of the peer subnet.",
+                      "description": "The ID of the subnet to which the peering connection belongs.",
                       "required": true
                     },
                     "vpc_id": {
                       "type": "string",
-                      "description": "ID of the peer VPC.",
+                      "description": "The ID of the VPC to which the peering connection belongs.",
                       "required": true
                     }
                   },
-                  "description": "List of networks that can be connected in peer mode."
+                  "description": "The list of peering connections that can be connected to the network."
+                },
+                "nesting_mode": "list"
+              },
+              "sfs_turbos": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the SFS Turbo to be associated.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the SFS Turbo to be associated.",
+                      "required": true
+                    },
+                    "uri": {
+                      "type": "string",
+                      "description": "The export location URI of the associated SFS Turbo in network.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The list of SFS Turbos that can be connected to the network."
                 },
                 "nesting_mode": "list"
               }

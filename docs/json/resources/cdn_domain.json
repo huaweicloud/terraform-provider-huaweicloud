@@ -449,7 +449,8 @@
                           "certificate_body": {
                             "type": "string",
                             "optional": true,
-                            "computed": true
+                            "computed": true,
+                            "sensitive": true
                           },
                           "certificate_name": {
                             "type": "string",

@@ -8,7 +8,8 @@
               "email": {
                 "type": "string",
                 "description": "The email of the user.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",
@@ -17,7 +18,8 @@
               "mobile": {
                 "type": "string",
                 "description": "The mobile phone number of the user.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               }
             }
           },

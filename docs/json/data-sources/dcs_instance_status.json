@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_instance_status": {
+          "block": {
+            "attributes": {
+              "createfailed_count": {
+                "type": "number",
+                "computed": true
+              },
+              "creating_count": {
+                "type": "number",
+                "computed": true
+              },
+              "error_count": {
+                "type": "number",
+                "computed": true
+              },
+              "extending_count": {
+                "type": "number",
+                "computed": true
+              },
+              "flushing_count": {
+                "type": "number",
+                "computed": true
+              },
+              "freezing_count": {
+                "type": "number",
+                "computed": true
+              },
+              "frozen_count": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "include_failure": {
+                "type": "string",
+                "optional": true
+              },
+              "memcached": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "createfailed_count": "number",
+                      "creating_count": "number",
+                      "error_count": "number",
+                      "extending_count": "number",
+                      "flushing_count": "number",
+                      "freezing_count": "number",
+                      "frozen_count": "number",
+                      "migrating_count": "number",
+                      "paying_count": "number",
+                      "restarting_count": "number",
+                      "restoring_count": "number",
+                      "running_count": "number",
+                      "upgrading_count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "migrating_count": {
+                "type": "number",
+                "computed": true
+              },
+              "paying_count": {
+                "type": "number",
+                "computed": true
+              },
+              "redis": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "createfailed_count": "number",
+                      "creating_count": "number",
+                      "error_count": "number",
+                      "extending_count": "number",
+                      "flushing_count": "number",
+                      "freezing_count": "number",
+                      "frozen_count": "number",
+                      "migrating_count": "number",
+                      "paying_count": "number",
+                      "restarting_count": "number",
+                      "restoring_count": "number",
+                      "running_count": "number",
+                      "upgrading_count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restarting_count": {
+                "type": "number",
+                "computed": true
+              },
+              "restoring_count": {
+                "type": "number",
+                "computed": true
+              },
+              "running_count": {
+                "type": "number",
+                "computed": true
+              },
+              "upgrading_count": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

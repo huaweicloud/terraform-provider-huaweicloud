@@ -7,7 +7,8 @@
             "attributes": {
               "certificate": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "common_name": {
                 "type": "string",
@@ -27,11 +28,13 @@
               },
               "enc_certificate": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "enc_private_key": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -57,7 +60,8 @@
               },
               "private_key": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

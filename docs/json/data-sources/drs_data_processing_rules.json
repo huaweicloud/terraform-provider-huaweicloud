@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_data_processing_rules": {
+          "block": {
+            "attributes": {
+              "data_process_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "add_columns": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "column_name": "string",
+                            "column_type": "string",
+                            "column_value": "string",
+                            "data_type": "string"
+                          }
+                        ]
+                      ],
+                      "db_object": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "object_info": "string",
+                            "object_scope": "string",
+                            "target_root_db": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "db_encoding": "string",
+                                  "db_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "db_object_column_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "column_infos": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "column_mapped_name": "string",
+                                  "column_name": "string",
+                                  "column_type": "string",
+                                  "is_filtered": "bool",
+                                  "is_partition_key": "bool",
+                                  "primary_key_or_unique_index": "string"
+                                }
+                              ]
+                            ],
+                            "db_name": "string",
+                            "schema_name": "string",
+                            "table_name": "string",
+                            "total_count": "number"
+                          }
+                        ]
+                      ],
+                      "db_or_table_rename_rule": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "prefix_name": "string",
+                            "suffix_name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "ddl_operation": [
+                        "map",
+                        "string"
+                      ],
+                      "dml_operation": "string",
+                      "filter_conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "filtering_type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "is_batch_process": "bool",
+                      "is_synchronized": "bool",
+                      "process_rule_level": "string",
+                      "source": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

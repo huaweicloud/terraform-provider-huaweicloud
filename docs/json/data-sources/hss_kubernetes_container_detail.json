@@ -84,7 +84,8 @@
               },
               "service_password": {
                 "type": "number",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "service_port_list": {
                 "type": [

@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eip_bandwidth_associate": {
+          "block": {
+            "attributes": {
+              "bandwidth_charge_mode": {
+                "type": "string",
+                "required": true
+              },
+              "bandwidth_id": {
+                "type": "string",
+                "required": true
+              },
+              "bandwidth_name": {
+                "type": "string",
+                "optional": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "computed": true
+              },
+              "public_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ipv6_address": {
+                "type": "string",
+                "computed": true
+              },
+              "publicip_id": {
+                "type": "string",
+                "required": true
+              },
+              "publicip_type": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

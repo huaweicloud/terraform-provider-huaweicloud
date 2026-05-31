@@ -74,7 +74,8 @@
                     "client_secret": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "header": {
                       "type": [
@@ -92,7 +93,8 @@
                     "sign_secret": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     }
                   }
                 },

@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_job_object_support": {
+          "block": {
+            "attributes": {
+              "file_size": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "import_level": {
+                "type": "string",
+                "computed": true
+              },
+              "import_mapping_type": {
+                "type": "string",
+                "computed": true
+              },
+              "is_database_support_search": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_full_incre_trans_support_object": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_full_trans_support_object": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_import_cloumn": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_import_unique_key": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_incre_trans_support_object": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_schema_support_search": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_support_column_mapping": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_table_support_search": {
+                "type": "bool",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "previous_select": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "support_object_import_engine": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -22,7 +22,8 @@
               },
               "federation_token": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",

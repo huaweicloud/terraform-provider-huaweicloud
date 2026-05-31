@@ -18,6 +18,7 @@
                       "ha_mode": "string",
                       "id": "string",
                       "name": "string",
+                      "node_type": "string",
                       "updated_at": "string",
                       "user_defined": "bool"
                     }

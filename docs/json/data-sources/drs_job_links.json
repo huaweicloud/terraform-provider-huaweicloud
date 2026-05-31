@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_job_links": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "engine_type": "string",
+                      "job_direction": "string",
+                      "job_type": "string",
+                      "net_type": "string",
+                      "source_endpoint_type": "string",
+                      "target_endpoint_type": "string",
+                      "task_types": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "job_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

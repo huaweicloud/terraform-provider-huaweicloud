@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_instance_groups": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "description": "The database type.",
+                "required": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "number",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the instance groups that matched the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The instance group name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the DAS instance groups are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

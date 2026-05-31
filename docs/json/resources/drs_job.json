@@ -274,7 +274,8 @@
                     "ssl_cert_key": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "ssl_cert_name": {
                       "type": "string",
@@ -284,7 +285,8 @@
                     "ssl_cert_password": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "ssl_enabled": {
                       "type": "bool",
@@ -331,7 +333,8 @@
                           "key_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "key_store_key": {
                             "type": "string",
@@ -346,7 +349,8 @@
                           "key_store_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "sasl_mechanism": {
                             "type": "string",
@@ -371,7 +375,8 @@
                           "trust_store_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "type": {
                             "type": "string",
@@ -575,7 +580,8 @@
                     "ssl_cert_key": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "ssl_cert_name": {
                       "type": "string",
@@ -585,7 +591,8 @@
                     "ssl_cert_password": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "ssl_enabled": {
                       "type": "bool",
@@ -632,7 +639,8 @@
                           "key_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "key_store_key": {
                             "type": "string",
@@ -647,7 +655,8 @@
                           "key_store_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "sasl_mechanism": {
                             "type": "string",
@@ -672,7 +681,8 @@
                           "trust_store_password": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true
+                            "forcenew": true,
+                            "sensitive": true
                           },
                           "type": {
                             "type": "string",

@@ -21,7 +21,8 @@
                 "description": "The email address of the account.",
                 "optional": true,
                 "computed": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",
@@ -59,7 +60,8 @@
                 "description": "The mobile number of the account.",
                 "optional": true,
                 "computed": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "tags": {
                 "type": [

@@ -14,7 +14,8 @@
                   "list",
                   "string"
                 ],
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",

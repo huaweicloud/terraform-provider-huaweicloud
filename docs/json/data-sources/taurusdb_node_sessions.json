@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_node_sessions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the TaurusDB instance.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of the node in the TaurusDB instance.",
+                "required": true
+              },
+              "processes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "command": "string",
+                      "db": "string",
+                      "host": "string",
+                      "id": "number",
+                      "info": "string",
+                      "state": "string",
+                      "time": "number",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of user session threads in the node in the TaurusDB instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

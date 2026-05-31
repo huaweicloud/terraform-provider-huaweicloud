@@ -1,0 +1,352 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_workflows": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the workflow to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The labels of the workflows to be queried.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the workflow to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflows are located.",
+                "computed": true
+              },
+              "search_type": {
+                "type": "string",
+                "description": "The search type of the workflows to be queried.",
+                "optional": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "The template ID of the workflows to be queried.",
+                "optional": true
+              },
+              "workflows": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_id": "string",
+                            "expired_at": "string",
+                            "name": "string",
+                            "subscription_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "data": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "type": "string",
+                            "used_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "data_requirements": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attribute": "string",
+                                  "operator": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "delay": "bool",
+                            "name": "string",
+                            "type": "string",
+                            "used_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "exeml_template_id": "string",
+                      "extend": "string",
+                      "gallery_subscription": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_id": "string",
+                            "expired_at": "string",
+                            "version_id": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "labels": [
+                        "list",
+                        "string"
+                      ],
+                      "last_modified_at": "string",
+                      "latest_execution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "current_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "duration": "number",
+                            "execution_id": "string",
+                            "running_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "package": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "consume_limit": "number",
+                            "created_at": "string",
+                            "current_consume": "number",
+                            "current_date": "number",
+                            "limit_enable": "bool",
+                            "order": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "sku": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "code": "string",
+                                        "period": "number",
+                                        "price": "number",
+                                        "queries_limit": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "sku_count": "number"
+                                }
+                              ]
+                            ],
+                            "package_id": "string",
+                            "pool_id": "string",
+                            "service_id": "string",
+                            "status": "string",
+                            "workflow_id": "string"
+                          }
+                        ]
+                      ],
+                      "param_ready": "bool",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "constraint": "string",
+                            "default": "string",
+                            "delay": "bool",
+                            "description": "string",
+                            "enum": [
+                              "list",
+                              "string"
+                            ],
+                            "example": "string",
+                            "format": "string",
+                            "name": "string",
+                            "type": "string",
+                            "used_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "scene_id": "string",
+                            "scenes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string",
+                                  "steps": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "use_scene": "string"
+                          }
+                        ]
+                      ],
+                      "run_count": "number",
+                      "smn_switch": "bool",
+                      "source": "string",
+                      "source_workflow_id": "string",
+                      "steps": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "left": "string",
+                                  "right": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "created_at": "string",
+                            "depend_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "else_then_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "if_then_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "data": "string",
+                                  "name": "string",
+                                  "type": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string",
+                            "outputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "config": "string",
+                                  "name": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "policy": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "max_execution_minutes": "number",
+                                  "poll_interval_seconds": "number"
+                                }
+                              ]
+                            ],
+                            "properties": "string",
+                            "title": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "storages": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "path": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "sub_graphs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "steps": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "subscription_id": "string",
+                      "user_name": "string",
+                      "with_subscription": "bool",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the workflows that matched filter parameters.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

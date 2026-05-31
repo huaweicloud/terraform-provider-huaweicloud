@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_geminidb_memory_rule": {
+          "block": {
+            "attributes": {
+              "dbcache_mapping_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_columns": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "key_prefix": {
+                "type": "string",
+                "required": true
+              },
+              "key_separator": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_db_schema": {
+                "type": "string",
+                "required": true
+              },
+              "source_db_table": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_type": {
+                "type": "string",
+                "required": true
+              },
+              "target_database": {
+                "type": "string",
+                "required": true
+              },
+              "ttl": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "value_columns": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "value_separator": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

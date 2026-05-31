@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_pwd_batch_modify": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_point_type": "string",
+                      "id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "jobs": {
+                "block": {
+                  "attributes": {
+                    "db_password": {
+                      "type": "string",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "end_point_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "job_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "kerberos": {
+                      "block": {
+                        "attributes": {
+                          "domain_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "key_tab_file": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "krb5_conf_file": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "user_principal": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

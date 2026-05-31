@@ -23,12 +23,14 @@
               "certificate": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "certificate_chain": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "domain": {
                 "type": "string",
@@ -41,12 +43,14 @@
               "enc_certificate": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "enc_private_key": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -74,7 +78,8 @@
               "private_key": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "push_support": {
                 "type": "string",

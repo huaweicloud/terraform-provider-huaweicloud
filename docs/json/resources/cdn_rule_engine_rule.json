@@ -135,7 +135,8 @@
                             "type": "string",
                             "description": "The third-party object storage access key.",
                             "optional": true,
-                            "computed": true
+                            "computed": true,
+                            "sensitive": true
                           },
                           "bucket_name": {
                             "type": "string",
@@ -152,7 +153,8 @@
                           "bucket_secret_key": {
                             "type": "string",
                             "description": "The third-party object storage secret key.",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "host_name": {
                             "type": "string",

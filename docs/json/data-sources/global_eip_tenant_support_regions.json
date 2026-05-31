@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_tenant_support_regions": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": "string",
+                "required": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "support_regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "instance_type": "string",
+                      "public_border_group": "string",
+                      "region_id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

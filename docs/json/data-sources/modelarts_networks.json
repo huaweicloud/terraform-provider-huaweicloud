@@ -1,0 +1,146 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_networks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_selector": {
+                "type": "string",
+                "description": "The label selector to filter networks.",
+                "optional": true
+              },
+              "networks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "os_modelarts_description": "string"
+                                }
+                              ]
+                            ],
+                            "created_at": "string",
+                            "labels": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "os_modelarts_name": "string",
+                                  "os_modelarts_workspace_id": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "connection": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "peer_connection_list": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "default_gateway": "bool",
+                                        "peer_subnet_id": "string",
+                                        "peer_vpc_id": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "connection_status": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "peer_connection_status": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "default_gateway": "bool",
+                                        "peer_subnet_id": "string",
+                                        "peer_vpc_id": "string",
+                                        "phase": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "sfs_turbo_status": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "connection_type": "string",
+                                        "ip_addr": "string",
+                                        "name": "string",
+                                        "sfs_id": "string",
+                                        "status": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "phase": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of networks that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the networks are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

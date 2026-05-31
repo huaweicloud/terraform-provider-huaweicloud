@@ -97,7 +97,8 @@
                     "content": {
                       "type": "string",
                       "description": "Specifies the certificate content.",
-                      "required": true
+                      "required": true,
+                      "sensitive": true
                     },
                     "name": {
                       "type": "string",

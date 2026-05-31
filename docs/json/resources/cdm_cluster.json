@@ -19,7 +19,8 @@
                   "set",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -74,7 +75,8 @@
                   "set",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "public_endpoint": {
                 "type": "string",

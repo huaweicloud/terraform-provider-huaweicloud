@@ -18,8 +18,13 @@
                         [
                           "object",
                           {
+                            "cluster_id": "string",
                             "data_type": "number",
+                            "database_name": "string",
                             "path": "string",
+                            "queue_name": "string",
+                            "table_name": "string",
+                            "user_name": "string",
                             "with_column_header": "bool"
                           }
                         ]
@@ -55,6 +60,7 @@
                     }
                   ]
                 ],
+                "description": "The list of datasets that match the filter parameters.",
                 "computed": true
               },
               "id": {
@@ -63,14 +69,17 @@
               },
               "name": {
                 "type": "string",
+                "description": "The name of the dataset to be queried.",
                 "optional": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the datasets are located.",
                 "computed": true
               },
               "type": {
                 "type": "number",
+                "description": "The type of the dataset to be queried.",
                 "optional": true
               }
             }

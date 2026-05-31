@@ -9,7 +9,8 @@
                 "type": "string",
                 "description": "Specifies the email of the applicant.",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "applicant_name": {
                 "type": "string",
@@ -21,7 +22,8 @@
                 "type": "string",
                 "description": "Specifies the phone number of the applicant.",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "auto_dns_auth": {
                 "type": "bool",
@@ -69,7 +71,8 @@
                 "type": "string",
                 "description": "Specifies the technical contact email.",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "contact_name": {
                 "type": "string",
@@ -81,7 +84,8 @@
                 "type": "string",
                 "description": "Specifies the technical contact phone number.",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "country": {
                 "type": "string",

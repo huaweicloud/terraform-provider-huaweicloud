@@ -7,18 +7,18 @@
             "attributes": {
               "entity_id": {
                 "type": "string",
-                "description": "Specifies the unique ID of the root, OU, or account.",
+                "description": "The unique ID of the root, OU, or account.",
                 "required": true,
                 "forcenew": true
               },
               "entity_name": {
                 "type": "string",
-                "description": "Indicates the name of the entity.",
+                "description": "The name of the entity.",
                 "computed": true
               },
               "entity_type": {
                 "type": "string",
-                "description": "Indicates the type of the entity.",
+                "description": "The type of the entity.",
                 "computed": true
               },
               "id": {
@@ -27,7 +27,7 @@
               },
               "policy_id": {
                 "type": "string",
-                "description": "Specifies the ID of the policy.",
+                "description": "The ID of the policy.",
                 "required": true,
                 "forcenew": true
               }

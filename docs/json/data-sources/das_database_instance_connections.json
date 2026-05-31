@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_database_instance_connections": {
+          "block": {
+            "attributes": {
+              "condition": {
+                "type": "string",
+                "description": "The keyword used to search for database instance connection address, name, database username, or remarks.",
+                "optional": true
+              },
+              "connection_type": {
+                "type": "string",
+                "description": "The connection type of the database instance connection.",
+                "optional": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conn_share_type": "string",
+                      "created_at": "string",
+                      "database_name": "string",
+                      "datastore_version": "string",
+                      "description": "string",
+                      "engine_type": "string",
+                      "expired_at": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "ip_address": "string",
+                      "is_save_password": "bool",
+                      "network_type": "string",
+                      "port": "number",
+                      "shared_user_id": "string",
+                      "shared_user_name": "string",
+                      "status": "string",
+                      "username": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of connections that matched filter parameters.",
+                "computed": true
+              },
+              "datastore_type": {
+                "type": "string",
+                "description": "The datastore type of the database instance connection.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance to which the database instance connection belongs.",
+                "optional": true
+              },
+              "network_type": {
+                "type": "string",
+                "description": "The network type of the database instance connection.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the database instance connections are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

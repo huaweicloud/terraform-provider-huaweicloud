@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_sql_limiting_switch": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "description": "The database type.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the database instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the SQL limiting switch is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The switch status of the SQL limiting.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

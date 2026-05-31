@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_node_batch_migrate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The name list of nodes to be migrated.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource pool nodes are located.",
+                "computed": true
+              },
+              "source_cluster_id": {
+                "type": "string",
+                "description": "The ID of the source cluster from which nodes are migrated.",
+                "required": true
+              },
+              "source_pool_id": {
+                "type": "string",
+                "description": "The ID of the source resource pool to which the resource nodes belong.",
+                "required": true
+              },
+              "target_cluster_id": {
+                "type": "string",
+                "description": "The ID of the target cluster to which nodes are migrated.",
+                "required": true
+              },
+              "target_pool_id": {
+                "type": "string",
+                "description": "The ID of the target resource pool.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "resource_spec": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "description": "The resource specification name.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration information of the migrated nodes in the target resource pool."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

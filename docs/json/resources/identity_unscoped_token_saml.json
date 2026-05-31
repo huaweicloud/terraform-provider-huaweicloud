@@ -35,7 +35,8 @@
               "token": {
                 "type": "string",
                 "description": "The unscoped token.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "username": {
                 "type": "string",

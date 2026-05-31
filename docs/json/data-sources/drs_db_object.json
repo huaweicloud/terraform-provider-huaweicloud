@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_db_object": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "max_table_num": {
+                "type": "number",
+                "computed": true
+              },
+              "object_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "all": "bool",
+                      "is_synchronized": "bool",
+                      "key": "string",
+                      "name": "string",
+                      "schemas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "all": "bool",
+                            "key": "string",
+                            "name": "string",
+                            "sync_type": "string",
+                            "tables": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "all": "bool",
+                                  "columns": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "additional": "bool",
+                                        "filtered": "bool",
+                                        "index_for_data_filtering": "string",
+                                        "key": "string",
+                                        "name": "string",
+                                        "operation_type": "string",
+                                        "primary_key_for_column_filtering": "string",
+                                        "primary_key_for_data_filtering": "string",
+                                        "sync_type": "string",
+                                        "type": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "config_conditions": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "db_alias_name": "string",
+                                  "filter_conditions": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "filtered": "bool",
+                                  "is_synchronized": "bool",
+                                  "key": "string",
+                                  "name": "string",
+                                  "schema_alias_name": "string",
+                                  "sync_type": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "sync_type": "string",
+                      "tables": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "all": "bool",
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "additional": "bool",
+                                  "filtered": "bool",
+                                  "index_for_data_filtering": "string",
+                                  "key": "string",
+                                  "name": "string",
+                                  "operation_type": "string",
+                                  "primary_key_for_column_filtering": "string",
+                                  "primary_key_for_data_filtering": "string",
+                                  "sync_type": "string",
+                                  "type": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "config_conditions": [
+                              "list",
+                              "string"
+                            ],
+                            "db_alias_name": "string",
+                            "filter_conditions": [
+                              "list",
+                              "string"
+                            ],
+                            "filtered": "bool",
+                            "is_synchronized": "bool",
+                            "key": "string",
+                            "name": "string",
+                            "schema_alias_name": "string",
+                            "sync_type": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "total_table_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "object_scope": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "target_root_db": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "db_encoding": "string",
+                      "db_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

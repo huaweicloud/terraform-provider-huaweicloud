@@ -116,7 +116,8 @@
                     "access_key": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "bucket": {
                       "type": "string",
@@ -220,7 +221,8 @@
                     "access_key": {
                       "type": "string",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "app_id": {
                       "type": "string",

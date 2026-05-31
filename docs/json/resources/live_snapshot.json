@@ -15,7 +15,8 @@
                 "type": "string",
                 "description": "Specifies the callback authentication key value.",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "call_back_enabled": {
                 "type": "string",

@@ -103,7 +103,8 @@
                     },
                     "password": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     }
                   }
                 },
@@ -126,7 +127,8 @@
                     },
                     "password": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     }
                   }
                 },

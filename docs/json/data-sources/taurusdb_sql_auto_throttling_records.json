@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_sql_auto_throttling_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_at": "number",
+                      "expire_at": "number",
+                      "max_concurrency": "number",
+                      "node_id": "string",
+                      "pattern": "string",
+                      "sql_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of auto throttling records.",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID. The node role must be the primary node.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

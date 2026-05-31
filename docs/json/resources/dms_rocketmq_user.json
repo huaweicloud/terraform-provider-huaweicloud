@@ -9,7 +9,8 @@
                 "type": "string",
                 "description": "Specifies the access key of the user.",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "admin": {
                 "type": "bool",
@@ -47,7 +48,8 @@
                 "type": "string",
                 "description": "Specifies the secret key of the user.",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "white_remote_address": {
                 "type": "string",

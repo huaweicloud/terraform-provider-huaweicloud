@@ -1,0 +1,117 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_support_regions": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "page_reverse": {
+                "type": "string",
+                "optional": true
+              },
+              "public_border_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "remote_endpoint": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "support_region_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "support_regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "instance_type": "string",
+                      "public_border_group": "string",
+                      "region_id": "string",
+                      "remote_endpoint": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

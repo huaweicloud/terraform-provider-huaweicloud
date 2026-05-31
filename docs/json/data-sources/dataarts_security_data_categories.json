@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_security_data_categories": {
+          "block": {
+            "attributes": {
+              "categories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category_id": "string",
+                      "category_level": "number",
+                      "category_name": "string",
+                      "category_path": "string",
+                      "children": "string",
+                      "create_by": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "instance_id": "string",
+                      "parent_id": "string",
+                      "root_id": "string",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "builtin_rule_id": "string",
+                            "column_expression": "string",
+                            "combine_expression": "string",
+                            "comment_expression": "string",
+                            "content_expression": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "description": "string",
+                            "enable": "bool",
+                            "id": "string",
+                            "match_type": "string",
+                            "method": "string",
+                            "name": "string",
+                            "secrecy_level": "string",
+                            "secrecy_level_num": "number",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "synchronize": "bool",
+                      "update_by": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of data categories.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the data categories are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the data categories belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_workflow_subscription": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the workflow subscription, in RFC3339 format.",
+                "computed": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of workflow events to subscribe.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow subscription is located.",
+                "computed": true
+              },
+              "topic_urns": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of SMN topic URNs to subscribe.",
+                "required": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "description": "The ID of the workflow to which the subscription belongs.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

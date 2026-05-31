@@ -33,7 +33,8 @@
               },
               "login_user_password": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

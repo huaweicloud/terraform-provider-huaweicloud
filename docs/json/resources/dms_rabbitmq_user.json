@@ -8,7 +8,8 @@
               "access_key": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",

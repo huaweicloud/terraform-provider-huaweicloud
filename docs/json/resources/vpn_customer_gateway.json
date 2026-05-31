@@ -14,7 +14,8 @@
               },
               "certificate_content": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "certificate_id": {
                 "type": "string",

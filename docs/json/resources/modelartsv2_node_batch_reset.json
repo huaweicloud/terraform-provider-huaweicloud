@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_node_batch_reset": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The name list of resource nodes to be reset.",
+                "required": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The resource pool name to which the resource nodes belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource nodes are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "rolling_config": {
+                "block": {
+                  "attributes": {
+                    "max_unavailable": {
+                      "type": "number",
+                      "description": "The maximum number or percentage of nodes that can be reset simultaneously.",
+                      "required": true
+                    },
+                    "strategy": {
+                      "type": "string",
+                      "description": "The rolling strategy for the reset operation.",
+                      "required": true
+                    }
+                  },
+                  "description": "The rolling configuration for the node reset operation."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

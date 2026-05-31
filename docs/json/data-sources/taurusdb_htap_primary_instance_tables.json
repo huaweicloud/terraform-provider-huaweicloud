@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_primary_instance_tables": {
+          "block": {
+            "attributes": {
+              "filter_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "tables": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "database_tables": {
+                "block": {
+                  "attributes": {
+                    "database": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "tables": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "selected_tables": {
+                "block": {
+                  "attributes": {
+                    "database": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "tables": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

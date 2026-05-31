@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alter_order_id": "string",
+                      "available_zones": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_type": "string",
+                            "code": "string",
+                            "description": "string"
+                          }
+                        ]
+                      ],
+                      "ch_master_node_id": "string",
+                      "create_at": "number",
+                      "current_actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "string",
+                            "created_at": "number",
+                            "id": "string",
+                            "job_id": "string",
+                            "object_id": "string",
+                            "status": "string",
+                            "type": "string",
+                            "updated_at": "number"
+                          }
+                        ]
+                      ],
+                      "data_vip": "string",
+                      "data_vip_v6": "string",
+                      "dedicated_resource_id": "string",
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "ha_mode": "string",
+                      "id": "string",
+                      "instance_state": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_fail_error_code": "string",
+                            "fail_message": "string",
+                            "instance_status": "string",
+                            "wait_restart_for_params": "bool"
+                          }
+                        ]
+                      ],
+                      "is_frozen": "bool",
+                      "name": "string",
+                      "network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "security_group_id": "string",
+                            "sub_net_id": "string",
+                            "vpc_id": "string"
+                          }
+                        ]
+                      ],
+                      "node_num": "number",
+                      "order_id": "string",
+                      "pay_model": "string",
+                      "port": "number",
+                      "project_id": "string",
+                      "proxy_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "readable_node_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_ip": "string",
+                            "node_id": "string",
+                            "node_name": "string"
+                          }
+                        ]
+                      ],
+                      "server_type": "string",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "max_htap_instance_num_of_taurus": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

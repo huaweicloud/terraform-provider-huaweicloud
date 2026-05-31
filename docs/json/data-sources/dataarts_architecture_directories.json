@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_directories": {
+          "block": {
+            "attributes": {
+              "directories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "children": [
+                        "list",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "created_by": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "parent_id": "string",
+                      "qualified_name": "string",
+                      "root_id": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of directories that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the directories are located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of directory to be queried.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the directories belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

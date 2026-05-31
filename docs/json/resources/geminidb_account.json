@@ -26,7 +26,8 @@
               },
               "password": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "privilege": {
                 "type": "string",

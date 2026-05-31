@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_sql_auto_throttling": {
+          "block": {
+            "attributes": {
+              "active_sessions": {
+                "type": "number",
+                "required": true
+              },
+              "clear_time": {
+                "type": "number",
+                "required": true
+              },
+              "condition": {
+                "type": "string",
+                "required": true
+              },
+              "cpu_usage": {
+                "type": "number",
+                "required": true
+              },
+              "duration": {
+                "type": "number",
+                "required": true
+              },
+              "end_time": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "max_concurrency": {
+                "type": "number",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "retain_sql_rule": {
+                "type": "string",
+                "required": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

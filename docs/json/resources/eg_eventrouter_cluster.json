@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_eventrouter_cluster": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": "string",
+                "description": "The availability zone names of the event router cluster.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the event router cluster, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the event router cluster.",
+                "optional": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "The flavor of the event router cluster.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_count": {
+                "type": "number",
+                "description": "The number of jobs running in the event router cluster.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event router cluster.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event router cluster is located.",
+                "computed": true
+              },
+              "sink_type": {
+                "type": "string",
+                "description": "The sink type of the event router cluster.",
+                "required": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "The source type of the event router cluster.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the event router cluster.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID to which the event router cluster belongs.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the event router cluster, in RFC3339 format.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the event router cluster belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

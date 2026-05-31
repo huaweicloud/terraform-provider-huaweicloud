@@ -29,7 +29,8 @@
               "email": {
                 "type": "string",
                 "description": "The email address.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "enabled": {
                 "type": "bool",
@@ -81,7 +82,8 @@
               "phone": {
                 "type": "string",
                 "description": "The mobile number.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "pwd_reset": {
                 "type": "bool",

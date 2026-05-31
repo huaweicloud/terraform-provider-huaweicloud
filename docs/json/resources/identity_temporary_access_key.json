@@ -51,7 +51,8 @@
               },
               "secret": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "securitytoken": {
                 "type": "string",
@@ -65,7 +66,8 @@
               "token": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               }
             }
           },

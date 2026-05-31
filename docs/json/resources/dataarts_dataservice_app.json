@@ -8,12 +8,14 @@
               "app_key": {
                 "type": "string",
                 "description": "The key of the application.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "app_secret": {
                 "type": "string",
                 "description": "The secret of the application.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "app_type": {
                 "type": "string",

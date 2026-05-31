@@ -9,7 +9,8 @@
                 "type": "string",
                 "description": "Specifies the access key used to access the OBS bucket.",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "connector_id": {
                 "type": "string",

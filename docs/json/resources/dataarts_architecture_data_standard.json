@@ -7,22 +7,22 @@
             "attributes": {
               "created_at": {
                 "type": "string",
-                "description": "Indicates the creation time of the data standard.",
+                "description": "The creation time of the data standard, in RFC3339 format.",
                 "computed": true
               },
               "created_by": {
                 "type": "string",
-                "description": "Indicates the name of creator.",
+                "description": "The name of data standard creator.",
                 "computed": true
               },
               "directory_id": {
                 "type": "string",
-                "description": "Specifies the directory ID that the data standard belongs to.",
+                "description": "The directory ID to which the data standard belongs.",
                 "required": true
               },
               "directory_path": {
                 "type": "string",
-                "description": "Indicates the path of the directory.",
+                "description": "The directory path of the data standard.",
                 "computed": true
               },
               "id": {
@@ -46,32 +46,34 @@
                     }
                   ]
                 ],
-                "description": "Indicates the biz info of manager.",
+                "description": "The biz info of the data standard.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the data standard is located.",
                 "computed": true
               },
               "status": {
                 "type": "string",
-                "description": "Indicates the status of the data standard.",
+                "description": "The status of the data standard.",
                 "computed": true
               },
               "updated_at": {
                 "type": "string",
-                "description": "Indicates the latest update time of the data standard.",
+                "description": "The latest update time of the data standard, in RFC3339 format.",
                 "computed": true
               },
               "updated_by": {
                 "type": "string",
-                "description": "Indicates the name of updater.",
+                "description": "The name of data standard updater.",
                 "computed": true
               },
               "workspace_id": {
                 "type": "string",
-                "description": "Specifies the workspace ID of DataArts Architecture.",
-                "required": true
+                "description": "The ID of the workspace to which the data standard belongs.",
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {
@@ -80,61 +82,61 @@
                   "attributes": {
                     "created_at": {
                       "type": "string",
-                      "description": "Indicates the creation time of the data standard.",
+                      "description": "The creation time of the data standard attribute, in RFC3339 format.",
                       "computed": true
                     },
                     "created_by": {
                       "type": "string",
-                      "description": "Indicates the name of creator.",
+                      "description": "The name of attribute creator.",
                       "computed": true
                     },
                     "directory_id": {
                       "type": "string",
-                      "description": "Indicates the directory ID that the attribute belongs to.",
+                      "description": "The directory ID to which the attribute belongs.",
                       "computed": true
                     },
                     "fd_id": {
                       "type": "string",
-                      "description": "Indicates the ID of the data standard attribute.",
+                      "description": "The ID of the data standard attribute definition.",
                       "computed": true
                     },
                     "fd_name": {
                       "type": "string",
-                      "description": "Specifies the name of the data standard attribute.",
+                      "description": "The name of the data standard attribute.",
                       "required": true
                     },
                     "fd_value": {
                       "type": "string",
-                      "description": "Specifies the value of the data standard attribute.",
+                      "description": "The value of the data standard attribute.",
                       "optional": true
                     },
                     "id": {
                       "type": "string",
-                      "description": "Indicates the ID of the data standard attribute.",
+                      "description": "The ID of the data standard attribute.",
                       "computed": true
                     },
                     "row_id": {
                       "type": "string",
-                      "description": "Indicates the ID of data standard.",
+                      "description": "The row ID of the data standard attribute.",
                       "computed": true
                     },
                     "status": {
                       "type": "string",
-                      "description": "Indicates the status of the data standard.",
+                      "description": "The status of the data standard attribute.",
                       "computed": true
                     },
                     "updated_at": {
                       "type": "string",
-                      "description": "Indicates the latest update time of the data standard.",
+                      "description": "The latest update time of the data standard attribute, in RFC3339 format.",
                       "computed": true
                     },
                     "updated_by": {
                       "type": "string",
-                      "description": "Indicates the name of updater.",
+                      "description": "The name of attribute updater.",
                       "computed": true
                     }
                   },
-                  "description": "Specifies the value of data standard attributes."
+                  "description": "The value of data standard attributes."
                 },
                 "nesting_mode": "set",
                 "min_items": 1

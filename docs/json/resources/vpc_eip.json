@@ -30,6 +30,11 @@
                 "type": "string",
                 "computed": true
               },
+              "description": {
+                "type": "string",
+                "description": "The description of the EIP.",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID to which the EIP belongs.",

@@ -13,17 +13,20 @@
               "authenticating_proxy_ca": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "authenticating_proxy_cert": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "authenticating_proxy_private_key": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "authentication_mode": {
                 "type": "string",

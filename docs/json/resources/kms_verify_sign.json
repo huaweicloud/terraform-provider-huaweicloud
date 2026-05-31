@@ -37,7 +37,8 @@
               "signature": {
                 "type": "string",
                 "description": "Specifies the signature value to be verified.",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "signature_valid": {
                 "type": "string",

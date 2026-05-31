@@ -8,7 +8,8 @@
               "certificate": {
                 "type": "number",
                 "description": "Indicates the certificate quota.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "condition_per_policy": {
                 "type": "number",

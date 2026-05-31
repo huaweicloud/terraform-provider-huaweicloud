@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_event_operate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operation_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "job_id": "string",
+                      "success": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "event_instances": {
+                "block": {
+                  "attributes": {
+                    "event_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "event_schedule_window": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "planned_day": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

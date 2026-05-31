@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_global_eip_segment_instance_associate": {
+          "block": {
+            "attributes": {
+              "associate_instance": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance_id": "string",
+                      "instance_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "global_eip_segment_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "global_eip_segment": {
+                "block": {
+                  "attributes": {
+                    "instance_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "instance_site": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "instance_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "project_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_compare_result": {
+          "block": {
+            "attributes": {
+              "compare_task_list_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compare_task_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compare_task_id": "string",
+                            "compare_task_status": "string",
+                            "compare_type": "string",
+                            "create_time": "string",
+                            "end_time": "string"
+                          }
+                        ]
+                      ],
+                      "compare_task_list_count": "number",
+                      "error_code": "string",
+                      "error_msg": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "content_compare_id": {
+                "type": "string",
+                "optional": true
+              },
+              "content_compare_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compare_task_id": "string",
+                      "content_compare_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_compare_detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "content_compare_result": "string",
+                                  "diff_row_num": "number",
+                                  "line_compare_result": "string",
+                                  "message": "string",
+                                  "source_db_name": "string",
+                                  "source_row_num": "number",
+                                  "source_table_name": "string",
+                                  "target_db_name": "string",
+                                  "target_row_num": "number",
+                                  "target_table_name": "string"
+                                }
+                              ]
+                            ],
+                            "content_compare_detail_count": "number",
+                            "content_uncompare_detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "content_compare_result": "string",
+                                  "diff_row_num": "number",
+                                  "line_compare_result": "string",
+                                  "message": "string",
+                                  "source_db_name": "string",
+                                  "source_row_num": "number",
+                                  "source_table_name": "string",
+                                  "target_db_name": "string",
+                                  "target_row_num": "number",
+                                  "target_table_name": "string"
+                                }
+                              ]
+                            ],
+                            "content_uncompare_detail_count": "number",
+                            "source_db_name": "string"
+                          }
+                        ]
+                      ],
+                      "content_compare_diffs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_compare_diff": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "source_key_value": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "source_select_sql": "string",
+                                  "target_key_value": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "target_select_sql": "string"
+                                }
+                              ]
+                            ],
+                            "content_compare_diff_count": "number",
+                            "source_db_name": "string",
+                            "source_table_name": "string"
+                          }
+                        ]
+                      ],
+                      "content_compare_overview": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_compare_result": "string",
+                            "source_db_name": "string",
+                            "target_db_name": "string"
+                          }
+                        ]
+                      ],
+                      "content_compare_overview_count": "number",
+                      "error_code": "string",
+                      "error_msg": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "current_page": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "line_compare_id": {
+                "type": "string",
+                "optional": true
+              },
+              "line_compare_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compare_task_id": "string",
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "line_compare_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "line_compare_detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "diff_row_num": "number",
+                                  "line_compare_result": "string",
+                                  "message": "string",
+                                  "source_row_num": "number",
+                                  "source_table_name": "string",
+                                  "target_row_num": "number",
+                                  "target_table_name": "string"
+                                }
+                              ]
+                            ],
+                            "line_compare_detail_count": "number",
+                            "source_db_name": "string"
+                          }
+                        ]
+                      ],
+                      "line_compare_overview": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "line_compare_result": "string",
+                            "source_db_name": "string",
+                            "target_db_name": "string"
+                          }
+                        ]
+                      ],
+                      "line_compare_overview_count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "object_level_compare_id": {
+                "type": "string",
+                "optional": true
+              },
+              "object_level_compare_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compare_task_id": "string",
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "object_compare_overview": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "diff_count": "number",
+                            "object_compare_result": "string",
+                            "object_type": "string",
+                            "source_count": "number",
+                            "target_count": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "per_page": {
+                "type": "number",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

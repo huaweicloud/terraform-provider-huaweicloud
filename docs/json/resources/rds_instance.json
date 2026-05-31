@@ -9,6 +9,25 @@
                 "type": "string",
                 "optional": true
               },
+              "auto_scaling": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enlarge_threshold": "number",
+                      "max_flavor": "string",
+                      "min_flavor": "string",
+                      "monitor_cycle": "number",
+                      "reduce_enabled": "string",
+                      "reduce_threshold": "number",
+                      "silence_cycle": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "availability_zone": {
                 "type": [
                   "list",
@@ -33,6 +52,14 @@
               "created": {
                 "type": "string",
                 "computed": true
+              },
+              "default_backup_method": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_backup_selection": {
+                "type": "string",
+                "optional": true
               },
               "description": {
                 "type": "string",

@@ -19,11 +19,13 @@
               },
               "verification_email": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "verification_mobile": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               }
             },
             "block_types": {

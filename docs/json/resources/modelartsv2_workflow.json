@@ -1,0 +1,750 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_workflow": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the workflow, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the workflow.",
+                "optional": true,
+                "computed": true
+              },
+              "exeml_template_id": {
+                "type": "string",
+                "description": "The auto learning template ID of the workflow.",
+                "optional": true
+              },
+              "extend": {
+                "type": "string",
+                "description": "The extended fields of the billing workflow, in JSON format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The labels of the workflow.",
+                "optional": true,
+                "computed": true
+              },
+              "last_modified_at": {
+                "type": "string",
+                "description": "The last modified time of the workflow, in RFC3339 format.",
+                "computed": true
+              },
+              "latest_execution": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "current_steps": [
+                        "list",
+                        "string"
+                      ],
+                      "duration": "number",
+                      "execution_id": "string",
+                      "running_steps": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The latest execution information of the workflow.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the workflow.",
+                "required": true
+              },
+              "param_ready": {
+                "type": "bool",
+                "description": "Whether all required parameters of the workflow are filled in.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow is located.",
+                "computed": true
+              },
+              "run_count": {
+                "type": "number",
+                "description": "The number of times the workflow has been run.",
+                "computed": true
+              },
+              "smn_switch": {
+                "type": "bool",
+                "description": "Whether to enable the SMN switch of the workflow.",
+                "optional": true,
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "The source of the workflow.",
+                "computed": true
+              },
+              "source_workflow_id": {
+                "type": "string",
+                "description": "The source workflow ID for copying.",
+                "optional": true
+              },
+              "subscription_id": {
+                "type": "string",
+                "description": "The SMN message subscription ID of the workflow.",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name that created the workflow.",
+                "computed": true
+              },
+              "with_subscription": {
+                "type": "bool",
+                "description": "Whether to enable the SMN message subscription of the workflow.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the workflow belongs.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "assets": {
+                "block": {
+                  "attributes": {
+                    "content_id": {
+                      "type": "string",
+                      "description": "The asset ID.",
+                      "optional": true
+                    },
+                    "expired_at": {
+                      "type": "string",
+                      "description": "The expiration time of the asset, in RFC3339 format.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the asset.",
+                      "optional": true
+                    },
+                    "subscription_id": {
+                      "type": "string",
+                      "description": "The subscription ID of the asset.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the asset.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The assets bound to the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "data": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the data.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the data source.",
+                      "optional": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this data.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the data, in JSON format.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The data of the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "data_requirements": {
+                "block": {
+                  "attributes": {
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether the data requirement is delayed.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the data requirement.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the data source.",
+                      "required": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this data requirement.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the data requirement, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "attribute": {
+                            "type": "string",
+                            "description": "The condition attribute.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "description": "The operator of the condition.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the condition, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The data constraint conditions."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The data requirements of the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "gallery_subscription": {
+                "block": {
+                  "attributes": {
+                    "content_id": {
+                      "type": "string",
+                      "description": "The asset ID of the gallery subscription.",
+                      "optional": true
+                    },
+                    "expired_at": {
+                      "type": "string",
+                      "description": "The expiration time of the gallery subscription, in RFC3339 format.",
+                      "optional": true
+                    },
+                    "version_id": {
+                      "type": "string",
+                      "description": "The version ID of the gallery subscription.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The gallery subscription information of the workflow."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "package": {
+                "block": {
+                  "attributes": {
+                    "consume_limit": {
+                      "type": "number",
+                      "description": "The subscription limit.",
+                      "optional": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time of the resource package, in RFC3339 format.",
+                      "computed": true
+                    },
+                    "current_consume": {
+                      "type": "number",
+                      "description": "The current subscription consumption.",
+                      "optional": true
+                    },
+                    "current_date": {
+                      "type": "string",
+                      "description": "The current date.",
+                      "optional": true
+                    },
+                    "limit_enable": {
+                      "type": "bool",
+                      "description": "Whether the limit is enabled.",
+                      "optional": true
+                    },
+                    "package_id": {
+                      "type": "string",
+                      "description": "The resource package UUID.",
+                      "optional": true
+                    },
+                    "pool_id": {
+                      "type": "string",
+                      "description": "The resource pool ID.",
+                      "optional": true
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "description": "The service ID.",
+                      "optional": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "The status of the resource package.",
+                      "computed": true
+                    },
+                    "workflow_id": {
+                      "type": "string",
+                      "description": "The workflow ID.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "order": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "The subscription ID.",
+                            "optional": true
+                          },
+                          "sku_count": {
+                            "type": "number",
+                            "description": "The subscription count.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "sku": {
+                            "block": {
+                              "attributes": {
+                                "code": {
+                                  "type": "string",
+                                  "description": "The billing code.",
+                                  "optional": true
+                                },
+                                "period": {
+                                  "type": "number",
+                                  "description": "The billing period.",
+                                  "optional": true
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "description": "The price.",
+                                  "optional": true
+                                },
+                                "queries_limit": {
+                                  "type": "number",
+                                  "description": "The query limit.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The subscription billing information."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        },
+                        "description": "The subscription information."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The billing workflow subscription package information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "constraint": {
+                      "type": "string",
+                      "description": "The constraint of the workflow parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "default": {
+                      "type": "string",
+                      "description": "The default value of the workflow parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether the workflow parameter is delayed.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the workflow parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enum": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The enumeration items of the workflow parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "example": {
+                      "type": "string",
+                      "description": "The example of the workflow parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "format": {
+                      "type": "string",
+                      "description": "The data format of the workflow parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the workflow parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the workflow parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the workflow parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The parameters of the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "policy": {
+                "block": {
+                  "attributes": {
+                    "scene_id": {
+                      "type": "string",
+                      "description": "The scene ID of the workflow policy.",
+                      "optional": true
+                    },
+                    "use_scene": {
+                      "type": "string",
+                      "description": "The usage scenario of the workflow policy.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "scenes": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "The scene ID.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The scene name.",
+                            "optional": true
+                          },
+                          "steps": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The step list of the scene.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The scenes of the workflow policy."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The partial running policy of the workflow."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "steps": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time of the workflow step, in RFC3339 format.",
+                      "computed": true
+                    },
+                    "depend_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The dependent steps of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "else_then_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The other conditional branch steps of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "if_then_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The conditional branch steps of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the workflow step.",
+                      "required": true
+                    },
+                    "properties": {
+                      "type": "string",
+                      "description": "The properties of the workflow step, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "The title of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the workflow step.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "left": {
+                            "type": "string",
+                            "description": "The left branch when the condition is true, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "right": {
+                            "type": "string",
+                            "description": "The right branch when the condition is false, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The condition type.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The execution conditions of the workflow step."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "inputs": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": "string",
+                            "description": "The input data, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the input data.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the input.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the input, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The inputs of the workflow step."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "outputs": {
+                      "block": {
+                        "attributes": {
+                          "config": {
+                            "type": "string",
+                            "description": "The output configuration, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the output data.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the output.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The outputs of the workflow step."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "policy": {
+                      "block": {
+                        "attributes": {
+                          "max_execution_minutes": {
+                            "type": "number",
+                            "description": "The maximum execution time of the workflow step, in minutes.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "poll_interval_seconds": {
+                            "type": "number",
+                            "description": "The execution interval of the workflow step, in seconds.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The execution policy of the workflow step."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The steps of the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "storages": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the workflow storage.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The root path of the unified storage.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the workflow storage.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The unified storage definitions of the workflow."
+                },
+                "nesting_mode": "list"
+              },
+              "sub_graphs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the subgraph.",
+                      "optional": true
+                    },
+                    "steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The step members of the subgraph.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The subgraphs of the workflow."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

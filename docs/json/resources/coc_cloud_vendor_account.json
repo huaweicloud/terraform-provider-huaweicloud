@@ -15,7 +15,8 @@
               },
               "ak": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "create_time": {
                 "type": "string",

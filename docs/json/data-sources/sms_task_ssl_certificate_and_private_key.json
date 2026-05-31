@@ -27,27 +27,32 @@
               "private_key": {
                 "type": "string",
                 "description": "Indicates the source private key.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "target_data_cert": {
                 "type": "string",
                 "description": "Indicates the certificate of the target server for data migration.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "target_data_private_key": {
                 "type": "string",
                 "description": "Indicates the private key of the target server for data migration.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "target_mgmt_cert": {
                 "type": "string",
                 "description": "Indicates the certificate of the target server for migration task management.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "target_mgmt_private_key": {
                 "type": "string",
                 "description": "Indicates the private key of the target server for migration task management.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "task_id": {
                 "type": "string",

@@ -20,7 +20,8 @@
               },
               "idp_certificate": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "idp_certificate_ids": {
                 "type": [

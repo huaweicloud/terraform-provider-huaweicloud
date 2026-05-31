@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_compare_policy": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "computed": true
+              },
+              "compare_policy": {
+                "type": "string",
+                "computed": true
+              },
+              "compare_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval_hour": {
+                "type": "number",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "next_compare_time": {
+                "type": "string",
+                "computed": true
+              },
+              "period": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

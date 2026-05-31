@@ -24,7 +24,7 @@
               },
               "instance_id": {
                 "type": "string",
-                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "description": "Specifies the ID of the TaurusDB instance.",
                 "required": true,
                 "forcenew": true
               },

@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_flavors": {
+          "block": {
+            "attributes": {
+              "availability_zone_mode": {
+                "type": "string",
+                "required": true
+              },
+              "engine_name": {
+                "type": "string",
+                "required": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "id": "string",
+                      "instance_mode": "string",
+                      "ram": "string",
+                      "spec_code": "string",
+                      "type": "string",
+                      "vcpus": "string",
+                      "version_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "spec_code": {
+                "type": "string",
+                "optional": true
+              },
+              "version_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

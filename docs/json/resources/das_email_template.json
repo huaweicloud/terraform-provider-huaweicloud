@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_email_template": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "description": "The database type.",
+                "required": true
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address.",
+                "optional": true,
+                "sensitive": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "The list of instance group IDs.",
+                "required": true
+              },
+              "health_rank": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of health ranks.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inspection_time": {
+                "type": "string",
+                "description": "The diagnosis time.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the email template.",
+                "required": true
+              },
+              "obs_bucket_name": {
+                "type": "string",
+                "description": "The OBS bucket name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the email template is located.",
+                "computed": true
+              },
+              "send_time": {
+                "type": "string",
+                "description": "The send time.",
+                "required": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of the email template.",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time zone.",
+                "required": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "The topic ID.",
+                "optional": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "The topic URN.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time, in RFC3339 format.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The ID of the user who last modified the template.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

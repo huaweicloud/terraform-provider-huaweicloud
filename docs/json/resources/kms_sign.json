@@ -37,7 +37,8 @@
               "signature": {
                 "type": "string",
                 "description": "The signature value.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "signing_algorithm": {
                 "type": "string",

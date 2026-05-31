@@ -8,22 +8,41 @@
               "action": {
                 "type": "string",
                 "description": "The action type of the DevServer.",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "admin_pass": {
+                "type": "string",
+                "description": "The login password of the DevServer.",
+                "optional": true,
+                "sensitive": true
               },
               "devserver_id": {
                 "type": "string",
                 "description": "The ID of the DevServer.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "image_id": {
+                "type": "string",
+                "description": "The image ID used to change the operating system.",
+                "optional": true
+              },
+              "key_pair_name": {
+                "type": "string",
+                "description": "The key pair name used to log in to the DevServer.",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "user_data": {
+                "type": "string",
+                "description": "The user data to be injected into the DevServer during the OS operation.",
+                "optional": true
               }
             }
           },

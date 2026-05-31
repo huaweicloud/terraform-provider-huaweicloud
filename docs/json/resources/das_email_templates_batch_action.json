@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_email_templates_batch_action": {
+          "block": {
+            "attributes": {
+              "email_template_ids": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "The list of email template IDs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the email templates are located.",
+                "computed": true
+              },
+              "subscribe": {
+                "type": "bool",
+                "description": "Whether to subscribe to the email templates.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

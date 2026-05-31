@@ -5,9 +5,15 @@
         "huaweicloud_css_log_setting": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "base_log_collect"
+              },
               "agency": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "auto_enabled": {
                 "type": "bool",
@@ -15,11 +21,11 @@
               },
               "base_path": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "bucket": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "cluster_id": {
                 "type": "string",
@@ -27,6 +33,22 @@
                 "forcenew": true
               },
               "id": {
+                "type": "string",
+                "computed": true
+              },
+              "index_prefix": {
+                "type": "string",
+                "optional": true
+              },
+              "keep_days": {
+                "type": "number",
+                "optional": true
+              },
+              "log_ingestion_create_at": {
+                "type": "string",
+                "computed": true
+              },
+              "log_ingestion_update_at": {
                 "type": "string",
                 "computed": true
               },
@@ -41,6 +63,14 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "target_cluster_id": {
+                "type": "string",
+                "optional": true
               },
               "updated_at": {
                 "type": "string",

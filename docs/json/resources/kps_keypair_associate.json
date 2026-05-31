@@ -47,7 +47,8 @@
                           "key": {
                             "type": "string",
                             "description": "Specifies the value of the key.",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "type": {
                             "type": "string",

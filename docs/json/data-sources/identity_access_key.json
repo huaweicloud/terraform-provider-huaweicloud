@@ -7,7 +7,8 @@
             "attributes": {
               "access_key": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "credentials": {
                 "type": [

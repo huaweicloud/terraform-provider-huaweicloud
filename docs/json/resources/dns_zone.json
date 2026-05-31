@@ -43,7 +43,8 @@
                 "type": "string",
                 "description": "The email address of the administrator managing the zone.",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",

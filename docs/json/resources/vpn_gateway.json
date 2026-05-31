@@ -174,7 +174,8 @@
                   "attributes": {
                     "certificate_chain": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "sensitive": true
                     },
                     "certificate_chain_expire_time": {
                       "type": "string",
@@ -214,7 +215,8 @@
                     },
                     "enc_certificate": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "sensitive": true
                     },
                     "enc_certificate_expire_time": {
                       "type": "string",
@@ -230,7 +232,8 @@
                     },
                     "enc_private_key": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "sensitive": true
                     },
                     "issuer": {
                       "type": "string",
@@ -242,7 +245,8 @@
                     },
                     "private_key": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "sensitive": true
                     },
                     "signature_algorithm": {
                       "type": "string",

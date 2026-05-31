@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_geminidb_memory_mappings": {
+          "block": {
+            "attributes": {
+              "dbcache_mappings": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "id": "string",
+                      "name": "string",
+                      "rule_count": "number",
+                      "source_instance_id": "string",
+                      "source_instance_name": "string",
+                      "status": "string",
+                      "target_instance_id": "string",
+                      "target_instance_name": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mapping_id": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "source_instance_name": {
+                "type": "string",
+                "optional": true
+              },
+              "target_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "target_instance_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

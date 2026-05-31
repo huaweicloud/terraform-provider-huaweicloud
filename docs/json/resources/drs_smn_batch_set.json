@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_smn_batch_set": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "alarm_notify_info": {
+                "block": {
+                  "attributes": {
+                    "alarm_to_user": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "delay_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "rpo_delay": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "rto_delay": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "subscriptions": {
+                      "block": {
+                        "description": "schema:{\"Internal\":true};"
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "jobs": {
+                "block": {
+                  "attributes": {
+                    "engine_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "job_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

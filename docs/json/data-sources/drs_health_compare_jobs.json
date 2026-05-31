@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_health_compare_jobs": {
+          "block": {
+            "attributes": {
+              "compare_jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compute_type": "string",
+                      "database_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "disaster_recovery_database": "string",
+                            "service_database": "string"
+                          }
+                        ]
+                      ],
+                      "end_time": "string",
+                      "id": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

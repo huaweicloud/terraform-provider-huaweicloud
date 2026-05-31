@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_workflow_schedules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow schedules are located.",
+                "computed": true
+              },
+              "schedules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "content": "string",
+                      "created_at": "string",
+                      "enable": "bool",
+                      "id": "string",
+                      "policies": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "on_failure": "string",
+                            "on_running": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "user_id": "string",
+                      "workflow_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the workflow schedules.",
+                "computed": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "description": "The ID of the workflow to which the schedule configurations belong.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

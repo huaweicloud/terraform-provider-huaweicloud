@@ -1,0 +1,117 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_job_monitor_data": {
+          "block": {
+            "attributes": {
+              "apply_rate": {
+                "type": "number",
+                "computed": true
+              },
+              "bandwidth": {
+                "type": "string",
+                "computed": true
+              },
+              "dst_delay": {
+                "type": "number",
+                "computed": true
+              },
+              "dst_io": {
+                "type": "string",
+                "computed": true
+              },
+              "dst_offset": {
+                "type": "string",
+                "computed": true
+              },
+              "dst_rps": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_dst_normal": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_src_normal": {
+                "type": "bool",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_memory_size": {
+                "type": "number",
+                "computed": true
+              },
+              "node_offset": {
+                "type": "string",
+                "computed": true
+              },
+              "node_volume_size": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "src_delay": {
+                "type": "number",
+                "computed": true
+              },
+              "src_io": {
+                "type": "string",
+                "computed": true
+              },
+              "src_offset": {
+                "type": "string",
+                "computed": true
+              },
+              "src_rps": {
+                "type": "string",
+                "computed": true
+              },
+              "trans_data": {
+                "type": "string",
+                "computed": true
+              },
+              "trans_lines": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              },
+              "used_cpu_percent": {
+                "type": "string",
+                "computed": true
+              },
+              "used_memory": {
+                "type": "string",
+                "computed": true
+              },
+              "used_volumes": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

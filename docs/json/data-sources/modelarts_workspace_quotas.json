@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_workspace_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "max_quota": "number",
+                      "min_quota": "number",
+                      "name_cn": "string",
+                      "name_en": "string",
+                      "quota": "number",
+                      "resource": "string",
+                      "unit_cn": "string",
+                      "unit_en": "string",
+                      "updated_at": "string",
+                      "used_quota": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of workspace quotas that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workspace quotas are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

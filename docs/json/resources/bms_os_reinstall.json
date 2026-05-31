@@ -24,7 +24,8 @@
                   "attributes": {
                     "admin_pass": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     },
                     "key_name": {
                       "type": "string",

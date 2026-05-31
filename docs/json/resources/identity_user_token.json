@@ -33,7 +33,8 @@
               "token": {
                 "type": "string",
                 "description": "The token of the IAM user.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "user_name": {
                 "type": "string",

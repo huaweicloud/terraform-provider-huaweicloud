@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_binlogs": {
+          "block": {
+            "attributes": {
+              "binlog_type": {
+                "type": "string",
+                "description": "The binlog file type.",
+                "required": true
+              },
+              "binlogs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_id": "string",
+                      "file_name": "string",
+                      "file_size": "number",
+                      "task_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "backup_id": "string",
+                            "binlog_type": "string",
+                            "connection_id": "string",
+                            "created_at": "string",
+                            "err_msg": "string",
+                            "file_name": "string",
+                            "id": "number",
+                            "project_id": "string",
+                            "project_name": "string",
+                            "status": "number",
+                            "updated_at": "string",
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of binlog files that matched the filter parameters.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the query range, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the DAS binlogs are located.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query range, in RFC3339 format.",
+                "optional": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The database user ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

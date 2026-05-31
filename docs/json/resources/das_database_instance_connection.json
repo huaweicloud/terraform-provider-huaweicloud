@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_database_instance_connection": {
+          "block": {
+            "attributes": {
+              "conn_share_type": {
+                "type": "string",
+                "description": "The conn share type of the database instance connection.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The timestamp when the database instance connection was created, in RFC3339 format.",
+                "computed": true
+              },
+              "database_name": {
+                "type": "string",
+                "description": "The database name of the database instance connection.",
+                "optional": true
+              },
+              "datastore_version": {
+                "type": "string",
+                "description": "The datastore version of the database instance connection.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the database instance connection.",
+                "optional": true
+              },
+              "engine_type": {
+                "type": "string",
+                "description": "The engine type of the database instance connection.",
+                "required": true
+              },
+              "expired_at": {
+                "type": "string",
+                "description": "The timestamp when the database instance connection expires, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "description": "The resource ID, in UUID format.",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance to which the database instance connection belongs.",
+                "required": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "The instance name of the database instance connection.",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "The ip address of the database instance connection.",
+                "computed": true
+              },
+              "is_save_password": {
+                "type": "bool",
+                "description": "Whether to save the password for the database instance connection.",
+                "required": true
+              },
+              "network_type": {
+                "type": "string",
+                "description": "The network type of the database instance connection.",
+                "required": true
+              },
+              "node_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The unique identifiers of the instance nodes.",
+                "optional": true
+              },
+              "password": {
+                "type": "string",
+                "description": "The password of the database instance connection.",
+                "required": true,
+                "sensitive": true
+              },
+              "port": {
+                "type": "number",
+                "description": "The port of the database instance connection.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the database instance connection is located.",
+                "computed": true
+              },
+              "shared_user_id": {
+                "type": "string",
+                "description": "The shared user ID of the database instance connection.",
+                "computed": true
+              },
+              "shared_user_name": {
+                "type": "string",
+                "description": "The shared user name of the database instance connection.",
+                "computed": true
+              },
+              "sql_record_flag": {
+                "type": "bool",
+                "description": "Whether SQL recording is enabled for the database instance connection.",
+                "optional": true,
+                "default": false
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the database instance connection.",
+                "computed": true
+              },
+              "username": {
+                "type": "string",
+                "description": "The username of the database instance connection.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

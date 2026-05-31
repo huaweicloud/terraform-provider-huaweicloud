@@ -170,7 +170,8 @@
                     },
                     "app_secret": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     },
                     "auth_server_access_mode": {
                       "type": "string",
@@ -182,7 +183,8 @@
                     },
                     "cert_content": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     },
                     "enable": {
                       "type": "bool",

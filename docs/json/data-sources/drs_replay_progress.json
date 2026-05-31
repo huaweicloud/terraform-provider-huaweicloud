@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_replay_progress": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "max_export_time": {
+                "type": "number",
+                "computed": true
+              },
+              "max_time": {
+                "type": "number",
+                "computed": true
+              },
+              "min_export_time": {
+                "type": "number",
+                "computed": true
+              },
+              "min_time": {
+                "type": "number",
+                "computed": true
+              },
+              "now_time": {
+                "type": "number",
+                "computed": true
+              },
+              "parse_count": {
+                "type": "number",
+                "computed": true
+              },
+              "process_time": {
+                "type": "number",
+                "computed": true
+              },
+              "progress": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replay_count": {
+                "type": "number",
+                "computed": true
+              },
+              "replay_sql_now_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "execute_latency": "string",
+                      "latency": "string",
+                      "modified_at": "string",
+                      "schema_name": "string",
+                      "shard_id": "string",
+                      "sql_statement": "string",
+                      "status": "string",
+                      "target_name": "string",
+                      "target_type": "string",
+                      "thread_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "task_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "transfer_status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -26,7 +26,8 @@
               },
               "email": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "enable_change_password": {
                 "type": "bool",
@@ -64,7 +65,8 @@
               "phone": {
                 "type": "string",
                 "description": "The phone number of the user.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

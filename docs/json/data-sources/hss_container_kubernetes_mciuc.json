@@ -32,7 +32,8 @@
               "password": {
                 "type": "string",
                 "description": "Specifies the password.",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "plug_type": {
                 "type": "string",

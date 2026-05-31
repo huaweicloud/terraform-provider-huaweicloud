@@ -1,0 +1,373 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_workflow_execution": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the workflow execution, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the workflow execution.",
+                "optional": true
+              },
+              "duration": {
+                "type": "string",
+                "description": "The duration of the workflow execution.",
+                "computed": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The events of the workflow execution.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The labels of the workflow execution.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the workflow execution.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow execution is located.",
+                "computed": true
+              },
+              "scene_id": {
+                "type": "string",
+                "description": "The custom scene ID.",
+                "optional": true
+              },
+              "scene_name": {
+                "type": "string",
+                "description": "The custom scene name.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the workflow execution.",
+                "computed": true
+              },
+              "steps_execution": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "left": "string",
+                            "right": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "conditions_execution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metric_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "result": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "duration": "number",
+                      "error_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "string",
+                            "error_message": "string"
+                          }
+                        ]
+                      ],
+                      "events": [
+                        "list",
+                        "string"
+                      ],
+                      "execution_name": "string",
+                      "execution_uuid": "string",
+                      "inputs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data": "string",
+                            "name": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "instance_id": "string",
+                      "name": "string",
+                      "outputs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "config": "string",
+                            "name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "execution_policy": "string",
+                            "use_cache": "bool"
+                          }
+                        ]
+                      ],
+                      "properties": "string",
+                      "status": "string",
+                      "step_name": "string",
+                      "step_title": "string",
+                      "step_uuid": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "uuid": "string"
+                    }
+                  ]
+                ],
+                "description": "The step execution information of the workflow execution.",
+                "computed": true
+              },
+              "sub_graphs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "name": "string",
+                      "steps": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The sub graph information of the workflow execution.",
+                "computed": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "description": "The workflow ID.",
+                "optional": true
+              },
+              "workflow_name": {
+                "type": "string",
+                "description": "The workflow name.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the workflow execution belongs.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "data_requirements": {
+                "block": {
+                  "attributes": {
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether this is a delayed parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the training data.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the training data source.",
+                      "required": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this data.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the data, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "attribute": {
+                            "type": "string",
+                            "description": "The attribute of the constraint.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "description": "The operator of the constraint.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the constraint, in JSON format.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The constraint conditions of the data."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The data requirements of the workflow execution."
+                },
+                "nesting_mode": "list"
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "constraint": {
+                      "type": "string",
+                      "description": "The constraint of the parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "default": {
+                      "type": "string",
+                      "description": "The default value of the parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether this is a delayed input parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enum": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The enum values of the parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "example": {
+                      "type": "string",
+                      "description": "The example of the parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "format": {
+                      "type": "string",
+                      "description": "The format of the parameter data.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the parameter, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The parameters of the workflow execution."
+                },
+                "nesting_mode": "list"
+              },
+              "policies": {
+                "block": {
+                  "attributes": {
+                    "use_cache": {
+                      "type": "bool",
+                      "description": "Whether to use cache.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The policies of the workflow execution."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

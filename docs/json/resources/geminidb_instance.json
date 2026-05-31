@@ -24,6 +24,14 @@
                 "type": "string",
                 "optional": true
               },
+              "config_ips": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "configuration_id": {
                 "type": "string",
                 "optional": true,
@@ -116,6 +124,7 @@
               },
               "lb_ip_address": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "lb_port": {
@@ -157,6 +166,11 @@
                 "type": "string",
                 "computed": true
               },
+              "second_level_monitoring_enabled": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "security_group_id": {
                 "type": "string",
                 "required": true
@@ -172,6 +186,11 @@
               "subnet_id": {
                 "type": "string",
                 "required": true
+              },
+              "switch_option": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "tags": {
                 "type": [
@@ -280,6 +299,29 @@
                 },
                 "nesting_mode": "list",
                 "min_items": 1,
+                "max_items": 1
+              },
+              "policy": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "step": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "threshold": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
                 "max_items": 1
               }
             }

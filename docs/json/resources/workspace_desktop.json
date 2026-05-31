@@ -83,7 +83,8 @@
               "user_email": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "user_group": {
                 "type": "string",

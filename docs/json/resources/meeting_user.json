@@ -109,11 +109,13 @@
               "signature": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "sip_number": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "sort_level": {
                 "type": "number",

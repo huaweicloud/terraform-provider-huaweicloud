@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_models": {
+          "block": {
+            "attributes": {
+              "dw_type": {
+                "type": "string",
+                "description": "The data connection type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "models": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_catalog_ids": "string",
+                      "create_by": "string",
+                      "create_time": "string",
+                      "databases": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "string",
+                      "dw_type": "string",
+                      "frequent": "bool",
+                      "id": "string",
+                      "is_physical": "bool",
+                      "level": "string",
+                      "name": "string",
+                      "table_model_prefix": "string",
+                      "top": "bool",
+                      "type": "string",
+                      "update_by": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the architecture models that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the architecture models are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace.",
+                "required": true
+              },
+              "workspace_type": {
+                "type": "string",
+                "description": "The model workspace type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

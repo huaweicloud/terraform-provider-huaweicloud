@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_node_priority_config": {
+          "block": {
+            "attributes": {
+              "az_code": {
+                "type": "string",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true
+              },
+              "group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "is_access": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_remove_ip": {
+                "type": "bool",
+                "computed": true
+              },
+              "logical_node_id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "node_port": {
+                "type": "string",
+                "computed": true
+              },
+              "node_role": {
+                "type": "string",
+                "computed": true
+              },
+              "node_type": {
+                "type": "string",
+                "computed": true
+              },
+              "priority_weight": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replication_id": {
+                "type": "string",
+                "computed": true
+              },
+              "slave_priority_weight": {
+                "type": "number",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_aggregation_logic_tables": {
+          "block": {
+            "attributes": {
+              "approver": {
+                "type": "string",
+                "description": "The approver of the aggregation logic table to be queried.",
+                "optional": true
+              },
+              "auto_generate": {
+                "type": "bool",
+                "description": "Whether the aggregation logic table is auto-generated.",
+                "optional": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "The start time of the modification time for the aggregation logic table, in RFC3339 format.",
+                "optional": true
+              },
+              "biz_catalog_id": {
+                "type": "string",
+                "description": "The business catalog ID to which the aggregation logic table belongs.",
+                "optional": true
+              },
+              "create_by": {
+                "type": "string",
+                "description": "The creator of the aggregation logic table to be queried.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the modification time for the aggregation logic table, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The Chinese name or English name of the aggregation logic table to be fuzzy queried.",
+                "optional": true
+              },
+              "name_ch": {
+                "type": "string",
+                "description": "The Chinese name of the aggregation logic table to be exactly queried.",
+                "optional": true
+              },
+              "name_en": {
+                "type": "string",
+                "description": "The English name of the aggregation logic table to be exactly queried.",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The owner of the aggregation logic table to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the aggregation logic tables are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The publishing status of the aggregation logic table to be queried.",
+                "optional": true
+              },
+              "sync_key": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of synchronization task types of the aggregation logic table.",
+                "optional": true
+              },
+              "sync_status": {
+                "type": "string",
+                "description": "The synchronization status of the aggregation logic table to be queried.",
+                "optional": true
+              },
+              "tables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "api_id": "string",
+                      "approval_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "approval_status": "string",
+                            "approval_time": "string",
+                            "approver": "string",
+                            "id": "string",
+                            "msg": "string"
+                          }
+                        ]
+                      ],
+                      "business_asset": "string",
+                      "compression": "string",
+                      "configs": "string",
+                      "create_by": "string",
+                      "create_time": "string",
+                      "data_quality": "string",
+                      "db_name": "string",
+                      "description": "string",
+                      "dev_physical_table": "string",
+                      "dev_version": "string",
+                      "dev_version_name": "string",
+                      "dimension_group": "string",
+                      "dirty_out_database": "string",
+                      "dirty_out_prefix": "string",
+                      "dirty_out_suffix": "string",
+                      "dirty_out_switch": "bool",
+                      "distribute": "string",
+                      "distribute_column": "string",
+                      "dlf_task": "string",
+                      "dlf_task_id": "string",
+                      "dw_id": "string",
+                      "dw_name": "string",
+                      "dw_type": "string",
+                      "env_type": "string",
+                      "group_code": "string",
+                      "group_name": "string",
+                      "id": "string",
+                      "meta_data_link": "string",
+                      "model_id": "string",
+                      "obs_location": "string",
+                      "owner": "string",
+                      "partition_conf": "string",
+                      "physical_table": "string",
+                      "pre_combine_field": "string",
+                      "prod_version": "string",
+                      "prod_version_name": "string",
+                      "publish_to_dlm": "string",
+                      "quality_id": "string",
+                      "queue_name": "string",
+                      "reversed": "bool",
+                      "schema": "string",
+                      "secret_type": "string",
+                      "self_defined_fields": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "fd_name_ch": "string",
+                            "fd_name_en": "string",
+                            "fd_value": "string",
+                            "not_null": "bool"
+                          }
+                        ]
+                      ],
+                      "sql": "string",
+                      "status": "string",
+                      "summary_status": "string",
+                      "table_attributes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alias": "string",
+                            "attribute_type": "string",
+                            "data_type": "string",
+                            "data_type_extend": "string",
+                            "description": "string",
+                            "domain_type": "string",
+                            "id": "string",
+                            "is_partition_key": "bool",
+                            "is_primary_key": "bool",
+                            "name_ch": "string",
+                            "name_en": "string",
+                            "not_null": "bool",
+                            "ordinal": "number",
+                            "ref_id": "string",
+                            "ref_name_ch": "string",
+                            "ref_name_en": "string",
+                            "secrecy_levels": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string",
+                                  "slevel": "number",
+                                  "uuid": "string"
+                                }
+                              ]
+                            ],
+                            "stand_row_id": "string",
+                            "stand_row_name": "string"
+                          }
+                        ]
+                      ],
+                      "table_type": "string",
+                      "table_version": "number",
+                      "tb_guid": "string",
+                      "tb_id": "string",
+                      "tb_logic_guid": "string",
+                      "tb_logic_name": "string",
+                      "tb_name": "string",
+                      "technical_asset": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of aggregation logic tables that match the filter parameters.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the aggregation logic tables belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

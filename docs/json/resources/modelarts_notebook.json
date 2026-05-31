@@ -10,22 +10,27 @@
                   "list",
                   "string"
                 ],
+                "description": "The public IP addresses that are allowed for remote SSH access.",
                 "optional": true
               },
               "auto_stop_enabled": {
                 "type": "bool",
+                "description": "Whether the notebook auto stop is enabled.",
                 "computed": true
               },
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the notebook, in UTC format.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the notebook.",
                 "optional": true
               },
               "flavor_id": {
                 "type": "string",
+                "description": "The flavor ID of the notebook.",
                 "required": true
               },
               "id": {
@@ -34,24 +39,28 @@
               },
               "image_id": {
                 "type": "string",
+                "description": "The image ID of the notebook.",
                 "required": true
               },
               "image_name": {
                 "type": "string",
+                "description": "The name of the image which the notebook used.",
                 "computed": true
               },
               "image_swr_path": {
                 "type": "string",
+                "description": "The SWR repository path of the image which the notebook used.",
                 "computed": true
               },
               "image_type": {
                 "type": "string",
+                "description": "The type of the image which the notebook used.",
                 "computed": true
               },
               "key_pair": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The key pair name for remote SSH access.",
+                "optional": true
               },
               "mount_storages": {
                 "type": [
@@ -67,46 +76,63 @@
                     }
                   ]
                 ],
+                "description": "The storages which are mounted to the notebook.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the notebook.",
                 "required": true
               },
               "pool_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "description": "The ID of the dedicated resource pool which the notebook used.",
+                "optional": true
               },
               "pool_name": {
                 "type": "string",
+                "description": "The name of the dedicated resource pool which the notebook used.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the notebook is located.",
                 "computed": true
               },
               "ssh_uri": {
                 "type": "string",
+                "description": "The URL for remote SSH access of the notebook.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the notebook.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The tags of the notebook.",
+                "optional": true,
                 "computed": true
               },
               "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the notebook, in UTC format.",
                 "computed": true
               },
               "url": {
                 "type": "string",
+                "description": "The web URL of the notebook.",
                 "computed": true
               },
               "workspace_id": {
                 "type": "string",
+                "description": "The workspace ID to which the notebook belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               }
             },
             "block_types": {
@@ -115,35 +141,34 @@
                   "attributes": {
                     "id": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
-                    },
-                    "mount_path": {
-                      "type": "string",
-                      "computed": true
+                      "description": "The storage ID of the dedicated disk.",
+                      "optional": true
                     },
                     "ownership": {
                       "type": "string",
+                      "description": "The storage ownership.",
                       "optional": true,
-                      "forcenew": true,
                       "default": "MANAGED"
                     },
                     "size": {
                       "type": "number",
+                      "description": "The storage size, in GB.",
                       "optional": true,
                       "computed": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "description": "The storage type.",
+                      "required": true
                     },
                     "uri": {
                       "type": "string",
+                      "description": "The storage URL of the dedicated disk.",
                       "optional": true,
-                      "forcenew": true
+                      "computed": true
                     }
-                  }
+                  },
+                  "description": "The volume configuration of the notebook."
                 },
                 "nesting_mode": "list",
                 "min_items": 1,

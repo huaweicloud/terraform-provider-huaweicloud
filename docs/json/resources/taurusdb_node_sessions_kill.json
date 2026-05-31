@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_node_sessions_kill": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the TaurusDB instance.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of the node in the TaurusDB instance.",
+                "required": true
+              },
+              "processes": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the IDs of user session threads to be terminated.",
+                "required": true
+              },
+              "processes_killed": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "The IDs of terminated user session threads in requested processes.",
+                "computed": true
+              },
+              "processes_not_found": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "The IDs of user session threads that were not found in requested processes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,8 @@
               "email": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",
@@ -17,7 +18,8 @@
               "phone_number": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

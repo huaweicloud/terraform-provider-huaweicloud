@@ -1,0 +1,148 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_notebooks": {
+          "block": {
+            "attributes": {
+              "billing": {
+                "type": "string",
+                "description": "The billing type of the notebooks to be queried.",
+                "optional": true
+              },
+              "feature": {
+                "type": "string",
+                "description": "The feature type of the notebooks to be queried.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The flavor of the notebooks to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The image ID of the notebooks to be queried.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the notebooks to be queried. Fuzzy match is supported.",
+                "optional": true
+              },
+              "notebook_id": {
+                "type": "string",
+                "description": "The notebook instance ID to be queried.",
+                "optional": true
+              },
+              "notebooks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allowed_access_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "auto_stop_enabled": "bool",
+                      "billing_items": [
+                        "list",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "custom_spec": "string",
+                      "data_volumes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "mount_path": "string",
+                            "mount_type": "string",
+                            "path": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "fail_reason": "string",
+                      "feature": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "image_swr_path": "string",
+                      "image_type": "string",
+                      "ip": "string",
+                      "jupyter_version": "string",
+                      "key_pair": "string",
+                      "lease_duration": "number",
+                      "lease_type": "string",
+                      "name": "string",
+                      "pool_id": "string",
+                      "pool_name": "string",
+                      "ssh_uri": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "url": "string",
+                      "user_id": "string",
+                      "user_vpc": "string",
+                      "volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "mount_path": "string",
+                            "ownership": "string",
+                            "size": "number",
+                            "type": "string",
+                            "uri": "string"
+                          }
+                        ]
+                      ],
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of notebooks that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the notebooks are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the notebooks to be queried.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the notebooks to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

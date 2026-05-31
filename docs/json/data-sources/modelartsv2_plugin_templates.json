@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_plugin_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "plugin_templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": [
+                              "map",
+                              "string"
+                            ],
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "logo_url": "string",
+                            "optional": "bool",
+                            "type": "string",
+                            "versions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "creation_timestamp": "string",
+                                  "inputs": "string",
+                                  "translate": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of plugin templates that matched filter parameters.",
+                "computed": true
+              },
+              "pool_name": {
+                "type": "string",
+                "description": "The pool name of the plugin templates.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the plugin templates are located.",
+                "computed": true
+              },
+              "template_name": {
+                "type": "string",
+                "description": "The template name of the plugin templates.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

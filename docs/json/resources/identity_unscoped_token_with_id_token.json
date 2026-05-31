@@ -24,7 +24,8 @@
                 "type": "string",
                 "description": "ID Token of the OpenID Connect Identity Provider",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "idp_id": {
                 "type": "string",
@@ -40,7 +41,8 @@
               },
               "token": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "username": {
                 "type": "string",

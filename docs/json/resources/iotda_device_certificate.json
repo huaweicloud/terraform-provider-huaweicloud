@@ -12,7 +12,8 @@
               "content": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "effective_date": {
                 "type": "string",
@@ -49,7 +50,8 @@
               },
               "verify_content": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               }
             }
           },

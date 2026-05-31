@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_binlog_parse_task": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "The backup ID.",
+                "optional": true,
+                "computed": true
+              },
+              "binlog_type": {
+                "type": "string",
+                "description": "The binlog type.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The task creation time, in RFC3339 format.",
+                "computed": true
+              },
+              "error_message": {
+                "type": "string",
+                "description": "The error message.",
+                "computed": true
+              },
+              "file_name": {
+                "type": "string",
+                "description": "The binlog file name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "position": {
+                "type": "string",
+                "description": "The binlog file parse position.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the binlog parse task is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The task status.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The task modification time, in RFC3339 format.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The user ID of the database connection.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

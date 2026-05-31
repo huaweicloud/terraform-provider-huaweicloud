@@ -10,7 +10,8 @@
                   "list",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",

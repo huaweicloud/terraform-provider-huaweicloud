@@ -23,7 +23,8 @@
               "email": {
                 "type": "string",
                 "description": "Specifies the email of the user.",
-                "required": true
+                "required": true,
+                "sensitive": true
               },
               "email_verified": {
                 "type": "bool",
@@ -65,7 +66,8 @@
               "phone_number": {
                 "type": "string",
                 "description": "Specifies the phone number of the user.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",

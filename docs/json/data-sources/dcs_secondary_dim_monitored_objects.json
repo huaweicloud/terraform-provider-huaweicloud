@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_secondary_dim_monitored_objects": {
+          "block": {
+            "attributes": {
+              "children": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dim_name": "string",
+                      "dim_route": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dcs_cluster_proxy2_node": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dcs_cluster_proxy2_node": "string",
+                      "dcs_instance_id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dcs_cluster_proxy_node": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dcs_cluster_proxy_node": "string",
+                      "dcs_instance_id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dcs_cluster_redis_node": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dcs_cluster_redis_node": "string",
+                      "dcs_instance_id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dim_name": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dcs_instance_id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "router": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "total": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

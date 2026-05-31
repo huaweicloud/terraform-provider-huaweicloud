@@ -17,7 +17,8 @@
               "cipher_text": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "encryption_algorithm": {
                 "type": "string",
@@ -40,11 +41,13 @@
               "plain_text": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "forcenew": true,
+                "sensitive": true
               },
               "plain_text_base64": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string"

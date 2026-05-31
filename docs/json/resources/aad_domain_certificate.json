@@ -8,7 +8,8 @@
               "cert_file": {
                 "type": "string",
                 "description": "Specifies the certificate file content.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "cert_info": {
                 "type": [
@@ -30,7 +31,8 @@
               "cert_key_file": {
                 "type": "string",
                 "description": "Specifies the private key file content.",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "cert_name": {
                 "type": "string",

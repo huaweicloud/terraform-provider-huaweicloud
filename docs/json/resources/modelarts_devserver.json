@@ -47,12 +47,6 @@
                 "optional": true,
                 "forcenew": true
               },
-              "flavor": {
-                "type": "string",
-                "description": "The flavor of the DevServer.",
-                "required": true,
-                "forcenew": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -78,8 +72,7 @@
               "name": {
                 "type": "string",
                 "description": "The name of the DevServer.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "period": {
                 "type": "number",
@@ -96,6 +89,12 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "resource_flavor": {
+                "type": "string",
+                "description": "The resource flavor of the DevServer.",
+                "required": true,
+                "forcenew": true
               },
               "roce_id": {
                 "type": "string",

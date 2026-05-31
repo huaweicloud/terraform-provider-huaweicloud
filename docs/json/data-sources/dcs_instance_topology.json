@@ -1,0 +1,425 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_instance_topology": {
+          "block": {
+            "attributes": {
+              "cluster_admin": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cluster_lvs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cluster_proxy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "elb": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "master": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "redis_server": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_endpoint": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "output": "string"
+                          }
+                        ]
+                      ],
+                      "db_num": "string",
+                      "dbs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "avg_ttl": "string",
+                            "db_idx": "string",
+                            "expires": "string",
+                            "keys": "string"
+                          }
+                        ]
+                      ],
+                      "dims": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dim_k": "string",
+                            "dim_v": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "ip": "string",
+                      "max_memory": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "node_type": "string",
+                      "port": "string",
+                      "qps": "string",
+                      "relation_ip": "string",
+                      "relation_port": "string",
+                      "status": "string",
+                      "used_memory": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

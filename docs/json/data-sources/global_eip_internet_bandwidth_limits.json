@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_internet_bandwidth_limits": {
+          "block": {
+            "attributes": {
+              "charge_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_bandwidth_limits": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charge_mode": "string",
+                      "ext_limit": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max_ingress_size": "number",
+                            "min_ingress_size": "number",
+                            "ratio_95peak": "number"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "max_size": "number",
+                      "min_size": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

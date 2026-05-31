@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_business_metrics": {
+          "block": {
+            "attributes": {
+              "biz_catalog_id": {
+                "type": "string",
+                "description": "The process architecture ID to which the business metric belongs.",
+                "optional": true
+              },
+              "create_by": {
+                "type": "string",
+                "description": "The creator of the business metric to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metrics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "apply_scenario": "string",
+                      "biz_catalog_id": "string",
+                      "biz_catalog_path": "string",
+                      "biz_metric": "string",
+                      "code": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "data_origin": "string",
+                      "definition": "string",
+                      "description": "string",
+                      "destination": "string",
+                      "dimensions": "string",
+                      "expression": "string",
+                      "general_filters": "string",
+                      "id": "string",
+                      "interval_type": "string",
+                      "l1": "string",
+                      "l2": "string",
+                      "l3": "string",
+                      "measure": "string",
+                      "name": "string",
+                      "name_alias": "string",
+                      "owner": "string",
+                      "owner_department": "string",
+                      "status": "string",
+                      "summary_status": "string",
+                      "technical_metric": "number",
+                      "technical_metric_name": "string",
+                      "technical_metric_type": "string",
+                      "time_filters": "string",
+                      "unit": "string",
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of business metrics that matched filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name or code of the business metric to be fuzzy queried.",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The owner of the business metric to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the business metrics are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The publishing status of the business metric to be queried.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the business metrics belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

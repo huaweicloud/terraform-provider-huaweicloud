@@ -7,14 +7,17 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the dataset, in RFC3339 format.",
                 "computed": true
               },
               "data_format": {
                 "type": "string",
+                "description": "The data format of the dataset.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the dataset.",
                 "optional": true
               },
               "id": {
@@ -23,31 +26,34 @@
               },
               "import_labeled_enabled": {
                 "type": "bool",
+                "description": "Whether to enable the import labeled features.",
                 "optional": true,
-                "forcenew": true,
                 "default": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the dataset.",
                 "required": true
               },
               "output_path": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "The OBS storage path that used to store output files.",
+                "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dataset is located.",
                 "computed": true
               },
               "status": {
                 "type": "number",
+                "description": "The status of the dataset.",
                 "computed": true
               },
               "type": {
                 "type": "number",
-                "required": true,
-                "forcenew": true
+                "description": "The type of the dataset.",
+                "required": true
               }
             },
             "block_types": {
@@ -56,56 +62,56 @@
                   "attributes": {
                     "cluster_id": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The ID of the DWS/MRS cluster.",
+                      "optional": true
                     },
                     "data_type": {
                       "type": "number",
+                      "description": "The type of the data source.",
                       "optional": true,
-                      "forcenew": true,
                       "default": 0
                     },
                     "database_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The name of the DWS/DLI database.",
+                      "optional": true
                     },
                     "password": {
                       "type": "string",
+                      "description": "The password of the DWS database user.",
                       "optional": true,
-                      "forcenew": true,
                       "sensitive": true
                     },
                     "path": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The OBS storage path or MRS HDFS path.",
+                      "optional": true
                     },
                     "queue_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The name of the DLI queue.",
+                      "optional": true
                     },
                     "table_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The name of the DWS/DLI table.",
+                      "optional": true
                     },
                     "user_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The name of the DWS database user.",
+                      "optional": true
                     },
                     "with_column_header": {
                       "type": "bool",
+                      "description": "Whether the data contains table header when the type of dataset is 400 (table type).",
                       "optional": true,
-                      "forcenew": true,
                       "default": true
                     }
-                  }
+                  },
+                  "description": "The data sources which be used to imported the source data (such as pictures/files/audio,\netc.) in this directory and subdirectories to the dataset."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               },
@@ -114,25 +120,24 @@
                   "attributes": {
                     "label_separator": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The separator between label and label.",
+                      "optional": true
                     },
                     "text_label_separator": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "The separator between text and label.",
+                      "optional": true
                     },
                     "type": {
                       "type": "string",
+                      "description": "The type of the label format.",
                       "optional": true,
-                      "forcenew": true,
                       "default": "1"
                     }
                   },
-                  "description": "It is required only the dataType=100"
+                  "description": "The custom format of labeled features when import labeled files for Text classification."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "labels": {
@@ -140,24 +145,29 @@
                   "attributes": {
                     "name": {
                       "type": "string",
+                      "description": "The name of the label.",
                       "required": true
                     },
                     "property_color": {
                       "type": "string",
+                      "description": "The color of the label.",
                       "optional": true,
                       "computed": true
                     },
                     "property_shape": {
                       "type": "string",
+                      "description": "The shape of the label.",
                       "optional": true,
                       "computed": true
                     },
                     "property_shortcut": {
                       "type": "string",
+                      "description": "The shortcut of the label.",
                       "optional": true,
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The labels of the dataset."
                 },
                 "nesting_mode": "list"
               },
@@ -166,18 +176,18 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "description": "The field name of the schema.",
+                      "required": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "description": "The field type of the schema.",
+                      "required": true
                     }
-                  }
+                  },
+                  "description": "The schema configurations of the dataset."
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },

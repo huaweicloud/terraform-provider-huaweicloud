@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_instance_log": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the log, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance to which the log task belongs.",
+                "required": true
+              },
+              "log_file_name": {
+                "type": "string",
+                "description": "The name of the log file.",
+                "optional": true,
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The ID of the log group.",
+                "computed": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "description": "The name of the log group.",
+                "optional": true,
+                "computed": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The ID of the log stream.",
+                "computed": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "description": "The name of the log stream.",
+                "optional": true,
+                "computed": true
+              },
+              "log_type": {
+                "type": "string",
+                "description": "The type of the log.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the instance log is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the log.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the log, in RFC3339 format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_code_tables": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "The start time of the code table to be queried, in RFC3339 format.",
+                "optional": true
+              },
+              "code": {
+                "type": "string",
+                "description": "The English name of the code table to be exactly queried.",
+                "optional": true
+              },
+              "code_tables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "description": "string",
+                      "directory_id": "string",
+                      "directory_path": "string",
+                      "fields": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "description": "string",
+                            "id": "string",
+                            "name": "string",
+                            "ordinal": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of code tables that matched filter parameters.",
+                "computed": true
+              },
+              "create_by": {
+                "type": "string",
+                "description": "The creator name of the code table to be queried.",
+                "optional": true
+              },
+              "directory_id": {
+                "type": "string",
+                "description": "The directory ID of the code table to be queried.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the code table to be queried, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The Chinese name of the code table to be exactly queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the code tables are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the code table to be queried.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the code tables belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

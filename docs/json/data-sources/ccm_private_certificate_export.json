@@ -7,11 +7,13 @@
             "attributes": {
               "certificate": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "certificate_chain": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "certificate_id": {
                 "type": "string",
@@ -19,15 +21,18 @@
               },
               "enc_certificate": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "enc_private_key": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "enc_sm2_enveloped_key": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",
@@ -35,15 +40,18 @@
               },
               "keystore_pass": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "password": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "sensitive": true
               },
               "private_key": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",
@@ -59,7 +67,8 @@
               },
               "signed_and_enveloped_data": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "sm_standard": {
                 "type": "string",

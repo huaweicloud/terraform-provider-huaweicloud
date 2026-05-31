@@ -13,12 +13,14 @@
               "certificate": {
                 "type": "string",
                 "description": "The certificate content.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "certificate_chain": {
                 "type": "string",
                 "description": "The content of the certificate chain.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "id": {
                 "type": "string",

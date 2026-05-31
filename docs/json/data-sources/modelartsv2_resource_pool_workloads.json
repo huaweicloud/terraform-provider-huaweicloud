@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_resource_pool_workloads": {
+          "block": {
+            "attributes": {
+              "ascend": {
+                "type": "bool",
+                "description": "Whether to sort the query results in ascending order.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The ID of the resource pool.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource pool workloads are located.",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sort field of the query result.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the workload to be queried.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the workload to be queried.",
+                "optional": true
+              },
+              "workloads": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_version": "string",
+                      "create_time": "string",
+                      "flavor": "string",
+                      "gvk": "string",
+                      "host_ips": "string",
+                      "job_name": "string",
+                      "job_uuid": "string",
+                      "kind": "string",
+                      "name": "string",
+                      "namespace": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_ip": "string",
+                            "npu_topology_placement": "string",
+                            "resource_requirement": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cpu": "string",
+                                  "huawei_ascend_snt1980": "string",
+                                  "huawei_ascend_snt310": "string",
+                                  "memory": "string",
+                                  "nvidia_gpu": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "pending_duration": "number",
+                      "pending_position": "number",
+                      "priority": "string",
+                      "resource_requirement": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu": "string",
+                            "huawei_ascend_snt3": "string",
+                            "huawei_ascend_snt9": "string",
+                            "memory": "string",
+                            "nvidia_gpu": "string"
+                          }
+                        ]
+                      ],
+                      "running_duration": "number",
+                      "status": "string",
+                      "type": "string",
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of resource pool workloads that matched filter parameters.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

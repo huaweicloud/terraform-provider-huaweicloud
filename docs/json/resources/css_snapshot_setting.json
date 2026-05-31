@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_snapshot_setting": {
+          "block": {
+            "attributes": {
+              "agency": {
+                "type": "string",
+                "required": true
+              },
+              "base_path": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "bucket": {
+                "type": "string",
+                "required": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "delete_auto": {
+                "type": "string",
+                "optional": true
+              },
+              "enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "frequency": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "indices": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "keepday": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "max_restore_bytes_per_seconds": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "max_snapshot_bytes_per_seconds": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "period": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "prefix": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "snapshot_cmk_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

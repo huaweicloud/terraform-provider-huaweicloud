@@ -79,7 +79,8 @@
                       "type": "string",
                       "description": "Specifies the access key used to access the OBS bucket.",
                       "optional": true,
-                      "forcenew": true
+                      "forcenew": true,
+                      "sensitive": true
                     },
                     "consumer_strategy": {
                       "type": "string",

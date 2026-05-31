@@ -8,7 +8,8 @@
               "cipher_text": {
                 "type": "string",
                 "description": "The encrypted ciphertext, Base64 encoded.",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "datakey_length": {
                 "type": "string",

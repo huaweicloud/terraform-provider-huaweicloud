@@ -96,7 +96,8 @@
                     }
                   ]
                 ],
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "language": {
                 "type": "string",
@@ -314,7 +315,8 @@
                     "email": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "sensitive": true
                     },
                     "is_auto_invite": {
                       "type": "number",
@@ -334,7 +336,8 @@
                     "phone": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "sensitive": true
                     },
                     "role": {
                       "type": "number",

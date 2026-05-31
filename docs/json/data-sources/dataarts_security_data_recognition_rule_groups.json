@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_security_data_recognition_rule_groups": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "description": "The creator of the data recognition rule groups to be queried.",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "builtin_rule_id": "string",
+                            "category_id": "string",
+                            "column_expression": "string",
+                            "comment_expression": "string",
+                            "content_expression": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "description": "string",
+                            "enable": "bool",
+                            "id": "string",
+                            "method": "string",
+                            "name": "string",
+                            "secrecy_level": "string",
+                            "secrecy_level_num": "number",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of data recognition rule groups that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the data recognition rule groups to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the data recognition rule groups are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the data recognition rule groups belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

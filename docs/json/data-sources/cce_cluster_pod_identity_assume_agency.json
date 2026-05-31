@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_cluster_pod_identity_assume_agency": {
+          "block": {
+            "attributes": {
+              "assumed_agency": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "audience": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID.",
+                "required": true
+              },
+              "credentials": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_key_id": "string",
+                      "expiration": "string",
+                      "secret_access_key": "string",
+                      "security_token": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pod_identity_association_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subject": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "namespace": "string",
+                      "service_account": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "token": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

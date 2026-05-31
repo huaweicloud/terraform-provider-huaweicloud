@@ -17,7 +17,7 @@
                     }
                   ]
                 ],
-                "description": "Indicates the entities that the specified policy is attached to.",
+                "description": "The list of entities attached to the policy.",
                 "computed": true
               },
               "id": {
@@ -26,7 +26,7 @@
               },
               "policy_id": {
                 "type": "string",
-                "description": "Specifies the ID of the policy.",
+                "description": "The ID of the policy.",
                 "required": true
               }
             }
