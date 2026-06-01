@@ -46,6 +46,7 @@ var notFoundErrCode = []string{
 // @API DRS POST /v5/{project_id}/jobs/{job_id}/action
 // @API DRS PUT /v5/{project_id}/jobs/{job_id}
 // @API DRS POST /v3/{project_id}/jobs/batch-sync-policy
+// @API DRS POST /v5/{project_id}/job/{job_id}/change-to-period
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -368,29 +369,23 @@ func ResourceDrsJob() *schema.Resource {
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid", "postPaid",
 				}, false),
-				Description: "schema: Internal",
 			},
 			"period_unit": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				RequiredWith: []string{"period"},
 				ValidateFunc: validation.StringInSlice([]string{
 					"month", "year",
 				}, false),
-				Description: "schema: Internal",
 			},
 			"period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				RequiredWith: []string{"period_unit"},
-				Description:  "schema: Internal",
 			},
 			"auto_renew": {
 				Type:     schema.TypeString,
@@ -398,7 +393,6 @@ func ResourceDrsJob() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"true", "false",
 				}, false),
-				Description: "schema: Internal",
 			},
 
 			"alarm_notify": {
@@ -1255,7 +1249,22 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	if d.HasChange("auto_renew") {
+	if d.HasChange("charging_mode") {
+		// only support changing billing mode from postPaid to prePaid
+		if d.Get("charging_mode").(string) != "prePaid" {
+			return diag.Errorf("only support changing billing mode from postPaid to prePaid")
+		}
+
+		periodUnit := d.Get("period_unit").(string)
+		period := d.Get("period").(int)
+		autoRenew := d.Get("auto_renew").(string)
+		if periodUnit == "" || period == 0 || autoRenew == "" {
+			return diag.Errorf("period_unit, period and auto_renew are required when changing billing mode to prePaid")
+		}
+		if err := changeJobBillingToPrePaid(ctx, d, clientV5, bssClient); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
 		// resource_id is different from job_id
 		resourceIDs, err := cbc.GetResourceIDsByOrder(bssClient, d.Get("order_id").(string), 1)
 		if err != nil || len(resourceIDs) == 0 {
@@ -1267,6 +1276,50 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	return resourceJobRead(ctx, d, meta)
+}
+
+func buildChangeToPeriodBodyParams(d *schema.ResourceData) map[string]interface{} {
+	periodType := "2"
+	if d.Get("period_unit").(string) == "year" {
+		periodType = "3"
+	}
+	return map[string]interface{}{
+		"period_type":   periodType,
+		"period_num":    d.Get("period").(int),
+		"is_auto_renew": d.Get("auto_renew").(string) == "true",
+		"is_auto_pay":   true,
+	}
+}
+
+func changeJobBillingToPrePaid(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	changeToPeriodPath := client.Endpoint + "v5/{project_id}/job/{job_id}/change-to-period"
+	changeToPeriodPath = strings.ReplaceAll(changeToPeriodPath, "{project_id}", client.ProjectID)
+	changeToPeriodPath = strings.ReplaceAll(changeToPeriodPath, "{job_id}", d.Id())
+	changeToPeriodOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildChangeToPeriodBodyParams(d),
+	}
+	resp, err := client.Request("POST", changeToPeriodPath, &changeToPeriodOpt)
+	if err != nil {
+		return fmt.Errorf("error changing DRS job to period billing: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+	orderId := utils.PathSearch("order_id", respBody, "").(string)
+
+	if orderId != "" {
+		if err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("the order is not completed while changing DRS job to period billing: %s", err)
+		}
+		if _, err = common.WaitOrderAllResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func updateObjectsSelection(ctx context.Context, d *schema.ResourceData, client, clientV5 *golangsdk.ServiceClient) error {
