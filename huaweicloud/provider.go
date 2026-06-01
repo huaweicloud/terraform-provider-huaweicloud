@@ -3432,6 +3432,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_history_transaction_switch":      das.ResourceHistoryTransactionSwitch(),
 			"huaweicloud_das_instance_group":                  das.ResourceInstanceGroup(),
 			"huaweicloud_das_instance_group_assign":           das.ResourceInstanceGroupAssign(),
+			"huaweicloud_das_lock_blocking_switch":            das.ResourceLockBlockingSwitch(),
 			"huaweicloud_das_sql_limiting_switch":             das.ResourceSqlLimitingSwitch(),
 
 			"huaweicloud_dbss_audit_risk_rule_action": dbss.ResourceRiskRuleAction(),
