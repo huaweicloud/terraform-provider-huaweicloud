@@ -474,6 +474,28 @@ The following arguments are supported:
   for MariaDB. Defaults to **false**.
   Changing this parameter will create a new resource.
 
+* `charging_mode` - (Optional, String) Specifies the billing mode of the DRS job.
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
+
+  -> When updating from postPaid to prePaid, the following conditions must be met:
+  + `period_unit`, `period` and `auto_renew` must be specified.
+  + Only support changing from **postPaid** to **prePaid**.
+
+* `period_unit` - (Optional, String) Specifies the subscription period unit. Required when `charging_mode` is **prePaid**.
+  Valid values are **month** and **year**.
+
+  -> This parameter can be specified when changing from **postPaid** to **prePaid**. It can only be edited once during
+  the conversion.
+
+* `period` - (Optional, Int) Specifies the subscription period. Required when `charging_mode` is **prePaid**.
+
+  -> This parameter can be specified when changing from **postPaid** to **prePaid**. It can only be edited once during
+  the conversion.
+
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled for the subscription.
+  Valid values are **true** and **false**. Defaults to **false**.
+  This field is valid only when `charging_mode` is **prePaid**.
+
 <a name="block--db_info"></a>
 The `db_info` block supports:
 
