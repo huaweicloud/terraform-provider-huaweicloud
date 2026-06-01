@@ -3425,6 +3425,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_binlog_parse_task_export":        das.ResourceBinlogParseTaskExport(),
 			"huaweicloud_das_database_instance_connection":    das.ResourceDatabaseInstanceConnection(),
 			"huaweicloud_das_database_user":                   das.ResourceDatabaseUser(),
+			"huaweicloud_das_dead_lock_switch":                das.ResourceDeadLockSwitch(),
 			"huaweicloud_das_email_template":                  das.ResourceEmailTemplate(),
 			"huaweicloud_das_email_templates_batch_action":    das.ResourceEmailTemplatesBatchAction(),
 			"huaweicloud_das_emails_batch_send":               das.ResourceEmailsBatchSend(),
