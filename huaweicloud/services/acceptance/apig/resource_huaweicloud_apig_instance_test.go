@@ -272,3 +272,161 @@ resource "huaweicloud_apig_instance" "test" {
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
+
+func TestAccInstance_nlb(t *testing.T) {
+	var (
+		instance instances.Instance
+
+		resourceName = "huaweicloud_apig_instance.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &instance, getInstanceFunc)
+
+		name = acceptance.RandomAccResourceName()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil, // The detection of the APIG instance deletion will be performed in the steps.
+		Steps: []resource.TestStep{
+			// Initially, two ELBs are bound, one through the creation API and the other through the bulk binding API.
+			{
+				Config: testAccInstance_nlb_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "edition", "NLB_BASIC"),
+					resource.TestCheckResourceAttr(resourceName, "elb_ids.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+				),
+			},
+			// Change the binding relationship of one of the ELBs.
+			// The logical operation steps are: unbind an ELB -> bind an ELB
+			{
+				Config: testAccInstance_nlb_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elb_ids.#", "2"),
+				),
+			},
+			// Remove all ELB bindings and add a new ELB binding.
+			// The logical operation steps are: unbind an ELB -> bind an ELB -> unbind an ELB
+			{
+				Config: testAccInstance_nlb_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elb_ids.#", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// The APIG instance must be deleted first before ELB's deletion protection can be removed via update
+			// (otherwise it will be automatically restored).
+			{
+				Config: testAccInstance_nlb_step4(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceDestroy(),
+				),
+			},
+		},
+	})
+}
+
+func testAccInstance_nlb_base(name string, deleteProtectionEnable bool) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+%[2]s
+
+data "huaweicloud_elb_flavors" "test" {
+  type = "L4_elastic_max"
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  count = 3
+
+  name                       = format("%[3]s_%%d", count.index)
+  vpc_id                     = huaweicloud_vpc.test.id
+  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  l4_flavor_id               = data.huaweicloud_elb_flavors.test.flavors[0].id
+  availability_zone          = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  enterprise_project_id      = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+  deletion_protection_enable = %[4]v
+
+  tags = {
+    managed_by = "APIG"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
+		common.TestBaseNetwork(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), name, deleteProtectionEnable)
+}
+
+func testAccInstance_nlb_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  elb_ids               = slice(huaweicloud_elb_loadbalancer.test[*].id, 0, 2)
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
+  edition = "NLB_BASIC"
+  name    = "%[2]s"
+}
+`, testAccInstance_nlb_base(name, true), name)
+}
+
+func testAccInstance_nlb_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  elb_ids               = slice(huaweicloud_elb_loadbalancer.test[*].id, 1, 3)
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
+  edition = "NLB_BASIC"
+  name    = "%[2]s"
+}
+`, testAccInstance_nlb_base(name, true), name)
+}
+
+func testAccInstance_nlb_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  elb_ids               = slice(huaweicloud_elb_loadbalancer.test[*].id, 0, 1)
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
+  edition = "NLB_BASIC"
+  name    = "%[2]s"
+}
+`, testAccInstance_nlb_base(name, true), name)
+}
+
+// Delete the APIG instance and update the ELB's delete protection status (from enabled to disabled; currently, this
+// function can only be disabled via an update operation and will be automatically restored by existing APIG instances).
+func testAccInstance_nlb_step4(name string) string {
+	return testAccInstance_nlb_base(name, false)
+}
