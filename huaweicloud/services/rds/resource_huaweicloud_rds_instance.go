@@ -69,6 +69,8 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/second-level-monitor
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/slowlog-sensitization/{status}
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/backups/config
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/backups/delete-selection
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
