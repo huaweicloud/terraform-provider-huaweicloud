@@ -2,6 +2,7 @@ package geminidb
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -287,32 +288,35 @@ func resourceGeminiDBParameterTemplateUpdate(ctx context.Context, d *schema.Reso
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var (
-		httpUrl = "v3/{project_id}/configurations/{config_id}"
-		product = "geminidb"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("geminidb", region)
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
+	if err := updateGeminiDBParameterTemplate(client, d); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return resourceGeminiDBParameterTemplateRead(ctx, d, meta)
+}
+
+func updateGeminiDBParameterTemplate(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v3/{project_id}/configurations/{config_id}"
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	updatePath = strings.ReplaceAll(updatePath, "{config_id}", d.Id())
-
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		JSONBody:         buildUpdateGeminiDBParameterTemplateBodyParams(d),
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
+	_, err := client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating GeminiDB parameter template: %s", err)
+		return fmt.Errorf("error updating GeminiDB parameter template: %s", err)
 	}
 
-	return resourceGeminiDBParameterTemplateRead(ctx, d, meta)
+	return nil
 }
 
 func buildUpdateGeminiDBParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
