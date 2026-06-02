@@ -8,8 +8,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceSwrEnterpriseRepositories_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_swr_enterprise_repositories.test"
+func TestAccDataSourceSwrEnterpriseInstanceRepositories_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_swr_enterprise_instance_repositories.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,19 +45,19 @@ func testDataSourceSwrEnterpriseRepositories_basic() string {
 	return `
 data "huaweicloud_swr_enterprise_instances" "test" {}
 
-data "huaweicloud_swr_enterprise_repositories" "test" {
+data "huaweicloud_swr_enterprise_instance_repositories" "test" {
   instance_id = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
 }
 
-data "huaweicloud_swr_enterprise_repositories" "filter_by_namespace_id" {
+data "huaweicloud_swr_enterprise_instance_repositories" "filter_by_namespace_id" {
   instance_id  = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
-  namespace_id = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].namespace_id
+  namespace_id = data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].namespace_id
 }
 
 output "namespace_id_filter_is_useful" {
-  value = length(data.huaweicloud_swr_enterprise_repositories.filter_by_namespace_id.repositories) > 0 && alltrue(
-	[for v in data.huaweicloud_swr_enterprise_repositories.filter_by_namespace_id.repositories[*].namespace_id :
-	  v == data.huaweicloud_swr_enterprise_repositories.test.repositories[0].namespace_id]
+  value = length(data.huaweicloud_swr_enterprise_instance_repositories.filter_by_namespace_id.repositories) > 0 && alltrue(
+	[for v in data.huaweicloud_swr_enterprise_instance_repositories.filter_by_namespace_id.repositories[*].namespace_id :
+	  v == data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].namespace_id]
   )
 }
 `

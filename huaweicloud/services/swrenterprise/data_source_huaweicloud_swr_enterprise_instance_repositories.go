@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceSwrEnterpriseRepositories() *schema.Resource {
+func DataSourceSwrEnterpriseInstanceRepositories() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceSwrEnterpriseRepositoriesRead,
+		ReadContext: dataSourceSwrEnterpriseInstanceRepositoriesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -128,7 +128,7 @@ func newRepositoriesDSWrapper(d *schema.ResourceData, meta interface{}) *Reposit
 	}
 }
 
-func dataSourceSwrEnterpriseRepositoriesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSwrEnterpriseInstanceRepositoriesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newRepositoriesDSWrapper(d, meta)
 	lisInsRepRst, err := wrapper.ListInstanceRepositories()
 	if err != nil {

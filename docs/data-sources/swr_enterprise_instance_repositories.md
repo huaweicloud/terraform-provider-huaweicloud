@@ -1,12 +1,12 @@
 ---
 subcategory: "Software Repository for Container (SWR)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_swr_enterprise_repositories"
+page_title: "HuaweiCloud: huaweicloud_swr_enterprise_instance_repositories"
 description: |-
   Use this data source to get the list of SWR enterprise repositories.
 ---
 
-# huaweicloud_swr_enterprise_repositories
+# huaweicloud_swr_enterprise_instance_repositories
 
 Use this data source to get the list of SWR enterprise repositories.
 
@@ -15,7 +15,7 @@ Use this data source to get the list of SWR enterprise repositories.
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_swr_enterprise_repositories" "test" {
+data "huaweicloud_swr_enterprise_instance_repositories" "test" {
   instance_id = var.instance_id
 }
 ```

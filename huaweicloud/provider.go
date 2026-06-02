@@ -2442,8 +2442,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_instance_artifact_vulnerabilities":  swrenterprise.DataSourceSwrEnterpriseInstanceArtifactVulnerabilities(),
 			"huaweicloud_swr_enterprise_namespace_repositories":             swrenterprise.DataSourceSwrEnterpriseNamespaceRepositories(),
 			"huaweicloud_swr_enterprise_namespaces":                         swrenterprise.DataSourceSwrEnterpriseNamespaces(),
-			"huaweicloud_swr_enterprise_repositories":                       swrenterprise.DataSourceSwrEnterpriseRepositories(),
-			"huaweicloud_swr_enterprise_repository_tags":                    swrenterprise.DataSourceSwrEnterpriseRepositoryTags(),
+			"huaweicloud_swr_enterprise_all_repositories":                   swrenterprise.DataSourceSwrEnterpriseAllRepositories(),
+			"huaweicloud_swr_enterprise_instance_repositories":              swrenterprise.DataSourceSwrEnterpriseInstanceRepositories(),
+			"huaweicloud_swr_enterprise_instance_repository_tags":           swrenterprise.DataSourceSwrEnterpriseInstanceRepositoryTags(),
 			"huaweicloud_swr_enterprise_immutable_tag_rules":                swrenterprise.DataSourceSwrEnterpriseImmutableTagRules(),
 			"huaweicloud_swr_enterprise_triggers":                           swrenterprise.DataSourceSwrEnterpriseTriggers(),
 			"huaweicloud_swr_enterprise_trigger_jobs":                       swrenterprise.DataSourceSwrEnterpriseTriggerJobs(),
@@ -2932,6 +2933,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_trusted_services":                 organizations.DataSourceTrustedServices(),
 
 			"huaweicloud_rds_flavors_v3": rds.DataSourceRdsFlavors(),
+
+			"huaweicloud_swr_enterprise_repositories":    swrenterprise.DataSourceSwrEnterpriseInstanceRepositories(),
+			"huaweicloud_swr_enterprise_repository_tags": swrenterprise.DataSourceSwrEnterpriseInstanceRepositoryTags(),
 
 			// Deprecated Just discard the resource name, use `huaweicloud_ccm_certificates` instead
 			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),

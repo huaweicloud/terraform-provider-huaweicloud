@@ -1,12 +1,12 @@
 ---
 subcategory: "Software Repository for Container (SWR)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_swr_enterprise_repository_tags"
+page_title: "HuaweiCloud: huaweicloud_swr_enterprise_instance_repository_tags"
 description: |-
   Use this data source to get the list of SWR enterprise repository tags.
 ---
 
-# huaweicloud_swr_enterprise_repository_tags
+# huaweicloud_swr_enterprise_instance_repository_tags
 
 Use this data source to get the list of SWR enterprise repository tags.
 
@@ -17,7 +17,7 @@ variable "instance_id" {}
 variable "namespace_name" {}
 variable "repository_name" {}
 
-data "huaweicloud_swr_enterprise_repository_tags" "test" {
+data "huaweicloud_swr_enterprise_instance_repository_tags" "test" {
   instance_id     = var.instance_id
   namespace_name  = var.namespace_name
   repository_name = var.repository_name
