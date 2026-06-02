@@ -44,27 +44,27 @@ func testDataSourceSwrEnterpriseInstanceArtifactAccessories_basic() string {
 	return `
 data "huaweicloud_swr_enterprise_instances" "test" {}
 
-data "huaweicloud_swr_enterprise_repositories" "test" {
+data "huaweicloud_swr_enterprise_instance_repositories" "test" {
   instance_id = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
 }
 
 data "huaweicloud_swr_enterprise_instance_artifacts" "test" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = "library"
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
+  repository_name = data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].name
 }
 
 data "huaweicloud_swr_enterprise_instance_artifact_accessories" "test" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = "library"
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
+  repository_name = data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].name
   reference       = data.huaweicloud_swr_enterprise_instance_artifacts.test.artifacts[0].digest
 }
 
 data "huaweicloud_swr_enterprise_instance_artifact_accessories" "filter_by_type" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = "library"
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
+  repository_name = data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].name
   reference       = data.huaweicloud_swr_enterprise_instance_artifacts.test.artifacts[0].digest
   type            = data.huaweicloud_swr_enterprise_instance_artifact_accessories.test.accessories[0].type
 }

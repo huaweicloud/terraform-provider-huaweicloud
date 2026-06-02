@@ -18,9 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceSwrEnterpriseRepositoryTags() *schema.Resource {
+func DataSourceSwrEnterpriseInstanceRepositoryTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceSwrEnterpriseRepositoryTagsRead,
+		ReadContext: dataSourceSwrEnterpriseInstanceRepositoryTagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -139,7 +139,7 @@ func newRepositoryTagsDSWrapper(d *schema.ResourceData, meta interface{}) *Repos
 	}
 }
 
-func dataSourceSwrEnterpriseRepositoryTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSwrEnterpriseInstanceRepositoryTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newRepositoryTagsDSWrapper(d, meta)
 	listInstanceTagsRst, err := wrapper.ListInstanceTags()
 	if err != nil {

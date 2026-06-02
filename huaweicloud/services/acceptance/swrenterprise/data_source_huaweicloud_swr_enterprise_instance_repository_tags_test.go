@@ -8,8 +8,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceSwrEnterpriseRepositoryTags_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_swr_enterprise_repository_tags.test"
+func TestAccDataSourceSwrEnterpriseInstanceRepositoryTags_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_swr_enterprise_instance_repository_tags.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -46,13 +46,13 @@ func testDataSourceSwrEnterpriseRepositoryTags_basic() string {
 	return `
 data "huaweicloud_swr_enterprise_instances" "test" {}
 
-data "huaweicloud_swr_enterprise_repositories" "test" {
+data "huaweicloud_swr_enterprise_instance_repositories" "test" {
   instance_id = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
 }
 
-data "huaweicloud_swr_enterprise_repository_tags" "test" {
+data "huaweicloud_swr_enterprise_instance_repository_tags" "test" {
   instance_id     = data.huaweicloud_swr_enterprise_instances.test.instances[0].id
   namespace_name  = "library"
-  repository_name = data.huaweicloud_swr_enterprise_repositories.test.repositories[0].name
+  repository_name = data.huaweicloud_swr_enterprise_instance_repositories.test.repositories[0].name
 }`
 }
