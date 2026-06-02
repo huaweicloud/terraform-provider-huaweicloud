@@ -420,6 +420,10 @@ func ResourceGaussDbInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"component_names": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"role": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -433,6 +437,10 @@ func ResourceGaussDbInstance() *schema.Resource {
 							Computed: true,
 						},
 						"private_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"data_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -911,10 +919,12 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance interfa
 		node := map[string]interface{}{
 			"id":                utils.PathSearch("id", v, nil),
 			"name":              name,
+			"component_names":   utils.PathSearch("component_names", v, nil),
 			"status":            utils.PathSearch("status", v, nil),
 			"role":              utils.PathSearch("role", v, nil),
 			"availability_zone": utils.PathSearch("availability_zone", v, nil),
 			"private_ip":        utils.PathSearch("private_ip", v, nil),
+			"data_ip":           utils.PathSearch("data_ip", v, nil),
 			"public_ip":         utils.PathSearch("public_ip", v, nil),
 		}
 		nodesList = append(nodesList, node)
