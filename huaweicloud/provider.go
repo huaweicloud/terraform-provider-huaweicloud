@@ -3430,6 +3430,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_email_template":                  das.ResourceEmailTemplate(),
 			"huaweicloud_das_email_templates_batch_action":    das.ResourceEmailTemplatesBatchAction(),
 			"huaweicloud_das_emails_batch_send":               das.ResourceEmailsBatchSend(),
+			"huaweicloud_das_full_dead_lock_switch":           das.ResourceFullDeadLockSwitch(),
 			"huaweicloud_das_history_transaction_export_task": das.ResourceHistoryTransactionExportTask(),
 			"huaweicloud_das_history_transaction_switch":      das.ResourceHistoryTransactionSwitch(),
 			"huaweicloud_das_instance_group":                  das.ResourceInstanceGroup(),
