@@ -175,7 +175,7 @@ func resourceSharedConnectionCreate(ctx context.Context, d *schema.ResourceData,
 
 func listSharedConnections(client *golangsdk.ServiceClient, connectionId, queryParams string) ([]interface{}, error) {
 	var (
-		httpUrl = "v3/{project_id}/connections/{connection_id}/get-shared-list?perPage"
+		httpUrl = "v3/{project_id}/connections/{connection_id}/get-shared-list?per_page={per_page}"
 		perPage = 100
 		curPage = 1
 		result  = make([]interface{}, 0)
@@ -184,7 +184,7 @@ func listSharedConnections(client *golangsdk.ServiceClient, connectionId, queryP
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{connection_id}", connectionId)
-	listPath = strings.ReplaceAll(listPath, "{perPage}", strconv.Itoa(perPage))
+	listPath = strings.ReplaceAll(listPath, "{per_page}", strconv.Itoa(perPage))
 	if queryParams != "" {
 		listPath += queryParams
 	}
