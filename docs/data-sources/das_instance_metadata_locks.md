@@ -12,7 +12,7 @@ Use this data source to get the list of DAS instance metadata locks.
 
 -> This data source only supports to query metadata locks of **MySQL** instances.
 
-## Example Usages
+## Example Usage
 
 ### Basic usage
 
