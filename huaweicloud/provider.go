@@ -3490,6 +3490,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance_storage_space_update": dds.ResourceDdsInstanceStorageSpaceUpdate(),
 			"huaweicloud_dds_instance_node_num_update":      dds.ResourceDdsInstanceNodeNumUpdate(),
 			"huaweicloud_dds_backup":                        dds.ResourceDdsBackup(),
+			"huaweicloud_dds_bind_gateway":                  dds.ResourceBindGateway(),
 			"huaweicloud_dds_backup_download_policy":        dds.ResourceBackupDownloadPolicy(),
 			"huaweicloud_dds_backup_stop":                   dds.ResourceBackupStop(),
 			"huaweicloud_dds_parameter_template":            dds.ResourceDdsParameterTemplate(),
