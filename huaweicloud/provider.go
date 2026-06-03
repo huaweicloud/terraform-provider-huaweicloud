@@ -2052,6 +2052,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelartsv2_resource_pool_workloads": modelarts.DataSourceResourcePoolWorkloads(),
 			"huaweicloud_modelartsv2_resource_pools":          modelarts.DataSourceV2ResourcePools(),
 			"huaweicloud_modelartsv2_workflows":               modelarts.DataSourceV2Workflows(),
+			"huaweicloud_modelartsv2_workflow_executions":     modelarts.DataSourceV2WorkflowExecutions(),
 			"huaweicloud_modelartsv2_workflow_schedules":      modelarts.DataSourceV2WorkflowSchedules(),
 
 			"huaweicloud_mapreduce_availability_zones":               mrs.DataSourceAvailabilityZones(),
