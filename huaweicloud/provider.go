@@ -1091,6 +1091,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_snapshots":                 css.DataSourceCssSnapshots(),
 			"huaweicloud_css_vpcep_connections":         css.DataSourceVpcepserviceConnections(),
 			"huaweicloud_css_cluster_volume_usage":      css.DataSourceCssClusterVolumeUsage(),
+			"huaweicloud_css_disk_types":                css.DataSourceCssDiskTypes(),
 
 			// DataArts Studio Management Center
 			"huaweicloud_dataarts_studio_data_connections":     dataarts.DataSourceStudioDataConnections(),
