@@ -305,6 +305,7 @@ func ResourceTrainingJob() *schema.Resource {
 						"code_dir": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: `The code directory of the training job.`,
 						},
 						"boot_file": {
