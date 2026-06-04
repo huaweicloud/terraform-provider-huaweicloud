@@ -1022,6 +1022,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_inspection_reports":                 das.DataSourceInspectionReports(),
 			"huaweicloud_das_instance_groups":                    das.DataSourceInstanceGroups(),
 			"huaweicloud_das_instance_metadata_locks":            das.DataSourceInstanceMetadataLocks(),
+			"huaweicloud_das_instance_processes":                 das.DataSourceInstanceProcesses(),
 			"huaweicloud_das_shared_connections":                 das.DataSourceSharedConnections(),
 			"huaweicloud_das_sql_execution_plans":                das.DataSourceSqlExecutionPlans(),
 
