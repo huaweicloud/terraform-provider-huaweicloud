@@ -127,7 +127,6 @@ The following arguments are supported:
 * `ingress_bandwidth_charging_mode` - (Optional, String) Specifies the ingress bandwidth billing type of the dedicated instance.
   The valid values are as follows:
   + **bandwidth**: Billed by bandwidth.
-  + **traffic**: Billed by traffic.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
