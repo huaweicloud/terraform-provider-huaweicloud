@@ -3651,6 +3651,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_batch_delete_jobs":              drs.ResourceBatchDeleteJobs(),
 			"huaweicloud_drs_batch_pause_task":               drs.ResourceBatchPauseTask(),
 			"huaweicloud_drs_batch_retry_task":               drs.ResourceBatchRetryTask(),
+			"huaweicloud_drs_batch_set_definer":              drs.ResourceBatchSetDefiner(),
 			"huaweicloud_drs_check_data_filter":              drs.ResourceDrsCheckDataFilter(),
 			"huaweicloud_drs_update_data_progress_rules":     drs.ResourceDrsUpdateDataProgressRules(),
 			"huaweicloud_drs_compare_job_cancel":             drs.ResourceCancelCompareJob(),
