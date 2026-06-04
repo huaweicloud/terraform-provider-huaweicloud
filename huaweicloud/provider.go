@@ -1519,6 +1519,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_table_restored_databases":      geminidb.DataSourceGeminiDBTableRestoredDatabases(),
 			"huaweicloud_geminidb_table_restored_tables":         geminidb.DataSourceGeminiDBTableRestoredTables(),
 
+			"huaweicloud_gaussdb_alarms":                          gaussdb.DataSourceAlarms(),
 			"huaweicloud_gaussdb_storage_types":                   gaussdb.DataSourceGaussDbStorageTypes(),
 			"huaweicloud_gaussdb_datastores":                      gaussdb.DataSourceGaussDbDatastores(),
 			"huaweicloud_gaussdb_flavors":                         gaussdb.DataSourceGaussDbFlavors(),
