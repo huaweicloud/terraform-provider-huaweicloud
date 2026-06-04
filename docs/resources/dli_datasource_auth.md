@@ -131,6 +131,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `owner` - The user name of owner.
 
+* `created_at` - The creation time of the datasource authentication, in RFC3339 format.
+
+* `updated_at` - The update time of the datasource authentication, in RFC3339 format.
+
 ## Import
 
 The DLI datasource authentication can be imported using `id` which equals the `name`, e.g.
