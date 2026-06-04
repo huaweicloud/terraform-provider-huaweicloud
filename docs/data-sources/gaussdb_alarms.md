@@ -24,17 +24,18 @@ data "huaweicloud_gaussdb_alarms" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource. If omitted, the provider-level
-  region will be used.
+* `region` - (Optional, String) Specifies the region in which to query the resource.
+  If omitted, the provider-level region will be used.
 
-* `start_time` - (Required, String) Specifies the start time for querying alarms. The value is in the
-  **yyyy-mm-ddThh:mm:ssZ** format.
+* `start_time` - (Required, String) Specifies the start time for querying alarms.
+  The value is in the format of **yyyy-mm-ddThh:mm:ssZ**.
 
-* `level` - (Optional, Int) Specifies the alarm level. The valid values are as follows:
- + **1**: CRITICAL.
- + **2**: MAJOR.
- + **3**: MINOR.
- + **4**: WARNING.
+* `level` - (Optional, Int) Specifies the alarm level.
+  The valid values are as follows:
+  + **1**: CRITICAL.
+  + **2**: MAJOR.
+  + **3**: MINOR.
+  + **4**: WARNING.
 
 ## Attribute Reference
 
