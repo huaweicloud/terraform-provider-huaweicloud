@@ -396,6 +396,11 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.153"),
 
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.ip_groups.0.ip", "123.123.123.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.ip_groups.0.description", "test"),
+
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "policy.0.threshold"),
@@ -414,6 +419,11 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.118"),
+
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.ip_groups.0.ip", "192.168.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.ip_groups.0.description", "test update"),
 				),
 			},
 			{
@@ -422,6 +432,9 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "off"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
+					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "false"),
 				),
 			},
 			{
@@ -847,6 +860,16 @@ resource "huaweicloud_geminidb_instance" "test" {
 
   # update loadbalancer IP address
   lb_ip_address = "192.168.0.153"
+
+  # Configuring the Blacklist or Whitelist of Load Balancer IP Addresses
+  access_control {
+    type    = "blackList"
+    enabled = "true"
+    ip_groups { 
+      ip          = "123.123.123.0/24"
+      description = "test" 
+    }
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -896,6 +919,15 @@ resource "huaweicloud_geminidb_instance" "test" {
   second_level_monitoring_enabled = "false"
   config_ips                      = ["192.168.1.15","192.168.1.23/24","192.168.1.38"]
   lb_ip_address                   = "192.168.0.118"
+
+  access_control {
+    type    = "blackList"
+    enabled = "true"
+    ip_groups { 
+      ip          = "192.168.0.0/24"
+      description = "test update" 
+    }
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -938,6 +970,11 @@ resource "huaweicloud_geminidb_instance" "test" {
   second_level_monitoring_enabled = false
   config_ips                      = []
   lb_ip_address                   = "192.168.0.118"
+
+  access_control {
+    type    = "blackList"
+    enabled = "false"
+  }
 }
 `, common.TestBaseNetwork(name), name)
 }
