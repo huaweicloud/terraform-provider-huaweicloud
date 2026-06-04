@@ -105,7 +105,7 @@ func TestAccInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "6"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "traffic"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "bandwidth"),
 					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "6"),
 					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
@@ -185,9 +185,9 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
 
-  // Network configuration
+  # Network configuration
   bandwidth_size                  = 5 # The bandwidth value must be greater than or equal to 5
-  ingress_bandwidth_charging_mode = "bandwidth"
+  ingress_bandwidth_charging_mode = "bandwidth" # Currently, only bandwidth mode is supported.
   ingress_bandwidth_size          = 5
 
   tags = {
@@ -230,9 +230,9 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
 
-  // Network configuration
+  # Network configuration
   bandwidth_size                  = 6
-  ingress_bandwidth_charging_mode = "traffic"
+  ingress_bandwidth_charging_mode = "bandwidth" # Currently, only bandwidth mode is supported.
   ingress_bandwidth_size          = 6
 
   tags = {
