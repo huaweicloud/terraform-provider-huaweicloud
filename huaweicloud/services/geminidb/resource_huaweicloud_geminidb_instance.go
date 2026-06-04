@@ -54,6 +54,8 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb/access-control
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -207,6 +209,13 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"access_control": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     geminiDbAccessControlSchema(),
+			},
 			// charge info: charging_mode, period_unit, period, auto_renew
 			// make ForceNew false here but do nothing in update method!
 			"charging_mode": {
@@ -278,6 +287,40 @@ func ResourceGeminiDbInstance() *schema.Resource {
 			},
 		},
 	}
+}
+
+func geminiDbAccessControlSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ip_groups": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+		},
+	}
+	return &sc
 }
 
 func geminiDbInstanceDatastoreSchema() *schema.Resource {
@@ -601,6 +644,14 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
+	// Configuring the Blacklist or Whitelist of Load Balancer IP Addresses
+	if v, ok := d.GetOk("access_control.0.enabled"); ok && v.(string) == "true" {
+		err = updateLBAccessControl(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -909,7 +960,68 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 	// Set password-free configuration
 	mErr = multierror.Append(mErr, getPasswordFreeConfigurationInfo(d, client))
 
+	// Querying the Blacklist or Whitelist of Load Balancer IP Addresses
+	accessControlRespBody, err := getLBAccessControlInfo(client, d.Id())
+	if err != nil {
+		log.Printf("[Warn] error get the GeminiDB Load Balancer access control: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("access_control", flattenAccessControl(accessControlRespBody)),
+		)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getLBAccessControlInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/lb/access-control",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": instanceId},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, err
+}
+
+func flattenAccessControl(accessControlRespBody interface{}) []map[string]interface{} {
+	if accessControlRespBody == nil {
+		return nil
+	}
+	ipGroupsRaw := utils.PathSearch("ip_groups", accessControlRespBody, make([]interface{}, 0))
+	ipGroups := flattenLbAccessControlIpGroups(ipGroupsRaw)
+	enabledBool := utils.PathSearch("enabled", accessControlRespBody, false).(bool)
+
+	result := map[string]interface{}{
+		"enabled":   strconv.FormatBool(enabledBool),
+		"type":      utils.PathSearch("type", accessControlRespBody, nil),
+		"ip_groups": ipGroups,
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func flattenLbAccessControlIpGroups(ipGroupsRaw interface{}) []map[string]interface{} {
+	if ipGroupsRaw == nil {
+		return nil
+	}
+
+	ipGroupsSlice, ok := ipGroupsRaw.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(ipGroupsSlice))
+	for _, ipGroupRaw := range ipGroupsSlice {
+		result = append(result, map[string]interface{}{
+			"ip":          utils.PathSearch("ip", ipGroupRaw, nil),
+			"description": utils.PathSearch("description", ipGroupRaw, nil),
+		})
+	}
+	return result
 }
 
 func getAutoEnlargePolicyInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
@@ -1237,10 +1349,18 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	// Update loadbalancer IP address
+	// Update load balancer IP address
 	err = updateLoadbalancerIpAddress(ctx, d, client)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	// Configuring the Blacklist or Whitelist of Load Balancer IP Addresses
+	if d.HasChange("access_control") {
+		err = updateLBAccessControl(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
@@ -1639,6 +1759,54 @@ func updateLoadbalancerIpAddress(ctx context.Context, d *schema.ResourceData, cl
 func buildUpdateLoadbalancerIpAddressBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"ip": d.Get("lb_ip_address"),
+	}
+
+	return bodyParams
+}
+
+func updateLBAccessControl(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/lb/access-control",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateLBAccessControlBodyParams(d),
+		isRetry:          true,
+		timeout:          schema.TimeoutUpdate,
+	})
+	if err != nil {
+		return fmt.Errorf("error setting GeminiDB load balancer access control: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateLBAccessControlBodyParams(d *schema.ResourceData) map[string]interface{} {
+	accessControlRaw := d.Get("access_control").([]interface{})
+	if len(accessControlRaw) == 0 {
+		return nil
+	}
+	accessControl, ok := accessControlRaw[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	ipGroups := make([]map[string]interface{}, 0)
+	ipGroupsRaw := accessControl["ip_groups"].(*schema.Set).List()
+
+	for _, ipGroupRaw := range ipGroupsRaw {
+		ipGroup := ipGroupRaw.(map[string]interface{})
+		ipGroupMap := map[string]interface{}{
+			"ip": ipGroup["ip"],
+		}
+		if description, ok := ipGroup["description"]; ok && description != "" {
+			ipGroupMap["description"] = description
+		}
+		ipGroups = append(ipGroups, ipGroupMap)
+	}
+
+	bodyParams := map[string]interface{}{
+		"enabled":   accessControl["enabled"],
+		"type":      accessControl["type"],
+		"ip_groups": ipGroups,
 	}
 
 	return bodyParams

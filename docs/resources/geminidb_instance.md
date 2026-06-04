@@ -157,6 +157,9 @@ The following arguments are supported:
   -> This parameter is valid and available for **GeminiDB Influx** and **GeminiDB Redis** instances.
     The instances across subnets are not supported.
 
+* `access_control` - (Optional, List) Specifies the access control for Load Balancer.
+  The [access_control](#access_control_struct) structure is documented below.
+
 * `delete_node_list` - (Optional, List) Specifies the ID of the nodes to be deleted. Make sure that the node
   can be deleted. This parameter can not be specified when add nodes. When delete nodes, if this parameter is specified,
   then the nodes specified by this parameter will be deleted, and id this parameter is not transferred, the nodes will be
@@ -276,6 +279,27 @@ The `policy` block supports:
   + For GeminiDB Redis instances, the storage upper limit ≥ Current storage + 1 GB. The storage upper limit cannot
   exceed the maximum storage supported by the current specifications. Learn more details , refer to
   [GeminiDB Redis Instance Specifications](https://support.huaweicloud.com/intl/en-us/redisug-nosql/nosql_05_0059.html).
+
+<a name="access_control_struct"></a>
+The `access_control` block supports:
+
+* `enabled` - (Required, String) Specifies whether to enable load balancer IP access control. Value options:
+  + **true**: Enable load balancer IP access control.
+  + **false**: Disable load balancer IP access control.
+
+* `type` - (Required, String) Specifies the type of IP access control. Value options:
+  + **whiteList**: Whitelist, only allow specified IPs or network segments to access.
+  + **blackList**: Blacklist, deny specified IPs or network segments from accessing.
+
+* `ip_groups` - (Optional, List) Specifies the list of IP addresses or network segments.
+  The [ip_groups](#ip_groups_struct) structure is documented below.
+
+<a name="ip_groups_struct"></a>
+The `ip_groups` block supports:
+
+* `ip` - (Required, String) Specifies the IP address or network segment.
+
+* `description` - (Optional, String) Specifies the description of the IP address or network segment.
 
 ## Attribute Reference
 
