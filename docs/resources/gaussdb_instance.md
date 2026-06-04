@@ -308,6 +308,8 @@ The `nodes` block contains:
 
 * `name` - Indicates the node name.
 
+* `component_names` - Indicates the component information on the node.
+
 * `role` - Indicates the node role.
   + **master**.
   + **slave**.
@@ -317,6 +319,8 @@ The `nodes` block contains:
 * `availability_zone` - Indicates the availability zone of the node.
 
 * `private_ip` - Indicates the private IP address of the node.
+
+* `data_ip` - Indicates the data IP address of the node.
 
 * `public_ip` - Indicates the EIP that has been bound.
 
