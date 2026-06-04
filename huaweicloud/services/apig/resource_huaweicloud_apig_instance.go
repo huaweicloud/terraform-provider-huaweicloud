@@ -571,9 +571,9 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error waiting for the status of dedicated instance (%s) to become running: %s", instanceId, err)
 	}
 
-	extraElbIds := d.Get("elb_ids").(*schema.Set).List()[1:]
-	if len(extraElbIds) > 0 {
-		if err := batchCreateExtraElbs(ctx, client, instanceId, extraElbIds, d.Timeout(schema.TimeoutCreate)); err != nil {
+	elbIds := d.Get("elb_ids").(*schema.Set).List()
+	if len(elbIds) > 1 {
+		if err := batchCreateExtraElbs(ctx, client, instanceId, elbIds[1:], d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
