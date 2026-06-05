@@ -3666,6 +3666,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_update_data_progress_rules":     drs.ResourceDrsUpdateDataProgressRules(),
 			"huaweicloud_drs_compare_job_cancel":             drs.ResourceCancelCompareJob(),
 			"huaweicloud_drs_compare_policy":                 drs.ResourceDrsComparePolicy(),
+			"huaweicloud_drs_connection":                     drs.ResourceDrsConnection(),
 			"huaweicloud_drs_download_batch_create_template": drs.ResourceDownloadBatchCreateTemplate(),
 			"huaweicloud_drs_driver_delete":                  drs.ResourceDriverDelete(),
 			"huaweicloud_drs_job":                            drs.ResourceDrsJob(),
