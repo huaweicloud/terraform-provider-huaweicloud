@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -65,6 +66,7 @@ type ctxType string
 // @API TaurusDB PUT /v3/{project_id}/configurations/{configuration_id}/apply
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/multi-tenant
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/slowlog/modify
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
@@ -77,6 +79,7 @@ type ctxType string
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/database-version
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/multi-tenant
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/slowlog/query
 // @API TaurusDB DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
@@ -258,6 +261,12 @@ func ResourceTaurusDBInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+			"multi_tenant_switch": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -864,6 +873,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if v, ok := d.GetOk("multi_tenant_switch"); ok && v == "true" {
+		if err = updateMultiTenantSwitch(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -1009,6 +1024,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setVersion(d, client, instanceID)...)
 	// set slow log show original
 	mErr = multierror.Append(mErr, setSlowLogShowOriginalSwitch(d, client, instanceID))
+	// set multi tenant switch
+	mErr = multierror.Append(mErr, setMultiTenantSwitch(d, client, instanceID))
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1296,6 +1313,15 @@ func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, clie
 	}
 	return nil
 }
+
+func setMultiTenantSwitch(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	multiTenantSwitch, err := getMultiTenantSwitch(client, instanceId)
+	if err != nil {
+		return err
+	}
+	return d.Set("multi_tenant_switch", multiTenantSwitch)
+}
+
 func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1477,6 +1503,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChanges("encryption_status", "encryption_type", "kms_key_id") {
 		err = updateEncryption(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("multi_tenant_switch") {
+		err = updateMultiTenantSwitch(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2417,6 +2450,88 @@ func updateEncryption(client *golangsdk.ServiceClient, d *schema.ResourceData) e
 	}
 
 	return nil
+}
+
+func updateMultiTenantSwitch(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	var (
+		updateUrl = "v3/{project_id}/instances/{instance_id}/multi-tenant"
+	)
+
+	updatePath := client.Endpoint + updateUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	multiTenantSwitch, _ := strconv.ParseBool(d.Get("multi_tenant_switch").(string))
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: map[string]interface{}{
+			"multi_tenant_switch": multiTenantSwitch,
+		},
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating multi tenant switch for instance %s: %s ", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("error updating multi tenant switch for instance (%s). job_id is not found in the response", d.Id())
+	}
+
+	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, d.Timeout(timeout))
+	if err != nil {
+		return fmt.Errorf("error waiting for updating multi tenant switch for instance (%s) job to complete: %s", jobId, err)
+	}
+	return nil
+}
+
+func getMultiTenantSwitch(client *golangsdk.ServiceClient, instanceId string) (string, error) {
+	var (
+		getUrl = "v3/{project_id}/instances/{instance_id}/multi-tenant"
+	)
+
+	getPath := client.Endpoint + getUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving multi tenant switch for instance (%s): %s ", instanceId, err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return "", err
+	}
+	multiTenantSwitch := utils.PathSearch("multi_tenant_switch", getRespBody, false).(bool)
+	return strconv.FormatBool(multiTenantSwitch), nil
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {

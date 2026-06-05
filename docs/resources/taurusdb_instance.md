@@ -203,6 +203,10 @@ The `backup_strategy` block supports:
 
 * `encryption_type` - (Optional, String) Specifies the encryption type. Currently, only **kms (case-insensitive)** is
   supported. It is mandatory when `encryption_status` is set to **ON**.
+  
+* `multi_tenant_switch` - (Optional, String) Specifies whether to enable or disable multi-tenancy switch. Value options:
+  + **true**: enabled
+  + **false**: disabled
 
 * `kms_key_id` - (Optional, String) Specifies the KMS ID. It is mandatory when `encryption_status` is set to **ON**.
 
