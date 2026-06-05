@@ -61,6 +61,7 @@ func TestAccTaurusDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "slow_log_show_original_switch", "true"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "ON"),
@@ -116,6 +117,7 @@ func TestAccTaurusDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "slow_log_show_original_switch", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "OFF"),
@@ -258,6 +260,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "DL5"),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "ON"),
@@ -315,6 +318,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "DL5"),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "OFF"),
@@ -457,6 +461,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
   maintain_end             = "11:00"
   ssl_option               = "false"
   description              = "test_description"
+  multi_tenant_switch      = "true"
 
   seconds_level_monitoring_enabled = true
   seconds_level_monitoring_period  = 1
@@ -527,6 +532,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
   maintain_end             = "18:00"
   ssl_option               = "false"
   description              = ""
+  multi_tenant_switch      = "false"
 
   seconds_level_monitoring_enabled = false
 
@@ -720,6 +726,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
   description              = ""
   volume_size              = 200
   volume_type              = "DL5"
+  multi_tenant_switch      = "true"
 
   seconds_level_monitoring_enabled = false
 
