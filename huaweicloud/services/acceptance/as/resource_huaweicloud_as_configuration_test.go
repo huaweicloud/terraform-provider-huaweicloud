@@ -64,6 +64,15 @@ func TestAccASConfiguration_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccASConfiguration_imageUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.image",
+						"data.huaweicloud_images_image.test1", "id"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -401,6 +410,12 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_images_image" "test" {
   name        = "Ubuntu 18.04 server 64bit"
   visibility  = "public"
+  most_recent = true
+}
+
+data "huaweicloud_images_image" "test1" {
+  architecture = "x86"
+  visibility   = "public"
   most_recent = true
 }
 
@@ -759,4 +774,45 @@ resource "huaweicloud_as_configuration" "test"{
   }
 }
 `, testAccASConfiguration_base(name), name, acceptance.HW_IMS_DATA_DISK_IMAGE_ID)
+}
+
+func testAccASConfiguration_imageUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%s"
+  instance_config {
+    image              = data.huaweicloud_images_image.test1.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+
+    metadata = {
+      some_key = "some_value"
+    }
+    user_data = <<EOT
+#!/bin/sh
+echo "Hello World! The time is now $(date -R)!" | tee /root/output.txt
+EOT
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+
+    public_ip {
+      eip {
+        ip_type = "5_bgp"
+        bandwidth {
+          size          = 10
+          share_type    = "PER"
+          charging_mode = "traffic"
+        }
+      }
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
 }

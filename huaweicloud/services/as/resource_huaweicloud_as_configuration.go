@@ -3,6 +3,7 @@ package as
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -20,11 +21,13 @@ import (
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_configuration/{id}
 // @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_configuration/{id}
 // @API AS POST /autoscaling-api/v1/{project_id}/scaling_configuration
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling_configuration/{id}
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_group
 func ResourceASConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASConfigurationCreate,
 		ReadContext:   resourceASConfigurationRead,
+		UpdateContext: resourceASConfigurationUpdate,
 		DeleteContext: resourceASConfigurationDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -46,7 +49,6 @@ func ResourceASConfiguration() *schema.Resource {
 				Required: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_id": {
@@ -70,7 +72,6 @@ func ResourceASConfiguration() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
-							ForceNew:     true,
 							RequiredWith: []string{"instance_config.0.flavor", "instance_config.0.disk"},
 						},
 						"key_name": {
@@ -459,6 +460,60 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 		d.Set("instance_config", instanceConfig)
 	}
 	return resourceASConfigurationRead(ctx, d, meta)
+}
+
+func resourceASConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	asClient, err := cfg.AutoscalingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating autoscaling client: %s", err)
+	}
+
+	// updating AS configuration image
+	if d.HasChange("instance_config.0.image") {
+		if err = modifyASConfigurationImageRef(asClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	return resourceASConfigurationRead(ctx, d, meta)
+}
+
+func modifyASConfigurationImageRef(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "autoscaling-api/v1/{project_id}/scaling_configuration/{scaling_configuration_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{scaling_configuration_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildASConfigurationUpdateBody(d),
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating AS configuration image: %s", err)
+	}
+	return nil
+}
+
+func buildASConfigurationUpdateBody(d *schema.ResourceData) map[string]interface{} {
+	instanceConfigRaw := d.Get("instance_config").([]interface{})
+	if len(instanceConfigRaw) == 0 {
+		return nil
+	}
+	instanceConfig, ok := instanceConfigRaw[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	bodyParams := map[string]interface{}{
+		"instance_config": map[string]interface{}{
+			"imageRef": instanceConfig["image"],
+		},
+	}
+	return bodyParams
 }
 
 func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
