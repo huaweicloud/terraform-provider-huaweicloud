@@ -214,7 +214,11 @@ func resourceAclPolicyAssociateRead(_ context.Context, d *schema.ResourceData, m
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	return diag.FromErr(d.Set("publish_ids", flattenApiPublishIdsForAclPolicy(resp)))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("publish_ids", flattenApiPublishIdsForAclPolicy(resp)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func aclPolicyUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, policyId string,

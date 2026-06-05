@@ -196,7 +196,8 @@ func flattenApiPublishIds(apiList []throttles.ApiForThrottle) []string {
 func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %v", err)
 	}
@@ -215,7 +216,10 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	mErr := multierror.Append(nil, d.Set("publish_ids", flattenApiPublishIds(resp)))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("publish_ids", flattenApiPublishIds(resp)),
+	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 

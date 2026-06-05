@@ -214,7 +214,11 @@ func resourceSignatureAssociateRead(_ context.Context, d *schema.ResourceData, m
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	return diag.FromErr(d.Set("publish_ids", flattenApiPublishIdsForSignature(resp)))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("publish_ids", flattenApiPublishIdsForSignature(resp)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func signatureUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId string,

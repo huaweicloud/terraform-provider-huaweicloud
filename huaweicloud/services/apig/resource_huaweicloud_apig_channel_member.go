@@ -251,6 +251,7 @@ func resourceChannelMemberRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	mErr := multierror.Append(
+		d.Set("region", region),
 		d.Set("port", utils.PathSearch("port", member, nil)),
 		d.Set("member_ip_address", utils.PathSearch("host", member, nil)),
 		d.Set("ecs_id", utils.PathSearch("ecs_id", member, nil)),
