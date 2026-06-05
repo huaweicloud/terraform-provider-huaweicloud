@@ -3731,6 +3731,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_l7policy":                         elb.ResourceL7PolicyV3(),
 			"huaweicloud_elb_l7rule":                           elb.ResourceL7RuleV3(),
 			"huaweicloud_elb_listener":                         elb.ResourceListenerV3(),
+			"huaweicloud_elb_listener_copy":                    elb.ResourceListenerCopy(),
 			"huaweicloud_elb_loadbalancer":                     elb.ResourceLoadBalancerV3(),
 			"huaweicloud_elb_loadbalancer_copy":                elb.ResourceLoadBalancerCopy(),
 			"huaweicloud_elb_monitor":                          elb.ResourceMonitorV3(),
