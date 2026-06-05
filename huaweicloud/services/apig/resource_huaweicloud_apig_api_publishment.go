@@ -118,7 +118,7 @@ func isPublished(versionList []apis.ApiVersionInfo, versionId string) (*apis.Api
 }
 
 func isLatestVersion(versionList []apis.ApiVersionInfo, versionId string) (*apis.ApiVersionInfo, bool) {
-	if versionList[0].VersionId == versionId {
+	if len(versionList) > 0 && versionList[0].VersionId == versionId {
 		return &versionList[0], true
 	}
 	return nil, false
@@ -275,7 +275,7 @@ func getPublishIdByEnvId(client *golangsdk.ServiceClient, instanceId, apiId, env
 
 	for i, val := range envIds {
 		if val == envId {
-			if len(publishIds) < i {
+			if len(publishIds) <= i {
 				return "", fmt.Errorf("the length of publish ID list is not correct, want '%d', but '%d'",
 					len(envIds), len(publishIds))
 			}

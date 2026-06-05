@@ -165,7 +165,7 @@ func resourceSignatureAssociateCreate(ctx context.Context, d *schema.ResourceDat
 	)
 	err = bindSignatureToApis(ctx, client, opts, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s", instanceId, signId))
 
@@ -319,7 +319,7 @@ func resourceSignatureAssociateUpdate(ctx context.Context, d *schema.ResourceDat
 		// If the target (published) API already has a signature, this update will replace the signature.
 		err = bindSignatureToApis(ctx, client, opts, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			diag.FromErr(err)
+			return diag.FromErr(err)
 		}
 	}
 
