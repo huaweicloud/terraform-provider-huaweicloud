@@ -1020,6 +1020,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_history_transactions":               das.DataSourceHistoryTransactions(),
 			"huaweicloud_das_history_transaction_exported_tasks": das.DataSourceHistoryTransactionExportedTasks(),
 			"huaweicloud_das_inspection_reports":                 das.DataSourceInspectionReports(),
+			"huaweicloud_das_instances":                          das.DataSourceInstances(),
 			"huaweicloud_das_instance_groups":                    das.DataSourceInstanceGroups(),
 			"huaweicloud_das_instance_metadata_locks":            das.DataSourceInstanceMetadataLocks(),
 			"huaweicloud_das_instance_processes":                 das.DataSourceInstanceProcesses(),
