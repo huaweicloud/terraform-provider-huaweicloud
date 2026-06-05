@@ -2017,7 +2017,7 @@ func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface
 		apiId      = d.Id()
 	)
 	if err = deleteApi(client, instanceId, apiId); err != nil {
-		return diag.Errorf("unable to delete the API (%s): %s", apiId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to delete the API (%s)", apiId))
 	}
 
 	return nil

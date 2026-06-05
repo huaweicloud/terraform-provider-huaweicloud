@@ -152,7 +152,7 @@ func resourceEnvironmentVariableDelete(_ context.Context, d *schema.ResourceData
 	variableId := d.Id()
 	err = environments.DeleteVariable(client, d.Get("instance_id").(string), d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting dedicated environment variable(%s): %s", variableId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting dedicated environment variable(%s)", variableId))
 	}
 
 	return nil
