@@ -1571,6 +1571,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_asp_collection_results":          gaussdb.DataSourceGaussDbAspCollectionResults(),
 			"huaweicloud_gaussdb_wdr_snapshot_collection_results": gaussdb.DataSourceGaussDbWdrSnapshotCollectionResults(),
 			"huaweicloud_gaussdb_slow_sql_list":                   gaussdb.DataSourceGaussDbSlowSqlList(),
+			"huaweicloud_gaussdb_slow_sql_detail":                 gaussdb.DataSourceGaussDbSlowSqlDetail(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
