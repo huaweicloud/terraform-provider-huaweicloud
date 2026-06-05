@@ -37,6 +37,8 @@ func ResourceDatasourceAuth() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			// Required parameters.
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -48,6 +50,8 @@ func ResourceDatasourceAuth() *schema.Resource {
 				ForceNew:    true,
 				Description: `Data source type.`,
 			},
+
+			// Optional parameters.
 			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -126,11 +130,24 @@ func ResourceDatasourceAuth() *schema.Resource {
 				Computed:    true,
 				Description: `The OBS path of the **keytab** configuration file.`,
 			},
+
+			// Attributes.
 			"owner": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The user name of owner.`,
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the datasource authentication, in RFC3339 format.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The update time of the datasource authentication, in RFC3339 format.`,
+			},
+
 			// Deprecated arguments
 			"username": {
 				Type:     schema.TypeString,
@@ -278,6 +295,10 @@ func resourceDatasourceAuthRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("krb5_conf", utils.PathSearch("auth_infos[0].krb5_conf", getDatasourceAuthRespBody, nil)),
 		d.Set("keytab", utils.PathSearch("auth_infos[0].keytab", getDatasourceAuthRespBody, nil)),
 		d.Set("owner", utils.PathSearch("auth_infos[0].owner", getDatasourceAuthRespBody, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("auth_infos[0].create_time", getDatasourceAuthRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("auth_infos[0].update_time", getDatasourceAuthRespBody, float64(0)).(float64))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

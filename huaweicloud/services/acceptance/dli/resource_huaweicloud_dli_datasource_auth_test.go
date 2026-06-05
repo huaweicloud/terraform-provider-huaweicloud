@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -78,6 +79,8 @@ func TestAccDatasourceAuth_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "type", "passwd"),
 					resource.TestCheckResourceAttr(rName, "user_name", "test"),
 					resource.TestCheckResourceAttrSet(rName, "owner"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
@@ -86,6 +89,10 @@ func TestAccDatasourceAuth_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "user_name", "test123"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
