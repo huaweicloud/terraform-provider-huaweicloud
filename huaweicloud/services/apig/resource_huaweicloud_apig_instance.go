@@ -644,7 +644,7 @@ func queryInstanceTags(client *golangsdk.ServiceClient, instanceId string) inter
 
 	requestResp, err := client.Request("GET", createPath, &opt)
 	if err != nil {
-		log.Printf("[WARN] error qeurying tag list of the dedicated instance (%s): %s", instanceId, err)
+		log.Printf("[WARN] error querying tag list of the dedicated instance (%s): %s", instanceId, err)
 		return nil
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
@@ -668,7 +668,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 	instanceId := d.Id()
 	respBody, err := QueryInstanceDetail(client, instanceId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error qeurying dedicated instance (%s) detail", instanceId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying dedicated instance (%s) detail", instanceId))
 	}
 
 	extraElbs, err := getInstanceExtraElbs(client, instanceId)

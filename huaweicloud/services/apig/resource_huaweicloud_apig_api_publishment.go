@@ -288,7 +288,8 @@ func getPublishIdByEnvId(client *golangsdk.ServiceClient, instanceId, apiId, env
 // ResourceApiPublishmentRead is a method to obtain informations of API publishment and save to the local storage.
 func ResourceApiPublishmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -308,6 +309,7 @@ func ResourceApiPublishmentRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("env_id", publishInfo.EnvId),
 		d.Set("api_id", publishInfo.ApiId),
 		d.Set("description", publishInfo.Description),

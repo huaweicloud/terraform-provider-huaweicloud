@@ -101,7 +101,8 @@ func resourceInstanceRoutesCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceInstanceRoutesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG V2 client: %s", err)
 	}
@@ -134,7 +135,11 @@ func resourceInstanceRoutesRead(_ context.Context, d *schema.ResourceData, meta 
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "Instance routes")
 	}
 
-	return diag.FromErr(d.Set("nexthops", result.UserRoutes))
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("nexthops", result.UserRoutes),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceInstanceRoutesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

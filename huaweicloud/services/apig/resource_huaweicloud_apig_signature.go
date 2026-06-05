@@ -116,7 +116,8 @@ func resourceSignatureCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceSignatureRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -140,6 +141,7 @@ func resourceSignatureRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	signature := resp[0]
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", signature.Name),
 		d.Set("type", signature.SignType),
 		d.Set("key", signature.SignKey),

@@ -14,7 +14,7 @@ type requestErr struct {
 	ErrMsg string `json:"error_msg"`
 }
 
-// The APIG API is limited to only one attach operation at a time for standrad policy and plugin policy.
+// The APIG API is limited to only one attach operation at a time for standard policy and plugin policy.
 // In addition to locking and waiting between multiple operations, a retry method is required to ensure that the
 // request can be executed correctly.
 func handleMultiOperationsError(err error) (bool, error) {

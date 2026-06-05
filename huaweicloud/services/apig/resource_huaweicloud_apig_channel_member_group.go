@@ -270,6 +270,7 @@ func resourceChannelMemberGroupRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	mErr := multierror.Append(
+		d.Set("region", region),
 		d.Set("name", utils.PathSearch("member_group_name", memberGroup, nil)),
 		d.Set("description", utils.PathSearch("member_group_remark", memberGroup, nil)),
 		d.Set("weight", utils.PathSearch("member_group_weight", memberGroup, nil)),

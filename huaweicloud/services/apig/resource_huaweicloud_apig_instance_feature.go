@@ -215,6 +215,7 @@ func resourceInstanceFeatureRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", feature, nil)),
 		d.Set("enabled", utils.PathSearch("enable", feature, false)),
 		d.Set("config", utils.PathSearch("config", feature, nil)),
