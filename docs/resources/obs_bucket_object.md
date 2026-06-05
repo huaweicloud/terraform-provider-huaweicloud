@@ -77,6 +77,8 @@ The following arguments are supported:
 * `etag` - (Optional, String) Specifies the unique identifier of the object content. It can be used to trigger updates.
   The only meaningful value is `md5(file("path_to_file"))`.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the object.
+
 Either `source` or `content` must be provided to specify the bucket content. These two arguments are mutually-exclusive.
 
 ## Attribute Reference
@@ -99,18 +101,18 @@ $ terraform import huaweicloud_obs_bucket_object.object bucket/key
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `encryption`, `source`, `acl` and
+API response, security or some other reason. The missing attributes include: `encryption`, `source`, `content`, `acl` and
 `kms_key_id`. It is generally recommended running `terraform plan` after importing an object.
 You can then decide if changes should be applied to the object, or the resource
 definition should be updated to align with the object. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_obs_bucket_object" "object" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
-      encryption, source, acl, kms_key_id,
+      encryption, source, content, acl, kms_key_id
     ]
   }
 }

@@ -14,6 +14,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/obs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -21,11 +22,14 @@ import (
 // @API OBS HEAD /{ObjectName}
 // @API OBS PUT /{ObjectName}
 // @API OBS DELETE /{ObjectName}
+// @API OBS PUT /{ObjectName}?tagging
+// @API OBS GET /{ObjectName}?tagging
+// @API OBS DELETE /{ObjectName}?tagging
 func ResourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceObsBucketObjectPut,
+		CreateContext: resourceObsBucketObjectCreate,
 		ReadContext:   resourceObsBucketObjectRead,
-		UpdateContext: resourceObsBucketObjectPut,
+		UpdateContext: resourceObsBucketObjectUpdate,
 		DeleteContext: resourceObsBucketObjectDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceObsBucketObjectImport,
@@ -95,6 +99,7 @@ func ResourceObsBucketObject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(`The key/value pairs to associate with the object.`),
 
 			"version_id": {
 				Type:     schema.TypeString,
@@ -109,10 +114,7 @@ func ResourceObsBucketObject() *schema.Resource {
 	}
 }
 
-func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var resp *obs.PutObjectOutput
-	var err error
-
+func resourceObsBucketObjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
 	if err != nil {
@@ -123,51 +125,22 @@ func resourceObsBucketObjectPut(ctx context.Context, d *schema.ResourceData, met
 	key := d.Get("key").(string)
 	_, err = obsClient.HeadBucket(bucket)
 	if err != nil {
-		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
-			return diag.Errorf("OBS bucket(%s) not found", bucket)
-		}
 		return diag.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
-	source := d.Get("source").(string)
-	content := d.Get("content").(string)
-	if source != "" {
-		// check source file whether exist
-		_, err = os.Stat(source)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return diag.Errorf("source file %s is not exist", source)
-			}
-			return diag.FromErr(err)
-		}
-
-		// put source file
-		resp, err = putFileToObject(obsClient, d)
-	}
-
-	if content != "" {
-		// put content
-		resp, err = putContentToObject(obsClient, d)
-	}
-
+	versionId, err := updateBucketObject(obsClient, d, bucket, key)
 	if err != nil {
-		return diag.FromErr(getObsError("Error putting object to OBS bucket", bucket, err))
-	}
-	if resp == nil {
-		return diag.Errorf("putting object to OBS bucket %s without null response", bucket)
+		return diag.Errorf("error creating object (%s) for OBS bucket (%s): %s", key, bucket, err)
 	}
 
-	log.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)
-	mErr := &multierror.Error{}
-	if resp.VersionId != "null" {
-		mErr = multierror.Append(mErr, d.Set("version_id", resp.VersionId))
-	} else {
-		mErr = multierror.Append(mErr, d.Set("version_id", ""))
-	}
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error saving versionId of OBS bucket %s: %s", bucket, mErr)
-	}
 	d.SetId(key)
+
+	if v, ok := d.GetOk("tags"); ok {
+		err = updateBucketObjectTags(obsClient, bucket, key, versionId, v.(map[string]interface{}))
+		if err != nil {
+			return diag.Errorf("error adding tags to bucket object (%s/%s): %s", bucket, key, err)
+		}
+	}
 
 	return resourceObsBucketObjectRead(ctx, d, meta)
 }
@@ -236,6 +209,45 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 	return obsClient.PutFile(putInput)
 }
 
+func deleteBucketObjectTags(obsClient *obs.ObsClient, bucket, key, versionId string) error {
+	opt := &obs.DeleteObjectTaggingInput{
+		ObjectTaggingInput: obs.ObjectTaggingInput{
+			Bucket:    bucket,
+			Key:       key,
+			VersionId: versionId,
+		},
+	}
+	_, err := obsClient.DeleteObjectTagging(opt)
+	return err
+}
+
+func updateBucketObjectTags(obsClient *obs.ObsClient, bucket, key, versionId string, tagMap map[string]interface{}) error {
+	if len(tagMap) == 0 {
+		return deleteBucketObjectTags(obsClient, bucket, key, versionId)
+	}
+
+	var tags []obs.Tag
+	for k, v := range tagMap {
+		tag := obs.Tag{
+			Key:   k,
+			Value: v.(string),
+		}
+		tags = append(tags, tag)
+	}
+
+	opt := &obs.SetObjectTaggingInput{
+		ObjectTaggingInput: obs.ObjectTaggingInput{
+			Bucket:    bucket,
+			Key:       key,
+			VersionId: versionId,
+		},
+		Tags: tags,
+	}
+	// This API will overwrite the existing tags, but can't clear the tags.
+	_, err := obsClient.SetObjectTagging(opt)
+	return err
+}
+
 func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -272,13 +284,20 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 		class = normalizeStorageClass(class)
 	}
 
+	tags, err := getBucketObjectTags(obsClient, bucket, key, objectMeta.VersionId)
+	if err != nil {
+		log.Printf("[ERROR] error getting tags of bucket object(%s/%s): %s", bucket, key, err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("storage_class", class),
 		d.Set("content_type", objectMeta.ContentType),
+		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
+		d.Set("tags", tags),
+		// Attributes.
 		d.Set("version_id", objectMeta.VersionId),
 		d.Set("size", objectMeta.ContentLength),
-		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -286,6 +305,109 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	return nil
+}
+
+func getBucketObjectTags(obsClient *obs.ObsClient, bucket, key, versionId string) (map[string]string, error) {
+	output, err := obsClient.GetObjectTagging(&obs.GetObjectTaggingInput{
+		ObjectTaggingInput: obs.ObjectTaggingInput{
+			Bucket:    bucket,
+			Key:       key,
+			VersionId: versionId,
+		},
+	})
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok {
+			// 'NoSuchTagSet' means the object tags have been deleted or never had tags.
+			if obsError.Code == "NoSuchTagSet" {
+				return nil, nil
+			}
+		}
+		return nil, err
+	}
+
+	tags := make(map[string]string)
+	for _, tag := range output.Tags {
+		tags[tag.Key] = tag.Value
+	}
+
+	return tags, nil
+}
+
+func resourceObsBucketObjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	obsClient, err := conf.ObjectStorageClient(conf.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("Error creating OBS client: %s", err)
+	}
+
+	bucket := d.Get("bucket").(string)
+	key := d.Get("key").(string)
+	_, err = obsClient.HeadBucket(bucket)
+	if err != nil {
+		return diag.Errorf("error getting OBS bucket %s: %s", bucket, err)
+	}
+
+	versionId := d.Get("version_id").(string)
+	if d.HasChangeExcept("tags") {
+		newVersionId, err := updateBucketObject(obsClient, d, bucket, key)
+		if err != nil {
+			return diag.Errorf("error updating bucket object (%s/%s): %s", bucket, key, err)
+		}
+
+		versionId = newVersionId
+	}
+
+	// After updating an object, tags will be cleared, so tags need to be set again after each object update.
+	err = updateBucketObjectTags(obsClient, bucket, key, versionId, d.Get("tags").(map[string]interface{}))
+	if err != nil {
+		return diag.Errorf("error updating tags of bucket object (%s/%s): %s", bucket, key, err)
+	}
+
+	return resourceObsBucketObjectRead(ctx, d, meta)
+}
+
+func updateBucketObject(obsClient *obs.ObsClient, d *schema.ResourceData, bucket, key string) (string, error) {
+	var (
+		resp   *obs.PutObjectOutput
+		err    error
+		source = d.Get("source").(string)
+	)
+
+	if source != "" {
+		// Check source file whether exist.
+		_, err = os.Stat(source)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return "", fmt.Errorf("source file %s is not exist", source)
+			}
+
+			return "", err
+		}
+
+		// Put source file.
+		resp, err = putFileToObject(obsClient, d)
+	}
+
+	content := d.Get("content").(string)
+	if content != "" {
+		// Put content.
+		resp, err = putContentToObject(obsClient, d)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+	if resp == nil {
+		return "", fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
+	}
+
+	if resp.VersionId != "null" {
+		return resp.VersionId, nil
+	}
+
+	return "", nil
 }
 
 func resourceObsBucketObjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
