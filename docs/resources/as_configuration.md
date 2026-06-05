@@ -187,7 +187,7 @@ The following arguments are supported:
   The name contains only letters, digits, underscores (_), and hyphens (-), and cannot exceed `64` characters.
   Changing this will create a new resource.
 
-* `instance_config` - (Required, List, ForceNew) Specifies the information about instance configuration.
+* `instance_config` - (Required, List) Specifies the information about instance configuration.
   The [instance_config](#as_instance_config) structure is documented below.
   Changing this will create a new resource.
 
@@ -203,7 +203,7 @@ The `instance_config` block supports:
 * `flavor` - (Optional, String, ForceNew) Specifies the ECS flavor name. A maximum of `10` flavors can be selected.
   Use a comma (,) to separate multiple flavor names. Changing this will create a new resource.
 
-* `image` - (Optional, String, ForceNew) Specifies the ECS image ID. Changing this will create a new resource.
+* `image` - (Optional, String) Specifies the ECS image ID.
 
 * `disk` - (Optional, List, ForceNew) Specifies the disk group information. System disks are mandatory and
   data disks are optional. The [disk](#instance_config_disk_object) structure is documented below.
