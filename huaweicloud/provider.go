@@ -2649,6 +2649,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_metrics":                              vpn.DataSourceVpnMetrics(),
 			"huaweicloud_vpn_connection_ipsec_sa":                  vpn.DataSourceVpnConnectionIpsecSa(),
 			"huaweicloud_vpn_peer_configuration_supported_devices": vpn.DataSourceVpnPeerConfigurationSupportedDevices(),
+			"huaweicloud_vpn_connection_peer_configuration_export": vpn.DataSourceVpnConnectionPeerConfigurationExport(),
 
 			"huaweicloud_waf_address_groups":                       waf.DataSourceWafAddressGroups(),
 			"huaweicloud_waf_alarm_notifications":                  waf.DataSourceWafAlarmNotifications(),
