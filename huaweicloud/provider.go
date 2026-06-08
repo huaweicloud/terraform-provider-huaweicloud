@@ -2081,8 +2081,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_mapreduce_tags_quota":                       mrs.DataSourceTagsQuota(),
 			"huaweicloud_mapreduce_versions":                         mrs.DataSourceVersions(),
 
-			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
-			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
+			"huaweicloud_obs_buckets":                            obs.DataSourceObsBuckets(),
+			"huaweicloud_obs_bucket_mirror_back_to_source_rules": obs.DataSourceObsBucketMirrorBackToSourceRules(),
+			"huaweicloud_obs_bucket_object":                      obs.DataSourceObsBucketObject(),
 
 			"huaweicloud_oms_bucket_cdn_info":       oms.DataSourceBucketCdnInfo(),
 			"huaweicloud_oms_bucket_objects":        oms.DataSourceBucketObjects(),
