@@ -2519,6 +2519,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_instance":                        taurusdb.DataSourceTaurusDBInstance(),
 			"huaweicloud_taurusdb_instances":                       taurusdb.DataSourceTaurusDBInstances(),
 			"huaweicloud_taurusdb_backups":                         taurusdb.DataSourceTaurusDBBackups(),
+			"huaweicloud_taurusdb_instance_backups":                taurusdb.DataSourceTaurusDBInstanceBackups(),
 			"huaweicloud_taurusdb_restore_time_ranges":             taurusdb.DataSourceTaurusDBRestoreTimeRanges(),
 			"huaweicloud_taurusdb_database_character_set":          taurusdb.DataSourceTaurusDBDatabaseCharacterSet(),
 			"huaweicloud_taurusdb_databases":                       taurusdb.DataSourceTaurusDBDatabases(),
