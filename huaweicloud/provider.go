@@ -4521,6 +4521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_scheduled_task_delete":           taurusdb.ResourceTaurusDBScheduledTaskDelete(),
 			"huaweicloud_taurusdb_instant_task_delete":             taurusdb.ResourceTaurusDBInstantTaskDelete(),
 			"huaweicloud_taurusdb_node_sessions_kill":              taurusdb.ResourceTaurusDBNodeSessionsKill(),
+			"huaweicloud_taurusdb_htap_sessions_kill":              taurusdb.ResourceTaurusDBHtapSessionsKill(),
 			"huaweicloud_taurusdb_htap_starrocks_instance_restart": taurusdb.ResourceTaurusDBHtapStarrocksInstanceRestart(),
 			"huaweicloud_taurusdb_htap_starrocks_node_restart":     taurusdb.ResourceTaurusDBHtapStarrocksNodeRestart(),
 
