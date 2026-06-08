@@ -361,7 +361,7 @@ func flattenApiBasicConfigurations(configurations []interface{}) []interface{} {
 		result = append(result, map[string]interface{}{
 			"id":                      utils.PathSearch("id", conf, nil),
 			"name":                    utils.PathSearch("name", conf, nil),
-			"type":                    analyseApiType(int(utils.PathSearch("type", conf, float64(0)).(float64))),
+			"type":                    parseApiType(int(utils.PathSearch("type", conf, float64(0)).(float64))),
 			"request_method":          utils.PathSearch("req_method", conf, nil),
 			"request_path":            utils.PathSearch("req_uri", conf, nil),
 			"request_protocol":        utils.PathSearch("req_protocol", conf, nil),

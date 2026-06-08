@@ -3,6 +3,7 @@ package apig
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -15,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -100,8 +100,8 @@ const (
 	ProtocolTypeBoth  ProtocolType = "BOTH"
 	ProtocolTypeGPRCS ProtocolType = "GRPCS"
 
-	strBoolEnabled  int = 1
-	strBoolDisabled int = 2
+	vpcChannelEnabled  int = 1
+	vpcChannelDisabled int = 2
 )
 
 var (
@@ -115,6 +115,14 @@ var (
 		string(ConditionTypeMatching):   "pattern",
 	}
 )
+
+var apiNonUpdatableParams = []string{
+	"instance_id",
+	"group_id",
+	"mock",
+	"func_graph",
+	"web",
+}
 
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}
@@ -132,82 +140,60 @@ func ResourceApigAPIV2() *schema.Resource {
 			StateContext: resourceApiImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apiNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: "The region where the API is located.",
+				Description: `The region where the API is located.`,
 			},
+
+			// Required parameters.
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: "The ID of the instance to which the API belongs.",
+				Description: `The ID of the instance to which the API belongs.`,
 			},
 			"group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: "The ID of the API group to which the API belongs.",
+				Description: `The ID of the API group to which the API belongs.`,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ApiTypePublic),
-					string(ApiTypePrivate),
-				}, false),
-				Description: "The API type.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The API type.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The API name.",
+				Description: `The API name.`,
 			},
 			"request_method": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(RequestMethodGet),
-					string(RequestMethodPost),
-					string(RequestMethodPut),
-					string(RequestMethodDelete),
-					string(RequestMethodHead),
-					string(RequestMethodPatch),
-					string(RequestMethodOptions),
-					string(RequestMethodAny),
-				}, false),
-				Description: "The request method of the API.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The request method of the API.`,
 			},
 			"request_path": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The request address.",
+				Description: `The request address.`,
 			},
 			"request_protocol": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ProtocolTypeHTTP),
-					string(ProtocolTypeHTTPS),
-					string(ProtocolTypeBoth),
-					string(ProtocolTypeGPRCS),
-				}, false),
-				Description: "The request protocol of the API request.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The request protocol of the API request.`,
 			},
+
+			// Optional parameters.
 			"security_authentication": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(ApiAuthTypeNone),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ApiAuthTypeNone),
-					string(ApiAuthTypeApp),
-					string(ApiAuthTypeIam),
-					string(ApiAuthTypeAuthorizer),
-				}, false),
-				Description: "The security authentication mode of the API request.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     string(ApiAuthTypeNone),
+				Description: `The security authentication mode of the API request.`,
 			},
 			"simple_authentication": {
 				Type:        schema.TypeBool,
@@ -269,24 +255,15 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The enumerated value.",
 						},
 						"location": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(ParamLocationPath),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(ParamLocationPath),
-								string(ParamLocationHeader),
-								string(ParamLocationQuery),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(ParamLocationPath),
 							Description: "Where this parameter is located.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(ParamTypeString),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(ParamTypeString),
-								string(ParamTypeNumber),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(ParamTypeString),
 							Description: "The parameter type.",
 						},
 						"maximum": {
@@ -361,13 +338,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The API description.",
 			},
 			"matching": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  MatchModeExact,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(MatchModePrefix),
-					string(MatchModeExact),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     MatchModeExact,
 				Description: "The matching mode of the API.",
 			},
 			"response_id": {
@@ -389,7 +362,6 @@ func ResourceApigAPIV2() *schema.Resource {
 				Type:         schema.TypeList,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				MaxItems:     1,
 				ExactlyOneOf: []string{"func_graph", "web"},
 				Elem: &schema.Resource{
@@ -423,7 +395,6 @@ func ResourceApigAPIV2() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -459,13 +430,9 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The timeout for API requests to backend service.",
 						},
 						"invocation_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(InvacationTypeSync),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(InvacationTypeAsync),
-								string(InvacationTypeSync),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(InvacationTypeSync),
 							Description: "The invocation type.",
 						},
 						"authorizer_id": {
@@ -481,7 +448,6 @@ func ResourceApigAPIV2() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -509,28 +475,14 @@ func ResourceApigAPIV2() *schema.Resource {
 								"address, and a port number.",
 						},
 						"request_method": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(RequestMethodGet),
-								string(RequestMethodPost),
-								string(RequestMethodPut),
-								string(RequestMethodDelete),
-								string(RequestMethodHead),
-								string(RequestMethodPatch),
-								string(RequestMethodOptions),
-								string(RequestMethodAny),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
 							Description: "The backend request method of the API.",
 						},
 						"request_protocol": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(ProtocolTypeHTTPS),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(ProtocolTypeHTTP),
-								string(ProtocolTypeHTTPS),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(ProtocolTypeHTTPS),
 							Description: "The web protocol type of the API request.",
 						},
 						"timeout": {
@@ -591,13 +543,9 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The response content of the mock.",
 						},
 						"effective_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(EffectiveModeAny),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(EffectiveModeAll),
-								string(EffectiveModeAny),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(EffectiveModeAny),
 							Description: "The effective mode of the backend policy.",
 						},
 						"backend_params": {
@@ -661,23 +609,15 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The policy conditions.",
 						},
 						"invocation_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(InvacationTypeSync),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(InvacationTypeAsync),
-								string(InvacationTypeSync),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(InvacationTypeSync),
 							Description: "The invocation mode of the FunctionGraph function.",
 						},
 						"effective_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(EffectiveModeAny),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(EffectiveModeAll),
-								string(EffectiveModeAny),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(EffectiveModeAny),
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
@@ -702,10 +642,6 @@ func ResourceApigAPIV2() *schema.Resource {
 						"invocation_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(InvacationTypeAsync),
-								string(InvacationTypeSync),
-							}, false),
 							Description: utils.SchemaDesc(
 								`The invocation mode of the FunctionGraph function.`,
 								utils.SchemaDescInput{
@@ -736,18 +672,8 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The backend request address.",
 						},
 						"request_method": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(RequestMethodGet),
-								string(RequestMethodPost),
-								string(RequestMethodPut),
-								string(RequestMethodDelete),
-								string(RequestMethodHead),
-								string(RequestMethodPatch),
-								string(RequestMethodOptions),
-								string(RequestMethodAny),
-							}, false),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The backend request method of the API.",
 						},
 						"conditions": {
@@ -773,22 +699,14 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The backend service address",
 						},
 						"request_protocol": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(ProtocolTypeHTTP),
-								string(ProtocolTypeHTTPS),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
 							Description: "The backend request protocol.",
 						},
 						"effective_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  string(EffectiveModeAny),
-							ValidateFunc: validation.StringInSlice([]string{
-								string(EffectiveModeAll),
-								string(EffectiveModeAny),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     string(EffectiveModeAny),
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
@@ -819,15 +737,29 @@ func ResourceApigAPIV2() *schema.Resource {
 				},
 				Description: "The web policy backends.",
 			},
+
+			// Attributes.
 			"registered_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The registered time of the API.",
+				Description: `The registered time of the API.`,
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The latest update time of the API.",
+				Description: `The latest update time of the API.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 
 			// Internal attributes.
@@ -991,13 +923,8 @@ func backendParamSchemaResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ParameterTypeRequest),
-					string(ParameterTypeConstant),
-					string(ParameterTypeSystem),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The parameter type.",
 			},
 			"name": {
@@ -1006,13 +933,8 @@ func backendParamSchemaResource() *schema.Resource {
 				Description: "The parameter name.",
 			},
 			"location": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ParamLocationPath),
-					string(ParamLocationQuery),
-					string(ParamLocationHeader),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "Where the parameter is located.",
 			},
 			"value": {
@@ -1028,11 +950,6 @@ func backendParamSchemaResource() *schema.Resource {
 			"system_param_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(SystemParamTypeInternal),
-					string(SystemParamTypeFrontend),
-					string(SystemParamTypeBackend),
-				}, false),
 			},
 		},
 	}
@@ -1049,103 +966,101 @@ func buildApiType(t string) int {
 
 func isObjectEnabled(isEnabled bool) int {
 	if isEnabled {
-		return strBoolEnabled
+		return vpcChannelEnabled
 	}
-	return strBoolDisabled
+	return vpcChannelDisabled
 }
 
-func buildMockStructure(mocks []interface{}) *apis.Mock {
+func buildMockStructure(mocks []interface{}) map[string]interface{} {
 	if len(mocks) < 1 {
 		return nil
 	}
 
 	mockMap := mocks[0].(map[string]interface{})
-	return &apis.Mock{
-		StatusCode:    mockMap["status_code"].(int),
-		ResultContent: utils.String(mockMap["response"].(string)),
-		AuthorizerId:  utils.String(mockMap["authorizer_id"].(string)),
+	return map[string]interface{}{
+		"status_code":    mockMap["status_code"],
+		"result_content": utils.ValueIgnoreEmpty(mockMap["response"]),
+		"authorizer_id":  utils.ValueIgnoreEmpty(mockMap["authorizer_id"]),
 	}
 }
 
-func buildFuncGraphStructure(funcGraphs []interface{}) *apis.FuncGraph {
+func buildFuncGraphStructure(funcGraphs []interface{}) map[string]interface{} {
 	if len(funcGraphs) < 1 {
 		return nil
 	}
 
 	funcMap := funcGraphs[0].(map[string]interface{})
-	return &apis.FuncGraph{
-		FunctionUrn:      funcMap["function_urn"].(string),
-		FunctionAliasUrn: funcMap["function_alias_urn"].(string),
-		NetworkType:      funcMap["network_type"].(string),
-		Timeout:          funcMap["timeout"].(int),
-		InvocationType:   funcMap["invocation_type"].(string),
-		Version:          funcMap["version"].(string),
-		AuthorizerId:     utils.String(funcMap["authorizer_id"].(string)),
-		RequestProtocol:  funcMap["request_protocol"].(string),
+	return map[string]interface{}{
+		"function_urn":    funcMap["function_urn"],
+		"alias_urn":       funcMap["function_alias_urn"],
+		"network_type":    funcMap["network_type"],
+		"timeout":         funcMap["timeout"],
+		"invocation_type": funcMap["invocation_type"],
+		"version":         funcMap["version"],
+		"authorizer_id":   utils.ValueIgnoreEmpty(funcMap["authorizer_id"]),
+		"req_protocol":    funcMap["request_protocol"],
 	}
 }
 
-func buildWebStructure(webs []interface{}) *apis.Web {
+func buildWebStructure(webs []interface{}) map[string]interface{} {
 	if len(webs) < 1 {
 		return nil
 	}
 
-	var (
-		webMap  = webs[0].(map[string]interface{})
-		webResp = apis.Web{
-			ReqURI:          webMap["path"].(string),
-			ReqMethod:       webMap["request_method"].(string),
-			ReqProtocol:     webMap["request_protocol"].(string),
-			Timeout:         webMap["timeout"].(int),
-			ClientSslEnable: utils.Bool(webMap["ssl_enable"].(bool)),
-			AuthorizerId:    utils.String(webMap["authorizer_id"].(string)),
-			RetryCount:      utils.String(strconv.Itoa(webMap["retry_count"].(int))),
-		}
-	)
+	webMap := webs[0].(map[string]interface{})
+	webResp := map[string]interface{}{
+		"req_uri":           webMap["path"],
+		"req_method":        webMap["request_method"],
+		"req_protocol":      webMap["request_protocol"],
+		"timeout":           webMap["timeout"],
+		"enable_client_ssl": webMap["ssl_enable"],
+		"authorizer_id":     utils.ValueIgnoreEmpty(webMap["authorizer_id"]),
+		"retry_count":       strconv.Itoa(webMap["retry_count"].(int)),
+	}
 	// If vpc_channel_id is empty, the backend address is used.
 	if chanId, ok := webMap["vpc_channel_id"]; ok && chanId != "" {
-		webResp.VpcChannelStatus = strBoolEnabled
-		webResp.VpcChannelInfo = &apis.VpcChannel{
-			VpcChannelId:        chanId.(string),
-			VpcChannelProxyHost: webMap["host_header"].(string),
+		webResp["vpc_channel_status"] = vpcChannelEnabled
+		webResp["vpc_channel_info"] = map[string]interface{}{
+			"vpc_channel_id":         chanId,
+			"vpc_channel_proxy_host": webMap["host_header"],
 		}
 	} else {
-		webResp.VpcChannelStatus = strBoolDisabled
-		webResp.DomainURL = webMap["backend_address"].(string)
+		webResp["vpc_channel_status"] = vpcChannelDisabled
+		webResp["url_domain"] = webMap["backend_address"]
 	}
 
-	return &webResp
+	return webResp
 }
 
-func buildRequestParameters(requests []interface{}) []apis.ReqParamBase {
+func buildRequestParameters(requests []interface{}) []map[string]interface{} {
 	if len(requests) < 1 {
 		return nil
 	}
 
-	result := make([]apis.ReqParamBase, 0, len(requests))
+	result := make([]map[string]interface{}, 0, len(requests))
 	for _, v := range requests {
 		paramMap := v.(map[string]interface{})
 		paramType := paramMap["type"].(string)
-		param := apis.ReqParamBase{
-			Type:           paramType,
-			Name:           paramMap["name"].(string),
-			Required:       isObjectEnabled(paramMap["required"].(bool)),
-			Location:       paramMap["location"].(string),
-			Description:    utils.String(paramMap["description"].(string)),
-			Enumerations:   utils.String(paramMap["enumeration"].(string)),
-			PassThrough:    isObjectEnabled(paramMap["passthrough"].(bool)),
-			DefaultValue:   utils.String(paramMap["default"].(string)),
-			SampleValue:    paramMap["example"].(string),
-			ValidEnable:    paramMap["valid_enable"].(int),
-			Orchestrations: utils.ExpandToStringList(paramMap["orchestrations"].([]interface{})),
+		param := map[string]interface{}{
+			"type":           paramType,
+			"name":           paramMap["name"],
+			"required":       isObjectEnabled(paramMap["required"].(bool)),
+			"location":       paramMap["location"],
+			"remark":         utils.ValueIgnoreEmpty(paramMap["description"]),
+			"enumerations":   utils.ValueIgnoreEmpty(paramMap["enumeration"]),
+			"pass_through":   isObjectEnabled(paramMap["passthrough"].(bool)),
+			"default_value":  utils.ValueIgnoreEmpty(paramMap["default"]),
+			"sample_value":   paramMap["example"],
+			"valid_enable":   paramMap["valid_enable"],
+			"orchestrations": utils.ValueIgnoreEmpty(utils.ExpandToStringList(paramMap["orchestrations"].([]interface{}))),
 		}
 		switch paramType {
 		case string(ParamTypeNumber):
-			param.MaxNum = utils.Int(paramMap["maximum"].(int))
-			param.MinNum = utils.Int(paramMap["minimum"].(int))
+			param["max_num"] = utils.ValueIgnoreEmpty(paramMap["maximum"])
+			param["min_num"] = utils.ValueIgnoreEmpty(paramMap["minimum"])
 		case string(ParamTypeString):
-			param.MaxSize = utils.Int(paramMap["maximum"].(int))
-			param.MinSize = utils.Int(paramMap["minimum"].(int))
+			param["max_size"] = utils.ValueIgnoreEmpty(paramMap["maximum"])
+			param["min_size"] = utils.ValueIgnoreEmpty(paramMap["minimum"])
 		}
 		result = append(result, param)
 	}
@@ -1172,82 +1087,85 @@ func buildBackendParameterValue(origin, value, paramAuthType string) string {
 }
 
 // For backend API, the parameters contains request parameters and constant parameters.
-func buildBackendParameters(backends *schema.Set) ([]apis.BackendParamBase, error) {
-	result := make([]apis.BackendParamBase, backends.Len())
-	for i, v := range backends.List() {
-		pm := v.(map[string]interface{})
-		origin := pm["type"].(string)
-		if origin == string(ParameterTypeSystem) && pm["system_param_type"].(string) == "" {
+func buildBackendParameters(backends *schema.Set) ([]map[string]interface{}, error) {
+	if backends.Len() < 1 {
+		return nil, nil
+	}
+
+	result := make([]map[string]interface{}, 0, backends.Len())
+	for _, v := range backends.List() {
+		origin := utils.PathSearch("type", v, "").(string)
+		if origin == string(ParameterTypeSystem) && utils.PathSearch("system_param_type", v, "").(string) == "" {
 			return nil, fmt.Errorf("The 'system_param_type' must set if parameter type is 'SYSTEM'")
 		}
-		param := apis.BackendParamBase{
-			Origin:   origin,
-			Name:     pm["name"].(string),
-			Location: pm["location"].(string),
-			Value:    buildBackendParameterValue(origin, pm["value"].(string), pm["system_param_type"].(string)),
+		param := map[string]interface{}{
+			"origin":   origin,
+			"name":     utils.PathSearch("name", v, ""),
+			"location": utils.PathSearch("location", v, ""),
+			"value": buildBackendParameterValue(origin, utils.PathSearch("value", v, "").(string),
+				utils.PathSearch("system_param_type", v, "").(string)),
 		}
 
 		if origin != string(ParameterTypeRequest) {
-			param.Description = utils.String(pm["description"].(string))
+			param["remark"] = utils.ValueIgnoreEmpty(utils.PathSearch("description", v, ""))
 		}
-		result[i] = param
+		result = append(result, param)
 	}
 
 	return result, nil
 }
 
-func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
+func buildPolicyConditions(conditions *schema.Set) []map[string]interface{} {
 	if conditions.Len() < 1 {
 		return nil
 	}
 
-	result := make([]apis.APIConditionBase, conditions.Len())
-	for i, v := range conditions.List() {
+	result := make([]map[string]interface{}, 0, conditions.Len())
+	for _, v := range conditions.List() {
 		source := utils.PathSearch("source", v, "param").(string)
 
-		condition := apis.APIConditionBase{
-			ConditionValue:              utils.PathSearch("value", v, "").(string),
-			ReqParamName:                utils.PathSearch("param_name", v, "").(string),
-			SysParamName:                utils.PathSearch("sys_name", v, "").(string),
-			CookieParamName:             utils.PathSearch("cookie_name", v, "").(string),
-			FrontendAuthorizerParamName: utils.PathSearch("frontend_authorizer_name", v, "").(string),
-			ConditionOrigin:             source,
-			MappedParamName:             utils.PathSearch("mapped_param_name", v, "").(string),
-			MappedParamLocation:         utils.PathSearch("mapped_param_location", v, "").(string),
+		condition := map[string]interface{}{
+			"condition_value":                utils.PathSearch("value", v, ""),
+			"req_param_name":                 utils.ValueIgnoreEmpty(utils.PathSearch("param_name", v, "")),
+			"sys_param_name":                 utils.ValueIgnoreEmpty(utils.PathSearch("sys_name", v, "")),
+			"cookie_param_name":              utils.ValueIgnoreEmpty(utils.PathSearch("cookie_name", v, "")),
+			"frontend_authorizer_param_name": utils.ValueIgnoreEmpty(utils.PathSearch("frontend_authorizer_name", v, "")),
+			"condition_origin":               source,
+			"mapped_param_name":              utils.ValueIgnoreEmpty(utils.PathSearch("mapped_param_name", v, "")),
+			"mapped_param_location":          utils.ValueIgnoreEmpty(utils.PathSearch("mapped_param_location", v, "")),
 		}
 
 		conType := utils.PathSearch("type", v, string(ConditionTypeEqual)).(string)
 		// If the input of the condition type is invalid, keep the condition parameter omitted and the API will throw an
 		// error.
 		if vt, ok := conditionType[conType]; ok {
-			condition.ConditionType = vt
+			condition["condition_type"] = vt
 		}
 
-		result[i] = condition
+		result = append(result, condition)
 	}
 	return result
 }
 
-func buildMockPolicy(policies []interface{}) ([]apis.PolicyMock, error) {
+func buildMockPolicy(policies []interface{}) ([]map[string]interface{}, error) {
 	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyMock, 0, len(policies))
+	result := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
-		pm := policy.(map[string]interface{})
-		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		params, err := buildBackendParameters(utils.PathSearch("backend_params", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set))
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, apis.PolicyMock{
-			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
-			Name:          pm["name"].(string),
-			StatusCode:    pm["status_code"].(int),
-			ResultContent: pm["response"].(string),
-			EffectMode:    pm["effective_mode"].(string),
-			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams: params,
+		result = append(result, map[string]interface{}{
+			"authorizer_id":  utils.ValueIgnoreEmpty(utils.PathSearch("authorizer_id", policy, nil)),
+			"name":           utils.PathSearch("name", policy, nil),
+			"status_code":    utils.PathSearch("status_code", policy, nil),
+			"result_content": utils.PathSearch("response", policy, nil),
+			"effect_mode":    utils.PathSearch("effective_mode", policy, nil),
+			"conditions":     buildPolicyConditions(utils.PathSearch("conditions", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set)),
+			"backend_params": params,
 		})
 	}
 	return result, nil
@@ -1261,167 +1179,187 @@ func buildInvocationType(invocationType, invocationMode string) string {
 	return invocationType
 }
 
-func buildFuncGraphPolicy(policies []interface{}) ([]apis.PolicyFuncGraph, error) {
+func buildFuncGraphPolicy(policies []interface{}) ([]map[string]interface{}, error) {
 	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyFuncGraph, 0, len(policies))
+	result := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
-		pm := policy.(map[string]interface{})
-		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		params, err := buildBackendParameters(utils.PathSearch("backend_params", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set))
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, apis.PolicyFuncGraph{
-			AuthorizerId:     utils.String(pm["authorizer_id"].(string)),
-			Name:             pm["name"].(string),
-			FunctionUrn:      pm["function_urn"].(string),
-			FunctionAliasUrn: pm["function_alias_urn"].(string),
-			InvocationType:   buildInvocationType(pm["invocation_type"].(string), pm["invocation_mode"].(string)),
-			EffectMode:       pm["effective_mode"].(string),
-			NetworkType:      pm["network_type"].(string),
-			RequestProtocol:  pm["request_protocol"].(string),
-			Timeout:          pm["timeout"].(int),
-			Version:          pm["version"].(string),
-			Conditions:       buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams:    params,
+		result = append(result, map[string]interface{}{
+			"authorizer_id": utils.ValueIgnoreEmpty(utils.PathSearch("authorizer_id", policy, nil)),
+			"name":          utils.PathSearch("name", policy, nil),
+			"function_urn":  utils.PathSearch("function_urn", policy, nil),
+			"alias_urn":     utils.PathSearch("function_alias_urn", policy, nil),
+			"invocation_type": buildInvocationType(utils.PathSearch("invocation_type", policy, "").(string),
+				utils.PathSearch("invocation_mode", policy, "").(string)),
+			"effect_mode":    utils.PathSearch("effective_mode", policy, nil),
+			"network_type":   utils.PathSearch("network_type", policy, nil),
+			"req_protocol":   utils.PathSearch("request_protocol", policy, nil),
+			"timeout":        utils.PathSearch("timeout", policy, nil),
+			"version":        utils.PathSearch("version", policy, nil),
+			"conditions":     buildPolicyConditions(utils.PathSearch("conditions", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set)),
+			"backend_params": params,
 		})
 	}
 	return result, nil
 }
 
-func buildApigAPIWebPolicy(policies []interface{}) ([]apis.PolicyWeb, error) {
+func buildApigAPIWebPolicy(policies []interface{}) ([]map[string]interface{}, error) {
 	if len(policies) < 1 {
 		return nil, nil
 	}
 
-	result := make([]apis.PolicyWeb, 0, len(policies))
+	result := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
-		pm := policy.(map[string]interface{})
-		params, err := buildBackendParameters(pm["backend_params"].(*schema.Set))
+		params, err := buildBackendParameters(utils.PathSearch("backend_params", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set))
 		if err != nil {
 			return nil, err
 		}
-		wp := apis.PolicyWeb{
-			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
-			Name:          pm["name"].(string),
-			ReqProtocol:   pm["request_protocol"].(string),
-			ReqMethod:     pm["request_method"].(string),
-			ReqURI:        pm["path"].(string),
-			EffectMode:    pm["effective_mode"].(string),
-			RetryCount:    utils.String(strconv.Itoa(pm["retry_count"].(int))),
-			Timeout:       pm["timeout"].(int),
-			DomainURL:     pm["host_header"].(string),
-			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams: params,
+		wp := map[string]interface{}{
+			"authorizer_id":  utils.ValueIgnoreEmpty(utils.PathSearch("authorizer_id", policy, nil)),
+			"name":           utils.PathSearch("name", policy, nil),
+			"req_protocol":   utils.PathSearch("request_protocol", policy, nil),
+			"req_method":     utils.PathSearch("request_method", policy, nil),
+			"req_uri":        utils.PathSearch("path", policy, nil),
+			"effect_mode":    utils.PathSearch("effective_mode", policy, string(EffectiveModeAny)),
+			"retry_count":    strconv.Itoa(utils.PathSearch("retry_count", policy, 0).(int)),
+			"timeout":        utils.PathSearch("timeout", policy, 0),
+			"url_domain":     utils.PathSearch("host_header", policy, nil),
+			"conditions":     buildPolicyConditions(utils.PathSearch("conditions", policy, schema.NewSet(schema.HashString, nil)).(*schema.Set)),
+			"backend_params": params,
 		}
-		if chanId, ok := pm["vpc_channel_id"]; ok {
-			if chanId != "" {
-				wp.VpcChannelInfo = &apis.VpcChannel{
-					VpcChannelId:        pm["vpc_channel_id"].(string),
-					VpcChannelProxyHost: pm["host_header"].(string),
-				}
-				wp.VpcChannelStatus = strBoolEnabled
-			} else {
-				wp.VpcChannelStatus = strBoolDisabled
+		if chanId := utils.PathSearch("vpc_channel_id", policy, ""); chanId != "" {
+			wp["vpc_channel_info"] = map[string]interface{}{
+				"vpc_channel_id":         utils.PathSearch("vpc_channel_id", policy, ""),
+				"vpc_channel_proxy_host": utils.PathSearch("host_header", policy, ""),
 			}
+			wp["vpc_channel_status"] = vpcChannelEnabled
+		} else {
+			wp["vpc_channel_status"] = vpcChannelDisabled
 		}
 		result = append(result, wp)
 	}
 	return result, nil
 }
 
-func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
-	authType := d.Get("security_authentication").(string)
-	opt := apis.APIOpts{
-		Type:                buildApiType(d.Get("type").(string)),
-		AuthorizerId:        d.Get("authorizer_id").(string),
-		GroupId:             d.Get("group_id").(string),
-		Name:                d.Get("name").(string),
-		ReqProtocol:         d.Get("request_protocol").(string),
-		ReqMethod:           d.Get("request_method").(string),
-		ReqURI:              d.Get("request_path").(string),
-		Cors:                utils.Bool(d.Get("cors").(bool)),
-		AuthType:            authType,
-		MatchMode:           d.Get("matching").(string),
-		Description:         utils.String(d.Get("description").(string)),
-		BodyDescription:     utils.String(d.Get("body_description").(string)),
-		ResultNormalSample:  utils.String(d.Get("success_response").(string)),
-		ResultFailureSample: utils.String(d.Get("failure_response").(string)),
-		ResponseId:          d.Get("response_id").(string),
-		ReqParams:           buildRequestParameters(d.Get("request_params").([]interface{})),
-		Tags:                utils.ExpandToStringListBySet(d.Get("tags").((*schema.Set))),
-		ContentType:         d.Get("content_type").(string),
-		IsSendFgBodyBase64:  utils.Bool(d.Get("is_send_fg_body_base64").(bool)),
-	}
-	// build match mode
-	matchMode := d.Get("matching").(string)
-	v, ok := matching[matchMode]
+func buildApiBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	var (
+		authType  = d.Get("security_authentication").(string)
+		matchMode = d.Get("matching").(string)
+	)
+
+	parsedMatchMode, ok := matching[matchMode]
 	if !ok {
-		return opt, fmt.Errorf("invalid match mode: '%s'", matchMode)
+		return nil, fmt.Errorf("invalid match mode: '%s'", matchMode)
 	}
-	opt.MatchMode = v
+
+	result := map[string]interface{}{
+		"type":                   buildApiType(d.Get("type").(string)),
+		"authorizer_id":          utils.ValueIgnoreEmpty(d.Get("authorizer_id")),
+		"group_id":               d.Get("group_id"),
+		"name":                   d.Get("name"),
+		"req_protocol":           d.Get("request_protocol"),
+		"req_method":             d.Get("request_method"),
+		"req_uri":                d.Get("request_path"),
+		"cors":                   d.Get("cors"),
+		"auth_type":              authType,
+		"match_mode":             parsedMatchMode,
+		"remark":                 utils.ValueIgnoreEmpty(d.Get("description")),
+		"body_remark":            utils.ValueIgnoreEmpty(d.Get("body_description")),
+		"result_normal_sample":   utils.ValueIgnoreEmpty(d.Get("success_response")),
+		"result_failure_sample":  utils.ValueIgnoreEmpty(d.Get("failure_response")),
+		"response_id":            utils.ValueIgnoreEmpty(d.Get("response_id")),
+		"req_params":             buildRequestParameters(d.Get("request_params").([]interface{})),
+		"tags":                   utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(d.Get("tags").(*schema.Set))),
+		"content_type":           utils.ValueIgnoreEmpty(d.Get("content_type")),
+		"is_send_fg_body_base64": d.Get("is_send_fg_body_base64"),
+	}
 
 	isSimpleAuthEnabled := d.Get("simple_authentication").(bool)
 	if authType == string(ApiAuthTypeApp) {
 		if isSimpleAuthEnabled {
-			opt.AuthOpt = &apis.AuthOpt{
-				AppCodeAuthType: string(AppCodeAuthTypeEnable),
+			result["auth_opt"] = map[string]interface{}{
+				"app_code_auth_type": string(AppCodeAuthTypeEnable),
 			}
 		} else {
-			opt.AuthOpt = &apis.AuthOpt{
-				AppCodeAuthType: string(AppCodeAuthTypeDisable),
+			result["auth_opt"] = map[string]interface{}{
+				"app_code_auth_type": string(AppCodeAuthTypeDisable),
 			}
 		}
 	} else if isSimpleAuthEnabled {
-		return opt, fmt.Errorf("the security authentication must be 'APP' if simple authentication is true")
+		return nil, errors.New("the security authentication must be 'APP' if simple authentication is true")
 	}
 
 	// build backend (one of the mock, function graph and web) server and related policies.
 	if m, ok := d.GetOk("mock"); ok {
-		opt.BackendType = string(BackendTypeMock)
+		result["backend_type"] = string(BackendTypeMock)
 		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.BackendParams = params
-		opt.MockInfo = buildMockStructure(m.([]interface{}))
+		result["backend_params"] = params
+		result["mock_info"] = buildMockStructure(m.([]interface{}))
 		policy, err := buildMockPolicy(d.Get("mock_policy").([]interface{}))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.PolicyMocks = policy
+		result["policy_mocks"] = policy
 	} else if fg, ok := d.GetOk("func_graph"); ok {
-		opt.BackendType = string(BackendTypeFunction)
+		result["backend_type"] = string(BackendTypeFunction)
 		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.BackendParams = params
-		opt.FuncInfo = buildFuncGraphStructure(fg.([]interface{}))
+		result["backend_params"] = params
+		result["func_info"] = buildFuncGraphStructure(fg.([]interface{}))
 		policy, err := buildFuncGraphPolicy(d.Get("func_graph_policy").([]interface{}))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.PolicyFunctions = policy
+		result["policy_functions"] = policy
 	} else {
-		opt.BackendType = string(BackendTypeHttp)
+		result["backend_type"] = string(BackendTypeHttp)
 		params, err := buildBackendParameters(d.Get("backend_params").(*schema.Set))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.BackendParams = params
-		opt.WebInfo = buildWebStructure(d.Get("web").([]interface{}))
+		result["backend_params"] = params
+		result["backend_api"] = buildWebStructure(d.Get("web").([]interface{}))
 		policy, err := buildApigAPIWebPolicy(d.Get("web_policy").([]interface{}))
 		if err != nil {
-			return opt, err
+			return nil, err
 		}
-		opt.PolicyWebs = policy
+		result["policy_https"] = policy
 	}
 
-	log.Printf("[DEBUG] The API Opts is : %+v", opt)
-	return opt, nil
+	log.Printf("[DEBUG] The API body params is : %+v", result)
+	return result, nil
+}
+
+func createApi(client *golangsdk.ServiceClient, instanceId string, body map[string]interface{}) (interface{}, error) {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(body),
+	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
 }
 
 func buildSliceParamOrderByElementName(requestParams []interface{}) []interface{} {
@@ -1471,26 +1409,51 @@ func resourceApiCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		region     = cfg.GetRegion(d)
 		instanceId = d.Get("instance_id").(string)
 	)
-	client, err := cfg.ApigV2Client(region)
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	opt, err := buildApiCreateOpts(d)
+	body, err := buildApiBodyParams(d)
 	if err != nil {
 		return diag.Errorf("unable to build the API create opts: %s", err)
 	}
-	resp, err := apis.Create(client, instanceId, opt).Extract()
+	respBody, err := createApi(client, instanceId, body)
 	if err != nil {
 		return diag.Errorf("error creating API: %s", err)
 	}
-	d.SetId(resp.ID)
+	resourceId := utils.PathSearch("id", respBody, "").(string)
+	if resourceId == "" {
+		return diag.Errorf("unable to find the API ID from the API response")
+	}
+	d.SetId(resourceId)
 
 	if err = updateAllOriginParameters(d); err != nil {
-		log.Printf("[ERROR] error updating all origin parameters: %s", err)
+		return diag.Errorf("error updating all origin parameters: %s", err)
 	}
 
 	return resourceApiRead(ctx, d, meta)
+}
+
+func GetApiById(client *golangsdk.ServiceClient, instanceId, apiId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+	getPath = strings.ReplaceAll(getPath, "{api_id}", apiId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
 }
 
 func analyseBackendParameterValue(origin, value string) (paramType, paramValue string) {
@@ -1522,28 +1485,29 @@ func analyseBackendParameterValue(origin, value string) (paramType, paramValue s
 	return
 }
 
-func flattenBackendParameters(backendParams []apis.BackendParamResp) []map[string]interface{} {
+func flattenBackendParameters(backendParams []interface{}) []map[string]interface{} {
 	if len(backendParams) < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(backendParams))
-	for i, v := range backendParams {
-		origin := v.Origin
-		paramAuthType, paramValue := analyseBackendParameterValue(v.Origin, v.Value)
+	result := make([]map[string]interface{}, 0, len(backendParams))
+	for _, item := range backendParams {
+		origin := utils.PathSearch("origin", item, "").(string)
+		value := utils.PathSearch("value", item, "").(string)
+		paramAuthType, paramValue := analyseBackendParameterValue(origin, value)
 		param := map[string]interface{}{
 			"type":     origin,
-			"name":     v.Name,
-			"location": v.Location,
+			"name":     utils.PathSearch("name", item, nil),
+			"location": utils.PathSearch("location", item, nil),
 			"value":    paramValue,
 		}
 		if paramAuthType != "" {
 			param["system_param_type"] = paramAuthType
 		}
 		if origin != string(ParameterTypeRequest) {
-			param["description"] = v.Description
+			param["description"] = utils.PathSearch("remark", item, nil)
 		}
-		result[i] = param
+		result = append(result, param)
 	}
 	return result
 }
@@ -1557,15 +1521,11 @@ func analyseConditionType(conType string) string {
 	return ""
 }
 
-func analyseApiType(t int) string {
-	apiType := map[int]string{
+func parseApiType(apiType int) string {
+	return map[int]string{
 		1: "Public",
 		2: "Private",
-	}
-	if v, ok := apiType[t]; ok {
-		return v
-	}
-	return ""
+	}[apiType]
 }
 
 func analyseApiMatchMode(mode string) string {
@@ -1577,33 +1537,42 @@ func analyseApiMatchMode(mode string) string {
 	return ""
 }
 
-func analyseAppSimpleAuth(opt apis.AuthOpt) bool {
+func analyseAppSimpleAuth(authOpt interface{}) bool {
 	// HEADER: AppCode authentication is enabled and the AppCode is located in the header.
-	return opt.AppCodeAuthType == string(AppCodeAuthTypeEnable)
+	return utils.PathSearch("app_code_auth_type", authOpt, "").(string) == string(AppCodeAuthTypeEnable)
 }
 
-func parseObjectEnabled(objStatus int) bool {
-	if objStatus == strBoolEnabled {
+func parseObjectEnabled(objStatus interface{}) bool {
+	var status int
+	switch v := objStatus.(type) {
+	case float64:
+		status = int(v)
+	case int:
+		status = v
+	default:
+		return false
+	}
+	if status == vpcChannelEnabled {
 		return true
 	}
-	if objStatus != strBoolDisabled {
-		log.Printf("[DEBUG] unexpected object value, want '1'(yes) or '2'(no), but got '%d'", objStatus)
+	if status != vpcChannelDisabled {
+		log.Printf("[DEBUG] unexpected object value, want '1'(yes) or '2'(no), but got '%d'", status)
 	}
 	return false
 }
 
-func orderRequestParamsByRequestParamsOrder(reqParams []apis.ReqParamResp, requestParamsOrigin []interface{}) []apis.ReqParamResp {
+func orderRequestParamsByRequestParamsOrder(reqParams []interface{}, requestParamsOrigin []interface{}) []interface{} {
 	if len(requestParamsOrigin) < 1 {
 		return reqParams
 	}
 
-	sortedReqParams := make([]apis.ReqParamResp, 0, len(reqParams))
+	sortedReqParams := make([]interface{}, 0, len(reqParams))
 	requestParamsCopy := reqParams
 
 	for _, requestParamOrigin := range requestParamsOrigin {
 		nameOrigin := utils.PathSearch("name", requestParamOrigin, "").(string)
 		for index, requestParam := range requestParamsCopy {
-			if requestParam.Name != nameOrigin {
+			if utils.PathSearch("name", requestParam, "").(string) != nameOrigin {
 				continue
 			}
 			// Add the found request parameter to the sorted request parameters list.
@@ -1617,7 +1586,7 @@ func orderRequestParamsByRequestParamsOrder(reqParams []apis.ReqParamResp, reque
 	return sortedReqParams
 }
 
-func flattenApiRequestParams(reqParams []apis.ReqParamResp, requestParamsOrder []interface{}) []map[string]interface{} {
+func flattenApiRequestParams(reqParams []interface{}, requestParamsOrder []interface{}) []map[string]interface{} {
 	if len(reqParams) < 1 {
 		return nil
 	}
@@ -1628,84 +1597,98 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp, requestParamsOrder [
 
 	result := make([]map[string]interface{}, 0, len(reqParams))
 	for _, v := range reqParams {
+		paramType := utils.PathSearch("type", v, "").(string)
 		param := map[string]interface{}{
-			"name":           v.Name,
-			"location":       v.Location,
-			"type":           v.Type,
-			"required":       parseObjectEnabled(v.Required),
-			"passthrough":    parseObjectEnabled(v.PassThrough),
-			"enumeration":    v.Enumerations,
-			"example":        v.SampleValue,
-			"default":        v.DefaultValue,
-			"description":    v.Description,
-			"valid_enable":   v.ValidEnable,
-			"orchestrations": v.Orchestrations,
+			"name":           utils.PathSearch("name", v, nil),
+			"location":       utils.PathSearch("location", v, nil),
+			"type":           paramType,
+			"required":       parseObjectEnabled(utils.PathSearch("required", v, nil)),
+			"passthrough":    parseObjectEnabled(utils.PathSearch("pass_through", v, nil)),
+			"enumeration":    utils.PathSearch("enumerations", v, nil),
+			"example":        utils.PathSearch("sample_value", v, nil),
+			"default":        utils.PathSearch("default_value", v, nil),
+			"description":    utils.PathSearch("remark", v, nil),
+			"valid_enable":   utils.PathSearch("valid_enable", v, nil),
+			"orchestrations": utils.PathSearch("orchestrations", v, nil),
 		}
-		switch v.Type {
+		switch paramType {
 		case string(ParamTypeNumber):
-			param["maximum"] = v.MaxNum
-			param["minimum"] = v.MinNum
+			param["maximum"] = utils.PathSearch("max_num", v, nil)
+			param["minimum"] = utils.PathSearch("min_num", v, nil)
 		case string(ParamTypeString):
-			param["maximum"] = v.MaxSize
-			param["minimum"] = v.MinSize
+			param["maximum"] = utils.PathSearch("max_size", v, nil)
+			param["minimum"] = utils.PathSearch("min_size", v, nil)
 		}
 		result = append(result, param)
 	}
 	return result
 }
 
-func flattenMockStructure(mockResp apis.Mock) []map[string]interface{} {
-	if mockResp == (apis.Mock{}) {
+func flattenMockStructure(mockResp interface{}) []map[string]interface{} {
+	if mockResp == nil {
+		return nil
+	}
+	if utils.PathSearch("status_code", mockResp, nil) == nil {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"status_code":   mockResp.StatusCode,
-			"response":      mockResp.ResultContent,
-			"authorizer_id": mockResp.AuthorizerId,
+			"status_code":   utils.PathSearch("status_code", mockResp, nil),
+			"response":      utils.PathSearch("result_content", mockResp, nil),
+			"authorizer_id": utils.PathSearch("authorizer_id", mockResp, nil),
 		},
 	}
 }
 
-func flattenFuncGraphStructure(funcResp apis.FuncGraph) []map[string]interface{} {
-	if funcResp == (apis.FuncGraph{}) {
+func flattenFuncGraphStructure(funcResp interface{}) []map[string]interface{} {
+	if funcResp == nil {
+		return nil
+	}
+	if utils.PathSearch("function_urn", funcResp, "") == "" {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"function_urn":       funcResp.FunctionUrn,
-			"function_alias_urn": funcResp.FunctionAliasUrn,
-			"timeout":            funcResp.Timeout,
-			"invocation_type":    funcResp.InvocationType,
-			"network_type":       funcResp.NetworkType,
-			"request_protocol":   funcResp.RequestProtocol,
-			"version":            funcResp.Version,
-			"authorizer_id":      funcResp.AuthorizerId,
+			"function_urn":       utils.PathSearch("function_urn", funcResp, nil),
+			"function_alias_urn": utils.PathSearch("alias_urn", funcResp, nil),
+			"timeout":            utils.PathSearch("timeout", funcResp, nil),
+			"invocation_type":    utils.PathSearch("invocation_type", funcResp, nil),
+			"network_type":       utils.PathSearch("network_type", funcResp, nil),
+			"request_protocol":   utils.PathSearch("req_protocol", funcResp, nil),
+			"version":            utils.PathSearch("version", funcResp, nil),
+			"authorizer_id":      utils.PathSearch("authorizer_id", funcResp, nil),
 		},
 	}
 }
 
-func flattenWebStructure(webResp apis.Web, sslEnabled bool) []map[string]interface{} {
-	if webResp == (apis.Web{}) {
+func flattenWebStructure(webResp interface{}, sslEnabled bool) []map[string]interface{} {
+	if webResp == nil {
+		return nil
+	}
+	if utils.PathSearch("req_uri", webResp, "") == "" {
 		return nil
 	}
 
 	result := map[string]interface{}{
-		"path":             webResp.ReqURI,
-		"request_method":   webResp.ReqMethod,
-		"request_protocol": webResp.ReqProtocol,
-		"timeout":          webResp.Timeout,
+		"path":             utils.PathSearch("req_uri", webResp, nil),
+		"request_method":   utils.PathSearch("req_method", webResp, nil),
+		"request_protocol": utils.PathSearch("req_protocol", webResp, nil),
+		"timeout":          utils.PathSearch("timeout", webResp, nil),
 		"ssl_enable":       sslEnabled,
-		"authorizer_id":    webResp.AuthorizerId,
-		"retry_count":      utils.StringToInt(webResp.RetryCount),
+		"authorizer_id":    utils.PathSearch("authorizer_id", webResp, nil),
 	}
-	if webResp.VpcChannelInfo.VpcChannelId != "" {
-		result["vpc_channel_id"] = webResp.VpcChannelInfo.VpcChannelId
-		result["host_header"] = webResp.VpcChannelInfo.VpcChannelProxyHost
+	retryCount := utils.PathSearch("retry_count", webResp, "").(string)
+	if retryCount != "" {
+		result["retry_count"] = utils.StringToInt(&retryCount)
+	}
+	vpcChannelId := utils.PathSearch("vpc_channel_info.vpc_channel_id", webResp, "")
+	if vpcChannelId != "" {
+		result["vpc_channel_id"] = vpcChannelId
+		result["host_header"] = utils.PathSearch("vpc_channel_info.vpc_channel_proxy_host", webResp, nil)
 	} else {
-		result["backend_address"] = webResp.DomainURL
+		result["backend_address"] = utils.PathSearch("url_domain", webResp, nil)
 	}
 
 	return []map[string]interface{}{
@@ -1713,40 +1696,40 @@ func flattenWebStructure(webResp apis.Web, sslEnabled bool) []map[string]interfa
 	}
 }
 
-func flattenPolicyConditions(conditions []apis.APIConditionBase) []map[string]interface{} {
+func flattenPolicyConditions(conditions []interface{}) []map[string]interface{} {
 	if len(conditions) < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(conditions))
-	for i, v := range conditions {
-		result[i] = map[string]interface{}{
-			"source":                   v.ConditionOrigin,
-			"param_name":               v.ReqParamName,
-			"sys_name":                 v.SysParamName,
-			"cookie_name":              v.CookieParamName,
-			"frontend_authorizer_name": v.FrontendAuthorizerParamName,
-			"type":                     analyseConditionType(v.ConditionType),
-			"value":                    v.ConditionValue,
-			"mapped_param_name":        v.MappedParamName,
-			"mapped_param_location":    v.MappedParamLocation,
-		}
+	result := make([]map[string]interface{}, 0, len(conditions))
+	for _, v := range conditions {
+		result = append(result, map[string]interface{}{
+			"source":                   utils.PathSearch("condition_origin", v, nil),
+			"param_name":               utils.PathSearch("req_param_name", v, nil),
+			"sys_name":                 utils.PathSearch("sys_param_name", v, nil),
+			"cookie_name":              utils.PathSearch("cookie_param_name", v, nil),
+			"frontend_authorizer_name": utils.PathSearch("frontend_authorizer_param_name", v, nil),
+			"type":                     analyseConditionType(utils.PathSearch("condition_type", v, "").(string)),
+			"value":                    utils.PathSearch("condition_value", v, nil),
+			"mapped_param_name":        utils.PathSearch("mapped_param_name", v, nil),
+			"mapped_param_location":    utils.PathSearch("mapped_param_location", v, nil),
+		})
 	}
 	return result
 }
 
-func orderFuncGraphPolicyByFuncGraphPolicyOrder(policies []apis.PolicyFuncGraphResp, funcGraphPolicyOrigin []interface{}) []apis.PolicyFuncGraphResp {
+func orderFuncGraphPolicyByFuncGraphPolicyOrder(policies []interface{}, funcGraphPolicyOrigin []interface{}) []interface{} {
 	if len(funcGraphPolicyOrigin) < 1 {
 		return policies
 	}
 
-	sortedPolicies := make([]apis.PolicyFuncGraphResp, 0, len(policies))
+	sortedPolicies := make([]interface{}, 0, len(policies))
 	funcGraphPolicyCopy := policies
 
-	for _, funcGraphPolicyOrigin := range funcGraphPolicyOrigin {
-		nameOrigin := utils.PathSearch("name", funcGraphPolicyOrigin, "").(string)
+	for _, policyOrigin := range funcGraphPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", policyOrigin, "").(string)
 		for index, funcGraphPolicy := range funcGraphPolicyCopy {
-			if funcGraphPolicy.Name != nameOrigin {
+			if utils.PathSearch("name", funcGraphPolicy, "").(string) != nameOrigin {
 				continue
 			}
 			// Add the found func graph policy to the sorted func graph policies list.
@@ -1760,7 +1743,7 @@ func orderFuncGraphPolicyByFuncGraphPolicyOrder(policies []apis.PolicyFuncGraphR
 	return sortedPolicies
 }
 
-func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp, funcGraphPolicyOrder []interface{}) []map[string]interface{} {
+func flattenFuncGraphPolicy(policies []interface{}, funcGraphPolicyOrder []interface{}) []map[string]interface{} {
 	if len(policies) < 1 {
 		return nil
 	}
@@ -1772,36 +1755,38 @@ func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp, funcGraphPolicy
 	result := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
 		result = append(result, map[string]interface{}{
-			"name":               policy.Name,
-			"function_urn":       policy.FunctionUrn,
-			"function_alias_urn": policy.FunctionAliasUrn,
-			"version":            policy.Version,
-			"network_type":       policy.NetworkType,
-			"request_protocol":   policy.RequestProtocol,
-			"invocation_type":    policy.InvocationType,
-			"effective_mode":     policy.EffectMode,
-			"timeout":            policy.Timeout,
-			"authorizer_id":      policy.AuthorizerId,
-			"backend_params":     flattenBackendParameters(policy.BackendParams),
-			"conditions":         flattenPolicyConditions(policy.Conditions),
+			"name":               utils.PathSearch("name", policy, nil),
+			"function_urn":       utils.PathSearch("function_urn", policy, nil),
+			"function_alias_urn": utils.PathSearch("alias_urn", policy, nil),
+			"version":            utils.PathSearch("version", policy, nil),
+			"network_type":       utils.PathSearch("network_type", policy, nil),
+			"request_protocol":   utils.PathSearch("req_protocol", policy, nil),
+			"invocation_type":    utils.PathSearch("invocation_type", policy, nil),
+			"effective_mode":     utils.PathSearch("effect_mode", policy, nil),
+			"timeout":            utils.PathSearch("timeout", policy, nil),
+			"authorizer_id":      utils.PathSearch("authorizer_id", policy, nil),
+			"backend_params": flattenBackendParameters(utils.PathSearch("backend_params", policy,
+				make([]interface{}, 0)).([]interface{})),
+			"conditions": flattenPolicyConditions(utils.PathSearch("conditions", policy,
+				make([]interface{}, 0)).([]interface{})),
 		})
 	}
 
 	return result
 }
 
-func orderWebPolicyByWebPolicyOrder(policies []apis.PolicyWebResp, webPolicyOrigin []interface{}) []apis.PolicyWebResp {
+func orderWebPolicyByWebPolicyOrder(policies []interface{}, webPolicyOrigin []interface{}) []interface{} {
 	if len(webPolicyOrigin) < 1 {
 		return policies
 	}
 
-	sortedPolicies := make([]apis.PolicyWebResp, 0, len(policies))
+	sortedPolicies := make([]interface{}, 0, len(policies))
 	webPolicyCopy := policies
 
-	for _, webPolicyOrigin := range webPolicyOrigin {
-		nameOrigin := utils.PathSearch("name", webPolicyOrigin, "").(string)
+	for _, policyOrigin := range webPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", policyOrigin, "").(string)
 		for index, webPolicy := range webPolicyCopy {
-			if webPolicy.Name != nameOrigin {
+			if utils.PathSearch("name", webPolicy, "").(string) != nameOrigin {
 				continue
 			}
 			sortedPolicies = append(sortedPolicies, webPolicyCopy[index])
@@ -1812,7 +1797,7 @@ func orderWebPolicyByWebPolicyOrder(policies []apis.PolicyWebResp, webPolicyOrig
 	return sortedPolicies
 }
 
-func flattenWebPolicy(policies []apis.PolicyWebResp, webPolicyOrder []interface{}) []map[string]interface{} {
+func flattenWebPolicy(policies []interface{}, webPolicyOrder []interface{}) []map[string]interface{} {
 	if len(policies) < 1 {
 		return nil
 	}
@@ -1821,47 +1806,52 @@ func flattenWebPolicy(policies []apis.PolicyWebResp, webPolicyOrder []interface{
 		policies = orderWebPolicyByWebPolicyOrder(policies, webPolicyOrder)
 	}
 
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		retryCount := policy.RetryCount
+	result := make([]map[string]interface{}, 0, len(policies))
+	for _, policy := range policies {
 		wp := map[string]interface{}{
-			"name":             policy.Name,
-			"request_protocol": policy.ReqProtocol,
-			"request_method":   policy.ReqMethod,
-			"effective_mode":   policy.EffectMode,
-			"path":             policy.ReqURI,
-			"timeout":          policy.Timeout,
-			"retry_count":      utils.StringToInt(&retryCount),
-			"authorizer_id":    policy.AuthorizerId,
-			"backend_params":   flattenBackendParameters(policy.BackendParams),
-			"conditions":       flattenPolicyConditions(policy.Conditions),
+			"name":             utils.PathSearch("name", policy, nil),
+			"request_protocol": utils.PathSearch("req_protocol", policy, nil),
+			"request_method":   utils.PathSearch("req_method", policy, nil),
+			"effective_mode":   utils.PathSearch("effect_mode", policy, nil),
+			"path":             utils.PathSearch("req_uri", policy, nil),
+			"timeout":          utils.PathSearch("timeout", policy, nil),
+			"authorizer_id":    utils.PathSearch("authorizer_id", policy, nil),
+			"backend_params": flattenBackendParameters(utils.PathSearch("backend_params", policy,
+				make([]interface{}, 0)).([]interface{})),
+			"conditions": flattenPolicyConditions(utils.PathSearch("conditions", policy,
+				make([]interface{}, 0)).([]interface{})),
+		}
+		retryCount := utils.PathSearch("retry_count", policy, "").(string)
+		if retryCount != "" {
+			wp["retry_count"] = utils.StringToInt(&retryCount)
 		}
 		// which policy use backend address or vpc channel.
-		if policy.VpcChannelInfo.VpcChannelId != "" {
-			wp["vpc_channel_id"] = policy.VpcChannelInfo.VpcChannelId
-			wp["host_header"] = policy.VpcChannelInfo.VpcChannelProxyHost
+		vpcChannelId := utils.PathSearch("vpc_channel_info.vpc_channel_id", policy, "")
+		if vpcChannelId != "" {
+			wp["vpc_channel_id"] = vpcChannelId
+			wp["host_header"] = utils.PathSearch("vpc_channel_info.vpc_channel_proxy_host", policy, nil)
 		} else {
-			wp["backend_address"] = policy.DomainURL
+			wp["backend_address"] = utils.PathSearch("url_domain", policy, nil)
 		}
 
-		result[i] = wp
+		result = append(result, wp)
 	}
 
 	return result
 }
 
-func orderMockPolicyByMockPolicyOrder(policies []apis.PolicyMockResp, mockPolicyOrigin []interface{}) []apis.PolicyMockResp {
+func orderMockPolicyByMockPolicyOrder(policies []interface{}, mockPolicyOrigin []interface{}) []interface{} {
 	if len(mockPolicyOrigin) < 1 {
 		return policies
 	}
 
-	sortedPolicies := make([]apis.PolicyMockResp, 0, len(policies))
+	sortedPolicies := make([]interface{}, 0, len(policies))
 	mockPolicyCopy := policies
 
-	for _, mockPolicyOrigin := range mockPolicyOrigin {
-		nameOrigin := utils.PathSearch("name", mockPolicyOrigin, "").(string)
+	for _, policyOrigin := range mockPolicyOrigin {
+		nameOrigin := utils.PathSearch("name", policyOrigin, "").(string)
 		for index, mockPolicy := range mockPolicyCopy {
-			if mockPolicy.Name != nameOrigin {
+			if utils.PathSearch("name", mockPolicy, "").(string) != nameOrigin {
 				continue
 			}
 			// Add the found mock policy to the sorted mock policies list.
@@ -1875,7 +1865,7 @@ func orderMockPolicyByMockPolicyOrder(policies []apis.PolicyMockResp, mockPolicy
 	return sortedPolicies
 }
 
-func flattenMockPolicy(policies []apis.PolicyMockResp, mockPolicyOrigin []interface{}) []map[string]interface{} {
+func flattenMockPolicy(policies []interface{}, mockPolicyOrigin []interface{}) []map[string]interface{} {
 	if len(policies) < 1 {
 		return nil
 	}
@@ -1887,13 +1877,15 @@ func flattenMockPolicy(policies []apis.PolicyMockResp, mockPolicyOrigin []interf
 	result := make([]map[string]interface{}, 0, len(policies))
 	for _, policy := range policies {
 		result = append(result, map[string]interface{}{
-			"name":           policy.Name,
-			"status_code":    policy.StatusCode,
-			"response":       policy.ResultContent,
-			"effective_mode": policy.EffectMode,
-			"authorizer_id":  policy.AuthorizerId,
-			"backend_params": flattenBackendParameters(policy.BackendParams),
-			"conditions":     flattenPolicyConditions(policy.Conditions),
+			"name":           utils.PathSearch("name", policy, nil),
+			"status_code":    utils.PathSearch("status_code", policy, nil),
+			"response":       utils.PathSearch("result_content", policy, nil),
+			"effective_mode": utils.PathSearch("effect_mode", policy, nil),
+			"authorizer_id":  utils.PathSearch("authorizer_id", policy, nil),
+			"backend_params": flattenBackendParameters(utils.PathSearch("backend_params", policy,
+				make([]interface{}, 0)).([]interface{})),
+			"conditions": flattenPolicyConditions(utils.PathSearch("conditions", policy,
+				make([]interface{}, 0)).([]interface{})),
 		})
 	}
 
@@ -1911,52 +1903,78 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		webPolicyOrigin       = d.Get("web_policy_order").([]interface{})
 		mockPolicyOrigin      = d.Get("mock_policy_order").([]interface{})
 	)
-	client, err := cfg.ApigV2Client(region)
+
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	resp, err := apis.Get(client, instanceId, apiId).Extract()
+	respBody, err := GetApiById(client, instanceId, apiId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "dedicated API")
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying API (%s)", apiId))
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("group_id", resp.GroupId),
-		d.Set("name", resp.Name),
-		d.Set("authorizer_id", resp.AuthorizerId),
-		d.Set("tags", resp.Tags),
-		d.Set("content_type", resp.ContentType),
-		d.Set("is_send_fg_body_base64", resp.IsSendFgBodyBase64),
-		d.Set("request_protocol", resp.ReqProtocol),
-		d.Set("request_method", resp.ReqMethod),
-		d.Set("request_path", resp.ReqURI),
-		d.Set("security_authentication", resp.AuthType),
-		d.Set("cors", resp.Cors),
-		d.Set("description", resp.Description),
-		d.Set("body_description", resp.BodyDescription),
-		d.Set("success_response", resp.ResultNormalSample),
-		d.Set("failure_response", resp.ResultFailureSample),
-		d.Set("response_id", resp.ResponseId),
-		d.Set("type", analyseApiType(resp.Type)),
-		d.Set("request_params", flattenApiRequestParams(resp.ReqParams, requestParamsOrigin)),
-		d.Set("backend_params", flattenBackendParameters(resp.BackendParams)),
-		d.Set("matching", analyseApiMatchMode(resp.MatchMode)),
-		d.Set("simple_authentication", analyseAppSimpleAuth(resp.AuthOpt)),
-		d.Set("mock", flattenMockStructure(resp.MockInfo)),
-		d.Set("func_graph", flattenFuncGraphStructure(resp.FuncInfo)),
-		d.Set("func_graph_policy", flattenFuncGraphPolicy(resp.PolicyFunctions, funcGraphPolicyOrigin)),
-		d.Set("web", flattenWebStructure(resp.WebInfo, d.Get("web.0.ssl_enable").(bool))),
-		d.Set("web_policy", flattenWebPolicy(resp.PolicyWebs, webPolicyOrigin)),
-		d.Set("mock_policy", flattenMockPolicy(resp.PolicyMocks, mockPolicyOrigin)),
-		d.Set("registered_at", resp.RegisterTime),
-		d.Set("updated_at", resp.UpdateTime),
+		d.Set("group_id", utils.PathSearch("group_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("authorizer_id", utils.PathSearch("authorizer_id", respBody, nil)),
+		d.Set("tags", utils.PathSearch("tags", respBody, nil)),
+		d.Set("content_type", utils.PathSearch("content_type", respBody, nil)),
+		d.Set("is_send_fg_body_base64", utils.PathSearch("is_send_fg_body_base64", respBody, nil)),
+		d.Set("request_protocol", utils.PathSearch("req_protocol", respBody, nil)),
+		d.Set("request_method", utils.PathSearch("req_method", respBody, nil)),
+		d.Set("request_path", utils.PathSearch("req_uri", respBody, nil)),
+		d.Set("security_authentication", utils.PathSearch("auth_type", respBody, nil)),
+		d.Set("cors", utils.PathSearch("cors", respBody, nil)),
+		d.Set("description", utils.PathSearch("remark", respBody, nil)),
+		d.Set("body_description", utils.PathSearch("body_remark", respBody, nil)),
+		d.Set("success_response", utils.PathSearch("result_normal_sample", respBody, nil)),
+		d.Set("failure_response", utils.PathSearch("result_failure_sample", respBody, nil)),
+		d.Set("response_id", utils.PathSearch("response_id", respBody, nil)),
+		d.Set("type", parseApiType(int(utils.PathSearch("type", respBody, float64(0)).(float64)))),
+		d.Set("request_params", flattenApiRequestParams(utils.PathSearch("req_params", respBody,
+			make([]interface{}, 0)).([]interface{}), requestParamsOrigin)),
+		d.Set("backend_params", flattenBackendParameters(utils.PathSearch("backend_params", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("matching", analyseApiMatchMode(utils.PathSearch("match_mode", respBody, "").(string))),
+		d.Set("simple_authentication", analyseAppSimpleAuth(utils.PathSearch("auth_opt", respBody, nil))),
+		d.Set("mock", flattenMockStructure(utils.PathSearch("mock_info", respBody, nil))),
+		d.Set("func_graph", flattenFuncGraphStructure(utils.PathSearch("func_info", respBody, nil))),
+		d.Set("func_graph_policy", flattenFuncGraphPolicy(utils.PathSearch("policy_functions", respBody,
+			make([]interface{}, 0)).([]interface{}), funcGraphPolicyOrigin)),
+		d.Set("web", flattenWebStructure(utils.PathSearch("backend_api", respBody, nil), d.Get("web.0.ssl_enable").(bool))),
+		d.Set("web_policy", flattenWebPolicy(utils.PathSearch("policy_https", respBody,
+			make([]interface{}, 0)).([]interface{}), webPolicyOrigin)),
+		d.Set("mock_policy", flattenMockPolicy(utils.PathSearch("policy_mocks", respBody,
+			make([]interface{}, 0)).([]interface{}), mockPolicyOrigin)),
+		d.Set("registered_at", utils.PathSearch("register_time", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", respBody, nil)),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving API fields: %s", err)
 	}
 	return nil
+}
+
+func updateApi(client *golangsdk.ServiceClient, instanceId, apiId string, body map[string]interface{}) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", instanceId)
+	updatePath = strings.ReplaceAll(updatePath, "{api_id}", apiId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(body),
+		OkCodes:  []int{200},
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
 }
 
 func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1966,22 +1984,22 @@ func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		instanceId = d.Get("instance_id").(string)
 		apiId      = d.Id()
 	)
-	client, err := cfg.ApigV2Client(region)
+
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	opt, err := buildApiCreateOpts(d)
+	body, err := buildApiBodyParams(d)
 	if err != nil {
 		return diag.Errorf("unable to build the API updateOpts: %s", err)
 	}
-	_, err = apis.Update(client, instanceId, apiId, opt).Extract()
-	if err != nil {
+	if err = updateApi(client, instanceId, apiId, body); err != nil {
 		return diag.Errorf("error updating API (%s): %s", apiId, err)
 	}
 
 	if err = updateAllOriginParameters(d); err != nil {
-		log.Printf("[ERROR] error updating all origin parameters: %s", err)
+		return diag.Errorf("error updating all origin parameters: %s", err)
 	}
 
 	return resourceApiRead(ctx, d, meta)
@@ -2006,63 +2024,104 @@ func deleteApi(client *golangsdk.ServiceClient, instanceId, apiId string) error 
 }
 
 func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
-	}
-
 	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
 		instanceId = d.Get("instance_id").(string)
 		apiId      = d.Id()
 	)
+
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG client: %s", err)
+	}
+
 	if err = deleteApi(client, instanceId, apiId); err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to delete the API (%s)", apiId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting API (%s)", apiId))
 	}
 
 	return nil
 }
 
-// GetApigAPIIdByName is a method to get a specifies API ID from a APIG instance by name.
-func GetApiIdByName(client *golangsdk.ServiceClient, instanceId, name string) (string, error) {
-	opt := apis.ListOpts{
-		Name: name, // Fuzzy search (reduce the time cost of the traversal)
+// the value of queryParams must start with '&' character.
+func listApis(client *golangsdk.ServiceClient, instanceId string, queryParams ...string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/apis?limit={limit}"
+		offset  = 0
+		limit   = 500
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+
+	if len(queryParams) > 0 {
+		listPath += queryParams[0]
 	}
-	pages, err := apis.List(client, instanceId, opt).AllPages()
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		apisList := utils.PathSearch("apis", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, apisList...)
+		if len(apisList) < limit {
+			break
+		}
+		offset += len(apisList)
+	}
+
+	return result, nil
+}
+
+func getApiIdByName(client *golangsdk.ServiceClient, instanceId, name string) (string, error) {
+	queryParams := fmt.Sprintf("&name=%s", name)
+	apiRecords, err := listApis(client, instanceId, queryParams)
 	if err != nil {
 		return "", fmt.Errorf("error retrieving APIs: %s", err)
 	}
-	apiRecords, err := apis.ExtractApis(pages)
-	if err != nil {
-		return "", err
+
+	apiId := utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].id", name), apiRecords, "").(string)
+	if apiId == "" {
+		return "", fmt.Errorf("unable to find the API (%s) form APIG service", name)
 	}
-	for _, apiRecord := range apiRecords {
-		if apiRecord.Name == name {
-			return apiRecord.ID, nil
-		}
-	}
-	return "", fmt.Errorf("unable to find the API (%s) form APIG service", name)
+	return apiId, nil
 }
 
 func resourceApiImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,
 	error) {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
-		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<name>")
 	}
-	name := parts[1]
+
 	instanceId := parts[0]
-	apiId, err := GetApiIdByName(client, instanceId, name)
+	apiId, err := getApiIdByName(client, instanceId, parts[1])
 	if err != nil {
 		return []*schema.ResourceData{d}, err
 	}
 	d.SetId(apiId)
-	d.Set("instance_id", instanceId)
-	return []*schema.ResourceData{d}, nil
+
+	return []*schema.ResourceData{d}, d.Set("instance_id", instanceId)
 }

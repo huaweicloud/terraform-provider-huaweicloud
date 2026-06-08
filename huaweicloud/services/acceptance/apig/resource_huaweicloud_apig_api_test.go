@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 )
 
 func getApiFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,7 +20,8 @@ func getApiFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}
 	if err != nil {
 		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
-	return apis.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
+
+	return apig.GetApiById(client, state.Primary.Attributes["instance_id"], state.Primary.ID)
 }
 
 func TestAccApi_basic(t *testing.T) {
@@ -239,12 +241,12 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "backend_params.0.value", "X-Service-Name"),
 					resource.TestCheckResourceAttr(webBackend, "backend_params.0.system_param_type", "backend"),
 					resource.TestCheckResourceAttr(webBackend, "web.#", "1"),
-					resource.TestCheckResourceAttr(webBackend, "web.0.path", "/web/new/test/backend"),
+					resource.TestCheckResourceAttr(webBackend, "web.0.path", "/web/test/backend"),
 					resource.TestCheckResourceAttrPair(webBackend, "web.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.request_method", "GET"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.request_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(webBackend, "web.0.timeout", "40000"),
-					resource.TestCheckResourceAttr(webBackend, "web.0.retry_count", "2"),
+					resource.TestCheckResourceAttr(webBackend, "web.0.timeout", "30000"),
+					resource.TestCheckResourceAttr(webBackend, "web.0.retry_count", "1"),
 					resource.TestCheckResourceAttrPair(webBackend, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.name", updateName+"_web_policy"),
@@ -292,7 +294,7 @@ func TestAccApi_basic(t *testing.T) {
 						"huaweicloud_apig_custom_authorizer.backend", "function_alias_uri"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.network_type", "V2"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.request_protocol", "GRPCS"),
-					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "6000"),
+					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "5000"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.invocation_type", "sync"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.#", "1"),
@@ -334,8 +336,8 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(mockBackend, "request_params.#", "0"),
 					resource.TestCheckResourceAttr(mockBackend, "backend_params.#", "0"),
 					resource.TestCheckResourceAttr(mockBackend, "mock.#", "1"),
-					resource.TestCheckResourceAttr(mockBackend, "mock.0.status_code", "202"),
-					resource.TestCheckResourceAttr(mockBackend, "mock.0.response", "{'message':'hello world!'}"),
+					resource.TestCheckResourceAttr(mockBackend, "mock.0.status_code", "201"),
+					resource.TestCheckResourceAttr(mockBackend, "mock.0.response", "{'message':'hello world'}"),
 					resource.TestCheckResourceAttrPair(mockBackend, "mock.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.name", updateName+"_mock_policy"),
@@ -742,12 +744,12 @@ resource "huaweicloud_apig_api" "web" {
   }
 
   web {
-    path             = "/web/new/test/backend"
+    path             = "/web/test/backend"
     vpc_channel_id   = huaweicloud_apig_channel.test.id
     request_method   = "GET"
     request_protocol = "HTTP"
-    timeout          = 40000
-    retry_count      = 2
+    timeout          = 30000
+    retry_count      = 1
     authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
@@ -796,7 +798,7 @@ resource "huaweicloud_apig_api" "func_graph" {
     function_alias_urn = huaweicloud_apig_custom_authorizer.backend.function_alias_uri
     network_type       = "V2"
     request_protocol   = "GRPCS"
-    timeout            = 6000
+    timeout            = 5000
     invocation_type    = "sync"
     authorizer_id      = huaweicloud_apig_custom_authorizer.backend.id
   }
@@ -836,8 +838,8 @@ resource "huaweicloud_apig_api" "mock" {
   failure_response        = "Updated failed response"
 
   mock {
-    status_code   = 202
-    response      = "{'message':'hello world!'}"
+    status_code   = 201
+    response      = "{'message':'hello world'}"
     authorizer_id = huaweicloud_apig_custom_authorizer.backend.id
   }
 
@@ -861,10 +863,10 @@ resource "huaweicloud_apig_api" "mock" {
 
 func TestAccApi_orchestration(t *testing.T) {
 	var (
-		api apis.APIResp
+		obj interface{}
 
 		resourceName = "huaweicloud_apig_api.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &api, getApiFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getApiFunc)
 
 		name        = acceptance.RandomAccResourceName()
 		basicConfig = testAccApi_orchestration_base(name)
@@ -918,7 +920,7 @@ func TestAccApi_orchestration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "web.0.request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "web.0.timeout", "40000"),
 					resource.TestCheckResourceAttr(resourceName, "web.0.retry_count", "2"),
-					resource.TestCheckResourceAttrPair(resourceName, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(resourceName, "web_policy.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "web_policy.0.name", name+"_orchestration_policy"),
 					resource.TestCheckResourceAttr(resourceName, "web_policy.0.request_protocol", "HTTP"),
@@ -970,6 +972,10 @@ func TestAccApi_orchestration(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccApiResourceImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"request_params_order",
+					"web_policy_order",
+				},
 			},
 		},
 	})
