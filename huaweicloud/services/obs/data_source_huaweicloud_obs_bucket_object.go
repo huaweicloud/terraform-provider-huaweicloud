@@ -13,11 +13,13 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/obs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 // @API OBS HEAD /{ObjectName}
 // @API OBS GET /{ObjectName}
+// @API OBS GET /{ObjectName}?tagging
 func DataSourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceObsBucketObjectRead,
@@ -62,6 +64,7 @@ func DataSourceObsBucketObject() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"tags": common.TagsComputedSchema(`The key/value pairs associated with the object.`),
 		},
 	}
 }
@@ -99,6 +102,11 @@ func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, me
 		class = normalizeStorageClass(class)
 	}
 
+	tags, err := getBucketObjectTags(obsClient, bucket, key, objectMeta.VersionId)
+	if err != nil {
+		log.Printf("[ERROR] error getting tags of bucket object(%s/%s): %s", bucket, key, err)
+	}
+
 	size := objectMeta.ContentLength
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -107,6 +115,7 @@ func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
 		d.Set("version_id", objectMeta.VersionId),
 		d.Set("content_type", objectMeta.ContentType),
+		d.Set("tags", tags),
 	)
 
 	// body is available only for objects which have a human-readable Content-Type
