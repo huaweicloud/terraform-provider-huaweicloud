@@ -2341,6 +2341,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_mappings_functions":            secmaster.DataSourceMappingsFunctions(),
 			"huaweicloud_secmaster_metric_results":                secmaster.DataSourceMetricResults(),
 			"huaweicloud_secmaster_modules":                       secmaster.DataSourceModules(),
+			"huaweicloud_secmaster_moniter_metric_stats":          secmaster.DataSourceMoniterMetricStats(),
 			"huaweicloud_secmaster_notes":                         secmaster.DataSourceNotes(),
 			"huaweicloud_secmaster_operation_connections":         secmaster.DataSourceOperationConnections(),
 			"huaweicloud_secmaster_pipes":                         secmaster.DataSourceSecmasterPipes(),
