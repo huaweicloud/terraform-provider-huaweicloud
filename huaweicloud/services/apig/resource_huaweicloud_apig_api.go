@@ -332,6 +332,16 @@ func ResourceApigAPIV2() *schema.Resource {
 				Default:     false,
 				Description: "Whether CORS is supported.",
 			},
+			"sampling_strategy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The sampling strategy of the link trace.",
+			},
+			"sampling_param": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The sampling parameter of the link trace.",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1337,6 +1347,12 @@ func buildApiBodyParams(d *schema.ResourceData) (map[string]interface{}, error) 
 		result["policy_https"] = policy
 	}
 
+	if d.Get("sampling_strategy").(string) != "" && d.Get("sampling_param").(string) != "" {
+		result["trace_enabled"] = true
+		result["sampling_strategy"] = d.Get("sampling_strategy").(string)
+		result["sampling_param"] = d.Get("sampling_param").(string)
+	}
+
 	log.Printf("[DEBUG] The API body params is : %+v", result)
 	return result, nil
 }
@@ -1418,6 +1434,7 @@ func resourceApiCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("unable to build the API create opts: %s", err)
 	}
+
 	respBody, err := createApi(client, instanceId, body)
 	if err != nil {
 		return diag.Errorf("error creating API: %s", err)
@@ -1927,6 +1944,8 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("request_path", utils.PathSearch("req_uri", respBody, nil)),
 		d.Set("security_authentication", utils.PathSearch("auth_type", respBody, nil)),
 		d.Set("cors", utils.PathSearch("cors", respBody, nil)),
+		d.Set("sampling_strategy", utils.PathSearch("sampling_strategy", respBody, "").(string)),
+		d.Set("sampling_param", utils.PathSearch("sampling_param", respBody, "").(string)),
 		d.Set("description", utils.PathSearch("remark", respBody, nil)),
 		d.Set("body_description", utils.PathSearch("body_remark", respBody, nil)),
 		d.Set("success_response", utils.PathSearch("result_normal_sample", respBody, nil)),
@@ -1994,6 +2013,7 @@ func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("unable to build the API updateOpts: %s", err)
 	}
+
 	if err = updateApi(client, instanceId, apiId, body); err != nil {
 		return diag.Errorf("error updating API (%s): %s", apiId, err)
 	}

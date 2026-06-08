@@ -203,6 +203,14 @@ The following arguments are supported:
 
 * `cors` - (Optional, Bool) Specifies whether CORS is supported, defaults to **false**.
 
+* `sampling_strategy` - (Optional, String) Specifies the sampling strategy of the link tracing.  
+  The valid value is **RATE**.
+
+* `sampling_param` - (Optional, String) Specifies the sampling parameter of the link tracing.  
+  When the sampling strategy is **RATE**, the value is a stringified integer ranging from `0` to `100`.
+
+-> Both `sampling_strategy` and `sampling_param` must be specified to enable link tracing.
+
 * `description` - (Optional, String) Specifies the API description.  
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 

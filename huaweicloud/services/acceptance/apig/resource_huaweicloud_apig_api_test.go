@@ -69,6 +69,8 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "content_type", ""),
 					resource.TestCheckResourceAttr(webBackend, "is_send_fg_body_base64", "true"),
 					resource.TestCheckResourceAttr(webBackend, "matching", "Exact"),
+					resource.TestCheckResourceAttr(webBackend, "sampling_strategy", ""),
+					resource.TestCheckResourceAttr(webBackend, "sampling_param", ""),
 					resource.TestCheckResourceAttr(webBackend, "success_response", "Success response"),
 					resource.TestCheckResourceAttr(webBackend, "failure_response", "Failed response"),
 					resource.TestCheckResourceAttr(webBackend, "description", "Created by script"),
@@ -219,6 +221,8 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "content_type", "application/json"),
 					resource.TestCheckResourceAttr(webBackend, "is_send_fg_body_base64", "false"),
 					resource.TestCheckResourceAttr(webBackend, "matching", "Exact"),
+					resource.TestCheckResourceAttr(webBackend, "sampling_strategy", "RATE"),
+					resource.TestCheckResourceAttr(webBackend, "sampling_param", "97"),
 					resource.TestCheckResourceAttr(webBackend, "success_response", "Updated success response"),
 					resource.TestCheckResourceAttr(webBackend, "failure_response", "Updated failed response"),
 					resource.TestCheckResourceAttr(webBackend, "description", ""),
@@ -717,6 +721,8 @@ resource "huaweicloud_apig_api" "web" {
   security_authentication = "AUTHORIZER"
   authorizer_id           = huaweicloud_apig_custom_authorizer.front.id
   matching                = "Exact"
+  sampling_strategy       = "RATE"
+  sampling_param          = "97"
   success_response        = "Updated success response"
   failure_response        = "Updated failed response"
   tags                    = ["key"]
@@ -896,6 +902,8 @@ func TestAccApi_orchestration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "request_method", "GET"),
 					resource.TestCheckResourceAttr(resourceName, "request_path", "/orchestration/test"),
 					resource.TestCheckResourceAttr(resourceName, "security_authentication", "APP"),
+					resource.TestCheckResourceAttr(resourceName, "sampling_strategy", "RATE"),
+					resource.TestCheckResourceAttr(resourceName, "sampling_param", "50"),
 					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "request_params.0.name", "X-Service-Name"),
 					resource.TestCheckResourceAttr(resourceName, "request_params.0.type", "STRING"),
@@ -952,6 +960,8 @@ func TestAccApi_orchestration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// Web backend
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "sampling_strategy", ""),
+					resource.TestCheckResourceAttr(resourceName, "sampling_param", ""),
 					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "request_params.0.orchestrations.#", "2"),
 					resource.TestCheckResourceAttrPair(resourceName, "request_params.0.orchestrations.0",
@@ -1051,6 +1061,8 @@ resource "huaweicloud_apig_api" "test" {
   request_method          = "GET"
   request_path            = "/orchestration/test"
   security_authentication = "APP"
+  sampling_strategy       = "RATE"
+  sampling_param          = "50"
 
   request_params {
     name     = "X-Service-Name"
