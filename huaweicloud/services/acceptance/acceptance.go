@@ -486,11 +486,15 @@ var (
 	HW_CFW_SERVICE_GROUP_ID          = os.Getenv("HW_CFW_SERVICE_GROUP_ID")
 	HW_CFW_SERVICE_GROUP_MEMBER_ID   = os.Getenv("HW_CFW_SERVICE_GROUP_MEMBER_ID")
 
-	HW_DRS_COMPARE_JOB_ID = os.Getenv("HW_DRS_COMPARE_JOB_ID")
-	HW_DRS_DB_PASSWORD    = os.Getenv("HW_DRS_DB_PASSWORD")
-	HW_DRS_ENABLE_FLAG    = os.Getenv("HW_DRS_ENABLE_FLAG")
-	HW_DRS_JOB_ID         = os.Getenv("HW_DRS_JOB_ID")
-	HW_DRS_JOB_IDS        = os.Getenv("HW_DRS_JOB_IDS")
+	HW_DRS_COMPARE_JOB_ID               = os.Getenv("HW_DRS_COMPARE_JOB_ID")
+	HW_DRS_DB_PASSWORD                  = os.Getenv("HW_DRS_DB_PASSWORD")
+	HW_DRS_ENABLE_FLAG                  = os.Getenv("HW_DRS_ENABLE_FLAG")
+	HW_DRS_JOB_ID                       = os.Getenv("HW_DRS_JOB_ID")
+	HW_DRS_JOB_IDS                      = os.Getenv("HW_DRS_JOB_IDS")
+	HW_DRS_BACKUP_MIGRATION_INSTANCE_ID = os.Getenv("HW_DRS_BACKUP_MIGRATION_INSTANCE_ID")
+	HW_DRS_BACKUP_MIGRATION_BUCKET_NAME = os.Getenv("HW_DRS_BACKUP_MIGRATION_BUCKET_NAME")
+	HW_DRS_BACKUP_MIGRATION_BUCKET_PATH = os.Getenv("HW_DRS_BACKUP_MIGRATION_BUCKET_PATH")
+	HW_DRS_BACKUP_MIGRATION_FILE_NAME   = os.Getenv("HW_DRS_BACKUP_MIGRATION_FILE_NAME")
 
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
 	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
@@ -3001,6 +3005,34 @@ func TestAccPreCheckDrsJobId(t *testing.T) {
 func TestAccPreCheckDrsJobIds(t *testing.T) {
 	if HW_DRS_JOB_IDS == "" {
 		t.Skip("HW_DRS_JOB_IDS must be set for DRS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDrsBackupMigrationInstanceId(t *testing.T) {
+	if HW_DRS_BACKUP_MIGRATION_INSTANCE_ID == "" {
+		t.Skip("HW_DRS_BACKUP_MIGRATION_INSTANCE_ID must be set for DRS backup migration acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDrsBackupMigrationBucketName(t *testing.T) {
+	if HW_DRS_BACKUP_MIGRATION_BUCKET_NAME == "" {
+		t.Skip("HW_DRS_BACKUP_MIGRATION_BUCKET_NAME must be set for DRS backup migration acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDrsBackupMigrationBucketPath(t *testing.T) {
+	if HW_DRS_BACKUP_MIGRATION_BUCKET_PATH == "" {
+		t.Skip("HW_DRS_BACKUP_MIGRATION_BUCKET_PATH must be set for DRS backup migration acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDrsBackupMigrationFileName(t *testing.T) {
+	if HW_DRS_BACKUP_MIGRATION_FILE_NAME == "" {
+		t.Skip("HW_DRS_BACKUP_MIGRATION_FILE_NAME must be set for DRS backup migration acceptance tests")
 	}
 }
 

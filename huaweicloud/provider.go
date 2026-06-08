@@ -3656,6 +3656,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zone_retrieval_verify":     dns.ResourceDNSZoneRetrievalVerify(),
 
 			"huaweicloud_drs_batch_delete_jobs":              drs.ResourceBatchDeleteJobs(),
+			"huaweicloud_drs_backup_migration":               drs.ResourceBackupMigration(),
 			"huaweicloud_drs_batch_pause_task":               drs.ResourceBatchPauseTask(),
 			"huaweicloud_drs_batch_retry_task":               drs.ResourceBatchRetryTask(),
 			"huaweicloud_drs_batch_set_definer":              drs.ResourceBatchSetDefiner(),
