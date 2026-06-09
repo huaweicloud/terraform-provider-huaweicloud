@@ -1026,6 +1026,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_instance_processes":                 das.DataSourceInstanceProcesses(),
 			"huaweicloud_das_shared_connections":                 das.DataSourceSharedConnections(),
 			"huaweicloud_das_sql_execution_plans":                das.DataSourceSqlExecutionPlans(),
+			"huaweicloud_das_sql_limit_rules":                    das.DataSourceSqlLimitRules(),
 
 			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
 			"huaweicloud_cdm_flavors":               cdm.DataSourceCdmFlavors(),
