@@ -50,6 +50,8 @@ The `resources` block supports:
 
 * `type` - (Required, String) Specifies the type of the resource to be associated.
 
+* `name` - (Optional, String) Specifies the name of the resource to be associated.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
