@@ -29,6 +29,7 @@ var gaussDbDrRelationshipNonUpdatableParams = []string{
 }
 
 // @API GaussDB POST /v3.5/{project_id}/instances/{instance_id}/disaster-recovery/construct
+// @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB GET /v3.5/{project_id}/disaster-recovery/relations
 // @API GaussDB POST /v3.5/{project_id}/instances/{instance_id}/disaster-recovery/release
 // @API GaussDB GET /v3/{project_id}/jobs
