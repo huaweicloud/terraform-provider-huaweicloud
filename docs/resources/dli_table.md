@@ -60,9 +60,17 @@ The following arguments are supported:
   + **DLI**: Data stored in DLI tables is applicable to delay-sensitive services, such as interactive queries.
   + **OBS**: Data stored in OBS tables is applicable to delay-insensitive services, such as historical data statistics
    and analysis.
+  + **View**: Indicates creating a view. The view is a virtual table based on the result set of an SQL query.
 
-* `description` - (Optional, String, ForceNew) Specifies description of the table.
+* `select_statement` - (Optional, String, ForceNew) Specifies the data source for the view.  
   Changing this parameter will create a new resource.
+
+  -> Require if the `data_location` is **View**.
+
+* `description` - (Optional, String, ForceNew) Specifies description of the table.  
+  Changing this parameter will create a new resource.
+
+  -> `description` becomes unavailable when the value of `data_location` is **View**.
 
 * `columns` - (Optional, List, ForceNew) Specifies Columns of the new table. Structure is documented below.
   Changing this parameter will create a new resource.
@@ -129,3 +137,20 @@ DLI table can be imported by `id`. It is composed of the name of database which 
 ```bash
 terraform import huaweicloud_dli_table.example <database_name>/<table_name>
 ```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `select_statement`.
+It is generally recommended running `terraform plan` after importing a DLI table.
+You can then decide if changes should be applied to the DLI table, or the resource definition
+should be updated to align with the DLI table. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_dli_table" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      select_statement,
+    ]
+  }
+}

@@ -174,3 +174,97 @@ resource "huaweicloud_dli_table" "test" {
 }
 `, obsBucketName, name, name)
 }
+
+func TestAccResourceDliTable_VIEW(t *testing.T) {
+	var (
+		resourceName = "huaweicloud_dli_table.test_view"
+		name         = acceptance.RandomAccResourceName()
+
+		tableObj tables.CreateTableOpts
+		rc       = acceptance.InitResourceCheck(
+			resourceName,
+			&tableObj,
+			getDliTableResourceFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliTableResource_VIEW(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "database_name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_view", name)),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"select_statement",
+				},
+			},
+		},
+	})
+}
+
+func testAccDliTableResource_VIEW(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_database" "test" {
+  name        = "%[1]s"
+  description = "For terraform acc test"
+}
+
+resource "huaweicloud_dli_table" "test" {
+  database_name = huaweicloud_dli_database.test.name
+  name          = "%[1]s"
+  data_location = "DLI"
+  description   = "dli table test"
+
+  columns {
+    name = "name"
+    type        = "string"
+    description = "person name"
+  }
+  columns {
+    name        = "address"
+    type        = "string"
+    description = "home address"
+  }
+
+  depends_on = [
+    huaweicloud_dli_database.test
+  ]
+}
+
+resource "huaweicloud_dli_table" "test_view" {
+  database_name    = huaweicloud_dli_database.test.name
+  name             = "%[1]s_view"
+  data_location    = "View"
+  select_statement = "SELECT * FROM ${huaweicloud_dli_database.test.name}.${huaweicloud_dli_table.test.name}"
+
+  columns {
+    name        = "name"
+    type        = "string"
+    description = "person name"
+  }
+  columns {
+    name        = "address"
+    type        = "string"
+    description = "home address"
+  }
+
+  depends_on = [
+    huaweicloud_dli_table.test
+  ]
+}
+`, name)
+}
