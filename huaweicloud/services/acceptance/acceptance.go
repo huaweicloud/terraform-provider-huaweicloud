@@ -279,6 +279,7 @@ var (
 	HW_TAURUSDB_DATABASE_NAME             = os.Getenv("HW_TAURUSDB_DATABASE_NAME")
 	HW_TAURUSDB_TABLE_NAME                = os.Getenv("HW_TAURUSDB_TABLE_NAME")
 	HW_TAURUSDB_INSTANCE_CONFIGURATION_ID = os.Getenv("HW_TAURUSDB_INSTANCE_CONFIGURATION_ID")
+	HW_TAURUSDB_BACKUP_ID                 = os.Getenv("HW_TAURUSDB_BACKUP_ID")
 	HW_TAURUSDB_BACKUP_BEGIN_TIME         = os.Getenv("HW_TAURUSDB_BACKUP_BEGIN_TIME")
 	HW_TAURUSDB_BACKUP_END_TIME           = os.Getenv("HW_TAURUSDB_BACKUP_END_TIME")
 	HW_TAURUSDB_JOB_ID                    = os.Getenv("HW_TAURUSDB_JOB_ID")
@@ -2350,6 +2351,13 @@ func TestAccPreCheckTaurusDBTableName(t *testing.T) {
 func TestAccPreCheckTaurusDBInstanceConfigurationId(t *testing.T) {
 	if HW_TAURUSDB_INSTANCE_CONFIGURATION_ID == "" {
 		t.Skip("HW_TAURUSDB_INSTANCE_CONFIGURATION_ID must be set for TaurusDB acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckTaurusDBBackupId(t *testing.T) {
+	if HW_TAURUSDB_BACKUP_ID == "" {
+		t.Skip("HW_TAURUSDB_BACKUP_ID must be set for TaurusDB acceptance tests.")
 	}
 }
 
