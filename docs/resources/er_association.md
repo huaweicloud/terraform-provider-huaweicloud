@@ -2,7 +2,8 @@
 subcategory: "Enterprise Router (ER)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_er_association"
-description: ""
+description: |-
+  Manages an association resource under the route table for ER service within HuaweiCloud.
 ---
 
 # huaweicloud_er_association
@@ -30,16 +31,14 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the ER instance and route table are located.  
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the ER instance to which the route table and the
-  attachment belongs.  
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the ER instance to which the route table and the
+  attachment belongs.
 
-* `route_table_id` - (Required, String, ForceNew) Specifies the ID of the route table to which the association
-  belongs.  
-  Changing this parameter will create a new resource.
+* `route_table_id` - (Required, String, NonUpdatable) Specifies the ID of the route table to which the association
+  belongs.
 
-* `attachment_id` - (Required, String, ForceNew) Specifies the ID of the attachment corresponding to the association.  
-  Changing this parameter will create a new resource.
+* `attachment_id` - (Required, String, NonUpdatable) Specifies the ID of the attachment corresponding to the
+  association.
 
 ## Attribute Reference
 
@@ -48,6 +47,13 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `attachment_type` - The type of the attachment corresponding to the association.
+  + **vpc**: Virtual Private Cloud
+  + **vpn**: VPN Gateway
+  + **vgw**: Virtual Gateway for Cloud Dedicated Line
+  + **peering**: Peer-to-peer connection (creating peer-to-peer connections by loading enterprise routers in different
+    regions via Cloud Connect CC)
+  + **gdgw**: Global Access Gateway
+  + **cfw**: Cloud Firewall
 
 * `status` - The current status of the association.
 

@@ -35,6 +35,14 @@ The following arguments are supported:
 * `attachment_id` - (Optional, String) Specifies the attachment ID corresponding to the association.  
 
 * `attachment_type` - (Optional, String) Specifies the attachment type corresponding to the association.  
+  The valid values are as follows:
+  + **vpc**: Virtual Private Cloud
+  + **vpn**: VPN Gateway
+  + **vgw**: Virtual Gateway for Cloud Dedicated Line
+  + **peering**: Peer-to-peer connection (creating peer-to-peer connections by loading enterprise routers in different
+    regions via Cloud Connect CC)
+  + **gdgw**: Global Access Gateway
+  + **cfw**: Cloud Firewall
 
 * `status` - (Optional, String) Specifies the status of the association. Default value is `available`.
   The valid values are as follows:
@@ -59,7 +67,14 @@ The `associations` block supports:
 
 * `attachment_id` -The attachment ID corresponding to the association.
 
-* `attachment_type` -The type of the attachment corresponding to the association.
+* `attachment_type` - The type of the attachment corresponding to the association.
+  + **vpc**: Virtual Private Cloud
+  + **vpn**: VPN Gateway
+  + **vgw**: Virtual Gateway for Cloud Dedicated Line
+  + **peering**: Peer-to-peer connection (creating peer-to-peer connections by loading enterprise routers in different
+    regions via Cloud Connect CC)
+  + **gdgw**: Global Access Gateway
+  + **cfw**: Cloud Firewall
 
 * `resource_id` - The resource ID of the attachment corresponding to the association.
 
