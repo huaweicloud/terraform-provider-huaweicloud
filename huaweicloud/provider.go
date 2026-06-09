@@ -4543,6 +4543,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_parameter_template_apply":        taurusdb.ResourceTaurusDBTemplateApply(),
 			"huaweicloud_taurusdb_parameter_template_compare":      taurusdb.ResourceTaurusDBTemplateCompare(),
 			"huaweicloud_taurusdb_backup":                          taurusdb.ResourceTaurusDBBackup(),
+			"huaweicloud_taurusdb_backups_batch_delete":            taurusdb.ResourceTaurusDBBackupsBatchDelete(),
 			"huaweicloud_taurusdb_lts_log":                         taurusdb.ResourceTaurusDBLtsLog(),
 			"huaweicloud_taurusdb_restore":                         taurusdb.ResourceTaurusDBRestore(),
 			"huaweicloud_taurusdb_table_restore":                   taurusdb.ResourceTaurusDBTableRestore(),
