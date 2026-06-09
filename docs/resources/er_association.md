@@ -12,15 +12,36 @@ Manages an association resource under the route table for ER service within Huaw
 
 ## Example Usage
 
+### Create an association to a route table using a VPC attachment
+
 ```hcl
 variable "instance_id" {}
 variable "route_table_id" {}
-variable "attachment_id" {}
+variable "vpc_attachment_id" {}
 
 resource "huaweicloud_er_association" "test" {
   instance_id    = var.instance_id
   route_table_id = var.route_table_id
-  attachment_id  = var.attachment_id
+  attachment_id  = var.vpc_attachment_id
+}
+```
+
+### Create an association to a route table using a VPN Gateway attachment and with a custom route policy
+
+```hcl
+variable "instance_id" {}
+variable "route_table_id" {}
+variable "vpn_gateway_attachment_id" {}
+variable "export_policy_id" {}
+
+resource "huaweicloud_er_association" "with_route_policy" {
+  instance_id    = var.instance_id
+  route_table_id = var.route_table_id
+  attachment_id  = var.vpn_gateway_attachment_id
+
+  route_policy {
+    export_policy_id = var.export_policy_id
+  }
 }
 ```
 
@@ -39,6 +60,17 @@ The following arguments are supported:
 
 * `attachment_id` - (Required, String, NonUpdatable) Specifies the ID of the attachment corresponding to the
   association.
+
+* `route_policy` - (Optional, List) Specifies the export route policy configuration.  
+  The [route_policy](#er_association_route_policy) structure is documented below.
+
+  -> This parameter currently only applies to certain types of attachments, such as VPN gateway.<br>
+     For information regarding support for more attachment types, please contact the relevant service via a ticket.
+
+<a name="er_association_route_policy"></a>
+The `route_policy` block supports:
+
+* `export_policy_id` - (Optional, String) Specifies the export route policy ID.
 
 ## Attribute Reference
 
@@ -66,6 +98,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
 * `delete` - Default is 2 minutes.
 
 ## Import
