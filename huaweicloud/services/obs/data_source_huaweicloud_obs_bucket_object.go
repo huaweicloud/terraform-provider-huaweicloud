@@ -65,6 +65,12 @@ func DataSourceObsBucketObject() *schema.Resource {
 				Computed: true,
 			},
 			"tags": common.TagsComputedSchema(`The key/value pairs associated with the object.`),
+			"metadata": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The custom metadata of the object.`,
+			},
 		},
 	}
 }
@@ -116,6 +122,7 @@ func dataSourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("version_id", objectMeta.VersionId),
 		d.Set("content_type", objectMeta.ContentType),
 		d.Set("tags", tags),
+		d.Set("metadata", objectMeta.Metadata),
 	)
 
 	// body is available only for objects which have a human-readable Content-Type

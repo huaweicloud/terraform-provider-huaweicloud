@@ -40,6 +40,8 @@ func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
 					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(dataSourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(dataSourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "metadata.x-obs-meta-test", "meta test"),
 				),
 			},
 		},
@@ -180,6 +182,10 @@ resource "huaweicloud_obs_bucket_object" "object" {
 
   tags = {
     foo = "bar"
+  }
+
+  metadata = {
+    "x-obs-meta-test" = "meta test"
   }
 }
 `, randInt, randInt)

@@ -79,6 +79,14 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the object.
 
+* `metadata` - (Optional, Map) Specifies the custom metadata key/value pairs of the object.  
+  + Key must start with `x-obs-meta-`.
+  + When the bucket is enabled for versioning, the latest version of the object supports setting metadata,
+    and the history version of the object does not support setting metadata.
+  + For objects with archive storage or deep archive storage, the object metadata cannot be set.
+  + The total size of custom metadata is limited to `8` KB. The size of each custom metadata is calculated as the
+    total number of bytes in the UTF-8 encoding of the key and value.
+
 Either `source` or `content` must be provided to specify the bucket content. These two arguments are mutually-exclusive.
 
 ## Attribute Reference

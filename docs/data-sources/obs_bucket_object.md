@@ -51,3 +51,5 @@ In addition to all arguments above, the following attributes are exported:
   potentially downloading large amount of data.
 
 * `tags` - The key/value pairs associated with the object.
+
+* `metadata` - The custom metadata of the object.
