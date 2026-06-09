@@ -49,3 +49,5 @@ In addition to all arguments above, the following attributes are exported:
 * `body` - The content of an object which is available only for objects which have a human-readable Content-Type
   (text/* and application/json) and smaller than **64KB**. This is to prevent printing unsafe characters and
   potentially downloading large amount of data.
+
+* `tags` - The key/value pairs associated with the object.
