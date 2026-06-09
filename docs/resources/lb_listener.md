@@ -31,7 +31,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the listener resource. If omitted, the
   provider-level region will be used. Changing this creates a new listener.
 
-* `protocol` - (Required, String, NonUpdatable) The protocol can either be **TCP**, **UDP**, **HTTP** or **TERMINATED_HTTPS**.
+* `protocol` - (Required, String, NonUpdatable) The protocol can either be **TCP**, **UDP**, **HTTP** or
+  **TERMINATED_HTTPS**.
 
 * `protocol_port` - (Required, Int, NonUpdatable) The port on which to listen for client traffic.
 
@@ -43,42 +44,55 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the listener.
 
-* `http2_enable` - (Optional, Bool) Specifies whether to use HTTP/2. The default value is false. This parameter is valid
-  only when the `protocol` is set to **TERMINATED_HTTPS**.
+* `http2_enable` - (Optional, Bool) Specifies whether to use HTTP/2. The default value is false.  
+  This parameter is valid only when the `protocol` is set to **TERMINATED_HTTPS**.
 
-* `default_tls_container_ref` - (Optional, String) Specifies the ID of the server certificate used by the listener. This
-  parameter is mandatory when `protocol` is set to **TERMINATED_HTTPS**.
+* `default_tls_container_ref` - (Optional, String) Specifies the ID of the server certificate used by the listener.  
+  This parameter is mandatory when `protocol` is set to **TERMINATED_HTTPS**.
 
-* `client_ca_tls_container_ref` - (Optional, String) Specifies the ID of the CA certificate used by the listener. This
-  parameter is mandatory when `protocol` is set to **TERMINATED_HTTPS**.
+* `client_ca_tls_container_ref` - (Optional, String) Specifies the ID of the CA certificate used by the listener.  
+  This parameter is mandatory when `protocol` is set to **TERMINATED_HTTPS**.
 
 * `sni_container_refs` - (Optional, List) Lists the IDs of SNI certificates (server certificates with a domain name)
   used by the listener. This parameter is valid when `protocol` is set to **TERMINATED_HTTPS**.
 
-* `insert_headers` - (Optional, List) Specifies whether to insert HTTP extension headers and sent them to backend servers.
+* `insert_headers` - (Optional, List) Specifies whether to insert HTTP extension headers and sent them to backend
+  servers.  
   All headers are synchronized. If this parameter is not set, default values are used. Information required by backend
-  servers can be written into HTTP headers and passed to backend servers. This parameter is mandatory when `protocol` is
-  set to **TERMINATED_HTTPS**.
+  servers can be written into HTTP headers and passed to backend servers.  
+  This parameter is mandatory when `protocol` is set to **TERMINATED_HTTPS**.  
   The [insert_headers](#insert_headers_struct) structure is documented below.
 
-* `tls_ciphers_policy` - (Optional, String) Specifies the security policy used by the listener. This parameter takes effect
-  only when the `protocol` used by the listener is set to **TERMINATED_HTTPS**. Value options: **tls-1-0-inherit**,
-  **tls-1-0**, **tls-1-1**, **tls-1-2** or **tls-1-2-strict**. Defaults to **tls-1-0**.
+* `tls_ciphers_policy` - (Optional, String) Specifies the security policy used by the listener.  
+  This parameter takes effect only when the `protocol` used by the listener is set to **TERMINATED_HTTPS**.  
+  Value options: **tls-1-0-inherit**, **tls-1-0**, **tls-1-1**, **tls-1-2** or **tls-1-2-strict**.  
+  Defaults to **tls-1-0**.
 
 * `protection_status` - (Optional, String) Specifies whether modification protection is enabled. Value options:
   + **nonProtection (default)**: Modification protection is not enabled.
-  + **consoleProtection**: Modification protection is enabled to avoid that resources are modified by accident on the console.
+  + **consoleProtection**: Modification protection is enabled to avoid that resources are modified by accident on
+  the console.
 
-* `protection_reason` - (Optional, String) The reason to enable modification protection. This parameter is valid only when
-  `protection_status` is set to **consoleProtection**.
+* `protection_reason` - (Optional, String) The reason to enable modification protection. This parameter is valid only
+  when `protection_status` is set to **consoleProtection**.
 
 * `tags` - (Optional, Map) Specifies the reason to enable modification protection.
+
+* `transparent_client_ip_enable` - (Optional, String) Specifies whether to pass source IP addresses of the clients to
+  backend servers.  
+  The valid values are as follows:
+  + **true**
+  + **false**
+
+  When `protocol` is set to **TCP** or **UDP**, if omitted, the default value is **false**.  
+  When `protocol` is set to **HTTP** or **HTTPS**, the default value is **true** and cannot be modified.
 
 <a name="insert_headers_struct"></a>
 The `insert_headers` block supports:
 
 * `x_forwarded_elb_ip` - (Optional, String) Specifies whether to transparently transmit the load balancer EIP to backend
-  servers. After this function is enabled, the load balancer EIP is stored in the HTTP header and passes to backend servers.
+  servers. After this function is enabled, the load balancer EIP is stored in the HTTP header and passes to backend
+  servers.  
   Value options:
   + **true**: This function is enabled.
   + **false (default)**: The function is disabled.
