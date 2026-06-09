@@ -61,6 +61,11 @@ func ResourceDliTable() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"select_statement": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"columns": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -188,6 +193,7 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 	opts := tables.CreateTableOpts{
 		TableName:       tableName,
 		DataLocation:    d.Get("data_location").(string),
+		SelectStatement: d.Get("select_statement").(string),
 		Columns:         buildColumnParam(d),
 		Description:     d.Get("description").(string),
 		DataType:        d.Get("data_format").(string),
