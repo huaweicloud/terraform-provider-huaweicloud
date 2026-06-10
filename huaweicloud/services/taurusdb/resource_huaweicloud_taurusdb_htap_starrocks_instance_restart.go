@@ -65,48 +65,39 @@ func ResourceTaurusDBHtapStarrocksInstanceRestart() *schema.Resource {
 }
 
 func resourceTaurusDBHtapStarrocksInstanceRestartCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg                 = meta.(*config.Config)
+		region              = cfg.GetRegion(d)
+		taurusdbInstanceId  = d.Get("taurusdb_instance_id").(string)
+		starrocksInstanceId = d.Get("starrocks_instance_id").(string)
+	)
 
 	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	starrocksInstanceId := d.Get("starrocks_instance_id").(string)
-	jobId, err := restartStarrocksInstance(ctx, d, client)
+	err = restartStarrocksInstance(ctx, client, taurusdbInstanceId, starrocksInstanceId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	d.SetId(starrocksInstanceId)
-
-	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("error waiting for restarting StarRocks instance(%s) job to complete: %s",
-			starrocksInstanceId, err)
-	}
-
 	return nil
 }
 
-func restartStarrocksInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
-	var (
-		httpUrl = "v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart"
-	)
+func restartStarrocksInstance(ctx context.Context, client *golangsdk.ServiceClient,
+	instanceId, starrocksInstanceId string, timeout time.Duration) error {
+	restartPath := client.Endpoint + "v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart"
+	restartPath = strings.ReplaceAll(restartPath, "{project_id}", client.ProjectID)
+	restartPath = strings.ReplaceAll(restartPath, "{starrocks_instance_id}", starrocksInstanceId)
 
-	instanceId := d.Get("taurusdb_instance_id").(string)
-	starrocksInstanceId := d.Get("starrocks_instance_id").(string)
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{starrocks_instance_id}", starrocksInstanceId)
-
-	createOpt := golangsdk.RequestOpts{
+	restartOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("PUT", createPath, &createOpt)
+		res, err := client.Request("PUT", restartPath, &restartOpt)
 		retry, err := handleMultiOperationsError(err)
 		return res, retry, err
 	}
@@ -115,25 +106,31 @@ func restartStarrocksInstance(ctx context.Context, d *schema.ResourceData, clien
 		RetryFunc:    retryFunc,
 		WaitFunc:     htapInstanceStateRefreshFunc(client, instanceId, starrocksInstanceId),
 		WaitTarget:   []string{"normal"},
-		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return "", fmt.Errorf("error restarting TaurusDB Htap StarRocks instance(%s): %s", starrocksInstanceId, err)
+		return fmt.Errorf("error restarting TaurusDB Htap StarRocks instance(%s): %s", starrocksInstanceId, err)
 	}
-	createRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	restartRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	jobId := utils.PathSearch("job_id", restartRespBody, "").(string)
 	if jobId == "" {
-		return "", fmt.Errorf("error restarting StarRocks instance(%s), job_id is not found in the response",
+		return fmt.Errorf("error restarting TaurusDB Htap StarRocks instance(%s), job_id is not found in the response",
 			starrocksInstanceId)
 	}
 
-	return jobId, nil
+	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for restarting TaurusDB Htap StarRocks instance(%s) job to complete: %s",
+			starrocksInstanceId, err)
+	}
+
+	return nil
 }
 
 func htapInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, htapInstanceId string) resource.StateRefreshFunc {
@@ -144,49 +141,38 @@ func htapInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, h
 			return nil, "", err
 		}
 		htapInstanceStatus := utils.PathSearch("status", htapInstanceDetail, "").(string)
-		// If the status is abnormal or createfail, return error directly without retry
+		htapInstanceActions := utils.PathSearch("actions", htapInstanceDetail, make([]interface{}, 0)).([]interface{})
+		if htapInstanceStatus == "normal" && len(htapInstanceActions) == 0 {
+			return checkHtapInstanceNodesStatus(htapInstanceDetail)
+		}
 		if htapInstanceStatus == "abnormal" || htapInstanceStatus == "createfail" {
-			return nil, "", fmt.Errorf("TaurusDB HTAP instance(%s) is in %s state, cannot proceed with restart",
+			return nil, "", fmt.Errorf("TaurusDB HTAP instance(%s) is in status(%s), cannot proceed with new job",
 				htapInstanceId, htapInstanceStatus)
 		}
-		if htapInstanceStatus != "normal" {
-			return htapInstanceDetail, htapInstanceStatus, nil
-		}
-		htapActions := utils.PathSearch("actions", htapInstanceDetail, make([]interface{}, 0)).([]interface{})
-		if len(htapActions) == 0 {
-			// Check status is normal and actions is empty list in all nodes
-			groups := utils.PathSearch("groups", htapInstanceDetail, make([]interface{}, 0)).([]interface{})
-			if len(groups) == 0 {
-				return htapInstanceDetail, "normal", nil
-			}
-			for _, group := range groups {
-				nodes := utils.PathSearch("nodes", group, make([]interface{}, 0)).([]interface{})
-				if len(nodes) == 0 {
-					continue
-				}
-				for _, node := range nodes {
-					nodeStatus := utils.PathSearch("status", node, "").(string)
-					// If the node status is abnormal or createfail, return error directly without retry
-					if nodeStatus == "abnormal" || nodeStatus == "createfail" {
-						return nil, "", fmt.Errorf("StarRocks node is in %s state, cannot proceed with restart",
-							nodeStatus)
-					}
-					if nodeStatus != "normal" {
-						return node, nodeStatus, nil
-					}
-					nodeActions := utils.PathSearch("actions", node, make([]interface{}, 0)).([]interface{})
-					if len(nodeActions) > 0 {
-						// Return the action of the node as status
-						nodeAction := utils.PathSearch("actions[0].action", node, "").(string)
-						return node, nodeAction, nil
-					}
-				}
-			}
-			return htapInstanceDetail, "normal", nil
-		}
-		htapAction := utils.PathSearch("actions[0].action", htapInstanceDetail, "").(string)
-		return htapInstanceDetail, htapAction, nil
+		return htapInstanceDetail, "pending", nil
 	}
+}
+func checkHtapInstanceNodesStatus(htapInstanceDetail interface{}) (interface{}, string, error) {
+	// Check status is normal and actions is empty list in all nodes
+	groups := utils.PathSearch("groups", htapInstanceDetail, make([]interface{}, 0)).([]interface{})
+	for _, group := range groups {
+		nodes := utils.PathSearch("nodes", group, make([]interface{}, 0)).([]interface{})
+		for _, node := range nodes {
+			nodeStatus := utils.PathSearch("status", node, "").(string)
+			nodeActions := utils.PathSearch("actions", node, make([]interface{}, 0)).([]interface{})
+			if nodeStatus == "normal" && len(nodeActions) == 0 {
+				// If the node status is normal and actions is empty list, continue to check next node
+				continue
+			}
+			// If the node status is abnormal or createfail, return error directly without retry
+			if nodeStatus == "abnormal" || nodeStatus == "createfail" {
+				return nil, "", fmt.Errorf("StarRocks node is in status(%s), cannot proceed with new job", nodeStatus)
+			}
+			return node, "pending", nil
+		}
+	}
+	// If all nodes are normal and actions is empty list, return normal
+	return htapInstanceDetail, "normal", nil
 }
 
 func GetHtapInstanceDetail(client *golangsdk.ServiceClient, instanceId, htapInstanceId string) (interface{}, error) {
