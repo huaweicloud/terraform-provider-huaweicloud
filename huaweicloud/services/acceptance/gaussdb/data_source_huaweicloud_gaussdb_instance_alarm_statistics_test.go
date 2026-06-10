@@ -17,31 +17,30 @@ func TestAccDataSourceInstanceAlarmStatistics_basic(t *testing.T) {
 		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
-	resource.ParallelTest(
-		t, resource.TestCase{
-			PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-			ProviderFactories: acceptance.TestAccProviderFactories,
-			Steps: []resource.TestStep{
-				{
-					Config: testDataSourceInstanceAlarmStatistics_basic(),
-					Check: resource.ComposeTestCheckFunc(
-						dc.CheckResourceExists(),
-						resource.TestCheckResourceAttrSet(all, "ring_percentage"),
-						resource.TestMatchResourceAttr(all, "instance_alarm_level_statistics.#", regexp.MustCompile(`^[0-9]+$`)),
-						resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.instance_id"),
-						resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.instance_name"),
-						resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.total_count"),
-						resource.TestMatchResourceAttr(all, "instance_alarm_level_statistics.0.alarm_level_statistics.#",
-							regexp.MustCompile(`^[0-9]+$`)),
-						resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.alarm_level_statistics.0.count"),
-						resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.alarm_level_statistics.0.level_name"),
-						resource.TestMatchResourceAttr(all, "total_alarm_level_statistics.#", regexp.MustCompile(`^[0-9]+$`)),
-						resource.TestCheckResourceAttrSet(all, "total_alarm_level_statistics.0.count"),
-						resource.TestCheckResourceAttrSet(all, "total_alarm_level_statistics.0.level_name"),
-					),
-				},
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceInstanceAlarmStatistics_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(all, "ring_percentage"),
+					resource.TestMatchResourceAttr(all, "instance_alarm_level_statistics.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.instance_id"),
+					resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.instance_name"),
+					resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.total_count"),
+					resource.TestMatchResourceAttr(all, "instance_alarm_level_statistics.0.alarm_level_statistics.#",
+						regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.alarm_level_statistics.0.count"),
+					resource.TestCheckResourceAttrSet(all, "instance_alarm_level_statistics.0.alarm_level_statistics.0.level_name"),
+					resource.TestMatchResourceAttr(all, "total_alarm_level_statistics.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "total_alarm_level_statistics.0.count"),
+					resource.TestCheckResourceAttrSet(all, "total_alarm_level_statistics.0.level_name"),
+				),
 			},
 		},
+	},
 	)
 }
 

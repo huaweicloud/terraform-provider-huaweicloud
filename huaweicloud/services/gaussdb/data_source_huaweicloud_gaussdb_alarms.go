@@ -155,7 +155,7 @@ func dataSourceAlarmsRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	alarms, err := listAlarms(client, d)
 	if err != nil {
-		return diag.Errorf("error querying alarms: %s", err)
+		return diag.Errorf("error querying GaussDB alarm history records: %s", err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()

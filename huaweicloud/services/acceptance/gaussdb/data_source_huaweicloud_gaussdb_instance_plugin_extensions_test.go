@@ -9,9 +9,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceInstalledPlugins_basic(t *testing.T) {
+func TestAccDataSourceInstancePluginExtensions_basic(t *testing.T) {
 	var (
-		dataSource = "data.huaweicloud_gaussdb_instance_installed_plugins.test"
+		dataSource = "data.huaweicloud_gaussdb_instance_plugin_extensions.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
@@ -23,10 +23,10 @@ func TestAccDataSourceInstalledPlugins_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceInstalledPlugins_basic(),
+				Config: testDataSourceInstancePluginExtensions_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "plugins.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "extensions.#"),
 				),
 			},
 		},
@@ -34,11 +34,13 @@ func TestAccDataSourceInstalledPlugins_basic(t *testing.T) {
 	)
 }
 
-func testDataSourceInstalledPlugins_basic() string {
+func testDataSourceInstancePluginExtensions_basic() string {
 	return fmt.Sprintf(`
 
-data "huaweicloud_gaussdb_instance_installed_plugins" "test" {
+data "huaweicloud_gaussdb_instance_plugin_extensions" "test" {
   instance_id = "%[1]s"
+  db_name     = "gauss-6ea"
+  plugin_name = "postgis"
 }
 `, acceptance.HW_GAUSSDB_INSTANCE_ID)
 }

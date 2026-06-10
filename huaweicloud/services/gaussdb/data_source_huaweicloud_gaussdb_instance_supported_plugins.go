@@ -58,7 +58,7 @@ func dataSourceSupportedPluginsRead(_ context.Context, d *schema.ResourceData, m
 
 	requestResp, err := client.Request("GET", listPath, &opt)
 	if err != nil {
-		return diag.Errorf("error querying supported plugins: %s", err)
+		return diag.Errorf("error querying GaussDB instance supported plugins: %s", err)
 	}
 
 	resp, err := utils.FlattenResponse(requestResp)

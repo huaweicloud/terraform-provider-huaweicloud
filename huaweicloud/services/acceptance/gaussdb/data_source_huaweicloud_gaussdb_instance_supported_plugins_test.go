@@ -14,23 +14,22 @@ func TestAccDataSourceSupportedPlugins_basic(t *testing.T) {
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
-	resource.ParallelTest(
-		t, resource.TestCase{
-			PreCheck: func() {
-				acceptance.TestAccPreCheck(t)
-				acceptance.TestAccPreCheckGaussDBInstanceId(t)
-			},
-			ProviderFactories: acceptance.TestAccProviderFactories,
-			Steps: []resource.TestStep{
-				{
-					Config: testDataSourceSupportedPlugins_basic(),
-					Check: resource.ComposeTestCheckFunc(
-						dc.CheckResourceExists(),
-						resource.TestCheckResourceAttrSet(dataSource, "plugins.#"),
-					),
-				},
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceSupportedPlugins_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "plugins.#"),
+				),
 			},
 		},
+	},
 	)
 }
 

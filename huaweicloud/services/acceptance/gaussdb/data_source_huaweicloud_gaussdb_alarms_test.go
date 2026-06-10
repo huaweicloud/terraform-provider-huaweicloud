@@ -17,30 +17,29 @@ func TestAccDataSourceAlarms_basic(t *testing.T) {
 		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
-	resource.ParallelTest(
-		t, resource.TestCase{
-			PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-			ProviderFactories: acceptance.TestAccProviderFactories,
-			Steps: []resource.TestStep{
-				{
-					Config: testDataSourceAlarms_basic(),
-					Check: resource.ComposeTestCheckFunc(
-						dc.CheckResourceExists(),
-						resource.TestMatchResourceAttr(all, "history_records.#", regexp.MustCompile(`^[0-9]+$`)),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.alarm_id"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.name"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.status"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.alarm_type"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.level"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.instance_id"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.instance_name"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.begin_time"),
-						resource.TestCheckResourceAttrSet(all, "history_records.0.update_time"),
-						resource.TestCheckOutput("level_filter_is_useful", "true"),
-					),
-				},
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceAlarms_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "history_records.#", regexp.MustCompile(`^[0-9]+$`)),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.alarm_id"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.name"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.status"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.alarm_type"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.level"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.instance_id"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.instance_name"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.begin_time"),
+					resource.TestCheckResourceAttrSet(all, "history_records.0.update_time"),
+					resource.TestCheckOutput("level_filter_is_useful", "true"),
+				),
 			},
 		},
+	},
 	)
 }
 
