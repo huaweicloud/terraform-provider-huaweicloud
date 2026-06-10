@@ -1383,6 +1383,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job_metering":             drs.DataSourceDrsJobMetering(),
 			"huaweicloud_drs_job_monitor_data":         drs.DataSourceDrsJobMonitorData(),
 			"huaweicloud_drs_job_object_support":       drs.DataSourceDrsJobObjectSupport(),
+			"huaweicloud_drs_jobs":                     drs.DataSourceDrsJobs(),
 			"huaweicloud_drs_node_types":               drs.DataSourceNodeTypes(),
 			"huaweicloud_drs_object_compare_detail":    drs.DataSourceObjectCompareDetail(),
 			"huaweicloud_drs_object_compare":           drs.DataSourceDrsObjectCompare(),
