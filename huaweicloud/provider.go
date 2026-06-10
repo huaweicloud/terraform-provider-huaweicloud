@@ -3029,6 +3029,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_domain":                     aad.ResourceDomain(),
 			"huaweicloud_aad_domain_certificate":         aad.ResourceDomainCertificate(),
 			"huaweicloud_aad_forward_rule":               aad.ResourceForwardRule(),
+			"huaweicloud_aad_instance":                   aad.ResourceAadInstance(),
 			"huaweicloud_aad_black_white_list":           aad.ResourceBlackWhiteList(),
 			"huaweicloud_aad_change_specification":       aad.ResourceChangeSpecification(),
 			"huaweicloud_aad_domain_security_protection": aad.ResourceDomainSecurityProtection(),
