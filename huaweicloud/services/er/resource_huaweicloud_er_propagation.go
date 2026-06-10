@@ -28,6 +28,7 @@ var propagationNonUpdatableParams = []string{
 
 // @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/enable-propagations
 // @API ER GET /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations/{propagation_id}/change-route-policy
 // @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disable-propagations
 func ResourcePropagation() *schema.Resource {
 	return &schema.Resource{
@@ -42,6 +43,7 @@ func ResourcePropagation() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 
@@ -71,6 +73,25 @@ func ResourcePropagation() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The ID of the attachment corresponding to the propagation.`,
+			},
+
+			// Optional parameters.
+			"route_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"import_policy_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The import route policy ID.`,
+						},
+					},
+				},
+				Description: `The import route policy configuration.`,
 			},
 
 			// Attributes.
@@ -109,7 +130,26 @@ func ResourcePropagation() *schema.Resource {
 	}
 }
 
-func createPropagation(client *golangsdk.ServiceClient, instanceId, attachmentId, routeTableId string) (interface{}, error) {
+func buildPropagationRoutePolicy(routePolicies []interface{}) map[string]interface{} {
+	if len(routePolicies) < 1 {
+		return nil
+	}
+
+	routePolicy := routePolicies[0]
+	return map[string]interface{}{
+		"import_policy_id": utils.ValueIgnoreEmpty(utils.PathSearch("import_policy_id", routePolicy, nil)),
+	}
+}
+
+func buildCreatePropagationBodyParams(attachmentId string, routePolicies []interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"attachment_id": attachmentId,
+		"route_policy":  buildPropagationRoutePolicy(routePolicies),
+	}
+}
+
+func createPropagation(client *golangsdk.ServiceClient, instanceId, attachmentId, routeTableId string,
+	routePolicies []interface{}) (interface{}, error) {
 	httpUrl := "v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/enable-propagations"
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
@@ -121,9 +161,7 @@ func createPropagation(client *golangsdk.ServiceClient, instanceId, attachmentId
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: map[string]interface{}{
-			"attachment_id": attachmentId,
-		},
+		JSONBody: utils.RemoveNil(buildCreatePropagationBodyParams(attachmentId, routePolicies)),
 	}
 
 	requestResp, err := client.Request("POST", createPath, &createOpt)
@@ -228,11 +266,12 @@ func propagationStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, r
 
 func resourcePropagationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg          = meta.(*config.Config)
-		region       = cfg.GetRegion(d)
-		instanceId   = d.Get("instance_id").(string)
-		attachmentId = d.Get("attachment_id").(string)
-		routeTableId = d.Get("route_table_id").(string)
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		instanceId    = d.Get("instance_id").(string)
+		attachmentId  = d.Get("attachment_id").(string)
+		routeTableId  = d.Get("route_table_id").(string)
+		routePolicies = d.Get("route_policy").([]interface{})
 	)
 
 	client, err := cfg.NewServiceClient("er", region)
@@ -240,7 +279,7 @@ func resourcePropagationCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating ER client: %s", err)
 	}
 
-	respBody, err := createPropagation(client, instanceId, attachmentId, routeTableId)
+	respBody, err := createPropagation(client, instanceId, attachmentId, routeTableId, routePolicies)
 	if err != nil {
 		return diag.Errorf("error creating the propagation to the route table: %s", err)
 	}
@@ -268,6 +307,23 @@ func resourcePropagationCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourcePropagationRead(ctx, d, meta)
 }
 
+func flattenPropagationRoutePolicy(routePolicy map[string]interface{}) []map[string]interface{} {
+	if len(routePolicy) < 1 {
+		return nil
+	}
+
+	importPolicyId := utils.PathSearch("import_policy_id", routePolicy, nil)
+	if importPolicyId == nil || importPolicyId == "" {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"import_policy_id": importPolicyId,
+		},
+	}
+}
+
 func resourcePropagationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg           = meta.(*config.Config)
@@ -292,6 +348,8 @@ func resourcePropagationRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("route_table_id", utils.PathSearch("route_table_id", respBody, nil)),
 		d.Set("attachment_id", utils.PathSearch("attachment_id", respBody, nil)),
 		d.Set("attachment_type", utils.PathSearch("resource_type", respBody, nil)),
+		d.Set("route_policy", flattenPropagationRoutePolicy(utils.PathSearch("route_policy", respBody,
+			make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("status", utils.PathSearch("state", respBody, nil)),
 		// The time results are not the time in RF3339 format without milliseconds.
 		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(
@@ -303,8 +361,71 @@ func resourcePropagationRead(_ context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourcePropagationUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
+func buildUpdatePropagationRoutePolicyBodyParams(routePolicies []interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"route_policy": buildPropagationRoutePolicy(routePolicies),
+	}
+}
+
+func changePropagationRoutePolicy(client *golangsdk.ServiceClient, instanceId, routeTableId, propagationId string,
+	routePolicies []interface{}) (interface{}, error) {
+	httpUrl := "v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations/{propagation_id}/change-route-policy"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{er_id}", instanceId)
+	updatePath = strings.ReplaceAll(updatePath, "{route_table_id}", routeTableId)
+	updatePath = strings.ReplaceAll(updatePath, "{propagation_id}", propagationId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildUpdatePropagationRoutePolicyBodyParams(routePolicies)),
+	}
+
+	requestResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(requestResp)
+}
+
+func resourcePropagationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		instanceId    = d.Get("instance_id").(string)
+		routeTableId  = d.Get("route_table_id").(string)
+		propagationId = d.Id()
+		routePolicies = d.Get("route_policy").([]interface{})
+	)
+
+	client, err := cfg.NewServiceClient("er", region)
+	if err != nil {
+		return diag.Errorf("error creating ER client: %s", err)
+	}
+
+	_, err = changePropagationRoutePolicy(client, instanceId, routeTableId, propagationId, routePolicies)
+	if err != nil {
+		return diag.Errorf("error updating the route policy of propagation (%s): %s", propagationId, err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      propagationStatusRefreshFunc(client, instanceId, routeTableId, propagationId, []string{"available"}),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the propagation (%s) route policy update to complete: %s", propagationId, err)
+	}
+
+	return resourcePropagationRead(ctx, d, meta)
 }
 
 func deletePropagation(client *golangsdk.ServiceClient, instanceId, attachmentId, routeTableId string) error {
