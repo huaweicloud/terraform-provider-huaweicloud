@@ -3887,6 +3887,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_wdr_snapshot_collect":       gaussdb.ResourceGaussDbWdrSnapshotCollect(),
 			"huaweicloud_gaussdb_dr_configuration_reset":     gaussdb.ResourceGaussDbDrConfigurationReset(),
 			"huaweicloud_gaussdb_dr_relationship":            gaussdb.ResourceGaussDbDrRelationship(),
+			"huaweicloud_gaussdb_dr_log_cache":               gaussdb.ResourceGaussDbDrLogCache(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
