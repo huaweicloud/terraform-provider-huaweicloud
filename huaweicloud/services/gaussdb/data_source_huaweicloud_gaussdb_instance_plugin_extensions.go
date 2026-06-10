@@ -15,10 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB GET /v3/instances-statistics
-func DataSourceInstanceStatusStatistics() *schema.Resource {
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/plugin-extensions
+func DataSourceInstancePluginExtensions() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceInstanceStatusStatisticsRead,
+		ReadContext: dataSourceInstancePluginExtensionsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -26,31 +26,43 @@ func DataSourceInstanceStatusStatistics() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"instances_statistics": {
+			"instance_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"plugin_name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"db_name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"extensions": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     instanceStatusStatisticsSchema(),
+				Elem:     pluginExtensionSchema(),
 			},
 		},
 	}
 }
 
-func instanceStatusStatisticsSchema() *schema.Resource {
+func pluginExtensionSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"extension_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 		},
 	}
 }
 
-func dataSourceInstanceStatusStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceInstancePluginExtensionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -61,10 +73,13 @@ func dataSourceInstanceStatusStatisticsRead(_ context.Context, d *schema.Resourc
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	httpUrl := "v3/instances-statistics"
+	httpUrl := "v3/{project_id}/instances/{instance_id}/plugin-extensions?plugin_name={plugin_name}&db_name={db_name}"
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", d.Get("instance_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{plugin_name}", d.Get("plugin_name").(string))
+	listPath = strings.ReplaceAll(listPath, "{db_name}", d.Get("db_name").(string))
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -73,12 +88,12 @@ func dataSourceInstanceStatusStatisticsRead(_ context.Context, d *schema.Resourc
 
 	requestResp, err := client.Request("GET", listPath, &opt)
 	if err != nil {
-		return diag.Errorf("error querying GaussDB instance status statistics: %s", err)
+		return diag.Errorf("error querying GaussDB instance plugin extensions: %s", err)
 	}
 
-	resp, err := utils.FlattenResponse(requestResp)
+	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return diag.Errorf("error flattening response: %s", err)
+		return diag.FromErr(err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -89,24 +104,24 @@ func dataSourceInstanceStatusStatisticsRead(_ context.Context, d *schema.Resourc
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("instances_statistics", flattenInstanceStatusStatistics(resp)),
+		d.Set("extensions", flattenPluginExtensions(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
-func flattenInstanceStatusStatistics(resp interface{}) []interface{} {
+
+func flattenPluginExtensions(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
 
-	curJson := utils.PathSearch("instances_statistics", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
+	curArray := utils.PathSearch("[*]", resp, make([]interface{}, 0)).([]interface{})
 	res := make([]interface{}, 0, len(curArray))
 
 	for _, v := range curArray {
 		res = append(res, map[string]interface{}{
-			"status": utils.PathSearch("status", v, nil),
-			"count":  utils.PathSearch("count", v, nil),
+			"extension_name": utils.PathSearch("extension_name", v, nil),
+			"status":         utils.PathSearch("status", v, nil),
 		})
 	}
 	return res

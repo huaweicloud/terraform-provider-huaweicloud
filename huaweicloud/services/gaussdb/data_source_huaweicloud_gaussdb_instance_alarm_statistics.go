@@ -127,7 +127,7 @@ func dataSourceInstanceAlarmStatisticsRead(_ context.Context, d *schema.Resource
 
 	resp, err := queryInstanceAlarmStatistics(client, d)
 	if err != nil {
-		return diag.Errorf("error querying instance alarm statistics: %s", err)
+		return diag.Errorf("error querying GaussDB instance alarm statistics: %s", err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
