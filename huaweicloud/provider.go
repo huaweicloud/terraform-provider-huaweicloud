@@ -2064,6 +2064,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_service_flavors":      modelarts.DataSourceServiceFlavors(),
 			"huaweicloud_modelarts_services":             modelarts.DataSourceServices(),
 			"huaweicloud_modelarts_training_experiments": modelarts.DataSourceTrainingExperiments(),
+			"huaweicloud_modelarts_training_jobs":        modelarts.DataSourceTrainingJobs(),
 			"huaweicloud_modelarts_training_job_engines": modelarts.DataSourceTrainingJobEngines(),
 			"huaweicloud_modelarts_training_job_flavors": modelarts.DataSourceTrainingJobFlavors(),
 			"huaweicloud_modelarts_workspace_quotas":     modelarts.DataSourceWorkspaceQuotas(),
