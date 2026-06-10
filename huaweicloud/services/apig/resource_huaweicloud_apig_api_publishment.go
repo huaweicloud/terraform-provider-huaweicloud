@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}
@@ -262,13 +263,13 @@ func flattenResourceId(id string) (instanceId, envId, apiId string, err error) {
 // Publish IDs: {ID A}|{ID B}|{ID C}
 // Environment IDs: {Related ID A}|{Related ID B}|{Related ID C}
 func getPublishIdByEnvId(client *golangsdk.ServiceClient, instanceId, apiId, envId string) (string, error) {
-	resp, err := apis.Get(client, instanceId, apiId).Extract()
+	respBody, err := GetApiById(client, instanceId, apiId)
 	if err != nil {
 		return "", err
 	}
 	var (
-		publishIds = strings.Split(resp.PublishId, "|")
-		envIds     = strings.Split(resp.RunEnvId, "|")
+		publishIds = strings.Split(utils.PathSearch("publish_id", respBody, "").(string), "|")
+		envIds     = strings.Split(utils.PathSearch("run_env_id", respBody, "").(string), "|")
 	)
 	log.Printf("[DEBUG] The list of publish IDs is: %#v", publishIds)
 	log.Printf("[DEBUG] The list of environment IDs is: %#v", envIds)

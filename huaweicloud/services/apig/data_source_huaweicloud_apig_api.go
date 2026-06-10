@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -711,6 +709,132 @@ func backendParamSchemaDataSource() *schema.Resource {
 	}
 }
 
+func flattenDataSourceRequestParams(reqParams []interface{}) []map[string]interface{} {
+	result := flattenApiRequestParams(reqParams, nil)
+	if result == nil {
+		return nil
+	}
+
+	for i, item := range reqParams {
+		result[i]["id"] = utils.PathSearch("id", item, nil)
+	}
+	return result
+}
+
+func flattenDataSourceBackendParams(backendParams []interface{}) []map[string]interface{} {
+	result := flattenBackendParameters(backendParams)
+	if result == nil {
+		return nil
+	}
+
+	for i, item := range backendParams {
+		result[i]["id"] = utils.PathSearch("id", item, nil)
+		result[i]["request_id"] = utils.PathSearch("req_param_id", item, nil)
+	}
+	return result
+}
+
+func flattenDataSourcePolicyConditions(conditions []interface{}) []map[string]interface{} {
+	if len(conditions) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(conditions))
+	for i, v := range conditions {
+		result[i] = map[string]interface{}{
+			"id":                       utils.PathSearch("id", v, nil),
+			"source":                   utils.PathSearch("condition_origin", v, nil),
+			"param_name":               utils.PathSearch("req_param_name", v, nil),
+			"sys_name":                 utils.PathSearch("sys_param_name", v, nil),
+			"cookie_name":              utils.PathSearch("cookie_param_name", v, nil),
+			"frontend_authorizer_name": utils.PathSearch("frontend_authorizer_param_name", v, nil),
+			"type":                     analyseConditionType(utils.PathSearch("condition_type", v, "").(string)),
+			"value":                    utils.PathSearch("condition_value", v, nil),
+			"request_id":               utils.PathSearch("req_param_id", v, nil),
+			"request_location":         utils.PathSearch("req_param_location", v, nil),
+		}
+	}
+	return result
+}
+
+func flattenDataSourceMock(mockResp interface{}) []map[string]interface{} {
+	result := flattenMockStructure(mockResp)
+	if result == nil {
+		return nil
+	}
+
+	result[0]["id"] = utils.PathSearch("id", mockResp, nil)
+	return result
+}
+
+func flattenDataSourceMockPolicies(policies []interface{}) []map[string]interface{} {
+	result := flattenMockPolicy(policies, nil)
+	if result == nil {
+		return nil
+	}
+
+	for i, policy := range policies {
+		result[i]["id"] = utils.PathSearch("id", policy, nil)
+		result[i]["conditions"] = flattenDataSourcePolicyConditions(utils.PathSearch("conditions", policy,
+			make([]interface{}, 0)).([]interface{}))
+		result[i]["backend_params"] = flattenDataSourceBackendParams(utils.PathSearch("backend_params", policy,
+			make([]interface{}, 0)).([]interface{}))
+	}
+	return result
+}
+
+func flattenDataSourceFuncGraph(funcResp interface{}) []map[string]interface{} {
+	result := flattenFuncGraphStructure(funcResp)
+	if result == nil {
+		return nil
+	}
+
+	result[0]["id"] = utils.PathSearch("id", funcResp, nil)
+	return result
+}
+
+func flattenDataSourceFuncGraphPolicies(policies []interface{}) []map[string]interface{} {
+	result := flattenFuncGraphPolicy(policies, nil)
+	if result == nil {
+		return nil
+	}
+
+	for i, policy := range policies {
+		result[i]["id"] = utils.PathSearch("id", policy, nil)
+		result[i]["conditions"] = flattenDataSourcePolicyConditions(utils.PathSearch("conditions", policy,
+			make([]interface{}, 0)).([]interface{}))
+		result[i]["backend_params"] = flattenDataSourceBackendParams(utils.PathSearch("backend_params", policy,
+			make([]interface{}, 0)).([]interface{}))
+	}
+	return result
+}
+
+func flattenDataSourceWeb(webResp interface{}, sslEnabled bool) []map[string]interface{} {
+	result := flattenWebStructure(webResp, sslEnabled)
+	if result == nil {
+		return nil
+	}
+
+	result[0]["id"] = utils.PathSearch("id", webResp, nil)
+	return result
+}
+
+func flattenDataSourceWebPolicies(policies []interface{}) []map[string]interface{} {
+	result := flattenWebPolicy(policies, nil)
+	if result == nil {
+		return nil
+	}
+
+	for i, policy := range policies {
+		result[i]["id"] = utils.PathSearch("id", policy, nil)
+		result[i]["conditions"] = flattenDataSourcePolicyConditions(utils.PathSearch("conditions", policy,
+			make([]interface{}, 0)).([]interface{}))
+		result[i]["backend_params"] = flattenDataSourceBackendParams(utils.PathSearch("backend_params", policy,
+			make([]interface{}, 0)).([]interface{}))
+	}
+	return result
+}
+
 func dataSourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
@@ -719,14 +843,14 @@ func dataSourceApiRead(_ context.Context, d *schema.ResourceData, meta interface
 		apiId      = d.Get("api_id").(string)
 	)
 
-	client, err := cfg.ApigV2Client(region)
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	resp, err := apis.Get(client, instanceId, apiId).Extract()
+	respBody, err := GetApiById(client, instanceId, apiId)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error querying API (%s): %s", apiId, err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -737,218 +861,45 @@ func dataSourceApiRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", resp.Name),
-		d.Set("type", analyseApiType(resp.Type)),
-		d.Set("request_protocol", resp.ReqProtocol),
-		d.Set("request_method", resp.ReqMethod),
-		d.Set("request_path", resp.ReqURI),
-		d.Set("security_authentication", resp.AuthType),
-		d.Set("authorizer_id", resp.AuthorizerId),
-		d.Set("tags", resp.Tags),
-		d.Set("request_params", flattenRequestParams(resp.ReqParams)),
-		d.Set("backend_params", flattenBackendParams(resp.BackendParams)),
-		d.Set("group_id", resp.GroupId),
-		d.Set("group_name", resp.GroupName),
-		d.Set("group_version", resp.GroupVersion),
-		d.Set("env_id", resp.RunEnvId),
-		d.Set("env_name", resp.RunEnvName),
-		d.Set("publish_id", resp.PublishId),
-		d.Set("backend_type", resp.BackendType),
-		d.Set("cors", resp.Cors),
-		d.Set("body_description", resp.BodyDescription),
-		d.Set("description", resp.Description),
-		d.Set("matching", analyseApiMatchMode(resp.MatchMode)),
-		d.Set("response_id", resp.ResponseId),
-		d.Set("success_response", resp.ResultNormalSample),
-		d.Set("failure_response", resp.ResultFailureSample),
-		d.Set("simple_authentication", analyseAppSimpleAuth(resp.AuthOpt)),
-		d.Set("mock", flattenMock(resp.MockInfo)),
-		d.Set("mock_policy", flattenMockPolicies(resp.PolicyMocks)),
-		d.Set("func_graph", flattenFuncGraph(resp.FuncInfo)),
-		d.Set("func_graph_policy", flattenFuncGraphPolicies(resp.PolicyFunctions)),
-		d.Set("web", flattenWeb(resp.WebInfo, d.Get("web.0.ssl_enable").(bool))),
-		d.Set("web_policy", flattenWebPolicies(resp.PolicyWebs)),
-		d.Set("registered_at", flattenTimeToRFC3339(resp.RegisterTime)),
-		d.Set("updated_at", flattenTimeToRFC3339(resp.UpdateTime)),
-		d.Set("published_at", flattenPulishTime(resp.PublishTime)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("type", parseApiType(int(utils.PathSearch("type", respBody, float64(0)).(float64)))),
+		d.Set("request_protocol", utils.PathSearch("req_protocol", respBody, nil)),
+		d.Set("request_method", utils.PathSearch("req_method", respBody, nil)),
+		d.Set("request_path", utils.PathSearch("req_uri", respBody, nil)),
+		d.Set("security_authentication", utils.PathSearch("auth_type", respBody, nil)),
+		d.Set("authorizer_id", utils.PathSearch("authorizer_id", respBody, nil)),
+		d.Set("tags", utils.PathSearch("tags", respBody, nil)),
+		d.Set("request_params", flattenDataSourceRequestParams(utils.PathSearch("req_params", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("backend_params", flattenDataSourceBackendParams(utils.PathSearch("backend_params", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("group_id", utils.PathSearch("group_id", respBody, nil)),
+		d.Set("group_name", utils.PathSearch("group_name", respBody, nil)),
+		d.Set("group_version", utils.PathSearch("group_version", respBody, nil)),
+		d.Set("env_id", utils.PathSearch("run_env_id", respBody, nil)),
+		d.Set("env_name", utils.PathSearch("run_env_name", respBody, nil)),
+		d.Set("publish_id", utils.PathSearch("publish_id", respBody, nil)),
+		d.Set("backend_type", utils.PathSearch("backend_type", respBody, nil)),
+		d.Set("cors", utils.PathSearch("cors", respBody, nil)),
+		d.Set("body_description", utils.PathSearch("body_remark", respBody, nil)),
+		d.Set("description", utils.PathSearch("remark", respBody, nil)),
+		d.Set("matching", analyseApiMatchMode(utils.PathSearch("match_mode", respBody, "").(string))),
+		d.Set("response_id", utils.PathSearch("response_id", respBody, nil)),
+		d.Set("success_response", utils.PathSearch("result_normal_sample", respBody, nil)),
+		d.Set("failure_response", utils.PathSearch("result_failure_sample", respBody, nil)),
+		d.Set("simple_authentication", analyseAppSimpleAuth(utils.PathSearch("auth_opt", respBody, nil))),
+		d.Set("mock", flattenDataSourceMock(utils.PathSearch("mock_info", respBody, nil))),
+		d.Set("mock_policy", flattenDataSourceMockPolicies(utils.PathSearch("policy_mocks", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("func_graph", flattenDataSourceFuncGraph(utils.PathSearch("func_info", respBody, nil))),
+		d.Set("func_graph_policy", flattenDataSourceFuncGraphPolicies(utils.PathSearch("policy_functions", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("web", flattenDataSourceWeb(utils.PathSearch("backend_api", respBody, nil), d.Get("web.0.ssl_enable").(bool))),
+		d.Set("web_policy", flattenDataSourceWebPolicies(utils.PathSearch("policy_https", respBody,
+			make([]interface{}, 0)).([]interface{}))),
+		d.Set("registered_at", flattenTimeToRFC3339(utils.PathSearch("register_time", respBody, "").(string))),
+		d.Set("updated_at", flattenTimeToRFC3339(utils.PathSearch("update_time", respBody, "").(string))),
+		d.Set("published_at", flattenPulishTime(utils.PathSearch("publish_time", respBody, "").(string))),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func flattenRequestParams(reqParams []apis.ReqParamResp) []map[string]interface{} {
-	if len(reqParams) < 1 {
-		return nil
-	}
-
-	result := make([]map[string]interface{}, len(reqParams))
-	for i, v := range reqParams {
-		param := map[string]interface{}{
-			"id":           v.ID,
-			"name":         v.Name,
-			"location":     v.Location,
-			"type":         v.Type,
-			"required":     parseObjectEnabled(v.Required),
-			"passthrough":  parseObjectEnabled(v.PassThrough),
-			"enumeration":  v.Enumerations,
-			"example":      v.SampleValue,
-			"default":      v.DefaultValue,
-			"description":  v.Description,
-			"valid_enable": v.ValidEnable,
-		}
-		switch v.Type {
-		case string(ParamTypeNumber):
-			param["maximum"] = v.MaxNum
-			param["minimum"] = v.MinNum
-		case string(ParamTypeString):
-			param["maximum"] = v.MaxSize
-			param["minimum"] = v.MinSize
-		}
-		result[i] = param
-	}
-	return result
-}
-
-func flattenBackendParams(backendParams []apis.BackendParamResp) []map[string]interface{} {
-	if len(backendParams) < 1 {
-		return nil
-	}
-
-	result := make([]map[string]interface{}, len(backendParams))
-	for i, v := range backendParams {
-		origin := v.Origin
-		paramAuthType, paramValue := analyseBackendParameterValue(v.Origin, v.Value)
-		param := map[string]interface{}{
-			"id":                v.ID,
-			"request_id":        v.ReqParamId,
-			"type":              origin,
-			"name":              v.Name,
-			"location":          v.Location,
-			"value":             paramValue,
-			"system_param_type": paramAuthType,
-			"description":       v.Description,
-		}
-		result[i] = param
-	}
-	return result
-}
-
-func flattenMock(mockResp apis.Mock) []map[string]interface{} {
-	mockInfo := flattenMockStructure(mockResp)
-	if mockInfo == nil {
-		return nil
-	}
-
-	mockInfo[0]["id"] = mockResp.ID
-	return mockInfo
-}
-
-func flattenMockPolicies(policies []apis.PolicyMockResp) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
-			"id":             policy.ID,
-			"name":           policy.Name,
-			"status_code":    policy.StatusCode,
-			"response":       policy.ResultContent,
-			"effective_mode": policy.EffectMode,
-			"authorizer_id":  policy.AuthorizerId,
-			"backend_params": flattenBackendParams(policy.BackendParams),
-			"conditions":     flattenConditions(policy.Conditions),
-		}
-	}
-
-	return result
-}
-
-func flattenConditions(conditions []apis.APIConditionBase) []map[string]interface{} {
-	if len(conditions) < 1 {
-		return nil
-	}
-
-	result := make([]map[string]interface{}, len(conditions))
-	for i, v := range conditions {
-		result[i] = map[string]interface{}{
-			"id":                       v.ID,
-			"source":                   v.ConditionOrigin,
-			"param_name":               v.ReqParamName,
-			"sys_name":                 v.SysParamName,
-			"cookie_name":              v.CookieParamName,
-			"frontend_authorizer_name": v.FrontendAuthorizerParamName,
-			"type":                     analyseConditionType(v.ConditionType),
-			"value":                    v.ConditionValue,
-			"request_id":               v.ReqParamId,
-			"request_location":         v.ReqParamLocation,
-		}
-	}
-	return result
-}
-
-func flattenFuncGraph(funcResp apis.FuncGraph) []map[string]interface{} {
-	functionGraphInfo := flattenFuncGraphStructure(funcResp)
-	if functionGraphInfo == nil {
-		return nil
-	}
-
-	functionGraphInfo[0]["id"] = funcResp.ID
-	return functionGraphInfo
-}
-
-func flattenFuncGraphPolicies(policies []apis.PolicyFuncGraphResp) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		result[i] = map[string]interface{}{
-			"id":                 policy.ID,
-			"name":               policy.Name,
-			"function_urn":       policy.FunctionUrn,
-			"version":            policy.Version,
-			"function_alias_urn": policy.FunctionAliasUrn,
-			"network_type":       policy.NetworkType,
-			"request_protocol":   policy.RequestProtocol,
-			"invocation_type":    policy.InvocationType,
-			"effective_mode":     policy.EffectMode,
-			"timeout":            policy.Timeout,
-			"authorizer_id":      policy.AuthorizerId,
-			"backend_params":     flattenBackendParams(policy.BackendParams),
-			"conditions":         flattenConditions(policy.Conditions),
-		}
-	}
-
-	return result
-}
-
-func flattenWeb(webResp apis.Web, sslEnabled bool) []map[string]interface{} {
-	webInfo := flattenWebStructure(webResp, sslEnabled)
-	if webInfo == nil {
-		return nil
-	}
-
-	webInfo[0]["id"] = webResp.ID
-	return webInfo
-}
-
-func flattenWebPolicies(policies []apis.PolicyWebResp) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(policies))
-	for i, policy := range policies {
-		retryCount := policy.RetryCount
-		policy := map[string]interface{}{
-			"id":               policy.ID,
-			"name":             policy.Name,
-			"request_protocol": policy.ReqProtocol,
-			"request_method":   policy.ReqMethod,
-			"effective_mode":   policy.EffectMode,
-			"path":             policy.ReqURI,
-			"host_header":      policy.VpcChannelInfo.VpcChannelProxyHost,
-			"vpc_channel_id":   policy.VpcChannelInfo.VpcChannelId,
-			"backend_address":  policy.DomainURL,
-			"timeout":          policy.Timeout,
-			"retry_count":      utils.StringToInt(&retryCount),
-			"authorizer_id":    policy.AuthorizerId,
-			"backend_params":   flattenBackendParams(policy.BackendParams),
-			"conditions":       flattenConditions(policy.Conditions),
-		}
-
-		result[i] = policy
-	}
-
-	return result
 }

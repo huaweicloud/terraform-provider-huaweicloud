@@ -111,14 +111,15 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where the API is located.  
   If omitted, the provider-level region will be used. Changing this will create a new API resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies an ID of the APIG dedicated instance to which the API belongs
-  to. Changing this will create a new API resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the APIG dedicated instance to which the API
+  belongs.
 
-* `group_id` - (Required, String, ForceNew) Specifies the ID of the APIG group to which the API belongs.  
-  Changing this will create a new API resource.
+* `group_id` - (Required, String, NonUpdatable) Specifies the ID of the APIG group to which the API belongs.
 
 * `type` - (Required, String) Specifies the API type.  
-  The valid values are **Public** and **Private**.
+  The valid values are as follows:
+  + **Public**
+  + **Private**
 
 * `name` - (Required, String) Specifies the API name.  
   The valid length is limited from `3` to `255`, only Chinese and English letters, digits and
@@ -126,7 +127,15 @@ The following arguments are supported:
   The name must start with a digit, Chinese or English letter.
 
 * `request_method` - (Required, String) Specifies the request method of the API.  
-  The valid values are **GET**, **POST**, **PUT**, **DELETE**, **HEAD**, **PATCH**, **OPTIONS** and **ANY**.
+  The valid values are as follows:
+  + **GET**
+  + **POST**
+  + **PUT**
+  + **DELETE**
+  + **HEAD**
+  + **PATCH**
+  + **OPTIONS**
+  + **ANY**
 
 * `request_path` - (Required, String) Specifies the request address, which can contain a maximum of `512` characters,
   the request parameters enclosed with brackets ({}).  
@@ -139,10 +148,20 @@ The following arguments are supported:
 -> The request parameters (`{xxx}`) cannot be included in the request path if the `request_protocol` is **GRPCS**.
 
 * `request_protocol` - (Required, String) Specifies the request protocol of the API.  
-  The valid values are **HTTP**, **HTTPS**, **BOTH** (**HTTP** and **HTTPS**) and **GRPCS**.
+  The valid values are as follows:
+  + **HTTP**
+  + **HTTPS**
+  + **BOTH** (**HTTP** and **HTTPS**)
+  + **GRPCS**
 
 * `security_authentication` - (Optional, String) Specifies the security authentication mode of the API request.  
-  The valid values are **NONE**, **APP**, **IAM** and **AUTHORIZER**, defaults to **NONE**.
+  The valid values are as follows:
+  + **NONE**
+  + **APP**
+  + **IAM**
+  + **AUTHORIZER**
+
+  Defaults to **NONE**.
 
 * `simple_authentication` - (Optional, Bool) Specifies whether the authentication of the application code is enabled.  
   The application code must located in the header when `simple_authentication` is true.
@@ -171,10 +190,10 @@ The following arguments are supported:
   + APIs with FunctionGraph backend.
 
 * `request_params` - (Optional, List) Specifies the configurations of the front-end parameters.  
-  The [object](#apig_api_request_params) structure is documented below.
+  The [request_params](#apig_api_request_params) structure is documented below.
 
 * `backend_params` - (Optional, List) Specifies the configurations of the backend parameters.  
-  The [object](#apig_api_backend_params) structure is documented below.
+  The [backend_params](#apig_api_backend_params) structure is documented below.
 
 -> The `request_params` and `backend_params` are not supported if the `request_protocol` is **GRPCS**.
 
@@ -184,11 +203,23 @@ The following arguments are supported:
 
 * `cors` - (Optional, Bool) Specifies whether CORS is supported, defaults to **false**.
 
+* `sampling_strategy` - (Optional, String) Specifies the sampling strategy of the link tracing.  
+  The valid value is **RATE**.
+
+* `sampling_param` - (Optional, String) Specifies the sampling parameter of the link tracing.  
+  When the sampling strategy is **RATE**, the value is a stringified integer ranging from `0` to `100`.
+
+-> Both `sampling_strategy` and `sampling_param` must be specified to enable link tracing.
+
 * `description` - (Optional, String) Specifies the API description.  
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
 * `matching` - (Optional, String) Specifies the route matching mode.  
-  The valid values are **Exact** and **Prefix**, defaults to **Exact**.
+  The valid values are as follows:
+  + **Exact**
+  + **Prefix**
+
+  Defaults to **Exact**.
 
 * `response_id` - (Optional, String) Specifies the APIG group response ID.
 
@@ -198,28 +229,26 @@ The following arguments are supported:
 * `failure_response` - (Optional, String) Specifies the example response for a failure request.  
   The response contains a maximum of `20,480` characters.
 
-* `mock` - (Optional, List, ForceNew) Specifies the mock backend details.  
-  The [object](#apig_api_mock) structure is documented below.  
-  Changing this will create a new API resource.
+* `mock` - (Optional, List, NonUpdatable) Specifies the mock backend details.  
+  The [mock](#apig_api_mock) structure is documented below.
 
-* `func_graph` - (Optional, List, ForceNew) Specifies the function graph backend details.  
-  The [object](#apig_api_func_graph) structure is documented below.  
-  Changing this will create a new API resource.
+* `func_graph` - (Optional, List, NonUpdatable) Specifies the function graph backend details.  
+  The [func_graph](#apig_api_func_graph) structure is documented below.
 
-* `web` - (Optional, List, ForceNew) Specifies the web backend details.  
-  The [object](#apig_api_web) structure is documented below. Changing this will create a new API resource.
+* `web` - (Optional, List, NonUpdatable) Specifies the web backend details.  
+  The [web](#apig_api_web) structure is documented below. Changing this will create a new API resource.
 
 * `mock_policy` - (Optional, List) Specifies the Mock policy backends.  
-  The maximum blocks of the policy is 5.  
-  The [object](#apig_api_mock_policy) structure is documented below.
+  The maximum blocks of the policy is `5`.  
+  The [mock_policy](#apig_api_mock_policy) structure is documented below.
 
 * `func_graph_policy` - (Optional, List) Specifies the Mock policy backends.  
-  The maximum blocks of the policy is 5.  
-  The [object](#apig_api_func_graph_policy) structure is documented below.
+  The maximum blocks of the policy is `5`.  
+  The [func_graph_policy](#apig_api_func_graph_policy) structure is documented below.
 
 * `web_policy` - (Optional, List) Specifies the example response for a failed request.  
-  The maximum blocks of the policy is 5.  
-  The [object](#apig_api_web_policy) structure is documented below.
+  The maximum blocks of the policy is `5`.  
+  The [web_policy](#apig_api_web_policy) structure is documented below.
 
 <a name="apig_api_request_params"></a>
 The `request_params` block supports:
@@ -234,14 +263,23 @@ The `request_params` block supports:
 
 * `passthrough` - (Optional, Bool) Specifies whether to transparently transfer the parameter.
 
-* `enumeration` - (Optional, String) Specifies the enumerated value(s).
+* `enumeration` - (Optional, String) Specifies the enumerated values.
   Use commas to separate multiple enumeration values, such as **VALUE_A,VALUE_B**.
 
 * `location` - (Optional, String) Specifies the location of the request parameter.  
-  The valid values are **PATH**, **QUERY** and **HEADER**, defaults to **PATH**.
+  The valid values are as follows:
+  + **PATH**
+  + **QUERY**
+  + **HEADER**
+
+  Defaults to **PATH**.
 
 * `type` - (Optional, String) Specifies the request parameter type.  
-  The valid values are **STRING** and **NUMBER**, defaults to **STRING**.
+  The valid values are as follows:
+  + **STRING**
+  + **NUMBER**
+
+  Defaults to **STRING**.
 
 * `maximum` - (Optional, Int) Specifies the maximum value or size of the request parameter.
 
@@ -258,9 +296,12 @@ The `request_params` block supports:
 * `description` - (Optional, String) Specifies the description of the request parameter.  
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
-* `valid_enable` - (Optional, Int) Specifies whether to enable the parameter validation.
+* `valid_enable` - (Optional, Int) Specifies whether to enable the parameter validation.  
+  The valid values are as follows:
   + **1**: enable
-  + **2**: disable (by default)
+  + **2**: disable
+
+  Defaults to **2**.
 
 * `orchestrations` - (Optional, List) Specifies the list of orchestration rule IDs which parameter used.  
   The order of the IDs determines the priority of the rules, and the priority decreases according to the order of the
@@ -274,7 +315,10 @@ The `request_params` block supports:
 The `backend_params` block supports:
 
 * `type` - (Required, String) Specifies the backend parameter type.  
-  The valid values are **REQUEST**, **CONSTANT** and **SYSTEM**.
+  The valid values are as follows:
+  + **REQUEST**
+  + **CONSTANT**
+  + **SYSTEM**
 
 * `name` - (Required, String) Specifies the backend parameter name, which contain of `1` to `32` characters and start
   with a letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed.  
@@ -283,7 +327,10 @@ The `backend_params` block supports:
   If the location is specified as **HEADER**, the name cannot contain underscores.
 
 * `location` - (Required, String) Specifies the location of the backend parameter.  
-  The valid values are **PATH**, **QUERY** and **HEADER**.
+  The valid values are as follows:
+  + **PATH**
+  + **QUERY**
+  + **HEADER**
 
 * `value` - (Required, String) Specifies the request parameter name corresponding to the back-end request parameter.
 
@@ -291,7 +338,12 @@ The `backend_params` block supports:
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
 * `system_param_type` - (Optional, String) Specifies the type of the system parameter.  
-  The valid values are **frontend**, **backend** and **internal**, defaults to **internal**.
+  The valid values are as follows:
+  + **frontend**
+  + **backend**
+  + **internal**
+
+  Defaults to **internal**.
 
 <a name="apig_api_mock"></a>
 The `mock` block supports:
@@ -318,20 +370,27 @@ The `func_graph` block supports:
 * `function_alias_urn` - (Optional, String) Specifies the alias URN of the FunctionGraph function.  
   The format is `{function_urn}:!{alias}`.
 
-* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph function.
-  **V1**: Non-VPC network framework.
-  **V2**: VPC network framework.
+* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph
+  function.  
+  The valid values are as follows:
+  + **V1**: Non-VPC network framework.
+  + **V2**: VPC network framework.
 
   Defaults to **V1** and **V2** is required if the `request_protocol` is **GRPCS**.
 
 * `request_protocol` - (Optional, String) Specifies the request protocol of the FunctionGraph function.  
-  Currently, only **GRPCS** is available.
+  The valid values are as follows:
+  + **GRPCS**
 
 * `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service.  
   The valid value is range form `1` to `600,000`, defaults to `5,000`.
 
 * `invocation_type` - (Optional, String) Specifies the invocation type.  
-  The valid values are **async** and **sync**, defaults to **sync**.
+  The valid values are as follows:
+  + **async**
+  + **sync**
+
+  Defaults to **sync**.
 
   -> Only **sync** is allowed for the **GRPCS** protocol type FunctionGraph backend.
 
@@ -363,10 +422,22 @@ The `web` block supports:
   `32` characters. Only letters, digits, hyphens (-), and underscores (_) are allowed.
 
 * `request_method` - (Optional, String) Specifies the backend request method of the API.  
-  The valid values are **GET**, **POST**, **PUT**, **DELETE**, **HEAD**, **PATCH**, **OPTIONS** and **ANY**.
+  The valid values are as follows:
+  + **GET**
+  + **POST**
+  + **PUT**
+  + **DELETE**
+  + **HEAD**
+  + **PATCH**
+  + **OPTIONS**
+  + **ANY**
 
 * `request_protocol` - (Optional, String) Specifies the backend request protocol.  
-  The valid values are **HTTP** and **HTTPS**, defaults to **HTTPS**.
+  The valid values are as follows:
+  + **HTTP**
+  + **HTTPS**
+
+  Defaults to **HTTPS**.
 
 * `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service, the unit is **ms**.
   The valid value ranges from `1` to `600,000`, defaults to `5,000`.
@@ -393,7 +464,7 @@ The `mock_policy` block supports:
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
-  The [object](#apig_api_conditions) structure is documented below.
+  The [conditions](#apig_api_conditions) structure is documented below.
 
 * `status_code` - (Optional, Int) Specifies the custom status code of the mock response.
 
@@ -401,11 +472,15 @@ The `mock_policy` block supports:
   The description contains a maximum of `2,048` characters and the angle brackets (< and >) are not allowed.
 
 * `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
-  The valid values are **ALL** and **ANY**, defaults to **ANY**.
+  The valid values are as follows:
+  + **ALL**
+  + **ANY**
+
+  Defaults to **ANY**.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters.  
   The maximum of request parameters is `50`.  
-  The [object](#apig_api_backend_params) structure is documented above.
+  The [backend_params](#apig_api_backend_params) structure is documented above.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
@@ -425,33 +500,44 @@ The `func_graph_policy` block supports:
 * `function_alias_urn` - (Optional, String) Specifies the alias URN of the FunctionGraph function.  
   The format is `{function_urn}:!{alias}`.
 
-* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph function.
-  **V1**: Non-VPC network framework.
-  **V2**: VPC network framework.
+* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph
+  function.  
+  The valid values are as follows:
+  + **V1**: Non-VPC network framework.
+  + **V2**: VPC network framework.
 
   Defaults to **V1** and **V2** is required if the `request_protocol` is **GRPCS**.
 
 * `request_protocol` - (Optional, String) Specifies the request protocol of the FunctionGraph function.  
-  Currently, only **GRPCS** is available.
+  The valid values are as follows:
+  + **GRPCS**
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
-  The [object](#apig_api_conditions) structure is documented below.
+  The [conditions](#apig_api_conditions) structure is documented below.
 
 * `invocation_type` - (Optional, String) Specifies the invocation mode of the FunctionGraph function.  
-  The valid values are **async** and **sync**, defaults to **sync**.
+  The valid values are as follows:
+  + **async**
+  + **sync**
+
+  Defaults to **sync**.
 
   -> Only **sync** is allowed for the **GRPCS** protocol type FunctionGraph backend.
 
 * `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
-  The valid values are **ALL** and **ANY**, defaults to **ANY**.
+  The valid values are as follows:
+  + **ALL**
+  + **ANY**
 
-* `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service, the unit is `ms`.
+  Defaults to **ANY**.
+
+* `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service, the unit is **ms**.
   The valid value ranges from `1` to `600,000`, defaults to `5,000`.
 
 * `backend_params` - (Optional, List) Specifies the configuration list of the backend parameters.  
   The maximum of request parameters is `50`.  
-  The [object](#apig_api_backend_params) structure is documented above.
+  The [backend_params](#apig_api_backend_params) structure is documented above.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
@@ -471,11 +557,19 @@ The `web_policy` block supports:
     Only letters, digits, hyphens (-), and underscores (_) are allowed in environment variables.
 
 * `request_method` - (Required, String) Specifies the backend request method of the API.  
-  The valid types are **GET**, **POST**, **PUT**, **DELETE**, **HEAD**, **PATCH**, **OPTIONS** and **ANY**.
+  The valid values are as follows:
+  + **GET**
+  + **POST**
+  + **PUT**
+  + **DELETE**
+  + **HEAD**
+  + **PATCH**
+  + **OPTIONS**
+  + **ANY**
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.  
-  The [object](#apig_api_conditions) structure is documented below.
+  The [conditions](#apig_api_conditions) structure is documented below.
 
 * `host_header` - (Optional, String) Specifies the proxy host header.  
   The host header can be customized for requests to be forwarded to cloud servers through the VPC channel.  
@@ -491,14 +585,22 @@ The `web_policy` block supports:
   The backend service address can contain environment variables, each starting with a letter and consisting of `3` to
   `32` characters. Only letters, digits, hyphens (-), and underscores (_) are allowed.
 
-* `request_protocol` - (Optional, String) Specifies the backend request protocol. The valid values are **HTTP** and
-  **HTTPS**, defaults to **HTTPS**.
+* `request_protocol` - (Optional, String) Specifies the backend request protocol.  
+  The valid values are as follows:
+  + **HTTP**
+  + **HTTPS**
 
-* `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy. The valid values are **ALL**
-  and **ANY**, defaults to **ANY**.
+  Defaults to **HTTPS**.
 
-* `timeout` - (Optional, Int) Specifies the timeout, in ms, which allowed for APIG to request the backend service. The
-  valid value is range from `1` to `600,000`, defaults to `5,000`.
+* `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
+  The valid values are as follows:
+  + **ALL**
+  + **ANY**
+
+  Defaults to **ANY**.
+
+* `timeout` - (Optional, Int) Specifies the timeout, in ms, which allowed for APIG to request the backend service.  
+  The valid value is range from `1` to `600,000`, defaults to `5,000`.
 
 * `retry_count` - (Optional, Int) Specifies the number of retry attempts to request the backend service.
   The valid value ranges from `-1` to `10`, defaults to `-1`.
@@ -526,15 +628,26 @@ The `conditions` block supports:
   address format is supported.
 
   For a condition with the input parameter source:
-  When the `sys_name` is **req_method**, the valid values are **GET**, **POST**, **DELETE**, **PUT**, **PATCH**,
-  **HEAD** or **OPTIONS**.
+  When the `sys_name` is **req_method**, the valid values are as follows:
+  + **GET**
+  + **POST**
+  + **DELETE**
+  + **PUT**
+  + **PATCH**
+  + **HEAD**
+  + **OPTIONS**
 
 * `param_name` - (Optional, String) Specifies the request parameter name.
-  This parameter is required if the policy type is **param**. The valid values are **user_age** and **X-TEST-ENUM**.
+  This parameter is required if the policy type is **param**.  
+  The valid values are as follows:
+  + **user_age**
+  + **X-TEST-ENUM**
 
 * `sys_name` - (Optional, String) Specifies the gateway built-in parameter name.
   This parameter is required if the policy type is **system**.  
-  The valid values are **req_path** and **req_method**.
+  The valid values are as follows:
+  + **req_path**
+  + **req_method**
 
 * `cookie_name` - (Optional, String) Specifies the cookie parameter name.
   This parameter is required if the policy type is **cookie**.
@@ -545,11 +658,25 @@ The `conditions` block supports:
   frontend authentication parameter name. e.g. **$context.authorizer.frontend.user_name**.
 
 * `source` - (Optional, String) Specifies the backend policy type.  
-  The valid values are **param**, **source**, **system**, **cookie** and **frontend_authorizer**, defaults to **source**.
+  The valid values are as follows:
+  + **param**
+  + **source**
+  + **system**
+  + **cookie**
+  + **frontend_authorizer**
+
+  Defaults to **source**.
 
 * `type` - (Optional, String) Specifies the condition type of the backend policy.  
-  The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.  
-  When the `sys_name` is **req_method**, the valid values are **Equal** and **Enumerated**.
+  The valid values are as follows:
+  + **Equal**
+  + **Enumerated**
+  + **Matching**
+
+  Defaults to **Equal**.  
+  When the `sys_name` is **req_method**, the valid values are as follows:
+  + **Equal**
+  + **Enumerated**
 
 * `mapped_param_name` - (Optional, String) Specifies the name of a parameter generated after orchestration.
   This parameter is required if the policy type is **orchestration**.  
@@ -564,7 +691,9 @@ The `conditions` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The API ID.
+
 * `registered_at` - The registered time of the API.
+
 * `updated_at` - The latest update time of the API.
 
 ## Import
