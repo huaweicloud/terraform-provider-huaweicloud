@@ -3475,6 +3475,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_css_vpcep_connections_update":    css.ResourceCssVpcepserviceConnectionsUpdate(),
 
+			"huaweicloud_das_batch_set_sql_switch":            das.ResourceBatchSetSqlSwitch(),
 			"huaweicloud_das_binlog_parse_task":               das.ResourceBinlogParseTask(),
 			"huaweicloud_das_binlog_parse_task_export":        das.ResourceBinlogParseTaskExport(),
 			"huaweicloud_das_database_instance_connection":    das.ResourceDatabaseInstanceConnection(),
