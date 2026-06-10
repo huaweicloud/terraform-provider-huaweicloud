@@ -40,7 +40,7 @@ func TestAccObsBucketObject_source(t *testing.T) {
 		CheckDestroy:      testAccCheckObsBucketObjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccObsBucketObjectConfigSource(name, tmpFile.Name()),
+				Config: testAccBucketObject_source_step1(name, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketObjectExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "key", name),
@@ -48,15 +48,27 @@ func TestAccObsBucketObject_source(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test1", "meta test1"),
 				),
 			},
 			{
 				// update with encryption
-				Config: testAccObsBucketObjectConfig_withSSE(name, tmpFile.Name()),
+				Config: testAccBucketObject_source_step2(name, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test-update", "update meta test1"),
+				),
+			},
+			{
+				// update with encryption
+				Config: testAccBucketObject_source_step3(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "0"),
 				),
 			},
 			{
@@ -85,20 +97,33 @@ func TestAccObsBucketObject_content(t *testing.T) {
 		CheckDestroy:      testAccCheckObsBucketObjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBucketObjectConfigContent_step1(name),
+				Config: testAccBucketObject_content_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketObjectExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "key", name),
 					resource.TestMatchResourceAttr(resourceName, "size", regexp.MustCompile("^[1-9][0-9]*$")),
-					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "0"),
 				),
 			},
 			{
-				Config: testAccBucketObjectConfigContent_step2(name),
+				Config: testAccBucketObject_content_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketObjectExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test", "tf_test"),
+				),
+			},
+			{
+				Config: testAccBucketObject_content_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketObjectExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-update", "tf_test_update"),
 				),
 			},
 			{
@@ -225,7 +250,7 @@ resource "huaweicloud_obs_bucket" "test" {
 `, name)
 }
 
-func testAccObsBucketObjectConfigSource(name, source string) string {
+func testAccBucketObject_source_step1(name, source string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -238,11 +263,15 @@ resource "huaweicloud_obs_bucket_object" "test" {
   tags = {
     foo = "bar"
   }
+
+  metadata = {
+    "x-obs-meta-test1" = "meta test1"
+  }
 }
 `, testAccBucketObject_base(name), name, source)
 }
 
-func testAccObsBucketObjectConfig_withSSE(name, source string) string {
+func testAccBucketObject_source_step2(name, source string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -256,11 +285,31 @@ resource "huaweicloud_obs_bucket_object" "test" {
   tags = {
     owner = "terraform"
   }
+
+  metadata = {
+    "x-obs-meta-test-update" = "update meta test1"
+  }
 }
 `, testAccBucketObject_base(name), name, source)
 }
 
-func testAccBucketObjectConfigContent_step1(name string) string {
+func testAccBucketObject_source_step3(name, source string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket       = huaweicloud_obs_bucket.test.bucket
+  key          = "%[2]s"
+  source       = "%[3]s"
+  content_type = "binary/octet-stream"
+  encryption   = true
+
+  tags = {}
+}
+`, testAccBucketObject_base(name), name, source)
+}
+
+func testAccBucketObject_content_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -268,15 +317,11 @@ resource "huaweicloud_obs_bucket_object" "test" {
   bucket  = huaweicloud_obs_bucket.test.bucket
   key     = "%[2]s"
   content = "some_bucket_content"
-
-  tags = {
-    foo = "bar"
-  }
 }
 `, testAccBucketObject_base(name), name)
 }
 
-func testAccBucketObjectConfigContent_step2(name string) string {
+func testAccBucketObject_content_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -285,7 +330,33 @@ resource "huaweicloud_obs_bucket_object" "test" {
   key     = "%[2]s"
   content = "update_some_bucket_content"
 
-  tags = {}
+  tags = {
+    foo = "bar"
+  }
+
+  metadata = {
+    "x-obs-meta-test" = "tf_test"
+  }
+}
+`, testAccBucketObject_base(name), name)
+}
+
+func testAccBucketObject_content_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket  = huaweicloud_obs_bucket.test.bucket
+  key     = "%[2]s"
+  content = "update_some_bucket_content"
+
+  tags = {
+    owner = "terraform"
+  }
+
+  metadata = {
+    "x-obs-meta-update" = "tf_test_update"
+  }
 }
 `, testAccBucketObject_base(name), name)
 }

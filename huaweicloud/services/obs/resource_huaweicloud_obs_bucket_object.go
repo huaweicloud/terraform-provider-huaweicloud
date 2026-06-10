@@ -16,6 +16,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API OBS HEAD /
@@ -100,6 +101,12 @@ func ResourceObsBucketObject() *schema.Resource {
 				Computed: true,
 			},
 			"tags": common.TagsSchema(`The key/value pairs to associate with the object.`),
+			"metadata": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The custom metadata key/value pairs of the object.`,
+			},
 
 			"version_id": {
 				Type:     schema.TypeString,
@@ -164,6 +171,10 @@ func putContentToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.
 		putInput.ContentType = v.(string)
 	}
 
+	if v, ok := d.GetOk("metadata"); ok {
+		putInput.Metadata = utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+
 	var sseKmsHeader = obs.SseKmsHeader{}
 	if d.Get("encryption").(bool) {
 		sseKmsHeader.Encryption = obs.DEFAULT_SSE_KMS_ENCRYPTION
@@ -196,6 +207,10 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 	}
 	if v, ok := d.GetOk("content_type"); ok {
 		putInput.ContentType = v.(string)
+	}
+
+	if v, ok := d.GetOk("metadata"); ok {
+		putInput.Metadata = utils.ExpandToStringMap(v.(map[string]interface{}))
 	}
 
 	var sseKmsHeader = obs.SseKmsHeader{}
@@ -295,6 +310,7 @@ func resourceObsBucketObjectRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("content_type", objectMeta.ContentType),
 		d.Set("etag", strings.Trim(objectMeta.ETag, `"`)),
 		d.Set("tags", tags),
+		d.Set("metadata", objectMeta.Metadata),
 		// Attributes.
 		d.Set("version_id", objectMeta.VersionId),
 		d.Set("size", objectMeta.ContentLength),
