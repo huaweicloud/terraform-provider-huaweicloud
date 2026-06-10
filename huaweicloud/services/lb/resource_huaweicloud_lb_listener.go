@@ -24,9 +24,11 @@ import (
 var listenerNonUpdatableParams = []string{"protocol", "protocol_port", "loadbalancer_id", "tenant_id"}
 
 // @API ELB POST /v2/{project_id}/elb/listeners
+// @API ELB PUT /v3/{project_id}/elb/listeners/{listener_id}
 // @API ELB GET /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API ELB POST /v2.0/{project_id}/listeners/{listener_id}/tags/action
 // @API ELB GET /v2/{project_id}/elb/listeners/{listener_id}
+// @API ELB GET /v3/{project_id}/elb/listeners/{listener_id}
 // @API ELB GET /v2.0/{project_id}/listeners/{listener_id}/tags
 // @API ELB PUT /v2/{project_id}/elb/listeners/{listener_id}
 // @API ELB DELETE /v2/{project_id}/elb/listeners/{listener_id}
@@ -126,6 +128,12 @@ func ResourceListener() *schema.Resource {
 				Optional: true,
 			},
 			"tags": common.TagsSchema(),
+			"transparent_client_ip_enable": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Whether to pass the client IP address to the backend server.`,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -231,6 +239,12 @@ func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	if v, ok := d.GetOk("transparent_client_ip_enable"); ok {
+		if err = updateListenerTransparentClientIP(client, listenerId, v.(string)); err != nil {
+			return diag.Errorf("error updating transparent client IP of ELB listener (%s): %s", listenerId, err)
+		}
+	}
+
 	return resourceListenerV2Read(ctx, d, meta)
 }
 
@@ -274,6 +288,29 @@ func buildListenerInsertHeaders(d *schema.ResourceData) map[string]interface{} {
 	return nil
 }
 
+func updateListenerTransparentClientIP(client *golangsdk.ServiceClient, listenerId, transparentClientIpEnable string) error {
+	httpUrl := "v3/{project_id}/elb/listeners/{listener_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{listener_id}", listenerId)
+
+	enabled, _ := strconv.ParseBool(transparentClientIpEnable)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: map[string]interface{}{
+			"listener": map[string]interface{}{
+				"transparent_client_ip_enable": enabled,
+			},
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
 func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -307,6 +344,11 @@ func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
+	transparentClientIpEnable, err := getListenerTransparentClientIP(client, d.Id())
+	if err != nil {
+		log.Printf("[ERROR] error getting transparent client IP of ELB listener (%s): %s", d.Id(), err)
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -324,11 +366,14 @@ func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("tls_ciphers_policy", utils.PathSearch("listener.tls_ciphers_policy", getRespBody, nil)),
 		d.Set("protection_status", utils.PathSearch("listener.protection_status", getRespBody, nil)),
 		d.Set("protection_reason", utils.PathSearch("listener.protection_reason", getRespBody, nil)),
+		d.Set("transparent_client_ip_enable", transparentClientIpEnable),
+		// Attributes.
+		d.Set("created_at", utils.PathSearch("listener.created_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("listener.updated_at", getRespBody, nil)),
+		// Deprecated parameters.
 		d.Set("tenant_id", utils.PathSearch("listener.tenant_id", getRespBody, nil)),
 		d.Set("admin_state_up", utils.PathSearch("listener.admin_state_up", getRespBody, nil)),
 		d.Set("connection_limit", utils.PathSearch("listener.connection_limit", getRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("listener.created_at", getRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("listener.updated_at", getRespBody, nil)),
 	)
 
 	// fetch tags
@@ -359,37 +404,63 @@ func flattenInsertHeaders(listener interface{}) []map[string]interface{} {
 	return rst
 }
 
-func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func getListenerTransparentClientIP(client *golangsdk.ServiceClient, listenerId string) (string, error) {
+	httpUrl := "v3/{project_id}/elb/listeners/{listener_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{listener_id}", listenerId)
 
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return "", err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return "", err
+	}
+
+	return strconv.FormatBool(utils.PathSearch("listener.transparent_client_ip_enable", respBody, false).(bool)), nil
+}
+
+func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		httpUrl = "v2/{project_id}/elb/listeners/{listener_id}"
-		product = "elbv2"
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		product    = "elbv2"
+		listenerId = d.Id()
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{listener_id}", d.Id())
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateOpt.JSONBody = utils.RemoveNil(buildUpdateListenerBodyParams(d))
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating ELB listener: %s", err)
+	if d.HasChangesExcept("tags", "transparent_client_ip_enable") {
+		err = updateListener(client, d, listenerId)
+		if err != nil {
+			return diag.Errorf("error updating ELB listener (%s): %s", listenerId, err)
+		}
 	}
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "listeners", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "listeners", listenerId)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of ELB listener:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of ELB listener:%s, err:%s", listenerId, tagErr)
+		}
+	}
+
+	if d.HasChange("transparent_client_ip_enable") {
+		err = updateListenerTransparentClientIP(client, listenerId, d.Get("transparent_client_ip_enable").(string))
+		if err != nil {
+			return diag.Errorf("error updating transparent client IP of ELB listener %s: %s", listenerId, err)
 		}
 	}
 
@@ -415,6 +486,20 @@ func buildUpdateListenerBodyParams(d *schema.ResourceData) map[string]interface{
 		"listener": params,
 	}
 	return bodyParams
+}
+
+func updateListener(client *golangsdk.ServiceClient, d *schema.ResourceData, listenerId string) error {
+	httpUrl := "v2/{project_id}/elb/listeners/{listener_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{listener_id}", listenerId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateListenerBodyParams(d)),
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
 }
 
 func resourceListenerV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

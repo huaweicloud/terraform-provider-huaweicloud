@@ -44,21 +44,25 @@ func getL7ListenerResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 }
 
 func TestAccLBV2Listener_basic(t *testing.T) {
-	var obj interface{}
-	rName := acceptance.RandomAccResourceNameWithDash()
-	updateName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_lb_listener.listener_1"
+	var (
+		rName      = acceptance.RandomAccResourceNameWithDash()
+		updateName = acceptance.RandomAccResourceNameWithDash()
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getL7ListenerResourceFunc,
+		obj          interface{}
+		resourceName = "huaweicloud_lb_listener.listener_1"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getL7ListenerResourceFunc)
+
+		rNameWithUDP = "huaweicloud_lb_listener.with_udp"
+		rcWithUDP    = acceptance.InitResourceCheck(rNameWithUDP, &obj, getL7ListenerResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rc.CheckResourceDestroy(),
+			rcWithUDP.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLBV2ListenerConfig_basic(rName),
@@ -69,8 +73,11 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "connection_limit", "-1"),
+					resource.TestCheckResourceAttr(resourceName, "transparent_client_ip_enable", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					rcWithUDP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithUDP, "transparent_client_ip_enable", "true"),
 				),
 			},
 			{
@@ -80,10 +87,20 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					rcWithUDP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithUDP, "transparent_client_ip_enable", "false"),
+					resource.TestCheckResourceAttr(rNameWithUDP, "name", updateName+"_udp"),
+					resource.TestCheckResourceAttr(rNameWithUDP, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(rNameWithUDP, "tags.foo", "bar_update"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      rNameWithUDP,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -127,6 +144,7 @@ func TestAccLBV2Listener_https(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 					resource.TestCheckResourceAttr(resourceName, "insert_headers.0.x_forwarded_elb_ip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "insert_headers.0.x_forwarded_host", "true"),
+					resource.TestCheckResourceAttr(resourceName, "transparent_client_ip_enable", "true"),
 				),
 			},
 			{
@@ -158,10 +176,10 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 
 func testAccLBV2ListenerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
+  name            = "%[2]s"
   description     = "created by acceptance test"
   protocol        = "HTTP"
   protocol_port   = 8080
@@ -172,17 +190,30 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform"
   }
 }
+
+resource "huaweicloud_lb_listener" "with_udp" {
+  loadbalancer_id              = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  name                         = "%[2]s_udp"
+  description                  = "Created by terraform script"
+  protocol                     = "UDP"
+  protocol_port                = 8080
+  transparent_client_ip_enable = "true"
+
+  tags = {
+    foo = "bar"
+  }
+}
 `, testAccLBV2ListenerConfig_base(rName), rName)
 }
 
 func testAccLBV2ListenerConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-%s
+%[2]s
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
+  name            = "%[3]s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
@@ -190,6 +221,19 @@ resource "huaweicloud_lb_listener" "listener_1" {
   tags = {
     foo   = "bar"
     owner = "terraform_update"
+  }
+}
+
+resource "huaweicloud_lb_listener" "with_udp" {
+  loadbalancer_id              = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  name                         = "%[3]s_udp"
+  description                  = "Updated by terraform script"
+  protocol                     = "UDP"
+  protocol_port                = 8080
+  transparent_client_ip_enable = "false"
+
+  tags = {
+    foo = "bar_update"
   }
 }
 `, testAccLBV2ListenerConfig_base(rName), testAccLBV2CertificateConfig_basic(rName), rNameUpdate)
