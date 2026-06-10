@@ -425,8 +425,11 @@ var (
 	HW_IDENTITY_ORIGINAL_PASSWORD = os.Getenv("HW_IDENTITY_ORIGINAL_PASSWORD")
 	HW_IDENTITY_NEW_PASSWORD      = os.Getenv("HW_IDENTITY_NEW_PASSWORD")
 
-	HW_ER_TEST_ON     = os.Getenv("HW_ER_TEST_ON")     // Whether to run the ER related tests.
-	HW_ER_INSTANCE_ID = os.Getenv("HW_ER_INSTANCE_ID") // Whether to run the ER related tests.
+	HW_ER_INSTANCE_ID          = os.Getenv("HW_ER_INSTANCE_ID") // Whether to run the ER related tests.
+	HW_ER_ROUTE_POLICY_IDS     = os.Getenv("HW_ER_ROUTE_POLICY_IDS")
+	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
+	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
+	HW_ER_TEST_ON              = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
 	HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI")
@@ -738,9 +741,6 @@ var (
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME")
 
 	HW_DAS_INSTANCE_IDS = os.Getenv("HW_DAS_INSTANCE_IDS")
-
-	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
-	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
 
 	HW_DEH_DEDICATED_HOST_ID = os.Getenv("HW_DEH_DEDICATED_HOST_ID")
 
@@ -1878,13 +1878,6 @@ func TestAccPreCheckChargingMode(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckErSharedAttachmentAccepter(t *testing.T) {
-	if HW_ER_SHARED_INSTANCE_ID == "" || HW_ER_SHARED_ATTACHMENT_ID == "" {
-		t.Skip("HW_ER_SHARED_INSTANCE_ID and HW_ER_SHARED_ATTACHMENT_ID must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckDehDedicatedHostId(t *testing.T) {
 	if HW_DEH_DEDICATED_HOST_ID == "" {
 		t.Skip("HW_DEH_DEDICATED_HOST_ID must be set for the acceptance test")
@@ -2835,16 +2828,30 @@ func TestAccPreCheckWorkspaceAppFileName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckER(t *testing.T) {
-	if HW_ER_TEST_ON == "" {
-		t.Skip("Skip all ER acceptance tests.")
+func TestAccPreCheckERInstanceID(t *testing.T) {
+	if HW_ER_INSTANCE_ID == "" {
+		t.Skip("HW_ER_INSTANCE_ID must be set for this acceptance test")
 	}
 }
 
 // lintignore:AT003
-func TestAccPreCheckERInstanceID(t *testing.T) {
-	if HW_ER_INSTANCE_ID == "" {
-		t.Skip("HW_ER_INSTANCE_ID must be set for this acceptance test")
+func TestAccPreCheckERRoutePolicyIDs(t *testing.T, min int) {
+	if HW_ER_ROUTE_POLICY_IDS == "" || len(strings.Split(HW_ER_ROUTE_POLICY_IDS, ",")) < min {
+		t.Skipf("At least %d route policy IDs must be supported during the HW_ER_ROUTE_POLICY_IDS, separated by commas (,).", min)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckErSharedAttachmentAccepter(t *testing.T) {
+	if HW_ER_SHARED_INSTANCE_ID == "" || HW_ER_SHARED_ATTACHMENT_ID == "" {
+		t.Skip("HW_ER_SHARED_INSTANCE_ID and HW_ER_SHARED_ATTACHMENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckER(t *testing.T) {
+	if HW_ER_TEST_ON == "" {
+		t.Skip("Skip all ER acceptance tests.")
 	}
 }
 
