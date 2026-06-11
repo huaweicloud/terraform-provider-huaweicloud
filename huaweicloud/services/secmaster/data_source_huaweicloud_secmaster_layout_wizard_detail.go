@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/layouts/wizards
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/layouts/wizards
 func DataSourceLayoutWizardDetail() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceLayoutWizardDetailRead,

@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster POST /v2/{project_id}/workspaces/{workspace_id}/siem/tables/{table_id}/histograms
+// @API SecMaster POST /v2/{project_id}/workspaces/{workspace_id}/siem/tables/{table_id}/histograms
 func DataSourceTableHistograms() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceTableHistogramsRead,

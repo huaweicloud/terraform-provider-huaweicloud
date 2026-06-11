@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v1/{project_id}/workspaces/{workspace_id}/components/{component_id}/templates
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/components/{component_id}/templates
 func DataSourceComponentTemplates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceComponentTemplatesRead,

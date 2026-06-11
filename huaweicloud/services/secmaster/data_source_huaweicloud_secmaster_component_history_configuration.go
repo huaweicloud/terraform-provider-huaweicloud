@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v1/{project_id}/workspaces/{workspace_id}/components/{component_id}/configurations/versions
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/components/{component_id}/configurations/versions
 func DataSourceComponentHistoryConfiguration() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceComponentHistoryConfigurationRead,

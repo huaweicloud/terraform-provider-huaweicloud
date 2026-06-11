@@ -75,7 +75,7 @@ func dataSourceSecmasterAlertRuleMetricsRead(_ context.Context, d *schema.Resour
 	return nil
 }
 
-// @API SECMASTER GET /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/metrics
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/metrics
 func (w *AlertRuleMetricsDSWrapper) ListAlertRuleMetrics() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "secmaster")
 	if err != nil {
