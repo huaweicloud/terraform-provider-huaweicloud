@@ -4427,6 +4427,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_catalogue":                   secmaster.ResourceCatalogue(),
 			"huaweicloud_secmaster_clone_playbook_version":      secmaster.ResourceClonePlaybookAndVersion(),
 			"huaweicloud_secmaster_cloud_log_resource":          secmaster.ResourceCloudLogResource(),
+			"huaweicloud_secmaster_collect_config":              secmaster.ResourceCollectConfig(),
 			"huaweicloud_secmaster_collector_channel_group":     secmaster.ResourceCollectorChannelGroup(),
 			"huaweicloud_secmaster_collector_channel_operation": secmaster.ResourceCollectorChannelOperation(),
 			"huaweicloud_secmaster_component_template":          secmaster.ResourceComponentTemplate(),
