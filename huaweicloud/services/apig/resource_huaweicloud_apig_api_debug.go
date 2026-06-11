@@ -16,8 +16,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var apigApiDebugNonUpdatableParams = []string{"instance_id", "api_id", "mode", "scheme", "method", "path", "body",
-	"header", "query", "stage"}
+var apigApiDebugNonUpdatableParams = []string{
+	"instance_id",
+	"api_id",
+	"mode",
+	"scheme",
+	"method",
+	"path",
+	"body",
+	"header",
+	"query",
+	"stage",
+	"app_key",
+	"app_secret",
+	"domain",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apis/debug/{api_id}
 func ResourceApigApiDebug() *schema.Resource {
@@ -91,6 +104,21 @@ func ResourceApigApiDebug() *schema.Resource {
 				Optional:    true,
 				Description: `The runtime environment for debug request.`,
 			},
+			"app_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The app key for debug request.`,
+			},
+			"app_secret": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The app secret for debug request.`,
+			},
+			"domain": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The domain for debug request.`,
+			},
 
 			// Attributes.
 			"request": {
@@ -122,14 +150,17 @@ func ResourceApigApiDebug() *schema.Resource {
 
 func buildApiDebugBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
-		"mode":   d.Get("mode"),
-		"scheme": d.Get("scheme"),
-		"method": d.Get("method"),
-		"path":   d.Get("path"),
-		"body":   utils.ValueIgnoreEmpty(d.Get("body")),
-		"header": utils.StringToJson(d.Get("header").(string)),
-		"query":  utils.StringToJson(d.Get("query").(string)),
-		"stage":  utils.ValueIgnoreEmpty(d.Get("stage")),
+		"mode":       d.Get("mode"),
+		"scheme":     d.Get("scheme"),
+		"method":     d.Get("method"),
+		"path":       d.Get("path"),
+		"body":       utils.ValueIgnoreEmpty(d.Get("body")),
+		"header":     utils.StringToJson(d.Get("header").(string)),
+		"query":      utils.StringToJson(d.Get("query").(string)),
+		"stage":      utils.ValueIgnoreEmpty(d.Get("stage")),
+		"app_key":    utils.ValueIgnoreEmpty(d.Get("app_key")),
+		"app_secret": utils.ValueIgnoreEmpty(d.Get("app_secret")),
+		"domain":     utils.ValueIgnoreEmpty(d.Get("domain")),
 	}
 }
 

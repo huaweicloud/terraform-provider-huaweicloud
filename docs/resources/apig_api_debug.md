@@ -108,6 +108,18 @@ located.
   This parameter is only valid when mode is **CONSUMER**.
   If not provided, the default value is **RELEASE**.
 
+* `app_key` - (Optional, String, NonUpdatable) Specifies the app key for debug request.
+
+* `app_secret` - (Optional, String, NonUpdatable) Specifies the app secret for debug request.
+
+* `domain` - (Optional, String, NonUpdatable) Specifies the domain for debug request.  
+  If the custom inbound port is used, the port information and separate it from the domain name with a colon (:),
+  for example, `test.com:8080`.  
+  If not provided, the following default values will be used based on the mode:
+  + **DEVELOPER**: The subdomain name of the API group will be used.
+  + **MARKET**: The domain name of the API group allocated by KooGallery will be used.
+  + **CONSUMER**: The subdomain name of the API group will be used.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
