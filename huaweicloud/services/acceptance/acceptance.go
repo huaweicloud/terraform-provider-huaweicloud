@@ -565,6 +565,9 @@ var (
 	// The SecMaster playbook instance ID
 	HW_SECMASTER_INSTANCE_ID = os.Getenv("HW_SECMASTER_INSTANCE_ID")
 
+	// The SecMaster collector channel ID
+	HW_SECMASTER_CHANNEL_ID = os.Getenv("HW_SECMASTER_CHANNEL_ID")
+
 	// The ID and product ID to create a SecMaster post paid order
 	HW_SECMASTER_ORDER_ID   = os.Getenv("HW_SECMASTER_ORDER_ID")
 	HW_SECMASTER_PRODUCT_ID = os.Getenv("HW_SECMASTER_PRODUCT_ID")
@@ -3352,6 +3355,13 @@ func TestAccPreCheckSecMasterPipelineID(t *testing.T) {
 func TestAccPreCheckSecMasterInstanceID(t *testing.T) {
 	if HW_SECMASTER_INSTANCE_ID == "" {
 		t.Skip("HW_SECMASTER_INSTANCE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterChannelID(t *testing.T) {
+	if HW_SECMASTER_CHANNEL_ID == "" {
+		t.Skip("HW_SECMASTER_CHANNEL_ID must be set for SecMaster acceptance tests")
 	}
 }
 
