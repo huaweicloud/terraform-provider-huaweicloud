@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster POST /v1/{project_id}/workspaces/{workspace_id}/collector/module-templates/restriction
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/collector/module-templates/restriction
 func DataSourceCollectorModuleRestrictions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCollectorModuleRestrictionsRead,
