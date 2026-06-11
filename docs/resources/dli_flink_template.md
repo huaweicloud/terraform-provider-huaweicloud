@@ -56,6 +56,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `created_at` - The creation time of the flink template, in RFC3339 format.
+
+* `updated_at` - The latest update time of the flink template, in RFC3339 format.
+
 ## Import
 
 The flink template can be imported using the `id`, e.g.

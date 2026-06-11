@@ -69,6 +69,16 @@ func ResourceFlinkTemplate() *schema.Resource {
 				Description: `The type of the flink template.`,
 			},
 			"tags": common.TagsForceNewSchema(),
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the flink template, in RFC3339 format.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the flink template, in RFC3339 format.`,
+			},
 		},
 	}
 }
@@ -188,6 +198,10 @@ func resourceFlinkTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("description", utils.PathSearch("desc", flinkTemplate, nil)),
 		d.Set("type", utils.PathSearch("job_type", flinkTemplate, nil)),
 		d.Set("tags", d.Get("tags")),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("create_time", flinkTemplate, float64(0)).(float64))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("update_time", flinkTemplate, float64(0)).(float64))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
