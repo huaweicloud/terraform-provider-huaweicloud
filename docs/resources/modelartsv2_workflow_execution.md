@@ -324,7 +324,7 @@ The `policy` block supports:
 <a name="modelarts_workflow_execution_conditions_execution"></a>
 The `conditions_execution` block supports:
 
-* `result` - The result of the condition execution.
+* `result` - The result of the condition execution, in JSON format.
 
 * `metric_list` - The metric list of the condition execution.  
   The [metric_list](#modelarts_workflow_execution_metric_list) structure is documented below.
