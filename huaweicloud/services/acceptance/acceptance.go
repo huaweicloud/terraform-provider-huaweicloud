@@ -558,6 +558,7 @@ var (
 	HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE = os.Getenv("HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE")
 	HW_SECMASTER_METRIC_ID                = os.Getenv("HW_SECMASTER_METRIC_ID")
 	HW_SECMASTER_COMPONENT_VERSION_ID     = os.Getenv("HW_SECMASTER_COMPONENT_VERSION_ID")
+	HW_SECMASTER_ATTACH_ID                = os.Getenv("HW_SECMASTER_ATTACH_ID")
 
 	// The SecMaster pipeline ID
 	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
@@ -3417,6 +3418,13 @@ func TestAccPreCheckSecMasterWorkflowId(t *testing.T) {
 func TestAccPreCheckSecMasterFieldId(t *testing.T) {
 	if HW_SECMASTER_FIELD_ID == "" {
 		t.Skip("HW_SECMASTER_FIELD_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterAttachID(t *testing.T) {
+	if HW_SECMASTER_ATTACH_ID == "" {
+		t.Skip("HW_SECMASTER_ATTACH_ID must be set for SecMaster acceptance tests")
 	}
 }
 
