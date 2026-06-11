@@ -80,14 +80,12 @@ func appcodeSchema() *schema.Resource {
 	}
 }
 
-func listAppcodes(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func listAppcodes(client *golangsdk.ServiceClient, instanceId, appId string) ([]interface{}, error) {
 	var (
-		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes?limit={limit}"
-		instanceId = d.Get("instance_id").(string)
-		appId      = d.Get("application_id").(string)
-		limit      = 100
-		offset     = 0
-		result     = make([]interface{}, 0)
+		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes?limit={limit}"
+		limit   = 100
+		offset  = 0
+		result  = make([]interface{}, 0)
 	)
 
 	listPath := client.Endpoint + httpUrl
@@ -147,8 +145,10 @@ func flattenAppcodes(appcodes []interface{}) []interface{} {
 
 func dataSourceAppcodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
+		appId      = d.Get("application_id").(string)
 	)
 
 	client, err := cfg.NewServiceClient("apig", region)
@@ -156,7 +156,7 @@ func dataSourceAppcodesRead(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	resp, err := listAppcodes(client, d)
+	resp, err := listAppcodes(client, instanceId, appId)
 	if err != nil {
 		return diag.Errorf("error querying APPCODEs: %s", err)
 	}

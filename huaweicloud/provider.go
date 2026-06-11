@@ -3106,7 +3106,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_api_publishment":                            apig.ResourceApigApiPublishment(),
 			"huaweicloud_apig_api_version_unpublish":                      apig.ResourceApiVersionUnpublish(),
 			"huaweicloud_apig_appcode":                                    apig.ResourceAppcode(),
-			"huaweicloud_apig_application":                                apig.ResourceApigApplicationV2(),
+			"huaweicloud_apig_application":                                apig.ResourceApplication(),
 			"huaweicloud_apig_application_acl":                            apig.ResourceApplicationAcl(),
 			"huaweicloud_apig_application_ai_api_key":                     apig.ResourceApplicationAiApiKey(),
 			"huaweicloud_apig_application_authorization":                  apig.ResourceApplicationAuthorization(),
