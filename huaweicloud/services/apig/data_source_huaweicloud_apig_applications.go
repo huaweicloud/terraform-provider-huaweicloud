@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -26,95 +27,97 @@ func DataSourceApplications() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Specifies the region in which to query the data source.",
+				Description: `The region where the applications are located.`,
 			},
+
+			// Required parameters.
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Specifies the ID of the dedicated instance to which the applications belong.",
+				Description: `The ID of the dedicated instance to which the applications belong.`,
 			},
+
+			// Optional parameters.
 			"application_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the ID of the application to be queried.",
+				Description: `The ID of the application to be queried.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the name of the application to be queried.",
+				Description: `The name of the application to be queried.`,
 			},
 			"app_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				Description: "Specifies the key of the application to be queried.",
+				Description: `The key of the application to be queried.`,
 			},
-			"created_by": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Specifies the creator of the application to be queried.",
-			},
+
+			// Attributes.
 			"applications": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of the applications that matched filter parameters.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The ID of the application.",
+							Description: `The ID of the application.`,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The name of the application.",
+							Description: `The name of the application.`,
 						},
 						"status": {
 							Type:        schema.TypeInt,
 							Computed:    true,
-							Description: "The status of the application.",
+							Description: `The status of the application.`,
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The description of the application.",
+							Description: `The description of the application.`,
 						},
 						"app_key": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Sensitive:   true,
-							Description: "The key of the application.",
+							Description: `The key of the application.`,
 						},
 						"app_secret": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Sensitive:   true,
-							Description: "The secret of the application.",
+							Description: `The secret of the application.`,
 						},
 						"app_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The type of the application.",
+							Description: `The type of the application.`,
 						},
 						"bind_num": {
 							Type:        schema.TypeInt,
 							Computed:    true,
-							Description: "The number of bound APIs.",
+							Description: `The number of bound APIs.`,
 						},
 						"created_by": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The creator of the application.",
+							Description: `The creator of the application.`,
 						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The creation time of the application.",
+							Description: `The creation time of the application, in RFC3339 format.`,
 						},
 						"updated_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The latest update time of the application.",
+							Description: `The latest update time of the application, in RFC3339 format.`,
 						},
 					},
 				},
@@ -123,24 +126,27 @@ func DataSourceApplications() *schema.Resource {
 	}
 }
 
-func buildListApplicationsParams(d *schema.ResourceData) string {
+func buildApplicationsQueryParams(d *schema.ResourceData) string {
 	res := ""
-	if applicationId, ok := d.GetOk("application_id"); ok {
-		res = fmt.Sprintf("%s&id=%v", res, applicationId)
+
+	if v, ok := d.GetOk("application_id"); ok {
+		res = fmt.Sprintf("%s&id=%v", res, v)
 	}
-	if name, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s&name=%v", res, name)
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, v)
 	}
-	if appKey, ok := d.GetOk("app_key"); ok {
-		res = fmt.Sprintf("%s&app_key=%v", res, appKey)
+	if v, ok := d.GetOk("app_key"); ok {
+		res = fmt.Sprintf("%s&app_key=%v", res, v)
 	}
+
 	return res
 }
 
-func queryApplications(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func listApplications(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}/apps?limit=500"
+		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}/apps?limit={limit}"
 		instanceId = d.Get("instance_id").(string)
+		limit      = 500
 		offset     = 0
 		result     = make([]interface{}, 0)
 	)
@@ -148,33 +154,60 @@ func queryApplications(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
-
-	queryParams := buildListApplicationsParams(d)
-	listPath += queryParams
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+	listPath += buildApplicationsQueryParams(d)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	for {
 		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
 		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving applications under specified "+
-				"dedicated instance (%s): %s", instanceId, err)
+			return nil, err
 		}
 		respBody, err := utils.FlattenResponse(requestResp)
 		if err != nil {
 			return nil, err
 		}
 		applications := utils.PathSearch("apps", respBody, make([]interface{}, 0)).([]interface{})
-		if len(applications) < 1 {
+		result = append(result, applications...)
+		if len(applications) < limit {
 			break
 		}
-		result = append(result, applications...)
 		offset += len(applications)
 	}
 	return result, nil
+}
+
+func flattenApplications(applications []interface{}) []interface{} {
+	if len(applications) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(applications))
+	for _, application := range applications {
+		result = append(result, map[string]interface{}{
+			"id":          utils.PathSearch("id", application, nil),
+			"name":        utils.PathSearch("name", application, nil),
+			"status":      utils.PathSearch("status", application, nil),
+			"description": utils.PathSearch("remark", application, nil),
+			"app_key":     utils.PathSearch("app_key", application, nil),
+			"app_secret":  utils.PathSearch("app_secret", application, nil),
+			"app_type":    utils.PathSearch("app_type", application, nil),
+			"bind_num":    utils.PathSearch("bind_num", application, nil),
+			"created_by":  utils.PathSearch("creator", application, nil),
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("register_time",
+				application, "").(string))/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("update_time",
+				application, "").(string))/1000, false),
+		})
+	}
+	return result
 }
 
 func dataSourceApplicationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -187,9 +220,10 @@ func dataSourceApplicationsRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
-	applications, err := queryApplications(client, d)
+
+	applications, err := listApplications(client, d)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error querying applications: %s", err)
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -200,45 +234,7 @@ func dataSourceApplicationsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("applications", filterApplications(flattenApplications(applications), d)),
+		d.Set("applications", flattenApplications(applications)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func filterApplications(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
-
-	for _, v := range all {
-		if param, ok := d.GetOk("created_by"); ok &&
-			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("created_by", v, nil)) {
-			continue
-		}
-
-		rst = append(rst, v)
-	}
-	return rst
-}
-
-func flattenApplications(applications []interface{}) []interface{} {
-	if len(applications) < 1 {
-		return nil
-	}
-
-	result := make([]interface{}, 0, len(applications))
-	for _, policy := range applications {
-		result = append(result, map[string]interface{}{
-			"id":          utils.PathSearch("id", policy, nil),
-			"name":        utils.PathSearch("name", policy, nil),
-			"status":      utils.PathSearch("status", policy, nil),
-			"description": utils.PathSearch("remark", policy, nil),
-			"app_key":     utils.PathSearch("app_key", policy, nil),
-			"app_secret":  utils.PathSearch("app_secret", policy, nil),
-			"app_type":    utils.PathSearch("app_type", policy, nil),
-			"bind_num":    utils.PathSearch("bind_num", policy, nil),
-			"created_by":  utils.PathSearch("creator", policy, nil),
-			"created_at":  utils.PathSearch("register_time", policy, nil),
-			"updated_at":  utils.PathSearch("update_time", policy, nil),
-		})
-	}
-	return result
 }

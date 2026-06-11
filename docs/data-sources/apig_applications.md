@@ -26,7 +26,7 @@ data "huaweicloud_apig_applications" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the applications are located.  
   If omitted, the provider-level region will be used.
 
 * `instance_id` - (Required, String) Specifies the ID of the dedicated instance to which the applications belong.
@@ -37,21 +37,16 @@ The following arguments are supported:
 
 * `app_key` - (Optional, String) Specifies the key of the application to be queried.
 
-* `created_by` - (Optional, String) Specifies the creator of the application to be queried.  
-  The valid values are as follows:
-  + **USER**: The user created.
-  + **MARKET**: The cloud store allocation.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `applications` - All applications that match the filter parameters.
-  The [applications](#attrblock_applications) structure is documented below.
+* `applications` - The list of the applications that matched filter parameters.  
+  The [applications](#attrblock_applications_attr) structure is documented below.
 
-<a name="attrblock_applications"></a>
+<a name="attrblock_applications_attr"></a>
 The `applications` block supports:
 
 * `id` - The ID of the application.
