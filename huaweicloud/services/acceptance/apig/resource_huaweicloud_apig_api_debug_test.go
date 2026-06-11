@@ -52,6 +52,11 @@ resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
 }
 
+resource "huaweicloud_apig_application" "test" {
+  instance_id = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  name        = "%[2]s"
+}
+
 resource "huaweicloud_apig_environment" "test" {
   instance_id = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
   name        = "%[2]s"
@@ -150,6 +155,9 @@ resource "huaweicloud_apig_api_debug" "test_with_fgs" {
   method      = "POST"
   path        = "/test/function"
   body        = "{\"test\": \"data\"}"
+  app_key     = huaweicloud_apig_application.test.app_key
+  app_secret  = huaweicloud_apig_application.test.app_secret
+  domain      = "test.com:8080"
 
   header = jsonencode({
     "Content-Type": ["application/json"],
