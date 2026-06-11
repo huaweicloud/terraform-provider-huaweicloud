@@ -2334,6 +2334,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_collector_logstash_parsers":      secmaster.DataSourceCollectorLogstashParsers(),
 			"huaweicloud_secmaster_collector_module_restrictions":   secmaster.DataSourceCollectorModuleRestrictions(),
 			"huaweicloud_secmaster_collector_module_templates":      secmaster.DataSourceCollectorModuleTemplates(),
+			"huaweicloud_secmaster_collector_nodes":                 secmaster.DataSourceCollectorNodes(),
 			"huaweicloud_secmaster_collector_parser_templates":      secmaster.DataSourceSecmasterCollectorParserTemplates(),
 			"huaweicloud_secmaster_component_all_templates":         secmaster.DataSourceComponentAllTemplates(),
 			"huaweicloud_secmaster_component_detail":                secmaster.DataSourceComponentDetail(),
