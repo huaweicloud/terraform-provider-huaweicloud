@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v2/{project_id}/workspaces/{workspace_id}/siem/directories
+// @API SecMaster GET /v2/{project_id}/workspaces/{workspace_id}/siem/directories
 func DataSourceSiemDirectories() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSiemDirectoriesRead,

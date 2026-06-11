@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v1/{project_id}/workspaces/{workspace_id}/nodes/vpc-endpoint-services
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/nodes/vpc-endpoint-services
 func DataSourceSecmasterVpcEndpointServices() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSecmasterVpcEndpointServicesRead,

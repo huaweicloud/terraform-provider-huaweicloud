@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/search
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/search
 func DataSourceSocMappings() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSocMappingsRead,

@@ -123,7 +123,7 @@ func dataSourceSecmasterPlaybookActionsRead(_ context.Context, d *schema.Resourc
 	return nil
 }
 
-// @API SECMASTER GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions
 func (w *PlaybookActionsDSWrapper) ListPlaybookActions() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "secmaster")
 	if err != nil {

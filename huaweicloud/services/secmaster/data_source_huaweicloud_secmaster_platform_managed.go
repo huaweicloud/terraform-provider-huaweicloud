@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Secmaster GET /v1/{project_id}/siem/cloud-logs/managers
+// @API SecMaster GET /v1/{project_id}/siem/cloud-logs/managers
 func DataSourcePlatformManaged() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePlatformManagedRead,
