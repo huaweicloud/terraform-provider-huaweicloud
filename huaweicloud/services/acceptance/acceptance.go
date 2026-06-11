@@ -584,9 +584,11 @@ var (
 	HW_SECMASTER_TEMPLATE_ID = os.Getenv("HW_SECMASTER_TEMPLATE_ID")
 	HW_SECMASTER_MAPPING_ID  = os.Getenv("HW_SECMASTER_MAPPING_ID")
 	HW_SECMASTER_PIPE_ID     = os.Getenv("HW_SECMASTER_PIPE_ID")
+	HW_SECMASTER_SOURCE_ID   = os.Getenv("HW_SECMASTER_SOURCE_ID")
 
 	// The SecMaster dataspace ID
-	HW_SECMASTER_DATASPACE_ID = os.Getenv("HW_SECMASTER_DATASPACE_ID")
+	HW_SECMASTER_DATASPACE_ID   = os.Getenv("HW_SECMASTER_DATASPACE_ID")
+	HW_SECMASTER_DATASPACE_NAME = os.Getenv("HW_SECMASTER_DATASPACE_NAME")
 
 	HW_MODELARTS_ALGORITHM_ENGINE_ID                         = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_ID")
 	HW_MODELARTS_ALGORITHM_ENGINE_NAME                       = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_NAME")
@@ -3427,9 +3429,23 @@ func TestAccPreCheckSecMasterPipeId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckSecMasterSourceId(t *testing.T) {
+	if HW_SECMASTER_SOURCE_ID == "" {
+		t.Skip("HW_SECMASTER_SOURCE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckSecMasterDataspaceId(t *testing.T) {
 	if HW_SECMASTER_DATASPACE_ID == "" {
 		t.Skip("HW_SECMASTER_DATASPACE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterDataspaceName(t *testing.T) {
+	if HW_SECMASTER_DATASPACE_NAME == "" {
+		t.Skip("HW_SECMASTER_DATASPACE_NAME must be set for SecMaster acceptance tests")
 	}
 }
 
