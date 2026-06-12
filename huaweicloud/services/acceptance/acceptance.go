@@ -596,6 +596,9 @@ var (
 	// The SecMaster dataspace ID
 	HW_SECMASTER_DATASPACE_ID = os.Getenv("HW_SECMASTER_DATASPACE_ID")
 
+	// The SecMaster node ID
+	HW_SECMASTER_NODE_ID = os.Getenv("HW_SECMASTER_NODE_ID")
+
 	HW_MODELARTS_ALGORITHM_ENGINE_ID                         = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_ID")
 	HW_MODELARTS_ALGORITHM_ENGINE_NAME                       = os.Getenv("HW_MODELARTS_ALGORITHM_ENGINE_NAME")
 	HW_MODELARTS_ALGORITHM_IMAGE_URL                         = os.Getenv("HW_MODELARTS_ALGORITHM_IMAGE_URL")
@@ -3464,6 +3467,13 @@ func TestAccPreCheckSecMasterPipeId(t *testing.T) {
 func TestAccPreCheckSecMasterDataspaceId(t *testing.T) {
 	if HW_SECMASTER_DATASPACE_ID == "" {
 		t.Skip("HW_SECMASTER_DATASPACE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterNodeId(t *testing.T) {
+	if HW_SECMASTER_NODE_ID == "" {
+		t.Skip("HW_SECMASTER_NODE_ID must be set for SecMaster acceptance tests")
 	}
 }
 
