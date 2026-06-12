@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -85,6 +86,8 @@ func TestAccFlinkTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "type", "flink_sql_job"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
@@ -98,6 +101,10 @@ func TestAccFlinkTemplate_basic(t *testing.T) {
 					// The tags is ForceNew.
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
