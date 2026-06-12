@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_geminidb_command_disable
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/redis/instances/{instance_id}/disabled-commands:
+        DELETE:
+            tag: GeminiDB
+        GET:
+            tag: GeminiDB
+        POST:
+            tag: GeminiDB

@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: Secmaster
+    - name: SecMaster
 paths:
     /v1/{project_id}/workspaces/{workspace_id}/nodes/vpc-endpoint-services:
         GET:
-            tag: Secmaster
+            tag: SecMaster

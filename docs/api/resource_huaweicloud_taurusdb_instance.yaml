@@ -87,6 +87,11 @@ paths:
             tag: TaurusDB
         PUT:
             tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/multi-tenant:
+        GET:
+            tag: TaurusDB
+        PUT:
+            tag: TaurusDB
     /v3/{project_id}/instances/{instance_id}/name:
         PUT:
             tag: TaurusDB

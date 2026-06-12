@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_full_dead_lock_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/instances/{instance_id}/get-full-dead-lock-switch:
+        GET:
+            tag: DAS
+    /v3/{project_id}/instances/{instance_id}/set-full-dead-lock-switch:
+        POST:
+            tag: DAS

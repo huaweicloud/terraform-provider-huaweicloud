@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_shared_connection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/connections/{connection_id}/get-shared-list:
+        GET:
+            tag: DAS
+    /v3/{project_id}/connections/share:
+        DELETE:
+            tag: DAS
+        POST:
+            tag: DAS

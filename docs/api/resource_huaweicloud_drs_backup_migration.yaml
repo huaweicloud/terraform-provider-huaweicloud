@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_backup_migration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/backup-migration-jobs:
+        POST:
+            tag: DRS
+    /v5/{project_id}/backup-migration-jobs/{job_id}:
+        DELETE:
+            tag: DRS
+        GET:
+            tag: DRS
+        PUT:
+            tag: DRS

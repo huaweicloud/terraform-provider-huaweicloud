@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_obs_bucket_object_restore
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: OBS
+paths:
+    /{ObjectName}?restore:
+        POST:
+            tag: OBS

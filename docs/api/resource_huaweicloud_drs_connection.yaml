@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_connection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/connections:
+        GET:
+            tag: DRS
+        POST:
+            tag: DRS
+    /v5/{project_id}/connections/{connection_id}:
+        DELETE:
+            tag: DRS
+        PUT:
+            tag: DRS

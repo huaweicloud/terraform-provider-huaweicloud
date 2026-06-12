@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dds_bind_gateway
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v1/{project_id}/publicips:
+        GET:
+            tag: EIP
+    /v3/{project_id}/instances:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-gateway:
+        DELETE:
+            tag: DDS
+        POST:
+            tag: DDS

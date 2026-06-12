@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_search_path_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/connections/{connection_id}/clouddba-edit-search-path-flag:
+        POST:
+            tag: DAS
+    /v3/{project_id}/connections/{connection_id}/clouddba-get-search-path-flag:
+        GET:
+            tag: DAS

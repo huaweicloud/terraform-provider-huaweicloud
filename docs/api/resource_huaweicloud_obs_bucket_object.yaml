@@ -18,3 +18,10 @@ paths:
             tag: OBS
         PUT:
             tag: OBS
+    /{ObjectName}?tagging:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS

@@ -31,6 +31,13 @@ paths:
             tag: APIG
         PUT:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/extra-elbs:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip:
         DELETE:
             tag: APIG

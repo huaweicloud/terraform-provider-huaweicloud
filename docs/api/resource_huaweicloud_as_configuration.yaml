@@ -16,6 +16,8 @@ paths:
             tag: AS
         GET:
             tag: AS
+        PUT:
+            tag: AS
     /autoscaling-api/v1/{project_id}/scaling_group:
         GET:
             tag: AS

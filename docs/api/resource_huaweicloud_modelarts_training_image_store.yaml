@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelarts_training_image_store
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/training-jobs/{training_job_id}/tasks/{task_id}/save-image-job:
+        GET:
+            tag: ModelArts
+        POST:
+            tag: ModelArts
+    /v2/manage/namespaces/{namespace}/repos/{repository}/tags/{tag}:
+        DELETE:
+            tag: SWR
