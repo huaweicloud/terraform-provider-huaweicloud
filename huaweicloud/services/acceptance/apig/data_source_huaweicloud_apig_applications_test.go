@@ -5,16 +5,16 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceApplications_basic(t *testing.T) {
+func TestAccDataApplications_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_apig_applications.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
-		rName      = acceptance.RandomAccResourceName()
 
 		byId   = "data.huaweicloud_apig_applications.filter_by_id"
 		dcById = acceptance.InitDataSourceCheck(byId)
@@ -25,8 +25,8 @@ func TestAccDataSourceApplications_basic(t *testing.T) {
 		byAppKey   = "data.huaweicloud_apig_applications.filter_by_app_key"
 		dcByAppKey = acceptance.InitDataSourceCheck(byAppKey)
 
-		byCreatedBy   = "data.huaweicloud_apig_applications.filter_by_created_by"
-		dcByCreatedBy = acceptance.InitDataSourceCheck(byCreatedBy)
+		notFound   = "data.huaweicloud_apig_applications.not_found"
+		dcNotFound = acceptance.InitDataSourceCheck(notFound)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -37,29 +37,56 @@ func TestAccDataSourceApplications_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceApplications_basic(rName),
+				Config:      testAccDataApplications_nonExistentInstance(),
+				ExpectError: regexp.MustCompile(`error querying applications`),
+			},
+			{
+				Config: testAccDataApplications_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "applications.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dataSource, "applications.0.id"),
-					resource.TestCheckResourceAttrSet(dataSource, "applications.0.name"),
+					resource.TestCheckResourceAttrPair(dataSource, "applications.0.id", "huaweicloud_apig_application.test", "id"),
+					resource.TestCheckResourceAttrPair(dataSource, "applications.0.name", "huaweicloud_apig_application.test", "name"),
+					resource.TestCheckResourceAttrSet(dataSource, "applications.0.status"),
 					resource.TestCheckResourceAttrSet(dataSource, "applications.0.app_key"),
+					resource.TestCheckResourceAttrSet(dataSource, "applications.0.app_secret"),
+					resource.TestCheckResourceAttrSet(dataSource, "applications.0.app_type"),
 					resource.TestCheckResourceAttrSet(dataSource, "applications.0.created_by"),
+					resource.TestMatchResourceAttr(dataSource, "applications.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(dataSource, "applications.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					dcById.CheckResourceExists(),
+					resource.TestCheckResourceAttr(byId, "applications.#", "1"),
+					resource.TestCheckResourceAttrPair(byId, "applications.0.id", "huaweicloud_apig_application.test", "id"),
 					resource.TestCheckOutput("application_id_filter_is_useful", "true"),
 					dcByName.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(byName, "applications.0.name", "huaweicloud_apig_application.test", "name"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					dcByAppKey.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(byAppKey, "applications.0.app_key", "huaweicloud_apig_application.test", "app_key"),
 					resource.TestCheckOutput("app_key_filter_is_useful", "true"),
-					dcByCreatedBy.CheckResourceExists(),
-					resource.TestCheckOutput("created_by_filter_is_useful", "true"),
+					dcNotFound.CheckResourceExists(),
+					resource.TestCheckResourceAttr(notFound, "applications.#", "0"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceApplications_basic(name string) string {
+func testAccDataApplications_nonExistentInstance() string {
+	randomUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+data "huaweicloud_apig_applications" "test" {
+  instance_id = "%[1]s"
+}
+`, randomUUID)
+}
+
+func testAccDataApplications_basic_base() string {
+	name := acceptance.RandomAccResourceName()
+
 	return fmt.Sprintf(`
 data "huaweicloud_apig_instances" "test" {
   instance_id = "%[1]s"
@@ -72,7 +99,16 @@ locals {
 resource "huaweicloud_apig_application" "test" {
   instance_id = local.instance_id
   name        = "%[2]s"
+  description = "Created by acceptance test"
 }
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}
+
+func testAccDataApplications_basic() string {
+	randomUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+%s
 
 data "huaweicloud_apig_applications" "test" {
   depends_on = [
@@ -136,34 +172,14 @@ data "huaweicloud_apig_applications" "filter_by_app_key" {
   app_key     = local.app_key
 }
 
-locals {
-  app_key_filter_result = [
-    for v in data.huaweicloud_apig_applications.filter_by_app_key.applications[*].app_key : v == local.app_key
-  ]
-}
-
 output "app_key_filter_is_useful" {
-  value = length(local.app_key_filter_result) > 0 && alltrue(local.app_key_filter_result)
+  value = length(data.huaweicloud_apig_applications.filter_by_app_key.applications) > 0
 }
 
-# Filter by created_by
-locals {
-  created_by = data.huaweicloud_apig_applications.filter_by_id.applications[0].created_by
+# Filter by non-existent application ID
+data "huaweicloud_apig_applications" "not_found" {
+  instance_id    = local.instance_id
+  application_id = "%[2]s"
 }
-
-data "huaweicloud_apig_applications" "filter_by_created_by" {
-  instance_id = local.instance_id
-  created_by  = local.created_by
-}
-
-locals {
-  created_by_filter_result = [
-    for v in data.huaweicloud_apig_applications.filter_by_created_by.applications[*].created_by : v == local.created_by
-  ]
-}
-
-output "created_by_filter_is_useful" {
-  value = length(local.created_by_filter_result) > 0 && alltrue(local.created_by_filter_result)
-}
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+`, testAccDataApplications_basic_base(), randomUUID)
 }

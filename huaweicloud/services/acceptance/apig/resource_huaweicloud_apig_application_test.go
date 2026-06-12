@@ -2,45 +2,46 @@ package apig
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
+	client, err := cfg.NewServiceClient("apig", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+		return nil, fmt.Errorf("error creating APIG client: %s", err)
 	}
-	return applications.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID).Extract()
+	return apig.GetApplication(client, state.Primary.Attributes["instance_id"], state.Primary.ID)
 }
 
 func TestAccApplication_basic(t *testing.T) {
 	var (
-		app           applications.Application
+		obj interface{}
+
 		rName         = "huaweicloud_apig_application.test"
-		rc            = acceptance.InitResourceCheck(rName, &app, getApplicationFunc)
+		rc            = acceptance.InitResourceCheck(rName, &obj, getApplicationFunc)
 		resertSecret  = "huaweicloud_apig_application.reset_secret"
-		rcResetSecret = acceptance.InitResourceCheck(resertSecret, &app, getApplicationFunc)
+		rcResetSecret = acceptance.InitResourceCheck(resertSecret, &obj, getApplicationFunc)
 
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
-		name              = acceptance.RandomAccResourceName()
-		updateName        = acceptance.RandomAccResourceName()
-		description       = "Created by script"
-		updateDescription = "Updated by script"
-		code              = utils.Base64EncodeString(acctest.RandString(64))
-		updateCode        = utils.Base64EncodeString(acctest.RandString(64))
-		randomId, _       = uuid.GenerateUUID()
-		updateRandomId, _ = uuid.GenerateUUID()
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+
+		appKey          = acctest.RandString(32)
+		updateAppKey    = acctest.RandString(32)
+		appSecret       = acctest.RandString(64)
+		updateAppSecret = acctest.RandString(64)
+		code            = utils.Base64EncodeString(acctest.RandString(64))
+		updateCode      = utils.Base64EncodeString(acctest.RandString(64))
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -52,15 +53,19 @@ func TestAccApplication_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApplication_basic_step1(name, description, randomId, code),
+				Config: testAccApplication_basic_step1(name, appKey, appSecret, code),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", description),
-					resource.TestCheckResourceAttr(rName, "app_key", randomId),
-					resource.TestCheckResourceAttr(rName, "app_secret", randomId),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform test"),
+					resource.TestCheckResourceAttr(rName, "app_key", appKey),
+					resource.TestCheckResourceAttr(rName, "app_secret", appSecret),
 					resource.TestCheckResourceAttr(rName, "app_codes.#", "1"),
 					resource.TestCheckResourceAttr(rName, "app_codes.0", code),
+					resource.TestMatchResourceAttr(rName, "registration_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					rcResetSecret.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resertSecret, "app_key"),
 					resource.TestCheckResourceAttrSet(resertSecret, "app_secret"),
@@ -68,13 +73,13 @@ func TestAccApplication_basic(t *testing.T) {
 			},
 			{
 				// update name, description, app_codes, app_key and app_secret.
-				Config: testAccApplication_basic_step2(updateName, updateDescription, updateRandomId, updateCode),
+				Config: testAccApplication_basic_step2(updateName, updateAppKey, updateAppSecret, updateCode),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", updateDescription),
-					resource.TestCheckResourceAttr(rName, "app_key", updateRandomId),
-					resource.TestCheckResourceAttr(rName, "app_secret", updateRandomId),
+					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform test"),
+					resource.TestCheckResourceAttr(rName, "app_key", updateAppKey),
+					resource.TestCheckResourceAttr(rName, "app_secret", updateAppSecret),
 					resource.TestCheckResourceAttr(rName, "app_codes.#", "1"),
 					resource.TestCheckResourceAttr(rName, "app_codes.0", updateCode),
 					rcResetSecret.CheckResourceExists(),
@@ -105,13 +110,13 @@ func testAccApplicationImportIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccApplication_basic_step1(name, description, randomId, code string) string {
+func testAccApplication_basic_step1(name, appKey, appSecret, code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_application" "test" {
   instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "%[3]s"
-  app_key     = "%[4]s"
+  description = "Created by terraform test"
+  app_key     = "%[3]s"
   app_secret  = "%[4]s"
   app_codes   = ["%[5]s"]
 }
@@ -120,16 +125,16 @@ resource "huaweicloud_apig_application" "reset_secret" {
   instance_id = "%[1]s"
   name        = "%[2]s_reset"
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, randomId, code)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, appKey, appSecret, code)
 }
 
-func testAccApplication_basic_step2(name, description, randomId, code string) string {
+func testAccApplication_basic_step2(name, appKey, appSecret, code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_application" "test" {
   instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "%[3]s"
-  app_key     = "%[4]s"
+  description = "Updated by terraform test"
+  app_key     = "%[3]s"
   app_secret  = "%[4]s"
   app_codes   = ["%[5]s"]
 }
@@ -139,5 +144,5 @@ resource "huaweicloud_apig_application" "reset_secret" {
   name          = "%[2]s_reset"
   secret_action = "RESET"
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, randomId, code)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, appKey, appSecret, code)
 }

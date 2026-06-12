@@ -2,7 +2,8 @@
 subcategory: "API Gateway (Dedicated APIG)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_apig_application"
-description: ""
+description: |-
+  Manages an APIG application resource within HuaweiCloud.
 ---
 
 # huaweicloud_apig_application
@@ -30,11 +31,10 @@ resource "huaweicloud_apig_application" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region where the application is located.  
-  If omitted, the provider-level region will be used. Changing this will create a new resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the dedicated instance to which the application
-  belongs.  
-  Changing this will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the dedicated instance to which the application
+  belongs.
 
 * `name` - (Required, String) Specifies the application name.  
   The valid length is limited from `3` to `64`, only Chinese characters, English letters, digits and hyphens (-)
@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `app_codes` - (Optional, List) Specifies an array of one or more application codes that the application has.  
   Up to five application codes can be created.  
-  The valid length of each application code is limited from can contain `64` to `180`.  
+  The valid length of each application code is limited from `64` to `180`.  
   The application code must start with a letter, digit, plus sign (+) or slash (/).  
   Only letters, digits and following special special characters are allowed: `!@#$%+-_/=`.
 
@@ -75,9 +75,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The application ID.
 
-* `registration_time` - the registration time.
+* `registration_time` - The registration time of the application, in RFC3339 format.
 
-* `updated_at` - The latest update time of the application.
+* `updated_at` - The latest update time of the application, in RFC3339 format.
 
 ## Import
 
