@@ -452,6 +452,129 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 	})
 }
 
+func TestAccGeminiDbInstance_dataExport(t *testing.T) {
+	var obj interface{}
+	name := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_geminidb_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getGeminiDbInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGeminiDBDataExport_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.type", "influxdb"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.version", "1.8"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.storage_engine", "rocksDB"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "EnhancedCluster"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.num", "2"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.spec_code", "geminidb.influxdb.sqlstore.large.4"),
+					resource.TestCheckResourceAttr(resourceName, "data_export_switch", "open"),
+					resource.TestCheckResourceAttrPair(resourceName, "bucket_name", "huaweicloud_obs_bucket.test1", "bucket"),
+				),
+			},
+			{
+				Config: testAccGeminiDBDataExport_update(name, "open"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "data_export_switch", "open"),
+					resource.TestCheckResourceAttrPair(resourceName, "bucket_name", "huaweicloud_obs_bucket.test2", "bucket"),
+				),
+			},
+			{
+				Config: testAccGeminiDBDataExport_update(name, "close"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "data_export_switch", "close"),
+					resource.TestCheckResourceAttrPair(resourceName, "bucket_name", "huaweicloud_obs_bucket.test2", "bucket"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"flavor.0.storage",
+					"ssl_option",
+					"delete_node_list",
+					"bucket_name",
+					"data_export_switch",
+				},
+			},
+		},
+	})
+}
+
+func TestAccGeminiDbInstance_coldStorage(t *testing.T) {
+	var obj interface{}
+	name := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_geminidb_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getGeminiDbInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGeminiDBColdStorage_basic(name, 500),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.type", "influxdb"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.version", "1.8"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.storage_engine", "rocksDB"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "InfluxdbSingle"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "flavor.0.spec_code", "geminidb.influxdb.single.xlarge.2"),
+					resource.TestCheckResourceAttr(resourceName, "cold_storage_size", "500"),
+				),
+			},
+			{
+				Config: testAccGeminiDBColdStorage_basic(name, 505),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "cold_storage_size", "505"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"flavor.0.storage",
+					"ssl_option",
+					"delete_node_list",
+					"cold_storage_size",
+				},
+			},
+		},
+	})
+}
+
 func testAccGeminiDbInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -977,4 +1100,129 @@ resource "huaweicloud_geminidb_instance" "test" {
   }
 }
 `, common.TestBaseNetwork(name), name)
+}
+
+func testAccGeminiDBDataExport_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket" "test1" {
+  bucket        = "%[2]s-b1"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+resource "huaweicloud_obs_bucket" "test2" {
+  bucket        = "%[2]s-b2"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "Test@1234"
+  mode              = "EnhancedCluster"
+
+  datastore {
+    type           = "influxdb"
+    version        = "1.8"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "2"
+    size      = "100"
+    storage   = "ULTRAHIGH"
+    spec_code = "geminidb.influxdb.sqlstore.large.4"
+  }
+
+  data_export_switch = "open"
+  bucket_name        = huaweicloud_obs_bucket.test1.bucket
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccGeminiDBDataExport_update(name, dataSwitch string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket" "test1" {
+  bucket        = "%[2]s-b1"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+resource "huaweicloud_obs_bucket" "test2" {
+  bucket        = "%[2]s-b2"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "Test@1234"
+  mode              = "EnhancedCluster"
+
+  datastore {
+    type           = "influxdb"
+    version        = "1.8"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "2"
+    size      = "100"
+    storage   = "ULTRAHIGH"
+    spec_code = "geminidb.influxdb.sqlstore.large.4"
+  }
+
+  data_export_switch = "%[3]s"
+  bucket_name        = huaweicloud_obs_bucket.test2.bucket
+}
+`, common.TestBaseNetwork(name), name, dataSwitch)
+}
+
+func testAccGeminiDBColdStorage_basic(name string, storageSize int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "Test@1234"
+  mode              = "InfluxdbSingle"
+
+  datastore {
+    type           = "influxdb"
+    version        = "1.8"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "1"
+    size      = "100"
+    storage   = "ULTRAHIGH"
+    spec_code = "geminidb.influxdb.single.xlarge.2"
+  }
+
+  cold_storage_size = %[3]d
+}
+`, common.TestBaseNetwork(name), name, storageSize)
 }
