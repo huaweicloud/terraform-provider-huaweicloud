@@ -12,6 +12,17 @@ Use this data source to query the list of scheduled tasks for GeminiDB within Hu
 
 ## Example Usage
 
+### Basic Usage
+
+```hcl
+data "huaweicloud_gemini_db_scheduled_jobs" "test" {
+  limit  = 10
+  offset = 0
+}
+```
+
+### Combined Filters
+
 ```hcl
 variable "instance_id" {}
 
@@ -28,29 +39,28 @@ data "huaweicloud_geminidb_scheduled_tasks" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to query the scheduled jobs.
+* `region` - (Optional, String) Specifies the region in which to query the scheduled jobs.
   If omitted, the provider-level region will be used.
 
-* `job_name` - (Optional, String) The name of the scheduled job. Valid values are:
-  - **REBOOT**: Reboot instance
-  - **RESIZE_FLAVOR**: Change instance CPU and memory specifications
-  - **UPGRADE_DATABASE**: Patch upgrade
+* `job_name` - (Optional, String) Specifies the name of the scheduled job. Valid values are:
+  + **REBOOT**: Reboot instance
+  + **RESIZE_FLAVOR**: Change instance CPU and memory specifications
+  + **UPGRADE_DATABASE**: Patch upgrade
 
-* `job_status` - (Optional, String) The execution status of the job. Valid values are:
-  - **Pending**: Task not executed
-  - **Running**: Task is executing
-  - **Completed**: Task executed successfully
-  - **Failed**: Task execution failed
-  - **Canceled**: Task canceled
+* `job_status` - (Optional, String) Specifies the execution status of the job. Valid values are:
+  + **Pending**: Task not executed
+  + **Running**: Task is executing
+  + **Completed**: Task executed successfully
+  + **Failed**: Task execution failed
+  + **Canceled**: Task canceled
 
-* `instance_id` - (Optional, String) The ID of the GeminiDB instance.
+* `instance_id` - (Optional, String) Specifies the ID of the GeminiDB instance.
   If not specified, all instances that meet the criteria will be queried.
 
-* `start_time` - (Optional, String) The start time for task creation. Format is **yyyy-mm-ddThh:mm:ssZ**.
+* `start_time` - (Optional, String) Specifies the start time for task creation. Format is **yyyy-mm-ddThh:mm:ssZ**.
   If not specified, defaults to 7 days before the current time.
 
-* `end_time` - (Optional, String) The end time for task creation. Format is **yyyy-mm-ddThh:mm:ssZ**.
-  If not specified, defaults to the current time.
+* `end_time` - (Optional, String) Specifies the end time for task creation. Format is **yyyy-mm-ddThh:mm:ssZ**.
 
 ## Attribute Reference
 
