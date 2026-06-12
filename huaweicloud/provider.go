@@ -3500,6 +3500,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_das_lock_blocking_switch":            das.ResourceLockBlockingSwitch(),
 			"huaweicloud_das_search_path_switch":              das.ResourceSearchPathSwitch(),
 			"huaweicloud_das_shared_connection":               das.ResourceSharedConnection(),
+			"huaweicloud_das_slow_log_export_task":            das.ResourceSlowLogExportTask(),
 			"huaweicloud_das_sql_limiting_switch":             das.ResourceSqlLimitingSwitch(),
 
 			"huaweicloud_dbss_audit_risk_rule_action": dbss.ResourceRiskRuleAction(),
