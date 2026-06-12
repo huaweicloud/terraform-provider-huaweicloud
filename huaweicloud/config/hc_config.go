@@ -359,7 +359,11 @@ func implNewHcClient(c *Config, region, product string, isGlobal, isDerived bool
 		headers["User-Agent"] = providerUserAgent
 	}
 
-	return builder.Build().PreInvoke(headers), nil
+	hcClient, err := builder.SafeBuild()
+	if err != nil {
+		return nil, err
+	}
+	return hcClient.WithExtraHeaders(headers), nil
 }
 
 func parseProxyFromEnv() (*url.URL, error) {
