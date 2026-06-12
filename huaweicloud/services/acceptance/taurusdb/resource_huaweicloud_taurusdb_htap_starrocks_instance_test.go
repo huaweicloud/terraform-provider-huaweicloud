@@ -143,6 +143,30 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags_info.0.sys_tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags_info.0.sys_tags.0.key", "_sys_enterprise_project_id"),
 					resource.TestCheckResourceAttr(resourceName, "tags_info.0.sys_tags.0.value", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "be_configurations.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_configurations.0.configuration_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_configurations.0.datastore_version_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_configurations.0.datastore_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.value"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.restart_required"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.readonly"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.value_range"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.type"),
+					resource.TestCheckResourceAttrSet(resourceName, "be_parameters.0.description"),
+					resource.TestCheckResourceAttr(resourceName, "fe_configurations.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_configurations.0.configuration_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_configurations.0.datastore_version_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_configurations.0.datastore_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.value"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.restart_required"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.readonly"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.value_range"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.type"),
+					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.description"),
 				),
 			},
 			{
@@ -162,7 +186,7 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccTaurusDBHtapStarrocksInstanceImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"db_root_pwd", "period", "period_unit", "auto_renew",
+					"db_root_pwd", "be_parameter_values", "fe_parameter_values", "period", "period_unit", "auto_renew",
 				},
 			},
 		},
@@ -409,7 +433,7 @@ func TestAccTaurusDBHtapStarrocksInstance_prePaid(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccTaurusDBHtapStarrocksInstanceImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"db_root_pwd", "period", "period_unit", "auto_renew",
+					"db_root_pwd", "be_parameter_values", "fe_parameter_values", "period", "period_unit", "auto_renew",
 				},
 			},
 		},
@@ -517,6 +541,16 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
       value = "%[3]s"
     }
   }
+  
+  be_parameter_values = {
+    "alter_tablet_worker_count"            = "1"
+    "base_compaction_num_threads_per_disk" = "1"
+  }
+  
+  fe_parameter_values = {
+    "alter_table_timeout_second"     = "21600"
+    "bdbje_heartbeat_timeout_second" = "10"
+  }
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -562,6 +596,16 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
       key   = "_sys_enterprise_project_id"
       value = "%[3]s"
     }
+  }
+  
+  be_parameter_values = {
+    "alter_tablet_worker_count"            = "20"
+    "base_compaction_num_threads_per_disk" = "5"
+  }
+  
+  fe_parameter_values = {
+    "alter_table_timeout_second"     = "259200"
+    "bdbje_heartbeat_timeout_second" = "100"
   }
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
