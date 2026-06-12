@@ -3869,6 +3869,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_parameter_template_reset":    geminidb.ResourceGeminiDBParameterTemplateReset(),
 			"huaweicloud_geminidb_primary_standby_switch":      geminidb.ResourcePrimaryStandbySwitch(),
 			"huaweicloud_geminidb_recycling_policy":            geminidb.ResourceGeminiDBRecyclingPolicy(),
+			"huaweicloud_geminidb_scheduled_task_cancel":       geminidb.ResourceGeminiDBScheduledTaskCancel(),
 
 			"huaweicloud_gaussdb_cassandra_instance":  geminidb.ResourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_redis_instance":      geminidb.ResourceGaussRedisInstanceV3(),
