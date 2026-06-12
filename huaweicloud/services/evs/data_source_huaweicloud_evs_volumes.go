@@ -558,7 +558,14 @@ func filterEvsVolumes(allVolumes []interface{}, d *schema.ResourceData) []interf
 
 	rst := make([]interface{}, 0, len(allVolumes))
 	for _, v := range allVolumes {
-		remoteTags := utils.PathSearch("tags", v, make(map[string]string)).(map[string]string)
+		rawTags := utils.PathSearch("tags", v, nil)
+		remoteTags := make(map[string]string)
+		switch tags := rawTags.(type) {
+		case map[string]string:
+			remoteTags = tags
+		case map[string]interface{}:
+			remoteTags = utils.ExpandToStringMap(tags)
+		}
 		if utils.HasMapContains(remoteTags, localTags) {
 			rst = append(rst, v)
 		}
@@ -566,3 +573,4 @@ func filterEvsVolumes(allVolumes []interface{}, d *schema.ResourceData) []interf
 
 	return rst
 }
+
