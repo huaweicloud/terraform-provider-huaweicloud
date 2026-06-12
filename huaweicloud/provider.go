@@ -3913,6 +3913,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_dr_drill":                       gaussdb.ResourceGaussDbDrDrill(),
 			"huaweicloud_gaussdb_dr_record_delete":               gaussdb.ResourceGaussDbDrRecordDelete(),
 			"huaweicloud_gaussdb_dr_instance_to_primary":         gaussdb.ResourceGaussDBDrInstanceToPrimary(),
+			"huaweicloud_gaussdb_dr_relationship_reestablish":    gaussdb.ResourceGaussDbDrRelationshipReestablish(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
