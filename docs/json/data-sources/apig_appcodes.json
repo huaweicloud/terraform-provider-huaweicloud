@@ -18,7 +18,7 @@
                     }
                   ]
                 ],
-                "description": "All APPCODEs of the specified application.",
+                "description": "The list of the APPCODEs of the specified application.",
                 "computed": true
               },
               "application_id": {
@@ -37,6 +37,7 @@
               },
               "region": {
                 "type": "string",
+                "description": "The region where the APPCODEs are located.",
                 "computed": true
               }
             }

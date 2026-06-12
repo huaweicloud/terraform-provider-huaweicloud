@@ -214,6 +214,39 @@
               }
             },
             "block_types": {
+              "access_control": {
+                "block": {
+                  "attributes": {
+                    "enabled": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "ip_groups": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "ip": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "availability_zone_detail": {
                 "block": {
                   "attributes": {

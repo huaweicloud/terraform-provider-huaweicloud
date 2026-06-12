@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_dr_record_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/disaster/record/delete:
+        DELETE:
+            tag: GaussDB

@@ -111,6 +111,11 @@
                 "optional": true,
                 "default": "Cluster"
               },
+              "multi_tenant_switch": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true

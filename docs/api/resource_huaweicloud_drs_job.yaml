@@ -8,62 +8,11 @@ host: huaweicloud.com
 tags:
     - name: DRS
 paths:
-    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
-        DELETE:
-            tag: BSS
-        POST:
-            tag: BSS
-    /v2/orders/subscriptions/resources/unsubscribe:
-        POST:
-            tag: BSS
-    /v2/orders/suscriptions/resources/query:
-        POST:
-            tag: BSS
-    /v3/{project_id}/jobs:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-connection:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-creation:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-detail:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-jobs:
-        DELETE:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-limit-speed:
-        PUT:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-modification:
-        PUT:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-precheck:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-precheck-result:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-starting:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-status:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/batch-sync-policy:
-        POST:
-            tag: DRS
-    /v3/{project_id}/jobs/cluster/batch-connection:
+    /v5/{project_id}/jobs:
         POST:
             tag: DRS
     /v5/{project_id}/jobs/{job_id}:
-        PUT:
+        DELETE:
             tag: DRS
-    /v5/{project_id}/jobs/{job_id}/action:
-        POST:
-            tag: DRS
-    /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action:
-        POST:
+        GET:
             tag: DRS

@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_instance_processes": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "description": "The name of the database.",
+                "optional": true
+              },
+              "db_user_id": {
+                "type": "string",
+                "description": "The ID of the database user.",
+                "required": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "description": "The name of the database user.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance to which the processes belong.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "The ID of the instance node.",
+                "optional": true
+              },
+              "processes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "command": "string",
+                      "db_name": "string",
+                      "db_user_name": "string",
+                      "host": "string",
+                      "id": "string",
+                      "sql": "string",
+                      "state": "string",
+                      "time": "string",
+                      "trx_executed_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of processes that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the instance processes are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

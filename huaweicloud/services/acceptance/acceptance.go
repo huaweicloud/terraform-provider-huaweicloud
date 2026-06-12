@@ -292,6 +292,7 @@ var (
 	HW_GAUSSDB_INSTANCE_ID           = os.Getenv("HW_GAUSSDB_INSTANCE_ID")
 	HW_GAUSSDB_START_TIME            = os.Getenv("HW_GAUSSDB_START_TIME")
 	HW_GAUSSDB_END_TIME              = os.Getenv("HW_GAUSSDB_END_TIME")
+	HW_GAUSSDB_HBA_HISTORY_ID        = os.Getenv("HW_GAUSSDB_HBA_HISTORY_ID")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -565,6 +566,9 @@ var (
 
 	// The SecMaster playbook instance ID
 	HW_SECMASTER_INSTANCE_ID = os.Getenv("HW_SECMASTER_INSTANCE_ID")
+
+	// The SecMaster collector channel ID
+	HW_SECMASTER_CHANNEL_ID = os.Getenv("HW_SECMASTER_CHANNEL_ID")
 
 	// The ID and product ID to create a SecMaster post paid order
 	HW_SECMASTER_ORDER_ID   = os.Getenv("HW_SECMASTER_ORDER_ID")
@@ -933,6 +937,7 @@ var (
 	HW_GEMINIDB_INSATNCE_ID = os.Getenv("HW_GEMINIDB_INSATNCE_ID")
 	HW_GEMINIDB_BACKUP_ID   = os.Getenv("HW_GEMINIDB_BACKUP_ID")
 	HW_GEMINIDB_CONFIG_ID   = os.Getenv("HW_GEMINIDB_CONFIG_ID")
+	HW_GEMINIDB_JOB_ID      = os.Getenv("HW_GEMINIDB_JOB_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -2420,6 +2425,13 @@ func TestAccPreCheckGaussDBTimeRange(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckGaussDBHbaHistoryId(t *testing.T) {
+	if HW_GAUSSDB_HBA_HISTORY_ID == "" {
+		t.Skip("HW_GAUSSDB_HBA_HISTORY_ID must be set for GaussDB acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckVODWatermark(t *testing.T) {
 	if HW_VOD_WATERMARK_FILE == "" {
 		t.Skip("HW_VOD_WATERMARK_FILE must be set for VOD watermark template acceptance tests.")
@@ -3353,6 +3365,13 @@ func TestAccPreCheckSecMasterPipelineID(t *testing.T) {
 func TestAccPreCheckSecMasterInstanceID(t *testing.T) {
 	if HW_SECMASTER_INSTANCE_ID == "" {
 		t.Skip("HW_SECMASTER_INSTANCE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterChannelID(t *testing.T) {
+	if HW_SECMASTER_CHANNEL_ID == "" {
+		t.Skip("HW_SECMASTER_CHANNEL_ID must be set for SecMaster acceptance tests")
 	}
 }
 
@@ -5535,5 +5554,12 @@ func TestAccCheckGeminidbBackupID(t *testing.T) {
 func TestAccCheckGeminidbConfigID(t *testing.T) {
 	if HW_GEMINIDB_CONFIG_ID == "" {
 		t.Skip("HW_GEMINIDB_CONFIG_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccCheckGeminidbJobID(t *testing.T) {
+	if HW_GEMINIDB_JOB_ID == "" {
+		t.Skip("HW_GEMINIDB_JOB_ID must be set for this acceptance test")
 	}
 }

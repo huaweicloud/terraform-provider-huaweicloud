@@ -26,7 +26,7 @@ data "huaweicloud_apig_appcodes" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the APPCODEs are located.  
   If omitted, the provider-level region will be used.
 
 * `instance_id` - (Required, String) Specifies the ID of the dedicated instance to which the application belongs.
@@ -39,10 +39,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `appcodes` - All APPCODEs of the specified application.
-  The [app_codes](#attrblock_appcodes) structure is documented below.
+* `appcodes` - The list of the APPCODEs of the specified application.  
+  The [appcodes](#apig_appcodes_attr) structure is documented below.
 
-<a name="attrblock_appcodes"></a>
+<a name="apig_appcodes_attr"></a>
 The `appcodes` block supports:
 
 * `id` - The ID of the APPCODE.

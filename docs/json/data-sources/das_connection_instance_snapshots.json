@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_connection_instance_snapshots": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "module": {
+                "type": "number",
+                "description": "The lock snapshot type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the connection instance snapshots are located.",
+                "computed": true
+              },
+              "snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "find_lock": "number",
+                      "id": "number",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of lock snapshots.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The database user ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

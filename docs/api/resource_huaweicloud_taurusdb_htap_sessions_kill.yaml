@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_taurusdb_htap_sessions_kill
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TaurusDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/htap/process:
+        DELETE:
+            tag: TaurusDB

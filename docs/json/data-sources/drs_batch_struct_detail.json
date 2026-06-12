@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_batch_struct_detail": {
+          "block": {
+            "attributes": {
+              "cur_page": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "per_page": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_message": "string",
+                      "job_id": "string",
+                      "struct_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "string",
+                            "list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "dst_db": "string",
+                                  "dst_tb": "string",
+                                  "progress": "number",
+                                  "src_db": "string",
+                                  "src_tb": "string"
+                                }
+                              ]
+                            ],
+                            "total_record": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

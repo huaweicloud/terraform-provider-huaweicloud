@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_sessions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the HTAP instance ID.",
+                "required": true
+              },
+              "process_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "command": "string",
+                      "database": "string",
+                      "duration": "number",
+                      "host": "string",
+                      "id": "string",
+                      "sql_statement": "string",
+                      "state": "string",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of sessions of the HTAP instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

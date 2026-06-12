@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_shared_connection": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the connection to which the shared connection belongs.",
+                "required": true
+              },
+              "expired_at": {
+                "type": "string",
+                "description": "The expiration time of the shared connection, in RFC3339 format.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the shared connection is located.",
+                "computed": true
+              },
+              "shared_at": {
+                "type": "string",
+                "description": "The creation time of the shared connection, in RFC3339 format.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The user ID of the shared connection.",
+                "required": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name of the shared connection.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

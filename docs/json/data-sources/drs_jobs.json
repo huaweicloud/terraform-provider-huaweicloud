@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_jobs": {
+          "block": {
+            "attributes": {
+              "engine_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "instance_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "job_type": {
+                "type": "string",
+                "required": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "billing_tag": "bool",
+                      "charging_mode": "string",
+                      "children": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "billing_tag": "bool",
+                            "charging_mode": "string",
+                            "create_time": "string",
+                            "description": "string",
+                            "engine_type": "string",
+                            "enterprise_project_id": "string",
+                            "id": "string",
+                            "is_multi_az": "bool",
+                            "job_action": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "available_actions": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "current_action": "string",
+                                  "unavailable_actions": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "job_direction": "string",
+                            "job_mode": "string",
+                            "job_mode_role": "string",
+                            "job_type": "string",
+                            "name": "string",
+                            "net_type": "string",
+                            "node_new_framework": "bool",
+                            "node_role": "string",
+                            "status": "string",
+                            "task_type": "string"
+                          }
+                        ]
+                      ],
+                      "create_time": "string",
+                      "description": "string",
+                      "engine_type": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "is_multi_az": "bool",
+                      "job_action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_actions": [
+                              "list",
+                              "string"
+                            ],
+                            "current_action": "string",
+                            "unavailable_actions": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "job_direction": "string",
+                      "job_mode": "string",
+                      "job_mode_role": "string",
+                      "job_type": "string",
+                      "name": "string",
+                      "net_type": "string",
+                      "node_new_framework": "bool",
+                      "node_role": "string",
+                      "status": "string",
+                      "task_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "net_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

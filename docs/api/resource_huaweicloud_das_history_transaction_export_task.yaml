@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_history_transaction_export_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/transaction/{instance_id}/create-export-task:
+        POST:
+            tag: DAS
+    /v3/{project_id}/transaction/{instance_id}/delete-export-task:
+        POST:
+            tag: DAS
+    /v3/{project_id}/transaction/{instance_id}/get-export-task-info:
+        GET:
+            tag: DAS

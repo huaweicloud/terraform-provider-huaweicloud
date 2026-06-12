@@ -14,6 +14,7 @@ func TestAccResourceClientAuthConfigRestore_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckGaussDBInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBHbaHistoryId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
@@ -27,13 +28,9 @@ func TestAccResourceClientAuthConfigRestore_basic(t *testing.T) {
 
 func testAccClientAuthConfigRestore_basic() string {
 	return fmt.Sprintf(`
-data "huaweicloud_gaussdb_client_auth_config_history" "test" {
-  instance_id = "%[1]s"
-}
-
 resource "huaweicloud_gaussdb_client_auth_config_restore" "test" {
   instance_id    = "%[1]s"
-  hba_history_id = data.huaweicloud_gaussdb_client_auth_config_history.test.hba_histories.0.id
+  hba_history_id = "%[2]s"
 }
-`, acceptance.HW_GAUSSDB_INSTANCE_ID)
+`, acceptance.HW_GAUSSDB_INSTANCE_ID, acceptance.HW_GAUSSDB_HBA_HISTORY_ID)
 }

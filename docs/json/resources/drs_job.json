@@ -9,6 +9,15 @@
                 "type": "string",
                 "optional": true
               },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -122,6 +131,14 @@
                 "computed": true
               },
               "pause_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
                 "type": "string",
                 "optional": true
               },

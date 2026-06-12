@@ -1,0 +1,600 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_training_jobs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "autosearch_config_path": "string",
+                            "autosearch_framework_path": "string",
+                            "boot_file": "string",
+                            "code_dir": "string",
+                            "command": "string",
+                            "engine": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "engine_id": "string",
+                                  "engine_name": "string",
+                                  "engine_version": "string",
+                                  "image_url": "string",
+                                  "install_sys_packages": "bool"
+                                }
+                              ]
+                            ],
+                            "environments": [
+                              "map",
+                              "string"
+                            ],
+                            "id": "string",
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "access_method": "string",
+                                  "description": "string",
+                                  "local_dir": "string",
+                                  "name": "string",
+                                  "remote": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "dataset": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "id": "string",
+                                              "name": "string",
+                                              "obs_url": "string",
+                                              "service_type": "string",
+                                              "version_id": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "obs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "obs_url": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "remote_constraint": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "attributes": "string",
+                                        "data_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "item_version_id": "string",
+                            "local_code_dir": "string",
+                            "name": "string",
+                            "outputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "access_method": "string",
+                                  "description": "string",
+                                  "local_dir": "string",
+                                  "name": "string",
+                                  "remote": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "obs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "obs_url": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "parameters": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "constraint": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "editable": "bool",
+                                        "required": "bool",
+                                        "type": "string",
+                                        "valid_range": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "valid_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "description": "string",
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "subscription_id": "string",
+                            "working_dir": "string"
+                          }
+                        ]
+                      ],
+                      "create_time": "string",
+                      "endpoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "jupyter_lab": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "token": "string",
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "mindstudio_insight": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "token": "string",
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "ssh": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key_pair_names": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "task_urls": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "task": "string",
+                                        "url": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "tensorboard": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "token": "string",
+                                  "url": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "kind": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": [
+                              "map",
+                              "string"
+                            ],
+                            "description": "string",
+                            "id": "string",
+                            "name": "string",
+                            "user_name": "string",
+                            "workspace_id": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_metrics": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "exec": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "command": [
+                                          "list",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "http_get": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "path": "string",
+                                        "port": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "log_export_path": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "obs_url": "string"
+                                }
+                              ]
+                            ],
+                            "resource": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "flavor_id": "string",
+                                  "flavor_name": "string",
+                                  "main_container_allocated_resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "accelerator_num": "number",
+                                        "accelerator_type": "string",
+                                        "cpu_arch": "string",
+                                        "cpu_core_num": "number",
+                                        "mem_size": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "main_container_customized_flavor": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "accelerator_num": "number",
+                                        "cpu_core_num": "number",
+                                        "mem_size": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "node_count": "number",
+                                  "policy": "string",
+                                  "pool_group_id": "string",
+                                  "pool_id": "string"
+                                }
+                              ]
+                            ],
+                            "runtime_type": "string",
+                            "schedule_policy": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "preemptible": "bool",
+                                  "preferred_affinity": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "node_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "preference": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "match_expressions": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "match_fields": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "weight": "number"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "priority": "number",
+                                  "required_affinity": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "affinity_group_size": "number",
+                                        "affinity_type": "string",
+                                        "node_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "node_selector_terms": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "match_expressions": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "match_fields": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "volumes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "nfs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "local_path": "string",
+                                        "nfs_server_path": "string",
+                                        "read_only": "bool"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "duration": "number",
+                            "node_count_metrics": "string",
+                            "phase": "string",
+                            "running_records": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "end_at": "string",
+                                  "end_reason": "string",
+                                  "end_recover": "string",
+                                  "end_recover_before_downgrade": "string",
+                                  "end_related_task": "string",
+                                  "recover_records": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "fault_scenario": "string",
+                                        "reason": "string",
+                                        "recover": "string",
+                                        "recover_end_at": "string",
+                                        "recover_result": "string",
+                                        "recover_start_at": "string",
+                                        "related_task": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "start_at": "string",
+                                  "start_type": "string",
+                                  "xpu_start_at": "string"
+                                }
+                              ]
+                            ],
+                            "secondary_phase": "string",
+                            "start_time": "string",
+                            "task_statuses": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "exit_code": "number",
+                                  "message": "string",
+                                  "task": "string"
+                                }
+                              ]
+                            ],
+                            "tasks": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of training jobs that match the filter parameters.",
+                "computed": true
+              },
+              "order": {
+                "type": "string",
+                "description": "The sort order of the training jobs.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training jobs are located.",
+                "computed": true
+              },
+              "sort_by": {
+                "type": "string",
+                "description": "The metric used to sort the training jobs.",
+                "optional": true
+              },
+              "train_type": {
+                "type": "string",
+                "description": "The training job type to be queried when unified_jobs is enabled.",
+                "optional": true
+              },
+              "unified_jobs": {
+                "type": "bool",
+                "description": "Whether to query custom jobs and fine-tuning jobs together.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the training jobs to be queried.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "filters": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The filter key.",
+                      "required": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "The filter operator.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The filter values.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The filter conditions used to query training jobs."
+                },
+                "nesting_mode": "list",
+                "max_items": 20
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

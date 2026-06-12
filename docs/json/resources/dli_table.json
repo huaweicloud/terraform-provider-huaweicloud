@@ -69,6 +69,11 @@
                 "type": "string",
                 "computed": true
               },
+              "select_statement": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "timestamp_format": {
                 "type": "string",
                 "optional": true,

@@ -1,0 +1,160 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_collect_config": {
+          "block": {
+            "attributes": {
+              "dataspace_id": {
+                "type": "string",
+                "required": true
+              },
+              "dataspace_name": {
+                "type": "string",
+                "required": true
+              },
+              "domain_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "config": {
+                "block": {
+                  "attributes": {
+                    "accounts": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "action": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "alert": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "all_accounts": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "csvc": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "csvc_display": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "enable": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "new_account_auto_access": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "shards": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "source_display": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "source_id": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "source_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ttl": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "lts_config": {
+                "block": {
+                  "attributes": {
+                    "config_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "enable": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "log_group_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "log_stream_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "log_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "log_type_prefix": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "pipe_alias": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

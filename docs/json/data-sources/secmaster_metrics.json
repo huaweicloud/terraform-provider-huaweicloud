@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_metrics": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cache_ttl": "number",
+                      "compound_expression": "string",
+                      "data_type": "string",
+                      "derived_metrics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "date_end": "string",
+                            "date_format": "string",
+                            "date_start": "string",
+                            "max_query_range": "number",
+                            "metric_dimension": "number",
+                            "query_function": "string",
+                            "query_type": "string"
+                          }
+                        ]
+                      ],
+                      "effective_column": "string",
+                      "id": "string",
+                      "is_built_in": "bool",
+                      "max_query_range": "number",
+                      "metric_dimension": "number",
+                      "metric_expand_dim": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "functions": [
+                              "list",
+                              "string"
+                            ],
+                            "labels": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "metric_format": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data": "string",
+                            "data_param": [
+                              "map",
+                              "string"
+                            ],
+                            "display": "string",
+                            "display_param": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "metric_type": "string",
+                      "name": "string",
+                      "report_period": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

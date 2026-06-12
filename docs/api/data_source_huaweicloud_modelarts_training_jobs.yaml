@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_modelarts_training_jobs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/training-job-searches:
+        POST:
+            tag: ModelArts

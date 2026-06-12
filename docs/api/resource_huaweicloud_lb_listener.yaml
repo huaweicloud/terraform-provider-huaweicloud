@@ -27,3 +27,8 @@ paths:
     /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}:
         GET:
             tag: ELB
+    /v3/{project_id}/elb/listeners/{listener_id}:
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB

@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_instance_backups": {
+          "block": {
+            "attributes": {
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_level": "string",
+                      "backup_method": "string",
+                      "backup_type": "string",
+                      "created": "string",
+                      "description": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "name": "string",
+                      "size": "string",
+                      "size_unit": "string",
+                      "status": "string",
+                      "time_zone": "string",
+                      "updated": "string",
+                      "use_detail": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "filter_content": {
+                "type": "string",
+                "optional": true
+              },
+              "filter_field": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "order_field": {
+                "type": "string",
+                "optional": true
+              },
+              "order_rule": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

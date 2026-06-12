@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_training_job_flavors": {
+          "block": {
+            "attributes": {
+              "flavor_type": {
+                "type": "string",
+                "description": "The type of the flavor.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attributes": [
+                        "map",
+                        "string"
+                      ],
+                      "billing": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "unit_num": "number"
+                          }
+                        ]
+                      ],
+                      "flavor_id": "string",
+                      "flavor_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "arch": "string",
+                                  "core_num": "number"
+                                }
+                              ]
+                            ],
+                            "disk": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "number",
+                                  "unit": "string"
+                                }
+                              ]
+                            ],
+                            "gpu": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "memory": "string",
+                                  "product_name": "string",
+                                  "unit_num": "number"
+                                }
+                              ]
+                            ],
+                            "max_num": "number",
+                            "memory": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "number",
+                                  "unit": "string"
+                                }
+                              ]
+                            ],
+                            "npu": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "memory": "string",
+                                  "product_name": "string",
+                                  "unit_num": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "flavor_name": "string",
+                      "flavor_type": "string",
+                      "support_engines": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of training job flavors that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training job flavors are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

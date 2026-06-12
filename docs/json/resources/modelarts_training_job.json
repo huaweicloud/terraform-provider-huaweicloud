@@ -1,0 +1,1129 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_training_job": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the training job, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The type of the training job.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training job is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the training job.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the training job.",
+                "optional": true,
+                "computed": true
+              },
+              "train_type": {
+                "type": "string",
+                "description": "The training type of the fine-tuning job.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "algorithm": {
+                "block": {
+                  "attributes": {
+                    "autosearch_config_path": {
+                      "type": "string",
+                      "description": "The YAML configuration path of the auto search job.",
+                      "optional": true
+                    },
+                    "autosearch_framework_path": {
+                      "type": "string",
+                      "description": "The framework code directory of the auto search job.",
+                      "optional": true
+                    },
+                    "boot_file": {
+                      "type": "string",
+                      "description": "The boot file of the training job code.",
+                      "optional": true
+                    },
+                    "code_dir": {
+                      "type": "string",
+                      "description": "The code directory of the training job.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "command": {
+                      "type": "string",
+                      "description": "The container startup command for custom image scenarios.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "environments": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The environment variables of the training job.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the algorithm.",
+                      "optional": true
+                    },
+                    "item_version_id": {
+                      "type": "string",
+                      "description": "The version ID of the subscribed algorithm.",
+                      "optional": true
+                    },
+                    "local_code_dir": {
+                      "type": "string",
+                      "description": "The local path where the algorithm code is downloaded in the training container.",
+                      "optional": true
+                    },
+                    "subscription_id": {
+                      "type": "string",
+                      "description": "The subscription ID of the subscribed algorithm.",
+                      "optional": true
+                    },
+                    "working_dir": {
+                      "type": "string",
+                      "description": "The working directory when running the algorithm.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "engine": {
+                      "block": {
+                        "attributes": {
+                          "engine_id": {
+                            "type": "string",
+                            "description": "The engine specification ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "engine_name": {
+                            "type": "string",
+                            "description": "The engine specification name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "engine_version": {
+                            "type": "string",
+                            "description": "The engine specification version.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "description": "The custom image URL obtained from SWR.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "install_sys_packages": {
+                            "type": "bool",
+                            "description": "Whether to install the moxing version specified by the training platform.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The engine configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "inputs": {
+                      "block": {
+                        "attributes": {
+                          "access_method": {
+                            "type": "string",
+                            "description": "The delivery method of the input channel path.",
+                            "optional": true
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "The input channel description.",
+                            "optional": true
+                          },
+                          "local_dir": {
+                            "type": "string",
+                            "description": "The local path mapped by the input channel in the container.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The input channel name.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "remote": {
+                            "block": {
+                              "block_types": {
+                                "dataset": {
+                                  "block": {
+                                    "attributes": {
+                                      "dataset_proportion": {
+                                        "type": "number",
+                                        "description": "The dataset proportion used for fine-tuning training jobs.",
+                                        "optional": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "description": "The dataset ID.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "The dataset name.",
+                                        "optional": true
+                                      },
+                                      "service_type": {
+                                        "type": "string",
+                                        "description": "The dataset service type.",
+                                        "optional": true
+                                      },
+                                      "version_id": {
+                                        "type": "string",
+                                        "description": "The dataset version ID.",
+                                        "optional": true
+                                      }
+                                    },
+                                    "description": "The dataset input configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "obs": {
+                                  "block": {
+                                    "attributes": {
+                                      "obs_url": {
+                                        "type": "string",
+                                        "description": "The OBS path URL of the dataset.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "The OBS input configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "The actual input data configuration."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The data input list of the training job."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "outputs": {
+                      "block": {
+                        "attributes": {
+                          "access_method": {
+                            "type": "string",
+                            "description": "The delivery method of the output channel path.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "The output channel description.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "local_dir": {
+                            "type": "string",
+                            "description": "The local path mapped by the output channel in the container.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The output channel name.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "remote": {
+                            "block": {
+                              "block_types": {
+                                "obs": {
+                                  "block": {
+                                    "attributes": {
+                                      "obs_url": {
+                                        "type": "string",
+                                        "description": "The OBS path URL where the data is output.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "The OBS output configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "min_items": 1,
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "The actual output data configuration."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The data output list of the training job."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "parameters": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "description": "The parameter description.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The parameter name.",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The parameter value.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "constraint": {
+                            "block": {
+                              "attributes": {
+                                "editable": {
+                                  "type": "bool",
+                                  "description": "Whether the parameter is editable.",
+                                  "optional": true
+                                },
+                                "required": {
+                                  "type": "bool",
+                                  "description": "Whether the parameter is required.",
+                                  "optional": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "The parameter type.",
+                                  "required": true
+                                },
+                                "valid_range": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "The valid range of the parameter.",
+                                  "optional": true
+                                },
+                                "valid_type": {
+                                  "type": "string",
+                                  "description": "The valid type of the parameter.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The parameter constraint configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The runtime parameter list of the training job."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The algorithm configuration of the training job."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "endpoints": {
+                "block": {
+                  "block_types": {
+                    "ssh": {
+                      "block": {
+                        "attributes": {
+                          "key_pair_names": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The SSH key pair names.",
+                            "required": true
+                          }
+                        },
+                        "description": "The SSH connection configuration."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The remote access configuration of the training job."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "ftjob_config": {
+                "block": {
+                  "attributes": {
+                    "checkpoint_id": {
+                      "type": "string",
+                      "description": "The checkpoint ID.",
+                      "optional": true
+                    },
+                    "ft_job_uuid": {
+                      "type": "string",
+                      "description": "The model ID.",
+                      "optional": true
+                    },
+                    "ft_train_type": {
+                      "type": "string",
+                      "description": "The model training type.",
+                      "optional": true
+                    },
+                    "model_type": {
+                      "type": "string",
+                      "description": "The model type.",
+                      "optional": true
+                    },
+                    "train_output_path": {
+                      "type": "string",
+                      "description": "The output path of the training job.",
+                      "optional": true
+                    },
+                    "train_process": {
+                      "type": "number",
+                      "description": "The training process progress.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "checkpoint_config": {
+                      "block": {
+                        "attributes": {
+                          "checkpoint_id": {
+                            "type": "string",
+                            "description": "The checkpoint ID.",
+                            "optional": true
+                          },
+                          "restore_training": {
+                            "type": "number",
+                            "description": "Whether to restore training from a checkpoint.",
+                            "optional": true
+                          },
+                          "save_checkpoints_max": {
+                            "type": "number",
+                            "description": "The maximum number of checkpoints to save.",
+                            "optional": true
+                          },
+                          "skipped_steps": {
+                            "type": "number",
+                            "description": "The number of steps to skip.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The checkpoint configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "task_env": {
+                      "block": {
+                        "block_types": {
+                          "envs": {
+                            "block": {
+                              "attributes": {
+                                "des": {
+                                  "type": "string",
+                                  "description": "The description of the environment variable.",
+                                  "optional": true
+                                },
+                                "displayable": {
+                                  "type": "bool",
+                                  "description": "Whether the environment variable is displayable.",
+                                  "optional": true
+                                },
+                                "env_name": {
+                                  "type": "string",
+                                  "description": "The name of the environment variable.",
+                                  "optional": true
+                                },
+                                "env_type": {
+                                  "type": "string",
+                                  "description": "The type of the environment variable.",
+                                  "optional": true
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "description": "The label of the environment variable.",
+                                  "optional": true
+                                },
+                                "modifiable": {
+                                  "type": "bool",
+                                  "description": "Whether the environment variable is modifiable.",
+                                  "optional": true
+                                },
+                                "used_steps": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "The steps where the environment variable is used.",
+                                  "optional": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "The value of the environment variable.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The fine-tuning training environment variables."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        },
+                        "description": "The fine-tuning training job environment parameters."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The fine-tuning training job configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The advanced feature configuration of the training job.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the training job.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the training job.",
+                      "required": true
+                    },
+                    "workspace_id": {
+                      "type": "string",
+                      "description": "The ID of the workspace to which the training job belongs.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "training_experiment_reference": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "The ID of the experiment.",
+                            "required": true
+                          }
+                        },
+                        "description": "The experiment configuration to be associated with the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The metadata configuration of the training job."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "spec": {
+                "block": {
+                  "attributes": {
+                    "asset_id": {
+                      "type": "string",
+                      "description": "The asset model ID for fine-tuning training jobs.",
+                      "optional": true
+                    },
+                    "runtime_type": {
+                      "type": "string",
+                      "description": "The runtime type of the training job.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "asset_model": {
+                      "block": {
+                        "attributes": {
+                          "code": {
+                            "type": "string",
+                            "description": "The model code.",
+                            "optional": true
+                          },
+                          "desc": {
+                            "type": "string",
+                            "description": "The model description.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The model name.",
+                            "required": true
+                          },
+                          "series": {
+                            "type": "string",
+                            "description": "The model series.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The model type.",
+                            "required": true
+                          },
+                          "version": {
+                            "type": "string",
+                            "description": "The model version.",
+                            "required": true
+                          }
+                        },
+                        "description": "The asset model configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "auto_stop": {
+                      "block": {
+                        "attributes": {
+                          "duration": {
+                            "type": "number",
+                            "description": "The running duration before the training job is automatically stopped.",
+                            "required": true
+                          },
+                          "time_unit": {
+                            "type": "string",
+                            "description": "The time unit of the auto stop duration.",
+                            "required": true
+                          }
+                        },
+                        "description": "The auto stop configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "custom_metrics": {
+                      "block": {
+                        "block_types": {
+                          "exec": {
+                            "block": {
+                              "attributes": {
+                                "command": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "The command used to collect metrics.",
+                                  "required": true
+                                }
+                              },
+                              "description": "The command-based metrics collection configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "http_get": {
+                            "block": {
+                              "attributes": {
+                                "path": {
+                                  "type": "string",
+                                  "description": "The HTTP path used to collect metrics.",
+                                  "required": true
+                                },
+                                "port": {
+                                  "type": "number",
+                                  "description": "The HTTP port used to collect metrics.",
+                                  "required": true
+                                }
+                              },
+                              "description": "The HTTP-based metrics collection configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The custom metrics collection configuration of the training job."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "log_export_config": {
+                      "block": {
+                        "attributes": {
+                          "rotation_enabled": {
+                            "type": "bool",
+                            "description": "Whether to enable log rotation download.",
+                            "optional": true
+                          },
+                          "version": {
+                            "type": "string",
+                            "description": "The log version.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The log export configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "log_export_path": {
+                      "block": {
+                        "attributes": {
+                          "host_path": {
+                            "type": "string",
+                            "description": "The host path where training job logs are saved.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_url": {
+                            "type": "string",
+                            "description": "The OBS path where training job logs are saved.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The log export path configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "notification": {
+                      "block": {
+                        "attributes": {
+                          "events": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The training events that trigger notifications.",
+                            "optional": true
+                          },
+                          "topic_urn": {
+                            "type": "string",
+                            "description": "The URN of the SMN topic for training event notifications.",
+                            "required": true
+                          }
+                        },
+                        "description": "The notification configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "output_model": {
+                      "block": {
+                        "block_types": {
+                          "obs": {
+                            "block": {
+                              "attributes": {
+                                "local_path": {
+                                  "type": "string",
+                                  "description": "The local path where the output model is saved.",
+                                  "optional": true
+                                },
+                                "obs_path": {
+                                  "type": "string",
+                                  "description": "The OBS path where the output model is saved.",
+                                  "required": true
+                                }
+                              },
+                              "description": "The OBS output configuration of the model."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The output model configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "resource": {
+                      "block": {
+                        "attributes": {
+                          "flavor_id": {
+                            "type": "string",
+                            "description": "The resource flavor ID of the training job.",
+                            "optional": true
+                          },
+                          "node_count": {
+                            "type": "number",
+                            "description": "The number of resource replicas used by the training job.",
+                            "required": true
+                          },
+                          "pool_group_id": {
+                            "type": "string",
+                            "description": "The federated resource pool ID.",
+                            "optional": true
+                          },
+                          "pool_id": {
+                            "type": "string",
+                            "description": "The dedicated resource pool ID.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "main_container_customized_flavor": {
+                            "block": {
+                              "attributes": {
+                                "accelerator_num": {
+                                  "type": "number",
+                                  "description": "The number of accelerator cards.",
+                                  "optional": true
+                                },
+                                "cpu_core_num": {
+                                  "type": "number",
+                                  "description": "The number of CPU cores.",
+                                  "optional": true
+                                },
+                                "mem_size": {
+                                  "type": "number",
+                                  "description": "The memory size.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The customized flavor configuration of the main container."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The resource specification of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "schedule_policy": {
+                      "block": {
+                        "attributes": {
+                          "preemptible": {
+                            "type": "bool",
+                            "description": "Whether the training job can be preempted.",
+                            "optional": true
+                          },
+                          "priority": {
+                            "type": "number",
+                            "description": "The priority of the training job.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "preferred_affinity": {
+                            "block": {
+                              "block_types": {
+                                "node_affinity": {
+                                  "block": {
+                                    "attributes": {
+                                      "weight": {
+                                        "type": "number",
+                                        "description": "The weight associated with the preferred node selector term.",
+                                        "optional": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "preference": {
+                                        "block": {
+                                          "block_types": {
+                                            "match_expressions": {
+                                              "block": {
+                                                "attributes": {
+                                                  "key": {
+                                                    "type": "string",
+                                                    "description": "The label key used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "operator": {
+                                                    "type": "string",
+                                                    "description": "The operator used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "values": {
+                                                    "type": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "description": "The label values used by the node selector requirement.",
+                                                    "optional": true
+                                                  }
+                                                },
+                                                "description": "The node selector requirements based on node labels."
+                                              },
+                                              "nesting_mode": "list"
+                                            },
+                                            "match_fields": {
+                                              "block": {
+                                                "attributes": {
+                                                  "key": {
+                                                    "type": "string",
+                                                    "description": "The label key used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "operator": {
+                                                    "type": "string",
+                                                    "description": "The operator used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "values": {
+                                                    "type": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "description": "The label values used by the node selector requirement.",
+                                                    "optional": true
+                                                  }
+                                                },
+                                                "description": "The node selector requirements based on node fields."
+                                              },
+                                              "nesting_mode": "list"
+                                            }
+                                          },
+                                          "description": "The preferred node selector term."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "The preferred node affinity terms."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "The preferred affinity configuration of the training job."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "required_affinity": {
+                            "block": {
+                              "attributes": {
+                                "affinity_group_size": {
+                                  "type": "number",
+                                  "description": "The affinity group size.",
+                                  "optional": true
+                                },
+                                "affinity_type": {
+                                  "type": "string",
+                                  "description": "The affinity scheduling policy type.",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "node_affinity": {
+                                  "block": {
+                                    "block_types": {
+                                      "node_selector_terms": {
+                                        "block": {
+                                          "block_types": {
+                                            "match_expressions": {
+                                              "block": {
+                                                "attributes": {
+                                                  "key": {
+                                                    "type": "string",
+                                                    "description": "The label key used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "operator": {
+                                                    "type": "string",
+                                                    "description": "The operator used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "values": {
+                                                    "type": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "description": "The label values used by the node selector requirement.",
+                                                    "optional": true
+                                                  }
+                                                },
+                                                "description": "The node selector requirements based on node labels."
+                                              },
+                                              "nesting_mode": "list"
+                                            },
+                                            "match_fields": {
+                                              "block": {
+                                                "attributes": {
+                                                  "key": {
+                                                    "type": "string",
+                                                    "description": "The label key used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "operator": {
+                                                    "type": "string",
+                                                    "description": "The operator used by the node selector requirement.",
+                                                    "required": true
+                                                  },
+                                                  "values": {
+                                                    "type": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "description": "The label values used by the node selector requirement.",
+                                                    "optional": true
+                                                  }
+                                                },
+                                                "description": "The node selector requirements based on node fields."
+                                              },
+                                              "nesting_mode": "list"
+                                            }
+                                          },
+                                          "description": "The node selector term list."
+                                        },
+                                        "nesting_mode": "list",
+                                        "min_items": 1
+                                      }
+                                    },
+                                    "description": "The node affinity configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "The required affinity configuration of the training job."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The schedule policy configuration of the training job."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "volumes": {
+                      "block": {
+                        "block_types": {
+                          "nfs": {
+                            "block": {
+                              "attributes": {
+                                "local_path": {
+                                  "type": "string",
+                                  "description": "The local mount path in the training container.",
+                                  "optional": true
+                                },
+                                "nfs_server_path": {
+                                  "type": "string",
+                                  "description": "The NFS server path.",
+                                  "optional": true
+                                },
+                                "read_only": {
+                                  "type": "bool",
+                                  "description": "Whether the NFS volume is read-only in the container.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The NFS volume mount configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "obs": {
+                            "block": {
+                              "attributes": {
+                                "local_path": {
+                                  "type": "string",
+                                  "description": "The local mount path in the training container.",
+                                  "optional": true
+                                },
+                                "obs_path": {
+                                  "type": "string",
+                                  "description": "The OBS path to be mounted.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The OBS volume mount configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "pfs": {
+                            "block": {
+                              "attributes": {
+                                "local_path": {
+                                  "type": "string",
+                                  "description": "The local mount path in the training container.",
+                                  "optional": true
+                                },
+                                "pfs_path": {
+                                  "type": "string",
+                                  "description": "The OBSFS path.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The PFS volume mount configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The volume mount configuration of the training job."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The specification configuration of the training job."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

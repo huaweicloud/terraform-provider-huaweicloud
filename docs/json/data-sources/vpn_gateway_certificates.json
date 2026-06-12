@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_gateway_certificates": {
+          "block": {
+            "attributes": {
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_chain_expire_time": "string",
+                      "certificate_chain_serial_number": "string",
+                      "certificate_chain_subject": "string",
+                      "certificate_expire_time": "string",
+                      "certificate_serial_number": "string",
+                      "certificate_subject": "string",
+                      "created_at": "string",
+                      "enc_certificate_expire_time": "string",
+                      "enc_certificate_serial_number": "string",
+                      "enc_certificate_subject": "string",
+                      "id": "string",
+                      "issuer": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "signature_algorithm": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "vgw_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

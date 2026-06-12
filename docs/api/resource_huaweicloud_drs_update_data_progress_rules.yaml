@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_update_data_progress_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/jobs/{job_id}/data-processing-rules:
+        PUT:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}/data-processing-rules/result:
+        GET:
+            tag: DRS

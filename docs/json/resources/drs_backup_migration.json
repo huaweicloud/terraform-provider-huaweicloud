@@ -1,0 +1,223 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_backup_migration": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "error_log": {
+                "type": "string",
+                "computed": true
+              },
+              "finish_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "computed": true
+              },
+              "new_db_names": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "backup_info": {
+                "block": {
+                  "attributes": {
+                    "bucket_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "file_source": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "files": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "obs_path": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "rds_source_instance_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "rds_version": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "base_info": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "engine_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "enterprise_project_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "tags": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "options": {
+                "block": {
+                  "attributes": {
+                    "db_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_cover": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_default_restore": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_delete_backup_file": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_last_backup": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "is_precheck": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "recovery_mode": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "reset_db_name_map": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "target_db_info": {
+                "block": {
+                  "attributes": {
+                    "file_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ms_file_stream_status": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_instance_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

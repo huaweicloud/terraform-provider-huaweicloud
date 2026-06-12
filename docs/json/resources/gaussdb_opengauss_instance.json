@@ -108,6 +108,8 @@
                     "object",
                     {
                       "availability_zone": "string",
+                      "component_names": "string",
+                      "data_ip": "string",
                       "id": "string",
                       "name": "string",
                       "private_ip": "string",

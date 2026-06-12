@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_batch_rpos_and_rtos": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "job_id": "string",
+                      "rpo_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_point": "string",
+                            "delay": "string",
+                            "gtid_set": "string",
+                            "time": "string"
+                          }
+                        ]
+                      ],
+                      "rto_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_point": "string",
+                            "delay": "string",
+                            "gtid_set": "string",
+                            "time": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

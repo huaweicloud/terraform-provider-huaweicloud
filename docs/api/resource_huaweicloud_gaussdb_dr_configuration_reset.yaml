@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_dr_configuration_reset
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3.5/{project_id}/instances/{instance_id}/reset-dr-config:
+        POST:
+            tag: GaussDB

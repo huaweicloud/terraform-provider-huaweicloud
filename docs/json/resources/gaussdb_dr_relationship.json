@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_dr_relationship": {
+          "block": {
+            "attributes": {
+              "actions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "disaster_role": {
+                "type": "string",
+                "computed": true
+              },
+              "disaster_type": {
+                "type": "string",
+                "required": true
+              },
+              "dr_id": {
+                "type": "string",
+                "computed": true
+              },
+              "dr_ip": {
+                "type": "string",
+                "required": true
+              },
+              "dr_task_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dr_user_name": {
+                "type": "string",
+                "required": true
+              },
+              "dr_user_password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "instance_name": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_status": {
+                "type": "string",
+                "computed": true
+              },
+              "master_region_instance_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance_id": "string",
+                      "ip_address": "string",
+                      "project_id": "string",
+                      "project_name": "string",
+                      "region_code": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "precheck_failed_reason": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slave_region_instance_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance_id": "string",
+                      "ip_address": "string",
+                      "project_id": "string",
+                      "project_name": "string",
+                      "region_code": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "synchronization_id": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

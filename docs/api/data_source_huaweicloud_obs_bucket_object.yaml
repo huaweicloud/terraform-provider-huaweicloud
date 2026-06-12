@@ -13,3 +13,6 @@ paths:
             tag: OBS
         HEAD:
             tag: OBS
+    /{ObjectName}?tagging:
+        GET:
+            tag: OBS

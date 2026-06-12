@@ -12,6 +12,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the datasource authentication, in RFC3339 format.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -88,6 +93,11 @@
                 "description": "Data source type.",
                 "required": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time of the datasource authentication, in RFC3339 format.",
+                "computed": true
               },
               "user_name": {
                 "type": "string",

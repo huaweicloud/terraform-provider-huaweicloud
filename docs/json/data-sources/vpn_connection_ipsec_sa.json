@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_connection_ipsec_sa": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sa_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "collected_at": "string",
+                      "dest_ip_cidr": "string",
+                      "id": "string",
+                      "packets_recv": "number",
+                      "packets_sent": "number",
+                      "source_ip_cidr": "string",
+                      "traffic_recv": "number",
+                      "traffic_sent": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "vpn_connection_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

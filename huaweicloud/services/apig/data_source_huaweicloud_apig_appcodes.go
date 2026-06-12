@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -23,10 +24,13 @@ func DataSourceAppcodes() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the APPCODEs are located.`,
 			},
+
+			// Required parameters.
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -37,44 +41,51 @@ func DataSourceAppcodes() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the application to be queried.`,
 			},
+
+			// Attributes.
 			"appcodes": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `All APPCODEs of the specified application.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The ID of the APPCODE.`,
-						},
-						"value": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The APPCODE value (content).`,
-						},
-						"application_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The ID of the application.`,
-						},
-						"created_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The creation time of the APPCODE, in RFC3339 format.`,
-						},
-					},
-				},
+				Elem:        appcodeSchema(),
+				Description: `The list of the APPCODEs of the specified application.`,
 			},
 		},
 	}
 }
 
-func queryAppcodes(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func appcodeSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the APPCODE.`,
+			},
+			"value": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The APPCODE value (content).`,
+			},
+			"application_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the application.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the APPCODE, in RFC3339 format.`,
+			},
+		},
+	}
+}
+
+func listAppcodes(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes"
+		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes?limit={limit}"
 		instanceId = d.Get("instance_id").(string)
 		appId      = d.Get("application_id").(string)
+		limit      = 100
 		offset     = 0
 		result     = make([]interface{}, 0)
 	)
@@ -83,57 +94,36 @@ func queryAppcodes(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]i
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
 	listPath = strings.ReplaceAll(listPath, "{app_id}", appId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	for {
-		listPathWithOffset := fmt.Sprintf("%s?limit=100&offset=%d", listPath, offset)
+		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
 		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving APPCODEs under specified application (%s): %s", appId, err)
+			return nil, err
 		}
+
 		respBody, err := utils.FlattenResponse(requestResp)
 		if err != nil {
 			return nil, err
 		}
+
 		appcodes := utils.PathSearch("app_codes", respBody, make([]interface{}, 0)).([]interface{})
-		if len(appcodes) < 1 {
+		result = append(result, appcodes...)
+		if len(appcodes) < limit {
 			break
 		}
-		result = append(result, appcodes...)
 		offset += len(appcodes)
 	}
+
 	return result, nil
-}
-
-func dataSourceAppcodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-
-	client, err := cfg.NewServiceClient("apig", region)
-	if err != nil {
-		return diag.Errorf("error creating APIG client: %s", err)
-	}
-	signatures, err := queryAppcodes(client, d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	dataSourceId, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate ID: %s", err)
-	}
-	d.SetId(dataSourceId)
-
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("appcodes", flattenAppcodes(signatures)),
-	)
-	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenAppcodes(appcodes []interface{}) []interface{} {
@@ -151,5 +141,35 @@ func flattenAppcodes(appcodes []interface{}) []interface{} {
 				appcode, "").(string))/1000, false),
 		})
 	}
+
 	return result
+}
+
+func dataSourceAppcodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG client: %s", err)
+	}
+
+	resp, err := listAppcodes(client, d)
+	if err != nil {
+		return diag.Errorf("error querying APPCODEs: %s", err)
+	}
+
+	randomUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(randomUUID)
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("appcodes", flattenAppcodes(resp)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

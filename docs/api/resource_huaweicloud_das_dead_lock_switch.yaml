@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_das_dead_lock_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DAS
+paths:
+    /v3/{project_id}/dead-lock/switch:
+        GET:
+            tag: DAS
+        POST:
+            tag: DAS

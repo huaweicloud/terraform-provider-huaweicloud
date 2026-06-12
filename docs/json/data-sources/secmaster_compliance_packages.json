@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_compliance_packages": {
+          "block": {
+            "attributes": {
+              "builtin_compliance_num": {
+                "type": "number",
+                "computed": true
+              },
+              "compliance_packages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "areas": "string",
+                      "check_items_num": "number",
+                      "classify": "string",
+                      "description": "string",
+                      "has_auto_check_items": "bool",
+                      "name": "string",
+                      "owner": "string",
+                      "region": "string",
+                      "spec_catalog_vo_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_items": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "uuid": "string"
+                                }
+                              ]
+                            ],
+                            "is_leaf": "bool",
+                            "level_number": "number",
+                            "parent": "string",
+                            "root": "string",
+                            "serial_number": "number",
+                            "uuid": "string"
+                          }
+                        ]
+                      ],
+                      "state": "number",
+                      "type": "number",
+                      "uuid": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "customized_compliance_num": {
+                "type": "number",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "disabled_compliance_num": {
+                "type": "number",
+                "computed": true
+              },
+              "enabled_compliance_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "number",
+                "optional": true
+              },
+              "type": {
+                "type": "number",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

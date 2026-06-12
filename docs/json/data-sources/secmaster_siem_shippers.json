@@ -1,0 +1,135 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_siem_shippers": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "consumption_type": "number",
+                      "create_time": "number",
+                      "dataspace_id": "string",
+                      "dataspace_name": "string",
+                      "domain_id": "string",
+                      "id": "number",
+                      "pipe_id": "string",
+                      "pipe_name": "string",
+                      "project_id": "string",
+                      "shipper_destination": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_param": "string",
+                            "data_type": "number",
+                            "dataspace": "string",
+                            "dataspace_name": "string",
+                            "destination_info": "string",
+                            "id": "number",
+                            "identity": "string",
+                            "pipe": "string",
+                            "pipe_name": "string",
+                            "region": "string",
+                            "type": "number",
+                            "workspace": "string",
+                            "workspace_name": "string"
+                          }
+                        ]
+                      ],
+                      "shipper_id": "string",
+                      "shipper_name": "string",
+                      "shipper_source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_type": "number",
+                            "dataspace": "string",
+                            "dataspace_name": "string",
+                            "id": "number",
+                            "identity": "string",
+                            "pipe": "string",
+                            "pipe_name": "string",
+                            "region": "string",
+                            "type": "number",
+                            "workspace": "string",
+                            "workspace_name": "string"
+                          }
+                        ]
+                      ],
+                      "status": "number",
+                      "update_time": "number",
+                      "version": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dataspace_id": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_shipper_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipe_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "shipper_consumption_type": {
+                "type": "string",
+                "optional": true
+              },
+              "shipper_name": {
+                "type": "string",
+                "optional": true
+              },
+              "shipper_source_region": {
+                "type": "string",
+                "optional": true
+              },
+              "shipper_source_strategy": {
+                "type": "string",
+                "optional": true
+              },
+              "shipper_status": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

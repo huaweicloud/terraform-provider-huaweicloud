@@ -17,3 +17,6 @@ paths:
     /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations:
         GET:
             tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations/{propagation_id}/change-route-policy:
+        POST:
+            tag: ER
