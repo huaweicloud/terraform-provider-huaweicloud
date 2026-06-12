@@ -87,6 +87,12 @@
                 "optional": true,
                 "computed": true
               },
+              "transparent_client_ip_enable": {
+                "type": "string",
+                "description": "Whether to pass the client IP address to the backend server.",
+                "optional": true,
+                "computed": true
+              },
               "updated_at": {
                 "type": "string",
                 "computed": true

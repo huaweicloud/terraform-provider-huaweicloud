@@ -1,0 +1,228 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_connection": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "db_type": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "cloud": {
+                "block": {
+                  "attributes": {
+                    "az_code": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "project_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "config": {
+                "block": {
+                  "attributes": {
+                    "driver_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "endpoint": {
+                "block": {
+                  "attributes": {
+                    "db_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "db_password": {
+                      "type": "string",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "db_port": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "db_user": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "endpoint_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "instance_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "source_sharding": {
+                      "block": {
+                        "attributes": {
+                          "db_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "db_password": {
+                            "type": "string",
+                            "required": true,
+                            "sensitive": true
+                          },
+                          "db_port": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "db_user": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "endpoint_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "instance_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "instance_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "ip": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "ssl": {
+                "block": {
+                  "attributes": {
+                    "ssl_cert_check_sum": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ssl_cert_key": {
+                      "type": "string",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "ssl_cert_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ssl_cert_password": {
+                      "type": "string",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "ssl_link": {
+                      "type": "bool",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "vpc": {
+                "block": {
+                  "attributes": {
+                    "security_group_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

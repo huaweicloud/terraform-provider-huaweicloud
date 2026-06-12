@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_backups_batch_delete": {
+          "block": {
+            "attributes": {
+              "backup_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "failed_count": {
+                "type": "number",
+                "computed": true
+              },
+              "failed_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_id": "string",
+                      "error_code": "string",
+                      "error_msg": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "success_count": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

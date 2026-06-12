@@ -29,6 +29,14 @@
                 "type": "string",
                 "required": true
               },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The custom metadata of the object.",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -39,6 +47,14 @@
               },
               "storage_class": {
                 "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs associated with the object.",
                 "computed": true
               },
               "version_id": {

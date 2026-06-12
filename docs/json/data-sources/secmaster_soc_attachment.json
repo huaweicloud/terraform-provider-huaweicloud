@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_soc_attachment": {
+          "block": {
+            "attributes": {
+              "attach_id": {
+                "type": "string",
+                "required": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "file_folder": "string",
+                      "file_name": "string",
+                      "id": "string",
+                      "is_deleted": "string",
+                      "modifier_id": "string",
+                      "modifier_name": "string",
+                      "storage_type": "string",
+                      "storage_url": "string",
+                      "update_time": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

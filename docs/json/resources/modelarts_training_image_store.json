@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_training_image_store": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the image.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the SWR repository to which the image is stored.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "The name of the SWR organization to which the image is stored.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training job to be stored as image is located.",
+                "computed": true
+              },
+              "tag": {
+                "type": "string",
+                "description": "The tag of the image.",
+                "required": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The task name of the training job.",
+                "required": true
+              },
+              "training_job_id": {
+                "type": "string",
+                "description": "The ID of the training job.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

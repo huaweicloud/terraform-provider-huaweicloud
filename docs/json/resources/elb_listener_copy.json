@@ -1,0 +1,281 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_listener_copy": {
+          "block": {
+            "attributes": {
+              "access_policy": {
+                "type": "string",
+                "optional": true
+              },
+              "advanced_forwarding_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "ca_certificate": {
+                "type": "string",
+                "optional": true
+              },
+              "cps": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "default_pool_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_member_retry": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "enable_quic_upgrade": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "force_delete": {
+                "type": "bool",
+                "optional": true
+              },
+              "forward_eip": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_elb": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_host": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_port": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_proto": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_request_port": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_certificate": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_cipher": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_protocol": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "gzip_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "http2_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "idle_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "ip_group": {
+                "type": "string",
+                "optional": true
+              },
+              "ip_group_enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "required": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true
+              },
+              "max_connection": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "nat64_enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "computed": true
+              },
+              "protocol_port": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "proxy_protocol_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "quic_listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "real_ip": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "request_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "response_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "reuse_pool": {
+                "type": "string",
+                "optional": true
+              },
+              "security_policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "server_certificate": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "sni_certificate": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "sni_match_algo": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ssl_early_data_enable": {
+                "type": "bool",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "tls_ciphers_policy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "transparent_client_ip_enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "port_ranges": {
+                "block": {
+                  "attributes": {
+                    "end_port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "start_port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

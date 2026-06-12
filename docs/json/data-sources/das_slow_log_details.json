@@ -1,0 +1,149 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_slow_log_details": {
+          "block": {
+            "attributes": {
+              "client_ip_address": {
+                "type": "string",
+                "description": "The client IP address.",
+                "optional": true
+              },
+              "db_name": {
+                "type": "string",
+                "description": "The database name.",
+                "optional": true
+              },
+              "details": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "client_ip_address": "string",
+                      "collection": "string",
+                      "cpu_time": "number",
+                      "db_name": "string",
+                      "end_time": "string",
+                      "execute_time": "number",
+                      "key_examined": "number",
+                      "killed": "string",
+                      "lock_wait_time": "number",
+                      "logical_reads": "number",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "occurrence_time": "string",
+                      "original_sql": "string",
+                      "physical_reads": "number",
+                      "rows_affected": "number",
+                      "rows_examined": "number",
+                      "rows_sent": "number",
+                      "sql_template_id": "string",
+                      "sql_type": "string",
+                      "tunable": "bool",
+                      "user_name": "string",
+                      "writes": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of slow log details that matched the filter parameters.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "execute_time_max": {
+                "type": "number",
+                "description": "The maximum execution time, in milliseconds.",
+                "optional": true
+              },
+              "execute_time_min": {
+                "type": "number",
+                "description": "The minimum execution time, in milliseconds.",
+                "optional": true
+              },
+              "fuzzy_sql": {
+                "type": "string",
+                "description": "The fuzzy SQL pattern.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true
+              },
+              "killed": {
+                "type": "string",
+                "description": "The execution status.",
+                "optional": true
+              },
+              "node_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of node IDs.",
+                "optional": true
+              },
+              "operation": {
+                "type": "string",
+                "description": "The SQL operation types, separated by commas.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the slow log details are located.",
+                "computed": true
+              },
+              "rows_max_examined": {
+                "type": "number",
+                "description": "The maximum number of rows examined.",
+                "optional": true
+              },
+              "rows_min_examined": {
+                "type": "number",
+                "description": "The minimum number of rows examined.",
+                "optional": true
+              },
+              "sort_asc": {
+                "type": "bool",
+                "description": "The sort order. true means ascending, false means descending.",
+                "optional": true
+              },
+              "sort_field": {
+                "type": "string",
+                "description": "The field to sort by.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

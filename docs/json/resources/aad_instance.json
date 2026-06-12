@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aad_instance": {
+          "block": {
+            "attributes": {
+              "amount": {
+                "type": "number",
+                "required": true
+              },
+              "basic_bandwidth": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "basic_qps": {
+                "type": "number",
+                "optional": true
+              },
+              "bind_domain_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "current_time": {
+                "type": "number",
+                "computed": true
+              },
+              "data_center": {
+                "type": "string",
+                "computed": true
+              },
+              "duration": {
+                "type": "number",
+                "required": true
+              },
+              "elastic_bandwidth": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "elastic_service_bandwidth": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "elastic_service_bandwidth_type": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "elastic_service_bw_update_enable": {
+                "type": "bool",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "expire_time": {
+                "type": "number",
+                "computed": true
+              },
+              "forwarding_rule": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_access_type": {
+                "type": "string",
+                "required": true
+              },
+              "instance_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "freeze_type": [
+                        "list",
+                        "number"
+                      ],
+                      "tags": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "required": true
+              },
+              "ip_type": {
+                "type": "number",
+                "required": true
+              },
+              "isp_spec": {
+                "type": "string",
+                "computed": true
+              },
+              "main_resource_product_id": {
+                "type": "string",
+                "computed": true
+              },
+              "main_resource_spec_code": {
+                "type": "string",
+                "computed": true
+              },
+              "main_resource_type": {
+                "type": "string",
+                "computed": true
+              },
+              "period_type": {
+                "type": "number",
+                "required": true
+              },
+              "port_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "product_uuid": {
+                "type": "string",
+                "computed": true
+              },
+              "protected_domain": {
+                "type": "number",
+                "optional": true
+              },
+              "protection_package": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_region": {
+                "type": "string",
+                "required": true
+              },
+              "service_bandwidth": {
+                "type": "number",
+                "required": true
+              },
+              "spec_type": {
+                "type": "number",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,252 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_workflow_executions": {
+          "block": {
+            "attributes": {
+              "executions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_requirements": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attribute": "string",
+                                  "operator": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "delay": "bool",
+                            "name": "string",
+                            "type": "string",
+                            "used_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "duration": "string",
+                      "events": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "labels": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "constraint": "string",
+                            "default": "string",
+                            "delay": "bool",
+                            "description": "string",
+                            "enum": [
+                              "list",
+                              "string"
+                            ],
+                            "example": "string",
+                            "format": "string",
+                            "name": "string",
+                            "type": "string",
+                            "used_steps": [
+                              "list",
+                              "string"
+                            ],
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "policies": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "use_cache": "bool"
+                          }
+                        ]
+                      ],
+                      "scene_id": "string",
+                      "scene_name": "string",
+                      "status": "string",
+                      "steps_execution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "left": "string",
+                                  "right": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "conditions_execution": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "metric_list": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "result": "string"
+                                }
+                              ]
+                            ],
+                            "created_at": "string",
+                            "duration": "number",
+                            "error_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "error_code": "string",
+                                  "error_message": "string"
+                                }
+                              ]
+                            ],
+                            "events": [
+                              "list",
+                              "string"
+                            ],
+                            "execution_name": "string",
+                            "execution_uuid": "string",
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "data": "string",
+                                  "name": "string",
+                                  "type": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "instance_id": "string",
+                            "name": "string",
+                            "outputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "config": "string",
+                                  "name": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "policy": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "execution_policy": "string",
+                                  "use_cache": "bool"
+                                }
+                              ]
+                            ],
+                            "properties": "string",
+                            "status": "string",
+                            "step_name": "string",
+                            "step_title": "string",
+                            "step_uuid": "string",
+                            "type": "string",
+                            "updated_at": "string",
+                            "uuid": "string"
+                          }
+                        ]
+                      ],
+                      "sub_graphs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "steps": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "workflow_id": "string",
+                      "workflow_name": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the workflow executions that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": "string",
+                "description": "The labels of the execution records to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow executions are located.",
+                "computed": true
+              },
+              "scene_id": {
+                "type": "string",
+                "description": "The scene ID of the execution records to be queried.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the execution records to be queried.",
+                "optional": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "description": "The workflow ID of the execution records to be queried.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the execution records to be queried.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

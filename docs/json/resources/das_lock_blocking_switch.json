@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_lock_blocking_switch": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the database instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the lock blocking switch is located.",
+                "computed": true
+              },
+              "retention_hours": {
+                "type": "number",
+                "description": "The retention hours of the lock blocking data.",
+                "optional": true
+              },
+              "switch_on": {
+                "type": "bool",
+                "description": "Whether to enable the lock blocking switch.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

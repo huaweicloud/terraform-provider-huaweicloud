@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_instance_metadata_locks": {
+          "block": {
+            "attributes": {
+              "database": {
+                "type": "string",
+                "description": "The database name for filtering.",
+                "optional": true
+              },
+              "db_user_id": {
+                "type": "string",
+                "description": "The database user ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true
+              },
+              "metadata_locks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "block_process": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "command": "string",
+                            "database": "string",
+                            "host": "string",
+                            "id": "string",
+                            "sql": "string",
+                            "state": "string",
+                            "time": "string",
+                            "trx_executed_time": "string",
+                            "user": "string"
+                          }
+                        ]
+                      ],
+                      "command": "string",
+                      "database": "string",
+                      "host": "string",
+                      "lock_duration": "string",
+                      "lock_mode": "string",
+                      "lock_status": "string",
+                      "lock_type": "string",
+                      "sql": "string",
+                      "state": "string",
+                      "table_name": "string",
+                      "table_schema": "string",
+                      "thread_id": "string",
+                      "time": "string",
+                      "trx_exec_time": "string",
+                      "user": "string",
+                      "wait_process": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "command": "string",
+                            "database": "string",
+                            "host": "string",
+                            "id": "string",
+                            "sql": "string",
+                            "state": "string",
+                            "time": "string",
+                            "trx_executed_time": "string",
+                            "user": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of metadata locks that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the instance metadata locks are located.",
+                "computed": true
+              },
+              "table": {
+                "type": "string",
+                "description": "The table name for filtering.",
+                "optional": true
+              },
+              "thread_id": {
+                "type": "string",
+                "description": "The session ID for filtering.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

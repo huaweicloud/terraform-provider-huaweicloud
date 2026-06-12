@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_slow_sql_list": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slow_sql_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "avg_cpu_time": "string",
+                      "avg_exec_time": "string",
+                      "avg_fetched_rows": "number",
+                      "avg_io_time": "string",
+                      "avg_returned_rows": "number",
+                      "buffer_hit_ratio": "string",
+                      "calls": "number",
+                      "db_name": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "query_plan": "string",
+                      "schema_name": "string",
+                      "sql": "string",
+                      "sql_hit_ratio": "string",
+                      "sql_id": "string",
+                      "sql_text": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sql_id": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              },
+              "threshold": {
+                "type": "number",
+                "required": true
+              }
+            },
+            "block_types": {
+              "multi_queries": {
+                "block": {
+                  "attributes": {
+                    "condition": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "is_fuzzy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

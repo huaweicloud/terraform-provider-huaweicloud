@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_training_job_engines": {
+          "block": {
+            "attributes": {
+              "engines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "engine_id": "string",
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "image_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu_image_url": "string",
+                            "gpu_image_url": "string",
+                            "image_version": "string"
+                          }
+                        ]
+                      ],
+                      "run_user": "string",
+                      "v1_compatible": "bool"
+                    }
+                  ]
+                ],
+                "description": "The list of training job engines.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training job engines are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

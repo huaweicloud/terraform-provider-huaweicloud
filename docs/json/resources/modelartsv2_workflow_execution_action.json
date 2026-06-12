@@ -1,0 +1,187 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_workflow_execution_action": {
+          "block": {
+            "attributes": {
+              "action_name": {
+                "type": "string",
+                "description": "The action name.",
+                "required": true
+              },
+              "execution_id": {
+                "type": "string",
+                "description": "The workflow execution ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the workflow execution is located.",
+                "computed": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "description": "The workflow ID.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "data_requirements": {
+                "block": {
+                  "attributes": {
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether this is a delayed parameter.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the training data.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the training data source.",
+                      "required": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this data.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the data, in JSON format.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "attribute": {
+                            "type": "string",
+                            "description": "The attribute of the constraint.",
+                            "optional": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "description": "The operator of the constraint.",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the constraint, in JSON format.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The constraint conditions of the data."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The data requirements used by the workflow steps."
+                },
+                "nesting_mode": "list"
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "constraint": {
+                      "type": "string",
+                      "description": "The constraint of the parameter, in JSON format.",
+                      "optional": true
+                    },
+                    "default": {
+                      "type": "string",
+                      "description": "The default value of the parameter, in JSON format.",
+                      "optional": true
+                    },
+                    "delay": {
+                      "type": "bool",
+                      "description": "Whether this is a delayed input parameter.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the parameter.",
+                      "optional": true
+                    },
+                    "enum": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The enum values of the parameter, in JSON format.",
+                      "optional": true
+                    },
+                    "example": {
+                      "type": "string",
+                      "description": "The example of the parameter, in JSON format.",
+                      "optional": true
+                    },
+                    "format": {
+                      "type": "string",
+                      "description": "The format of the parameter data.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the parameter.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the parameter.",
+                      "optional": true
+                    },
+                    "used_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps that use this parameter.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the parameter, in JSON format.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The parameters used by the workflow steps."
+                },
+                "nesting_mode": "list"
+              },
+              "policies": {
+                "block": {
+                  "attributes": {
+                    "rerun_steps": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The steps to rerun.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The execution policies used by the execution record."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

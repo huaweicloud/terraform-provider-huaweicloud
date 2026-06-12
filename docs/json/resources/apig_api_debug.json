@@ -10,9 +10,24 @@
                 "description": "The ID of the API to be debugged.",
                 "required": true
               },
+              "app_key": {
+                "type": "string",
+                "description": "The app key for debug request.",
+                "optional": true
+              },
+              "app_secret": {
+                "type": "string",
+                "description": "The app secret for debug request.",
+                "optional": true
+              },
               "body": {
                 "type": "string",
                 "description": "The request message body of the API.",
+                "optional": true
+              },
+              "domain": {
+                "type": "string",
+                "description": "The domain for debug request.",
                 "optional": true
               },
               "header": {

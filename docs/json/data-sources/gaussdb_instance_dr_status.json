@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_instance_dr_status": {
+          "block": {
+            "attributes": {
+              "disaster_type": {
+                "type": "string",
+                "required": true
+              },
+              "failover_progress": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rpo": {
+                "type": "string",
+                "computed": true
+              },
+              "rpo_threshold": {
+                "type": "string",
+                "computed": true
+              },
+              "rto": {
+                "type": "string",
+                "computed": true
+              },
+              "rto_threshold": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "switchover_progress": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

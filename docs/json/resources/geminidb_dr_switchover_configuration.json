@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_geminidb_dr_switchover_configuration": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "switchover_ratio": {
+                "type": "number",
+                "optional": true
+              },
+              "sync_delay": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

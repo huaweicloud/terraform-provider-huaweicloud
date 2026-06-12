@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_batch_set_sql_switch": {
+          "block": {
+            "attributes": {
+              "engine_type": {
+                "type": "string",
+                "description": "The engine type of the instances.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of instance IDs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the SQL switch is located.",
+                "computed": true
+              },
+              "retention_hours": {
+                "type": "number",
+                "description": "The retention hours of the SQL data.",
+                "optional": true
+              },
+              "switch_on": {
+                "type": "bool",
+                "description": "Whether to enable the SQL switch.",
+                "required": true
+              },
+              "switch_type": {
+                "type": "string",
+                "description": "The type of SQL switch to set.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

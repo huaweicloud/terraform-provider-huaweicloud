@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_soc_policys_search": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "group_by": {
+                "block": {
+                  "attributes": {
+                    "group_by_fields": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "group_by_hit": {
+                      "block": {
+                        "attributes": {
+                          "dest": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "source": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "sort": {
+                "block": {
+                  "attributes": {
+                    "order": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "sort_by": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

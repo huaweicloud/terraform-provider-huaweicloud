@@ -1,0 +1,153 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "optional": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "driver_name": "string"
+                          }
+                        ]
+                      ],
+                      "connection_id": "string",
+                      "create_time": "number",
+                      "db_type": "string",
+                      "description": "string",
+                      "endpoint": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "db_name": "string",
+                            "db_password": "string",
+                            "db_port": "string",
+                            "db_user": "string",
+                            "endpoint_name": "string",
+                            "id": "string",
+                            "instance_id": "string",
+                            "instance_name": "string",
+                            "ip": "string",
+                            "source_sharding": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "db_name": "string",
+                                  "db_password": "string",
+                                  "db_port": "string",
+                                  "db_user": "string",
+                                  "endpoint_name": "string",
+                                  "id": "string",
+                                  "instance_id": "string",
+                                  "instance_name": "string",
+                                  "ip": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "name": "string",
+                      "ssl": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ssl_cert_check_sum": "string",
+                            "ssl_cert_key": "string",
+                            "ssl_cert_name": "string",
+                            "ssl_cert_password": "string",
+                            "ssl_link": "bool"
+                          }
+                        ]
+                      ],
+                      "vpc": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "security_group_id": "string",
+                            "subnet_id": "string",
+                            "vpc_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "optional": true
+              },
+              "db_type": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inst_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

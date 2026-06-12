@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_eventrouter_clusters": {
+          "block": {
+            "attributes": {
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zones": "string",
+                      "charging_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "eip_id": "string",
+                      "err_code": "string",
+                      "err_message": "string",
+                      "flavor": "string",
+                      "id": "string",
+                      "job_count": "number",
+                      "name": "string",
+                      "nat_id": "string",
+                      "public_access_enabled": "bool",
+                      "sink_type": "string",
+                      "source_type": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the event router clusters that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event router cluster to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event router clusters are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

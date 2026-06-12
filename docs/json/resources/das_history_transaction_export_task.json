@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_history_transaction_export_task": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "description": "The OBS bucket name.",
+                "required": true
+              },
+              "created_time": {
+                "type": "string",
+                "description": "The task creation time, in RFC3339 format.",
+                "computed": true
+              },
+              "download_url": {
+                "type": "string",
+                "description": "The download URL of the exported file.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time, in RFC3339 format.",
+                "required": true
+              },
+              "export_line_num": {
+                "type": "number",
+                "description": "The number of exported lines.",
+                "computed": true
+              },
+              "file_path": {
+                "type": "string",
+                "description": "The OBS file directory.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true
+              },
+              "last_sec_max": {
+                "type": "number",
+                "description": "The maximum duration.",
+                "optional": true
+              },
+              "last_sec_min": {
+                "type": "number",
+                "description": "The minimum duration.",
+                "optional": true
+              },
+              "order_by": {
+                "type": "string",
+                "description": "The sort order.",
+                "optional": true
+              },
+              "order_field": {
+                "type": "string",
+                "description": "The sort field.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the history transaction export task is located.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time, in RFC3339 format.",
+                "required": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The task status.",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time zone.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

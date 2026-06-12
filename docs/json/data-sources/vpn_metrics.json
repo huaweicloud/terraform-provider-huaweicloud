@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_metrics": {
+          "block": {
+            "attributes": {
+              "dim": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metric_name": {
+                "type": "string",
+                "optional": true
+              },
+              "metrics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "metric_name": "string",
+                      "namespace": "string",
+                      "unit": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "order": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

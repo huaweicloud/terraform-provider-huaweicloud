@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_parameters": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "configuration_id": "string",
+                      "created": "string",
+                      "datastore_name": "string",
+                      "datastore_version_name": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_type": {
+                "type": "string",
+                "required": true
+              },
+              "parameter_values": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

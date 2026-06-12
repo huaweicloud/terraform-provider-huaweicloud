@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_sql_execution_plans": {
+          "block": {
+            "attributes": {
+              "database": {
+                "type": "string",
+                "description": "The database name.",
+                "required": true
+              },
+              "db_user_id": {
+                "type": "string",
+                "description": "The database user ID.",
+                "required": true
+              },
+              "error_message": {
+                "type": "string",
+                "description": "The error message if the SQL execution failed.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the database instance.",
+                "required": true
+              },
+              "plans": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extra": "string",
+                      "filtered": "string",
+                      "id": "string",
+                      "key": "string",
+                      "key_len": "string",
+                      "partitions": "string",
+                      "possible_keys": "string",
+                      "ref": "string",
+                      "rows": "string",
+                      "select_type": "string",
+                      "table": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of SQL execution plans.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the SQL execution plans are located.",
+                "computed": true
+              },
+              "sql": {
+                "type": "string",
+                "description": "The SQL statement.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

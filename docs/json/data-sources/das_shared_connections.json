@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_shared_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the connection to which the shared connection belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keywords": {
+                "type": "string",
+                "description": "Keywords to search for shared connections.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the shared connections are located.",
+                "computed": true
+              },
+              "shared_connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expired_at": "string",
+                      "shared_at": "string",
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of shared connections that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

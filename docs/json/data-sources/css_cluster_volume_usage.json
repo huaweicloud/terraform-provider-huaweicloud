@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_cluster_volume_usage": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "disk_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "disk_capacity": "string",
+                      "disk_type": "string",
+                      "disk_used": "string",
+                      "group": "string",
+                      "id": "string",
+                      "name": "string",
+                      "percentage": "string",
+                      "role": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

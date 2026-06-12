@@ -1,0 +1,226 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_algorithms": {
+          "block": {
+            "attributes": {
+              "algorithms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advanced_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_search": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "algo_configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "params": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "type": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "reward_attrs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "mode": "string",
+                                        "name": "string",
+                                        "regex": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "search_params": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "discrete_points_num": "string",
+                                        "discrete_values": "string",
+                                        "lower_bound": "string",
+                                        "name": "string",
+                                        "param_type": "string",
+                                        "upper_bound": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "skip_search_params": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "job_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "boot_file": "string",
+                            "code_dir": "string",
+                            "command": "string",
+                            "engine": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "engine_id": "string",
+                                  "engine_name": "string",
+                                  "engine_version": "string",
+                                  "image_url": "string"
+                                }
+                              ]
+                            ],
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description": "string",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "outputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description": "string",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "parameters": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description": "string",
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "parameters_customization": "bool"
+                          }
+                        ]
+                      ],
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attr_list": [
+                              "list",
+                              "string"
+                            ],
+                            "create_time": "string",
+                            "description": "string",
+                            "id": "string",
+                            "is_valid": "bool",
+                            "name": "string",
+                            "size": "number",
+                            "source": "string",
+                            "state": "string",
+                            "tags": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string"
+                                }
+                              ]
+                            ],
+                            "update_time": "string",
+                            "user_name": "string",
+                            "version_num": "number",
+                            "workspace_id": "string"
+                          }
+                        ]
+                      ],
+                      "resource_requirements": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "operator": "string",
+                            "values": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of algorithms that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "order": {
+                "type": "string",
+                "description": "The sort order of the algorithms.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the algorithms are located.",
+                "computed": true
+              },
+              "searches": {
+                "type": "string",
+                "description": "The filter condition for searching algorithms.",
+                "optional": true
+              },
+              "sort_by": {
+                "type": "string",
+                "description": "The field by which the algorithms are sorted.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the algorithms belong.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

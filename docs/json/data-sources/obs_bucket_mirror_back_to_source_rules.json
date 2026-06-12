@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_obs_bucket_mirror_back_to_source_rules": {
+          "block": {
+            "attributes": {
+              "bucket": {
+                "type": "string",
+                "description": "The name of the bucket.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the OBS bucket mirror back to source rules are located.",
+                "computed": true
+              },
+              "rules": {
+                "type": "string",
+                "description": "The rules of the bucket mirror back to source, in JSON format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "OBS",
+            "name": "Object Storage Service",
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_geminidb_command_disable": {
+          "block": {
+            "attributes": {
+              "commands": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "disabled_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "keys": {
+                "block": {
+                  "attributes": {
+                    "commands": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "db_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

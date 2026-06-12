@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_training_experiments": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "order": {
+                "type": "string",
+                "description": "The sort order of the training experiments.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the training experiments are located.",
+                "computed": true
+              },
+              "sort_by": {
+                "type": "string",
+                "description": "The field used for sorting the training experiments.",
+                "optional": true
+              },
+              "training_experiments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "string",
+                            "description": "string",
+                            "id": "string",
+                            "name": "string",
+                            "update_time": "string",
+                            "workspace_id": "string"
+                          }
+                        ]
+                      ],
+                      "statistic": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "job_count": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of training experiments that matched the filter parameters.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the training experiments belong.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

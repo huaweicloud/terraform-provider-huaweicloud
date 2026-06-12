@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket_object_restore": {
+          "block": {
+            "attributes": {
+              "bucket": {
+                "type": "string",
+                "description": "The name of the bucket to restore the object from.",
+                "required": true
+              },
+              "days": {
+                "type": "number",
+                "description": "The number of days for which the restored object copy is valid.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "The name of the object to restore.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the archived object is located.",
+                "computed": true
+              },
+              "tier": {
+                "type": "string",
+                "description": "The restore option.",
+                "required": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "The version ID of the object to restore.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "OBS",
+            "name": "Object Storage Service",
+            "catalog": "Storage",
+            "name_cn": "对象存储服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

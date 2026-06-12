@@ -40,8 +40,7 @@
               "group_id": {
                 "type": "string",
                 "description": "The ID of the API group to which the API belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -50,8 +49,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the instance to which the API belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "is_send_fg_body_base64": {
                 "type": "bool",
@@ -98,6 +96,16 @@
               "response_id": {
                 "type": "string",
                 "description": "The ID of the custom response that API used.",
+                "optional": true
+              },
+              "sampling_param": {
+                "type": "string",
+                "description": "The sampling parameter of the link trace.",
+                "optional": true
+              },
+              "sampling_strategy": {
+                "type": "string",
+                "description": "The sampling strategy of the link trace.",
                 "optional": true
               },
               "security_authentication": {
@@ -224,7 +232,6 @@
                   "description": "The FunctionGraph backend details."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "func_graph_policy": {
@@ -421,7 +428,6 @@
                   "description": "The mock backend details."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "mock_policy": {
@@ -731,7 +737,6 @@
                   "description": "The web backend details."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "web_policy": {

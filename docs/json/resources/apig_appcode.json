@@ -8,12 +8,11 @@
               "application_id": {
                 "type": "string",
                 "description": "The ID of the application to which the APPCODE belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "created_at": {
                 "type": "string",
-                "description": "The creation time of the APPCODE.",
+                "description": "The creation time of the APPCODE, in RFC3339 format.",
                 "computed": true
               },
               "id": {
@@ -23,20 +22,18 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the application and APPCODE belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
-                "description": "The region where the application and APPCODE are located.",
+                "description": "The region where the APPCODE is located.",
                 "computed": true
               },
               "value": {
                 "type": "string",
                 "description": "The APPCODE value (content).",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               }
             }
           },

@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_geminidb_parameter_template_copy": {
+          "block": {
+            "attributes": {
+              "config_id": {
+                "type": "string",
+                "required": true
+              },
+              "configuration_parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "datastore_name": {
+                "type": "string",
+                "computed": true
+              },
+              "datastore_version_name": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              },
+              "values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

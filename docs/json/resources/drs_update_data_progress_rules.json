@@ -1,0 +1,220 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_update_data_progress_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "data_process_info": {
+                "block": {
+                  "attributes": {
+                    "ddl_operation": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "dml_operation": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "is_batch_process": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "is_synchronized": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "process_rule_level": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "add_columns": {
+                      "block": {
+                        "attributes": {
+                          "column_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "column_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "column_value": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "data_type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "db_object": {
+                      "block": {
+                        "attributes": {
+                          "object_info": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "object_scope": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "target_root_db": {
+                            "block": {
+                              "attributes": {
+                                "db_encoding": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "db_name": {
+                                  "type": "string",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "db_object_column_info": {
+                      "block": {
+                        "attributes": {
+                          "db_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "schema_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "table_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "total_count": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "column_infos": {
+                            "block": {
+                              "attributes": {
+                                "column_mapped_name": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "column_name": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "column_type": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "is_filtered": {
+                                  "type": "bool",
+                                  "optional": true
+                                },
+                                "is_partition_key": {
+                                  "type": "bool",
+                                  "optional": true
+                                },
+                                "primary_key_or_unique_index": {
+                                  "type": "string",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "db_or_table_rename_rule": {
+                      "block": {
+                        "attributes": {
+                          "prefix_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "suffix_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "filter_conditions": {
+                      "block": {
+                        "attributes": {
+                          "filtering_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

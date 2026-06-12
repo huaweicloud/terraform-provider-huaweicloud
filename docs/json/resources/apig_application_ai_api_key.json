@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_application_ai_api_key": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "description": "The alias of the AI API key.",
+                "optional": true,
+                "computed": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the AI API key belongs.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the AI API key, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the application and AI API key belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the AI API key is located.",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "description": "The value of the AI API key.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

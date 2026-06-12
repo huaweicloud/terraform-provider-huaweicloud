@@ -39,6 +39,15 @@
                 "description": "The egress (NAT) public IP address.",
                 "computed": true
               },
+              "elb_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of the dedicated network load balancer IDs associated with the dedicated instance.",
+                "optional": true,
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID to which the dedicated instance belongs.",

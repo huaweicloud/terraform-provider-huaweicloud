@@ -8,8 +8,7 @@
               "attachment_id": {
                 "type": "string",
                 "description": "The ID of the attachment corresponding to the propagation.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "attachment_type": {
                 "type": "string",
@@ -28,8 +27,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the ER instance to which the route table and the attachment belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
@@ -39,8 +37,7 @@
               "route_table_id": {
                 "type": "string",
                 "description": "The ID of the route table to which the propagation belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "status": {
                 "type": "string",
@@ -51,6 +48,23 @@
                 "type": "string",
                 "description": "The latest update time.",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "route_policy": {
+                "block": {
+                  "attributes": {
+                    "import_policy_id": {
+                      "type": "string",
+                      "description": "The import route policy ID.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The import route policy configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },
