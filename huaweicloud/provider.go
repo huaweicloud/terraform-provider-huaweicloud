@@ -4451,6 +4451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_search_condition":            secmaster.ResourceSearchCondition(),
 			"huaweicloud_secmaster_soc_mapping_clone":           secmaster.ResourceSocMappingClone(),
 			"huaweicloud_secmaster_soc_mapping_delete":          secmaster.ResourceSocMappingDelete(),
+			"huaweicloud_secmaster_soc_mapping_status":          secmaster.ResourceSocMappingStatus(),
 			"huaweicloud_secmaster_update_workflow_instance":    secmaster.ResourceUpdateWorkflowInstance(),
 			"huaweicloud_secmaster_workflow_action":             secmaster.ResourceWorkflowAction(),
 			"huaweicloud_secmaster_workflow_version_approval":   secmaster.ResourceWorkflowVersionApproval(),
