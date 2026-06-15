@@ -1290,6 +1290,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_maintainwindows":                  kafka.DataSourceMaintainWindows(),
 			"huaweicloud_dms_kafka_message_diagnosis_tasks":          kafka.DataSourceDmsKafkaMessageDiagnosisTasks(),
 			"huaweicloud_dms_kafka_messages":                         kafka.DataSourceDmsKafkaMessages(),
+			"huaweicloud_dms_kafka_recycle_instances":                kafka.DataSourceRecycleInstances(),
 			"huaweicloud_dms_kafka_smart_connect_tasks":              kafka.DataSourceDmsKafkaSmartConnectTasks(),
 			"huaweicloud_dms_kafkav2_smart_connect_tasks":            kafka.DataSourceDmsKafkav2SmartConnectTasks(),
 			"huaweicloud_dms_kafka_tags":                             kafka.DataSourceTags(),
