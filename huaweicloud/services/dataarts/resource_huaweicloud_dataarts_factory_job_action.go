@@ -34,6 +34,7 @@ var (
 // @API DataArtsStudio POST /v1/{project_id}/jobs/{job_name}/stop
 // @API DataArtsStudio POST /v1/{project_id}/jobs/{job_name}/run-immediate
 // @API DataArtsStudio GET /v1/{project_id}/jobs
+// @API DataArtsStudio GET /v1/{project_id}/jobs/{job_name}/instances/{instance_id}
 func ResourceFactoryJobAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFactoryJobActionCreate,
