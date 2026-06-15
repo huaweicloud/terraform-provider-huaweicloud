@@ -54,6 +54,9 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/passwordless-config
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/data-dump
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/cold-volume
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/cold-volume
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -203,6 +206,18 @@ func ResourceGeminiDbInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"bucket_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"data_export_switch": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"cold_storage_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"delete_node_list": {
 				Type:     schema.TypeSet,
@@ -652,7 +667,56 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Enable data export
+	if v, ok := d.GetOk("data_export_switch"); ok && v.(string) == "open" {
+		err = updateDataExport(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Create cold storage
+	if _, ok := d.GetOk("cold_storage_size"); ok {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		err = creatColdStorage(ctx, d, client, bssClient)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
+}
+
+func creatColdStorage(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/cold-volume",
+		httpMethod:           "POST",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildCreateOrUpdateColdStorageBodyParams(d),
+		isRetry:              true,
+		timeout:              schema.TimeoutCreate,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error creating GeminiDB instance cold storage: %s", err)
+	}
+	return nil
+}
+
+func buildCreateOrUpdateColdStorageBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"size":        d.Get("cold_storage_size"),
+		"is_auto_pay": "true",
+	}
+
+	return params
 }
 
 func modifyLoadbalancerIpAddress(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -1355,6 +1419,24 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
+	// Update data export
+	err = updateDataExport(ctx, d, client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if d.HasChange("cold_storage_size") {
+		oldSize, newSize := d.GetChange("cold_storage_size")
+		if newSize.(int) < oldSize.(int) {
+			return diag.Errorf("error updating GeminiDB instance cold storage: the cold storage only supports enlarge")
+		}
+
+		err = updateColdStorage(ctx, d, client, bssClient)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// Configuring the Blacklist or Whitelist of Load Balancer IP Addresses
 	if d.HasChange("access_control") {
 		err = updateLBAccessControl(ctx, d, client)
@@ -1762,6 +1844,51 @@ func buildUpdateLoadbalancerIpAddressBodyParams(d *schema.ResourceData) map[stri
 	}
 
 	return bodyParams
+}
+
+func updateDataExport(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChanges("bucket_name", "data_export_switch") {
+		return nil
+	}
+
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/data-dump",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateDataExportBodyParams(d),
+	})
+	if err != nil {
+		return fmt.Errorf("error enabling or disabling GeminiDB instance data export: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateDataExportBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"bucket_name": d.Get("bucket_name"),
+		"action":      d.Get("data_export_switch"),
+	}
+
+	return bodyParams
+}
+
+func updateColdStorage(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/cold-volume",
+		httpMethod:           "PUT",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildCreateOrUpdateColdStorageBodyParams(d),
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GeminiDB instance cold storage: %s", err)
+	}
+	return nil
 }
 
 func updateLBAccessControl(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {

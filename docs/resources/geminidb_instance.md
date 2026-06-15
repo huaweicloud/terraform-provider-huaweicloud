@@ -157,6 +157,22 @@ The following arguments are supported:
   -> This parameter is valid and available for **GeminiDB Influx** and **GeminiDB Redis** instances.
     The instances across subnets are not supported.
 
+* `bucket_name` - (Optional, String) Specifies the OBS bucket name.
+
+* `data_export_switch` - (Optional, String) Specifies the instance data export switch.
+  The valid values are as follows:
+  + **open**
+  + **close**
+
+-> 1. The parameters `bucket_name` and `data_export_switch` are used to configuration instance data export.
+  <br/>2. Currently, only the performance-enhanced GeminiDB Influx instance is supported.
+
+* `cold_storage_size` - (Optional, Int) Specifies the size of the cold storage, in GB.
+  The valid value ranges from `500` to `100,000`.
+
+  -> 1. The parameter `cold_storage_size` is used to configuration cold storage.
+  <br/>2. Currently, only the single-node GeminiDB Influx instance is supported.
+
 * `access_control` - (Optional, List) Specifies the access control for Load Balancer.
   The [access_control](#access_control_struct) structure is documented below.
 
@@ -432,8 +448,9 @@ $ terraform import huaweicloud_geminidb_instance.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `password`, `flavor.0.storage`, `ssl_option`, `delete_node_list`, `auto_renew`,
-`period` and `period_unit`. It is generally recommended running `terraform plan` after importing a GeminiDB instance.
+API response. The missing attribute is: `password`, `flavor.0.storage`, `ssl_option`, `bucket_name`,
+`data_export_switch`, `cold_storage_size`, `delete_node_list`, `auto_renew`, `period` and `period_unit`.
+It is generally recommended running `terraform plan` after importing a GeminiDB instance.
 You can then decide if changes should be applied to the GeminiDB instance or the resource definition should be updated
 to align with the GeminiDB instance. Also you can ignore changes as below.
 
@@ -443,7 +460,8 @@ resource "huaweicloud_geminidb_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, flavor.0.storage, ssl_option, delete_node_list, auto_renew, period, period_unit
+      password, flavor.0.storage, ssl_option, bucket_name, data_export_switch, cold_storage_size,
+      delete_node_list, auto_renew, period, period_unit,
     ]
   }
 }
