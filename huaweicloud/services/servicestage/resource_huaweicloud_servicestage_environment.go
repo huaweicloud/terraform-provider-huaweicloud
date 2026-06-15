@@ -7,13 +7,18 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/servicestage/v2/environments"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var environmentObjSliceParamKeys = []string{
+	"basic_resources",
+	"optional_resources",
+}
 
 // @API ServiceStage POST /v2/{project_id}/cas/environments
 // @API ServiceStage GET /v2/{project_id}/cas/environments/{environment_id}
@@ -64,59 +69,126 @@ func ResourceEnvironment() *schema.Resource {
 				ForceNew: true,
 			},
 			"basic_resources": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"cce", "cci", "ecs", "as",
-							}, false),
-						},
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
+				DiffSuppressFunc: utils.SuppressObjectSliceDiffs(),
 			},
 			"optional_resources": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"elb", "eip", "rds", "dcs", "cse",
-							}, false),
-						},
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
+				DiffSuppressFunc: utils.SuppressObjectSliceDiffs(),
+			},
+
+			// Internal attributes.
+			"basic_resources_origin": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'basic_resources'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"optional_resources_origin": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'optional_resources'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
 }
 
-func buildResourcesList(resources *schema.Set) []environments.Resource {
-	if resources.Len() < 1 {
+func buildResourcesList(resources []interface{}) []environments.Resource {
+	if len(resources) < 1 {
 		return nil
 	}
 
-	result := make([]environments.Resource, resources.Len())
-	for i, v := range resources.List() {
+	result := make([]environments.Resource, 0, len(resources))
+	for _, v := range resources {
 		res := v.(map[string]interface{})
-		result[i] = environments.Resource{
+		result = append(result, environments.Resource{
 			Type: res["type"].(string),
 			ID:   res["id"].(string),
-		}
+			Name: utils.PathSearch("name", res, "").(string),
+		})
 	}
 
 	return result
@@ -129,10 +201,53 @@ func buildEnvironmentCreateOpts(d *schema.ResourceData, cfg *config.Config) envi
 		Description:         &desc,
 		VpcId:               d.Get("vpc_id").(string),
 		DeployMode:          d.Get("deploy_mode").(string),
-		BaseResources:       buildResourcesList(d.Get("basic_resources").(*schema.Set)),
-		OptionalResources:   buildResourcesList(d.Get("optional_resources").(*schema.Set)),
+		BaseResources:       buildResourcesList(d.Get("basic_resources").([]interface{})),
+		OptionalResources:   buildResourcesList(d.Get("optional_resources").([]interface{})),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
+}
+
+func orderEnvironmentResourcesByOrigin(resources []map[string]interface{},
+	resourcesOrigin []interface{}) []map[string]interface{} {
+	if len(resourcesOrigin) < 1 {
+		return resources
+	}
+
+	sortedResources := make([]map[string]interface{}, 0, len(resources))
+	resourcesCopy := resources
+	for _, resourceOrigin := range resourcesOrigin {
+		idOrigin := utils.PathSearch("id", resourceOrigin, "").(string)
+		typeOrigin := utils.PathSearch("type", resourceOrigin, "").(string)
+		for index, resource := range resourcesCopy {
+			if utils.PathSearch("id", resource, "").(string) != idOrigin || utils.PathSearch("type", resource, "").(string) != typeOrigin {
+				continue
+			}
+
+			sortedResources = append(sortedResources, resourcesCopy[index])
+			resourcesCopy = append(resourcesCopy[:index], resourcesCopy[index+1:]...)
+			break
+		}
+	}
+
+	sortedResources = append(sortedResources, resourcesCopy...)
+	return sortedResources
+}
+
+func flattenEnvironmentResources(resources []environments.Resource, resourcesOrigin []interface{}) []map[string]interface{} {
+	if len(resources) < 1 {
+		return nil
+	}
+
+	parsedResources := make([]map[string]interface{}, 0, len(resources))
+	for _, v := range resources {
+		parsedResources = append(parsedResources, map[string]interface{}{
+			"type": v.Type,
+			"id":   v.ID,
+			"name": v.Name,
+		})
+	}
+
+	return orderEnvironmentResourcesByOrigin(parsedResources, resourcesOrigin)
 }
 
 func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -151,23 +266,15 @@ func resourceEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(resp.ID)
 
+	// If the request is successful, obtain the values ​​of all JSON parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	err = utils.RefreshObjectParamOriginValues(d, environmentObjSliceParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
 	return resourceEnvironmentRead(ctx, d, meta)
-}
-
-func flattenEnvironmentResources(resources []environments.Resource) []map[string]interface{} {
-	if len(resources) < 1 {
-		return nil
-	}
-
-	result := make([]map[string]interface{}, len(resources))
-	for i, v := range resources {
-		result[i] = map[string]interface{}{
-			"type": v.Type,
-			"id":   v.ID,
-		}
-	}
-
-	return result
 }
 
 func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -190,8 +297,8 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("vpc_id", resp.VpcId),
 		d.Set("deploy_mode", resp.DeployMode),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("basic_resources", flattenEnvironmentResources(resp.BaseResources)),
-		d.Set("optional_resources", flattenEnvironmentResources(resp.OptionalResources)),
+		d.Set("basic_resources", flattenEnvironmentResources(resp.BaseResources, d.Get("basic_resources_origin").([]interface{}))),
+		d.Set("optional_resources", flattenEnvironmentResources(resp.OptionalResources, d.Get("optional_resources_origin").([]interface{}))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -218,13 +325,13 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChanges("basic_resources", "optional_resources") {
-		oldSet, newSet := d.GetChange("basic_resources")
-		baseRes := buildResourcesList(newSet.(*schema.Set))
-		rmRes := buildResourcesList(oldSet.(*schema.Set))
+		oldList, newList := d.GetChange("basic_resources")
+		baseRes := buildResourcesList(newList.([]interface{}))
+		rmRes := buildResourcesList(oldList.([]interface{}))
 
-		oldSet, newSet = d.GetChange("optional_resources")
-		optRes := buildResourcesList(newSet.(*schema.Set))
-		rmRes = append(rmRes, buildResourcesList(oldSet.(*schema.Set))...)
+		oldList, newList = d.GetChange("optional_resources")
+		optRes := buildResourcesList(newList.([]interface{}))
+		rmRes = append(rmRes, buildResourcesList(oldList.([]interface{}))...)
 		updateOpt := environments.ResourceOpts{
 			AddBaseResources:     baseRes,
 			AddOptionalResources: optRes,
@@ -233,6 +340,14 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		_, err := environments.UpdateResources(client, d.Id(), updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating ServiceStage environment (%s): %s", d.Id(), err)
+		}
+
+		// If the request is successful, obtain the values ​​of all JSON parameters first and save them to the
+		// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+		// next updates.
+		err = utils.RefreshObjectParamOriginValues(d, environmentObjSliceParamKeys)
+		if err != nil {
+			return diag.Errorf("unable to refresh the origin values: %s", err)
 		}
 	}
 

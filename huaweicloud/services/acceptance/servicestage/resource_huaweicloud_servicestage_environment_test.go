@@ -23,15 +23,15 @@ func getEnvResourceFunc(conf *config.Config, state *terraform.ResourceState) (in
 
 func TestAccEnvironment_basic(t *testing.T) {
 	var (
-		env          environments.Environment
-		randName     = acceptance.RandomAccResourceNameWithDash()
-		resourceName = "huaweicloud_servicestage_environment.test"
-	)
+		env environments.Environment
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&env,
-		getEnvResourceFunc,
+		resourceName = "huaweicloud_servicestage_environment.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &env, getEnvResourceFunc)
+
+		name       = acceptance.RandomAccResourceNameWithDash()
+		updateName = acceptance.RandomAccResourceNameWithDash()
+
+		baseConfig = testAccEnvironment_base(name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,10 +40,10 @@ func TestAccEnvironment_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironment_basic(randName),
+				Config: testAccEnvironment_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform test"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "4"),
@@ -52,10 +52,10 @@ func TestAccEnvironment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironment_update(randName),
+				Config: testAccEnvironment_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform test"),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "8"),
 					resource.TestCheckResourceAttr(resourceName, "optional_resources.#", "8"),
@@ -63,7 +63,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironment_basic(randName),
+				Config: testAccEnvironment_basic_step3(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "4"),
@@ -75,75 +75,19 @@ func TestAccEnvironment_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"basic_resources",
+					"optional_resources",
+					"basic_resources_origin",
+					"optional_resources_origin",
+				},
 			},
 		},
 	})
 }
 
-func TestAccEnvironment_withEpsId(t *testing.T) {
-	var (
-		env          environments.Environment
-		randName     = acceptance.RandomAccResourceNameWithDash()
-		resourceName = "huaweicloud_servicestage_environment.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&env,
-		getEnvResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccEnvironment_withEpsId(randName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccEnvironment_base(rName string) string {
+func testAccEnvironment_base(name string) string {
 	return fmt.Sprintf(`
-variable "subnet_config" {
-  type = list(object({
-    cidr       = string
-    gateway_ip = string
-  }))
-
-  default = [
-    {cidr = "192.168.192.0/18", gateway_ip = "192.168.192.1"},
-    {cidr = "192.168.128.0/18", gateway_ip = "192.168.128.1"},
-  ]
-}
-
-variable "rds_config" {
-  type = list(object({
-    fixed_ip = string
-    port     = string
-  }))
-
-  default = [
-    {fixed_ip = "192.168.0.58", port = "8636"},
-    {fixed_ip = "192.168.0.160", port = "8637"},
-  ]
-}
-
 variable "dcs_config" {
   type = list(object({
     port = number
@@ -153,6 +97,11 @@ variable "dcs_config" {
     {port = 6388},
     {port = 6389},
   ]
+}
+
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
 }
 
 data "huaweicloud_availability_zones" "test" {}
@@ -170,48 +119,36 @@ data "huaweicloud_images_image" "test" {
 }
 
 resource "huaweicloud_kps_keypair" "test" {
-  name = "%[1]s"
+  name = "%[2]s"
 }
 
 resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
+  name                  = "%[2]s"
+  cidr                  = "192.168.0.0/16"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
-  name        = "%[1]s"
-  cidr        = "192.168.0.0/24"
-  gateway_ip  = "192.168.0.1"
+  name        = "%[2]s"
+  cidr        = cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)
+  gateway_ip  = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1)
   vpc_id      = huaweicloud_vpc.test.id
   ipv6_enable = true
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
-  name = "%[1]s"
+  name                 = "%[2]s"
+  delete_default_rules = true
 }
 
-%s
+%[3]s
 
-%s`, rName, testAccEnvironment_baseRes(rName), testAccEnvironment_optioanlRes(rName))
+%[4]s
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name, testAccEnvironment_baseRes(name), testAccEnvironment_optioanlRes(name))
 }
 
-func testAccEnvironment_baseRes(rName string) string {
+func testAccEnvironment_baseRes(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_eip" "cce_bind" {
-  count = 2
-
-  publicip {
-    type = "5_bgp"
-  }
-
-  bandwidth {
-    share_type  = "PER"
-    size        = 5
-    name        = "%[1]s_${count.index}"
-    charge_mode = "traffic"
-  }
-}
-
 resource "huaweicloud_cce_cluster" "test" {
   count = 2
 
@@ -223,7 +160,7 @@ resource "huaweicloud_cce_cluster" "test" {
   container_network_type = "vpc-router"
   cluster_version        = "v1.19"
   cluster_type           = "VirtualMachine"
-  eip                    = huaweicloud_vpc_eip.cce_bind[count.index].address
+  enterprise_project_id  = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   kube_proxy_mode = "iptables"
 
@@ -265,9 +202,10 @@ resource "huaweicloud_cce_node" "test" {
 resource "huaweicloud_cci_namespace" "test" {
   count = 2
 
-  name                = "%[1]s-${count.index}"
-  type                = "gpu-accelerated"
-  auto_expend_enabled = true
+  name                  = "%[1]s-${count.index}"
+  type                  = "gpu-accelerated"
+  auto_expend_enabled   = true
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
 
 resource "huaweicloud_vpc_subnet" "cci_bind" {
@@ -275,8 +213,8 @@ resource "huaweicloud_vpc_subnet" "cci_bind" {
 
   name       = "%[1]s-${count.index}"
   vpc_id     = huaweicloud_vpc.test.id
-  cidr       = var.subnet_config[count.index].cidr
-  gateway_ip = var.subnet_config[count.index].gateway_ip
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, count.index + 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, count.index + 1), 1)
 }
 
 resource "huaweicloud_cci_network" "test" {
@@ -292,12 +230,13 @@ resource "huaweicloud_cci_network" "test" {
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
-  name               = "%[1]s-${count.index}"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_kps_keypair.test.name
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  name                  = "%[1]s-${count.index}"
+  image_id              = data.huaweicloud_images_image.test.id
+  flavor_id             = data.huaweicloud_compute_flavors.test.ids[0]
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  key_pair              = huaweicloud_kps_keypair.test.name
+  security_group_ids    = [huaweicloud_networking_secgroup.test.id]
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   network {
     uuid = huaweicloud_vpc_subnet.test.id
@@ -326,6 +265,7 @@ resource "huaweicloud_as_group" "test" {
   scaling_group_name       = "%[1]s"
   scaling_configuration_id = huaweicloud_as_configuration.test.id
   vpc_id                   = huaweicloud_vpc.test.id
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   max_instance_number    = 3
   min_instance_number    = 0
@@ -344,10 +284,10 @@ resource "huaweicloud_as_group" "test" {
     id = huaweicloud_networking_secgroup.test.id
   }
 }
-`, rName)
+`, name)
 }
 
-func testAccEnvironment_optioanlRes(rName string) string {
+func testAccEnvironment_optioanlRes(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_network_acl" "test" {
   name = "%[1]s"
@@ -383,15 +323,23 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_elb_member" {
 resource "huaweicloud_elb_loadbalancer" "test" {
   count = 2
 
-  name            = "%[1]s_${count.index}"
-  description     = "Created by terraform."
-  vpc_id          = huaweicloud_vpc.test.id
-  ipv4_subnet_id  = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = huaweicloud_vpc_subnet.test.id
+  name                  = "%[1]s_${count.index}"
+  description           = "Created by terraform."
+  vpc_id                = huaweicloud_vpc.test.id
+  ipv4_subnet_id        = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv6_network_id       = huaweicloud_vpc_subnet.test.id
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  lifecycle {
+    ignore_changes = [
+      l4_flavor_id,
+      l7_flavor_id,
+    ]
+  }
 }
 
 resource "huaweicloud_elb_listener" "test" {
@@ -444,6 +392,8 @@ resource "huaweicloud_elb_member" "test" {
 resource "huaweicloud_vpc_eip" "test" {
   count = 2
 
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
   publicip {
     type = "5_bgp"
   }
@@ -459,20 +409,18 @@ resource "huaweicloud_vpc_eip" "test" {
 resource "huaweicloud_rds_instance" "test" {
   count = 2
 
-  name              = "%[1]s_${count.index}"
-  flavor            = "rds.pg.n1.large.2"
-  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         =  huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
-  time_zone         = "UTC+08:00"
-  fixed_ip          = var.rds_config[count.index].fixed_ip
+  name                  = "%[1]s_${count.index}"
+  flavor                = "rds.pg.n1.large.2"
+  availability_zone     = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  subnet_id             =  huaweicloud_vpc_subnet.test.id
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   db {
-    password = "Huawei##123"
-    type     = "PostgreSQL"
-    version  = "12"
-    port     = var.rds_config[count.index].port
+    type    = "PostgreSQL"
+    version = "16"
+    port    = 8634
   }
 
   volume {
@@ -484,18 +432,19 @@ resource "huaweicloud_rds_instance" "test" {
 resource "huaweicloud_dcs_instance" "test" {
   count = 2
 
-  name               = "%[1]s_${count.index}"
-  engine_version     = "5.0"
-  password           = "Huawei##123"
-  engine             = "Redis"
-  port               = var.dcs_config[count.index].port
-  capacity           = 0.125
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = "redis.ha.xu1.tiny.r2.128"
-  maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  name                  = "%[1]s_${count.index}"
+  engine_version        = "5.0"
+  password              = "Huawei##123"
+  engine                = "Redis"
+  port                  = var.dcs_config[count.index].port
+  capacity              = 0.125
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  availability_zones    = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor                = "redis.ha.xu1.tiny.r2.128"
+  maintain_begin        = "22:00:00"
+  maintain_end          = "02:00:00"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   backup_policy {
     backup_type = "auto"
@@ -505,38 +454,44 @@ resource "huaweicloud_dcs_instance" "test" {
     save_days   = 1
   }
 }
-`, rName)
+`, name)
 }
 
-func testAccEnvironment_basic(rName string) string {
+func testAccEnvironment_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_servicestage_environment" "test" {
-  name        = "%s"
-  description = "Created by terraform test"
-  vpc_id      = huaweicloud_vpc.test.id
+  name                  = "%[2]s"
+  description           = "Created by terraform test"
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   basic_resources {
     type = "cce"
     id   = huaweicloud_cce_cluster.test[0].id
+    name = huaweicloud_cce_cluster.test[0].name
   }
   basic_resources {
     type = "cci"
-    id   = huaweicloud_cci_namespace.test[0].name
+    id   = huaweicloud_cci_namespace.test[0].id
+    name = huaweicloud_cci_namespace.test[0].name
   }
   basic_resources {
     type = "ecs"
     id   = huaweicloud_compute_instance.test[0].id
+    name = huaweicloud_compute_instance.test[0].name
   }
   basic_resources {
     type = "as"
     id   = huaweicloud_as_group.test[0].id
+    name = huaweicloud_as_group.test[0].scaling_group_name
   }
 
   optional_resources {
     type = "elb"
     id   = huaweicloud_elb_loadbalancer.test[0].id
+    name = huaweicloud_elb_loadbalancer.test[0].name
   }
   optional_resources {
     type = "eip"
@@ -545,101 +500,95 @@ resource "huaweicloud_servicestage_environment" "test" {
   optional_resources {
     type = "rds"
     id   = huaweicloud_rds_instance.test[0].id
+    name = huaweicloud_rds_instance.test[0].name
   }
   optional_resources {
     type = "dcs"
     id   = huaweicloud_dcs_instance.test[0].id
+    name = huaweicloud_dcs_instance.test[0].name
   }
 }
-`, testAccEnvironment_base(rName), rName)
+`, baseConfig, name)
 }
 
-func testAccEnvironment_update(rName string) string {
+func testAccEnvironment_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_servicestage_environment" "test" {
-  name        = "%s-update"
-  description = "Updated by terraform test"
-  vpc_id      = huaweicloud_vpc.test.id
+  name                  = "%[2]s"
+  description           = "Updated by terraform test"
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   dynamic "basic_resources" {
-    for_each = huaweicloud_cce_cluster.test[*].id
+    for_each = huaweicloud_cce_cluster.test
     content {
       type = "cce"
-      id   = basic_resources.value
+      id   = basic_resources.value.id
+      name = basic_resources.value.name
     }
   }
   dynamic "basic_resources" {
-    for_each = huaweicloud_cci_namespace.test[*].name
+    for_each = huaweicloud_cci_namespace.test
     content {
       type = "cci"
-      id   = basic_resources.value
+      id   = basic_resources.value.id
+      name = basic_resources.value.name
     }
   }
   dynamic "basic_resources" {
-    for_each = huaweicloud_compute_instance.test[*].id
+    for_each = huaweicloud_compute_instance.test
     content {
       type = "ecs"
-      id   = basic_resources.value
+      id   = basic_resources.value.id
+      name = basic_resources.value.name
     }
   }
   dynamic "basic_resources" {
-    for_each = huaweicloud_as_group.test[*].id
+    for_each = huaweicloud_as_group.test
     content {
       type = "as"
-      id   = basic_resources.value
+      id   = basic_resources.value.id
+      name = basic_resources.value.scaling_group_name
     }
   }
 
   dynamic "optional_resources" {
-    for_each = huaweicloud_elb_loadbalancer.test[*].id
+    for_each = huaweicloud_elb_loadbalancer.test
     content {
       type = "elb"
-      id   = optional_resources.value
+      id   = optional_resources.value.id
+      name = optional_resources.value.name
     }
   }
   dynamic "optional_resources" {
-    for_each = huaweicloud_vpc_eip.test[*].id
+    for_each = huaweicloud_vpc_eip.test
     content {
       type = "eip"
-      id   = optional_resources.value
+      id   = optional_resources.value.id
     }
   }
   dynamic "optional_resources" {
-    for_each = huaweicloud_rds_instance.test[*].id
+    for_each = huaweicloud_rds_instance.test
     content {
       type = "rds"
-      id   = optional_resources.value
+      id   = optional_resources.value.id
+      name = optional_resources.value.name
     }
   }
   dynamic "optional_resources" {
-    for_each = huaweicloud_dcs_instance.test[*].id
+    for_each = huaweicloud_dcs_instance.test
     content {
       type = "dcs"
-      id   = optional_resources.value
+      id   = optional_resources.value.id
+      name = optional_resources.value.name
     }
   }
 }
-`, testAccEnvironment_base(rName), rName)
+`, baseConfig, name)
 }
 
-func testAccEnvironment_withEpsId(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_servicestage_environment" "test" {
-  name                  = "%s"
-  vpc_id                = huaweicloud_vpc.test.id
-  enterprise_project_id = "%s"
-
-  dynamic "basic_resources" {
-    for_each = huaweicloud_cce_cluster.test[*].id
-    content {
-      type = "cce"
-      id   = basic_resources.value
-    }
-  }
-}
-`, testAccEnvironment_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+func testAccEnvironment_basic_step3(baseConfig, name string) string {
+	return testAccEnvironment_basic_step1(baseConfig, name)
 }
