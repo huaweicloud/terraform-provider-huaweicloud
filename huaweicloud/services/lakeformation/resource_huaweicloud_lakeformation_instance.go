@@ -382,6 +382,7 @@ func orderSpecsBySpecsOrderOrigin(specs, specsOrigin []interface{}) []interface{
 			// Retain additional specification configurations from the remote service and these will not be sorted.
 			specsCopy = append(specsCopy[:copyIndex], specsCopy[copyIndex+1:]...)
 			specsOrigin = append(specsOrigin[:originIndex], specsOrigin[originIndex+1:]...)
+			break
 		}
 	}
 	sortedSpecs = append(sortedSpecs, specsCopy...)

@@ -222,6 +222,7 @@ func orderV3AclIpCidersByIpCidersOrderOrigin(ipCiders, ipCidersOrigin []interfac
 			sortedIpCiders = append(sortedIpCiders, ipCidersCopy[index])
 			// Remove the processed ip cidr from the original ip ciders array.
 			ipCidersCopy = append(ipCidersCopy[:index], ipCidersCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted ip ciders to the end of the sorted list.
@@ -263,6 +264,7 @@ func orderV3AclIpRangesByIpRangesOrderOrigin(ipRanges, ipRangesOrigin []interfac
 			sortedIpRanges = append(sortedIpRanges, ipRangesCopy[index])
 			// Remove the processed ip cidr from the original ip ciders array.
 			ipRangesCopy = append(ipRangesCopy[:index], ipRangesCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted ip ranges to the end of the sorted list.

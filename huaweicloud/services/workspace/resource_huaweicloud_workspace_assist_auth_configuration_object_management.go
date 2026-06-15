@@ -221,6 +221,7 @@ func orderAssistAuthConfigurationAppliedObjects(appliedObjects, originObjects []
 			sortedObjects = append(sortedObjects, objectsCopy[index])
 			// Remove the processed applied object from the original array.
 			objectsCopy = append(objectsCopy[:index], objectsCopy[index+1:]...)
+			break
 		}
 	}
 

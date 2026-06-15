@@ -201,6 +201,7 @@ func orderV3AssociatedUsersByUsersOrigin(associatedUsers, usersOrigin []interfac
 			sortedAssociatedUsers = append(sortedAssociatedUsers, associatedUsersCopy[index])
 			// Remove the processed user from the original array.
 			associatedUsersCopy = append(associatedUsersCopy[:index], associatedUsersCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted users to the end of the sorted list.

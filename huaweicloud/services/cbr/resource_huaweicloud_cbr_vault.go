@@ -440,10 +440,11 @@ func orderVaultServerResourcesByResourcesOrigin(resources, resourcesOrigin []int
 				break
 			}
 		}
-		if keepRemoteState {
-			// Add any remaining unsorted resources to the end of the sorted list.
-			sortedResources = append(sortedResources, resourcesCopy)
-		}
+	}
+
+	if keepRemoteState {
+		// Add any remaining unsorted resources to the end of the sorted list.
+		sortedResources = append(sortedResources, resourcesCopy...)
 	}
 
 	return sortedResources

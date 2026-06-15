@@ -422,7 +422,7 @@ func flattenLogsRecords(recordsResp []interface{}) []interface{} {
 	}
 
 	result := make([]interface{}, 0, len(recordsResp))
-	for _, raw := range result {
+	for _, raw := range recordsResp {
 		dstRegionID := utils.PathSearch("dst_region_id", raw, nil)
 		var dstRegionIDStr interface{}
 		if dstRegionID != nil {

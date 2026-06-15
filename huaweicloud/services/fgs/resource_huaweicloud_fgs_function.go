@@ -1458,6 +1458,7 @@ func orderMountsByMountsOrderOrigin(mounts, mountsOrderOrigin []interface{}) []i
 			sortedMounts = append(sortedMounts, mountsCopy[index])
 			// Remove the processed mount configuration from the remote mounts array.
 			mountsCopy = append(mountsCopy[:index], mountsCopy[index+1:]...)
+			break
 		}
 	}
 
