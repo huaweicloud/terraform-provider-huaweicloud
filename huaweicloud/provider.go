@@ -1330,6 +1330,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_message_traces":              rocketmq.DataSourceDmsRocketmqMessageTraces(),
 			"huaweicloud_dms_rocketmq_messages":                    rocketmq.DataSourceDmsRocketMQMessages(),
 			"huaweicloud_dms_rocketmq_migration_tasks":             rocketmq.DataSourceDmsRocketmqMigrationTasks(),
+			"huaweicloud_dms_rocketmq_recycle_instances":           rocketmq.DataSourceRocketmqRecycleInstances(),
 			"huaweicloud_dms_rocketmq_tags":                        rocketmq.DataSourceTags(),
 			"huaweicloud_dms_rocketmq_topic_access_users":          rocketmq.DataSourceDmsRocketmqTopicAccessUsers(),
 			"huaweicloud_dms_rocketmq_topic_consumer_groups":       rocketmq.DataSourceDmsRocketmqTopicConsumerGroups(),
