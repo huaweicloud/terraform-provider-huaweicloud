@@ -1592,6 +1592,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_slow_sql_detail":                 gaussdb.DataSourceGaussDbSlowSqlDetail(),
 			"huaweicloud_gaussdb_global_slow_sql_detail":          gaussdb.DataSourceGaussDbGlobalSlowSqlDetail(),
 			"huaweicloud_gaussdb_dr_relationships":                gaussdb.DataSourceGaussDbDrRelationships(),
+			"huaweicloud_gaussdb_dr_operation_records":            gaussdb.DataSourceGaussDbDrOperationRecords(),
 			"huaweicloud_gaussdb_instance_dr_status":              gaussdb.DataSourceGaussDbInstanceDrStatus(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
