@@ -3661,6 +3661,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_message_produce":                   kafka.ResourceDmsKafkaMessageProduce(),
 			"huaweicloud_dms_kafka_partition_reassign":                kafka.ResourceDmsKafkaPartitionReassign(),
 			"huaweicloud_dms_kafka_permissions":                       kafka.ResourceDmsKafkaPermissions(),
+			"huaweicloud_dms_kafka_recycle_instance_restore":          kafka.ResourceRecycleInstanceRestore(),
 			"huaweicloud_dms_kafka_smart_connect":                     kafka.ResourceDmsKafkaSmartConnect(),
 			"huaweicloud_dms_kafka_smart_connect_task":                kafka.ResourceDmsKafkaSmartConnectTask(),
 			"huaweicloud_dms_kafkav2_smart_connect_task":              kafka.ResourceDmsKafkav2SmartConnectTask(),
