@@ -2,12 +2,15 @@
 subcategory: "ServiceStage"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_servicestage_environment"
-description: ""
+description: |-
+  Manages an environment resource within HuaweiCloud ServiceStage.
 ---
 
 # huaweicloud_servicestage_environment
 
 Manages an environment resource within HuaweiCloud ServiceStage.
+
+-> It's a recommended to use the resource `huaweicloud_servicestagev3_environment`.
 
 ## Example Usage
 
@@ -76,6 +79,8 @@ The `basic_resources` and `optional_resources` block supports:
 
 * `id` - (Required, String) Specifies the resource ID. For most resources, this parameter needs to fill in their **id**,
   but for CCI namespace, this parameter needs to fill in **name**.
+
+* `name` - (Optional, String) Specifies the resource name.
 
 -> All resources must under the same VPC as the environment.
 
