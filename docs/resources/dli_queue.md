@@ -148,6 +148,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `create_time` - Time when a queue is created.
 
+* `owner` - The owner of the queue.
+
+* `resource_id` - The resource ID of the queue.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
