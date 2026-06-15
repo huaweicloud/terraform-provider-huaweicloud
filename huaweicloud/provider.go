@@ -1576,6 +1576,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_project_quotas":                  gaussdb.DataSourceGaussDbProjectQuotas(),
 			"huaweicloud_gaussdb_tasks":                           gaussdb.DataSourceGaussDbTasks(),
 			"huaweicloud_gaussdb_quotas":                          gaussdb.DataSourceGaussDbQuotas(),
+			"huaweicloud_gaussdb_remaining_quotas":                gaussdb.DataSourceGaussDbRemainingQuotas(),
 			"huaweicloud_gaussdb_upgrade_versions":                gaussdb.DataSourceGaussDbUpgradeVersions(),
 			"huaweicloud_gaussdb_tags":                            gaussdb.DataSourceGaussDbTags(),
 			"huaweicloud_gaussdb_predefined_tags":                 gaussdb.DataSourceGaussDbPredefinedTags(),
