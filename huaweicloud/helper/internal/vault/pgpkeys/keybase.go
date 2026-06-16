@@ -16,6 +16,27 @@ const (
 	kbPrefix = "keybase:"
 )
 
+type keybaseLookupStatus struct {
+	Name string
+}
+
+type keybasePrimaryKey struct {
+	Bundle string
+}
+
+type keybasePublicKeys struct {
+	Primary keybasePrimaryKey
+}
+
+type keybaseLookupUser struct {
+	keybasePublicKeys `json:"public_keys"`
+}
+
+type keybaseLookupResponse struct {
+	Status keybaseLookupStatus
+	Them   []keybaseLookupUser
+}
+
 // FetchKeybasePubkeys fetches public keys from Keybase given a set of
 // usernames, which are derived from correctly formatted input entries. It
 // doesn't use their client code due to both the API and the fact that it is
@@ -50,25 +71,8 @@ func FetchKeybasePubkeys(input []string) (map[string]string, error) {
 	}
 	defer resp.Body.Close()
 
-	type PublicKeys struct {
-		Primary struct {
-			Bundle string
-		}
-	}
-
-	type LThem struct {
-		PublicKeys `json:"public_keys"`
-	}
-
-	type KbResp struct {
-		Status struct {
-			Name string
-		}
-		Them []LThem
-	}
-
-	out := &KbResp{
-		Them: []LThem{},
+	out := &keybaseLookupResponse{
+		Them: []keybaseLookupUser{},
 	}
 
 	if err := jsonutil.DecodeJSONFromReader(resp.Body, out); err != nil {
