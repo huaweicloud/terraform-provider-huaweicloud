@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -198,7 +198,7 @@ resource "huaweicloud_apig_throttling_policy" "invalid_type" {
 }
 
 func testAccApigThrottlingPolicy_basic_step2(baseConfig, name string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -216,7 +216,7 @@ resource "huaweicloud_apig_throttling_policy" "invalid_app_id" {
     throttling_object_id = "%[3]s"
   }
 }
-`, baseConfig, name, randUUID)
+`, baseConfig, name, randUUID.String())
 }
 
 func testAccApigThrottlingPolicy_basic_step3(baseConfig, name string) string {
@@ -278,7 +278,7 @@ resource "huaweicloud_apig_throttling_policy" "pre_test" {
 }
 
 func testAccApigThrottlingPolicy_basic_step6(baseConfig, name string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -300,7 +300,7 @@ resource "huaweicloud_apig_throttling_policy" "pre_test" {
     throttling_object_id = "%[3]s"
   }
 }
-`, baseConfig, name, randUUID)
+`, baseConfig, name, randUUID.String())
 }
 
 func testAccApigThrottlingPolicy_basic_step7(baseConfig, name string) string {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -160,11 +160,11 @@ func resourcePostPaidOrderCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating SecMaster post paid order: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	err = createPostPaidOrderWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {

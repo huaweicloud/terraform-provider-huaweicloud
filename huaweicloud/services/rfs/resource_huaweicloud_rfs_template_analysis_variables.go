@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -129,7 +129,7 @@ func resourceTemplateAnalysisVariablesCreate(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -138,7 +138,7 @@ func resourceTemplateAnalysisVariablesCreate(_ context.Context, d *schema.Resour
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildTemplateAnalysisVariablesBodyParams(d)),
@@ -154,7 +154,7 @@ func resourceTemplateAnalysisVariablesCreate(_ context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	d.SetId(requestId)
+	d.SetId(requestId.String())
 
 	variables := utils.PathSearch("variables", respBody, make([]interface{}, 0)).([]interface{})
 	if err := d.Set("variables", flattenVariablesAttributes(variables)); err != nil {

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -89,7 +89,7 @@ func TestAccV3EnvironmentAssociate_basic(t *testing.T) {
 }
 
 func testAccV3EnvironmentAssociate_nonExistEnvironmentAndResources() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_servicestagev3_environment_associate" "test" {
@@ -100,7 +100,7 @@ resource "huaweicloud_servicestagev3_environment_associate" "test" {
 	type = "eip"
   }
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccV3EnvironmentAssociate_base(name string) string {

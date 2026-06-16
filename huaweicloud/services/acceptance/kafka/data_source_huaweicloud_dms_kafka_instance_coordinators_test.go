@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -42,12 +42,12 @@ func TestAccDataInstanceCoordinators_basic(t *testing.T) {
 }
 
 func testAccDataInstanceCoordinators_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_kafka_instance_coordinators" "test" {
   instance_id = "%[1]s"
 }
-`, randomId)
+`, randomId.String())
 }
 
 func testAccDataInstanceCoordinators_basic() string {

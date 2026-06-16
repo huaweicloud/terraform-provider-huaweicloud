@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -212,12 +212,12 @@ func resourceCertificateApplyCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error applying for CCM SSL certificate: the `request_info` in API response is not `success`")
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(id)
+	d.SetId(id.String())
 	return resourceCertificateApplyRead(ctx, d, meta)
 }
 

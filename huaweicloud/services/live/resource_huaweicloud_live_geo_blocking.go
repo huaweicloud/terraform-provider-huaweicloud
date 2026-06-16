@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -93,7 +93,7 @@ func resourceGeoBlockingCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	resourceID, err := uuid.GenerateUUID()
+	resourceID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating Live geo blocking resource ID: %s", err)
 	}
@@ -102,7 +102,7 @@ func resourceGeoBlockingCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating Live geo blocking: %s", err)
 	}
 
-	d.SetId(resourceID)
+	d.SetId(resourceID.String())
 
 	return resourceGeoBlockingRead(ctx, d, meta)
 }
@@ -204,7 +204,7 @@ func resourceGeoBlockingDelete(_ context.Context, d *schema.ResourceData, meta i
 func resourceGeoBlockingImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	importedId := d.Id()
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate ID: %s", err)
 	}
@@ -215,7 +215,7 @@ func resourceGeoBlockingImportState(_ context.Context, d *schema.ResourceData, _
 			importedId)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 	mErr := multierror.Append(nil,
 		d.Set("domain_name", parts[0]),
 		d.Set("app_name", parts[1]),

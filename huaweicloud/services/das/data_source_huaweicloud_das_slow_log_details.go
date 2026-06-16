@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -261,11 +261,11 @@ func dataSourceSlowLogDetailsRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error querying DAS slow log details: %s", err)
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

@@ -5,14 +5,14 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccClusterAction_basic(t *testing.T) {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -25,8 +25,8 @@ func TestAccClusterAction_basic(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccClusterAction_nonExistentCluster(randUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`error operating cluster \(%s\) with action \(restart\)`, randUUID)),
+				Config:      testAccClusterAction_nonExistentCluster(randUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`error operating cluster \(%s\) with action \(restart\)`, randUUID.String())),
 			},
 			{
 				Config: testAccClusterAction_basic("stop"),

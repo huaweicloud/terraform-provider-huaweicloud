@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -71,7 +71,7 @@ func TestAccDataAppServerMetricData_basic(t *testing.T) {
 }
 
 func testAccDataAppServerMetricData_serverIdNotFound(startTime, endTime string) string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_workspace_app_server_metric_data" "test" {
   server_id   = "%[1]s"
@@ -82,7 +82,7 @@ data "huaweicloud_workspace_app_server_metric_data" "test" {
   period      = 1
   filter      = "average"
 }
-`, randomId, startTime, endTime)
+`, randomId.String(), startTime, endTime)
 }
 
 func testAccDataAppServerMetricData_basic(startTime, endTime string) string {

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -58,7 +58,7 @@ func getApplicationCertificateResourceFunc(cfg *config.Config, state *terraform.
 func TestAccIdentityCenterApplicationCertificate_basic(t *testing.T) {
 	var obj interface{}
 
-	uuid, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	rName := "huaweicloud_identitycenter_application_certificate.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -76,7 +76,7 @@ func TestAccIdentityCenterApplicationCertificate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testApplicationCertificate_basic(uuid),
+				Config: testApplicationCertificate_basic(randomUUID.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",

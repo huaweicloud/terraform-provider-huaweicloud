@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -735,11 +735,11 @@ func TestAccCCMPrivateCA_other(t *testing.T) {
 // testOtherCaseImportIdFunc using to import a non-exist resource ID
 func testOtherCaseImportIdFunc() resource.ImportStateIdFunc {
 	return func(_ *terraform.State) (string, error) {
-		randUUID, err := uuid.GenerateUUID()
+		randUUID, err := uuid.NewRandom()
 		if err != nil {
 			return "", fmt.Errorf("error generating uuid: %s", err)
 		}
-		return randUUID, nil
+		return randUUID.String(), nil
 	}
 }
 

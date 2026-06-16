@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -77,12 +77,12 @@ func dataSourceLoadbalancerTagsRead(_ context.Context, d *schema.ResourceData, m
 
 	tagsList := utils.PathSearch("tags", getRespBody, make([]interface{}, 0)).([]interface{})
 
-	datasourceId, err := uuid.GenerateUUID()
+	datasourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(datasourceId)
+	d.SetId(datasourceId.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

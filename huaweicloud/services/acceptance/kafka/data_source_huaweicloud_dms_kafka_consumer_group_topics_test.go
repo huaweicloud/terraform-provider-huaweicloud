@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -65,13 +65,13 @@ func TestAccDataConsumerGroupTopics_basic(t *testing.T) {
 }
 
 func testAccDataConsumerGroupTopics_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_kafka_consumer_group_topics" "test" {
   instance_id = "%[1]s"
   group       = "%[2]s"
 }
-`, randomId, acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME)
+`, randomId.String(), acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME)
 }
 
 func testAccDataConsumerGroupTopics_basic() string {

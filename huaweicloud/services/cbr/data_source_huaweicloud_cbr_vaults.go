@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -367,11 +367,11 @@ func dataSourceVaultsRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// Set the ID and other parameters.
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 	mErr := multierror.Append(nil,
 		d.Set("vaults", flattenAllVaults(client, filterVaults(vaults, d))),
 	)

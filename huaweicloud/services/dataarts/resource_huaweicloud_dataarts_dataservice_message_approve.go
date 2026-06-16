@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -112,11 +112,11 @@ func resourceDataServiceMessageApproveCreate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error approving message: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceDataServiceMessageApproveRead(ctx, d, meta)
 }

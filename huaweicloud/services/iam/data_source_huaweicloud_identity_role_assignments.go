@@ -6,7 +6,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -144,8 +144,8 @@ func DataSourceIdentityRoleAssignmentsRead(_ context.Context, d *schema.Resource
 		}
 		currentPage++
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	if err = d.Set("role_assignments", res); err != nil {
 		return diag.Errorf("error setting role assignmnets: %s", err)
 	}

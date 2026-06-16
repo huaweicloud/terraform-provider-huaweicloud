@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -248,7 +248,7 @@ func resourceStackSetDeploymentCreate(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -258,7 +258,7 @@ func resourceStackSetDeploymentCreate(_ context.Context, d *schema.ResourceData,
 	requestPath = strings.ReplaceAll(requestPath, "{stack_set_name}", stackSetName)
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildStackSetDeploymentBodyParams(d)),

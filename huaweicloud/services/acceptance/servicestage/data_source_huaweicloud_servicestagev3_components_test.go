@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -63,7 +63,7 @@ func TestAccDataV3Components_basic(t *testing.T) {
 }
 
 func testAccDataV3Components_basic(name string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -151,5 +151,5 @@ output "is_application_id_filter_param_useful" {
 output "is_not_found_application_id_filter_param_useful" {
   value = length(data.huaweicloud_servicestagev3_components.by_not_found_application_id.components) == 0
 }
-`, testAccV3Component_basic_step1(name), randUUID)
+`, testAccV3Component_basic_step1(name), randUUID.String())
 }

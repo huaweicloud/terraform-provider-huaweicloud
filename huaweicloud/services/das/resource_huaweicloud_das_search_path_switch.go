@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -177,11 +177,11 @@ func resourceSearchPathSwitchCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error switching DAS search path switch: %s", err)
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	if err = waitForSearchPathSwitchComplete(ctx, client, d); err != nil {
 		return diag.Errorf("error waiting for the DAS search path switch to complete: %s", err)

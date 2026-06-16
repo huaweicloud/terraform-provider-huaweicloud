@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -64,13 +64,13 @@ func TestAccDataClusterDatabaseSchemas_basic(t *testing.T) {
 }
 
 func testAccDataClusterDatabaseSchemas_clusterNotFound() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dws_cluster_database_schemas" "test" {
   cluster_id    = "%[1]s"
   database_name = "gaussdb"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataClusterDatabaseSchemas_databaseNotFound() string {

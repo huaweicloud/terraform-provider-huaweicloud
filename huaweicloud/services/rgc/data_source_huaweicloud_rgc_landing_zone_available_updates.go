@@ -3,8 +3,8 @@ package rgc
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -66,11 +66,11 @@ func dataSourceLandingZoneAvailableUpdatesRead(_ context.Context, d *schema.Reso
 		return diag.Errorf("error retrieving RGC landing zone available updates: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	mErr = multierror.Append(mErr,
 		d.Set("baseline_update_available", utils.PathSearch("baseline_update_available", getLandingZoneAvailableUpdatesRespBody, nil)),

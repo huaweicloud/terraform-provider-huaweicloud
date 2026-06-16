@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -30,7 +30,7 @@ func getPrivateProviderVersionResourceFunc(cfg *config.Config, state *terraform.
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate RFS request UUID: %s", err)
 	}
@@ -39,7 +39,7 @@ func getPrivateProviderVersionResourceFunc(cfg *config.Config, state *terraform.
 	requestPath = strings.ReplaceAll(requestPath, "{provider_name}", provideName)
 	requestPath = strings.ReplaceAll(requestPath, "{provider_version}", providerVersion)
 	requestOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID},
+		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID.String()},
 		KeepResponseBody: true,
 	}
 

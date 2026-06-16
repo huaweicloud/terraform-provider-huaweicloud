@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -302,7 +302,7 @@ output "sort_filter_is_useful" {
 }
 
 func testAccDataZones_basic(name string) string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
@@ -358,7 +358,7 @@ output "router_id_not_found_validation_pass" {
   value = length(data.huaweicloud_dns_zones.filter_by_not_found_router_id.zones) == 0
 }
 `, acceptance.RandomAccResourceName(), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
-		testAccDataZones_base(name, randomId), randomId)
+		testAccDataZones_base(name, randomId.String()), randomId.String())
 }
 
 func TestAccDataZones_public(t *testing.T) {
@@ -466,7 +466,7 @@ func TestAccDataZones_public(t *testing.T) {
 }
 
 func testAccDataZones_public(name string) string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "test" {
   count = 2
@@ -484,5 +484,5 @@ resource "huaweicloud_dns_zone" "test" {
 }
 
 %[3]s
-`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, testAccDataZones_base(name, randomId))
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, testAccDataZones_base(name, randomId.String()))
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -53,11 +53,11 @@ func resourceAppBucketAuthorizeCreate(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating OBS bucket or authorization: %s", err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	return nil
 }

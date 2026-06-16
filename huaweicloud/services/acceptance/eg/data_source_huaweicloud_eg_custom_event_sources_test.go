@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk/openstack/eg/v1/source/custom"
@@ -130,7 +130,7 @@ func TestAccDataCustomEventSources_filterById(t *testing.T) {
 }
 
 func testAccDataCustomEventSources_filterById() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -161,7 +161,7 @@ output "is_id_filter_useful" {
 output "id_not_found_validation_pass" {
   value = length(data.huaweicloud_eg_custom_event_sources.id_not_found.sources) == 0
 }
-`, testAccDataCustomEventSources_base(), randUUID)
+`, testAccDataCustomEventSources_base(), randUUID.String())
 }
 
 func TestAccDataCustomEventSources_filterByChannelId(t *testing.T) {
@@ -199,7 +199,7 @@ func TestAccDataCustomEventSources_filterByChannelId(t *testing.T) {
 }
 
 func testAccDataCustomEventSources_filterByChannelId() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -234,7 +234,7 @@ output "is_channel_id_filter_useful" {
 output "channel_id_not_found_validation_pass" {
   value = length(data.huaweicloud_eg_custom_event_sources.channel_id_not_found.sources) == 0
 }
-`, testAccDataCustomEventSources_base(), acceptance.HW_EG_CHANNEL_ID, randUUID)
+`, testAccDataCustomEventSources_base(), acceptance.HW_EG_CHANNEL_ID, randUUID.String())
 }
 
 func TestAccDataCustomEventSources_filterByFuzzyName(t *testing.T) {
@@ -272,7 +272,7 @@ func TestAccDataCustomEventSources_filterByFuzzyName(t *testing.T) {
 }
 
 func testAccDataCustomEventSources_filterByFuzzyName() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -307,7 +307,7 @@ output "is_fuzzy_name_filter_useful" {
 output "fuzzy_name_not_found_validation_pass" {
   value = length(data.huaweicloud_eg_custom_event_sources.fuzzy_name_not_found.sources) == 0
 }
-`, testAccDataCustomEventSources_base(), randUUID)
+`, testAccDataCustomEventSources_base(), randUUID.String())
 }
 
 func TestAccDataCustomEventSources_filterBySort(t *testing.T) {

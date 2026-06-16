@@ -3,8 +3,8 @@ package eps
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -112,11 +112,11 @@ func dataSourceEnterpriseProjectsRead(_ context.Context, d *schema.ResourceData,
 		return common.CheckDeletedDiag(d, err, "error retrieving enterprise projects")
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	result := make([]interface{}, 0, len(projects))
 	for _, project := range projects {

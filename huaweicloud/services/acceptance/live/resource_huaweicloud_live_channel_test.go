@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -2011,7 +2011,7 @@ func TestAccLiveChannel_CUSTOM_CHANNEL_ID(t *testing.T) {
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_live_channel.test"
 
-		channelID, _  = uuid.GenerateUUID()
+		channelID, _  = uuid.NewRandom()
 		hlsPackageUrl = fmt.Sprintf("%s/customchannel/hls/ss.m3u8", acceptance.HW_LIVE_STREAMING_DOMAIN_NAME)
 	)
 
@@ -2032,11 +2032,11 @@ func TestAccLiveChannel_CUSTOM_CHANNEL_ID(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLiveChannel_CUSTOM_CHANNEL(name, channelID),
+				Config: testLiveChannel_CUSTOM_CHANNEL(name, channelID.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "app_name", "live"),
-					resource.TestCheckResourceAttr(rName, "channel_id", channelID),
+					resource.TestCheckResourceAttr(rName, "channel_id", channelID.String()),
 					resource.TestCheckResourceAttr(rName, "domain_name", acceptance.HW_LIVE_INGEST_RTMP_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(rName, "name", ""),
 					resource.TestCheckResourceAttr(rName, "state", "OFF"),

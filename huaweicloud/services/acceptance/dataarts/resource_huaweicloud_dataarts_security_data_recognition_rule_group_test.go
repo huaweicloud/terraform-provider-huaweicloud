@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -105,7 +105,7 @@ func testAccSecurityDataRecognitionRuleGroupImportStateIDFunc(resourceName strin
 }
 
 func testAccSecurityDataRecognitionRuleGroup_nonExistentWorkspaceAndRule(name string) string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_security_data_recognition_rule_group" "test" {
@@ -113,7 +113,7 @@ resource "huaweicloud_dataarts_security_data_recognition_rule_group" "test" {
   name         = "%[2]s"
   rule_ids     = ["%[1]s"]
 }
-`, randomUUID, name)
+`, randomUUID.String(), name)
 }
 
 func testAccSecurityDataRecognitionRuleGroup_basic_base(name string) string {

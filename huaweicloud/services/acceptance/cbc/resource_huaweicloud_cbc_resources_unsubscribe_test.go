@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -28,7 +28,7 @@ func TestAccResourcesUnsubscribe_basic(t *testing.T) {
 }
 
 func testAccResourcesUnsubscribe_basic() string {
-	ramdomId, _ := uuid.GenerateUUID()
+	ramdomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_cbc_resources_unsubscribe" "test" {
   resource_ids = [
@@ -38,5 +38,5 @@ resource "huaweicloud_cbc_resources_unsubscribe" "test" {
 
   enable_force_new = true
 }
-`, acceptance.HW_CBC_UNSUBSCRIBE_RESOURCE_ID, ramdomId)
+`, acceptance.HW_CBC_UNSUBSCRIBE_RESOURCE_ID, ramdomId.String())
 }

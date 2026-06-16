@@ -6,8 +6,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -114,12 +114,12 @@ func dataSourceOsVersionsRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("os_versions", flattenOsVersions(getRespBody.([]interface{}))),

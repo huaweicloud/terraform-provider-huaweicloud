@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -92,8 +92,8 @@ func TestAccDataEventSubscriptions_basic(t *testing.T) {
 }
 
 func testAccDataEventSubscriptions_base(name string) string {
-	randSmnTargetId, _ := uuid.GenerateUUID()
-	randHTTPSTargetId, _ := uuid.GenerateUUID()
+	randSmnTargetId, _ := uuid.NewRandom()
+	randHTTPSTargetId, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_eg_custom_event_channel" "test" {
@@ -167,7 +167,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
     ignore_changes = [sources, targets]
   }
 }
-`, name, randSmnTargetId, randHTTPSTargetId)
+`, name, randSmnTargetId.String(), randHTTPSTargetId.String())
 }
 
 func testAccDataEventSubscriptions_basic(name string) string {

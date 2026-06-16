@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -159,12 +159,12 @@ output "is_resource_type_filter_useful" {
 }
 
 func testAccDataSourceAvailableRoutes_routeTableNotFound(baseConfig string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_er_available_routes" "test" {
   route_table_id = "%[2]s"
 }  
-`, baseConfig, randUUID)
+`, baseConfig, randUUID.String())
 }

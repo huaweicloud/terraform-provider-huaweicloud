@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -76,8 +76,8 @@ func listLoginProtects(iamClient *golangsdk.ServiceClient, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	loginProtectsBody := utils.PathSearch("login_protects", respBody, make([]interface{}, 0)).([]interface{})
 	loginProtects := make([]interface{}, 0, len(loginProtectsBody))
 	for _, loginProtect := range loginProtectsBody {
@@ -101,8 +101,8 @@ func showLoginProtect(iamClient *golangsdk.ServiceClient, userId string, d *sche
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	loginProtectBody := utils.PathSearch("login_protect", respBody, make([]interface{}, 0))
 	loginProtects := append(make([]interface{}, 0, 1), flattenLoginProtect(loginProtectBody))
 	if err = d.Set("login_protects", loginProtects); err != nil {

@@ -3,8 +3,8 @@ package rgc
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -162,11 +162,11 @@ func dataSourceLandingZoneConfigurationRead(_ context.Context, d *schema.Resourc
 		return diag.Errorf("error retrieving RGC landing zone configuration: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	mErr = multierror.Append(mErr,
 		d.Set("common_configuration", parseCommonConfiguration(getLandingZoneConfigurationRespBody)),

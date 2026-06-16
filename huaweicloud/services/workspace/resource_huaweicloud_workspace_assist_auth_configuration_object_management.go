@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -185,11 +185,11 @@ func resourceAssistAuthConfigurationObjectManagementCreate(ctx context.Context, 
 		return diag.Errorf("error adding assist auth configuration applied objects: %s", err)
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
 	// '_origin' attributes for subsequent determination and construction of the request body during next updates.

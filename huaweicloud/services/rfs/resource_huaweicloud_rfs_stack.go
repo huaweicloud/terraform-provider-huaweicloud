@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -174,7 +174,7 @@ func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		cfg          = meta.(*config.Config)
 		region       = cfg.GetRegion(d)
 		httpUrl      = "v1/{project_id}/stacks"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 
 	client, err := cfg.NewServiceClient("rfs", region)
@@ -190,7 +190,7 @@ func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	requestResp, err := client.Request("POST", createPath, &createtOpt)
@@ -245,7 +245,7 @@ func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 		// Stack name is a required parameter.
 		stackName    = d.Get("name").(string)
 		httpUrl      = "v1/{project_id}/stacks/{stack_name}/deployments"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	deployPath := client.Endpoint + httpUrl
 	deployPath = strings.ReplaceAll(deployPath, "{project_id}", client.ProjectID)
@@ -263,7 +263,7 @@ func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	requestResp, err := client.Request("POST", deployPath, &deployOpt)
@@ -300,7 +300,7 @@ func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 func QueryStackById(client *golangsdk.ServiceClient, stackId string) (interface{}, error) {
 	var (
 		httpUrl      = "v1/{project_id}/stacks"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
@@ -310,7 +310,7 @@ func QueryStackById(client *golangsdk.ServiceClient, stackId string) (interface{
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	requestResp, err := client.Request("GET", listPath, &opt)
@@ -359,7 +359,7 @@ func queryAllFailedEvents(client *golangsdk.ServiceClient, stackId, stackName, d
 	var (
 		mErr         *multierror.Error
 		httpUrl      = "v1/{project_id}/stacks/{stack_name}/events"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 
 	listPath := client.Endpoint + httpUrl
@@ -375,7 +375,7 @@ func queryAllFailedEvents(client *golangsdk.ServiceClient, stackId, stackName, d
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	requestResp, err := client.Request("GET", listPath, &listOpt)
@@ -511,7 +511,7 @@ func updateStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 	var (
 		stackName    = d.Get("name").(string)
 		httpUrl      = "v1/{project_id}/stacks/{stack_name}"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
@@ -522,7 +522,7 @@ func updateStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 
@@ -553,7 +553,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		httpUrl      = "v1/{project_id}/stacks/{stack_name}/deletion"
 		stackName    = d.Get("name").(string)
 		stackId      = d.Id()
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
@@ -573,7 +573,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	_, err = client.Request("POST", deletePath, &deletetOpt)

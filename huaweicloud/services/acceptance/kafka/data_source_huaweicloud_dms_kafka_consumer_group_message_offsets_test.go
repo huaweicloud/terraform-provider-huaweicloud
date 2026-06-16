@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -47,14 +47,14 @@ func TestAccDataConsumerGroupMessageOffsets_basic(t *testing.T) {
 }
 
 func testAccDataConsumerGroupMessageOffsets_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_kafka_consumer_group_message_offsets" "test" {
   instance_id = "%[1]s"
   group       = "%[2]s"
   topic       = "%[3]s"
 }
-`, randomId, acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME, acceptance.HW_DMS_KAFKA_TOPIC_NAME)
+`, randomId.String(), acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME, acceptance.HW_DMS_KAFKA_TOPIC_NAME)
 }
 
 func testAccDataConsumerGroupMessageOffsets_basic() string {

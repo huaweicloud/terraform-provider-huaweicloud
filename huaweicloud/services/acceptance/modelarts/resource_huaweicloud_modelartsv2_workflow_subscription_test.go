@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -129,7 +129,7 @@ resource "huaweicloud_smn_topic" "test" {
 }
 
 func testAccV2WorkflowSubscription_nonExistentWorkflow(name string) string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -144,7 +144,7 @@ resource "huaweicloud_modelartsv2_workflow_subscription" "test" {
     "*:wait_inputs,hold,completed",
   ]
 }
-`, testAccV2WorkflowSubscription_smnTopics(name), randomUUID)
+`, testAccV2WorkflowSubscription_smnTopics(name), randomUUID.String())
 }
 
 func testAccV2WorkflowSubscription_basic_step1(name string) string {

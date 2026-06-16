@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -14,7 +14,7 @@ import (
 func TestAccDataSourceOrchestrationRuleAssociatedApis_basic(t *testing.T) {
 	var (
 		rName       = acceptance.RandomAccResourceName()
-		randomId, _ = uuid.GenerateUUID()
+		randomId, _ = uuid.NewRandom()
 
 		all = "data.huaweicloud_apig_orchestration_rule_associated_apis.test"
 		dc  = acceptance.InitDataSourceCheck(all)
@@ -39,15 +39,15 @@ func TestAccDataSourceOrchestrationRuleAssociatedApis_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceOrchestrationRuleAssociatedApis_basic_step1(randomId),
+				Config:      testAccDataSourceOrchestrationRuleAssociatedApis_basic_step1(randomId.String()),
 				ExpectError: regexp.MustCompile(`The instance does not exist`),
 			},
 			{
-				Config:      testAccDataSourceOrchestrationRuleAssociatedApis_basic_step2(randomId),
+				Config:      testAccDataSourceOrchestrationRuleAssociatedApis_basic_step2(randomId.String()),
 				ExpectError: regexp.MustCompile(`The orchestrations does not exist`),
 			},
 			{
-				Config: testAccDataSourceOrchestrationRuleAssociatedApis_basic_step3(rName, randomId),
+				Config: testAccDataSourceOrchestrationRuleAssociatedApis_basic_step3(rName, randomId.String()),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "apis.#", regexp.MustCompile(`[1-9]\d*`)),

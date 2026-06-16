@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -33,7 +33,7 @@ func TestAccClusterElbAssociate_basic(t *testing.T) {
 		rc    = acceptance.InitResourceCheck(rName, &obj, getClusterAssociatedElbFunc)
 
 		name          = acceptance.RandomAccResourceName()
-		randomUUID, _ = uuid.GenerateUUID()
+		randomUUID, _ = uuid.NewRandom()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,9 +45,8 @@ func TestAccClusterElbAssociate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testClusterElbAssociate_nonExistentElb(randomUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`error associating ELB \(%s\) to the DWS cluster \(%s\)`,
-					randomUUID, acceptance.HW_DWS_CLUSTER_ID)),
+				Config:      testClusterElbAssociate_nonExistentElb(randomUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`error associating ELB \(%s\) to the DWS cluster \(%s\)`, randomUUID.String(), acceptance.HW_DWS_CLUSTER_ID)),
 			},
 			{
 				Config: testClusterElbAssociate_basic(name),

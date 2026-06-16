@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -47,14 +47,14 @@ func TestAccConsumerGroupTopicBatchDelete_basic(t *testing.T) {
 }
 
 func testAccConsumerGroupTopicBatchDelete_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dms_kafka_consumer_group_topic_batch_delete" "test" {
   instance_id = "%[1]s"
   group       = "%[2]s"
   topics      = ["%[3]s"]
 }
-`, randomId, acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME, acceptance.HW_DMS_KAFKA_TOPIC_NAME)
+`, randomId.String(), acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME, acceptance.HW_DMS_KAFKA_TOPIC_NAME)
 }
 
 func testAccConsumerGroupTopicBatchDelete_consumerGroupNotFound() string {

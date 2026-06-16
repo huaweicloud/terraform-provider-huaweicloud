@@ -3,7 +3,7 @@ package organizations
 import (
 	"context"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -68,12 +68,12 @@ func dataSourceDryRunPolicyAttachedEntitiesRead(_ context.Context, d *schema.Res
 		return diag.Errorf("error retrieving attached entities for dry run policy (%s): %s", policyId, err)
 	}
 
-	dataSourceID, err := uuid.GenerateUUID()
+	dataSourceID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(dataSourceID)
+	d.SetId(dataSourceID.String())
 
 	return diag.FromErr(d.Set("entities", flattenDryRunPolicyAttachedEntities(attachedEntities)))
 }

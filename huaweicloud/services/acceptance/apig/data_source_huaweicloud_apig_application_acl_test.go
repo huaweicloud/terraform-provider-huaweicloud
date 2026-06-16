@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -99,7 +99,7 @@ data "huaweicloud_apig_application_acl" "not_found" {
 }
 
 func TestAccDataSourceApplicationAcl_expectError(t *testing.T) {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -108,8 +108,8 @@ func TestAccDataSourceApplicationAcl_expectError(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceApplicationAcl_expectError(randUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("App %s does not exist", randUUID)),
+				Config:      testAccDataSourceApplicationAcl_expectError(randUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("App %s does not exist", randUUID.String())),
 			},
 		},
 	})

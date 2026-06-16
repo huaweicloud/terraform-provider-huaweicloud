@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -81,12 +81,12 @@ func resourceClientAuthConfigRestoreCreate(_ context.Context, d *schema.Resource
 		return diag.Errorf("error restoring GaussDB client auth config: %s", err)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(generateUUID)
+	d.SetId(randomUUID.String())
 
 	return nil
 }

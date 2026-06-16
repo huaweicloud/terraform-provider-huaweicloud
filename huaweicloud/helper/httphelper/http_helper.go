@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
 
 	"github.com/chnsz/golangsdk"
@@ -85,11 +85,11 @@ func (c *HttpHelper) OkCode(okCodes ...int) *HttpHelper {
 }
 
 func (c *HttpHelper) MarkerPager(dataPath, nextExp, markerKey string) *HttpHelper {
-	timestamp, _ := uuid.GenerateUUID()
+	timestamp, _ := uuid.NewRandom()
 	c.pager = func(r pagination.PageResult) pagination.Page {
 		p := MarkerPager{
 			MarkerPageBase: pagination.MarkerPageBase{PageResult: r},
-			uuid:           timestamp,
+			uuid:           timestamp.String(),
 			DataPath:       dataPath,
 			NextExp:        nextExp,
 			MarkerKey:      markerKey,
@@ -103,11 +103,11 @@ func (c *HttpHelper) MarkerPager(dataPath, nextExp, markerKey string) *HttpHelpe
 
 //nolint:unused
 func (c *HttpHelper) CustomPager(dataPath string, nextUrlFunc URLFunc) *HttpHelper {
-	timestamp, _ := uuid.GenerateUUID()
+	timestamp, _ := uuid.NewRandom()
 	c.pager = func(r pagination.PageResult) pagination.Page {
 		return CustomPager{
 			PageResult:  r,
-			uuid:        timestamp,
+			uuid:        timestamp.String(),
 			DataPath:    dataPath,
 			NextURLFunc: nextUrlFunc,
 		}
@@ -120,11 +120,11 @@ func (c *HttpHelper) PageSizePager(dataPath, pageNumKey, perPageKey string, perP
 		c.queryExt[perPageKey] = perPage
 	}
 
-	timestamp, _ := uuid.GenerateUUID()
+	timestamp, _ := uuid.NewRandom()
 	c.pager = func(r pagination.PageResult) pagination.Page {
 		return PageSizePager{
 			OffsetPageBase: pagination.OffsetPageBase{PageResult: r},
-			uuid:           timestamp,
+			uuid:           timestamp.String(),
 			DataPath:       dataPath,
 			PageNumKey:     pageNumKey,
 			PerPageKey:     perPageKey,
@@ -135,11 +135,11 @@ func (c *HttpHelper) PageSizePager(dataPath, pageNumKey, perPageKey string, perP
 }
 
 func (c *HttpHelper) LinkPager(dataPath, linkExp string) *HttpHelper {
-	timestamp, _ := uuid.GenerateUUID()
+	timestamp, _ := uuid.NewRandom()
 	c.pager = func(r pagination.PageResult) pagination.Page {
 		return LinkPager{
 			LinkedPageBase: pagination.LinkedPageBase{PageResult: r},
-			uuid:           timestamp,
+			uuid:           timestamp.String(),
 			DataPath:       dataPath,
 			LinkExp:        linkExp,
 		}
@@ -160,12 +160,12 @@ func (c *HttpHelper) OffsetPager(dataPath, offsetKey, limitKey string, defaultLi
 		c.queryExt[limitKey] = defaultLimit
 		c.queryExt[offsetKey] = c.offsetStart
 	}
-	timestamp, _ := uuid.GenerateUUID()
+	timestamp, _ := uuid.NewRandom()
 
 	c.pager = func(r pagination.PageResult) pagination.Page {
 		return OffsetPager{
 			OffsetPageBase: pagination.OffsetPageBase{PageResult: r},
-			uuid:           timestamp,
+			uuid:           timestamp.String(),
 			DataPath:       dataPath,
 			DefaultLimit:   defaultLimit,
 			OffsetKey:      offsetKey,

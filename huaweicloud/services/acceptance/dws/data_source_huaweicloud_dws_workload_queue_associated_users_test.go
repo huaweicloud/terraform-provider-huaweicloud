@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -49,7 +49,7 @@ func TestAccDataSourceWorkloadQueueAssociatedUsers_basic(t *testing.T) {
 }
 
 func testDataSourceWorkloadQueueAssociatedUsers_clusterNotExist() string {
-	clusterId, _ := uuid.GenerateUUID()
+	clusterId, _ := uuid.NewRandom()
 	name := acceptance.RandomAccResourceName()
 	return fmt.Sprintf(`
 %[1]s
@@ -58,7 +58,7 @@ data "huaweicloud_dws_workload_queue_associated_users" "test" {
   cluster_id = "%[2]s"
   queue_name = huaweicloud_dws_workload_queue.test.id
 }
-`, testAccWorkloadQueue_basic(name), clusterId)
+`, testAccWorkloadQueue_basic(name), clusterId.String())
 }
 
 func testDataSourceWorkloadQueueAssociatedUsers_queueNotExist() string {

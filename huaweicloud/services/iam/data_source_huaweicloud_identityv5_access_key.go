@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -74,12 +74,12 @@ func dataSourceV5AccessKeyRead(_ context.Context, d *schema.ResourceData, meta i
 		log.Printf("[ERROR] error retrieving last used time of the access key (%s): %s", accessKeyId, err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	mErr := multierror.Append(
 		d.Set("access_key_id", accessKeyId),

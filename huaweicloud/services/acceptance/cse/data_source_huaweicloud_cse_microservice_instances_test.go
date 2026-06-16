@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -51,7 +51,7 @@ func TestAccDataMicroserviceInstances_basic(t *testing.T) {
 }
 
 func testAccDataMicroserviceInstances_expectErr() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 variable "enterprise_project_id" {
   type    = string
@@ -73,7 +73,7 @@ data "huaweicloud_cse_microservice_instances" "test" {
   microservice_id       = "%[3]s"
   enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : "0"
 }
-`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_CSE_MICROSERVICE_ENGINE_ID, acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD, randUUID)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_CSE_MICROSERVICE_ENGINE_ID, acceptance.HW_CSE_MICROSERVICE_ENGINE_ADMIN_PASSWORD, randUUID.String())
 }
 
 func testAccDataMicroserviceInstances_basic(name string) string {

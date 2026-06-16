@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -60,14 +60,14 @@ func TestAccDataDeadLetterMessages_basic(t *testing.T) {
 }
 
 func testAccDeadLetterMessages_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_rocketmq_dead_letter_messages" "test" {
   instance_id = "%[1]s"
   topic       = "%[2]s"
   msg_id_list = split(",", "%[3]s")
 }
-`, randomId, acceptance.HW_DMS_ROCKETMQ_GROUP_NAME, acceptance.HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs)
+`, randomId.String(), acceptance.HW_DMS_ROCKETMQ_GROUP_NAME, acceptance.HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs)
 }
 
 func testAccDeadLetterMessages_topicNotFound() string {

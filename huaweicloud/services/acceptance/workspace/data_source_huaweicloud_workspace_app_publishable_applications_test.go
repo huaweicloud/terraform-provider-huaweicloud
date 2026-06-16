@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -71,12 +71,12 @@ func TestAccDataAppPublishableApplications_basic(t *testing.T) {
 }
 
 func testDataAppPublishableApplications_notFound() string {
-	uuid, _ := uuid.GenerateUUID()
+	uuid, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_workspace_app_publishable_applications" "not_found" {
   app_group_id = "%s"
 }
-`, uuid)
+`, uuid.String())
 }
 
 func testDataAppPublishableApplications_base(name string) string {

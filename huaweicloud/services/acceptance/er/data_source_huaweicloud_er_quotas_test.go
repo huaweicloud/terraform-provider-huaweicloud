@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -114,7 +114,7 @@ resource "huaweicloud_er_static_route" "test" {
 func testAccDataSourceQuotas_basic() string {
 	var (
 		baseConfig  = testAccDataSourceQuotas_base()
-		randUUID, _ = uuid.GenerateUUID()
+		randUUID, _ = uuid.NewRandom()
 	)
 
 	return fmt.Sprintf(`
@@ -210,5 +210,5 @@ output "is_not_found_route_table_id_filter_useless" {
   value = !contains(data.huaweicloud_er_quotas.filter_by_not_found_route_table_id.quotas[*].type,
             "route_table") && length([for _, v in data.huaweicloud_er_quotas.filter_by_not_found_route_table_id.quotas: v.type if v.used > 0]) == 0
 }
-`, baseConfig, randUUID)
+`, baseConfig, randUUID.String())
 }

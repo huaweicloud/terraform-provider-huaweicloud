@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -59,10 +59,10 @@ data "huaweicloud_lts_search_criteria" "test" {
 }
 
 func testDataSourceSearchCriteria_expectError() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_lts_search_criteria" "test" {
   log_group_id = "%s"
 }
-`, randUUID)
+`, randUUID.String())
 }

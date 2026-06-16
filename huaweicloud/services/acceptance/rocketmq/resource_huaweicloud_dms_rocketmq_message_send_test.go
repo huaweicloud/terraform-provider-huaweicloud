@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -47,14 +47,14 @@ func TestAccRocketMQMessageSend_basic(t *testing.T) {
 }
 
 func testAccRocketMQMessageSend_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dms_rocketmq_message_send" "test" {
   instance_id = "%[1]s"
   topic       = "%[2]s"
   body        = "tf terraform script test"
 }
-`, randomId, acceptance.HW_DMS_ROCKETMQ_TOPIC_NAME)
+`, randomId.String(), acceptance.HW_DMS_ROCKETMQ_TOPIC_NAME)
 }
 
 func testAccRocketMQMessageSend_topicNotFound() string {

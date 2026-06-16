@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -66,7 +66,7 @@ resource "huaweicloud_dws_database_schema_adjust_action" "test" {
 }
 
 func testAccDataDatabaseSchemaAdjustAction_invalidCluster() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dws_database_schema_adjust_action" "invalid_cluster" {
   cluster_id = "%[1]s"
@@ -74,7 +74,7 @@ resource "huaweicloud_dws_database_schema_adjust_action" "invalid_cluster" {
   schema     = "nonexistent_schema_for_acc_test"
   perm_space = 10240
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataDatabaseSchemaAdjustAction_invalidDatabase() string {

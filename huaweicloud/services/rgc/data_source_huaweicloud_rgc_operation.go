@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -82,11 +82,11 @@ func dataSourceOperationRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error retrieving RGC operation: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	mErr = multierror.Append(mErr,
 		d.Set("operation_id", utils.PathSearch("operation_id", getOperationRespBody, nil)),

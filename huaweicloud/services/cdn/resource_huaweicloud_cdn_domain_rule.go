@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -549,12 +549,12 @@ func buildDomainRuleActionsBodyParams(rawArray []interface{}) []map[string]inter
 // API restrictions must be written to an uuid value, otherwise an error will be reported.
 // The server recommends using 32-bit numbers or letters.
 func buildUpdateCdnDomainRuleID() string {
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		log.Printf("[ERROR] error generating uuid: %s", err)
 	}
 
-	return strings.ReplaceAll(generateUUID, "-", "")
+	return strings.ReplaceAll(generateUUID.String(), "-", "")
 }
 
 func buildUpdateCdnDomainRuleBodyParams(d *schema.ResourceData) map[string]interface{} {

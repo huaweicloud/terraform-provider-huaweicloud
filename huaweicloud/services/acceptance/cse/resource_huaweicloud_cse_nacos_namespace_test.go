@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -31,7 +31,7 @@ func TestAccNacosNamespace_basic(t *testing.T) {
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
 
-		randUUID, _ = uuid.GenerateUUID()
+		randUUID, _ = uuid.NewRandom()
 
 		resourceName = "huaweicloud_cse_nacos_namespace.test"
 		rc           = acceptance.InitResourceCheck(resourceName, &obj, getNacosNamespaceFunc)
@@ -46,9 +46,9 @@ func TestAccNacosNamespace_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNacosNamespace_basic(randUUID, name),
+				Config: testAccNacosNamespace_basic(randUUID.String(), name),
 				ExpectError: regexp.MustCompile(
-					fmt.Sprintf(`unable to create the namespace because the Nacos engine \(%s\) does not exist`, randUUID)),
+					fmt.Sprintf(`unable to create the namespace because the Nacos engine \(%s\) does not exist`, randUUID.String())),
 			},
 			{
 				Config: testAccNacosNamespace_basic(acceptance.HW_CSE_NACOS_MICROSERVICE_ENGINE_ID, name),

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -16,7 +16,7 @@ func TestAccDataSourceLatestAttachedApplications_basic(t *testing.T) {
 		name        = acceptance.RandomAccResourceName()
 		dataSource  = "data.huaweicloud_workspace_app_latest_attached_applications.test"
 		dc          = acceptance.InitDataSourceCheck(dataSource)
-		randUUID, _ = uuid.GenerateUUID()
+		randUUID, _ = uuid.NewRandom()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -34,8 +34,8 @@ func TestAccDataSourceLatestAttachedApplications_basic(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceLatestAttachedApplications_notFound(randUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("'%s' is a non-existing cloud application server", randUUID)),
+				Config:      testAccDataSourceLatestAttachedApplications_notFound(randUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("'%s' is a non-existing cloud application server", randUUID.String())),
 			},
 			{
 				Config: testAccDataSourceLatestAttachedApplications_basic(name),

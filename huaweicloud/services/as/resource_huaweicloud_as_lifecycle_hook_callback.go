@@ -3,7 +3,7 @@ package as
 import (
 	"context"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -79,12 +79,12 @@ func resourceLifecycleHookCallBackCreate(ctx context.Context, d *schema.Resource
 		return diag.Errorf("callback the AS lifecycle hook failed: %s", err)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 
 	return resourceLifecycleHookCallBackRead(ctx, d, meta)
 }

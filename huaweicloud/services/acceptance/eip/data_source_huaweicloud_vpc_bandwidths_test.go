@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -139,7 +139,7 @@ func TestAccBandWidthsDataSource_filter(t *testing.T) {
 }
 
 func testAccDataArtsStudioWorkspaces_filter(rName string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
@@ -267,5 +267,5 @@ output "is_id_filter_useful" {
 output "is_id_filter_useful_not_found" {
   value = length(data.huaweicloud_vpc_bandwidths.filter_by_id_not_found.bandwidths) == 0
 }
-`, testAccBandWidthsDataSourceBase(rName), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID, rName)
+`, testAccBandWidthsDataSourceBase(rName), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID.String(), rName)
 }

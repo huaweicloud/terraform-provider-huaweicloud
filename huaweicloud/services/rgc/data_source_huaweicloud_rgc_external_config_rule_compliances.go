@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -71,11 +71,11 @@ func dataSourceExternalConfigRuleCompliancesRead(_ context.Context, d *schema.Re
 		return diag.Errorf("error retrieving RGC external config rule compliance: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	mErr = multierror.Append(mErr,
 		d.Set("config_rule_compliances", utils.PathSearch("config_rule_compliances", listConfigRuleCompliancesRespBody, nil)),

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -100,8 +100,8 @@ func listProviderProtocols(iamV3Client *golangsdk.ServiceClient, d *schema.Resou
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	protocolsBody := utils.PathSearch("protocols", respBody, make([]interface{}, 0)).([]interface{})
 	protocols := make([]interface{}, 0, len(protocolsBody))
 	for _, protocol := range protocolsBody {
@@ -124,8 +124,8 @@ func showProviderProtocol(iamV3Client *golangsdk.ServiceClient, d *schema.Resour
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	protocolBody := utils.PathSearch("protocol", respBody, make([]interface{}, 0))
 	protocols := append(make([]interface{}, 0, 1), flattenProtocol(protocolBody))
 	if err = d.Set("protocols", protocols); err != nil {

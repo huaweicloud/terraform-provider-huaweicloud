@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -116,7 +116,7 @@ func resourcePrivateModuleCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -124,7 +124,7 @@ func resourcePrivateModuleCreate(ctx context.Context, d *schema.ResourceData, me
 	requestPath := client.Endpoint + httpUrl
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": uuid.String(),
 		},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreatePrivateModuleBodyParams(d)),
@@ -169,12 +169,12 @@ func resourcePrivateModuleRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
 
-	respBody, err := QueryPrivateModule(client, d.Id(), uuid)
+	respBody, err := QueryPrivateModule(client, d.Id(), uuid.String())
 	if err != nil {
 		// If the resource does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving RFS private module")
@@ -203,7 +203,7 @@ func resourcePrivateModuleUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -212,7 +212,7 @@ func resourcePrivateModuleUpdate(ctx context.Context, d *schema.ResourceData, me
 	requestPath = strings.ReplaceAll(requestPath, "{module_name}", d.Id())
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": uuid.String(),
 		},
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
@@ -240,7 +240,7 @@ func resourcePrivateModuleDelete(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -249,7 +249,7 @@ func resourcePrivateModuleDelete(_ context.Context, d *schema.ResourceData, meta
 	requestPath = strings.ReplaceAll(requestPath, "{module_name}", d.Id())
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": uuid.String(),
 		},
 		KeepResponseBody: true,
 	}

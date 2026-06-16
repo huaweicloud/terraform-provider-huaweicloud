@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -113,11 +113,11 @@ func resourceMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error resetting message offset of the consumer group (%s): %s", consumerGroup, err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	// when topic is empty string, reset all topic, and a job will be created
 	if _, ok := d.GetOk("topic"); !ok {

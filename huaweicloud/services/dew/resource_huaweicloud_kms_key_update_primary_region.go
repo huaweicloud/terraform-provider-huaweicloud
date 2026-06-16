@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -84,12 +84,12 @@ func resourceKeyUpdatePrimaryRegionCreate(_ context.Context, d *schema.ResourceD
 		return diag.Errorf("error updating KMS key primary region: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return nil
 }

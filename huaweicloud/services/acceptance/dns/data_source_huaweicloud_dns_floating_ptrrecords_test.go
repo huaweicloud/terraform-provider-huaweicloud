@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -99,7 +99,7 @@ func TestAccDataFloatingPtrRecords_basic(t *testing.T) {
 }
 
 func testAccDataFloatingPtrRecords_basic(domainName string) string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
@@ -278,5 +278,5 @@ locals {
 output "is_status_filter_useful" {
   value = length(local.status_filter_result) > 0 && alltrue(local.status_filter_result)
 }
-`, testAccPtrRecord_base(), domainName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randomId)
+`, testAccPtrRecord_base(), domainName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randomId.String())
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -104,12 +104,12 @@ func dataSourceHostGroupsRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error querying HSS host groups: %s", err)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(dataSourceId)
+	d.SetId(dataSourceId.String())
 
 	targetGroups := filterHostGroups(allHostGroups, d)
 	mErr := multierror.Append(nil,

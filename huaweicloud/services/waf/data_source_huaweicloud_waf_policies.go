@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -196,11 +196,11 @@ func dataSourceWafPoliciesRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error retrieving WAF policies, %s", err)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 
 	mErr := multierror.Append(
 		nil,

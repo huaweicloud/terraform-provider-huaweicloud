@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -33,7 +33,7 @@ func TestAccClusterEipAssociate_basic(t *testing.T) {
 		rc    = acceptance.InitResourceCheck(rName, &obj, getClusterAssociatedEipFunc)
 
 		name          = acceptance.RandomAccResourceName()
-		randomUUID, _ = uuid.GenerateUUID()
+		randomUUID, _ = uuid.NewRandom()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,9 +45,8 @@ func TestAccClusterEipAssociate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testClusterEipAssociate_nonExistentEip(randomUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`error associating EIP \(%s\) to the DWS cluster \(%s\)`,
-					randomUUID, acceptance.HW_DWS_CLUSTER_ID)),
+				Config:      testClusterEipAssociate_nonExistentEip(randomUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`error associating EIP \(%s\) to the DWS cluster \(%s\)`, randomUUID.String(), acceptance.HW_DWS_CLUSTER_ID)),
 			},
 			{
 				Config: testClusterEipAssociate_basic(name),

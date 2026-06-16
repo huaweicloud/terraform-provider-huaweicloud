@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -139,11 +139,11 @@ func resourceWorkloadQueuesRead(_ context.Context, d *schema.ResourceData, meta 
 	queuesListJson := utils.PathSearch("workload_queue_name_list", getRespBody, make([]interface{}, 0))
 	queuesList := queuesListJson.([]interface{})
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

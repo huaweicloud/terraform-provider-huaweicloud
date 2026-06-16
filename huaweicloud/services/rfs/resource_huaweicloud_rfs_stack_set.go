@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -158,7 +158,7 @@ func resourceStackSetCreate(ctx context.Context, d *schema.ResourceData, meta in
 		cfg          = meta.(*config.Config)
 		region       = cfg.GetRegion(d)
 		httpUrl      = "v1/stack-sets"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 		stackSetName = d.Get("stack_set_name").(string)
 	)
 
@@ -172,7 +172,7 @@ func resourceStackSetCreate(ctx context.Context, d *schema.ResourceData, meta in
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateStackSetBodyParams(d)),
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -222,7 +222,7 @@ func buildManagedOperationParams(d *schema.ResourceData) map[string]interface{} 
 func QueryStackSetMetaData(client *golangsdk.ServiceClient, stackSetName string) (interface{}, error) {
 	var (
 		httpUrl      = "v1/stack-sets/{stack_set_name}/metadata"
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{stack_set_name}", stackSetName)
@@ -230,7 +230,7 @@ func QueryStackSetMetaData(client *golangsdk.ServiceClient, stackSetName string)
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	requestResp, err := client.Request("GET", requestPath, &opt)
@@ -304,7 +304,7 @@ func resourceStackSetUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -315,7 +315,7 @@ func resourceStackSetUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		JSONBody: utils.RemoveNil(buildUpdateStackSetBodyParams(d)),
 	}
@@ -347,7 +347,7 @@ func resourceStackSetDelete(_ context.Context, d *schema.ResourceData, meta inte
 		region       = cfg.GetRegion(d)
 		httpUrl      = "v1/stack-sets/{stack_set_name}"
 		stackSetName = d.Get("stack_set_name").(string)
-		requestId, _ = uuid.GenerateUUID()
+		requestId, _ = uuid.NewRandom()
 	)
 	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
@@ -360,7 +360,7 @@ func resourceStackSetDelete(_ context.Context, d *schema.ResourceData, meta inte
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 	_, err = client.Request("DELETE", deletePath, &opt)

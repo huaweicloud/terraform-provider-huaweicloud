@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -37,7 +37,7 @@ func TestAccArchitectureApprovalsBatchAction_basic(t *testing.T) {
 }
 
 func testAccArchitectureApprovalsBatchAction_nonExistentWorkspace() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_approvals_batch_action" "non_existent_workspace" {
@@ -45,11 +45,11 @@ resource "huaweicloud_dataarts_architecture_approvals_batch_action" "non_existen
   approval_ids = "%[1]s"
   action       = "recall"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testAccArchitectureApprovalsBatchAction_nonExistentAction() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_approvals_batch_action" "non_existent_action" {
@@ -57,7 +57,7 @@ resource "huaweicloud_dataarts_architecture_approvals_batch_action" "non_existen
   approval_ids = "%[1]s"
   action       = "%[1]s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testAccArchitectureApprovalsBatchAction_basic_base(name string) string {

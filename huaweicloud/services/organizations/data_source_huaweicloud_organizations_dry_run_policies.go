@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -150,12 +150,12 @@ func dataSourceDryRunPoliciesRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error retrieving dry run policies: %s", err)
 	}
 
-	dataSourceID, err := uuid.GenerateUUID()
+	dataSourceID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(dataSourceID)
+	d.SetId(dataSourceID.String())
 
 	return diag.FromErr(d.Set("policies", flattenDryRunPolicies(policies)))
 }

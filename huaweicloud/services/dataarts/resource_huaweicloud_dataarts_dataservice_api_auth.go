@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -127,11 +127,11 @@ func resourceDataServiceApiAuthCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("failed to authorize APP(s) to access API (%s): %s", d.Get("api_id").(string), err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceDataServiceApiAuthRead(ctx, d, meta)
 }

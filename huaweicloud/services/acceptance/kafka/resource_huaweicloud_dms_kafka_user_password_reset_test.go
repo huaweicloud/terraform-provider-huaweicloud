@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -34,14 +34,14 @@ func TestAccUserPasswordReset_basic(t *testing.T) {
 }
 
 func testAccUserPasswordReset_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dms_kafka_user_password_reset" "test" {
   instance_id  = "%[1]s"
   user_name    = "instance_not_found"
   new_password = "%[2]s"
 }
-`, randomId, acceptance.RandomPassword())
+`, randomId.String(), acceptance.RandomPassword())
 }
 
 func testAccUserPasswordReset_basic() string {

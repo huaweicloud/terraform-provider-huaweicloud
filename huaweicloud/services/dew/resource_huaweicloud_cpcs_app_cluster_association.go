@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -170,11 +170,11 @@ func resourceCpcsAppClusterAssociationCreate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error creating the association between DEW CPCS application and cluster: %s", err)
 	}
 
-	generateId, err := uuid.GenerateUUID()
+	generateId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
-	d.SetId(generateId)
+	d.SetId(generateId.String())
 
 	if err := waitingForCpcsAppClusterAssociationSuccess(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for DEW CPCS application cluster association to be created: %s", err)

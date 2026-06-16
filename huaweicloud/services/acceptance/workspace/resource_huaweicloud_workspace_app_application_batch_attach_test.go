@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -13,7 +13,7 @@ import (
 
 func TestAccResourceAppApplicationBatchAttach_basic(t *testing.T) {
 	var (
-		randUUID, _  = uuid.GenerateUUID()
+		randUUID, _  = uuid.NewRandom()
 		name         = acceptance.RandomAccResourceName()
 		resourceName = "huaweicloud_workspace_app_application_batch_attach.test"
 	)
@@ -36,8 +36,8 @@ func TestAccResourceAppApplicationBatchAttach_basic(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccResourceAppApplicationBatchAttach_expectError(randUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("'%s' is a non-existing cloud application server", randUUID)),
+				Config:      testAccResourceAppApplicationBatchAttach_expectError(randUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("'%s' is a non-existing cloud application server", randUUID.String())),
 			},
 			{
 				Config: testAccResourceAppApplicationBatchAttach_basic(name),

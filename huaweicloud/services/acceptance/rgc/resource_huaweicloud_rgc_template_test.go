@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -37,14 +37,14 @@ func getTemplateResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 		listTemplatePath := listTemplateClient.Endpoint + listTemplateHttpUrl + buildTemplateQueryParams(marker)
 		listTemplatePath = strings.ReplaceAll(listTemplatePath, "{project_id}", projectId)
 
-		randUUID, err := uuid.GenerateUUID()
+		randUUID, err := uuid.NewRandom()
 		if err != nil {
 			return nil, fmt.Errorf("unable to generate ID: %s", err)
 		}
 		listTemplateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			MoreHeaders: map[string]string{
-				"Client-Request-Id": randUUID,
+				"Client-Request-Id": randUUID.String(),
 				"Content-Type":      "application/json",
 				"X-Language":        "en-us",
 			},

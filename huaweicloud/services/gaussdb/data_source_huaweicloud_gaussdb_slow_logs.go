@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -127,11 +127,11 @@ func dataSourceGaussDBMysqlSlowLogsRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+	d.SetId(dataSourceId.String())
 
 	mErr = multierror.Append(
 		mErr,

@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -64,11 +64,11 @@ func dataSourceVolumeSummaryRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error querying CBR vaults summary: %s", err)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+	d.SetId(dataSourceId.String())
 
 	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {

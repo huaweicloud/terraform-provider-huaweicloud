@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -111,11 +111,11 @@ func resourceAppWhitelistPolicyProcessCreate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error marking app whitelist policy process status: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return resourceAppWhitelistPolicyProcessRead(ctx, d, meta)
 }

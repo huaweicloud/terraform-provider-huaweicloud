@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk/openstack/dayu/v1/instances"
@@ -127,7 +127,7 @@ func TestAccDataSourceWorkspaces_filer(t *testing.T) {
 }
 
 func testAccDataArtsStudioWorkspaces_filter(rName string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
@@ -211,5 +211,5 @@ output "is_created_by_filter_useful" {
 output "is_created_by_filter_useful_not_found" {
   value = length(data.huaweicloud_dataarts_studio_workspaces.filter_by_created_by_not_found.workspaces) == 0
 }
-`, testAccInstance_basic(rName), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID, rName)
+`, testAccInstance_basic(rName), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID.String(), rName)
 }

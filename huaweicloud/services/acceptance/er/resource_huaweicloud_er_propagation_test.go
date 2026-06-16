@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -93,7 +93,7 @@ func testAccPropagationImportStateFunc(rsName string) resource.ImportStateIdFunc
 }
 
 func testAccPropagation_nonExistentParentResources() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_er_propagation" "test" {
@@ -101,7 +101,7 @@ resource "huaweicloud_er_propagation" "test" {
   route_table_id = "%[1]s"
   attachment_id  = "%[1]s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccPropagation_base(name string) string {

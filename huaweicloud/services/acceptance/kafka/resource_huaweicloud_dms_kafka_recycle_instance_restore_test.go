@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -32,12 +32,12 @@ func TestAccResourceRecycleInstanceRestore_basic(t *testing.T) {
 }
 
 func testAccResourceRecycleInstanceRestore_instanceNotFound() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dms_kafka_recycle_instance_restore" "test" {
   instance_id = "%s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccResourceRecycleInstanceRestore_basic() string {

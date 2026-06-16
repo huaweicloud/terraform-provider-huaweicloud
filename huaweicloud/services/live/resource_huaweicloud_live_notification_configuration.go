@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -81,12 +81,12 @@ func resourceNotificationConfigCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating notification configuration: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceNotificationConfigRead(ctx, d, meta)
 }
@@ -218,12 +218,12 @@ func resourceNotificationConfigImportState(_ context.Context, d *schema.Resource
 		return nil, fmt.Errorf("invalid format specified for import ID, 'domain_name' is empty")
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("domain_name", importedId),

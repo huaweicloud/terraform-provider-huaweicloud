@@ -5,7 +5,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -47,11 +47,11 @@ func dataSourceIdentityKeystoneMetadataFileRead(_ context.Context, d *schema.Res
 	if err != nil {
 		return diag.Errorf("error keystoneMetadataFile: %s", err)
 	}
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generate UUID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -94,12 +94,12 @@ func resourceDisablePushStreamCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating disabled push stream: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceDisablePushStreamRead(ctx, d, meta)
 }
@@ -260,12 +260,12 @@ func resourceDisablePushStreamImportState(_ context.Context, d *schema.ResourceD
 			importedId)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("domain_name", parts[0]),

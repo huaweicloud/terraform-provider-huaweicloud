@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -13,7 +13,7 @@ import (
 func TestAccDataSourceApplicationAssignments_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_identitycenter_application_assignments.test"
 	name := acceptance.RandomAccResourceName()
-	uuid, _ := uuid.GenerateUUID()
+	uuid, _ := uuid.NewRandom()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,7 +25,7 @@ func TestAccDataSourceApplicationAssignments_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceApplicationAssignments_basic(name, uuid),
+				Config: testDataSourceApplicationAssignments_basic(name, uuid.String()),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "application_assignments.#"),

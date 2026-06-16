@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -128,12 +128,12 @@ func resourceWafBatchCreateGeoipRulesCreate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error batch creating WAF geoip rules: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceWafBatchCreateGeoipRulesRead(ctx, d, meta)
 }

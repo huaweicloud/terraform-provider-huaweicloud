@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -120,7 +120,7 @@ func TestAccDataCustomEventChannels_filterById(t *testing.T) {
 }
 
 func testAccDataCustomEventChannels_filterById() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -151,7 +151,7 @@ output "is_id_filter_useful" {
 output "id_not_found_validation_pass" {
   value = length(data.huaweicloud_eg_custom_event_channels.id_not_found.channels) == 0
 }
-`, testAccDataCustomEventChannels_base(), randUUID)
+`, testAccDataCustomEventChannels_base(), randUUID.String())
 }
 
 func TestAccDataCustomEventChannels_filterByEpsId(t *testing.T) {
@@ -200,7 +200,7 @@ resource "huaweicloud_eg_custom_event_channel" "test" {
 }
 
 func testAccDataCustomEventChannels_filterByEpsId() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -235,7 +235,7 @@ output "is_eps_id_filter_useful" {
 output "eps_id_not_found_validation_pass" {
   value = length(data.huaweicloud_eg_custom_event_channels.eps_id_not_found.channels) == 0
 }
-`, testAccDataCustomEventChannels_base_withEpsId(), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID)
+`, testAccDataCustomEventChannels_base_withEpsId(), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID.String())
 }
 
 func TestAccDataCustomEventChannels_fuzzyName(t *testing.T) {

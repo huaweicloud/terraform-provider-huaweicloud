@@ -3,8 +3,8 @@ package vpn
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -112,11 +112,11 @@ func datasourceConnectionHealthChecksRead(_ context.Context, d *schema.ResourceD
 		chk = append(chk, flattenGetVpnConnectionHealthCheck(check))
 	}
 
-	uuidStr, err := uuid.GenerateUUID()
+	uuidStr, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuidStr)
+	d.SetId(uuidStr.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

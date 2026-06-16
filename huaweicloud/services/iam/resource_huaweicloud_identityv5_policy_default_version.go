@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -74,11 +74,11 @@ func resourceV5PolicyDefaultVersionCreate(_ context.Context, d *schema.ResourceD
 		return diag.Errorf("error setting default version (%s) for identity policy (%s): %s", versionId, policyId, err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	return nil
 }

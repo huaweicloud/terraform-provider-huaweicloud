@@ -3,8 +3,8 @@ package iam
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/tidwall/gjson"
@@ -113,11 +113,11 @@ func dataSourceV5AccountSummaryRead(_ context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	err = wrapper.getAccountSummaryV5ToSchema(getAccSumV5Rst)
 	if err != nil {
