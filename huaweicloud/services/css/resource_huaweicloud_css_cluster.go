@@ -2066,7 +2066,7 @@ func checkClusterCreateResult(ctx context.Context, client *golangsdk.ServiceClie
 			if err != nil {
 				return nil, "failed", err
 			}
-			return resp, utils.PathSearch("status", resp, nil).(string), err
+			return resp, utils.PathSearch("status", resp, "").(string), err
 		},
 		Timeout:      timeout,
 		PollInterval: 10 * timeout,

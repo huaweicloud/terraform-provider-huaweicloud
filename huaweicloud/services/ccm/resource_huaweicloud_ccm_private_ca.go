@@ -546,7 +546,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 			"error retrieving CCM private CA")
 	}
 
-	status := utils.PathSearch("status", getRespBody, nil).(string)
+	status := utils.PathSearch("status", getRespBody, "").(string)
 	if status == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving private CA")
 	}

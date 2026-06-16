@@ -118,7 +118,7 @@ func dataSourceCdmFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("version", utils.PathSearch("name", cdmFlavor, nil)),
-		d.Set("flavors", flattenFlavors(utils.PathSearch("flavors", cdmFlavor, nil))),
+		d.Set("flavors", flattenFlavors(utils.PathSearch("flavors", cdmFlavor, make([]interface{}, 0)))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

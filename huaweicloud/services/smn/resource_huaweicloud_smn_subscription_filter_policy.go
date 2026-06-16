@@ -279,7 +279,7 @@ func buildFilterPolicies(filterPolicies []interface{}) []map[string]interface{} 
 	for i, v := range filterPolicies {
 		opts[i] = map[string]interface{}{
 			"name":          utils.PathSearch("name", v, nil),
-			"string_equals": utils.PathSearch("string_equals", v, nil).(*schema.Set).List(),
+			"string_equals": utils.PathSearch("string_equals", v, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
 		}
 	}
 	return opts

@@ -301,7 +301,7 @@ func resourceWorkLoadPlanStageRead(_ context.Context, d *schema.ResourceData, me
 	respErrCode := utils.PathSearch("error_code", respBody, "")
 	if respErrCode != "" {
 		// When stage ID is invalid, api return workload_res_code 110.
-		workloadResCode := utils.PathSearch("workload_res_code", respBody, "").(float64)
+		workloadResCode := utils.PathSearch("workload_res_code", respBody, float64(0)).(float64)
 		if workloadResCode == 110 {
 			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DWS workload plan stage")
 		}
@@ -389,7 +389,7 @@ func resourceWorkLoadPlanStageDelete(_ context.Context, d *schema.ResourceData, 
 	// The workload_res_code 103 means plan not exists, 110 means stage not exists.
 	respErrCode := utils.PathSearch("error_code", respBody, "")
 	if respErrCode != "" {
-		workloadResCode := utils.PathSearch("workload_res_code", respBody, "").(float64)
+		workloadResCode := utils.PathSearch("workload_res_code", respBody, float64(0)).(float64)
 		if workloadResCode == 110 || workloadResCode == 103 {
 			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DWS workload plan stage")
 		}

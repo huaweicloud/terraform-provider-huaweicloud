@@ -364,7 +364,7 @@ func refreshAppServerJobStatusFunc(client *golangsdk.ServiceClient, jobId string
 			return resp, "ERROR", err
 		}
 
-		return respBody, utils.PathSearch("status", respBody, nil).(string), nil
+		return respBody, utils.PathSearch("status", respBody, "").(string), nil
 	}
 }
 

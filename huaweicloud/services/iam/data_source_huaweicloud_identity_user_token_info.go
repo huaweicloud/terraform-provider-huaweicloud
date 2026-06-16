@@ -215,14 +215,14 @@ func flattenResponse(tokenModel interface{}, noCatalog string, d *schema.Resourc
 		d.Set("methods", utils.PathSearch("methods", tokenModel, nil)),
 		d.Set("domain", flattenDomain(utils.PathSearch("domain", tokenModel, nil))),
 		d.Set("project", flattenProject(utils.PathSearch("project", tokenModel, nil))),
-		d.Set("roles", flattenRoles(utils.PathSearch("roles", tokenModel, nil))),
+		d.Set("roles", flattenRoles(utils.PathSearch("roles", tokenModel, make([]interface{}, 0)))),
 		d.Set("user", flattenUser(utils.PathSearch("user", tokenModel, nil))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.FromErr(err)
 	}
 	if noCatalog != "true" {
-		if e := d.Set("catalog", flattenCatalog(utils.PathSearch("catalog", tokenModel, nil))); e != nil {
+		if e := d.Set("catalog", flattenCatalog(utils.PathSearch("catalog", tokenModel, make([]interface{}, 0)))); e != nil {
 			return diag.Errorf("error setting token fields catalog: %s", e)
 		}
 	}
@@ -234,10 +234,10 @@ func flattenCatalog(catalogs interface{}) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(catalogsArr))
 	for i, catalog := range catalogsArr {
 		res[i] = map[string]interface{}{
-			"endpoints": flattenEndpoints(utils.PathSearch("endpoints", catalog, nil)),
-			"id":        utils.PathSearch("id", catalog, nil).(string),
-			"name":      utils.PathSearch("name", catalog, nil).(string),
-			"type":      utils.PathSearch("type", catalog, nil).(string),
+			"endpoints": flattenEndpoints(utils.PathSearch("endpoints", catalog, make([]interface{}, 0))),
+			"id":        utils.PathSearch("id", catalog, nil),
+			"name":      utils.PathSearch("name", catalog, nil),
+			"type":      utils.PathSearch("type", catalog, nil),
 		}
 	}
 	return res
@@ -248,11 +248,11 @@ func flattenEndpoints(endpoints interface{}) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(endpointsArr))
 	for i, endpoint := range endpointsArr {
 		res[i] = map[string]interface{}{
-			"id":        utils.PathSearch("id", endpoint, nil).(string),
-			"interface": utils.PathSearch("interface", endpoint, nil).(string),
-			"region":    utils.PathSearch("region", endpoint, nil).(string),
-			"region_id": utils.PathSearch("region_id", endpoint, nil).(string),
-			"url":       utils.PathSearch("url", endpoint, nil).(string),
+			"id":        utils.PathSearch("id", endpoint, nil),
+			"interface": utils.PathSearch("interface", endpoint, nil),
+			"region":    utils.PathSearch("region", endpoint, nil),
+			"region_id": utils.PathSearch("region_id", endpoint, nil),
+			"url":       utils.PathSearch("url", endpoint, nil),
 		}
 	}
 	return res
@@ -263,8 +263,8 @@ func flattenDomain(domain interface{}) map[string]interface{} {
 		return nil
 	}
 	res := map[string]interface{}{
-		"id":   utils.PathSearch("id", domain, nil).(string),
-		"name": utils.PathSearch("name", domain, nil).(string),
+		"id":   utils.PathSearch("id", domain, nil),
+		"name": utils.PathSearch("name", domain, nil),
 	}
 	return res
 }
@@ -276,8 +276,8 @@ func flattenProject(projects interface{}) []map[string]interface{} {
 	res := []map[string]interface{}{
 		{
 			"domain": flattenProjectDomain(utils.PathSearch("domain", projects, nil)),
-			"id":     utils.PathSearch("id", projects, nil).(string),
-			"name":   utils.PathSearch("name", projects, nil).(string),
+			"id":     utils.PathSearch("id", projects, nil),
+			"name":   utils.PathSearch("name", projects, nil),
 		},
 	}
 	return res
@@ -288,8 +288,8 @@ func flattenProjectDomain(domain interface{}) map[string]interface{} {
 		return nil
 	}
 	res := map[string]interface{}{
-		"id":   utils.PathSearch("id", domain, nil).(string),
-		"name": utils.PathSearch("name", domain, nil).(string),
+		"id":   utils.PathSearch("id", domain, nil),
+		"name": utils.PathSearch("name", domain, nil),
 	}
 	return res
 }
@@ -299,8 +299,8 @@ func flattenRoles(roles interface{}) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(rolesArr))
 	for i, role := range rolesArr {
 		res[i] = map[string]interface{}{
-			"id":   utils.PathSearch("id", role, nil).(string),
-			"name": utils.PathSearch("name", role, nil).(string),
+			"id":   utils.PathSearch("id", role, nil),
+			"name": utils.PathSearch("name", role, nil),
 		}
 	}
 	return res
@@ -313,9 +313,9 @@ func flattenUser(user interface{}) []map[string]interface{} {
 	res := []map[string]interface{}{
 		{
 			"domain":              flattenUserDomain(utils.PathSearch("domain", user, nil)),
-			"id":                  utils.PathSearch("id", user, nil).(string),
-			"name":                utils.PathSearch("name", user, nil).(string),
-			"password_expires_at": utils.PathSearch("password_expires_at", user, nil).(string),
+			"id":                  utils.PathSearch("id", user, nil),
+			"name":                utils.PathSearch("name", user, nil),
+			"password_expires_at": utils.PathSearch("password_expires_at", user, nil),
 		},
 	}
 	return res
@@ -326,8 +326,8 @@ func flattenUserDomain(domain interface{}) map[string]interface{} {
 		return nil
 	}
 	res := map[string]interface{}{
-		"id":   utils.PathSearch("id", domain, nil).(string),
-		"name": utils.PathSearch("name", domain, nil).(string),
+		"id":   utils.PathSearch("id", domain, nil),
+		"name": utils.PathSearch("name", domain, nil),
 	}
 	return res
 }

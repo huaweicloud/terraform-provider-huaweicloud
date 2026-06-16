@@ -348,7 +348,7 @@ func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, me
 func backfillUpdateBodyParams(playbookVersion interface{}) map[string]interface{} {
 	bodyParam := map[string]interface{}{
 		"description":       utils.PathSearch("description", playbookVersion, "").(string),
-		"dataclass_id":      utils.PathSearch("dataclass_id", playbookVersion, nil).(string),
+		"dataclass_id":      utils.PathSearch("dataclass_id", playbookVersion, "").(string),
 		"rule_enable":       utils.PathSearch("rule_enable", playbookVersion, false).(bool),
 		"rule_id":           utils.PathSearch("rule_id", playbookVersion, "").(string),
 		"trigger_type":      utils.PathSearch("trigger_type", playbookVersion, "").(string),

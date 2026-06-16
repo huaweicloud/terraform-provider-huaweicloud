@@ -355,13 +355,13 @@ func flattenGetDDSInstancesResponseBodyInstance(resp interface{}, client *golang
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
-		id := utils.PathSearch("id", v, nil)
+		id := utils.PathSearch("id", v, "")
 
 		sslEnable := true
 		if utils.PathSearch("ssl", v, nil) == 0 {
 			sslEnable = false
 		}
-		portStr := utils.PathSearch("port", v, nil)
+		portStr := utils.PathSearch("port", v, "")
 		port, err := strconv.Atoi(portStr.(string))
 		if err != nil {
 			log.Printf("[WARNING] Port %s invalid, Type conversion error: %s", portStr, err)

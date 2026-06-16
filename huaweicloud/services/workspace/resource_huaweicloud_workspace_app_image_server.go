@@ -388,7 +388,7 @@ func refreshImageServerJobStatusFunc(client *golangsdk.ServiceClient, jobId stri
 			return resp, "ERROR", err
 		}
 
-		return respBody, utils.PathSearch("status", respBody, nil).(string), nil
+		return respBody, utils.PathSearch("status", respBody, "").(string), nil
 	}
 }
 

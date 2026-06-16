@@ -276,7 +276,7 @@ func flattenListConnections(resp interface{}) []interface{} {
 			"queues":                 flattenQueues(utils.PathSearch("available_queue_info", v, make([]interface{}, 0))),
 			"vpc_id":                 utils.PathSearch("dest_vpc_id", v, nil),
 			"subnet_id":              utils.PathSearch("dest_network_id", v, nil),
-			"is_privis":              utils.PathSearch("isPrivis", v, nil).(bool),
+			"is_privis":              utils.PathSearch("isPrivis", v, false).(bool),
 			"created_at":             getFormatTime("create_time", v),
 			"hosts":                  flattenHosts(utils.PathSearch("hosts", v, make([]interface{}, 0))),
 			"elastic_resource_pools": flattenResourcePools(utils.PathSearch("elastic_resource_pools", v, make([]interface{}, 0))),

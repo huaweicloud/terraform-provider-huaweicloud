@@ -390,7 +390,7 @@ func resourceGlobalEIPAssociateRead(_ context.Context, d *schema.ResourceData, m
 
 	mErr := multierror.Append(nil,
 		d.Set("global_eip_id", d.Id()),
-		d.Set("associate_instance", flattenAssociateInstance(utils.PathSearch("associate_instance_info", geip, nil))),
+		d.Set("associate_instance", flattenAssociateInstance(utils.PathSearch("associate_instance_info", geip, make(map[string]interface{})))),
 		d.Set("gc_bandwidth", gcbInfo),
 	)
 

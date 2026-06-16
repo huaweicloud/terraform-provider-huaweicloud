@@ -185,9 +185,9 @@ func flattenAsyncInvocations(invocations []interface{}) []map[string]interface{}
 			"error_message": utils.PathSearch("error_message", invocation, nil),
 			"error_code":    utils.PathSearch("error_code", invocation, nil),
 			"start_time": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("start_time",
-				invocation, nil).(string), "2006-01-02T15:04:05")/1000, true, "2006-01-02T15:04:05Z"),
+				invocation, "").(string), "2006-01-02T15:04:05")/1000, true, "2006-01-02T15:04:05Z"),
 			"end_time": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("end_time",
-				invocation, nil).(string), "2006-01-02T15:04:05")/1000, true, "2006-01-02T15:04:05Z"),
+				invocation, "").(string), "2006-01-02T15:04:05")/1000, true, "2006-01-02T15:04:05Z"),
 		})
 	}
 

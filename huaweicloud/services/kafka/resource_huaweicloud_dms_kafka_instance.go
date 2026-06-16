@@ -2040,7 +2040,7 @@ func updateInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceCl
 
 	for _, item := range parsedPortProtocol {
 		err := switchInstancePortProtocol(ctx, client, d, utils.PathSearch("key", item, "").(string),
-			utils.PathSearch("value", item, "").(bool))
+			utils.PathSearch("value", item, false).(bool))
 		if err != nil {
 			return fmt.Errorf("error updating port protocol instance (%s), %s", d.Id(), err)
 		}
