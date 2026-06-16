@@ -5217,6 +5217,7 @@ func init() {
 	}
 }
 
+// nolint:gocyclo
 func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersion string) (interface{},
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string

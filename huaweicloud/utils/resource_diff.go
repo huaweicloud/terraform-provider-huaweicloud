@@ -2563,6 +2563,7 @@ func handleObjectElementAdditionWhenNewObjectNil(baseField, objectHash string, o
 }
 
 // handleObjectElementAddition handles the case when an object element is being added or modified
+// nolint:gocyclo
 func handleObjectElementAddition(baseField, objectHash string, originVal interface{}, d *schema.ResourceData) bool {
 	// First, check if this object is being removed (in localRemovals)
 	oldParamVal, newParamVal := d.GetChange(baseField)

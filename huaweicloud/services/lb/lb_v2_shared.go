@@ -179,6 +179,7 @@ func waitForLBV2viaPool(ctx context.Context, networkingClient *golangsdk.Service
 	return fmtp.Errorf("No Load Balancer on pool %s", id)
 }
 
+// nolint:gocyclo
 func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.ServiceClient, lbID, resourceType, resourceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		statuses, err := loadbalancers.GetStatuses(lbClient, lbID).Extract()

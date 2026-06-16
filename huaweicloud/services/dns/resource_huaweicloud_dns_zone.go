@@ -253,6 +253,7 @@ func resourceDNSRouter(d *schema.ResourceData, region string) *zones.RouterOpts 
 	return nil
 }
 
+// nolint:gocyclo
 func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

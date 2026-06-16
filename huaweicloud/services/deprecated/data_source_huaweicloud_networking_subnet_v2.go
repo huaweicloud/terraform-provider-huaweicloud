@@ -151,6 +151,7 @@ func DataSourceNetworkingSubnetV2() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))

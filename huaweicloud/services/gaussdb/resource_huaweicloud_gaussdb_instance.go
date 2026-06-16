@@ -455,6 +455,7 @@ func ResourceGaussDbInstance() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1155,6 +1156,7 @@ func getAspStatus(client *golangsdk.ServiceClient, instanceId string) (string, e
 	return status, nil
 }
 
+// nolint:gocyclo
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

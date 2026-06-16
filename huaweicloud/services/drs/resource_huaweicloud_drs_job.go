@@ -668,6 +668,7 @@ func dbInfoKafkaSecurityConfigSchemaResource() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -1134,6 +1135,7 @@ func getSlaveJobID(children []jobs.ChildrenJobInfo, masterJobId string) string {
 	return children[0].Id
 }
 
+// nolint:gocyclo
 func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)

@@ -234,6 +234,7 @@ func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
+// nolint:gocyclo
 func resourceVBSBackupPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))

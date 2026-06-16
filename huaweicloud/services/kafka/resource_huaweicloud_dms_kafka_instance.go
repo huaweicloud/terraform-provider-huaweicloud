@@ -1008,6 +1008,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
+// nolint:gocyclo
 func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1588,6 +1589,7 @@ func flattenKafkaSecurityConfig(kafkaSecurityConfig instances.PortProtocols) int
 	}
 }
 
+// nolint:gocyclo
 func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))

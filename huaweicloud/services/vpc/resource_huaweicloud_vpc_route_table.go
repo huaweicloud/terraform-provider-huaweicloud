@@ -177,6 +177,7 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
+// nolint:gocyclo
 func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))

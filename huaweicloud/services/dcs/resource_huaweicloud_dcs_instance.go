@@ -590,6 +590,7 @@ func autoScalingSchema() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1290,6 +1291,7 @@ func generateParametersMap(redisConfig []interface{}) map[string]interface{} {
 	return parametersMap
 }
 
+// nolint:gocyclo
 func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

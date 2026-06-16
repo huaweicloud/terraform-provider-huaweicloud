@@ -560,6 +560,7 @@ func geminiDbInstanceAutomaticScalePolicSchema() *schema.Resource {
 	return &sc
 }
 
+// nolint:gocyclo
 func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1302,6 +1303,7 @@ func getPasswordFreeConfigurationInfo(d *schema.ResourceData, client *golangsdk.
 	return d.Set("config_ips", utils.PathSearch("config_ips", getRespBody, make([]interface{}, 0)).([]interface{}))
 }
 
+// nolint:gocyclo
 func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

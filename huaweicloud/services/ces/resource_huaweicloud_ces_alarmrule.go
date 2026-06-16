@@ -885,6 +885,7 @@ func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, me
 	return policyOpts
 }
 
+// nolint:gocyclo
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

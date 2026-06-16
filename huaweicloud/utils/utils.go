@@ -167,9 +167,12 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 
 	// The error is intentionally ignored here to allow empty policies to passthrough validation.
 	// This covers any interpolated values
-	bytes, _ := json.Marshal(j)
+	result, err := json.Marshal(j)
+	if err != nil {
+		return s, err
+	}
 
-	return string(bytes[:]), nil
+	return string(result), nil
 }
 
 // FindSliceExtraElems returns a list containing the extra keys in source compared to target.

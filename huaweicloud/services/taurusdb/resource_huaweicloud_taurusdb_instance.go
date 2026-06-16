@@ -602,6 +602,7 @@ func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID
 	}
 }
 
+// nolint:gocyclo
 func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
@@ -1322,6 +1323,7 @@ func setMultiTenantSwitch(d *schema.ResourceData, client *golangsdk.ServiceClien
 	return d.Set("multi_tenant_switch", multiTenantSwitch)
 }
 
+// nolint:gocyclo
 func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

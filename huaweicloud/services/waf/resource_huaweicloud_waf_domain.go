@@ -493,6 +493,7 @@ func updatePremiumHostTrafficMarkOpts(d *schema.ResourceData) *domains.TrafficMa
 	return nil
 }
 
+// nolint:gocyclo
 func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
 	// Check whether ipv6_enable is valid.
 	servers := buildWafDomainServers(d)

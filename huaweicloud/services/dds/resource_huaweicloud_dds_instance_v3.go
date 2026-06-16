@@ -521,6 +521,7 @@ func buildChargeInfoParams(d *schema.ResourceData) instances.ChargeInfo {
 	return chargeInfo
 }
 
+// nolint:gocyclo
 func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
@@ -973,6 +974,7 @@ func buildPolicyInfoBodyParams(policyInfo []interface{}, instanceId string) []ma
 	return policy
 }
 
+// nolint:gocyclo
 func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
@@ -1225,6 +1227,7 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
+// nolint:gocyclo
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	instanceId := d.Id()

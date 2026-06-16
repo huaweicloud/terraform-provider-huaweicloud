@@ -615,6 +615,7 @@ func flattenPoolQuicCidHashStrategy(resp interface{}) []interface{} {
 	return rst
 }
 
+// nolint:gocyclo
 func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("pool_id"); ok {

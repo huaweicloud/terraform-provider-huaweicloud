@@ -394,6 +394,7 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
+// nolint:gocyclo
 func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

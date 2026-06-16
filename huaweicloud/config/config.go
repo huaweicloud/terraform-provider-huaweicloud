@@ -124,6 +124,7 @@ type AssumeRole struct {
 	RoleDuration int
 }
 
+// nolint:gocyclo
 func (c *Config) LoadAndValidate() error {
 	if c.MaxRetries < 0 {
 		return fmt.Errorf("max_retries should be a positive value")

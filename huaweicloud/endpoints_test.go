@@ -493,6 +493,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	t.Logf("WAF dedicated endpoint:\t %s", actualURL)
 }
 
+// nolint:gocyclo
 func TestAccServiceEndpoints_Application(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
@@ -853,6 +854,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
+// nolint:gocyclo
 func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
@@ -1011,6 +1013,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	t.Logf("DC endpoint:\t %s", actualURL)
 }
 
+// nolint:gocyclo
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
