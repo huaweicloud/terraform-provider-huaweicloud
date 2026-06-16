@@ -3697,6 +3697,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_message_send":                     rocketmq.ResourceRocketMQMessageSend(),
 			"huaweicloud_dms_rocketmq_migration_task":                   rocketmq.ResourceDmsRocketmqMigrationTask(),
 			"huaweicloud_dms_rocketmq_node_batch_restart":               rocketmq.ResourceNodeBatchRestart(),
+			"huaweicloud_dms_rocketmq_recycle_instance_restore":         rocketmq.ResourceRecycleInstanceRestore(),
 			"huaweicloud_dms_rocketmq_topic":                            rocketmq.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":                             rocketmq.ResourceDmsRocketMQUser(),
 			"huaweicloud_dms_rocketmq_volume_auto_expand_configuration": rocketmq.ResourceVolumeAutoExpandConfiguration(),
