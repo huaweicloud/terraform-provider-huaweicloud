@@ -239,6 +239,7 @@ type updateInstanceFieldParams struct {
 	isWaitInstanceReady  bool
 }
 
+// nolint:gocyclo
 func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	params updateInstanceFieldParams) (interface{}, error) {
 	updatePath := client.Endpoint + params.httpUrl

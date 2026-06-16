@@ -574,6 +574,7 @@ func waitingForTurboSubStatusReady(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
+// nolint:gocyclo
 func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)

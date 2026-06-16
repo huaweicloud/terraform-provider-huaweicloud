@@ -693,6 +693,7 @@ func buildResourceClusterEncryptionConfig(d *schema.ResourceData) *clusters.Encr
 	return &res
 }
 
+// nolint:gocyclo
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -1009,6 +1010,7 @@ func flattenEncrytionConfig(encrytionConfig *clusters.EncryptionConfig) []map[st
 	}
 }
 
+// nolint:gocyclo
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

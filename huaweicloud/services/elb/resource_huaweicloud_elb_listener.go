@@ -312,6 +312,7 @@ func ResourceListenerV3() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
@@ -634,6 +635,7 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceListenerV3Read(ctx, d, meta)
 }
 
+// nolint:gocyclo
 func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *golangsdk.ServiceClient) diag.Diagnostics {
 	var updateOpts listeners.UpdateOpts
 	if d.HasChange("name") {

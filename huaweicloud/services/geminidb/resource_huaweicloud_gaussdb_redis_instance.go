@@ -636,6 +636,7 @@ func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
+// nolint:gocyclo
 func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

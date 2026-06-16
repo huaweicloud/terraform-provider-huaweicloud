@@ -364,6 +364,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// nolint:gocyclo
 func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	computeV2Client, err := config.ComputeV2Client(config.GetRegion(d))

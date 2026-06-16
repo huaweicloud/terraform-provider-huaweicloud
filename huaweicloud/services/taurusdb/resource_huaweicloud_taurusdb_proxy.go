@@ -271,6 +271,7 @@ func gaussDBMysqlProxyNodeSchema() *schema.Resource {
 	return &sc
 }
 
+// nolint:gocyclo
 func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -700,6 +701,7 @@ func flattenGaussDBProxyAccessControlIpList(resp interface{}) []interface{} {
 	return rst
 }
 
+// nolint:gocyclo
 func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))

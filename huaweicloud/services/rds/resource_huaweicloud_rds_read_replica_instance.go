@@ -244,6 +244,7 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

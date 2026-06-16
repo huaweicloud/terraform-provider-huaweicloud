@@ -432,6 +432,7 @@ func dataSourceElbListenersRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+// nolint:gocyclo
 func buildListListenersQueryParams(d *schema.ResourceData, enterpriseProjectId string) string {
 	res := ""
 	if v, ok := d.GetOk("loadbalancer_id"); ok {

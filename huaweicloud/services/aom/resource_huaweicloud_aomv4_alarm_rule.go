@@ -434,6 +434,7 @@ func normalizeJsonStringForSet(jsonStr string) string {
 	return normalized
 }
 
+// nolint:gocyclo
 func resourceMetricTriggerConditionHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})

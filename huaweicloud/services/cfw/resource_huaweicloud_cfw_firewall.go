@@ -844,6 +844,7 @@ func getIpsSwitchStatus(client *golangsdk.ServiceClient, objectID string) (inter
 	return status, nil
 }
 
+// nolint:gocyclo
 func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

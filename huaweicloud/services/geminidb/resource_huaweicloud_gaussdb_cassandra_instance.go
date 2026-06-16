@@ -663,6 +663,7 @@ func resourceGaussDBCassandraInstanceUpdate(ctx context.Context, d *schema.Resou
 	return resourceGeminiDBInstanceV3Update(ctx, d, meta, defaults)
 }
 
+// nolint:gocyclo
 func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}, defaults defaultValues) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

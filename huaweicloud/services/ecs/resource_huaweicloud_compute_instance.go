@@ -641,6 +641,7 @@ func getSpotDurationCount(d *schema.ResourceData) int {
 	return count
 }
 
+// nolint:gocyclo
 func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -877,6 +878,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
+// nolint:gocyclo
 func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1115,6 +1117,7 @@ func flattenEnclaveOptions(enclaveOptions *cloudservers.EnclaveOptions) []map[st
 	return res
 }
 
+// nolint:gocyclo
 func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

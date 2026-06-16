@@ -617,6 +617,7 @@ func waitingForCBHInstanceTaskCompleted(ctx context.Context, client *golangsdk.S
 	return err
 }
 
+// nolint:gocyclo
 func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                      = meta.(*config.Config)

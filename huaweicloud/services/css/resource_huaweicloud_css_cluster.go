@@ -1082,6 +1082,7 @@ func hasErrorCode(err error, expectCode string) bool {
 	return false
 }
 
+// nolint:gocyclo
 func setNodeConfigsAndAzToState(clusterDetail interface{}, d *schema.ResourceData) error {
 	instances := utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{})
 	if len(instances) == 0 {
@@ -1223,6 +1224,7 @@ func getNodeConfigMapAndAzArray(instances []interface{}) (map[string]map[string]
 	return nodeConfigMap, azArray
 }
 
+// nolint:gocyclo
 func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -2291,6 +2293,7 @@ func getFlavorList(client *golangsdk.ServiceClient) (interface{}, error) {
 	return utils.FlattenResponse(getEsFlavorResp)
 }
 
+// nolint:gocyclo
 func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *config.Config,
 	addMasterNode, addClientNode bool) error {
 	if d.HasChange("ess_node_config.0.instance_number") {

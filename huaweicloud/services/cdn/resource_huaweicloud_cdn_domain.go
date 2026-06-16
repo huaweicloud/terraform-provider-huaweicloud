@@ -2817,6 +2817,7 @@ func buildCdnDomainClientCertOpts(rawArray []interface{}) map[string]interface{}
 }
 
 // nolint
+// nolint:gocyclo
 func buildUpdateCdnDomainFullConfigsOpts(bodyParams map[string]interface{}, configs map[string]interface{}, d *schema.ResourceData) {
 	if d.HasChange("configs.0.ipv6_enable") {
 		bodyParams["ipv6_accelerate"] = buildCdnDomainIpv6AccelerateOpts(configs["ipv6_enable"].(bool))

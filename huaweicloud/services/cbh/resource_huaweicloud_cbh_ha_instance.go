@@ -229,6 +229,7 @@ func ResourceCBHHAInstance() *schema.Resource {
 	}
 }
 
+// nolint:gocyclo
 func resourceHAInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)

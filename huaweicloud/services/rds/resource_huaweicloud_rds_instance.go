@@ -609,6 +609,7 @@ func isSQLServerDatabase(d *schema.ResourceData) bool {
 	return strings.ToLower(dbType) == "sqlserver"
 }
 
+// nolint:gocyclo
 func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1314,6 +1315,7 @@ func flattenAutoScalingResponseBody(resp interface{}) []interface{} {
 	return rst
 }
 
+// nolint:gocyclo
 func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

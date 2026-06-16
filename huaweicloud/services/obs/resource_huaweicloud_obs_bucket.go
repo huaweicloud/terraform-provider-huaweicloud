@@ -498,6 +498,7 @@ func resourceObsBucketCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceObsBucketUpdate(ctx, d, meta)
 }
 
+// nolint:gocyclo
 func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -607,6 +608,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceObsBucketRead(ctx, d, meta)
 }
 
+// nolint:gocyclo
 func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -954,6 +956,7 @@ func resourceObsBucketQuotaUpdate(obsClient *obs.ObsClient, d *schema.ResourceDa
 
 }
 
+// nolint:gocyclo
 func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	lifecycleRules := d.Get("lifecycle_rule").([]interface{})
