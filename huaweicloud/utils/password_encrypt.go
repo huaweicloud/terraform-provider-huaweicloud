@@ -7,8 +7,6 @@ import (
 	"io"
 
 	"github.com/GehirnInc/crypt"
-
-	_ "github.com/GehirnInc/crypt/sha512_crypt"
 )
 
 var letters = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
