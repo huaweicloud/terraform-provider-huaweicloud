@@ -3861,6 +3861,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_health_check":   ga.ResourceHealthCheck(),
 
 			"huaweicloud_geminidb_account":                     geminidb.ResourceGeminidbAccount(),
+			"huaweicloud_geminidb_sessions_close":              geminidb.ResourceGeminiDBSessionsClose(),
 			"huaweicloud_geminidb_backup":                      geminidb.ResourceGeminiDBBackup(),
 			"huaweicloud_geminidb_backup_stop":                 geminidb.ResourceGeminiDBBackupStop(),
 			"huaweicloud_geminidb_command_disable":             geminidb.ResourceCommandDisable(),
