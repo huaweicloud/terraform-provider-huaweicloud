@@ -119,8 +119,8 @@ func resourceTaurusDBBackupsBatchDeleteCreate(_ context.Context, d *schema.Resou
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("success_count", int(utils.PathSearch("success_count", deleteRespBody, 0).(float64))),
-		d.Set("failed_count", int(utils.PathSearch("failed_count", deleteRespBody, 0).(float64))),
+		d.Set("success_count", int(utils.PathSearch("success_count", deleteRespBody, float64(0)).(float64))),
+		d.Set("failed_count", int(utils.PathSearch("failed_count", deleteRespBody, float64(0)).(float64))),
 		d.Set("failed_results", flattenBatchDeleteBackupFailedResults(deleteRespBody)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

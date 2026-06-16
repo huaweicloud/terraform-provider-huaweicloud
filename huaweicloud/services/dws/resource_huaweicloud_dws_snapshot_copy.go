@@ -91,12 +91,12 @@ func resourceSnapshotCopyCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("snapshot_id", respBody, nil)
-	if err != nil {
+	newSnapshotId := utils.PathSearch("snapshot_id", respBody, "").(string)
+	if newSnapshotId == "" {
 		return diag.Errorf("error copying DWS automated snapshot: ID is not found in API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(newSnapshotId)
 
 	return resourceSnapshotCopyRead(ctx, d, meta)
 }

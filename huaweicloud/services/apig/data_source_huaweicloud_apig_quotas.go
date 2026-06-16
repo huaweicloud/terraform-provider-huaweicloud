@@ -123,7 +123,7 @@ func flattenQuotas(quotas []interface{}) []map[string]interface{} {
 			"value":       utils.PathSearch("config_value", val, nil),
 			"description": utils.PathSearch("remark", val, nil),
 			"created_at": utils.FormatTimeStampRFC3339(int64(utils.PathSearch(
-				"config_time", val, "").(float64)/1000), false),
+				"config_time", val, float64(0)).(float64)/1000), false),
 		})
 	}
 

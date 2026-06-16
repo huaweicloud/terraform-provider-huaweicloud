@@ -408,7 +408,7 @@ func waitForVpnServerActive(ctx context.Context, client *golangsdk.ServiceClient
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status := utils.PathSearch("status", server, nil).(string)
+			status := utils.PathSearch("status", server, "").(string)
 			switch status {
 			case "ACTIVE":
 				return server, "SUCCESS", nil

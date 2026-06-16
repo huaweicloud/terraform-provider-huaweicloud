@@ -109,7 +109,8 @@ func dataSourceIdentityCenterMfaDevicesRead(_ context.Context, d *schema.Resourc
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("mfa_devices", flattenMfaDevices(utils.PathSearch("user_mfa_devices_entry_list|[0].mfa_devices", listRespBody, nil))),
+		d.Set("mfa_devices", flattenMfaDevices(utils.PathSearch("user_mfa_devices_entry_list|[0].mfa_devices",
+			listRespBody, make([]interface{}, 0)))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

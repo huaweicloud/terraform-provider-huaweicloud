@@ -39,7 +39,7 @@ func getPrivateCAResourceFunc(conf *config.Config, state *terraform.ResourceStat
 		return nil, fmt.Errorf("error prase CCM private CA: %s", err)
 	}
 
-	status := utils.PathSearch("status", getPrivateCARespBody, nil).(string)
+	status := utils.PathSearch("status", getPrivateCARespBody, "").(string)
 	if status == "DELETED" {
 		return nil, golangsdk.ErrDefault404{}
 	}

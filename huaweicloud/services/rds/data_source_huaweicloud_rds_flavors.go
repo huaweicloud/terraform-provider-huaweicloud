@@ -204,7 +204,7 @@ func flattenGetFlavors(resp interface{}, d *schema.ResourceData) []interface{} {
 		if groupTypeOk && groupType != groupTypeRaw {
 			continue
 		}
-		vcpusRaw := utils.PathSearch("vcpus", v, nil)
+		vcpusRaw := utils.PathSearch("vcpus", v, "")
 		if vcpusOk && fmt.Sprint(vcpus) != fmt.Sprint(vcpusRaw) {
 			continue
 		}

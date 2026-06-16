@@ -217,7 +217,7 @@ func flattenFilteredDesktop(resources []interface{}) []interface{} {
 			"resource_id":     utils.PathSearch("resource_id", resource, nil),
 			"resource_name":   utils.PathSearch("resource_name", resource, nil),
 			"resource_detail": utils.PathSearch("resource_detail", resource, nil),
-			"tags":            flattenDesktopTags(utils.PathSearch("tags", resource, nil).([]interface{})),
+			"tags":            flattenDesktopTags(utils.PathSearch("tags", resource, make([]interface{}, 0)).([]interface{})),
 		}
 		result = append(result, desktop)
 	}

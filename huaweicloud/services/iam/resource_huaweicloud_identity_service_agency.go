@@ -215,7 +215,7 @@ func resourceV3ServiceAgencyRead(_ context.Context, d *schema.ResourceData, meta
 
 	// extract delegated service name
 	var policy interface{}
-	trustPolicy := utils.PathSearch("trust_policy", agency, nil)
+	trustPolicy := utils.PathSearch("trust_policy", agency, "")
 	err = json.Unmarshal([]byte(trustPolicy.(string)), &policy)
 	if err != nil {
 		return diag.Errorf("error unmarshaling trust policy: %s", err)

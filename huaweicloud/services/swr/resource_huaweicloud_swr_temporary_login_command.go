@@ -128,7 +128,7 @@ func resourceSwrTemporaryLoginCommandCreate(_ context.Context, d *schema.Resourc
 }
 
 func flattenSwrTemporaryLoginCommandResponse(resp interface{}) interface{} {
-	if auths, ok := utils.PathSearch("auths", resp, nil).(map[string]interface{}); ok && len(auths) > 0 {
+	if auths, ok := utils.PathSearch("auths", resp, make(map[string]interface{})).(map[string]interface{}); ok && len(auths) > 0 {
 		result := make([]interface{}, 0, len(auths))
 		for k, v := range auths {
 			auth := v.(map[string]interface{})

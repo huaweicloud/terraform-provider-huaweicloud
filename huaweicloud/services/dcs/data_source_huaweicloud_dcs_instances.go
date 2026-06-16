@@ -278,7 +278,7 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 	for _, v := range curArray {
 		// capacity
 		capacity := utils.PathSearch("capacity", v, nil)
-		capacityMinor := utils.PathSearch("capacity", v, nil)
+		capacityMinor := utils.PathSearch("capacity", v, "")
 		if capacity == 0 {
 			capacity, _ = strconv.ParseFloat(capacityMinor.(string), floatBitSize)
 		}
@@ -288,7 +288,7 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 		if securityGroupID == "securityGroupId" {
 			securityGroupID = ""
 		}
-		id := utils.PathSearch("instance_id", v, nil)
+		id := utils.PathSearch("instance_id", v, "")
 		// save tags
 		var tagMap interface{}
 		if resourceTags, err := tags.Get(client, "instances", id.(string)).Extract(); err == nil {
@@ -315,7 +315,7 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 			"private_ip":            utils.PathSearch("ip", v, nil),
 			"maintain_begin":        utils.PathSearch("maintain_begin", v, nil),
 			"maintain_end":          utils.PathSearch("maintain_end", v, nil),
-			"charging_mode":         chargingMode[int(utils.PathSearch("charging_mode", v, nil).(float64))],
+			"charging_mode":         chargingMode[int(utils.PathSearch("charging_mode", v, float64(0)).(float64))],
 			"port":                  utils.PathSearch("port", v, nil),
 			"status":                utils.PathSearch("status", v, nil),
 			"used_memory":           utils.PathSearch("used_memory", v, nil),

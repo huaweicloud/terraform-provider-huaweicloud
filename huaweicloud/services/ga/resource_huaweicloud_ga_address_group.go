@@ -410,7 +410,7 @@ func removeIps(ctx context.Context, d *schema.ResourceData, meta interface{}, cl
 		batchSize := 20
 		rst := make([]string, len(rawArray))
 		for i, v := range rawArray {
-			rst[i] = utils.PathSearch("cidr", v, nil).(string)
+			rst[i] = utils.PathSearch("cidr", v, "").(string)
 		}
 
 		for i := 0; i < len(rst); i += batchSize {

@@ -412,7 +412,7 @@ func resourceArchitectureProcessImportState(_ context.Context, d *schema.Resourc
 		return []*schema.ResourceData{d}, fmt.Errorf("data process not found: %s", err)
 	}
 
-	d.SetId(utils.PathSearch("id", processes[0], nil).(string))
+	d.SetId(utils.PathSearch("id", processes[0], "").(string))
 	d.Set("qualified_id", qualifiedID)
 	d.Set("workspace_id", workspaceID)
 	return []*schema.ResourceData{d}, nil

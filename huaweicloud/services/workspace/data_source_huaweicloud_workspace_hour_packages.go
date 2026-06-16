@@ -126,10 +126,11 @@ func flattenHourPackages(packages []interface{}) []interface{} {
 			"resource_type":              utils.PathSearch("resource_type", item, nil),
 			"resource_spec_code":         utils.PathSearch("resource_spec_code", item, nil),
 			"desktop_resource_spec_code": utils.PathSearch("desktop_resource_spec_code", item, nil),
-			"descriptions":               flattenHourPackageDescriptions(utils.PathSearch("descriptions", item, nil).(map[string]interface{})),
-			"package_duration":           utils.PathSearch("package_duration", item, nil),
-			"domain_ids":                 utils.PathSearch("domain_ids", item, nil),
-			"status":                     utils.PathSearch("status", item, nil),
+			"descriptions": flattenHourPackageDescriptions(utils.PathSearch("descriptions",
+				item, make(map[string]interface{})).(map[string]interface{})),
+			"package_duration": utils.PathSearch("package_duration", item, nil),
+			"domain_ids":       utils.PathSearch("domain_ids", item, nil),
+			"status":           utils.PathSearch("status", item, nil),
 		})
 	}
 	return result

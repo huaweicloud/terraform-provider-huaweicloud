@@ -148,7 +148,7 @@ func dataSourceGaussdbClientAuthConfigHistoryRead(_ context.Context, d *schema.R
 		hbaHistories := utils.PathSearch("hba_histories", listRespBody, make([]interface{}, 0)).([]interface{})
 		results = append(results, hbaHistories...)
 
-		totalCount := utils.PathSearch("total_count", listRespBody, 0).(float64)
+		totalCount := utils.PathSearch("total_count", listRespBody, float64(0)).(float64)
 		currentTotal += len(hbaHistories)
 		if currentTotal >= int(totalCount) {
 			break

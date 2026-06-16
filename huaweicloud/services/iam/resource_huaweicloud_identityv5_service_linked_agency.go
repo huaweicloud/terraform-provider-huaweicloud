@@ -90,7 +90,7 @@ func resourceServiceLinkedAgencyCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(utils.PathSearch("agency.agency_id", responseBody, nil).(string))
+	d.SetId(utils.PathSearch("agency.agency_id", responseBody, "").(string))
 	return resourceServiceLinkedAgencyRead(ctx, d, meta)
 }
 

@@ -114,7 +114,7 @@ func modifyDatasourceConnectionPrivileges(client *golangsdk.ServiceClient, d *sc
 	if err != nil {
 		return err
 	}
-	if !utils.PathSearch("is_success", respBody, "").(bool) {
+	if !utils.PathSearch("is_success", respBody, false).(bool) {
 		return fmt.Errorf("unable to %s the privileges: %s", action,
 			utils.PathSearch("message", respBody, "Message Not Found"))
 	}

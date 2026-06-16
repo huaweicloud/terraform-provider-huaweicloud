@@ -313,7 +313,7 @@ func waitingForTaskFinished(ctx context.Context, client *golangsdk.ServiceClient
 				return nil, "ERROR", err
 			}
 
-			runStatus := utils.PathSearch("taskInfo.run_status", respBody, "").(int)
+			runStatus := utils.PathSearch("taskInfo.run_status", respBody, 0).(int)
 			if runStatus == runStatusFinished {
 				return respBody, "COMPLETED", nil
 			}

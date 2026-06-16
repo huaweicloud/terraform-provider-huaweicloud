@@ -280,7 +280,7 @@ func controlStateRefreshFunc(client *golangsdk.ServiceClient, operationId string
 		if err != nil {
 			return nil, "", err
 		}
-		controlOperation := utils.PathSearch("control_operation", getControlStatusRespBody, nil).(map[string]interface{})
+		controlOperation := utils.PathSearch("control_operation", getControlStatusRespBody, make(map[string]interface{})).(map[string]interface{})
 		status := controlOperation["status"].(string)
 		if status == "FAILED" {
 			message := utils.PathSearch("message", getControlStatusRespBody, nil)

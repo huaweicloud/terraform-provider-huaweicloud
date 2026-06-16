@@ -897,7 +897,7 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	var chargingMode = "postPaid"
-	if utils.PathSearch("charging_mode", getRocketmqInstanceRespBody, 1).(float64) == 0 {
+	if utils.PathSearch("charging_mode", getRocketmqInstanceRespBody, float64(1)).(float64) == 0 {
 		chargingMode = "prePaid"
 	}
 	epsID := "all_granted_eps"

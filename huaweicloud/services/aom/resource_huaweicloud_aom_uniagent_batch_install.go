@@ -192,7 +192,7 @@ func buildUniAgentBatchInstallBodyParams(d *schema.ResourceData) map[string]inte
 
 func parseUniAgentInstallTaskDispatchError(respBody interface{}) error {
 	state := utils.PathSearch("state", respBody, false).(bool)
-	failNum := int64(utils.PathSearch("fail_num", respBody, 0).(float64))
+	failNum := int64(utils.PathSearch("fail_num", respBody, float64(0)).(float64))
 	errorMsg := utils.PathSearch("error_msg", respBody, "").(string)
 
 	if !state || failNum > 0 || errorMsg != "" {

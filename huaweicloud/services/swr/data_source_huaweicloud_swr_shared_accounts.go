@@ -154,8 +154,8 @@ func flattenSharedAccountsResponse(rawParams []interface{}) []interface{} {
 
 	results := make([]interface{}, len(rawParams))
 	for i, v := range rawParams {
-		createdAt := utils.PathSearch("created", v, nil).(string)
-		updatedAt := utils.PathSearch("updated", v, nil).(string)
+		createdAt := utils.PathSearch("created", v, "").(string)
+		updatedAt := utils.PathSearch("updated", v, "").(string)
 		results[i] = map[string]interface{}{
 			"organization":   utils.PathSearch("namespace", v, nil),
 			"repository":     utils.PathSearch("repository", v, nil),

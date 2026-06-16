@@ -621,7 +621,7 @@ func waitForGatewayCertificate(client *golangsdk.ServiceClient, d *schema.Resour
 		}
 
 		certificate := utils.PathSearch("certificate", body, nil)
-		status := utils.PathSearch("certificate.status", body, nil).(string)
+		status := utils.PathSearch("certificate.status", body, "").(string)
 
 		return certificate, status, nil
 	}

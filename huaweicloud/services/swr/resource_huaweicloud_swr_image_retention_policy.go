@@ -249,7 +249,7 @@ func resourceSwrImageRetentionPolicyRead(_ context.Context, d *schema.ResourceDa
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	template := utils.PathSearch("template", policies[0], nil)
+	template := utils.PathSearch("template", policies[0], "")
 	var number int
 	if template.(string) == "date_rule" {
 		number, _ = strconv.Atoi(utils.PathSearch("params.days", policies[0], "0").(string))

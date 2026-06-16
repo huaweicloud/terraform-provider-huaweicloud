@@ -210,7 +210,7 @@ func resourceLogSettingRead(_ context.Context, d *schema.ResourceData, meta inte
 		autoEnabled := utils.PathSearch("autoEnable", logBackupSetting, false).(bool)
 		var period string
 		if autoEnabled {
-			period = utils.PathSearch("period", logBackupSetting, false).(string)
+			period = utils.PathSearch("period", logBackupSetting, "").(string)
 		}
 
 		mErr := multierror.Append(

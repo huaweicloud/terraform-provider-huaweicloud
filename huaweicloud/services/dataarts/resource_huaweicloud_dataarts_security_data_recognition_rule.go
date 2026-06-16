@@ -222,8 +222,8 @@ func resourceSecurityRuleRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("secrecy_level", utils.PathSearch("secrecy_level", getRuleRespBody, nil)),
 		d.Set("secrecy_level_num", utils.PathSearch("secrecy_level_num", getRuleRespBody, nil)),
 		d.Set("enable", utils.PathSearch("enable", getRuleRespBody, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("created_at", getRuleRespBody, nil).(float64))/1000, false)),
-		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("updated_at", getRuleRespBody, nil).(float64))/1000, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("created_at", getRuleRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("updated_at", getRuleRespBody, float64(0)).(float64))/1000, false)),
 		d.Set("created_by", utils.PathSearch("created_by", getRuleRespBody, nil)),
 		d.Set("updated_by", utils.PathSearch("updated_by", getRuleRespBody, nil)),
 	)

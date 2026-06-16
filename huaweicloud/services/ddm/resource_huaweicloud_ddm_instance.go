@@ -659,7 +659,7 @@ func flattenFlavors(resp interface{}, flavorId string) string {
 	for _, v := range curJson.([]interface{}) {
 		id := utils.PathSearch("id", v, nil)
 		if id == flavorId {
-			return utils.PathSearch("code", v, nil).(string)
+			return utils.PathSearch("code", v, "").(string)
 		}
 	}
 	return ""

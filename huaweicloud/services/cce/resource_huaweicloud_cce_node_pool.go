@@ -477,8 +477,8 @@ func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScal
 	for i, newGroup := range newGroups {
 		if group, ok := newGroup.(map[string]interface{}); ok {
 			res[i] = nodepools.ExtensionScaleGroups{
-				Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, nil), oldGroupsMap),
-				Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, nil)),
+				Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, make([]interface{}, 0)), oldGroupsMap),
+				Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, make([]interface{}, 0))),
 			}
 		}
 	}
@@ -507,9 +507,9 @@ func buildExtensionScaleGroupsSpec(spec interface{}) *nodepools.ExtensionScaleGr
 	res := nodepools.ExtensionScaleGroupsSpec{
 		Flavor:      utils.PathSearch("[0].flavor", spec, "").(string),
 		Az:          utils.PathSearch("[0].az", spec, "").(string),
-		Autoscaling: buildAutoscaling(utils.PathSearch("[0].autoscaling", spec, nil)),
+		Autoscaling: buildAutoscaling(utils.PathSearch("[0].autoscaling", spec, make([]interface{}, 0))),
 		CapacityReservationSpecification: buildCapacityReservationSpecification(
-			utils.PathSearch("[0].capacity_reservation_specification", spec, nil)),
+			utils.PathSearch("[0].capacity_reservation_specification", spec, make([]interface{}, 0))),
 	}
 
 	return &res
