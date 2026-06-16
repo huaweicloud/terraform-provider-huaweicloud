@@ -34,8 +34,25 @@ func EncryptValue(encryptionKey, value, description string) (fingerprint, encryp
 		err = fmt.Errorf("Error encrypting %s: %w", description, encryptErr)
 		return
 	}
+	if len(fingerprints) == 0 || len(encrypted) == 0 {
+		err = fmt.Errorf("No PGP key fingerprints or encrypted values found")
+		return
+	}
 
 	fingerprint = fingerprints[0]
 	encryptedValue = base64.StdEncoding.EncodeToString(encrypted[0])
 	return
+}
+
+// GetPGPFingerprint returns the fingerprint of the given base64-encoded PGP public key.
+func GetPGPFingerprint(publicKey string) (string, error) {
+	fingerprints, err := pgpkeys.GetFingerprints([]string{publicKey}, nil)
+	if err != nil {
+		return "", err
+	}
+	if len(fingerprints) == 0 {
+		return "", fmt.Errorf("No PGP key fingerprints found")
+	}
+
+	return fingerprints[0], nil
 }
