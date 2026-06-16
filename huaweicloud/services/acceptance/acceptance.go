@@ -5051,13 +5051,6 @@ func TestAccPreCheckDMSKafkaConsumerGroupName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
-	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
-		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckDMSKafkaRecycleBinInstanceId(t *testing.T) {
 	if HW_DMS_KAFKA_RECYCLE_BIN_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_KAFKA_RECYCLE_BIN_INSTANCE_ID must be set for Kafka recycle bin instance acceptance tests")
@@ -5065,7 +5058,14 @@ func TestAccPreCheckDMSKafkaRecycleBinInstanceId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t *testing.T) {
+func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
+	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRabbitMQRecycleBinInstanceId(t *testing.T) {
 	if HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID must be set for restoring RabbitMQ recycle bin instance acceptance tests")
 	}
