@@ -4451,6 +4451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_collect_config":              secmaster.ResourceCollectConfig(),
 			"huaweicloud_secmaster_collector_channel_group":     secmaster.ResourceCollectorChannelGroup(),
 			"huaweicloud_secmaster_collector_channel_operation": secmaster.ResourceCollectorChannelOperation(),
+			"huaweicloud_secmaster_collector_parser":            secmaster.ResourceCollectorParser(),
 			"huaweicloud_secmaster_component_template":          secmaster.ResourceComponentTemplate(),
 			"huaweicloud_secmaster_data_object_relations":       secmaster.ResourceDataObjectRelations(),
 			"huaweicloud_secmaster_dataspace":                   secmaster.ResourceDataspace(),
