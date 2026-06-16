@@ -1596,6 +1596,7 @@ func orderRequestParamsByRequestParamsOrder(reqParams []interface{}, requestPara
 			sortedReqParams = append(sortedReqParams, requestParamsCopy[index])
 			// Remove the processed request parameter from the original request parameters array.
 			requestParamsCopy = append(requestParamsCopy[:index], requestParamsCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted request parameters to the end of the sorted list.
@@ -1753,6 +1754,7 @@ func orderFuncGraphPolicyByFuncGraphPolicyOrder(policies []interface{}, funcGrap
 			sortedPolicies = append(sortedPolicies, funcGraphPolicyCopy[index])
 			// Remove the processed func graph policy from the original func graph policies array.
 			funcGraphPolicyCopy = append(funcGraphPolicyCopy[:index], funcGraphPolicyCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted func graph policies to the end of the sorted list.
@@ -1808,6 +1810,7 @@ func orderWebPolicyByWebPolicyOrder(policies []interface{}, webPolicyOrigin []in
 			}
 			sortedPolicies = append(sortedPolicies, webPolicyCopy[index])
 			webPolicyCopy = append(webPolicyCopy[:index], webPolicyCopy[index+1:]...)
+			break
 		}
 	}
 	sortedPolicies = append(sortedPolicies, webPolicyCopy...)
@@ -1875,6 +1878,7 @@ func orderMockPolicyByMockPolicyOrder(policies []interface{}, mockPolicyOrigin [
 			sortedPolicies = append(sortedPolicies, mockPolicyCopy[index])
 			// Remove the processed mock policy from the original mock policies array.
 			mockPolicyCopy = append(mockPolicyCopy[:index], mockPolicyCopy[index+1:]...)
+			break
 		}
 	}
 	// Add any remaining unsorted mock policies to the end of the sorted list.
