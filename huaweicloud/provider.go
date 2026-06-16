@@ -1142,6 +1142,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_factory_scripts":       dataarts.DataSourceFactoryScripts(),
 			// DataArts Security
 			"huaweicloud_dataarts_security_datasource_permissions":       dataarts.DataSourceSecurityDatasourcePermissions(),
+			"huaweicloud_dataarts_security_datasource_urls":              dataarts.DataSourceSecurityDatasourceUrls(),
 			"huaweicloud_dataarts_security_data_categories":              dataarts.DataSourceSecurityDataCategories(),
 			"huaweicloud_dataarts_security_data_recognition_rules":       dataarts.DataSourceSecurityDataRecognitionRules(),
 			"huaweicloud_dataarts_security_data_recognition_rule_groups": dataarts.DataSourceSecurityDataRecognitionRuleGroups(),
@@ -4274,7 +4275,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_reviewer":                dataarts.ResourceArchitectureReviewer(),
 			"huaweicloud_dataarts_architecture_subject":                 dataarts.ResourceArchitectureSubject(),
 			"huaweicloud_dataarts_architecture_table_model":             dataarts.ResourceArchitectureTableModel(),
-			// DataAtrs Catalog
+			// DataArts Catalog
 			"huaweicloud_dataarts_catalog_metadata_task":        dataarts.ResourceCatalogMetadataTask(),
 			"huaweicloud_dataarts_catalog_metadata_task_action": dataarts.ResourceCatalogMetadataTaskAction(),
 			// DataArts Factory
