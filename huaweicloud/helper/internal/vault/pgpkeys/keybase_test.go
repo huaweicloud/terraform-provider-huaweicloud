@@ -28,6 +28,7 @@ func TestFetchKeybasePubkeys(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error parsing key for user %s: %v", user, err)
 		}
+		//nolint:gocritic
 		fingerprints = append(fingerprints, hex.EncodeToString(entity.PrimaryKey.Fingerprint[:]))
 	}
 
