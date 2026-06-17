@@ -590,9 +590,11 @@ var (
 	HW_SECMASTER_FIELD_ID = os.Getenv("HW_SECMASTER_FIELD_ID")
 
 	// The SecMaster alert rule template ID
-	HW_SECMASTER_TEMPLATE_ID = os.Getenv("HW_SECMASTER_TEMPLATE_ID")
-	HW_SECMASTER_MAPPING_ID  = os.Getenv("HW_SECMASTER_MAPPING_ID")
-	HW_SECMASTER_PIPE_ID     = os.Getenv("HW_SECMASTER_PIPE_ID")
+	HW_SECMASTER_TEMPLATE_ID    = os.Getenv("HW_SECMASTER_TEMPLATE_ID")
+	HW_SECMASTER_MAPPING_ID     = os.Getenv("HW_SECMASTER_MAPPING_ID")
+	HW_SECMASTER_MAPPER_ID      = os.Getenv("HW_SECMASTER_MAPPER_ID")
+	HW_SECMASTER_MAPPER_TYPE_ID = os.Getenv("HW_SECMASTER_MAPPER_TYPE_ID")
+	HW_SECMASTER_PIPE_ID        = os.Getenv("HW_SECMASTER_PIPE_ID")
 
 	// The SecMaster dataspace ID
 	HW_SECMASTER_DATASPACE_ID = os.Getenv("HW_SECMASTER_DATASPACE_ID")
@@ -3462,6 +3464,20 @@ func TestAccPreCheckSecMasterTemplateId(t *testing.T) {
 func TestAccPreCheckSecMasterMappingId(t *testing.T) {
 	if HW_SECMASTER_MAPPING_ID == "" {
 		t.Skip("HW_SECMASTER_MAPPING_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterMapperId(t *testing.T) {
+	if HW_SECMASTER_MAPPER_ID == "" {
+		t.Skip("HW_SECMASTER_MAPPER_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterMapperTypeId(t *testing.T) {
+	if HW_SECMASTER_MAPPER_TYPE_ID == "" {
+		t.Skip("HW_SECMASTER_MAPPER_TYPE_ID must be set for SecMaster acceptance tests")
 	}
 }
 
