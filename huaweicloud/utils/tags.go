@@ -177,20 +177,6 @@ func GetDNSRecordSetTagType(zoneType string) (string, error) {
 	return "", fmt.Errorf("invalid zone type: %s", zoneType)
 }
 
-func ParseEnterpriseProjectIdFromSysTags(value []tags.ResourceTag) (enterpriseProjectId string) {
-	if len(value) == 0 {
-		return
-	}
-
-	for i := 0; i < len(value); i++ {
-		item := value[i]
-		if item.Key == SysTagKeyEnterpriseProjectId {
-			return item.Value
-		}
-	}
-	return
-}
-
 func BuildSysTags(enterpriseProjectID string) (enterpriseProjectTags []tags.ResourceTag) {
 	if enterpriseProjectID != "" {
 		t := tags.ResourceTag{

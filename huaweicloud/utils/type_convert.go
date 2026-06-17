@@ -30,37 +30,11 @@ func Int(v int) *int {
 	return &v
 }
 
-// Int32 returns a pointer to the int32 value
-func Int32(v int32) *int32 {
-	return &v
-}
-
 // Int returns a pointer to the int value. if v is empty, return nil
 func IntIgnoreEmpty(v int) *int {
 	if v == 0 {
 		return nil
 	}
-	return &v
-}
-
-// Int32 returns a pointer to the int32 value. if v is empty, return nil
-func Int32IgnoreEmpty(v int32) *int32 {
-	if v == 0 {
-		return nil
-	}
-	return &v
-}
-
-// Int32 returns a pointer to the int32 value
-func Int64IgnoreEmpty(v int64) *int64 {
-	if v == 0 {
-		return nil
-	}
-	return &v
-}
-
-// Float64 returns a pointer to the float64 value
-func Float64(v float64) *float64 {
 	return &v
 }
 
@@ -89,14 +63,6 @@ func StringToBool(v interface{}) *bool {
 	}
 
 	return nil
-}
-
-// StringValue returns the string value
-func StringValue(v *string) string {
-	if v == nil {
-		return ""
-	}
-	return *v
 }
 
 // ValueIgnoreEmpty returns to the string value. if v is empty, return nil

@@ -160,15 +160,6 @@ func MapValueSpecs(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-// MapResourceProp converts ResourceData property into a map
-func MapResourceProp(d *schema.ResourceData, prop string) map[string]interface{} {
-	m := make(map[string]interface{})
-	for key, val := range d.Get(prop).(map[string]interface{}) {
-		m[key] = val.(string)
-	}
-	return m
-}
-
 // FirewallGroup is an HuaweiCloud firewall group.
 type FirewallGroup struct {
 	firewall_groups.FirewallGroup
@@ -185,16 +176,6 @@ type FirewallGroupCreateOpts struct {
 // It overrides firewalls.ToFirewallCreateMap to add the ValueSpecs field.
 func (opts FirewallGroupCreateOpts) ToFirewallCreateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "firewall_group")
-}
-
-// FirewallGroupUpdateOpts represents the attributes used when updating a firewall
-type FirewallGroupUpdateOpts struct {
-	firewall_groups.UpdateOptsBuilder
-}
-
-// ToFirewallUpdateMap casts a FirewallGroupUpdateOpts struct to a map.
-func (opts FirewallGroupUpdateOpts) ToFirewallUpdateMap() (map[string]interface{}, error) {
-	return BuildRequest(opts, "firewall")
 }
 
 // PolicyCreateOpts represents the attributes used when creating a new firewall policy.

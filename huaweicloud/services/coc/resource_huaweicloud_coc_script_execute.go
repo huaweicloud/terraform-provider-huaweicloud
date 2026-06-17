@@ -321,26 +321,6 @@ func resourceScriptExecuteRead(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-// now, the value of script_params in API response is the default value, not the value when executing
-// so we donot set `parameters` until COC service fixed this bug.
-// nolint: unused
-func flattenScriptExecuteParams(resp interface{}) []interface{} {
-	if resp == nil {
-		return nil
-	}
-
-	curJson := utils.PathSearch("data.properties.execute_param.script_params", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, len(curArray))
-	for i, v := range curArray {
-		rst[i] = map[string]interface{}{
-			"name":  utils.PathSearch("param_name", v, nil),
-			"value": utils.PathSearch("param_value", v, nil),
-		}
-	}
-	return rst
-}
-
 func resourceScriptExecuteUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }

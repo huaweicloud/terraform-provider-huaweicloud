@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/blockstorage/v2/volumes"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -120,8 +119,8 @@ func TestAccBlockStorageV2Volume_timeout(t *testing.T) {
 }
 
 func testAccCheckBlockStorageV2VolumeDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	blockStorageClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	blockStorageClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
@@ -151,8 +150,8 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		blockStorageClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		blockStorageClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
@@ -169,26 +168,6 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 		*volume = *found
 
 		return nil
-	}
-}
-
-func testAccCheckBlockStorageV2VolumeDoesNotExist(t *testing.T, n string, volume *volumes.Volume) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		blockStorageClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
-		}
-
-		_, err = volumes.Get(blockStorageClient, volume.ID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil
-			}
-			return err
-		}
-
-		return fmtp.Errorf("Volume still exists")
 	}
 }
 

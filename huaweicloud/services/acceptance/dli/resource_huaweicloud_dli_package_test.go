@@ -188,6 +188,7 @@ func TestAccDliPackage_not_groupName(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliOwner(t)
 			acceptance.TestAccPreCheckDliUpdatedOwner(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

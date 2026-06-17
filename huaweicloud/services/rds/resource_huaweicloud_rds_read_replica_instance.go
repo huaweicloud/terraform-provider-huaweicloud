@@ -3,7 +3,6 @@ package rds
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -589,22 +587,4 @@ func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) e
 		}
 	}
 	return nil
-}
-
-func buildRdsReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {
-	var volume *instances.Volume
-	volumeRaw := d.Get("volume").([]interface{})
-
-	if len(volumeRaw) == 1 {
-		volume = new(instances.Volume)
-		volume.Type = volumeRaw[0].(map[string]interface{})["type"].(string)
-		volume.Size = volumeRaw[0].(map[string]interface{})["size"].(int)
-		// the size is optional and invalid for replica, but it's required in sdk
-		// so just set 100 if not specified
-		if volume.Size == 0 {
-			volume.Size = 100
-		}
-	}
-	log.Printf("[DEBUG] volume: %+v", volume)
-	return volume
 }

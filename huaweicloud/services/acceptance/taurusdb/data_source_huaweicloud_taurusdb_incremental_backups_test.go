@@ -16,6 +16,8 @@ func TestAccDataSourceTaurusDBIncrementalBackups_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckTaurusDBBackupBeginTime(t)
+			acceptance.TestAccPreCheckTaurusDBBackupEndTime(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

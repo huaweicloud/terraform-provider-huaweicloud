@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	awspolicy "github.com/jen20/awspolicyequivalence"
@@ -106,20 +105,6 @@ func SuppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 // Suppress changes if we get a string with or without new line
 func SuppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
 	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
-}
-
-func SuppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) bool {
-	oldTime, err := time.Parse(time.RFC3339, old)
-	if err != nil {
-		return false
-	}
-
-	newTime, err := time.Parse(time.RFC3339, new)
-	if err != nil {
-		return false
-	}
-
-	return oldTime.Equal(newTime)
 }
 
 func SuppressVersionDiffs(k, old, new string, d *schema.ResourceData) bool {
@@ -2946,38 +2931,6 @@ func getObjectFromOldState(d *schema.ResourceData, baseField, objectHash string)
 	// If not found, return nil and let the caller handle it.
 	// The caller will check if the object is in origin, and if not, assume it's a remote addition.
 	return nil
-}
-
-// checkObjectInRemoteState checks if an object exists in remote state (console value)
-func checkObjectInRemoteState(baseField string, obj map[string]interface{}, d *schema.ResourceData) bool {
-	// Get the old value (console/remote state) from GetChange
-	oldParamVal, _ := d.GetChange(baseField)
-	if oldParamVal == nil {
-		return false
-	}
-
-	var objectList []interface{}
-	switch v := oldParamVal.(type) {
-	case []interface{}:
-		objectList = v
-	case *schema.Set:
-		objectList = v.List()
-	default:
-		return false
-	}
-
-	// Check if the object exists in the list
-	for _, item := range objectList {
-		if itemMap, ok := item.(map[string]interface{}); ok {
-			if reflect.DeepEqual(itemMap, obj) {
-				log.Printf("[DEBUG][checkObjectInRemoteState] Object already exists in remote state, suppressing diff")
-				return true
-			}
-		}
-	}
-
-	log.Printf("[DEBUG][checkObjectInRemoteState] Object does not exist in remote state, allowing change")
-	return false
 }
 
 // convertToObjectSlice converts interface{} to []map[string]interface{}

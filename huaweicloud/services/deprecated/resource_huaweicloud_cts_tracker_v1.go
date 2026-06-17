@@ -9,7 +9,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cts/v1/tracker"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -51,10 +50,9 @@ func ResourceCTSTrackerV1() *schema.Resource {
 				Required: true,
 			},
 			"file_prefix_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: utils.ValidateName,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"is_support_smn": {
 				Type:     schema.TypeBool,
