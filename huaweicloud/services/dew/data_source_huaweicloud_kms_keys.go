@@ -201,7 +201,7 @@ func buildlistKeysBody(d *schema.ResourceData, _ *config.Config) map[string]inte
 }
 
 func flattenListKeysResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

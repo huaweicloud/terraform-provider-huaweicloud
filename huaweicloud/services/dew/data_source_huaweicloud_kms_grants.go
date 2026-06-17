@@ -159,7 +159,7 @@ func buildListGrantsBody(d *schema.ResourceData, _ *config.Config) map[string]in
 }
 
 func flattenListSnatRuleResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

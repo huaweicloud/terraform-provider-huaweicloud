@@ -114,7 +114,7 @@ func dataSourceCfwEastWestFirewallErRead(_ context.Context, d *schema.ResourceDa
 }
 
 func flattenEastWestFirewallErList(erList []interface{}) []interface{} {
-	if erList == nil {
+	if len(erList) == 0 {
 		return nil
 	}
 

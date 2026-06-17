@@ -298,7 +298,7 @@ func buildResourcesByTagsMatchesBodyParams(matchesRaw interface{}) []map[string]
 }
 
 func flattenResourcesByTagsResourcesResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

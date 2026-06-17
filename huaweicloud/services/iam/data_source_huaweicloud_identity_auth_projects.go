@@ -74,7 +74,7 @@ func DataSourceIdentityAuthProjectsRead(_ context.Context, d *schema.ResourceDat
 }
 
 func flattenProjects(projectsModel []interface{}) []map[string]interface{} {
-	if projectsModel == nil {
+	if len(projectsModel) == 0 {
 		return nil
 	}
 	projects := make([]map[string]interface{}, 0, len(projectsModel))

@@ -147,7 +147,7 @@ func dataSourceTaurusDBHtapSessionsRead(_ context.Context, d *schema.ResourceDat
 }
 
 func flattenHtapSessionsResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

@@ -98,7 +98,7 @@ func datasourceVpcepServicePermissionsRead(_ context.Context, d *schema.Resource
 }
 
 func flattenListVPCEPServicePermissions(allPermissions []services.Permission) []map[string]interface{} {
-	if allPermissions == nil {
+	if len(allPermissions) == 0 {
 		return nil
 	}
 	permissions := make([]map[string]interface{}, len(allPermissions))

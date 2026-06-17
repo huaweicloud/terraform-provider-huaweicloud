@@ -158,7 +158,7 @@ func dataSourceTaurusDBNodeSessionsRead(_ context.Context, d *schema.ResourceDat
 }
 
 func flattenGetNodeSessionsResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

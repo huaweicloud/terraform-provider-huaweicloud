@@ -274,7 +274,7 @@ func getBandwidthPackages(client *golangsdk.ServiceClient, cfg *config.Config, d
 }
 
 func flattenListBandwidthPackageResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

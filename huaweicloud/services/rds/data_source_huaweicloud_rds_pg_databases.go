@@ -147,7 +147,7 @@ func dataSourcePgDatabasesRead(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func flattenPgDatabasesBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))

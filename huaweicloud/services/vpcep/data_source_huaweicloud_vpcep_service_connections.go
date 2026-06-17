@@ -120,7 +120,7 @@ func datasourceVpcepServiceConnectionsRead(_ context.Context, d *schema.Resource
 }
 
 func flattenListVPCEPServiceConnections(allConnections []services.Connection) []map[string]interface{} {
-	if allConnections == nil {
+	if len(allConnections) == 0 {
 		return nil
 	}
 	connections := make([]map[string]interface{}, len(allConnections))

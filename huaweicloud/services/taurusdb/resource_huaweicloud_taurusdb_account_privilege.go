@@ -294,7 +294,7 @@ func flattenGetGaussDBAccountPrivilegeResponseBody(resp interface{}, accountName
 }
 
 func flattenGetGaussDBAccountPrivilegeResponseBodyDatabase(databases []interface{}) []interface{} {
-	if databases == nil {
+	if len(databases) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(databases))

@@ -120,7 +120,7 @@ func buildCentralNetworkCapabilitiesQueryParams(d *schema.ResourceData) string {
 }
 
 func flattenCentralNetworkCapabilities(capabilities []interface{}) ([]interface{}, error) {
-	if capabilities == nil {
+	if len(capabilities) == 0 {
 		return nil, nil
 	}
 

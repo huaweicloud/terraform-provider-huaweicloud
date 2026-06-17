@@ -141,7 +141,7 @@ func resourceDmsRabbitmqPluginsRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func flattenPlugins(pluginRespBody []interface{}) []interface{} {
-	if pluginRespBody == nil {
+	if len(pluginRespBody) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(pluginRespBody))

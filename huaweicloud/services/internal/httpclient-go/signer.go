@@ -41,7 +41,7 @@ func CanonicalRequest(r *http.Request, signedHeaders []string) (string, error) {
 
 func HexEncodeSHA256Hash(body []byte) (string, error) {
 	hash := sha256.New()
-	if body == nil {
+	if len(body) == 0 {
 		body = []byte("")
 	}
 	_, err := hash.Write(body)

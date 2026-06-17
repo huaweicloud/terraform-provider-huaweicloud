@@ -263,7 +263,7 @@ func dataSourceBmsInstancesRead(_ context.Context, d *schema.ResourceData, meta 
 
 func flattenListBMSInstances(d *schema.ResourceData, meta interface{}, bmsClient *golangsdk.ServiceClient,
 	allInstances []baremetalservers.CloudServer) []map[string]interface{} {
-	if allInstances == nil {
+	if len(allInstances) == 0 {
 		return nil
 	}
 

@@ -129,7 +129,7 @@ func dataSourceRdsMysqlAccountsRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func flattenListAccountsBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))

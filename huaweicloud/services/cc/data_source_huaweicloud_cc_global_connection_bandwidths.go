@@ -437,7 +437,7 @@ func filter(items []interface{}, resourceIDs []string) []interface{} {
 }
 
 func flattenListGCBResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

@@ -89,7 +89,7 @@ func dataSourceIdentityFederationDomainsRead(_ context.Context, d *schema.Resour
 }
 
 func flattenDomains(domainsBody []interface{}) []map[string]interface{} {
-	if domainsBody == nil {
+	if len(domainsBody) == 0 {
 		return nil
 	}
 	domains := make([]map[string]interface{}, 0, len(domainsBody))
