@@ -56,7 +56,7 @@ func CanonicalURI(r *http.Request) string {
 	}
 	urlPath := strings.Join(uri, "/")
 	if len(urlPath) == 0 || urlPath[len(urlPath)-1] != '/' {
-		urlPath = urlPath + "/"
+		urlPath += "/"
 	}
 	return urlPath
 }
