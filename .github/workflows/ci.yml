@@ -90,7 +90,7 @@ jobs:
       - name: Check schemas and markdown docs
         shell: bash {0}
         run: |
-          cd scripts/markdown_check
+          cd scripts/markdown-check
           go build -o markdown_check main.go
           ./markdown_check >check_result.log
 
@@ -113,7 +113,7 @@ jobs:
       - name: Check api comments
         shell: bash {0}
         run: |
-          cd scripts/api_comment_check
+          cd scripts/api-comment-check
           go run main.go
           exit $?
 
@@ -129,6 +129,6 @@ jobs:
       - name: Check resource read method contains check deleted
         shell: bash {0}
         run: |
-          cd scripts/read_check_deleted_check
+          cd scripts/read-check-deleted-check
           go run main.go
           exit $?
