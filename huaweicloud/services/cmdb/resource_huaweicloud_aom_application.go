@@ -13,7 +13,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient-go"
 )
 
 // @API CMDB POST /v1/applications
