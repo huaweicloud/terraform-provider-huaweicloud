@@ -3885,6 +3885,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_dr_switchover_configuration": geminidb.ResourceGeminiDBDRSwitchoverConfiguration(),
 			"huaweicloud_geminidb_eip_bind":                    geminidb.ResourceEipBind(),
 			"huaweicloud_geminidb_enlarge_fail_node_delete":    geminidb.ResourceEnlargeFailNodeDelete(),
+			"huaweicloud_geminidb_high_risk_command":           geminidb.ResourceHighRiskCommand(),
 			"huaweicloud_geminidb_instance":                    geminidb.ResourceGeminiDbInstance(),
 			"huaweicloud_geminidb_instance_restart":            geminidb.ResourceInstanceRestart(),
 			"huaweicloud_geminidb_memory_mapping":              geminidb.ResourceMemoryMapping(),
