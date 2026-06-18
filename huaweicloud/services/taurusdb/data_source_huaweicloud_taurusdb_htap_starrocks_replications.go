@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -81,24 +81,43 @@ func starrocksReplicationsSchema() *schema.Resource {
 
 func dataSourceTaurusDBHtapStarrocksReplicationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		limit  = 100
-		offset = 0
-		result = make([]interface{}, 0)
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
 	)
-
-	var mErr *multierror.Error
-
 	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating TaurusDB client: %s", err)
 	}
 
+	result, err := getHtapStarrocksReplications(client, instanceId)
+	if err != nil {
+		return diag.Errorf("error retrieving HTAP Starrocks instance (%s) replications: %s", instanceId, err)
+	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(id.String())
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("replications", flattenStarrocksReplications(result)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getHtapStarrocksReplications(client *golangsdk.ServiceClient, instanceId string) ([]interface{}, error) {
+	var (
+		limit  = 100
+		offset = 0
+		result = make([]interface{}, 0)
+	)
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{instance_id}", d.Get("instance_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
 
 	listOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -109,41 +128,29 @@ func dataSourceTaurusDBHtapStarrocksReplicationsRead(_ context.Context, d *schem
 		queryPath := fmt.Sprintf("%s?limit=%d&offset=%d", listPath, limit, offset)
 		resp, err := client.Request("GET", queryPath, &listOpts)
 		if err != nil {
-			return diag.Errorf("error retrieving TaurusDB HTAP StarRocks replications: %s", err)
+			return nil, err
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return diag.FromErr(err)
+			return nil, err
 		}
 
 		replications := utils.PathSearch("replications", respBody, make([]interface{}, 0)).([]interface{})
-		if len(replications) == 0 {
-			break
-		}
-
 		result = append(result, replications...)
 
+		if len(replications) < limit {
+			break
+		}
 		offset += len(replications)
 	}
 
-	id, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate ID: %s", err)
-	}
-	d.SetId(id)
-
-	mErr = multierror.Append(
-		d.Set("region", region),
-		d.Set("replications", flattenStarrocksReplications(result)),
-	)
-	return diag.FromErr(mErr.ErrorOrNil())
+	return result, nil
 }
 
-func flattenStarrocksReplications(resp interface{}) []interface{} {
-	curArray := resp.([]interface{})
-	res := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+func flattenStarrocksReplications(resp []interface{}) []interface{} {
+	res := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		res = append(res, map[string]interface{}{
 			"source_database": utils.PathSearch("source_database", v, nil),
 			"target_database": utils.PathSearch("target_database", v, nil),
