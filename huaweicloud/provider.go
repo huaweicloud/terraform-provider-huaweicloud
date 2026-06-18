@@ -1528,6 +1528,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_dedicated_resources":           geminidb.DataSourceDedicatedResources(),
 			"huaweicloud_geminidb_flavors":                       geminidb.DataSourceGeminiDBFlavors(),
 			"huaweicloud_geminidb_hot_keys":                      geminidb.DataSourceHotKeys(),
+			"huaweicloud_geminidb_instances":                     geminidb.DataSourceInstances(),
 			"huaweicloud_geminidb_instance_parameters_histories": geminidb.DataSourceGeminiDBInstanceParametersHistories(),
 			"huaweicloud_geminidb_instance_sessions":             geminidb.DataSourceInstanceSessions(),
 			"huaweicloud_geminidb_memory_mappings":               geminidb.DataSourceMemoryMappings(),
