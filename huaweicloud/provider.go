@@ -1603,6 +1603,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_instance_dr_status":              gaussdb.DataSourceGaussDbInstanceDrStatus(),
 			"huaweicloud_gaussdb_sql_patch":                       gaussdb.DataSourceGaussDbSqlPatch(),
 			"huaweicloud_gaussdb_sql_execution_plan_status":       gaussdb.DataSourceSqlExecutionPlanStatus(),
+			"huaweicloud_gaussdb_sql_text_schema_table":           gaussdb.DataSourceSqlTextSchemaTable(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
