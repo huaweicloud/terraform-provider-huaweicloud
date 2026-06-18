@@ -54,11 +54,11 @@ The `replications` block supports:
 
 * `stage` - The synchronization stage.
   The valid values are as follows:
-  + **wait**: Waiting for synchronization.
-  + **incremental**: Incremental synchronization.
-  + **full**: Full synchronization.
-  + **cancelled**: Synchronization cancelled.
-  + **paused**: Synchronization paused.
+  + **Wait**: Waiting for synchronization.
+  + **Incremental**: Incremental synchronization.
+  + **Full**: Full synchronization.
+  + **Cancelled**: Synchronization cancelled.
+  + **Paused**: Synchronization paused.
 
 * `percentage` - The progress percentage.
 
