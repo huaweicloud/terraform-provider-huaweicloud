@@ -53,12 +53,12 @@ func testAccDatasourceDcsBackups_basic(name string) string {
 
 data "huaweicloud_dcs_backups" "test" {
   depends_on  = [huaweicloud_dcs_backup.test]
-  instance_id = huaweicloud_dcs_instance.instance_1.id
+  instance_id = huaweicloud_dcs_instance.test.id
 }
 
 data "huaweicloud_dcs_backups" "backup_id_filter" {
   depends_on  = [huaweicloud_dcs_backup.test]
-  instance_id = huaweicloud_dcs_instance.instance_1.id
+  instance_id = huaweicloud_dcs_instance.test.id
   backup_id   = local.id
 }
 
@@ -74,7 +74,7 @@ output "backup_id_filter_is_useful" {
 
 data "huaweicloud_dcs_backups" "name_filter" {
   depends_on  = [huaweicloud_dcs_backup.test]
-  instance_id = huaweicloud_dcs_instance.instance_1.id
+  instance_id = huaweicloud_dcs_instance.test.id
   name        = huaweicloud_dcs_backup.test.name
 }
 
@@ -90,7 +90,7 @@ output "name_filter_is_useful" {
 
 data "huaweicloud_dcs_backups" "status_filter" {
   depends_on  = [huaweicloud_dcs_backup.test]
-  instance_id = huaweicloud_dcs_instance.instance_1.id
+  instance_id = huaweicloud_dcs_instance.test.id
   status      = huaweicloud_dcs_backup.test.status
 }
 
@@ -106,7 +106,7 @@ output "status_filter_is_useful" {
 
 data "huaweicloud_dcs_backups" "type_filter" {
   depends_on  = [huaweicloud_dcs_backup.test]
-  instance_id = huaweicloud_dcs_instance.instance_1.id
+  instance_id = huaweicloud_dcs_instance.test.id
   type        = huaweicloud_dcs_backup.test.type
 }
 
@@ -122,7 +122,7 @@ output "type_filter_is_useful" {
 
 data "huaweicloud_dcs_backups" "is_support_restore_filter" {
   depends_on         = [huaweicloud_dcs_backup.test]
-  instance_id        = huaweicloud_dcs_instance.instance_1.id
+  instance_id        = huaweicloud_dcs_instance.test.id
   is_support_restore = huaweicloud_dcs_backup.test.is_support_restore
 }
 
@@ -138,7 +138,7 @@ output "is_support_restore_filter_is_useful" {
 
 data "huaweicloud_dcs_backups" "backup_format_filter" {
   depends_on    = [huaweicloud_dcs_backup.test]
-  instance_id   = huaweicloud_dcs_instance.instance_1.id
+  instance_id   = huaweicloud_dcs_instance.test.id
   backup_format = huaweicloud_dcs_backup.test.backup_format
 }
 
