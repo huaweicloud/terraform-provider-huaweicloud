@@ -3905,6 +3905,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_instance":                        gaussdb.ResourceGaussDbInstance(),
 			"huaweicloud_gaussdb_instance_restart":                gaussdb.ResourceGaussDbInstanceRestart(),
 			"huaweicloud_gaussdb_instance_password_reset":         gaussdb.ResourceGaussDbInstancePasswordReset(),
+			"huaweicloud_gaussdb_instance_plugin":                 gaussdb.ResourceGaussDbInstancePlugin(),
 			"huaweicloud_gaussdb_instance_plugin_license_config":  gaussdb.ResourceGaussDbPluginLicense(),
 			"huaweicloud_gaussdb_instance_upgrade":                gaussdb.ResourceGaussDbInstanceUpgrade(),
 			"huaweicloud_gaussdb_instance_node_startup":           gaussdb.ResourceGaussDbInstanceNodeStartup(),
