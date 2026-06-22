@@ -4489,6 +4489,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_operation_connection":        secmaster.ResourceOperationConnection(),
 			"huaweicloud_secmaster_pipe":                        secmaster.ResourcePipe(),
 			"huaweicloud_secmaster_pipe_consumption":            secmaster.ResourcePipeConsumption(),
+			"huaweicloud_secmaster_pipe_index":                  secmaster.ResourcePipeIndex(),
 			"huaweicloud_secmaster_playbook_action":             secmaster.ResourcePlaybookAction(),
 			"huaweicloud_secmaster_playbook_approval":           secmaster.ResourcePlaybookApproval(),
 			"huaweicloud_secmaster_playbook_enable":             secmaster.ResourcePlaybookEnable(),
