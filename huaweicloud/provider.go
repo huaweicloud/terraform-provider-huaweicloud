@@ -1542,6 +1542,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_recycling_instances":           geminidb.DataSourceGeminiDBRecyclingInstances(),
 			"huaweicloud_geminidb_restorable_time_window":        geminidb.DataSourceGeminiDBRestorableTimeWindow(),
 			"huaweicloud_geminidb_scheduled_tasks":               geminidb.DataSourceGeminiDBScheduledTasks(),
+			"huaweicloud_geminidb_slow_logs":                     geminidb.DataSourceGeminiDBSlowLogs(),
 			"huaweicloud_geminidb_ssl_cert_download_links":       geminidb.DataSourceSslCertDownloadLinks(),
 			"huaweicloud_geminidb_table_restored_databases":      geminidb.DataSourceGeminiDBTableRestoredDatabases(),
 			"huaweicloud_geminidb_table_restored_tables":         geminidb.DataSourceGeminiDBTableRestoredTables(),
