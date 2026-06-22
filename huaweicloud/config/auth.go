@@ -138,7 +138,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 			Rt:         transport,
 			MaxRetries: c.MaxRetries,
 		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		CheckRedirect: func(req *http.Request, _ []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {
 				if c.SigningAlgorithm == "" || c.SigningAlgorithm == signer.HmacSHA256 {
 					return auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)

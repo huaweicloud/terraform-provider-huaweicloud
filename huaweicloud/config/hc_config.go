@@ -79,7 +79,7 @@ func buildAuthCredentials(c *Config, region string, isDerived bool) (*basic.Cred
 	return &credentials, nil
 }
 
-func buildGlobalAuthCredentials(c *Config, region string) (*global.Credentials, error) {
+func buildGlobalAuthCredentials(c *Config) (*global.Credentials, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("access_key or secret_key is missing in the provider")
 	}
@@ -333,7 +333,7 @@ func implNewHcClient(c *Config, region, product string, isGlobal, isDerived bool
 		WithHttpConfig(buildHTTPConfig(c))
 
 	if isGlobal {
-		credentials, err := buildGlobalAuthCredentials(c, region)
+		credentials, err := buildGlobalAuthCredentials(c)
 		if err != nil {
 			return nil, err
 		}

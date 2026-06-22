@@ -250,7 +250,7 @@ func resourceDmsKafkaConsumerGroupRead(_ context.Context, d *schema.ResourceData
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDmsKafkaConsumerGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsKafkaConsumerGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg               = meta.(*config.Config)
 		httpUrl           = "v2/kafka/{project_id}/instances/{instance_id}/groups/{group}"

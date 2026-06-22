@@ -790,7 +790,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChanges("product_id", "flavor_id", "broker_num", "storage_space") {
-		err = resizeRabbitMQInstance(ctx, d, meta, engineRabbitMQ)
+		err = resizeRabbitMQInstance(ctx, d, meta)
 		if err != nil {
 			mErr = multierror.Append(mErr, err)
 		}
@@ -827,7 +827,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	return resourceDmsRabbitmqInstanceRead(ctx, d, meta)
 }
 
-func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta interface{}, engineType string) error {
+func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -903,15 +903,16 @@ func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta in
 
 func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	opts instances.ResizeInstanceOpts) error {
+	instnaceId := d.Id()
 	retryFunc := func() (interface{}, bool, error) {
-		_, err := instances.Resize(client, d.Id(), opts)
+		_, err := instances.Resize(client, instnaceId, opts)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+		WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, instnaceId),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 1 * time.Second,
@@ -924,20 +925,20 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      rabbitMQResizeStateRefresh(client, d, opts.OperType),
+		Refresh:      rabbitMQResizeStateRefresh(client, instnaceId),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        60 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return fmt.Errorf("error waiting for instance (%s) to resize: %v", d.Id(), err)
+		return fmt.Errorf("error waiting for instance (%s) to resize: %v", instnaceId, err)
 	}
 	return nil
 }
 
-func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, operType *string) resource.StateRefreshFunc {
+func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, instnaceId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		v, err := instances.Get(client, d.Id()).Extract()
+		v, err := instances.Get(client, instnaceId).Extract()
 		if err != nil {
 			return nil, "failed", err
 		}

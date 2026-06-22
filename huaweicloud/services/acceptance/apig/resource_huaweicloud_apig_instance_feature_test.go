@@ -25,7 +25,6 @@ func TestAccInstanceFeature_basic(t *testing.T) {
 	var (
 		feature interface{}
 		rName   = "huaweicloud_apig_instance_feature.test"
-		name    = acceptance.RandomAccResourceName()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -44,7 +43,7 @@ func TestAccInstanceFeature_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceFeature_basic_step1(name),
+				Config: testAccInstanceFeature_basic_step1(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", "ratelimit"),
@@ -53,7 +52,7 @@ func TestAccInstanceFeature_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccInstanceFeature_basic_step2(name),
+				Config: testAccInstanceFeature_basic_step2(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", "ratelimit"),
@@ -86,7 +85,7 @@ func testAccInstanceFeatureResourceImportStateFunc(rName string) resource.Import
 	}
 }
 
-func testAccInstanceFeature_basic_step1(name string) string {
+func testAccInstanceFeature_basic_step1() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_instance_feature" "test" {
   instance_id = "%[1]s"
@@ -100,7 +99,7 @@ resource "huaweicloud_apig_instance_feature" "test" {
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
-func testAccInstanceFeature_basic_step2(name string) string {
+func testAccInstanceFeature_basic_step2() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_instance_feature" "test" {
   instance_id = "%[1]s"

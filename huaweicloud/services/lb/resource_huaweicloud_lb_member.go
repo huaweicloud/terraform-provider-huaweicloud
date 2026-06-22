@@ -280,7 +280,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceMemberV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceMemberV2Import(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		err := fmtp.Errorf("invalid format specified for member. Format must be <pool_id>/<member_id>")

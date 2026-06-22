@@ -12,7 +12,6 @@ import (
 
 func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_ces_event_details.test"
-	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -26,7 +25,7 @@ func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 				Config: testEventReport_basic(),
 			},
 			{
-				Config: testDataSourceCesEventDetails_basic(rName),
+				Config: testDataSourceCesEventDetails_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "event_info.0.event_id"),
@@ -47,7 +46,7 @@ func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceCesEventDetails_basic(name string) string {
+func testDataSourceCesEventDetails_basic() string {
 	return fmt.Sprintf(`
 %[1]s
 	
