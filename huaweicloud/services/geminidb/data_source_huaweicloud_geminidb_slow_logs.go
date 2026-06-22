@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -124,11 +124,11 @@ func dataSourceGeminiDBSlowLogsRead(_ context.Context, d *schema.ResourceData, m
 
 	slowLogList := utils.PathSearch("slow_log_list", respBody, []interface{}{}).([]interface{})
 
-	dataSourceId, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+	d.SetId(randomUUID.String())
 
 	mErr = multierror.Append(
 		d.Set("region", region),
