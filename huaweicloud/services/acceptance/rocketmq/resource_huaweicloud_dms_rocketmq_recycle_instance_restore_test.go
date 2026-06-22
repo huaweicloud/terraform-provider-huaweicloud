@@ -1,11 +1,11 @@
-package rabbitmq
+package rocketmq
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -15,7 +15,7 @@ func TestAccRecycleInstanceRestore_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDMSRabbitMQRecycleBinInstanceId(t)
+			acceptance.TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
@@ -32,18 +32,18 @@ func TestAccRecycleInstanceRestore_basic(t *testing.T) {
 }
 
 func testAccRecycleInstanceRestore_instanceNotFound() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
-resource "huaweicloud_dms_rabbitmq_recycle_instance_restore" "test" {
+resource "huaweicloud_dms_rocketmq_recycle_instance_restore" "test" {
   instance_id = "%s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccRecycleInstanceRestore_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dms_rabbitmq_recycle_instance_restore" "test" {
+resource "huaweicloud_dms_rocketmq_recycle_instance_restore" "test" {
   instance_id = "%s"
 }
-`, acceptance.HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID)
+`, acceptance.HW_DMS_ROCKETMQ_RECYCLE_BIN_INSTANCE_ID)
 }

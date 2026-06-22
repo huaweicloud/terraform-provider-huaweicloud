@@ -918,6 +918,7 @@ var (
 	// The list of dead letter message IDs. Using commas (,) to separate multiple IDs.
 	// At least one ID is required.
 	HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs = os.Getenv("HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs")
+	HW_DMS_ROCKETMQ_RECYCLE_BIN_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_RECYCLE_BIN_INSTANCE_ID")
 
 	HW_SFS_TURBO_SHARE_ID                = os.Getenv("HW_SFS_TURBO_SHARE_ID")
 	HW_SFS_TURBO_BACKUP_ID               = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
@@ -5066,13 +5067,6 @@ func TestAccPreCheckDMSKafkaConsumerGroupName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
-	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
-		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckDMSKafkaRecycleBinInstanceId(t *testing.T) {
 	if HW_DMS_KAFKA_RECYCLE_BIN_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_KAFKA_RECYCLE_BIN_INSTANCE_ID must be set for Kafka recycle bin instance acceptance tests")
@@ -5080,7 +5074,14 @@ func TestAccPreCheckDMSKafkaRecycleBinInstanceId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t *testing.T) {
+func TestAccPreCheckDMSRabbitMQInstanceId(t *testing.T) {
+	if HW_DMS_RABBITMQ_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_RABBITMQ_INSTANCE_ID must be set for RabbitMQ acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRabbitMQRecycleBinInstanceId(t *testing.T) {
 	if HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_RABBITMQ_RECYCLE_BIN_INSTANCE_ID must be set for restoring RabbitMQ recycle bin instance acceptance tests")
 	}
@@ -5112,6 +5113,13 @@ func TestAccPreCheckDMSRocketMQDeadLetterMessageIDs(t *testing.T, min int) {
 	if HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs == "" || len(strings.Split(HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, ",")) < min {
 		t.Skipf("At least %d dead letter message IDs must be supported during the HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, "+
 			"separated by commas (,).", min)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t *testing.T) {
+	if HW_DMS_ROCKETMQ_RECYCLE_BIN_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_ROCKETMQ_RECYCLE_BIN_INSTANCE_ID must be set for restoring RocketMQ recycle bin instance acceptance test")
 	}
 }
 
