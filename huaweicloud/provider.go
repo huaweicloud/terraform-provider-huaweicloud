@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mitchellh/go-homedir"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aad"
@@ -129,6 +128,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/workspace"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
@@ -5505,13 +5505,14 @@ func getCloudDomain(cloud, region string) string {
 
 func readConfig(c *config.Config) error {
 	if c.SharedConfigFile == "" {
-		c.SharedConfigFile = fmt.Sprintf("%s/.hcloud/config.json", os.Getenv("HOME"))
-		if runtime.GOOS == "windows" {
-			c.SharedConfigFile = fmt.Sprintf("%s/.hcloud/config.json", os.Getenv("USERPROFILE"))
+		home, err := utils.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("unable to detect home directory: %s", err)
 		}
+		c.SharedConfigFile = filepath.Join(home, ".hcloud", "config.json")
 	}
 
-	profilePath, err := homedir.Expand(c.SharedConfigFile)
+	profilePath, err := utils.ExpandHome(c.SharedConfigFile)
 	if err != nil {
 		return err
 	}

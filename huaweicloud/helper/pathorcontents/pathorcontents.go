@@ -3,7 +3,7 @@ package pathorcontents
 import (
 	"os"
 
-	"github.com/mitchellh/go-homedir"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // Read if the argument is a path, Read loads it and returns the contents,
@@ -20,7 +20,7 @@ func Read(poc string) (string, bool, error) {
 	path := poc
 	if path[0] == '~' {
 		var err error
-		path, err = homedir.Expand(path)
+		path, err = utils.ExpandHome(path)
 		if err != nil {
 			return path, true, err
 		}
