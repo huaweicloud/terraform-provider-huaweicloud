@@ -7,12 +7,38 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/taurusdb"
 )
 
+func getHtapInstanceReplicationFunc(cfg *config.Config, r *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("gaussdb", acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating TaurusDB client: %s", err)
+	}
+	instanceId := r.Primary.Attributes["instance_id"]
+	taskName := r.Primary.Attributes["task_name"]
+	details, err := taurusdb.GetHtapReplicationStatus(client, instanceId, taskName)
+	if err != nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return details, nil
+}
+
 func TestAccTaurusDBHtapStarrocksReplication_basic(t *testing.T) {
+	var obj interface{}
+
 	resourceName := "huaweicloud_taurusdb_htap_starrocks_replication.test"
 	rName := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getHtapInstanceReplicationFunc,
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -21,7 +47,7 @@ func TestAccTaurusDBHtapStarrocksReplication_basic(t *testing.T) {
 			acceptance.TestAccPreCheckTaurusDBHtapInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTaurusDBHtapStarrocksReplication_basic(rName),
@@ -87,8 +113,16 @@ func TestAccTaurusDBHtapStarrocksReplication_basic(t *testing.T) {
 }
 
 func TestAccTaurusDBHtapStarrocksReplication_instanceAllDbs(t *testing.T) {
+	var obj interface{}
+
 	resourceName := "huaweicloud_taurusdb_htap_starrocks_replication.test"
 	rName := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getHtapInstanceReplicationFunc,
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -97,7 +131,7 @@ func TestAccTaurusDBHtapStarrocksReplication_instanceAllDbs(t *testing.T) {
 			acceptance.TestAccPreCheckTaurusDBHtapInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTaurusDBHtapStarrocksReplication_instanceAllDbs(rName),
@@ -244,6 +278,10 @@ resource "huaweicloud_taurusdb_htap_starrocks_replication" "test" {
 }
 
 func testAccTaurusDBHtapStarrocksReplication_instanceAllDbs(name string) string {
+	return testAccTaurusDBHtapStarrocksReplication_base(name)
+}
+
+func testAccTaurusDBHtapStarrocksReplication_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_taurusdb_htap_starrocks_replication" "test" {
   task_name              = "%[1]s"
@@ -264,8 +302,7 @@ resource "huaweicloud_taurusdb_htap_starrocks_replication" "test" {
     repl_type  = "include_tables"
     repl_scope = "all"
   }
-}
-`, name, acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID, acceptance.HW_TAURUSDB_INSTANCE_ID)
+}`, name, acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID, acceptance.HW_TAURUSDB_INSTANCE_ID)
 }
 
 func testAccTaurusDBHtapStarrocksReplication_instanceAllDbsPauseTask(name string) string {
