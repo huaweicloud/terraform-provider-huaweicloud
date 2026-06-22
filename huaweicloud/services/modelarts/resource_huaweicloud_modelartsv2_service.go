@@ -745,10 +745,10 @@ func buildV2ServiceLogConfigs(logConfigs []interface{}) []map[string]interface{}
 	for _, logConfig := range logConfigs {
 		result = append(result, map[string]interface{}{
 			// Required parameters.
-			"weight": utils.PathSearch("weight", logConfig, nil),
+			"type": utils.PathSearch("type", logConfig, nil),
 			// Optional parameters.
-			"log_group_id":  utils.PathSearch("log_group_id", logConfig, nil),
-			"log_stream_id": utils.PathSearch("log_stream_id", logConfig, nil),
+			"log_group_id":  utils.ValueIgnoreEmpty(utils.PathSearch("log_group_id", logConfig, nil)),
+			"log_stream_id": utils.ValueIgnoreEmpty(utils.PathSearch("log_stream_id", logConfig, nil)),
 		})
 	}
 
@@ -1019,7 +1019,7 @@ func flattenServiceLogConfigs(logConfigs []interface{}) []map[string]interface{}
 
 	for _, logConfig := range logConfigs {
 		result = append(result, map[string]interface{}{
-			"weight":        utils.PathSearch("weight", logConfig, nil),
+			"type":          utils.PathSearch("type", logConfig, nil),
 			"log_group_id":  utils.PathSearch("log_group_id", logConfig, nil),
 			"log_stream_id": utils.PathSearch("log_stream_id", logConfig, nil),
 		})
