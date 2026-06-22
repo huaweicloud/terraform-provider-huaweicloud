@@ -1,6 +1,9 @@
 package iam
 
 import (
+	"bytes"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +13,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/keybase/go-crypto/openpgp"
+	"github.com/keybase/go-crypto/openpgp/packet"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials"
 
@@ -40,7 +45,7 @@ func TestAccV3AccessKey_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckAdminOnly(t)
+			// acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		ExternalProviders: map[string]resource.ExternalProvider{
@@ -360,4 +365,189 @@ resource "huaweicloud_identity_access_key" "test" {
   secret_file = "/null/credentials.csv" # Invalid storage path
 }
 `, testAccV3AccessKey_withIncorrectSecretFileInput_base(name))
+}
+
+// generateTestPGPKeyPair creates a PGP key pair for testing and returns the
+// base64-encoded public key, private key, and the key fingerprint.
+func generateTestPGPKeyPair(t *testing.T) (publicKeyBase64, privateKeyBase64, fingerprint string) {
+	t.Helper()
+
+	entity, err := openpgp.NewEntity("TerraformAccTest", "", "terraform-acc-test@example.com", &packet.Config{
+		RSABits: 2048,
+	})
+	if err != nil {
+		t.Fatalf("error generating PGP key pair: %s", err)
+	}
+
+	// Sign the self-signature on the primary identity and the subkey binding
+	// signature before serializing. NewEntity creates the signature structures
+	// but does not actually sign them.
+	for _, ident := range entity.Identities {
+		if err := ident.SelfSignature.SignUserId(ident.Name, entity.PrimaryKey, entity.PrivateKey, &packet.Config{}); err != nil {
+			t.Fatalf("error signing self-signature for identity %q: %s", ident.Name, err)
+		}
+	}
+	for _, subkey := range entity.Subkeys {
+		if err := subkey.Sig.SignKey(subkey.PublicKey, entity.PrivateKey, &packet.Config{}); err != nil {
+			t.Fatalf("error signing subkey binding: %s", err)
+		}
+	}
+
+	pubBuf := bytes.NewBuffer(nil)
+	if err := entity.Serialize(pubBuf); err != nil {
+		t.Fatalf("error serializing public key: %s", err)
+	}
+	publicKeyBase64 = base64.StdEncoding.EncodeToString(pubBuf.Bytes())
+
+	privBuf := bytes.NewBuffer(nil)
+	if err := entity.SerializePrivate(privBuf, nil); err != nil {
+		t.Fatalf("error serializing private key: %s", err)
+	}
+	privateKeyBase64 = base64.StdEncoding.EncodeToString(privBuf.Bytes())
+
+	fingerprint = fmt.Sprintf("%x", entity.PrimaryKey.Fingerprint)
+
+	return
+}
+
+// decryptEncryptedSecret decrypts the base64-encoded encrypted secret using the
+// base64-encoded private key and returns the plaintext.
+func decryptEncryptedSecret(encryptedSecret, privateKeyBase64 string) (string, error) {
+	privKeyBytes, err := base64.StdEncoding.DecodeString(privateKeyBase64)
+	if err != nil {
+		return "", fmt.Errorf("error decoding base64 private key: %w", err)
+	}
+
+	cryptBytes, err := base64.StdEncoding.DecodeString(encryptedSecret)
+	if err != nil {
+		return "", fmt.Errorf("error decoding base64 encrypted secret: %w", err)
+	}
+
+	entity, err := openpgp.ReadEntity(packet.NewReader(bytes.NewBuffer(privKeyBytes)))
+	if err != nil {
+		return "", fmt.Errorf("error parsing private key: %w", err)
+	}
+
+	entityList := &openpgp.EntityList{entity}
+	md, err := openpgp.ReadMessage(bytes.NewBuffer(cryptBytes), entityList, nil, nil)
+	if err != nil {
+		return "", fmt.Errorf("error decrypting the message: %w", err)
+	}
+
+	ptBuf := bytes.NewBuffer(nil)
+	if _, err := ptBuf.ReadFrom(md.UnverifiedBody); err != nil {
+		return "", fmt.Errorf("error reading the decrypted message: %w", err)
+	}
+
+	return ptBuf.String(), nil
+}
+
+func testAccCheckV3AccessKeyEncryptedSecretDecryptable(resourceName, privateKeyBase64 string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", resourceName)
+		}
+
+		encryptedSecret := rs.Primary.Attributes["encrypted_secret"]
+		if encryptedSecret == "" {
+			return errors.New("encrypted_secret is empty")
+		}
+
+		decrypted, err := decryptEncryptedSecret(encryptedSecret, privateKeyBase64)
+		if err != nil {
+			return fmt.Errorf("error decrypting encrypted_secret: %s", err)
+		}
+
+		if !regexp.MustCompile(`^[A-Za-z0-9]{40}$`).MatchString(decrypted) {
+			return fmt.Errorf("decrypted secret does not match expected format, got: %q", decrypted)
+		}
+
+		return nil
+	}
+}
+
+func TestAccV3AccessKey_withPgpKey(t *testing.T) {
+	var (
+		obj interface{}
+
+		resourceName = "huaweicloud_identity_access_key.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getV3AccessKeyResourceFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	publicKeyBase64, privateKeyBase64, fingerprint := generateTestPGPKeyPair(t)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source:            "hashicorp/random",
+				VersionConstraint: "3.3.0",
+			},
+		},
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rc.CheckResourceDestroy(),
+			testAccCleanupV3AccessKeyDefaultCredentialFile(name),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccV3AccessKey_withPgpKey_step1(name, publicKeyBase64),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestMatchResourceAttr(resourceName, "create_time",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|(\.\d{6}Z))$`)),
+					resource.TestCheckResourceAttr(resourceName, "key_fingerprint", fingerprint),
+					resource.TestCheckResourceAttrSet(resourceName, "encrypted_secret"),
+					resource.TestCheckNoResourceAttr(resourceName, "secret"),
+					testAccCheckV3AccessKeyEncryptedSecretDecryptable(resourceName, privateKeyBase64),
+				),
+			},
+		},
+	})
+}
+
+func testAccV3AccessKey_withPgpKey_base(name string) string {
+	return fmt.Sprintf(`
+resource "random_string" "test" {
+  length           = 10
+  min_numeric      = 1
+  min_special      = 1
+  min_lower        = 1
+  override_special = "@!"
+}
+
+resource "huaweicloud_identity_user" "test" {
+  name        = "%[1]s"
+  password    = random_string.test.result
+  enabled     = true
+  description = "Created by terraform script"
+}
+`, name)
+}
+
+func testAccV3AccessKey_withPgpKey_step1(name, pgpKey string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_identity_access_key" "test" {
+  user_id     = huaweicloud_identity_user.test.id
+  description = "Created by terraform script"
+  pgp_key     = "%[2]s"
+
+  # Clean up the credential file (created by huaweicloud_identity_access_key resource and with a default name) after the
+  # test is completed.
+  provisioner "local-exec" {
+    command = format("rm -f %%s", abspath("./credentials-${self.user_name}.csv"))
+    when    = destroy
+  }
+}
+`, testAccV3AccessKey_withPgpKey_base(name), pgpKey)
 }
