@@ -2,8 +2,6 @@
 ## explicit
 github.com/GehirnInc/crypt
 github.com/GehirnInc/crypt/common
-github.com/GehirnInc/crypt/internal
-github.com/GehirnInc/crypt/sha512_crypt
 # github.com/agext/levenshtein v1.2.2
 ## explicit
 github.com/agext/levenshtein
@@ -360,9 +358,6 @@ github.com/google/go-cmp/cmp/internal/value
 # github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
-# github.com/hashicorp/errwrap v1.1.0
-## explicit
-github.com/hashicorp/errwrap
 # github.com/hashicorp/go-checkpoint v0.5.0
 ## explicit
 github.com/hashicorp/go-checkpoint
@@ -380,7 +375,7 @@ github.com/hashicorp/go-cty/cty/set
 # github.com/hashicorp/go-hclog v1.2.1
 ## explicit; go 1.13
 github.com/hashicorp/go-hclog
-# github.com/hashicorp/go-multierror v1.1.1
+# github.com/hashicorp/go-multierror v1.1.2-0.20250313123807-1ee6e1a1957a
 ## explicit; go 1.13
 github.com/hashicorp/go-multierror
 # github.com/hashicorp/go-plugin v1.4.4
