@@ -65,22 +65,26 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the data pipe.
 
-* `mapping` - (Optional, String, NonUpdatable) Specifies the index field mapping in JSON format.
-  Each key object carries information about one field.
-  Each field must contain `type` (string), `is_chinese_exist` (boolean), and `properties` (object).
+* `mapping` - (Optional, String) Specifies the index mapping information in JSON format.
+  This is a JSON string representing a map structure where each key is a field name and each value is a
+  [KeyIndex](#pipe_index_key_index) object describing the field's index configuration.
 
-  The `type` parameter valid values are as follows:
-  + **text**: Full-text index field for text search.
-  + **keyword**: Keyword type for exact matching.
-  + **long**: Long integer type.
-  + **integer**: Integer type.
-  + **double**: Double-precision floating-point number.
-  + **float**: Single-precision floating-point number.
-  + **date**: Date type.
+* `timestamp_field` - (Optional, String) Specifies the timestamp field.
 
-  Example: `{"field1": {"type": "text", "is_chinese_exist": true, "properties": {}}, "field2": {...}}`
+* `status` - (Optional, String) Specifies the status of the pipe.
+  Valid values are **open** and **closed**.
 
-* `timestamp_field` - (Optional, String, NonUpdatable) Specifies the timestamp field.
+<a name="pipe_index_key_index"></a>
+The `KeyIndex` object supports:
+
+* `type` - (Optional, String) Specifies the field type. The value can be **text** (full-text index field),
+  **keyword** (exact match), **long** (long integer), **integer** (integer), **double** (double-precision floating-point),
+  **float** (single-precision floating-point), or **date** (date type).
+
+* `is_chinese_exist` - (Optional, Bool) Specifies whether the field contains Chinese characters.
+
+* `properties` - (Optional, Map) Specifies the nested structure of the field, which is a map of field names
+  to [KeyIndex](#pipe_index_key_index) objects. This field is used to define nested object structures.
 
 ## Attribute Reference
 

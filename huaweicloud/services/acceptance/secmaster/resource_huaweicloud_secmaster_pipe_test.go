@@ -119,18 +119,18 @@ resource "huaweicloud_secmaster_pipe" "test" {
   shards          = 2
   storage_period  = 20
   description     = "test description update"
-  timestamp_field = "timestamp"
+  timestamp_field = "timestamp_update"
 
   mapping = jsonencode({
-    id = {
+    update_id = {
       is_chinese_exist = true
       properties       = {}
-      type             = "text"
+      type             = "date"
     }
-    name = {
+    update_name = {
       is_chinese_exist = false
       properties       = {}
-      type             = "text"
+      type             = "date"
     }
   })
 }
