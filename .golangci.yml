@@ -73,6 +73,7 @@ linters-settings:
       - catalogue
       - catalogues
       - subscirption
+      - ageing
       - defence
   gci:
     # Section configuration to compare against.
