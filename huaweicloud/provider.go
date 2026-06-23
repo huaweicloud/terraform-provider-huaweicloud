@@ -4475,6 +4475,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_incident":                    secmaster.ResourceIncident(),
 			"huaweicloud_secmaster_indicator":                   secmaster.ResourceIndicator(),
 			"huaweicloud_secmaster_layout_field":                secmaster.ResourceLayoutField(),
+			"huaweicloud_secmaster_metric":                      secmaster.ResourceMetric(),
 			"huaweicloud_secmaster_module":                      secmaster.ResourceModule(),
 			"huaweicloud_secmaster_node_expansion":              secmaster.ResourceNodeExpansion(),
 			"huaweicloud_secmaster_operation_connection":        secmaster.ResourceOperationConnection(),
