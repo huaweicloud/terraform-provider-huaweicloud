@@ -19,7 +19,7 @@ func TestAccDataSourceRecycleInstances_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDMSRocketMQRecycleBinInstanceId(t)
+			acceptance.TestAccPreCheckDMSRabbitMQRecycleBinInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

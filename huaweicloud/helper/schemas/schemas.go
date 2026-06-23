@@ -18,6 +18,7 @@ func SliceToList(arr gjson.Result, convFun func(val gjson.Result) any) any {
 	return rst
 }
 
+//nolint:unused
 func PrimSliceConverter(input gjson.Result) any {
 	if !input.Exists() {
 		return nil

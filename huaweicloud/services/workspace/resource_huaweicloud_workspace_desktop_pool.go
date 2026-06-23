@@ -815,22 +815,24 @@ func orderDataVolumesByDataVolumesOrderOrigin(volumes, volumesOrderOrigin []inte
 		return volumes
 	}
 
-	sortedVolumes := make([]interface{}, 0)
+	sortedVolumes := make([]interface{}, 0, len(volumes))
+	volumesCopy := make([]interface{}, len(volumes))
+	copy(volumesCopy, volumes)
 	for _, volumeOrigin := range volumesOrderOrigin {
-		index := findVolumeBySizeAndType(volumes, int64(utils.PathSearch("size", volumeOrigin, 0).(int)),
+		index := findVolumeBySizeAndType(volumesCopy, int64(utils.PathSearch("size", volumeOrigin, 0).(int)),
 			utils.PathSearch("type", volumeOrigin, "").(string))
 		if index == -1 {
 			continue
 		}
 
 		// Add the found volume configuration to the sorted volumes list.
-		sortedVolumes = append(sortedVolumes, volumes[index])
+		sortedVolumes = append(sortedVolumes, volumesCopy[index])
 		// Remove the processed volume configuration from the remote volumes array.
-		volumes = append(volumes[:index], volumes[index+1:]...)
+		volumesCopy = append(volumesCopy[:index], volumesCopy[index+1:]...)
 	}
 
 	// Add unsorted volumes configurations to the end of the sorted list.
-	sortedVolumes = append(sortedVolumes, volumes...)
+	sortedVolumes = append(sortedVolumes, volumesCopy...)
 	log.Printf("[DEBUG] data_volumes sort result by data_volumes_order: %#v", sortedVolumes)
 	return sortedVolumes
 }
@@ -1030,11 +1032,13 @@ func getDesktopPoolDataVolumesDiff(d *schema.ResourceData, oldDataVolumes []inte
 		return nil, nil
 	}
 
+	configDataVolumesCopy := make([]interface{}, len(configDataVolumes))
+	copy(configDataVolumesCopy, configDataVolumes)
 	// The oldVolumeIndexes records the indices of elements in oldDataVolumes that do not need to be modified.
 	oldVolumeIndexes := make([]int, 0)
 	for i, oldVolume := range oldDataVolumes {
 		configIndex := findVolumeBySizeAndType(
-			configDataVolumes,
+			configDataVolumesCopy,
 			int64(utils.PathSearch("size", oldVolume, 0).(int)),
 			utils.PathSearch("type", oldVolume, "").(string),
 		)
@@ -1042,26 +1046,29 @@ func getDesktopPoolDataVolumesDiff(d *schema.ResourceData, oldDataVolumes []inte
 			continue
 		}
 
-		configDataVolumes = append(configDataVolumes[:configIndex], configDataVolumes[configIndex+1:]...)
+		configDataVolumesCopy = append(configDataVolumesCopy[:configIndex], configDataVolumesCopy[configIndex+1:]...)
 		oldVolumeIndexes = append(oldVolumeIndexes, i)
 	}
 
+	oldDataVolumesCopy := make([]interface{}, len(oldDataVolumes))
+	copy(oldDataVolumesCopy, oldDataVolumes)
 	if len(oldVolumeIndexes) > 0 {
 		// Sort indices in descending order to delete from back to front.
 		// This avoids index shifting when deleting elements.
 		sort.Sort(sort.Reverse(sort.IntSlice(oldVolumeIndexes)))
-		// Delete elements from `oldDataVolumes` at the corresponding indexes.
+		// Delete elements from oldDataVolumesCopy at the corresponding indexes.
 		for _, idx := range oldVolumeIndexes {
-			if idx < 0 || idx >= len(oldDataVolumes) {
+			if idx < 0 || idx >= len(oldDataVolumesCopy) {
 				// Boundary check to avoid panic.
 				continue
 			}
-			oldDataVolumes = append(oldDataVolumes[:idx], oldDataVolumes[idx+1:]...)
+			oldDataVolumesCopy = append(oldDataVolumesCopy[:idx], oldDataVolumesCopy[idx+1:]...)
 		}
+
 	}
 
-	rmVolumes = oldDataVolumes
-	addVolumes = configDataVolumes
+	rmVolumes = oldDataVolumesCopy
+	addVolumes = configDataVolumesCopy
 	return
 }
 

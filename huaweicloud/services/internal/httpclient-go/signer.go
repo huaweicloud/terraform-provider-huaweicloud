@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	//nolint:unused
 	BasicDateFormat     = "20060102T150405Z"
 	Algorithm           = "SDK-HMAC-SHA256"
 	HeaderXDate         = "X-Sdk-Date"
@@ -39,6 +40,7 @@ func CanonicalRequest(r *http.Request, signedHeaders []string) (string, error) {
 	return fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s", r.Method, CanonicalURI(r), CanonicalQueryString(r), CanonicalHeaders(r, signedHeaders), strings.Join(signedHeaders, ";"), hexencode), err
 }
 
+//nolint:unused
 func HexEncodeSHA256Hash(body []byte) (string, error) {
 	hash := sha256.New()
 	if len(body) == 0 {
@@ -56,7 +58,7 @@ func CanonicalURI(r *http.Request) string {
 	}
 	urlPath := strings.Join(uri, "/")
 	if len(urlPath) == 0 || urlPath[len(urlPath)-1] != '/' {
-		urlPath = urlPath + "/"
+		urlPath += "/"
 	}
 	return urlPath
 }
@@ -118,6 +120,7 @@ type Signer struct {
 	Secret string
 }
 
+//nolint:unused
 func (s *Signer) Sign(r *http.Request) error {
 	var t time.Time
 	var err error

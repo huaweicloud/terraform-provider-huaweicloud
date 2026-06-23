@@ -3,7 +3,6 @@ package kafka
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -132,23 +131,13 @@ func dataSourceDmsKafkaUserClientQuotasRead(_ context.Context, d *schema.Resourc
 				continue
 			}
 
-			listRespJson, err := json.Marshal(quota)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			var listRespBody map[string]interface{}
-			err = json.Unmarshal(listRespJson, &listRespBody)
-			if err != nil {
-				return diag.FromErr(err)
-			}
 			results = append(results, map[string]interface{}{
 				"user":               utils.PathSearch("user", quota, nil),
-				"user_default":       listRespBody["user-default"],
+				"user_default":       utils.PathSearch("user-default", quota, nil),
 				"client":             utils.PathSearch("client", quota, nil),
-				"client_default":     listRespBody["client-default"],
-				"producer_byte_rate": int64(listRespBody["producer-byte-rate"].(float64)),
-				"consumer_byte_rate": int64(listRespBody["consumer-byte-rate"].(float64)),
+				"client_default":     utils.PathSearch("client-default", quota, nil),
+				"producer_byte_rate": int64(utils.PathSearch("producer-byte-rate", quota, float64(0)).(float64)),
+				"consumer_byte_rate": int64(utils.PathSearch("consumer-byte-rate", quota, float64(0)).(float64)),
 			})
 		}
 

@@ -1400,12 +1400,14 @@ func orderResourcesByResourcesOrderOrigin(resources, resourcesOrderOrigin []inte
 		return resources
 	}
 
-	sortedResources := make([]interface{}, 0)
+	sortedResources := make([]interface{}, 0, len(resources))
+	resourcesCopy := make([]interface{}, len(resources))
+	copy(resourcesCopy, resources)
 	// According to the `resources_order_origin` to sort the `resources.
 	for _, v := range resourcesOrderOrigin {
 		// Find matching resource in resources array based on flavor, node_pool and creating_step.
 		_, index := findResourceByFlavorAndNodePoolAndCreatingStep(
-			resources,
+			resourcesCopy,
 			utils.PathSearch("flavor", v, "").(string),
 			utils.PathSearch("node_pool", v, "").(string),
 			utils.PathSearch("creating_step", v, "").(string),
@@ -1417,13 +1419,13 @@ func orderResourcesByResourcesOrderOrigin(resources, resourcesOrderOrigin []inte
 		}
 
 		// Add the found resource to the sorted resources list.
-		sortedResources = append(sortedResources, resources[index])
+		sortedResources = append(sortedResources, resourcesCopy[index])
 		// Remove the processed resource from the original array.
-		resources = append(resources[:index], resources[index+1:]...)
+		resourcesCopy = append(resourcesCopy[:index], resourcesCopy[index+1:]...)
 	}
 
 	// Add any remaining unsorted resources to the end of the sorted list.
-	sortedResources = append(sortedResources, resources...)
+	sortedResources = append(sortedResources, resourcesCopy...)
 	return sortedResources
 }
 

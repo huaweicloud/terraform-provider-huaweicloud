@@ -35,7 +35,7 @@ func TestAccDataSourceRamShares_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRAMResourceShare(t)
+			acceptance.TestAccPreCheckRAM(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

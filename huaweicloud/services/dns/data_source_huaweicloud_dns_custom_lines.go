@@ -104,7 +104,6 @@ func DataSourceCustomLines() *schema.Resource {
 type CustomLinesDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
-	region string
 }
 
 func newCustomLinesDSWrapper(d *schema.ResourceData, meta interface{}) *CustomLinesDSWrapper {

@@ -92,6 +92,8 @@ func GetEntities(pgpKeys []string) ([]*openpgp.Entity, error) {
 // to do useful thing with it (get it as a []byte, get it as a string, use it
 // as an io.Reader, etc), and also because this function doesn't know if what
 // comes out is binary data or a string, so let the caller decide.
+//
+//nolint:unused
 func DecryptBytes(encodedCrypt, privKey string) (*bytes.Buffer, error) {
 	privKeyBytes, err := base64.StdEncoding.DecodeString(privKey)
 	if err != nil {

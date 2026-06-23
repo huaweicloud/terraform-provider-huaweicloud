@@ -141,7 +141,7 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	createBackupPath := createBackupClient.Endpoint + createBackupHttpUrl
-	createBackupPath = strings.Replace(createBackupPath, "{project_id}", createBackupClient.ProjectID, -1)
+	createBackupPath = strings.ReplaceAll(createBackupPath, "{project_id}", createBackupClient.ProjectID)
 
 	createBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -243,10 +243,10 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			}
 
 			createBackupWaitingPath := createBackupWaitingClient.Endpoint + createBackupWaitingHttpUrl
-			createBackupWaitingPath = strings.Replace(createBackupWaitingPath, "{project_id}", createBackupWaitingClient.ProjectID, -1)
+			createBackupWaitingPath = strings.ReplaceAll(createBackupWaitingPath, "{project_id}", createBackupWaitingClient.ProjectID)
 
 			createBackupWaitingqueryParams := buildCreateBackupWaitingQueryParams(d)
-			createBackupWaitingPath = createBackupWaitingPath + createBackupWaitingqueryParams
+			createBackupWaitingPath += createBackupWaitingqueryParams
 
 			createBackupWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -268,15 +268,14 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `backups[0].status`)
 			}
 
-			if utils.StrSliceContains(strings.Split(`FAILED`, ","), status) {
+			switch status {
+			case "FAILED":
 				return createBackupWaitingRespBody, status, nil
-			}
-
-			if utils.StrSliceContains(strings.Split(`COMPLETED`, ","), status) {
+			case "COMPLETED":
 				return createBackupWaitingRespBody, "COMPLETED", nil
+			default:
+				return createBackupWaitingRespBody, "PENDING", nil
 			}
-
-			return createBackupWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        30 * time.Second,
@@ -303,10 +302,10 @@ func resourceBackupRead(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	getBackupPath := getBackupClient.Endpoint + getBackupHttpUrl
-	getBackupPath = strings.Replace(getBackupPath, "{project_id}", getBackupClient.ProjectID, -1)
+	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", getBackupClient.ProjectID)
 
 	getBackupqueryParams := buildGetBackupQueryParams(d)
-	getBackupPath = getBackupPath + getBackupqueryParams
+	getBackupPath += getBackupqueryParams
 
 	getBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -390,8 +389,8 @@ func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	deleteBackupPath := deleteBackupClient.Endpoint + deleteBackupHttpUrl
-	deleteBackupPath = strings.Replace(deleteBackupPath, "{project_id}", deleteBackupClient.ProjectID, -1)
-	deleteBackupPath = strings.Replace(deleteBackupPath, "{id}", d.Id(), -1)
+	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{project_id}", deleteBackupClient.ProjectID)
+	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{id}", d.Id())
 
 	deleteBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -453,10 +452,10 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			}
 
 			deleteBackupWaitingPath := deleteBackupWaitingClient.Endpoint + deleteBackupWaitingHttpUrl
-			deleteBackupWaitingPath = strings.Replace(deleteBackupWaitingPath, "{project_id}", deleteBackupWaitingClient.ProjectID, -1)
+			deleteBackupWaitingPath = strings.ReplaceAll(deleteBackupWaitingPath, "{project_id}", deleteBackupWaitingClient.ProjectID)
 
 			deleteBackupWaitingqueryParams := buildDeleteBackupWaitingQueryParams(d)
-			deleteBackupWaitingPath = deleteBackupWaitingPath + deleteBackupWaitingqueryParams
+			deleteBackupWaitingPath += deleteBackupWaitingqueryParams
 
 			deleteBackupWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -480,15 +479,14 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			}
 			statusRaw := utils.PathSearch(`total_count`, deleteBackupWaitingRespBody, nil)
 			status := fmt.Sprintf("%v", statusRaw)
-			if utils.StrSliceContains(strings.Split(`1`, ","), status) {
+			switch status {
+			case "1":
 				return deleteBackupWaitingRespBody, "PENDING", nil
-			}
-
-			if utils.StrSliceContains(strings.Split(`0`, ","), status) {
+			case "0":
 				return deleteBackupWaitingRespBody, "COMPLETED", nil
+			default:
+				return deleteBackupWaitingRespBody, status, nil
 			}
-
-			return deleteBackupWaitingRespBody, status, nil
 		},
 		Timeout:      t,
 		Delay:        30 * time.Second,

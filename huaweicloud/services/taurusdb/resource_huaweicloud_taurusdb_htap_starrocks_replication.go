@@ -48,6 +48,7 @@ func ResourceTaurusDBHtapStarrocksReplication() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
 			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(htapStarrocksReplicationNoneUpdatableParams),
@@ -314,7 +315,7 @@ func resourceTaurusDBHtapStarrocksReplicationCreate(ctx context.Context, d *sche
 	// Waiting for replication task creation completed
 	instanceId := d.Get("instance_id").(string)
 	taskName := d.Get("task_name").(string)
-	details, err := waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), instanceId, taskName)
+	details, err := waitForCreateReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), instanceId, taskName)
 	if err != nil {
 		return diag.Errorf("error waiting for creating HTAP instance (%s) replication task (%s): %s",
 			instanceId, taskName, err)
@@ -324,7 +325,7 @@ func resourceTaurusDBHtapStarrocksReplicationCreate(ctx context.Context, d *sche
 	errMsg := utils.PathSearch("last_error_of_alter_table", details, "").(string)
 	if errMsg != "" {
 		log.Printf("[WARN] created HTAP instance (%s) replication task (%s) is abnormal: %s", instanceId, taskName, errMsg)
-		err = deleteReplicationTask(client, instanceId, taskName)
+		err = deleteHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error deleting abnormal HTAP instance (%s) replication task (%s): %s", instanceId, taskName, err)
 		}
@@ -333,39 +334,24 @@ func resourceTaurusDBHtapStarrocksReplicationCreate(ctx context.Context, d *sche
 
 	// Start the replication task
 	if v, ok := d.Get("enable_sync").(string); ok && v == "true" {
-		err = startSyncInReplicationTask(client, instanceId, taskName, details)
+		err = startHtapReplicationTask(ctx, client, instanceId, taskName, details, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error starting HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
-		}
-		_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), instanceId, taskName)
-		if err != nil {
-			return diag.Errorf("error waiting for starting HTAP instance (%s) replication task (%s) completed: %s",
-				instanceId, taskName, err)
 		}
 	}
 
 	// operate action the replication task
 	if v, ok := d.Get("sync_action").(string); ok {
 		if v == "pause" {
-			err = pauseSyncInReplicationTask(client, instanceId, taskName)
+			err = pauseHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return diag.Errorf("error pausing HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
 			}
-			_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), instanceId, taskName)
-			if err != nil {
-				return diag.Errorf("error waiting for pausing HTAP instance (%s) replication task (%s) completed: %s",
-					instanceId, taskName, err)
-			}
 		}
 		if v == "resume" {
-			err = resumeSyncInReplicationTask(client, instanceId, taskName)
+			err = resumeHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return diag.Errorf("error resuming HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
-			}
-			_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), instanceId, taskName)
-			if err != nil {
-				return diag.Errorf("error waiting for resuming HTAP instance (%s) replication task (%s) completed: %s",
-					instanceId, taskName, err)
 			}
 		}
 	}
@@ -445,12 +431,12 @@ func createStarrocksDatabaseReplicationWithTablesConfigs(client *golangsdk.Servi
 	return nil
 }
 
-func getReplicationDetails(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
-	taskConfig, err := getReplicationConfig(client, instanceId, taskName)
+func getHtapReplicationDetails(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
+	taskConfig, err := getHtapReplicationConfig(client, instanceId, taskName)
 	if err != nil {
 		return nil, err
 	}
-	taskStatus, err := getReplicationStatus(client, instanceId, taskName)
+	taskStatus, err := GetHtapReplicationStatus(client, instanceId, taskName)
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +460,7 @@ func getReplicationDetails(client *golangsdk.ServiceClient, instanceId, taskName
 	return details, nil
 }
 
-func getReplicationStatus(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
+func GetHtapReplicationStatus(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
 	replications, err := getHtapStarrocksReplications(client, instanceId)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving HTAP instance(%s) replications: %s", instanceId, err)
@@ -487,10 +473,10 @@ func getReplicationStatus(client *golangsdk.ServiceClient, instanceId, taskName 
 		}
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return nil, &golangsdk.ErrDefault404{}
 }
 
-func getReplicationConfig(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
+func getHtapReplicationConfig(client *golangsdk.ServiceClient, instanceId, taskName string) (interface{}, error) {
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication/configuration"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -525,7 +511,7 @@ func resourceTaurusDBHtapStarrocksReplicationRead(_ context.Context, d *schema.R
 
 	instanceId := d.Get("instance_id").(string)
 	taskName := d.Get("task_name").(string)
-	details, err := getReplicationDetails(client, instanceId, taskName)
+	details, err := getHtapReplicationDetails(client, instanceId, taskName)
 	if err != nil {
 		// task not found
 		err = common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.270022")
@@ -574,7 +560,7 @@ func resourceTaurusDBHtapStarrocksReplicationUpdate(ctx context.Context, d *sche
 	if err != nil {
 		return diag.Errorf("error creating TaurusDB client: %s", err)
 	}
-	details, err := getReplicationDetails(client, instanceId, taskName)
+	details, err := getHtapReplicationDetails(client, instanceId, taskName)
 	if err != nil {
 		return diag.Errorf("error retrieving HTAP instance (%s) replication task (%s): %s", instanceId, taskName, err)
 	}
@@ -591,7 +577,7 @@ func resourceTaurusDBHtapStarrocksReplicationUpdate(ctx context.Context, d *sche
 	}
 	// update config
 	if d.HasChanges(updateConfigFields...) {
-		err = updateHtapStarrocksReplication(ctx, client, d)
+		err = updateHtapReplicationTask(ctx, client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -600,14 +586,9 @@ func resourceTaurusDBHtapStarrocksReplicationUpdate(ctx context.Context, d *sche
 	// update task status
 	if d.HasChanges("enable_sync") {
 		if v, ok := d.Get("enable_sync").(string); ok && v == "true" {
-			err = startSyncInReplicationTask(client, instanceId, taskName, details)
+			err = startHtapReplicationTask(ctx, client, instanceId, taskName, details, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error starting HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
-			}
-			_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, taskName)
-			if err != nil {
-				return diag.Errorf("error waiting for starting HTAP instance (%s) replication task (%s) completed: %s",
-					instanceId, taskName, err)
 			}
 		} else if v == "false" {
 			return diag.FromErr(errors.New("the modification changing enable_sync to value 'false' is not allowed"))
@@ -618,25 +599,15 @@ func resourceTaurusDBHtapStarrocksReplicationUpdate(ctx context.Context, d *sche
 	if d.HasChanges("sync_action") {
 		syncAction := d.Get("sync_action").(string)
 		if syncAction == "pause" {
-			err = pauseSyncInReplicationTask(client, instanceId, taskName)
+			err = pauseHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error pausing HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
 			}
-			_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, taskName)
-			if err != nil {
-				return diag.Errorf("error waiting for pausing HTAP instance (%s) replication task (%s) completed: %s",
-					instanceId, taskName, err)
-			}
 		}
 		if syncAction == "resume" {
-			err = resumeSyncInReplicationTask(client, instanceId, taskName)
+			err = resumeHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error resuming HTAP insatnce (%s) replication task (%s): %s", instanceId, taskName, err)
-			}
-			_, err = waitForReplicationTaskCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, taskName)
-			if err != nil {
-				return diag.Errorf("error waiting for resuming HTAP instance (%s) replication task (%s) completed: %s",
-					instanceId, taskName, err)
 			}
 		}
 	}
@@ -644,7 +615,7 @@ func resourceTaurusDBHtapStarrocksReplicationUpdate(ctx context.Context, d *sche
 	return resourceTaurusDBHtapStarrocksReplicationRead(ctx, d, meta)
 }
 
-func updateHtapStarrocksReplication(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateHtapReplicationTask(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
 		httpUrl    = "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication"
 		instanceId = d.Get("instance_id").(string)
@@ -753,7 +724,8 @@ func buildStarrocksReplicationTablesConfigs(configs []interface{}) []interface{}
 	return result
 }
 
-func deleteReplicationTask(client *golangsdk.ServiceClient, instanceId, taskName string) error {
+func deleteHtapReplicationTask(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskName string,
+	timeout time.Duration) error {
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication"
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
@@ -780,10 +752,16 @@ func deleteReplicationTask(client *golangsdk.ServiceClient, instanceId, taskName
 		return fmt.Errorf("error deleting HTAP instance (%s) replication task (%s): job_id is empty in the response",
 			instanceId, taskName)
 	}
+	_, err = waitForDeleteReplicationTaskCompleted(ctx, client, instanceId, taskName, timeout)
+	if err != nil {
+		return fmt.Errorf("error waitting for deleting HTAP instance (%s) replication task (%s) to completed: %s",
+			instanceId, taskName, err)
+	}
+
 	return nil
 }
 
-func resourceTaurusDBHtapStarrocksReplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTaurusDBHtapStarrocksReplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -793,7 +771,7 @@ func resourceTaurusDBHtapStarrocksReplicationDelete(_ context.Context, d *schema
 	}
 	instanceId := d.Get("instance_id").(string)
 	taskName := d.Get("task_name").(string)
-	err = deleteReplicationTask(client, instanceId, taskName)
+	err = deleteHtapReplicationTask(ctx, client, instanceId, taskName, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		// task not found
 		err = common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.05000091")
@@ -855,36 +833,8 @@ func flattenStarrocksReplicationTableReplConfig(resp interface{}) []interface{} 
 	}
 }
 
-func waitForReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
-	instanceId, taskName string) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Waiting"},
-		Target:       []string{"Completed"},
-		Refresh:      replicationTaskStatusRefreshFunc(client, instanceId, taskName),
-		Timeout:      timeout,
-		Delay:        5 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	return stateConf.WaitForStateContext(ctx)
-}
-
-func replicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		details, err := getReplicationDetails(client, instanceId, taskName)
-		if err != nil {
-			// If the task is not found yet, return PENDING state
-			log.Printf("[DEBUG] The replication task (%s) is not found yet, continue waiting", taskName)
-			return details, "Waiting", nil
-		}
-		status := utils.PathSearch("status", details, "").(string)
-		if status == "Wait" || status == "" {
-			return details, "Waiting", nil
-		}
-		return details, "Completed", nil
-	}
-}
-
-func startSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, taskName string, details interface{}) error {
+func startHtapReplicationTask(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskName string,
+	details interface{}, timeout time.Duration) error {
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication"
 	startPath := client.Endpoint + httpUrl
 	startPath = strings.ReplaceAll(startPath, "{project_id}", client.ProjectID)
@@ -920,10 +870,16 @@ func startSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, tas
 		return fmt.Errorf("error starting HTAP instance (%s) replication task (%s): job_id not found in the response",
 			instanceId, taskName)
 	}
+	_, err = waitForStartReplicationTaskCompleted(ctx, client, instanceId, taskName, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for starting HTAP instance (%s) replication task (%s) completed: %s",
+			instanceId, taskName, err)
+	}
 	return nil
 }
 
-func pauseSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, taskName string) error {
+func pauseHtapReplicationTask(ctx context.Context, client *golangsdk.ServiceClient,
+	instanceId, taskName string, timeout time.Duration) error {
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication/pause"
 	pausePath := client.Endpoint + httpUrl
 	pausePath = strings.ReplaceAll(pausePath, "{project_id}", client.ProjectID)
@@ -952,11 +908,16 @@ func pauseSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, tas
 		return fmt.Errorf("error pausing HTAP instance (%s) replication task (%s): job_id not found in the response",
 			instanceId, taskName)
 	}
-
+	_, err = waitForPauseReplicationTaskCompleted(ctx, client, instanceId, taskName, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for pausing HTAP instance (%s) replication task (%s) completed: %s",
+			instanceId, taskName, err)
+	}
 	return nil
 }
 
-func resumeSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, taskName string) error {
+func resumeHtapReplicationTask(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskName string,
+	timeout time.Duration) error {
 	httpUrl := "v3/{project_id}/instances/{instance_id}/starrocks/databases/replication/resume"
 	resumePath := client.Endpoint + httpUrl
 	resumePath = strings.ReplaceAll(resumePath, "{project_id}", client.ProjectID)
@@ -986,6 +947,12 @@ func resumeSyncInReplicationTask(client *golangsdk.ServiceClient, instanceId, ta
 			instanceId, taskName)
 	}
 
+	_, err = waitForStartReplicationTaskCompleted(ctx, client, instanceId, taskName, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for resuming HTAP instance (%s) replication task (%s) completed: %s",
+			instanceId, taskName, err)
+	}
+
 	return nil
 }
 
@@ -1004,4 +971,119 @@ func resourceTaurusDBHtapStarrocksReplicationImport(_ context.Context, d *schema
 	)
 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+}
+
+func waitForCreateReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, taskName string) (interface{}, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:        []string{"Waiting"},
+		Target:         []string{"Created"},
+		Refresh:        createReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
+		Timeout:        timeout,
+		Delay:          5 * time.Second,
+		PollInterval:   10 * time.Second,
+		NotFoundChecks: 5,
+	}
+	return stateConf.WaitForStateContext(ctx)
+}
+
+func createReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		details, err := getHtapReplicationDetails(client, instanceId, taskName)
+		if err != nil {
+			err = common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.270022")
+			var errDefault404 *golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				// task not found,  wait for task to be created
+				return "not found yet", "Waiting", err
+			}
+			return nil, "", err
+		}
+		status := utils.PathSearch("status", details, "").(string)
+		if status == "Wait" || status == "" {
+			return details, "Waiting", nil
+		}
+		return details, "Created", nil
+	}
+}
+
+func waitForStartReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Waiting"},
+		Target:       []string{"Running"},
+		Refresh:      startReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	return stateConf.WaitForStateContext(ctx)
+}
+
+func startReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		status, err := GetHtapReplicationStatus(client, instanceId, taskName)
+		if err != nil {
+			return nil, "", err
+		}
+		stage := utils.PathSearch("stage", status, "").(string)
+		if stage == "Incremental" || stage == "Full" {
+			return status, "Running", nil
+		}
+		return status, "Waiting", nil
+	}
+}
+
+func waitForPauseReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Waiting"},
+		Target:       []string{"Paused"},
+		Refresh:      pauseReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	return stateConf.WaitForStateContext(ctx)
+}
+
+func pauseReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		details, err := GetHtapReplicationStatus(client, instanceId, taskName)
+		if err != nil {
+			return nil, "", err
+		}
+		stage := utils.PathSearch("stage", details, "").(string)
+		if stage == "Paused" {
+			return details, "Paused", nil
+		}
+		return details, "Waiting", nil
+	}
+}
+
+func waitForDeleteReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Waiting"},
+		Target:       []string{"Deleted"},
+		Refresh:      deleteReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	return stateConf.WaitForStateContext(ctx)
+}
+
+func deleteReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		details, err := GetHtapReplicationStatus(client, instanceId, taskName)
+		if err != nil {
+			var errDefault404 *golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				return "delete success", "Deleted", nil
+			}
+			return nil, "", err
+		}
+		return details, "Waiting", nil
+	}
 }

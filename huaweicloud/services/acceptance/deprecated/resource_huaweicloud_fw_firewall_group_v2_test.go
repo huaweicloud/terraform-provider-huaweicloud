@@ -146,8 +146,8 @@ func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 }
 
 func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -178,8 +178,8 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
@@ -221,8 +221,8 @@ func testAccCheckFWFirewallGroupV2(n, expectedName, expectedDescription string, 
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}

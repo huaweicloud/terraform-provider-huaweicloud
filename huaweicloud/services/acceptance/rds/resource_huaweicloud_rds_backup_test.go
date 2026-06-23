@@ -28,11 +28,11 @@ func getBackupResourceFunc(config *config.Config, state *terraform.ResourceState
 	}
 
 	getBackupPath := getBackupClient.Endpoint + getBackupHttpUrl
-	getBackupPath = strings.Replace(getBackupPath, "{project_id}", getBackupClient.ProjectID, -1)
+	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", getBackupClient.ProjectID)
 
 	getBackupqueryParams := fmt.Sprintf("?instance_id=%s&backup_id=%s",
 		state.Primary.Attributes["instance_id"], state.Primary.ID)
-	getBackupPath = getBackupPath + getBackupqueryParams
+	getBackupPath += getBackupqueryParams
 	getBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{

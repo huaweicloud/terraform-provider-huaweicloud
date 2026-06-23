@@ -2172,10 +2172,8 @@ func updateVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client 
 		if err := enableVolumeAutoExpand(ctx, d, client, limitSize); err != nil {
 			return err
 		}
-	} else {
-		if err := disableVolumeAutoExpand(ctx, schema.TimeoutUpdate, client, d); err != nil {
-			return err
-		}
+	} else if err := disableVolumeAutoExpand(ctx, schema.TimeoutUpdate, client, d); err != nil {
+		return err
 	}
 	return nil
 }
