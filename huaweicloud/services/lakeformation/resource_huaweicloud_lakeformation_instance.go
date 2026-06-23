@@ -371,7 +371,8 @@ func orderSpecsBySpecsOrderOrigin(specs, specsOrigin []interface{}) []interface{
 	}
 
 	sortedSpecs := make([]interface{}, 0, len(specs))
-	specsCopy := specs
+	specsCopy := make([]interface{}, len(specs))
+	copy(specsCopy, specs)
 	for copyIndex, spec := range specsCopy {
 		specCode := utils.PathSearch("spec_code", spec, "").(string)
 		for originIndex, specOrigin := range specsOrigin {
