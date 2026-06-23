@@ -256,6 +256,7 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minutes.
 * `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
