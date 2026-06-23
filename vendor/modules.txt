@@ -268,7 +268,6 @@ github.com/chnsz/golangsdk/openstack/networking/v3/security/groups
 github.com/chnsz/golangsdk/openstack/networking/v3/security/rules
 github.com/chnsz/golangsdk/openstack/obs
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
-github.com/chnsz/golangsdk/openstack/rds/v3/instances
 github.com/chnsz/golangsdk/openstack/rms/v1/policyassignments
 github.com/chnsz/golangsdk/openstack/scm/v3/certificates
 github.com/chnsz/golangsdk/openstack/sdrs/v1/attachreplication
