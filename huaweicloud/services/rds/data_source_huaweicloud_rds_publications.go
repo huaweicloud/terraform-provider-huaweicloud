@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -589,7 +590,10 @@ func flattenPublicationsTablesFilterBody(resp interface{}) []interface{} {
 		return nil
 	}
 
-	filtersJson, _ := json.Marshal(utils.PathSearch("filters", curJson, nil))
+	filtersJson, err := json.Marshal(utils.PathSearch("filters", curJson, nil))
+	if err != nil {
+		log.Printf("[ERROR] error marshaling filters JSON: %s", err)
+	}
 	rst := []interface{}{
 		map[string]interface{}{
 			"relation":  utils.PathSearch("relation", curJson, nil),

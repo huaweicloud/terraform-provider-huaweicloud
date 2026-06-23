@@ -3,6 +3,7 @@ package css
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -132,7 +133,10 @@ func buildSnapshotSettingRequestBody(d *schema.ResourceData) map[string]interfac
 	}
 
 	// Set the snapshot policy when enable is true
-	enable, _ := strconv.ParseBool(d.Get("enable").(string))
+	enable, err := strconv.ParseBool(d.Get("enable").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'enable' field to Boolean: %s", err)
+	}
 	if enable {
 		requestBody["indices"] = utils.ValueIgnoreEmpty(d.Get("indices").(string))
 		requestBody["prefix"] = utils.ValueIgnoreEmpty(d.Get("prefix").(string))

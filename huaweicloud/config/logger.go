@@ -61,7 +61,10 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 					log.Printf("[WARN] [%s] failed to log API Request Body: %s", logId, logErr)
 				}
 
-				request.Body.Close()
+				err = request.Body.Close()
+				if err != nil {
+					log.Printf("[WARN] [%s] failed to close API Request Body: %s", logId, err)
+				}
 			}
 		}
 

@@ -470,7 +470,10 @@ func buildCreatePublicationBodyParams(d *schema.ResourceData) (map[string]interf
 	if err != nil {
 		return nil, err
 	}
-	isCreateSnapshotImmediately, _ := strconv.ParseBool(d.Get("is_create_snapshot_immediately").(string))
+	isCreateSnapshotImmediately, err := strconv.ParseBool(d.Get("is_create_snapshot_immediately").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'is_create_snapshot_immediately' field to Boolean: %s", err)
+	}
 	bodyParams := map[string]interface{}{
 		"publication_name":               d.Get("publication_name"),
 		"publication_database":           d.Get("publication_database"),
@@ -481,7 +484,10 @@ func buildCreatePublicationBodyParams(d *schema.ResourceData) (map[string]interf
 		"tables":                         tables,
 	}
 	if v, ok := d.GetOk("is_select_all_table"); ok {
-		isSelectAllTable, _ := strconv.ParseBool(v.(string))
+		isSelectAllTable, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'is_select_all_table' field to Boolean: %s", err)
+		}
 		bodyParams["is_select_all_table"] = isSelectAllTable
 	}
 	return bodyParams, nil
@@ -496,19 +502,31 @@ func buildPublicationSubscriptionOptionsBodyParams(subscriptionOptionsRaw interf
 	if v, ok := rawParams[0].(map[string]interface{}); ok {
 		bodyParams := map[string]interface{}{}
 		if v["independent_agent"] != nil {
-			independentAgent, _ := strconv.ParseBool(v["independent_agent"].(string))
+			independentAgent, err := strconv.ParseBool(v["independent_agent"].(string))
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'independent_agent' field to Boolean: %s", err)
+			}
 			bodyParams["independent_agent"] = independentAgent
 		}
 		if v["snapshot_always_available"] != nil {
-			snapshotAlwaysAvailable, _ := strconv.ParseBool(v["snapshot_always_available"].(string))
+			snapshotAlwaysAvailable, err := strconv.ParseBool(v["snapshot_always_available"].(string))
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'snapshot_always_available' field to Boolean: %s", err)
+			}
 			bodyParams["snapshot_always_available"] = snapshotAlwaysAvailable
 		}
 		if v["replicate_ddl"] != nil {
-			replicateDdl, _ := strconv.ParseBool(v["replicate_ddl"].(string))
+			replicateDdl, err := strconv.ParseBool(v["replicate_ddl"].(string))
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'replicate_ddl' field to Boolean: %s", err)
+			}
 			bodyParams["replicate_ddl"] = replicateDdl
 		}
 		if v["allow_initialize_from_backup"] != nil {
-			allowInitializeFromBackup, _ := strconv.ParseBool(v["allow_initialize_from_backup"].(string))
+			allowInitializeFromBackup, err := strconv.ParseBool(v["allow_initialize_from_backup"].(string))
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'allow_initialize_from_backup' field to Boolean: %s", err)
+			}
 			bodyParams["allow_initialize_from_backup"] = allowInitializeFromBackup
 		}
 		return bodyParams
@@ -1038,7 +1056,10 @@ func buildUpdatePublicationBodyParams(d *schema.ResourceData) (map[string]interf
 		"tables":               tables,
 	}
 	if v, ok := d.GetOk("is_select_all_table"); ok {
-		isSelectAllTable, _ := strconv.ParseBool(v.(string))
+		isSelectAllTable, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'is_select_all_table' field to Boolean: %s", err)
+		}
 		bodyParams["is_select_all_table"] = isSelectAllTable
 	}
 

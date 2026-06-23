@@ -177,6 +177,7 @@ func setDomainInstanceIDs(d *schema.ResourceData, client *golangsdk.ServiceClien
 	}
 	getInstanceIdsResp, err := client.Request("GET", getInstanceIdsPath, &getInstanceIdsOpt)
 	if err != nil {
+		log.Printf("[ERROR] failed to query AAD domain instance IDs: %s", err)
 		return nil
 	}
 

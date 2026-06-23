@@ -432,8 +432,14 @@ func ignoreDiffIfScaleGroupsEqual() schema.CustomizeDiffFunc {
 			return err
 		}
 
-		oldJson, _ := json.Marshal(oldSorted)
-		newJson, _ := json.Marshal(newSorted)
+		oldJson, err := json.Marshal(oldSorted)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling old sorted nodes: %s", err)
+		}
+		newJson, err := json.Marshal(newSorted)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling new sorted nodes: %s", err)
+		}
 
 		if string(oldJson) == string(newJson) {
 			if err := d.Clear(key); err != nil {

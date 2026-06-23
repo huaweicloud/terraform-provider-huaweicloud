@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -68,8 +69,14 @@ func filterUserClientQuota(parts []string, resp interface{}) interface{} {
 		return nil
 	}
 
-	rawUserDefault, _ := strconv.ParseBool(parts[2])
-	rawClientDefault, _ := strconv.ParseBool(parts[4])
+	rawUserDefault, err := strconv.ParseBool(parts[2])
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'user_default' field to Boolean: %s", err)
+	}
+	rawClientDefault, err := strconv.ParseBool(parts[4])
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'client_default' field to Boolean: %s", err)
+	}
 
 	for _, quota := range quotaArray {
 		user := utils.PathSearch("user", quota, nil)

@@ -335,8 +335,10 @@ func (c *HttpHelper) parseRspBody() {
 	}
 
 	b, err := bodyToBytes(c.result.Body)
+	if err != nil {
+		c.result.Err = err
+	}
 	c.responseBody = b
-	c.result.Err = err
 }
 
 func (c *HttpHelper) doFilter() {

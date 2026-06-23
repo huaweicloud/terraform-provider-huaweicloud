@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -128,7 +129,10 @@ func buildGetLbWhitelistsQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&id=%v", res, v)
 	}
 	if v, ok := d.GetOk("enable_whitelist"); ok {
-		enableWhitelist, _ := strconv.ParseBool(v.(string))
+		enableWhitelist, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'enable_whitelist' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&enable_whitelist=%v", res, enableWhitelist)
 	}
 	if v, ok := d.GetOk("listener_id"); ok {

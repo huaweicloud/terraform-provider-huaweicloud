@@ -992,8 +992,16 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		topicUrn = alarmNotify["topic_urn"].(string)
 	}
 
-	createdAt, _ := strconv.ParseInt(detail.CreateTime, 10, 64)
-	updatedAt, _ := strconv.ParseInt(detail.UpdateTime, 10, 64)
+	createdAt, err := strconv.ParseInt(detail.CreateTime, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'created_at' field to Integer: %s", err)
+	}
+
+	updatedAt, err := strconv.ParseInt(detail.UpdateTime, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'updated_at' field to Integer: %s", err)
+	}
+
 	// engine_type input mongodb will return mongodb-to-dds
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -1964,8 +1972,14 @@ func testConnectionsForDualAZ(client *golangsdk.ServiceClient, jobId string, opt
 		},
 	}
 
-	sourceEndpointJson, _ := json.Marshal(sourceEndpoint)
-	targetEndpointJson, _ := json.Marshal(targetEndpoint)
+	sourceEndpointJson, err := json.Marshal(sourceEndpoint)
+	if err != nil {
+		log.Printf("[ERROR] error marshaling source endpoint: %s", err)
+	}
+	targetEndpointJson, err := json.Marshal(targetEndpoint)
+	if err != nil {
+		log.Printf("[ERROR] error marshaling target endpoint: %s", err)
+	}
 	reqParams := jobs.TestClusterConnectionsReq{
 		Jobs: []jobs.TestJob{
 			{

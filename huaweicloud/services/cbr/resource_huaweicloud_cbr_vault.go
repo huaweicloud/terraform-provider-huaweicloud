@@ -331,8 +331,18 @@ func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 		billing["charging_mode"] = "pre_paid"
 		billing["period_type"] = d.Get("period_unit").(string)
 		billing["period_num"] = d.Get("period").(int)
-		billing["is_auto_renew"], _ = strconv.ParseBool(d.Get("auto_renew").(string))
-		billing["is_auto_pay"], _ = strconv.ParseBool(cbc.GetAutoPay(d))
+
+		autoRenew, err := strconv.ParseBool(d.Get("auto_renew").(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+		}
+		billing["is_auto_renew"] = autoRenew
+
+		autoPay, err := strconv.ParseBool(cbc.GetAutoPay(d))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'auto_pay' field to Boolean: %s", err)
+		}
+		billing["is_auto_pay"] = autoPay
 	}
 
 	return utils.RemoveNil(billing)
@@ -1003,7 +1013,11 @@ func getPoliciesByVaultId(client *golangsdk.ServiceClient, vaultId string) ([]in
 // Convert Mega Bytes to Giga Bytes, the result is to two decimal places.
 func getNumberInGB(megaBytes float64) float64 {
 	denominator := float64(1024)
-	result, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", megaBytes/denominator), 64)
+	result, err := strconv.ParseFloat(fmt.Sprintf("%.2f", megaBytes/denominator), 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing field to Float: %s", err)
+	}
+
 	return result
 }
 
@@ -1112,6 +1126,7 @@ func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("status", utils.PathSearch("billing.status", respBody, nil)),
 		d.Set("storage", utils.PathSearch("billing.storage_unit", respBody, nil)),
 	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting vault resource fields: %s", err)
 	}

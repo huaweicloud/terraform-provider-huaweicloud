@@ -284,7 +284,10 @@ func resourceCertificateImportUpdate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	oldPushCert, _ := parsePushCertificateToMap(oldVal.([]interface{}))
+	oldPushCert, err := parsePushCertificateToMap(oldVal.([]interface{}))
+	if err != nil {
+		log.Printf("[ERROR] error parsing old push certificate: %s", err)
+	}
 
 	// extract the new push service
 	pushOptArrays, err := buildUpdatePushOpts(newPushCert, oldPushCert)

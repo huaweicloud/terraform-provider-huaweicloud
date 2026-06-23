@@ -1089,7 +1089,10 @@ func flattenReferResources(resources []instances.ReferResource) (result []map[st
 		params := make(map[string]interface{})
 		for k, v := range val.Parameters {
 			if _, ok := v.([]interface{}); ok {
-				jsonByte, _ := json.Marshal(v.([]interface{}))
+				jsonByte, err := json.Marshal(v.([]interface{}))
+				if err != nil {
+					log.Printf("[ERROR] error marshaling component instance value: %s", err)
+				}
 				params[k] = string(jsonByte)
 				continue
 			}

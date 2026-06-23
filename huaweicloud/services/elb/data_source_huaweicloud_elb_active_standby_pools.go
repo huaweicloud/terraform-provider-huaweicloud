@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -391,9 +392,7 @@ func resourceActiveStandbyPoolsRead(_ context.Context, d *schema.ResourceData, m
 	}
 	listActiveStandbyPoolsPath := elbClient.Endpoint + listActiveStandbyPoolsUrl
 	listActiveStandbyPoolsPath = strings.ReplaceAll(listActiveStandbyPoolsPath, "{project_id}", elbClient.ProjectID)
-
-	listActiveStandbyPoolsQueryParams := buildListActiveStandbyPoolsQueryParams(d)
-	listActiveStandbyPoolsPath += listActiveStandbyPoolsQueryParams
+	listActiveStandbyPoolsPath += buildListActiveStandbyPoolsQueryParams(d)
 
 	listActiveStandbyPoolsResp, err := pagination.ListAllItems(
 		elbClient,
@@ -583,7 +582,10 @@ func buildListActiveStandbyPoolsQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&description=%v", res, v)
 	}
 	if v, ok := d.GetOk("connection_drain"); ok {
-		connectionDrain, _ := strconv.ParseBool(v.(string))
+		connectionDrain, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'connection_drain' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&connection_drain=%v", res, connectionDrain)
 	}
 	if v, ok := d.GetOk("ip_version"); ok {

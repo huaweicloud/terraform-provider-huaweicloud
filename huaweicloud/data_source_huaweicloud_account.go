@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -71,9 +72,15 @@ func dataSourceAccountRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	var user *UserDetail
 	if cfg.UserID != "" {
-		user, _ = queryIamUser(cfg)
+		user, err = queryIamUser(cfg)
+		if err != nil {
+			log.Printf("[ERROR] failed to query IAM user: %s", err)
+		}
 	} else {
-		user, _ = queryCallerUser(cfg)
+		user, err = queryCallerUser(cfg)
+		if err != nil {
+			log.Printf("[ERROR] failed to query caller user: %s", err)
+		}
 	}
 
 	if user != nil {

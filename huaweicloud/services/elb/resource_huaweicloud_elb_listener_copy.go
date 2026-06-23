@@ -2,6 +2,7 @@ package elb
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -390,7 +391,10 @@ func buildCreateListenerCopyBodyParams(d *schema.ResourceData) map[string]interf
 		"port_ranges":     buildCreateListenerCopyPortRangesBodyParams(d),
 	}
 	if v, ok := d.GetOk("reuse_pool"); ok {
-		reusePool, _ := strconv.ParseBool(v.(string))
+		reusePool, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'reuse_pool' field to Boolean: %s", err)
+		}
 		bodyParams["reuse_pool"] = reusePool
 	}
 	return map[string]interface{}{

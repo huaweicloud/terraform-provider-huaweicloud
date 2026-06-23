@@ -3,6 +3,7 @@ package cce
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -114,7 +115,10 @@ func (w *ClusterConfigurationDetailsDSWrapper) showClusterConfigurationDetailsTo
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("configurations", schemas.MapConverter(*body,
 			func(values gjson.Result) any {
-				configurations, _ := json.Marshal(values)
+				configurations, err := json.Marshal(values)
+				if err != nil {
+					log.Printf("[ERROR] error marshaling configuration value: %s", err)
+				}
 				return string(configurations)
 			},
 		)),

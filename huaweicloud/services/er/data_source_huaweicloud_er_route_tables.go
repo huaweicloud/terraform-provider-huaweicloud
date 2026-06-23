@@ -3,6 +3,7 @@ package er
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -310,9 +311,18 @@ func flattenRouteTables(client *golangsdk.ServiceClient, instanceId string,
 	for i, routeTable := range all {
 		routeTableId := routeTable.ID
 
-		associationList, _ := queryRouteTableAssociations(client, instanceId, routeTableId)
-		propagationList, _ := queryRouteTablePropagations(client, instanceId, routeTableId)
-		routeList, _ := queryRouteTableRoutes(client, routeTableId)
+		associationList, err := queryRouteTableAssociations(client, instanceId, routeTableId)
+		if err != nil {
+			log.Printf("[ERROR] error retrieving route table associations: %s", err)
+		}
+		propagationList, err := queryRouteTablePropagations(client, instanceId, routeTableId)
+		if err != nil {
+			log.Printf("[ERROR] error retrieving route table propagations: %s", err)
+		}
+		routeList, err := queryRouteTableRoutes(client, routeTableId)
+		if err != nil {
+			log.Printf("[ERROR] error retrieving route table routes: %s", err)
+		}
 
 		result[i] = map[string]interface{}{
 			"id":                     routeTableId,

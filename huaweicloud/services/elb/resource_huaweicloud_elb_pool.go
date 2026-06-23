@@ -386,15 +386,24 @@ func buildAzAffinity(d *schema.ResourceData) map[string]interface{} {
 		"az_unhealthy_fallback_strategy": utils.ValueIgnoreEmpty(azAffinity["az_unhealthy_fallback_strategy"]),
 	}
 	if v := azAffinity["enable"]; v != "" {
-		r, _ := strconv.ParseBool(v.(string))
+		r, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'enable' field to Boolean: %s", err)
+		}
 		bodyParams["enable"] = r
 	}
 	if v := azAffinity["az_minimum_healthy_member_percentage"]; v != "" {
-		r, _ := strconv.Atoi(v.(string))
+		r, err := strconv.Atoi(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse AZ minimum healthy member percentage: %s", err)
+		}
 		bodyParams["az_minimum_healthy_member_percentage"] = r
 	}
 	if v := azAffinity["az_minimum_healthy_member_count"]; v != "" {
-		r, _ := strconv.Atoi(v.(string))
+		r, err := strconv.Atoi(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse AZ minimum healthy member count: %s", err)
+		}
 		bodyParams["az_minimum_healthy_member_count"] = r
 	}
 	return bodyParams

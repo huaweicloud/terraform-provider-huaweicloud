@@ -114,8 +114,15 @@ func compareVersion(ver1, ver2 string) int {
 	}
 
 	for i := range parts1 {
-		num1, _ := strconv.Atoi(parts1[i])
-		num2, _ := strconv.Atoi(parts2[i])
+		num1, err := strconv.Atoi(parts1[i])
+		if err != nil {
+			log.Printf("[ERROR] failed to parse version: %s", err)
+		}
+
+		num2, err := strconv.Atoi(parts2[i])
+		if err != nil {
+			log.Printf("[ERROR] failed to parse latest version: %s", err)
+		}
 
 		if num1 < num2 {
 			return -1

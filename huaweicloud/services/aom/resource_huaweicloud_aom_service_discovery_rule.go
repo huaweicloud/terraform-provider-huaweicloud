@@ -3,6 +3,7 @@ package aom
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -294,9 +295,20 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 		return common.CheckDeletedDiag(d, err, "error retrieving AOM service discovery rule")
 	}
 
-	isDefaultRule, _ := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "").(string))
-	detectLogEnabled, _ := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "").(string))
-	createdAt, _ := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
+	isDefaultRule, err := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "false").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'isDefaultRule' field to Boolean: %s", err)
+	}
+
+	detectLogEnabled, err := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "false").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'detectLog' field to Boolean: %s", err)
+	}
+
+	createdAt, err := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'createTime' field to Int: %s", err)
+	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),

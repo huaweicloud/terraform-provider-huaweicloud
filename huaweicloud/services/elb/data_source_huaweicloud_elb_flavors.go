@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -172,8 +173,7 @@ func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listQueryParams := buildListFlavorsQueryParams(d)
-	listPath += listQueryParams
+	listPath += buildListFlavorsQueryParams(d)
 
 	listResp, err := pagination.ListAllItems(
 		client,
@@ -223,7 +223,10 @@ func buildListFlavorsQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&name=%v", res, v)
 	}
 	if v, ok := d.GetOk("shared"); ok {
-		shared, _ := strconv.ParseBool(v.(string))
+		shared, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'shared' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&shared=%v", res, shared)
 	}
 	if v, ok := d.GetOk("public_border_group"); ok {
@@ -233,11 +236,17 @@ func buildListFlavorsQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&category=%v", res, v)
 	}
 	if v, ok := d.GetOk("flavor_sold_out"); ok {
-		flavorSoldOut, _ := strconv.ParseBool(v.(string))
+		flavorSoldOut, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'flavor_sold_out' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&flavor_sold_out=%v", res, flavorSoldOut)
 	}
 	if v, ok := d.GetOk("list_all"); ok {
-		listAll, _ := strconv.ParseBool(v.(string))
+		listAll, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'list_all' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&list_all=%v", res, listAll)
 	}
 	if res != "" {

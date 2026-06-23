@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -223,7 +224,6 @@ func resourceListenersRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	listListenersPath := listListenersClient.Endpoint + listListenersHttpUrl
 	listListenersPath = strings.ReplaceAll(listListenersPath, "{project_id}", listListenersClient.ProjectID)
-
 	listListenersPath += buildListListenersQueryParams(d)
 
 	listListenersOpt := golangsdk.RequestOpts{
@@ -346,7 +346,10 @@ func buildListListenersQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
 	}
 	if v, ok := d.GetOk("http2_enable"); ok {
-		http2Enable, _ := strconv.ParseBool(v.(string))
+		http2Enable, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'http2_enable' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&http2_enable=%v", res, http2Enable)
 	}
 	if v, ok := d.GetOk("listener_id"); ok {

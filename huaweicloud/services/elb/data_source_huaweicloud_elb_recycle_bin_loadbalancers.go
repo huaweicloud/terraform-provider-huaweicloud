@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -462,8 +463,7 @@ func dataSourceElbRecycleBinLoadBalancersRead(_ context.Context, d *schema.Resou
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listQueryParams := buildListRecycleBinLoadBalancersQueryParams(d)
-	listPath += listQueryParams
+	listPath += buildListRecycleBinLoadBalancersQueryParams(d)
 
 	listResp, err := pagination.ListAllItems(
 		client,
@@ -523,11 +523,17 @@ func buildListRecycleBinLoadBalancersQueryParams(d *schema.ResourceData) string 
 	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "protection_status", "protection_status"))
 	res = fmt.Sprintf("%s%v", res, buildCycleParam(d, "global_eips", "global_eips"))
 	if v, ok := d.GetOk("guaranteed"); ok {
-		guaranteed, _ := strconv.ParseBool(v.(string))
+		guaranteed, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'guaranteed' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&guaranteed=%v", res, guaranteed)
 	}
 	if v, ok := d.GetOk("deletion_protection_enable"); ok {
-		deletionProtectionEnable, _ := strconv.ParseBool(v.(string))
+		deletionProtectionEnable, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&deletion_protection_enable=%v", res, deletionProtectionEnable)
 	}
 	if v, ok := d.GetOk("log_topic_id"); ok {

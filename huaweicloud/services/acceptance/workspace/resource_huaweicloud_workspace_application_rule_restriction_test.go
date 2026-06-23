@@ -3,6 +3,7 @@ package workspace
 import (
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"testing"
@@ -26,7 +27,10 @@ func getApplicationRuleRestrictionFunc(cfg *config.Config, state *terraform.Reso
 		return nil, errors.New("error retrieving the slice count of the rule IDs")
 	}
 
-	count, _ := strconv.Atoi(countStr)
+	count, err := strconv.Atoi(countStr)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse number of rule IDs: %s", err)
+	}
 	ruleIds := make([]string, 0)
 	for i := 0; i < count; i++ {
 		key := fmt.Sprintf("rule_ids.%d", i)

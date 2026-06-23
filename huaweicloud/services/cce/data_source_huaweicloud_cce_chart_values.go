@@ -3,6 +3,7 @@ package cce
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -94,7 +95,10 @@ func (w *ShowChartValuesDSWrapper) showChartValuesToSchema(body *gjson.Result) e
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("values", schemas.MapConverter(*body,
 			func(r gjson.Result) any {
-				values, _ := json.Marshal(r)
+				values, err := json.Marshal(r)
+				if err != nil {
+					log.Printf("[ERROR] error marshaling chart value: %s", err)
+				}
 				return string(values)
 			},
 		)),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -125,7 +126,10 @@ func resourceRecordingRuleCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	respBody, _ := GetRecordingRuleByInstanceId(client, instanceId)
+	respBody, err := GetRecordingRuleByInstanceId(client, instanceId)
+	if err != nil {
+		log.Printf("[ERROR] failed to get recording rule by instance ID: %s", err)
+	}
 	ruleId := utils.PathSearch("rule_id", respBody, "").(string)
 	if ruleId != "" {
 		return diag.Diagnostics{

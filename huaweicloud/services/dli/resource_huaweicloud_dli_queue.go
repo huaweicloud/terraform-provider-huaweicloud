@@ -409,11 +409,13 @@ func getSparkDriverByQueueName(client *golangsdk.ServiceClient, queueName string
 	for _, property := range resp {
 		switch property.Key {
 		case MaxInstance:
-			sparkDriver["max_instance"], err = strconv.Atoi(property.Value)
-			err = multierror.Append(mErr, err)
+			if sparkDriver["max_instance"], err = strconv.Atoi(property.Value); err != nil {
+				err = multierror.Append(mErr, err)
+			}
 		case MaxConcurrent:
-			sparkDriver["max_concurrent"], err = strconv.Atoi(property.Value)
-			err = multierror.Append(mErr, err)
+			if sparkDriver["max_concurrent"], err = strconv.Atoi(property.Value); err != nil {
+				err = multierror.Append(mErr, err)
+			}
 		case MaxPrefetchInstance:
 			sparkDriver["max_prefetch_instance"] = property.Value
 		}

@@ -774,7 +774,7 @@ func setTriggerEventData(d *schema.ResourceData, resp *trigger.Trigger) error {
 		"'DEDICATEDGATEWAY'.")
 }
 
-func setTriggerParamters(d *schema.ResourceData, resp *trigger.Trigger) error {
+func setTriggerParameters(d *schema.ResourceData, resp *trigger.Trigger) error {
 	mErr := multierror.Append(nil,
 		d.Set("type", resp.TriggerTypeCode),
 		d.Set("status", resp.Status),
@@ -807,7 +807,7 @@ func resourceFunctionGraphTriggerRead(_ context.Context, d *schema.ResourceData,
 			v := v
 			mErr := multierror.Append(nil,
 				d.Set("region", cfg.GetRegion(d)),
-				setTriggerParamters(d, &v),
+				setTriggerParameters(d, &v),
 			)
 			if mErr.ErrorOrNil() != nil {
 				return diag.Errorf("error setting Trigger Parameters: %s", mErr.ErrorOrNil())

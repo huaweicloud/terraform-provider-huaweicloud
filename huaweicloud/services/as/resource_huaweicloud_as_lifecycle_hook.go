@@ -149,6 +149,7 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("notification_topic_name", hook.NotificationTopicName),
 		d.Set("create_time", hook.CreateTime),
 	)
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 

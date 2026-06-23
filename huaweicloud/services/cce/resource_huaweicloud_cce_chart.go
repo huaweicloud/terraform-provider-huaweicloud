@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"strings"
@@ -128,7 +129,10 @@ func resourceChartCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	writer.Close()
+	err = writer.Close()
+	if err != nil {
+		log.Printf("[ERROR] [CreateFunction] error closing multipart writer: %s", err)
+	}
 
 	var (
 		createChartHttpUrl = "v2/charts"
@@ -247,7 +251,10 @@ func resourceChartUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	writer.Close()
+	err = writer.Close()
+	if err != nil {
+		log.Printf("[ERROR] [UpdateFunction] error closing multipart writer: %s", err)
+	}
 
 	var (
 		updateChartHttpUrl = "v2/charts/{chart_id}"

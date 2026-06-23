@@ -3,6 +3,7 @@ package iam
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -200,8 +201,14 @@ func flattenV3Roles(roles []interface{}) []map[string]interface{} {
 
 	result := make([]map[string]interface{}, 0, len(roles))
 	for _, role := range roles {
-		createdAt, _ := strconv.ParseInt(utils.PathSearch("created_time", role, "").(string), 10, 64)
-		updatedAt, _ := strconv.ParseInt(utils.PathSearch("updated_time", role, "").(string), 10, 64)
+		createdAt, err := strconv.ParseInt(utils.PathSearch("created_time", role, "").(string), 10, 64)
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'created_time' field to Integer: %s", err)
+		}
+		updatedAt, err := strconv.ParseInt(utils.PathSearch("updated_time", role, "").(string), 10, 64)
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'updated_time' field to Integer: %s", err)
+		}
 
 		result = append(result, map[string]interface{}{
 			"id":             utils.PathSearch("id", role, nil),

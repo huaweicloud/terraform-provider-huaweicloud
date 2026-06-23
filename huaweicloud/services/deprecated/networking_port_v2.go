@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -75,7 +76,10 @@ func flattenNetworkingPortDHCPOptsV2(dhcpOpts extradhcpopts.ExtraDHCPOptsExt) []
 	dhcpOptsSet := make([]map[string]interface{}, len(dhcpOpts.ExtraDHCPOpts))
 
 	for i, dhcpOpt := range dhcpOpts.ExtraDHCPOpts {
-		ipVersion, _ := strconv.Atoi(dhcpOpt.IPVersion)
+		ipVersion, err := strconv.Atoi(dhcpOpt.IPVersion)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse IP version: %s", err)
+		}
 		dhcpOptsSet[i] = map[string]interface{}{
 			"ip_version": ipVersion,
 			"name":       dhcpOpt.OptName,

@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -149,7 +150,10 @@ func DataSourceDmsKafkaBackgroundTasksRead(_ context.Context, d *schema.Resource
 		// `task_count` means the number of all `tasks`, and type is string.
 		start += len(tasks)
 		taskCount := utils.PathSearch("task_count", listRespBody, "0").(string)
-		totalCount, _ := strconv.Atoi(taskCount)
+		totalCount, err := strconv.Atoi(taskCount)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse task count: %s", err)
+		}
 		if totalCount <= start-1 {
 			break
 		}

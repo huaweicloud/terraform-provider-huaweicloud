@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"testing"
 
@@ -19,7 +20,10 @@ func getDliFlinkSqlJobResourceFunc(config *config.Config, state *terraform.Resou
 	if err != nil {
 		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
-	jobId, _ := strconv.Atoi(state.Primary.ID)
+	jobId, err := strconv.Atoi(state.Primary.ID)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse DLI Flink SQL job ID: %s", err)
+	}
 	return flinkjob.Get(client, jobId)
 }
 

@@ -166,7 +166,10 @@ func flattenTurbos(turbos []interface{}) ([]map[string]interface{}, []string) {
 			}
 
 			// High-precision to low-precision, discarding digits after the dot (.).
-			floatSize, _ := strconv.ParseFloat(turbo.Size, 64)
+			floatSize, err := strconv.ParseFloat(turbo.Size, 64)
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'size' field to Float: %s", err)
+			}
 			rm["size"] = int(floatSize)
 
 			result[i] = rm

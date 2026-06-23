@@ -272,6 +272,8 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 	if resp == nil {
 		return nil
 	}
+
+	var err error
 	curJson := utils.PathSearch("instances", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
@@ -280,7 +282,10 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 		capacity := utils.PathSearch("capacity", v, nil)
 		capacityMinor := utils.PathSearch("capacity", v, "")
 		if capacity == 0 {
-			capacity, _ = strconv.ParseFloat(capacityMinor.(string), floatBitSize)
+			capacity, err = strconv.ParseFloat(capacityMinor.(string), floatBitSize)
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'capacity' field to Float: %s", err)
+			}
 		}
 
 		securityGroupID := utils.PathSearch("security_group_id", v, nil)

@@ -8,6 +8,7 @@ package cph
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -485,12 +486,18 @@ func buildCreateCphServerRequestBodyBandWidth(rawParams interface{}) map[string]
 			"band_width_size": utils.ValueIgnoreEmpty(raw["size"]),
 		}
 
-		shareType, _ := strconv.Atoi(utils.ValueIgnoreEmpty(raw["share_type"]).(string))
+		shareType, err := strconv.Atoi(utils.ValueIgnoreEmpty(raw["share_type"]).(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse share type: %s", err)
+		}
 		params["band_width_share_type"] = shareType
 
 		chargeMode := utils.ValueIgnoreEmpty(raw["charge_mode"]).(string)
 		if len(chargeMode) > 0 {
-			chargeModeInteger, _ := strconv.Atoi(chargeMode)
+			chargeModeInteger, err := strconv.Atoi(chargeMode)
+			if err != nil {
+				log.Printf("[ERROR] failed to parse charge mode: %s", err)
+			}
 			params["band_width_charge_mode"] = chargeModeInteger
 		}
 

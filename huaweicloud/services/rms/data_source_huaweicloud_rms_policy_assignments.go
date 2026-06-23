@@ -4,6 +4,7 @@ package rms
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -284,7 +285,10 @@ func (*PolicyAssignmentsDSWrapper) setValCusPolAutVal(_, data *gjson.Result) map
 	authValues := data.Get("auth_value").Map()
 	res := make(map[string]interface{})
 	for k, v := range authValues {
-		jsonBytes, _ := json.Marshal(v)
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling auth value: %s", err)
+		}
 		res[k] = string(jsonBytes)
 	}
 
@@ -296,7 +300,10 @@ func (*PolicyAssignmentsDSWrapper) setValueParameters(_, data *gjson.Result) map
 	result := make(map[string]interface{})
 	for k, v := range parameters.Map() {
 		val := v.Map()
-		jsonBytes, _ := json.Marshal(val["value"])
+		jsonBytes, err := json.Marshal(val["value"])
+		if err != nil {
+			log.Printf("[ERROR] error marshaling parameter value: %s", err)
+		}
 		result[k] = string(jsonBytes)
 	}
 	return result

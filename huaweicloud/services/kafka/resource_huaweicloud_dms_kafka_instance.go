@@ -1023,8 +1023,14 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	}
 
 	bandwidth := product.Bandwidth
-	defaultPartitionNum, _ := strconv.ParseInt(product.PartitionNum, 10, 64)
-	defaultStorageSpace, _ := strconv.ParseInt(product.Storage, 10, 64)
+	defaultPartitionNum, err := strconv.ParseInt(product.PartitionNum, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'PartitionNum' field to Integer: %s", err)
+	}
+	defaultStorageSpace, err := strconv.ParseInt(product.Storage, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'Storage' field to Integer: %s", err)
+	}
 
 	// check storage
 	storageSpace, ok := d.GetOk("storage_space")
@@ -1351,7 +1357,10 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error parsing the cross-VPC information: %v", err)
 	}
 
-	partitionNum, _ := strconv.ParseInt(v.PartitionNum, 10, 64)
+	partitionNum, err := strconv.ParseInt(v.PartitionNum, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'PartitionNum' field to Integer: %s", err)
+	}
 	// Convert the AZ ids to AZ codes.
 	availableZoneIDs := v.AvailableZones
 	availableZoneCodes, err := GetAvailableZoneCodeByID(cfg, region, availableZoneIDs)
@@ -1377,7 +1386,10 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 			publicIpAddrs[i] = ip.PublicAddress
 		}
 	}
-	createdAt, _ := strconv.Atoi(v.CreatedAt)
+	createdAt, err := strconv.Atoi(v.CreatedAt)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse created at: %s", err)
+	}
 
 	mErr = multierror.Append(mErr,
 		d.Set("region", cfg.GetRegion(d)),

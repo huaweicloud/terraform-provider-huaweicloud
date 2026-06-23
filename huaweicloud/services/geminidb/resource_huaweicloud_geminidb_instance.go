@@ -904,9 +904,12 @@ func updateSecondLevelMonitor(ctx context.Context, d *schema.ResourceData, clien
 		return nil
 	}
 
-	switchMonitor, _ := strconv.ParseBool(d.Get("second_level_monitoring_enabled").(string))
+	switchMonitor, err := strconv.ParseBool(d.Get("second_level_monitoring_enabled").(string))
+	if err != nil {
+		log.Printf("error parsing 'second_level_monitoring_enabled' field to Boolean: %s", err)
+	}
 
-	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+	_, err = updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
 		httpUrl:          "v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch",
 		httpMethod:       "PUT",
 		pathParams:       map[string]string{"instance_id": d.Id()},
@@ -989,7 +992,10 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("updated", utils.PathSearch("updated", instance, nil)),
 	)
 
-	port, _ := strconv.Atoi(utils.PathSearch("port", instance, "0").(string))
+	port, err := strconv.Atoi(utils.PathSearch("port", instance, "0").(string))
+	if err != nil {
+		log.Printf("[ERROR] failed to parse port: %s", err)
+	}
 	mErr = multierror.Append(mErr, d.Set("port", port))
 
 	payMode := utils.PathSearch("pay_mode", instance, "").(string)
@@ -1145,7 +1151,10 @@ func flattenGeminiDbInstanceResponseBodyFlavor(d *schema.ResourceData, instance 
 	specCode := utils.PathSearch("groups[0].nodes[0].spec_code", instance, nil)
 	nodes := utils.PathSearch("groups[0].nodes", instance, make([]interface{}, 0)).([]interface{})
 	sizeRaw := utils.PathSearch("groups[0].volume.size", instance, "0").(string)
-	size, _ := strconv.Atoi(sizeRaw)
+	size, err := strconv.Atoi(sizeRaw)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse volume size: %s", err)
+	}
 
 	flavorRaw := d.Get("flavor").([]interface{})
 	var storage string

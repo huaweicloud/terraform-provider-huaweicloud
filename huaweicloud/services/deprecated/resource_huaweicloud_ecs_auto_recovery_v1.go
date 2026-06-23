@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -28,7 +29,11 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 		return false, err
 	}
 	logp.Printf("[DEBUG] Retrieved ECS-AutoRecovery:%#v of instance:%s", rId, r)
-	return strconv.ParseBool(r.SupportAutoRecovery)
+	result, err := strconv.ParseBool(r.SupportAutoRecovery)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'SupportAutoRecovery' field to Boolean: %s", err)
+	}
+	return result, err
 }
 
 func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instanceID string, ar bool) error {
