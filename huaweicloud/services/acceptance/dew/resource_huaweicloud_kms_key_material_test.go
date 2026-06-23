@@ -104,6 +104,7 @@ func TestAccKmsKeyMaterial_Asymmetric(t *testing.T) {
 			acceptance.TestAccPreCheckKmsKeyID(t)
 			acceptance.TestAccPreCheckKmsImportToken(t)
 			acceptance.TestAccPreCheckKmsKeyMaterial(t)
+			acceptance.TestAccPreCheckKmsKeyPrivateKey(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

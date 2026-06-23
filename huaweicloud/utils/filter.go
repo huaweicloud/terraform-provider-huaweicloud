@@ -7,12 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	matchRuleByNumLt = -1 // number value match by : less than
-	matchRuleByNumEq = 0  // number value match by : equal to
-	matchRuleByNumGt = 1  // number value match by : greater than
-)
-
 // FilterSliceWithField can filter the slice all through a map filter.
 // If the field is a nested value, using dot(.) to split them, e.g. "SubBlock.SubField".
 // If value in the map is zero, it will be ignored.

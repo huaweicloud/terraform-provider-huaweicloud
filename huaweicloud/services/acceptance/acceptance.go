@@ -213,7 +213,6 @@ var (
 	HW_CDN_TARGET_DOMAIN_URLS = os.Getenv("HW_CDN_TARGET_DOMAIN_URLS")
 	HW_CDN_CERT_PATH          = os.Getenv("HW_CDN_CERT_PATH")
 	HW_CDN_PRIVATE_KEY_PATH   = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
-	HW_CDN_ENABLE_FLAG        = os.Getenv("HW_CDN_ENABLE_FLAG")
 	HW_CDN_TIMESTAMP          = os.Getenv("HW_CDN_TIMESTAMP")
 	HW_CDN_START_TIME         = os.Getenv("HW_CDN_START_TIME")
 	HW_CDN_END_TIME           = os.Getenv("HW_CDN_END_TIME")
@@ -430,7 +429,6 @@ var (
 	HW_ER_ROUTE_POLICY_IDS     = os.Getenv("HW_ER_ROUTE_POLICY_IDS")
 	HW_ER_SHARED_INSTANCE_ID   = os.Getenv("HW_ER_SHARED_INSTANCE_ID")
 	HW_ER_SHARED_ATTACHMENT_ID = os.Getenv("HW_ER_SHARED_ATTACHMENT_ID")
-	HW_ER_TEST_ON              = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
 	HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI")
@@ -574,9 +572,6 @@ var (
 	HW_SECMASTER_ORDER_ID   = os.Getenv("HW_SECMASTER_ORDER_ID")
 	HW_SECMASTER_PRODUCT_ID = os.Getenv("HW_SECMASTER_PRODUCT_ID")
 
-	// The flag of whether to create a SecMaster workspace
-	HW_SECMASTER_WORKSPACE = os.Getenv("HW_SECMASTER_WORKSPACE")
-
 	// The SecMaster playbook version ID
 	HW_SECMASTER_VERSION_ID = os.Getenv("HW_SECMASTER_VERSION_ID")
 
@@ -710,8 +705,7 @@ var (
 	HW_CSS_TARGET_CLUSTER_ID   = os.Getenv("HW_CSS_TARGET_CLUSTER_ID")
 	HW_CSS_LOGSTASH_CLUSTER_ID = os.Getenv("HW_CSS_LOGSTASH_CLUSTER_ID")
 
-	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
-	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
+	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
 	HW_AS_SCALING_GROUP_ID         = os.Getenv("HW_AS_SCALING_GROUP_ID")
 	HW_AS_SCALING_CONFIGURATION_ID = os.Getenv("HW_AS_SCALING_CONFIGURATION_ID")
@@ -754,18 +748,16 @@ var (
 
 	HW_DEH_DEDICATED_HOST_ID = os.Getenv("HW_DEH_DEDICATED_HOST_ID")
 
-	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
-	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
-	HW_EVS_TRANSFER_ID              = os.Getenv("HW_EVS_TRANSFER_ID")
-	HW_EVS_TRANSFER_AUTH_KEY        = os.Getenv("HW_EVS_TRANSFER_AUTH_KEY")
-	HW_EVS_ENABLE_FLAG              = os.Getenv("HW_EVS_ENABLE_FLAG")
-	HW_EVS_VOLUME_ID                = os.Getenv("HW_EVS_VOLUME_ID")
-	HW_EVS_SERVER_ID                = os.Getenv("HW_EVS_SERVER_ID")
-	HW_EVS_VOLUME_NEW_SIZE          = os.Getenv("HW_EVS_VOLUME_NEW_SIZE")
-	HW_EVS_PREPAID_VOLUME_ID        = os.Getenv("HW_EVS_PREPAID_VOLUME_ID")
-	HW_EVS_PREPAID_VOLUME_NEW_SIZE  = os.Getenv("HW_EVS_PREPAID_VOLUME_NEW_SIZE")
-	HW_EVS_RECYCLE_BIN_ENABLE_FLAG  = os.Getenv("HW_EVS_RECYCLE_BIN_ENABLE_FLAG")
-	HW_EVS_RECYCLE_BIN_VOLUME_ID    = os.Getenv("HW_EVS_RECYCLE_BIN_VOLUME_ID")
+	HW_EVS_TRANSFER_ID             = os.Getenv("HW_EVS_TRANSFER_ID")
+	HW_EVS_TRANSFER_AUTH_KEY       = os.Getenv("HW_EVS_TRANSFER_AUTH_KEY")
+	HW_EVS_ENABLE_FLAG             = os.Getenv("HW_EVS_ENABLE_FLAG")
+	HW_EVS_VOLUME_ID               = os.Getenv("HW_EVS_VOLUME_ID")
+	HW_EVS_SERVER_ID               = os.Getenv("HW_EVS_SERVER_ID")
+	HW_EVS_VOLUME_NEW_SIZE         = os.Getenv("HW_EVS_VOLUME_NEW_SIZE")
+	HW_EVS_PREPAID_VOLUME_ID       = os.Getenv("HW_EVS_PREPAID_VOLUME_ID")
+	HW_EVS_PREPAID_VOLUME_NEW_SIZE = os.Getenv("HW_EVS_PREPAID_VOLUME_NEW_SIZE")
+	HW_EVS_RECYCLE_BIN_ENABLE_FLAG = os.Getenv("HW_EVS_RECYCLE_BIN_ENABLE_FLAG")
+	HW_EVS_RECYCLE_BIN_VOLUME_ID   = os.Getenv("HW_EVS_RECYCLE_BIN_VOLUME_ID")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 	HW_ECS_LAUNCH_GROUP_ID    = os.Getenv("HW_ECS_LAUNCH_GROUP_ID")
@@ -792,7 +784,6 @@ var (
 	// The OBS agency name list of the DWS data source. Using commas (,) to separate multiple names.
 	HW_DWS_OBS_AGENCY_NAMES = os.Getenv("HW_DWS_OBS_AGENCY_NAMES")
 
-	HW_DCS_ACCOUNT_WHITELIST  = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
 	HW_DCS_INSTANCE_ID        = os.Getenv("HW_DCS_INSTANCE_ID")
 	HW_DCS_BEGIN_TIME         = os.Getenv("HW_DCS_BEGIN_TIME")
 	HW_DCS_END_TIME           = os.Getenv("HW_DCS_END_TIME")
@@ -842,7 +833,6 @@ var (
 
 	HW_HSS_HOST_PROTECTION_HOST_ID            = os.Getenv("HW_HSS_HOST_PROTECTION_HOST_ID")
 	HW_HSS_POLICY_GROUP_ID                    = os.Getenv("HW_HSS_POLICY_GROUP_ID")
-	HW_HSS_HOST_PROTECTION_QUOTA_ID           = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
 	HW_HSS_TARGET_POLICY_GROUP_ID             = os.Getenv("HW_HSS_TARGET_POLICY_GROUP_ID")
 	HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID     = os.Getenv("HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID")
 	HW_HSS_EVENT_ALARM_WHITE_LIST_EVENT_TYPE  = os.Getenv("HW_HSS_EVENT_ALARM_WHITE_LIST_EVENT_TYPE")
@@ -1828,13 +1818,6 @@ func TestAccPreCheckDestProjectIds(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckProject(t *testing.T) {
-	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
-		t.Skip("This environment does not support project tests")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
@@ -1947,20 +1930,6 @@ func TestAccPreCheckEVSRecycleBinVolumeId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckAvailabilityZoneGPSSD2(t *testing.T) {
-	if HW_EVS_AVAILABILITY_ZONE_GPSSD2 == "" {
-		t.Skip("If you want to change the QoS of a GPSSD2 type cloudvolume, you must specify an availability zone that supports GPSSD2 type under the current region")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckAvailabilityZoneESSD2(t *testing.T) {
-	if HW_EVS_AVAILABILITY_ZONE_ESSD2 == "" {
-		t.Skip("If you want to change the QoS of a ESSD2 type cloudvolume, you must specify an availability zone that supports ESSD2 type under the current region")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckHighCostAllow(t *testing.T) {
 	if HW_HIGH_COST_ALLOW == "" {
 		t.Skip("Do not allow expensive testing")
@@ -2035,14 +2004,6 @@ func TestAccPreCheckRAM(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckRAMResourceShare(t *testing.T) {
-	if HW_RAM_SHARE_ACCOUNT_ID == "" || HW_RAM_SHARE_RESOURCE_URN == "" {
-		t.Skip("HW_RAM_SHARE_ACCOUNT_ID and HW_RAM_SHARE_RESOURCE_URN " +
-			"must be set for create ram resource tests.")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckRAMEnableFlag(t *testing.T) {
 	if HW_RAM_ENABLE_FLAG == "" {
 		t.Skip("Skip the RAM acceptance tests.")
@@ -2060,14 +2021,6 @@ func TestAccPreCheckRAMShareInvitationId(t *testing.T) {
 func TestAccPreCheckRAMShareId(t *testing.T) {
 	if HW_RAM_SHARE_ID == "" {
 		t.Skip("HW_RAM_SHARE_ID must be set for the acceptance tests.")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckRAMSharedPrincipalsQueryFields(t *testing.T) {
-	if HW_RAM_SHARE_ACCOUNT_ID == "" || HW_RAM_SHARE_RESOURCE_URN == "" {
-		t.Skip("HW_RAM_SHARE_ACCOUNT_ID and HW_RAM_SHARE_RESOURCE_URN " +
-			"must be set for RAM shared principals tests.")
 	}
 }
 
@@ -2869,13 +2822,6 @@ func TestAccPreCheckErSharedAttachmentAccepter(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckER(t *testing.T) {
-	if HW_ER_TEST_ON == "" {
-		t.Skip("Skip all ER acceptance tests.")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckRfArchives(t *testing.T) {
 	if HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI == "" || HW_RF_TEMPLATE_ARCHIVE_URI == "" ||
 		HW_RF_VARIABLES_ARCHIVE_URI == "" {
@@ -3393,13 +3339,6 @@ func TestAccPreCheckSecMasterIndicatorTypeID(t *testing.T) {
 func TestAccPreCheckSecMasterPostPaidOrder(t *testing.T) {
 	if HW_SECMASTER_ORDER_ID == "" || HW_SECMASTER_PRODUCT_ID == "" {
 		t.Skip("HW_SECMASTER_ORDER_ID and HW_SECMASTER_PRODUCT_ID must be set for SecMaster acceptance tests")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckSecMasterWorkspace(t *testing.T) {
-	if HW_SECMASTER_WORKSPACE == "" {
-		t.Skip("HW_SECMASTER_WORKSPACE must be set for SecMaster acceptance tests")
 	}
 }
 
@@ -4105,13 +4044,6 @@ func TestAccPreCheckCERT(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCDNDomainCertificates(t *testing.T) {
-	if HW_CDN_ENABLE_FLAG == "" {
-		t.Skip("Skip the CDN acceptance tests.")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckCDNIPAddresses(t *testing.T, n int) {
 	if len(strings.Split(HW_CDN_IP_ADDRESSES, ",")) < n {
 		t.Skipf("at lease %d IP address(es) for HW_CDN_IP_ADDRESSES must be set, separated by a comma (,)", n)
@@ -4547,13 +4479,6 @@ func TestAccPreCheckDwsExtDataSourceAgencyNames(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDCSAccountWhitelist(t *testing.T) {
-	if HW_DCS_ACCOUNT_WHITELIST == "" {
-		t.Skip("HW_DCS_ACCOUNT_WHITELIST must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckDCSInstanceID(t *testing.T) {
 	if HW_DCS_INSTANCE_ID == "" {
 		t.Skip("HW_DCS_INSTANCE_ID must be set for the acceptance test")
@@ -4631,13 +4556,6 @@ func TestAccPreCheckCCMPushCertificateID(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCCMPushWAFInstance(t *testing.T) {
-	if HW_CERT_BATCH_PUSH_WAF_ID == "" {
-		t.Skip("HW_CERT_BATCH_PUSH_WAF_ID must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckVPCEPServiceId(t *testing.T) {
 	if HW_VPCEP_SERVICE_ID == "" {
 		t.Skip("HW_VPCEP_SERVICE_ID must be set for the acceptance test")
@@ -4676,13 +4594,6 @@ func TestAccPreCheckHSSTargetPolicyGroupId(t *testing.T) {
 func TestAccPreCheckHSSDefaultTargetPolicyGroupId(t *testing.T) {
 	if HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID == "" {
 		t.Skip("HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
-	if HW_HSS_HOST_PROTECTION_QUOTA_ID == "" {
-		t.Skip("HW_HSS_HOST_PROTECTION_QUOTA_ID must be set for the acceptance test")
 	}
 }
 

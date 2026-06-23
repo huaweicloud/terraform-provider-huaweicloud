@@ -27,6 +27,7 @@ type JsonFilter struct {
 	filter   Filter
 }
 
+//nolint:unused
 func (f *JsonFilter) GetQ() *gojsonq.JSONQ {
 	return f.query
 }

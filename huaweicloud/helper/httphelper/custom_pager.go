@@ -22,6 +22,7 @@ type CustomPager struct {
 	DataPath    string
 }
 
+//nolint:unused
 func (p CustomPager) IsEmpty() (bool, error) {
 	rst, err := bodyToGJson(p.Body)
 	if err != nil {
@@ -34,6 +35,7 @@ func (p CustomPager) IsEmpty() (bool, error) {
 	return count == 0, nil
 }
 
+//nolint:unused
 func (p CustomPager) NextPageURL() (string, error) {
 	body, err := bodyToGJson(p.Body)
 	if err != nil {
@@ -54,6 +56,7 @@ func (p CustomPager) NextPageURL() (string, error) {
 	return u.String(), nil
 }
 
+//nolint:unused
 func (p CustomPager) GetBody() any {
 	return p.Body
 }

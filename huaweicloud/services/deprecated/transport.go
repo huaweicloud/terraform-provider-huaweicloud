@@ -2,7 +2,6 @@ package deprecated
 
 import (
 	"fmt"
-	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -35,19 +34,6 @@ func isEmptyValue(v reflect.Value) (bool, error) {
 	return false, fmt.Errorf("isEmptyValue:: unknown type")
 }
 
-func addQueryParams(rawurl string, params map[string]string) (string, error) {
-	u, err := url.Parse(rawurl)
-	if err != nil {
-		return "", err
-	}
-	q := u.Query()
-	for k, v := range params {
-		q.Set(k, v)
-	}
-	u.RawQuery = q.Encode()
-	return u.String(), nil
-}
-
 func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]interface{}) (string, error) {
 	re := regexp.MustCompile("{([[:word:]]+)}")
 
@@ -75,20 +61,6 @@ func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]interfac
 
 	s := re.ReplaceAllStringFunc(linkTmpl, replaceFunc)
 	return strings.Replace(s, "replace_holder/", "", 1), nil
-}
-
-func navigateMap(d interface{}, index []string) (interface{}, error) {
-	for _, i := range index {
-		d1, ok := d.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("navigateMap:: Can not convert to map")
-		}
-		d, ok = d1[i]
-		if !ok {
-			return nil, fmt.Errorf("navigateMap:: '%s' may not exist", i)
-		}
-	}
-	return d, nil
 }
 
 func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (interface{}, error) {
@@ -131,21 +103,6 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 	}
 
 	return d, nil
-}
-
-func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]int) bool {
-	var r = make([]string, 0, len(index)*2)
-	for n, i := range index {
-		r = append(r, i)
-
-		if arrayIndex != nil {
-			if j, ok := arrayIndex[strings.Join(index[:n+1], ".")]; ok {
-				r = append(r, strconv.Itoa(j))
-			}
-		}
-	}
-	_, e := d.GetOkExists(strings.Join(r[:len(r)], "."))
-	return e
 }
 
 func convertToInt(v interface{}) (int64, error) {

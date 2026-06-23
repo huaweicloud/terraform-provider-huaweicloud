@@ -100,6 +100,7 @@ func (c *HttpHelper) MarkerPager(dataPath, nextExp, markerKey string) *HttpHelpe
 	return c
 }
 
+//nolint:unused
 func (c *HttpHelper) CustomPager(dataPath string, nextUrlFunc URLFunc) *HttpHelper {
 	timestamp, _ := uuid.GenerateUUID()
 	c.pager = func(r pagination.PageResult) pagination.Page {
@@ -249,6 +250,7 @@ func (c *HttpHelper) appendQueryParams() {
 	}
 }
 
+//nolint:unused
 func (c *HttpHelper) ErrorOrNil() error {
 	return c.result.Err
 }

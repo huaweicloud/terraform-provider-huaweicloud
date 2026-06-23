@@ -92,7 +92,6 @@ func DataSourceNameservers() *schema.Resource {
 type NameserversDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
-	region string
 }
 
 func newNameserversDSWrapper(d *schema.ResourceData, meta interface{}) *NameserversDSWrapper {

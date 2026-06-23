@@ -82,13 +82,6 @@ func ExpandToStringMap(v map[string]interface{}) map[string]string {
 	return s
 }
 
-// ExpandToStringListPointer takes the result for an array of strings and returns a pointer of the array
-func ExpandToStringListPointer(v []interface{}) *[]string {
-	s := ExpandToStringList(v)
-
-	return &s
-}
-
 // ExpandToIntList takes the result for an array of intgers and returns a []int
 func ExpandToIntList(v []interface{}) []int {
 	s := make([]int, 0, len(v))
@@ -111,13 +104,6 @@ func ExpandToInt32List(v []interface{}) []int32 {
 	return s
 }
 
-// ExpandToInt32ListPointer takes the result for an array of in32 and returns a pointer of the array
-func ExpandToInt32ListPointer(v []interface{}) *[]int32 {
-	s := ExpandToInt32List(v)
-
-	return &s
-}
-
 // ExpandToStringListBySet takes the result for a set of strings and returns a []string
 func ExpandToStringListBySet(v *schema.Set) []string {
 	s := make([]string, 0, v.Len())
@@ -128,24 +114,6 @@ func ExpandToStringListBySet(v *schema.Set) []string {
 	}
 
 	return s
-}
-
-// Takes list of pointers to strings. Expand to an array
-// of raw strings and returns a []interface{}
-func flattenToStringList(list []*string) []interface{} {
-	vs := make([]interface{}, 0, len(list))
-	for _, v := range list {
-		vs = append(vs, *v)
-	}
-	return vs
-}
-
-func pointersMapToStringList(pointers map[string]*string) map[string]interface{} {
-	list := make(map[string]interface{}, len(pointers))
-	for i, v := range pointers {
-		list[i] = *v
-	}
-	return list
 }
 
 // Takes a value containing JSON string and passes it through
@@ -477,36 +445,6 @@ func RandomString(n int, allowedChars ...[]rune) (result string) {
 
 	result = string(b)
 	return
-}
-
-// IsDebugOrHigher returns a bool type parameter, which specifies whether to print log
-var validLevels = []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR"}
-
-func IsDebugOrHigher() bool {
-	logLevel := os.Getenv("TF_LOG_PROVIDER")
-	if logLevel == "" {
-		logLevel = os.Getenv("TF_LOG")
-	}
-
-	if logLevel != "" {
-		if isValidLogLevel(logLevel) {
-			logLevel = strings.ToUpper(logLevel)
-			return logLevel == "DEBUG" || logLevel == "TRACE"
-		} else {
-			log.Printf("[WARN] Invalid log level: %q. Valid levels are: %+v", logLevel, validLevels)
-		}
-	}
-	return false
-}
-
-func isValidLogLevel(level string) bool {
-	for _, l := range validLevels {
-		if strings.ToUpper(level) == string(l) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // PathSearch evaluates a JMESPath expression against input data and returns the result.

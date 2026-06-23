@@ -69,7 +69,6 @@ func DataSourceDNSPublicZoneLines() *schema.Resource {
 type PublicZoneLinesDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
-	region string
 }
 
 func newPublicZoneLinesDSWrapper(d *schema.ResourceData, meta interface{}) *PublicZoneLinesDSWrapper {
