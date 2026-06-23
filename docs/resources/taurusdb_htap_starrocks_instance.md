@@ -229,6 +229,12 @@ The following arguments are supported:
 * `enable_users_sync` - (Optional, String) Specifies whether users synchronization is enabled.
   Valid values are **true** and **false**.
 
+* `be_parameter_values` - (Optional, Map) Specifies a map contains mappings of parameter name and value to modify.
+  The parameter name must be based on the default parameter template of the backend nodes.
+
+* `fe_parameter_values` - (Optional, Map) Specifies a map contains mappings of parameter name and value to modify.
+  The parameter name must be based on the default parameter template of the frontend nodes.
+
 * `charging_mode` - (Optional, String, NoneUpdatable) Specifies the charging mode of the HTAP StarRocks instance.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
 
@@ -377,6 +383,18 @@ In addition to all arguments above, the following attributes are exported:
 
 * `project_id` - The project ID of a tenant in a region.
 
+* `be_configurations` - The parameter configuration information of the backend nodes.
+  The [configurations](#htap_starrocks_parameters_configurations_attr) structure is documented below.
+
+* `be_parameters` - The list of parameter objects of the backend nodes.
+  The [parameter_values](#htap_starrocks_parameters_parameter_values_attr) structure is documented below.
+
+* `fe_configurations` - The parameter configuration information of the frontend nodes.
+  The [configurations](#htap_starrocks_parameters_configurations_attr) structure is documented below.
+
+* `fe_parameters` - The list of parameter objects of the frontend nodes.
+  The [parameter_values](#htap_starrocks_parameters_parameter_values_attr) structure is documented below.
+
 <a name="groups_block"></a>
 The `groups` block supports:
 
@@ -521,6 +539,36 @@ The `port_info` block supports:
 
 * `mysql_port` - The MySQL port number.
 
+<a name="htap_starrocks_parameters_configurations_attr"></a>
+The `configurations` block supports:
+
+* `configuration_id` - The parameter template ID.
+
+* `datastore_version_name` - The DB version name.
+
+* `datastore_name` - The DB engine name in the parameter template.
+
+* `created` - The time when the parameter template was created.
+
+* `updated` - The time when the parameter template was updated.
+
+<a name="htap_starrocks_parameters_parameter_values_attr"></a>
+The `parameter_values` block supports:
+
+* `name` - The parameter name.
+
+* `value` - The parameter value.
+
+* `restart_required` - Whether a reboot is required.
+
+* `readonly` - Whether the parameter is read-only.
+
+* `value_range` - The value range of the parameter.
+
+* `type` - The parameter type.
+
+* `description` - The parameter description.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -538,19 +586,19 @@ terraform import huaweicloud_taurusdb_htap_starrocks_instance.test <taurusdb_ins
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `db_root_pwd`, `period_unit`, `period`,
-`auto_renew`. It is generally recommended running `terraform plan` after importing a TaurusDB HTAP StarRocks instance.
-You can then decide if changes should be applied to the instance, or the resource definition should be updated to
-align with the instance. Also, you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `db_root_pwd`, `be_parameter_values`,
+`fe_parameter_values`, `period_unit`, `period`, `auto_renew`. It is generally recommended running `terraform plan` after
+importing a TaurusDB HTAP StarRocks instance. You can then decide if changes should be applied to the instance,
+or the resource definition should be updated to align with the instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
   ...
 
-  lifecycle {
-    ignore_changes = [
-      "db_root_pwd", "period_unit", "period", "auto_renew"
-    ]
-  }
+lifecycle {
+  ignore_changes = [
+    "db_root_pwd", "be_parameter_values", "fe_parameter_values", "period_unit", "period", "auto_renew"
+  ]
+}
 }
 ```
