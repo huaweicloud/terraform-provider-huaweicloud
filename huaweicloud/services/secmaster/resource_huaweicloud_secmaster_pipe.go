@@ -19,12 +19,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var nonUpdatableParamsPipe = []string{"workspace_id", "dataspace_id", "pipe_name", "mapping", "timestamp_field"}
+var nonUpdatableParamsPipe = []string{"workspace_id", "dataspace_id", "pipe_name"}
 
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/siem/pipes
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}
 // @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}
 // @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}/index
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}/index
 func ResourcePipe() *schema.Resource {
 	return &schema.Resource{
@@ -85,6 +86,12 @@ func ResourcePipe() *schema.Resource {
 			"timestamp_field": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"open", "closed"}, false),
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -293,6 +300,7 @@ func resourcePipeRead(_ context.Context, d *schema.ResourceData, meta interface{
 	}
 
 	timestampField := utils.PathSearch("timestamp_field", indexRespBody, nil)
+	status := utils.PathSearch("status", indexRespBody, nil)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -315,6 +323,7 @@ func resourcePipeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		d.Set("domain_id", utils.PathSearch("domain_id", respBody, nil)),
 		d.Set("project_id", utils.PathSearch("project_id", respBody, nil)),
 		d.Set("timestamp_field", timestampField),
+		d.Set("status", status),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -350,23 +359,70 @@ func resourcePipeUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{workspace_id}", workspaceId)
-	updatePath = strings.ReplaceAll(updatePath, "{pipe_id}", d.Id())
+	// Update pipe basic info (description, shards, storage_period)
+	if d.HasChanges("description", "shards", "storage_period") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{workspace_id}", workspaceId)
+		updatePath = strings.ReplaceAll(updatePath, "{pipe_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"content-type": "application/json;charset=UTF-8"},
-		KeepResponseBody: true,
-		JSONBody:         buildUpdatePipeBodyParams(d),
+		updateOpt := golangsdk.RequestOpts{
+			MoreHeaders:      map[string]string{"content-type": "application/json;charset=UTF-8"},
+			KeepResponseBody: true,
+			JSONBody:         buildUpdatePipeBodyParams(d),
+		}
+
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SecMaster pipe: %s", err)
+		}
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SecMaster pipe: %s", err)
+	// Update pipe index (mapping, timestamp_field, status) via UpdatePipeIndex API
+	if d.HasChanges("mapping", "timestamp_field", "status") {
+		if err := updatePipeIndex(client, workspaceId, d.Id(), d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourcePipeRead(ctx, d, meta)
+}
+
+func updatePipeIndex(client *golangsdk.ServiceClient, workspaceId, pipeId string, d *schema.ResourceData) error {
+	updateIndexPath := client.Endpoint + "v1/{project_id}/workspaces/{workspace_id}/siem/pipes/{pipe_id}/index"
+	updateIndexPath = strings.ReplaceAll(updateIndexPath, "{project_id}", client.ProjectID)
+	updateIndexPath = strings.ReplaceAll(updateIndexPath, "{workspace_id}", workspaceId)
+	updateIndexPath = strings.ReplaceAll(updateIndexPath, "{pipe_id}", pipeId)
+
+	bodyParams := map[string]interface{}{
+		"pipe_id":         pipeId,
+		"timestamp_field": d.Get("timestamp_field"),
+	}
+
+	if v, ok := d.GetOk("status"); ok {
+		bodyParams["status"] = v
+	}
+
+	if v, ok := d.GetOk("mapping"); ok {
+		var mappingObj interface{}
+		if err := json.Unmarshal([]byte(v.(string)), &mappingObj); err != nil {
+			return fmt.Errorf("error parsing mapping parameter: %s", err)
+		}
+		bodyParams["mapping"] = mappingObj
+	}
+
+	updateIndexOpt := golangsdk.RequestOpts{
+		MoreHeaders:      map[string]string{"content-type": "application/json;charset=UTF-8"},
+		KeepResponseBody: true,
+		JSONBody:         bodyParams,
+	}
+
+	_, err := client.Request("PUT", updateIndexPath, &updateIndexOpt)
+	if err != nil {
+		return fmt.Errorf("error updating SecMaster pipe index: %s", err)
+	}
+
+	return nil
 }
 
 func resourcePipeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
