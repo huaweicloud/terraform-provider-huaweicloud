@@ -30,6 +30,8 @@ const (
 	checkAttrRegexpStr = `^\$\{([^\}]+)\}$`
 )
 
+var checkAttrRegexp = regexp.MustCompile(checkAttrRegexpStr)
+
 /*
 InitDataSourceCheck build a 'ResourceCheck' object. Only used to check datasource attributes.
 
@@ -68,11 +70,7 @@ func parseVariableToName(variable string) (string, string, error) {
 	var name, field string
 
 	// Check the format of the variable
-	reg, err := regexp.Compile(checkAttrRegexpStr)
-	if err != nil {
-		return name, field, err
-	}
-	mArr := reg.FindStringSubmatch(variable)
+	mArr := checkAttrRegexp.FindStringSubmatch(variable)
 	if len(mArr) != 2 {
 		return name, field, fmt.Errorf("the type of 'variable' is error, "+
 			"expected ${resource-type.name.field} but got %s", variable)

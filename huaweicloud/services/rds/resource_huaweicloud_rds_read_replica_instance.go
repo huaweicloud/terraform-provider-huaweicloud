@@ -369,10 +369,8 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 			if err = enableVolumeAutoExpand(ctx, d, client, v.(int)); err != nil {
 				return diag.FromErr(err)
 			}
-		} else {
-			if err = disableVolumeAutoExpand(ctx, schema.TimeoutCreate, client, d); err != nil {
-				return diag.FromErr(err)
-			}
+		} else if err = disableVolumeAutoExpand(ctx, schema.TimeoutCreate, client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
