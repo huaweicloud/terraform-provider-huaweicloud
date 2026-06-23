@@ -81,7 +81,9 @@ func TestAccSQLServerDatabase_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -109,15 +111,6 @@ func testSQLServerDatabase_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_networking_secgroup_rule" "ingress" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  ports             = 8634
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-}
-
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
   db_version    = "2022_SE"
@@ -125,9 +118,14 @@ data "huaweicloud_rds_flavors" "test" {
   group_type    = "dedicated"
 }
 
+locals {
+  flavor_name = "%[3]s"
+}
+
 resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  flavor            = local.flavor_name != "" ? local.flavor_name : try(
+    data.huaweicloud_rds_flavors.test.flavors[0].name, "")
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
@@ -143,13 +141,11 @@ resource "huaweicloud_rds_instance" "test" {
     type = "CLOUDSSD"
     size = 40
   }
-
-  depends_on = [huaweicloud_networking_secgroup_rule.ingress]
 }
 
 resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s"
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base(), name, acceptance.HW_RDS_INSTANCE_FLAVOR)
 }
