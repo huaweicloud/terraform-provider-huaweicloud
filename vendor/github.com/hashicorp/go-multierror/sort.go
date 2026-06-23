@@ -1,7 +1,14 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package multierror
 
 // Len implements sort.Interface function for length
-func (err Error) Len() int {
+func (err *Error) Len() int {
+	if err == nil {
+		return 0
+	}
+
 	return len(err.Errors)
 }
 
