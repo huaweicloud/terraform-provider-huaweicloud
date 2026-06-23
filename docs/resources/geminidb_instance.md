@@ -173,6 +173,16 @@ The following arguments are supported:
   -> 1. The parameter `cold_storage_size` is used to configuration cold storage.
   <br/>2. Currently, only the single-node GeminiDB Influx instance is supported.
 
+* `maintenance_start_time` - (Optional, String) Specifies the instance maintenance start time.
+
+* `maintenance_end_time` - (Optional, String) Specifies the instance maintenance end time.
+
+-> 1. The parameters `maintenance_start_time` and `maintenance_end_time` value must be a valid UTC time exactly
+  on the hour in the **HH:MM** format. e.g. **02:00**.
+  <br/>2. The `maintenance_end_time` is `4` hours later than the `maintenance_start_time`. e.g.
+  If the `maintenance_start_time` value is **02:00**, the `maintenance_end_time` value must be **06:00**.
+  <br/>3. The parameters `maintenance_start_time` and `maintenance_end_time` must be used together.
+
 * `access_control` - (Optional, List) Specifies the access control for Load Balancer.
   The [access_control](#access_control_struct) structure is documented below.
 

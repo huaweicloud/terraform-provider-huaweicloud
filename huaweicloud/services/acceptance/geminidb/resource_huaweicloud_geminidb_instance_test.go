@@ -395,6 +395,8 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.153"),
+					resource.TestCheckResourceAttr(resourceName, "maintenance_start_time", "04:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintenance_end_time", "08:00"),
 
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "true"),
@@ -419,6 +421,8 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.118"),
+					resource.TestCheckResourceAttr(resourceName, "maintenance_start_time", "06:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintenance_end_time", "10:00"),
 
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "true"),
@@ -435,6 +439,9 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "false"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "maintenance_start_time"),
+					resource.TestCheckResourceAttrSet(resourceName, "maintenance_end_time"),
 				),
 			},
 			{
@@ -984,6 +991,10 @@ resource "huaweicloud_geminidb_instance" "test" {
   # update loadbalancer IP address
   lb_ip_address = "192.168.0.153"
 
+  # setting maintenance window
+  maintenance_start_time = "04:00"
+  maintenance_end_time   = "08:00"
+
   # Configuring the Blacklist or Whitelist of Load Balancer IP Addresses
   access_control {
     type    = "blackList"
@@ -1042,6 +1053,8 @@ resource "huaweicloud_geminidb_instance" "test" {
   second_level_monitoring_enabled = "false"
   config_ips                      = ["192.168.1.15","192.168.1.23/24","192.168.1.38"]
   lb_ip_address                   = "192.168.0.118"
+  maintenance_start_time          = "06:00"
+  maintenance_end_time            = "10:00"
 
   access_control {
     type    = "blackList"
@@ -1093,6 +1106,8 @@ resource "huaweicloud_geminidb_instance" "test" {
   second_level_monitoring_enabled = false
   config_ips                      = []
   lb_ip_address                   = "192.168.0.118"
+  maintenance_start_time          = "06:00"
+  maintenance_end_time            = "10:00"
 
   access_control {
     type    = "blackList"
