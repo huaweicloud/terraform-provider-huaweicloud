@@ -50,11 +50,13 @@ func TestMutexKVDifferentKeys(t *testing.T) {
 	mkv := NewMutexKV()
 
 	mkv.Lock("foo")
+	defer mkv.Unlock("foo")
 
 	doneCh := make(chan struct{})
 
 	go func() {
 		mkv.Lock("bar")
+		defer mkv.Unlock("bar")
 		close(doneCh)
 	}()
 
