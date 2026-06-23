@@ -57,6 +57,7 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/data-dump
 // @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/cold-volume
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/cold-volume
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -218,6 +219,17 @@ func ResourceGeminiDbInstance() *schema.Resource {
 			"cold_storage_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
+			},
+			"maintenance_start_time": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"maintenance_end_time"},
+			},
+			"maintenance_end_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"delete_node_list": {
 				Type:     schema.TypeSet,
@@ -689,6 +701,14 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Setting maintenance window
+	if _, ok := d.GetOk("maintenance_start_time"); ok {
+		err = updateMaintenanceWindow(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -995,6 +1015,16 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 	payMode := utils.PathSearch("pay_mode", instance, "").(string)
 	if payMode == "1" {
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+	}
+
+	// Set maintenance window
+	maintenanceTime := utils.PathSearch("maintenance_window", instance, "").(string)
+	maintenanceWindow := strings.Split(maintenanceTime, "-")
+	if len(maintenanceWindow) == 2 {
+		mErr = multierror.Append(mErr,
+			d.Set("maintenance_start_time", maintenanceWindow[0]),
+			d.Set("maintenance_end_time", maintenanceWindow[1]),
+		)
 	}
 
 	if err = utils.SetResourceTagsToState(d, client, "instances", d.Id()); err != nil {
@@ -1447,6 +1477,14 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Update maintenance window
+	if d.HasChanges("maintenance_start_time", "maintenance_end_time") {
+		err = updateMaintenanceWindow(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -1869,6 +1907,28 @@ func buildUpdateDataExportBodyParams(d *schema.ResourceData) map[string]interfac
 	bodyParams := map[string]interface{}{
 		"bucket_name": d.Get("bucket_name"),
 		"action":      d.Get("data_export_switch"),
+	}
+
+	return bodyParams
+}
+
+func updateMaintenanceWindow(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/maintenance-window",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateMaintenanceWindowBodyParams(d),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating the GeminiDB instance maintenance period: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateMaintenanceWindowBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"start_time": d.Get("maintenance_start_time"),
+		"end_time":   d.Get("maintenance_end_time"),
 	}
 
 	return bodyParams
