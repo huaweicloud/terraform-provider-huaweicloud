@@ -43,15 +43,17 @@ func FlexibleForceNew(keys []string, resourceSchemas ...map[string]*schema.Schem
 					if cmp.Equal(oldValue, newValue) {
 						continue
 					}
-					if resourceSchema != nil && resourceSchema[k] != nil && resourceSchema[k].DiffSuppressFunc != nil &&
-						resourceSchema[k].DiffSuppressFunc(k, oldValue.(string), newValue.(string), nil) {
-						if resourceSchema[k].Sensitive {
+
+					schemaAttr, schemaOk := resourceSchema[k]
+					if schemaOk && schemaAttr != nil && schemaAttr.DiffSuppressFunc != nil &&
+						schemaAttr.DiffSuppressFunc(k, oldValue.(string), newValue.(string), nil) {
+						if schemaAttr.Sensitive {
 							log.Printf("[DEBUG] ignoring change of %s due to DiffSuppressFunc, %v", k, "(sensitive value)")
 						} else {
 							log.Printf("[DEBUG] ignoring change of %s due to DiffSuppressFunc, %v -> %v", k, oldValue, newValue)
 						}
 					} else {
-						if resourceSchema != nil && resourceSchema[k] != nil && resourceSchema[k].Sensitive {
+						if schemaOk && schemaAttr != nil && schemaAttr.Sensitive {
 							err = multierror.Append(err, fmt.Errorf("%s can't be updated, %v", k, "(sensitive value)"))
 						} else {
 							err = multierror.Append(err, fmt.Errorf("%s can't be updated, %v -> %v", k, oldValue, newValue))
