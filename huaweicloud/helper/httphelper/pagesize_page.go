@@ -32,7 +32,11 @@ func (p PageSizePager) IsEmpty() (bool, error) {
 // NextOffset returns offset of the next element of the page.
 func (p PageSizePager) CurrentPageNum() int {
 	q := p.URL.Query()
-	page, _ := strconv.Atoi(q.Get(p.PageNumKey))
+	page, err := strconv.Atoi(q.Get(p.PageNumKey))
+	if err != nil {
+		log.Printf("[ERROR] [CurrentPageNum] [%v] failed to parse page num key %q, value: %q, err: %s",
+			p.uuid, p.PageNumKey, q.Get(p.PageNumKey), err)
+	}
 	if page == 0 {
 		return 1
 	}

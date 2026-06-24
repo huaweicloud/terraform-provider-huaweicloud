@@ -2,6 +2,7 @@ package rds
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -109,7 +110,10 @@ func resourceIntelligentSessionKillCreate(ctx context.Context, d *schema.Resourc
 func buildCreateIntelligentSessionKillBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := make(map[string]interface{})
 	if v, ok := d.GetOk("auto_add_sql_limit_rule"); ok {
-		autoAddSqlLimitRule, _ := strconv.ParseBool(v.(string))
+		autoAddSqlLimitRule, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'auto_add_sql_limit_rule' field to Boolean: %s", err)
+		}
 		bodyParams["auto_add_sql_limit_rule"] = autoAddSqlLimitRule
 	}
 	return bodyParams

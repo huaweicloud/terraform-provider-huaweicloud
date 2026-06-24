@@ -130,7 +130,10 @@ func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
 func flattenInstanceNetworks(d *schema.ResourceData, meta interface{},
 	server *cloudservers.CloudServer) ([]map[string]interface{}, error) {
 	allInstanceNetworks := getAllInstanceNetworks(d)
-	allInstanceNics, _ := getInstanceAddresses(d, meta, server)
+	allInstanceNics, err := getInstanceAddresses(d, meta, server)
+	if err != nil {
+		log.Printf("[ERROR] failed to get instance NICs: %s", err)
+	}
 
 	networks := []map[string]interface{}{}
 	// Loop through all networks and addresses, merge relevant address details.

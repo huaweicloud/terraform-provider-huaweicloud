@@ -3,6 +3,7 @@ package eip
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -104,7 +105,10 @@ func buildGlobalEipSegmentSupportMasksQueryParams(d *schema.ResourceData, marker
 	queryParams := "?limit=2000"
 
 	if raw, ok := d.GetOk("page_reverse"); ok {
-		pageReverse, _ := strconv.ParseBool(raw.(string))
+		pageReverse, err := strconv.ParseBool(raw.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'page_reverse' field to Boolean: %s", err)
+		}
 		queryParams += fmt.Sprintf("&page_reverse=%v", pageReverse)
 	}
 	if raw, ok := d.GetOk("fields"); ok {

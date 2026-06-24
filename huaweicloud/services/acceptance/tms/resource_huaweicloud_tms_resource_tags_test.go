@@ -2,6 +2,7 @@ package tms
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"testing"
 
@@ -24,11 +25,20 @@ func getResourceTagsFunc(cfg *config.Config, state *terraform.ResourceState) (in
 	}
 
 	var (
-		projectId       = state.Primary.Attributes["project_id"]
-		resourcesLen, _ = strconv.Atoi(state.Primary.Attributes["resources.#"])
-		tagsLen, _      = strconv.Atoi(state.Primary.Attributes["tags.%"])
-		tagsConfigured  = false
+		projectId      = state.Primary.Attributes["project_id"]
+		tagsConfigured = false
+
+		resourcesLen, tagsLen int
 	)
+
+	resourcesLen, err = strconv.Atoi(state.Primary.Attributes["resources.#"])
+	if err != nil {
+		log.Printf("[ERROR] failed to parse resources length: %s", err)
+	}
+	tagsLen, err = strconv.Atoi(state.Primary.Attributes["tags.%"])
+	if err != nil {
+		log.Printf("[ERROR] failed to parse tags length: %s", err)
+	}
 
 	for i := 0; i < resourcesLen; i++ {
 		resourceId := state.Primary.Attributes[fmt.Sprintf("resources.%d.resource_id", i)]

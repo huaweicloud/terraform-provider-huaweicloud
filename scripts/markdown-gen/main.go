@@ -31,7 +31,10 @@ func init() {
 }
 
 func main() {
-	commandLine.Parse(os.Args[1:]) //nolint: errcheck
+	err := commandLine.Parse(os.Args[1:]) // nolint: errcheck
+	if err != nil {
+		fmt.Printf("falied to parse command line: %s", err)
+	}
 
 	if sourceName == "" {
 		fmt.Printf("-name must be specified\n")
@@ -62,11 +65,17 @@ func main() {
 	_, err = output.WriteString(b.String())
 	if err != nil {
 		fmt.Printf("falied to write file: %s", err)
-		output.Close()
+		err := output.Close()
+		if err != nil {
+			fmt.Printf("falied to close file: %s", err)
+		}
 		os.Exit(5)
 	}
 
-	output.Close()
+	err = output.Close()
+	if err != nil {
+		fmt.Printf("falied to close file: %s", err)
+	}
 	os.Exit(0)
 }
 

@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -308,7 +309,10 @@ func resourceDmsRabbitMQInstancesRead(_ context.Context, d *schema.ResourceData,
 			if utils.PathSearch("charging_mode", v, float64(0)).(float64) == 0 {
 				chargingMode = "prePaid"
 			}
-			createdAt, _ := strconv.ParseInt(utils.PathSearch("created_at", v, "").(string), 10, 64)
+			createdAt, err := strconv.ParseInt(utils.PathSearch("created_at", v, "").(string), 10, 64)
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'created_at' field to Int: %s", err)
+			}
 			totalResults = append(totalResults, map[string]interface{}{
 				"id":                         utils.PathSearch("instance_id", v, nil),
 				"access_user":                utils.PathSearch("access_user", v, nil),

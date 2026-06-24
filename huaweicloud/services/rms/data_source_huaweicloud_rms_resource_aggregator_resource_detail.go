@@ -3,6 +3,7 @@ package rms
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -160,7 +161,10 @@ func flattenResourceAggregatorResourceDetailProperties(resp interface{}) map[str
 	}
 	rst := make(map[string]interface{})
 	for k, v := range curJson.(map[string]interface{}) {
-		jsonBytes, _ := json.Marshal(v)
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling resource aggregator detail value: %s", err)
+		}
 		rst[k] = string(jsonBytes)
 	}
 	return rst

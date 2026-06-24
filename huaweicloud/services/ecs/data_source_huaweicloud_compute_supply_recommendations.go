@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -392,7 +393,10 @@ func buildGetSupplyRecommendationsOption(rawParams interface{}) map[string]inter
 		"result_granularity": raw["result_granularity"],
 	}
 	if v, enableSpotOk := raw["enable_spot"]; enableSpotOk {
-		enableSpot, _ := strconv.ParseBool(v.(string))
+		enableSpot, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'enable_spot' field to Boolean: %s", err)
+		}
 		params["enable_spot"] = enableSpot
 	}
 	return params

@@ -489,10 +489,9 @@ func resourceCaptureTaskDelete(ctx context.Context, d *schema.ResourceData, meta
 		return common.CheckDeletedDiag(d, parseError(err), "error deleting capture task")
 	}
 
-	// Deletion API call does not guranatee the deletion of the resource.
+	// Deletion API call does not guarantee the deletion of the resource.
 	// Call the detail API to check if the resource is actually deleted.
 	_, err = GetCaptureTask(client, name, instanceID)
-
 	return common.CheckDeletedDiag(d, parseError(err), "error deleting capture task")
 }
 

@@ -4,6 +4,7 @@ package rms
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -251,7 +252,10 @@ func (*OrganizationalPolicyAssignmentsDSWrapper) setOrgPolAssPar(_, data *gjson.
 	result := make(map[string]interface{})
 	for k, v := range parameters.Map() {
 		val := v.Map()
-		jsonBytes, _ := json.Marshal(val["value"])
+		jsonBytes, err := json.Marshal(val["value"])
+		if err != nil {
+			log.Printf("[ERROR] error marshaling organizational policy value: %s", err)
+		}
 		result[k] = string(jsonBytes)
 	}
 	return result

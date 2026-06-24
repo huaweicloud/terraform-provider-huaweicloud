@@ -1375,7 +1375,10 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if strNum, ok := d.GetOk("max_instance_num"); ok {
 		// If the maximum number of instances is omitted (after type conversion, the value is zero), means this feature
 		// is disabled.
-		maxInstanceNum, _ := strconv.Atoi(strNum.(string))
+		maxInstanceNum, err := strconv.Atoi(strNum.(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse max instance num: %s", err)
+		}
 		err = updateFunctionMaxInstanceNum(client, funcUrnWithoutVersion, maxInstanceNum)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1937,7 +1940,10 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChange("max_instance_num") {
 		// If the maximum number of instances is omitted (after type conversion, the value is zero), means this feature
 		// is disabled.
-		maxInstanceNum, _ := strconv.Atoi(d.Get("max_instance_num").(string))
+		maxInstanceNum, err := strconv.Atoi(d.Get("max_instance_num").(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse 'max_instance_num': %s", err)
+		}
 		err = updateFunctionMaxInstanceNum(client, funcUrnWithoutVersion, maxInstanceNum)
 		if err != nil {
 			return diag.FromErr(err)

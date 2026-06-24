@@ -768,7 +768,10 @@ func GetConferenceDetail(client *golangsdk.ServiceClient, d *schema.ResourceData
 	if err == nil {
 		return resp, nil
 	}
-	if _, ok := parseConferenceNotFoundError(err).(golangsdk.ErrDefault404); ok {
+
+	parseErr := parseConferenceNotFoundError(err)
+	if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
+		log.Printf("[DEBUG] The conference is outdate, try to get history conference: %v", err)
 		var uuid interface{}
 		if uuid, ok = d.GetOk("conference_uuid"); !ok {
 			startTime := d.Get("start_time").(string)
@@ -1126,7 +1129,8 @@ func resourceConferenceDelete(_ context.Context, d *schema.ResourceData, meta in
 
 	opt := buildConferenceDeleteOpts(d, token)
 	log.Printf("[DEBUG] The DeleteOpts of the cloud conference is: %v", opt)
-	if conferences.Delete(NewMeetingV1Client(conf), opt) != nil {
+	err = conferences.Delete(NewMeetingV1Client(conf), opt)
+	if err != nil {
 		if _, ok := parseConferenceNotFoundError(err).(golangsdk.ErrDefault404); !ok {
 			return diag.Errorf("error deleting conference (%s): %s", d.Id(), err)
 		}

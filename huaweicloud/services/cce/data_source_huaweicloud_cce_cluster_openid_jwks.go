@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"log"
 	"net/url"
 
 	"github.com/hashicorp/go-multierror"
@@ -82,7 +83,10 @@ func dataSourceCCEClusterOpenIDJWKSRead(_ context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
-	u, _ := url.Parse(getOpenIDJWKSClient.Endpoint)
+	u, err := url.Parse(getOpenIDJWKSClient.Endpoint)
+	if err != nil {
+		log.Printf("[ERROR] error parsing CCE endpoint: %s", err)
+	}
 	u.Host = clusterID + "." + u.Host
 	rbUrl := u.String()
 

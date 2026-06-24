@@ -3,6 +3,7 @@ package aom
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -207,9 +208,20 @@ func flattenServiceDiscoveryRules(rules []interface{}) []interface{} {
 
 	result := make([]interface{}, 0, len(rules))
 	for _, rule := range rules {
-		isDefaultRule, _ := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "false").(string))
-		detectLogEnabled, _ := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "false").(string))
-		createdAt, _ := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
+		isDefaultRule, err := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "false").(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'isDefaultRule' field to Boolean: %s", err)
+		}
+
+		detectLogEnabled, err := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "false").(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'detectLog' field to Boolean: %s", err)
+		}
+
+		createdAt, err := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'createTime' field to Int: %s", err)
+		}
 
 		result = append(result, map[string]interface{}{
 			"id":           utils.PathSearch("id", rule, nil),
@@ -229,6 +241,7 @@ func flattenServiceDiscoveryRules(rules []interface{}) []interface{} {
 			"created_at":  utils.FormatTimeStampRFC3339(createdAt/1000, false),
 		})
 	}
+
 	return result
 }
 

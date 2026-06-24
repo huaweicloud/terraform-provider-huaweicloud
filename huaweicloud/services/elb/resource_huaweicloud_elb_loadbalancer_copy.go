@@ -666,11 +666,17 @@ func buildUpdateLoadBalancerCopyParamsBodyParams(d *schema.ResourceData) map[str
 		params["ipv6_vip_address"] = d.Get("ipv6_address")
 	}
 	if d.HasChange("cross_vpc_backend") {
-		crossVpcBackend, _ := strconv.ParseBool(d.Get("cross_vpc_backend").(string))
+		crossVpcBackend, err := strconv.ParseBool(d.Get("cross_vpc_backend").(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'cross_vpc_backend' field to Boolean: %s", err)
+		}
 		params["ip_target_enable"] = crossVpcBackend
 	}
 	if d.HasChange("deletion_protection_enable") {
-		deletionProtectionEnable, _ := strconv.ParseBool(d.Get("deletion_protection_enable").(string))
+		deletionProtectionEnable, err := strconv.ParseBool(d.Get("deletion_protection_enable").(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
+		}
 		params["deletion_protection_enable"] = deletionProtectionEnable
 	}
 	if d.Get("loadbalancer_type") != "gateway" || d.HasChange("ipv4_subnet_id") {

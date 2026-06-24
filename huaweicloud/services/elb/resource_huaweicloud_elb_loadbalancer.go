@@ -493,7 +493,10 @@ func buildCreateLoadBalancerPrepaidOptionsBodyParams(d *schema.ResourceData) map
 		return nil
 	}
 
-	autoRenew, _ := strconv.ParseBool(d.Get("auto_renew").(string))
+	autoRenew, err := strconv.ParseBool(d.Get("auto_renew").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+	}
 	bodyParams := map[string]interface{}{
 		"period_type": utils.ValueIgnoreEmpty(d.Get("period_unit").(string)),
 		"period_num":  utils.ValueIgnoreEmpty(d.Get("period").(int)),

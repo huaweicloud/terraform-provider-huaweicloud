@@ -3,6 +3,7 @@ package lts
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -151,7 +152,11 @@ func buildCreateStreamBodyParams(cfg *config.Config, d *schema.ResourceData) map
 	if epsId == "" {
 		return bodyParams
 	}
+
 	epsInfo, err := getEnterpriseProjectById(cfg, cfg.GetRegion(d), epsId)
+	if err != nil {
+		log.Printf("[ERROR] error getting enterprise project by ID: %s", err)
+	}
 	// If we catch error 403, it means that the user does not have EPS permissions, return immediately.
 	if parsedErr := eps.ParseQueryError403(err, userNoPermission, "No permission, skip the enterprise project query"); parsedErr == nil {
 		// Unable to set enterprise project ID for log stream via parameter 'enterprise_project_id' and

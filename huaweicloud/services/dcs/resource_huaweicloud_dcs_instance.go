@@ -1871,7 +1871,10 @@ func updateTransparentClientIpEnable(ctx context.Context, d *schema.ResourceData
 }
 
 func buildUpdateTransparentClientIpEnableBodyParams(d *schema.ResourceData) map[string]interface{} {
-	transparentClientIpEnable, _ := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
+	transparentClientIpEnable, err := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
+	}
 	bodyParams := map[string]interface{}{
 		"transparent_client_ip_enable": transparentClientIpEnable,
 	}

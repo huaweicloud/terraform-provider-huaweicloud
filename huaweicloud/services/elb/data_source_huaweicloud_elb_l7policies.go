@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -470,7 +471,10 @@ func buildListL7policiesQueryParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&description=%v", res, v)
 	}
 	if v, ok := d.GetOk("display_all_rules"); ok {
-		displayAllRules, _ := strconv.ParseBool(v.(string))
+		displayAllRules, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'display_all_rules' field to Boolean: %s", err)
+		}
 		res = fmt.Sprintf("%s&display_all_rules=%v", res, displayAllRules)
 	}
 	if v, ok := d.GetOk("listener_id"); ok {

@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 
@@ -191,12 +192,14 @@ func envVarFile(varName string) (string, error) {
 		return "", fmtp.Errorf("Error creating temp file: %s", err)
 	}
 	if _, err := tmpFile.Write([]byte(contents)); err != nil {
-		_ = os.Remove(tmpFile.Name())
-		return "", fmtp.Errorf("Error writing temp file: %s", err)
+		if err = os.Remove(tmpFile.Name()); err != nil {
+			return "", fmt.Errorf("error writing temp file: %s", err)
+		}
 	}
 	if err := tmpFile.Close(); err != nil {
-		_ = os.Remove(tmpFile.Name())
-		return "", fmtp.Errorf("Error closing temp file: %s", err)
+		if err = os.Remove(tmpFile.Name()); err != nil {
+			return "", fmt.Errorf("error closing temp file: %s", err)
+		}
 	}
 	return tmpFile.Name(), nil
 }

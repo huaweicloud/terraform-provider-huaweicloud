@@ -137,7 +137,10 @@ func flatternExpirationTime(expTimeStr string) string {
 	if expTimeStr == "" {
 		return ""
 	}
-	expTime, _ := strconv.ParseInt(expTimeStr, 10, 64)
+	expTime, err := strconv.ParseInt(expTimeStr, 10, 64)
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'expiration_time' field to Integer: %s", err)
+	}
 	return strconv.FormatInt(expTime/1000, 10)
 }
 

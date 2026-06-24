@@ -260,7 +260,7 @@ func resourceCdmJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	d.SetId(fmt.Sprintf("%s/%s", clusterId, rst.Name))
 
-	checkErr := waitingforJobRunning(ctx, client, clusterId, rst.Name, d.Timeout(schema.TimeoutCreate))
+	checkErr := waitingForJobRunning(ctx, client, clusterId, rst.Name, d.Timeout(schema.TimeoutCreate))
 	if checkErr != nil {
 		return diag.FromErr(checkErr)
 	}
@@ -304,10 +304,9 @@ func resourceCdmJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("destination_connector", detail.ToConnectorName),
 		d.Set("destination_link_name", detail.ToLinkName),
 		d.Set("destination_job_config", flattenFromOrToConfig(toJobConfig, detail.ToConfigValues.Configs)),
-		setJobConfigtoState(d, detail.DriverConfigValues.Configs),
+		setJobConfigToState(d, detail.DriverConfigValues.Configs),
 		d.Set("status", detail.Status),
 	)
-
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error setting CDM job fields: %s", mErr)
 	}
@@ -376,7 +375,7 @@ func resourceCdmJobUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("error update CDM job: %s", uErr)
 		}
 
-		checkErr := waitingforJobRunning(ctx, client, clusterId, jobName, d.Timeout(schema.TimeoutUpdate))
+		checkErr := waitingForJobRunning(ctx, client, clusterId, jobName, d.Timeout(schema.TimeoutUpdate))
 		if checkErr != nil {
 			return diag.FromErr(checkErr)
 		}
@@ -610,15 +609,22 @@ func buildSchedulerConfigsParamter(d *schema.ResourceData) []job.Input {
 }
 
 func flattenFromOrToConfig(configName string, configs []job.Configs) map[string]interface{} {
-	configPref := fmt.Sprintf("%s.", configName)
-	result := make(map[string]interface{})
+	var (
+		configPref = fmt.Sprintf("%s.", configName)
+		result     = make(map[string]interface{})
+		err        error
+	)
+
 	for _, item := range configs {
 		if item.Name == configName {
 			for _, v := range item.Inputs {
 				if v.Value != "" {
 					key := strings.Replace(v.Name, configPref, "", 1)
 					// Value in return is encoded, use `url.PathUnescape` to decode it.
-					result[key], _ = url.PathUnescape(v.Value)
+					result[key], err = url.PathUnescape(v.Value)
+					if err != nil {
+						log.Printf("[DEBUG] error unescaping value: %s", err)
+					}
 				}
 			}
 		}
@@ -627,7 +633,7 @@ func flattenFromOrToConfig(configName string, configs []job.Configs) map[string]
 }
 
 // nolint:gocyclo
-func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
+func setJobConfigToState(d *schema.ResourceData, configs []job.Configs) error {
 	var err *multierror.Error
 	var pErr error
 	result := make(map[string]interface{})
@@ -636,43 +642,52 @@ func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
 			if v.Value != "" {
 				switch v.Name {
 				case "throttlingConfig.numExtractors":
-					result["throttling_extractors_number"], pErr = strconv.Atoi(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["throttling_extractors_number"], pErr = strconv.Atoi(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "throttlingConfig.numLoaders":
-					result["throttling_loader_number"], pErr = strconv.Atoi(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["throttling_loader_number"], pErr = strconv.Atoi(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "throttlingConfig.recordDirtyData":
-					result["throttling_record_dirty_data"], pErr = strconv.ParseBool(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["throttling_record_dirty_data"], pErr = strconv.ParseBool(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "throttlingConfig.writeToLink":
 					result["throttling_dirty_write_to_link"] = v.Value
 				case "throttlingConfig.obsBucket":
 					result["throttling_dirty_write_to_bucket"] = v.Value
 				case "throttlingConfig.dirtyDataDirectory":
 					// Value in return is encoded, use `url.PathUnescape` to decode it.
-					result["throttling_dirty_write_to_directory"], pErr = url.PathUnescape(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["throttling_dirty_write_to_directory"], pErr = url.PathUnescape(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "throttlingConfig.maxErrorRecords":
-					result["throttling_max_error_records"], pErr = strconv.Atoi(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["throttling_max_error_records"], pErr = strconv.Atoi(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "schedulerConfig.isSchedulerJob":
-					result["scheduler_enabled"], pErr = strconv.ParseBool(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["scheduler_enabled"], pErr = strconv.ParseBool(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "schedulerConfig.cycleType":
 					result["scheduler_cycle_type"] = v.Value
 				case "schedulerConfig.cycle":
-					result["scheduler_cycle"], pErr = strconv.Atoi(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["scheduler_cycle"], pErr = strconv.Atoi(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "schedulerConfig.runAt":
 					result["scheduler_run_at"] = v.Value
 				case "schedulerConfig.startDate":
 					// Value in return is encoded, use `url.PathUnescape` to decode it.
-					result["scheduler_start_date"], pErr = url.PathUnescape(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["scheduler_start_date"], pErr = url.PathUnescape(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "schedulerConfig.stopDate":
 					// Value in return is encoded, use `url.PathUnescape` to decode it.
-					result["scheduler_stop_date"], pErr = url.PathUnescape(v.Value)
-					err = multierror.Append(err, pErr)
+					if result["scheduler_stop_date"], pErr = url.PathUnescape(v.Value); pErr != nil {
+						err = multierror.Append(err, pErr)
+					}
 				case "schedulerConfig.disposableType":
 					result["scheduler_disposable_type"] = v.Value
 				case "retryJobConfig.retryJobType":
@@ -691,7 +706,7 @@ func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
 	return d.Set("config", []map[string]interface{}{result})
 }
 
-func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, clusterId, jobName string,
+func waitingForJobRunning(ctx context.Context, client *golangsdk.ServiceClient, clusterId, jobName string,
 	timeout time.Duration) error {
 	// start job
 	startResp, startErr := job.Start(client, clusterId, jobName)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -325,7 +326,10 @@ func buildListSubscriptionsQueryParams(d *schema.ResourceData) string {
 		queryParams += fmt.Sprintf("&publication_id=%v", v)
 	}
 	if v, ok := d.GetOk("is_cloud"); ok {
-		isCloud, _ := strconv.ParseBool(v.(string))
+		isCloud, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'is_cloud' field to Boolean: %s", err)
+		}
 		queryParams += fmt.Sprintf("&is_cloud=%v", isCloud)
 	}
 	if v, ok := d.GetOk("publication_name"); ok {

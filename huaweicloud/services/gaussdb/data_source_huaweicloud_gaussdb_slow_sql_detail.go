@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -265,7 +266,10 @@ func buildSlowSqlDetailMultiQueries(rawParams []interface{}) []map[string]interf
 			"values":    param["values"],
 		}
 		if v, ok := param["is_fuzzy"]; ok && v.(string) != "" {
-			isFuzzy, _ := strconv.ParseBool(v.(string))
+			isFuzzy, err := strconv.ParseBool(v.(string))
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'is_fuzzy' field to Boolean: %s", err)
+			}
 			query["is_fuzzy"] = isFuzzy
 		}
 		queries = append(queries, query)

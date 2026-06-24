@@ -2,6 +2,7 @@ package ims
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -207,7 +208,10 @@ func buildIMSImagesByTagsQueryParams(d *schema.ResourceData) map[string]interfac
 		"not_tags_any": buildIMSImagesByTagsTagsQueryParams(d.Get("not_tags_any")),
 	}
 	if v, ok := d.GetOk("without_any_tag"); ok {
-		withoutAnyTag, _ := strconv.ParseBool(v.(string))
+		withoutAnyTag, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'without_any_tag' field to Boolean: %s", err)
+		}
 		bodyParams["without_any_tag"] = withoutAnyTag
 	}
 

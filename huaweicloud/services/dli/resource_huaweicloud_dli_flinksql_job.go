@@ -299,7 +299,10 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	if runtimConfig, ok := d.GetOk("runtime_config"); ok {
 		config := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
-		configStr, _ := json.Marshal(config)
+		configStr, err := json.Marshal(config)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling runtime config: %s", err)
+		}
 		opts.RuntimeConfig = string(configStr)
 	}
 
@@ -720,7 +723,10 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 
 		if runtimConfig, ok := d.GetOk("runtime_config"); ok {
 			config := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
-			configStr, _ := json.Marshal(config)
+			configStr, err := json.Marshal(config)
+			if err != nil {
+				log.Printf("[ERROR] error marshaling runtime config: %s", err)
+			}
 			opts.RuntimeConfig = string(configStr)
 		}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -194,7 +195,10 @@ func flattenImageRetentionPoliciesRulesResponse(resp interface{}) []interface{} 
 		// If `template` is set to **date_rule**, the `params` to **{"days": "xxx"}**.
 		// If `template` is set to **tag_rule**, set `params` to **{"num": "xxx"}**.
 		// So `params` use string type, convert `params` object to json object string.
-		paramsJson, _ := json.Marshal(utils.PathSearch("params", v, nil))
+		paramsJson, err := json.Marshal(utils.PathSearch("params", v, nil))
+		if err != nil {
+			log.Printf("[ERROR] error marshaling retention policy params: %s", err)
+		}
 		results[i] = map[string]interface{}{
 			"template":      utils.PathSearch("template", v, nil),
 			"params":        string(paramsJson),

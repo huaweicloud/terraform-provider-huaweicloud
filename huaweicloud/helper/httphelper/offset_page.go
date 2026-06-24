@@ -24,7 +24,7 @@ func (p OffsetPager) IsEmpty() (bool, error) {
 		return false, err
 	}
 
-	log.Printf("[DEBUG] [OffsetPager] [%v] response count: %v, dataPath: %s", p.uuid, count, p.DataPath)
+	log.Printf("[DEBUG] [IsEmpty] [%v] response count: %v, dataPath: %s", p.uuid, count, p.DataPath)
 
 	return count == 0, nil
 }
@@ -40,16 +40,27 @@ func (p OffsetPager) DataCount() (int, error) {
 
 func (p OffsetPager) NextOffset() int {
 	q := p.URL.Query()
-	offset, _ := strconv.Atoi(q.Get(p.OffsetKey))
+	offset, err := strconv.Atoi(q.Get(p.OffsetKey))
+	if err != nil {
+		log.Printf("[ERROR] [NextOffset] [%v] failed to parse offset key %q, value: %q, err: %s",
+			p.uuid, p.OffsetKey, q.Get(p.OffsetKey), err)
+	}
 	if offset == 0 {
 		offset = p.DefaultOffset
 	}
 
 	// get `limit` according to the following priority:
-	limit, _ := strconv.Atoi(q.Get(p.LimitKey))
+	limit, err := strconv.Atoi(q.Get(p.LimitKey))
+	if err != nil {
+		log.Printf("[ERROR] [NextOffset] [%v] failed to parse limit key %q, value: %q, err: %s",
+			p.uuid, p.LimitKey, q.Get(p.LimitKey), err)
+	}
 	if limit == 0 {
 		limit = p.DefaultLimit
-		count, _ := p.DataCount()
+		count, err := p.DataCount()
+		if err != nil {
+			log.Printf("[ERROR] [NextOffset] [%v] failed to get data count, err: %s", p.uuid, err)
+		}
 		if count > 0 {
 			limit = count
 		}
@@ -57,7 +68,8 @@ func (p OffsetPager) NextOffset() int {
 		q.Set(p.LimitKey, strconv.Itoa(limit))
 	}
 
-	log.Printf("[DEBUG] [OffsetPager] [%v] offset: %v, limit: %v; OffsetKey: %s, LimitKey: %s", p.uuid, offset, limit, p.OffsetKey, p.LimitKey)
+	log.Printf("[DEBUG] [NextOffset] [%v] offset: %v, limit: %v; OffsetKey: %s, LimitKey: %s",
+		p.uuid, offset, limit, p.OffsetKey, p.LimitKey)
 	return offset + limit
 }
 
@@ -73,6 +85,6 @@ func (p OffsetPager) NextPageURL() (string, error) {
 	q.Set(p.OffsetKey, strconv.Itoa(next))
 	currentURL.RawQuery = q.Encode()
 
-	log.Printf("[DEBUG] [OffsetPager] [%v] NextPageURL: %v", p.uuid, currentURL.String())
+	log.Printf("[DEBUG] [NextPageURL] [%v] NextPageURL: %v", p.uuid, currentURL.String())
 	return currentURL.String(), nil
 }

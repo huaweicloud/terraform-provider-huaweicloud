@@ -3,6 +3,7 @@ package secmaster
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -550,7 +551,10 @@ func resourceIncidentDelete(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "error deleting SecMaster incident")
 	}
 
-	dataObject, _ := GetIncident(deleteIncidentClient, d.Get("workspace_id").(string), d.Id())
+	dataObject, err := GetIncident(deleteIncidentClient, d.Get("workspace_id").(string), d.Id())
+	if err != nil {
+		log.Printf("[ERROR] error getting SecMaster incident: %s", err)
+	}
 	if dataObject != nil {
 		return diag.Errorf("error deleting SecMaster incident, the incident still exists")
 	}

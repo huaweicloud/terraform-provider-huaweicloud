@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -274,7 +275,10 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, err, "error getting the alarm rule")
 	}
 
-	alarmLevel, _ := strconv.Atoi(utils.PathSearch("alarm_level", rule, "0").(string))
+	alarmLevel, err := strconv.Atoi(utils.PathSearch("alarm_level", rule, "0").(string))
+	if err != nil {
+		log.Printf("[ERROR] failed to parse alarm level: %s", err)
+	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),

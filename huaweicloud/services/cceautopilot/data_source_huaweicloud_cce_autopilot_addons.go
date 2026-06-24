@@ -3,6 +3,7 @@ package cceautopilot
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -313,7 +314,10 @@ func (w *AddonsDSWrapper) listAutopilotAddonsToSchema(body *gjson.Result) error 
 								"cluster_id":            spec.Get("clusterID").Value(),
 								"description":           spec.Get("description").Value(),
 								"values": schemas.MapConverter(spec.Get("values"), func(val gjson.Result) any {
-									values, _ := json.Marshal(val)
+									values, err := json.Marshal(val)
+									if err != nil {
+										log.Printf("[ERROR] error marshaling spec values: %s", err)
+									}
 									return string(values)
 								}),
 								"version": spec.Get("version").Value(),
@@ -346,7 +350,10 @@ func (*AddonsDSWrapper) setIteStaCurVersion(status gjson.Result) any {
 		return map[string]any{
 			"creation_timestamp": currentVersion.Get("creationTimestamp").Value(),
 			"input": schemas.MapConverter(currentVersion.Get("input"), func(val gjson.Result) any {
-				values, _ := json.Marshal(val)
+				values, err := json.Marshal(val)
+				if err != nil {
+					log.Printf("[ERROR] error marshaling input values: %s", err)
+				}
 				return string(values)
 			}),
 			"stable": currentVersion.Get("stable").Value(),
@@ -360,7 +367,10 @@ func (*AddonsDSWrapper) setIteStaCurVersion(status gjson.Result) any {
 				},
 			),
 			"translate": schemas.MapConverter(currentVersion.Get("translate"), func(val gjson.Result) any {
-				values, _ := json.Marshal(val)
+				values, err := json.Marshal(val)
+				if err != nil {
+					log.Printf("[ERROR] error marshaling translate values: %s", err)
+				}
 				return string(values)
 			}),
 			"update_timestamp": currentVersion.Get("updateTimestamp").Value(),

@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/hashicorp/go-multierror"
@@ -121,7 +122,10 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	var ids []string
 	var filteredFlavors []map[string]interface{}
 	for _, flavor := range allFlavors {
-		vCpu, _ := strconv.Atoi(flavor.Vcpus)
+		vCpu, err := strconv.Atoi(flavor.Vcpus)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse VCPUs: %s", err)
+		}
 		if cpu > 0 && vCpu != cpu {
 			continue
 		}

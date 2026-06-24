@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -450,7 +451,10 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 		return filename, nil
 	} else if furl := d.Get("image_source_url").(string); furl != "" {
 		dir := d.Get("image_cache_path").(string)
-		os.MkdirAll(dir, 0700)
+		err := os.MkdirAll(dir, 0700)
+		if err != nil {
+			log.Printf("Error creating directory %q: %s", dir, err)
+		}
 		filename := filepath.Join(dir, fmt.Sprintf("%x.img", md5.Sum([]byte(furl))))
 
 		if _, err := os.Stat(filename); err != nil {

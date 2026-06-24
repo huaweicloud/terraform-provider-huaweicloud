@@ -49,7 +49,10 @@ func ConvertTimeStrToNanoTimestamp(timeStr string, customFormat ...string) int64
 // For example, the time zone code for 'Asia/Shanghai' is 8, and the time zone code for 'America/Alaska' is -4.
 func GetTimezoneCode() int {
 	timeStr := strings.Split(time.Now().String(), " ")[2]
-	timezoneNum, _ := strconv.Atoi(timeStr)
+	timezoneNum, err := strconv.Atoi(timeStr)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse timezone string: %s", err)
+	}
 	return timezoneNum / 100
 }
 

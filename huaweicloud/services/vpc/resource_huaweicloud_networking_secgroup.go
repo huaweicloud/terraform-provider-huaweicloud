@@ -382,12 +382,18 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 						rule.MultiPort, len(rule.MultiPort))
 					return sgRules, fmt.Errorf("the parameter format of the 'ports' is invalid")
 				}
-				minVal, _ := strconv.Atoi(rangeSet[1])
+				minVal, err := strconv.Atoi(rangeSet[1])
+				if err != nil {
+					log.Printf("[ERROR] failed to parse port range min: %s", err)
+				}
 				ruleInfo["port_range_min"] = minVal
 				if rangeSet[2] == "" {
 					ruleInfo["port_range_max"] = minVal
 				} else {
-					maxVal, _ := strconv.Atoi(rangeSet[2])
+					maxVal, err := strconv.Atoi(rangeSet[2])
+					if err != nil {
+						log.Printf("[ERROR] failed to parse port range max: %s", err)
+					}
 					ruleInfo["port_range_max"] = maxVal
 				}
 			}

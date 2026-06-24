@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -168,7 +169,10 @@ func buildDataConnectionRequestBodySourceInfo(rawParams interface{}) string {
 			"password":        utils.ValueIgnoreEmpty(raw["password"]),
 		}
 
-		data, _ := json.Marshal(params)
+		data, err := json.Marshal(params)
+		if err != nil {
+			log.Printf("[ERROR] error marshaling data connection params: %s", err)
+		}
 		return string(data)
 	}
 	return ""

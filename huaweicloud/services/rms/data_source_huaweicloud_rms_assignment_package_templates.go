@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -209,7 +210,10 @@ func flattenGetTemplatesResponseBodyTemplateParam(parameters interface{}) interf
 			// the default value has multiple types, convert it to json and then return
 			defaultValue := utils.PathSearch("default_value", v, nil)
 			if defaultValue != nil {
-				defaultValueBytes, _ := json.Marshal(defaultValue)
+				defaultValueBytes, err := json.Marshal(defaultValue)
+				if err != nil {
+					log.Printf("[ERROR] error marshaling default value: %s", err)
+				}
 				parameter["default_value"] = string(defaultValueBytes)
 			}
 			rst = append(rst, parameter)

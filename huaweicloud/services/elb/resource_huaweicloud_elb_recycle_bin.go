@@ -3,6 +3,7 @@ package elb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -234,11 +235,17 @@ func buildRecyclePolicyBodyParams(d *schema.ResourceData) map[string]interface{}
 	recycleThresholdHour, recycleThresholdHourOk := d.GetOk("recycle_threshold_hour")
 	bodyParams := make(map[string]interface{})
 	if retentionHourOk {
-		r, _ := strconv.Atoi(retentionHour.(string))
+		r, err := strconv.Atoi(retentionHour.(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse retention hour: %s", err)
+		}
 		bodyParams["retention_hour"] = r
 	}
 	if recycleThresholdHourOk {
-		r, _ := strconv.Atoi(recycleThresholdHour.(string))
+		r, err := strconv.Atoi(recycleThresholdHour.(string))
+		if err != nil {
+			log.Printf("[ERROR] failed to parse recycle threshold hour: %s", err)
+		}
 		bodyParams["recycle_threshold_hour"] = r
 	}
 	return map[string]interface{}{

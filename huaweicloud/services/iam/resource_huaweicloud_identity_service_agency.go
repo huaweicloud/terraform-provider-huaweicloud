@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -180,7 +181,10 @@ func buildTrustPolicy(delegatedServiceName string) string {
 		"Version":   "5.0",
 		"Statement": statement,
 	}
-	s, _ := json.Marshal(trustPolicy)
+	s, err := json.Marshal(trustPolicy)
+	if err != nil {
+		log.Printf("[ERROR] error marshaling trust policy: %s", err)
+	}
 
 	return string(s)
 }

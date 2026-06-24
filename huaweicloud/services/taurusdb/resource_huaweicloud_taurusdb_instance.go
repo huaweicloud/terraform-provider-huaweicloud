@@ -1259,7 +1259,10 @@ func setSlowLogShowOriginalSwitch(d *schema.ResourceData, client *golangsdk.Serv
 		log.Printf("[WARN] query instance %s slow log show original failed: %s", instanceId, err)
 		return nil
 	}
-	slowLogShowOriginalSwitch, _ := strconv.ParseBool(resp.OpenSlowLogSwitch)
+	slowLogShowOriginalSwitch, err := strconv.ParseBool(resp.OpenSlowLogSwitch)
+	if err != nil {
+		log.Printf("[WARN] error parsing 'slow_log_show_original_switch' field to Boolean: %s", err)
+	}
 	return d.Set("slow_log_show_original_switch", slowLogShowOriginalSwitch)
 }
 
@@ -2343,7 +2346,10 @@ func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Servic
 }
 
 func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
-	sslOption, _ := strconv.ParseBool(d.Get("ssl_option").(string))
+	sslOption, err := strconv.ParseBool(d.Get("ssl_option").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'ssl_option' field to Boolean: %s", err)
+	}
 	updateSslOptionOpts := instances.UpdateSslOptionOpts{
 		SslOption: sslOption,
 	}
@@ -2463,7 +2469,10 @@ func updateMultiTenantSwitch(ctx context.Context, client *golangsdk.ServiceClien
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
 
-	multiTenantSwitch, _ := strconv.ParseBool(d.Get("multi_tenant_switch").(string))
+	multiTenantSwitch, err := strconv.ParseBool(d.Get("multi_tenant_switch").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'multi_tenant_switch' field to Boolean: %s", err)
+	}
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{

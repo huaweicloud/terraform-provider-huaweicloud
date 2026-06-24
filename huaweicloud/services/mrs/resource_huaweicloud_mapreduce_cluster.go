@@ -659,7 +659,10 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 }
 
 func bulidClusterChargeMode(d *schema.ResourceData) *clusterv2.ChargeInfo {
-	autoRenew, _ := strconv.ParseBool(d.Get("auto_renew").(string))
+	autoRenew, err := strconv.ParseBool(d.Get("auto_renew").(string))
+	if err != nil {
+		log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+	}
 	return &clusterv2.ChargeInfo{
 		ChargeMode:  "prePaid",
 		PeriodNum:   d.Get("period").(int),
@@ -685,7 +688,10 @@ func bulidNodeGroupChargeInfo(nodeGroup map[string]interface{}, d *schema.Resour
 	}
 
 	if autoRenew, ok := nodeGroup["auto_renew"].(string); ok && autoRenew != "" {
-		isAutoRenew, _ := strconv.ParseBool(autoRenew)
+		isAutoRenew, err := strconv.ParseBool(autoRenew)
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+		}
 		nodeChargeInfo.IsAutoRenew = utils.Bool(isAutoRenew)
 	}
 

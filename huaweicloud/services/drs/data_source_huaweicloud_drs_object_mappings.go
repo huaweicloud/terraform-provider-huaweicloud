@@ -2,6 +2,7 @@ package drs
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -106,7 +107,10 @@ func buildObjectMappingsRequestBody(d *schema.ResourceData, offset int) map[stri
 		bodyParams["table_name"] = v.(string)
 	}
 	if v, ok := d.GetOk("has_column_info"); ok {
-		hasColumnInfo, _ := strconv.ParseBool(v.(string))
+		hasColumnInfo, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'has_column_info' field to Boolean: %s", err)
+		}
 		bodyParams["has_column_info"] = hasColumnInfo
 	}
 

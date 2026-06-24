@@ -972,7 +972,10 @@ func resourceV3AgencyRead(ctx context.Context, d *schema.ResourceData, meta inte
 	)
 
 	delegatedDomainName := utils.PathSearch("agency.trust_domain_name", agency, "").(string)
-	match, _ := regexp.MatchString("^op_svc_[A-Za-z]+$", delegatedDomainName)
+	match, err := regexp.MatchString("^op_svc_[A-Za-z]+$", delegatedDomainName)
+	if err != nil {
+		log.Printf("[ERROR] error matching the delegated_domain_name: %s", err)
+	}
 	if match {
 		mErr = multierror.Append(mErr, d.Set("delegated_service_name", delegatedDomainName))
 	} else {

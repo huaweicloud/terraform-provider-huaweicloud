@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -245,7 +246,10 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 	}
 
 	if v, ok := d.GetOk("is_only_upgrade"); ok {
-		isOnlyUpgradeRaw, _ := strconv.ParseBool(v.(string))
+		isOnlyUpgradeRaw, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			log.Printf("[ERROR] error parsing 'is_only_upgrade' field to Boolean: %s", err)
+		}
 		result["spec"].(map[string]interface{})["clusterUpgradeAction"].(map[string]interface{})["isOnlyUpgrade"] = isOnlyUpgradeRaw
 	}
 	return result, nil

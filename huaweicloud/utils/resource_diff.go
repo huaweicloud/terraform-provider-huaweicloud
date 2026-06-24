@@ -128,7 +128,10 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 		return false, err
 	}
 
-	canonicalJson1, _ := json.Marshal(obj1)
+	canonicalJson1, err := json.Marshal(obj1)
+	if err != nil {
+		log.Printf("[ERROR] error marshaling canonical JSON 1: %s", err)
+	}
 
 	var obj2 interface{}
 	err = json.Unmarshal([]byte(tem2), &obj2)
@@ -136,7 +139,10 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 		return false, err
 	}
 
-	canonicalJson2, _ := json.Marshal(obj2)
+	canonicalJson2, err := json.Marshal(obj2)
+	if err != nil {
+		log.Printf("[ERROR] error marshaling canonical JSON 2: %s", err)
+	}
 
 	equal := bytes.Equal(canonicalJson1, canonicalJson2)
 	if !equal {
@@ -817,8 +823,14 @@ func diffStrSliceLength(paramKey, oldVal, newVal string, d *schema.ResourceData,
 	originVal := getOriginValueForStrSliceLength(baseField, originConfig, d)
 
 	// Get current values
-	oldCount, _ := strconv.Atoi(oldVal)
-	newCount, _ := strconv.Atoi(newVal)
+	oldCount, err := strconv.Atoi(oldVal)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse old count: %s", err)
+	}
+	newCount, err := strconv.Atoi(newVal)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse new count: %s", err)
+	}
 
 	// If origin is empty or nil, this is the first time setting the value
 	// However, if both oldCount and newCount are 0 (empty lists), suppress diff to avoid showing null
@@ -1909,8 +1921,14 @@ func diffObjectSliceLength(paramKey, oldVal, newVal string, d *schema.ResourceDa
 	originVal := d.Get(originParamKey)
 
 	// Get current values
-	oldCount, _ := strconv.Atoi(oldVal)
-	newCount, _ := strconv.Atoi(newVal)
+	oldCount, err := strconv.Atoi(oldVal)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse old count: %s", err)
+	}
+	newCount, err := strconv.Atoi(newVal)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse new count: %s", err)
+	}
 
 	// If counts are the same, suppress diff
 	if oldCount == newCount {

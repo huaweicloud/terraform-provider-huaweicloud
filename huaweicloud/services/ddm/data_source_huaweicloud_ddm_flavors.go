@@ -8,6 +8,7 @@ package ddm
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -261,8 +262,14 @@ func flattenFlavorGroupFlavors(resp interface{}, flavorGroupType string, parma *
 		if parma.memory != "" && parma.memory != memory {
 			continue
 		}
-		vcpusNum, _ := strconv.Atoi(vcpus)
-		memoryNum, _ := strconv.Atoi(memory)
+		vcpusNum, err := strconv.Atoi(vcpus)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse VCPUs: %s", err)
+		}
+		memoryNum, err := strconv.Atoi(memory)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse memory num: %s", err)
+		}
 		rst = append(rst, map[string]interface{}{
 			"id":       utils.PathSearch("id", v, nil),
 			"cpu_arch": flavorGroupType,

@@ -208,7 +208,10 @@ func buildAppAuthorization(appId, appKey, corpInfo, userId string, validPeriod i
 	if corpInfo != "" {
 		accountInfo = corpInfo + ":" + accountInfo
 	}
-	hmac256, _ := hmacsha256([]byte(appKey), appId+":"+accountInfo+":"+strconv.Itoa(expireTime)+":"+nonce)
+	hmac256, err := hmacsha256([]byte(appKey), appId+":"+accountInfo+":"+strconv.Itoa(expireTime)+":"+nonce)
+	if err != nil {
+		log.Printf("[ERROR] Failed to build app authorization: %v", err)
+	}
 	auth = fmt.Sprintf("%s signature=%s", BasicAlgorithm, hex.EncodeToString(hmac256))
 	return
 }

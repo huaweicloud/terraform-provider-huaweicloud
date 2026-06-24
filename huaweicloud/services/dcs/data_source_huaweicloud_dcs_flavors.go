@@ -3,6 +3,7 @@ package dcs
 import (
 	"context"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -200,7 +201,11 @@ func flattenDcsFlavors(d *schema.ResourceData, resp interface{}) []map[string]in
 			if rawCapacity != "" && rawCapacity != capacity {
 				continue
 			}
-			capacityFloat, _ := strconv.ParseFloat(capacity, floatBitSize)
+			capacityFloat, err := strconv.ParseFloat(capacity, floatBitSize)
+			if err != nil {
+				log.Printf("[ERROR] error parsing 'capacity' field to Float: %s", err)
+			}
+
 			rst = append(rst, map[string]interface{}{
 				"name":             utils.PathSearch("spec_code", v, nil),
 				"cache_mode":       utils.PathSearch("cache_mode", v, nil),

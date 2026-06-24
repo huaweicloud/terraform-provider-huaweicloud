@@ -154,7 +154,10 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 }
 
 func flattenBmsFlavor(flavor flavors.Flavor) map[string]interface{} {
-	vcpus, _ := strconv.Atoi(flavor.VCPUs)
+	vcpus, err := strconv.Atoi(flavor.VCPUs)
+	if err != nil {
+		log.Printf("[ERROR] failed to parse BMS flavor VCPUs: %s", err)
+	}
 	ram := flavor.RAM / 1024
 
 	return map[string]interface{}{
