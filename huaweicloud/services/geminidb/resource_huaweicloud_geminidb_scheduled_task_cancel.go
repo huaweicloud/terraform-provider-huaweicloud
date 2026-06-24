@@ -18,7 +18,7 @@ var geminiDbScheduledTaskCancelParams = []string{
 	"job_id",
 }
 
-// @API GeminiDB PUT /v3/{project_id}/instances/disaster-recovery/settings
+// @API GeminiDB DELETE /v3/{project_id}/scheduled-jobs/{job_id}
 func ResourceGeminiDBScheduledTaskCancel() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGeminiDBScheduledTaskCancelCreate,

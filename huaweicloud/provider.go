@@ -1538,7 +1538,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_node_sessions":                 geminidb.DataSourceNodeSessions(),
 			"huaweicloud_geminidb_node_session_statistics":       geminidb.DataSourceNodeSessionStatistics(),
 			"huaweicloud_geminidb_pt_applicable_instances":       geminidb.DataSourceGeminiDBPtApplicableInstances(),
-			"huaweicloud_geminidb_pt_appliction_records":         geminidb.DataSourceGeminiDBPtApplicationRecords(),
+			"huaweicloud_geminidb_pt_application_records":        geminidb.DataSourceGeminiDBPtApplicationRecords(),
 			"huaweicloud_geminidb_quotas":                        geminidb.DataSourceQuotas(),
 			"huaweicloud_geminidb_recycling_instances":           geminidb.DataSourceGeminiDBRecyclingInstances(),
 			"huaweicloud_geminidb_restorable_time_window":        geminidb.DataSourceGeminiDBRestorableTimeWindow(),
@@ -2924,6 +2924,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dms_rocketmq_broker": rocketmq.DataSourceBrokers(),
 
+			"huaweicloud_geminidb_pt_appliction_records": geminidb.DataSourceGeminiDBPtApplicationRecords(),
+
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceTaurusDBEngineVersions(),
 			"huaweicloud_gaussdb_mysql_configuration":            taurusdb.DataSourceTaurusDBConfiguration(),
 			"huaweicloud_gaussdb_mysql_configurations":           taurusdb.DataSourceTaurusDBConfigurations(),
@@ -3899,6 +3901,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_enlarge_fail_node_delete":    geminidb.ResourceEnlargeFailNodeDelete(),
 			"huaweicloud_geminidb_high_risk_command":           geminidb.ResourceHighRiskCommand(),
 			"huaweicloud_geminidb_instance":                    geminidb.ResourceGeminiDbInstance(),
+			"huaweicloud_geminidb_instance_lts_log_associate":  geminidb.ResourceGeminiDBInstanceLtsLogAssociate(),
 			"huaweicloud_geminidb_instance_restart":            geminidb.ResourceInstanceRestart(),
 			"huaweicloud_geminidb_memory_mapping":              geminidb.ResourceMemoryMapping(),
 			"huaweicloud_geminidb_memory_rule":                 geminidb.ResourceMemoryRule(),

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDataSourceGeminiDBPtApplicationRecords_basic(t *testing.T) {
-	dataSourceName := "data.huaweicloud_geminidb_pt_appliction_records.test"
+	dataSourceName := "data.huaweicloud_geminidb_pt_application_records.test"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -37,7 +37,7 @@ func TestAccDataSourceGeminiDBPtApplicationRecords_basic(t *testing.T) {
 
 func testAccDataSourceGeminiDBPtApplicationRecords_basic() string {
 	return fmt.Sprintf(`
-data "huaweicloud_geminidb_pt_appliction_records" "test" {
+data "huaweicloud_geminidb_pt_application_records" "test" {
   config_id = "%[1]s"
 }
 `, acceptance.HW_GEMINIDB_CONFIG_ID)
