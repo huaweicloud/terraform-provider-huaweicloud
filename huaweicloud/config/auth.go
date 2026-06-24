@@ -64,9 +64,11 @@ type StsToken struct {
 func buildClient(c *Config) error {
 	if c.Token != "" {
 		return buildClientByToken(c)
-	} else if c.AccessKey != "" && c.SecretKey != "" {
+	}
+	if c.AccessKey != "" && c.SecretKey != "" {
 		return buildClientByAKSK(c)
-	} else if c.Password != "" && (c.Username != "" || c.UserID != "") {
+	}
+	if c.Password != "" && (c.Username != "" || c.UserID != "") {
 		return buildClientByPassword(c)
 	}
 
