@@ -451,7 +451,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 		return filename, nil
 	} else if furl := d.Get("image_source_url").(string); furl != "" {
 		dir := d.Get("image_cache_path").(string)
-		err := os.MkdirAll(dir, 0700)
+		err := os.MkdirAll(dir, 0600)
 		if err != nil {
 			log.Printf("Error creating directory %q: %s", dir, err)
 		}
