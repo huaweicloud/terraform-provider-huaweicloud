@@ -1612,6 +1612,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_database_storage_usage":          gaussdb.DataSourceDatabaseStorageUsage(),
 			"huaweicloud_gaussdb_schemas_storage_usage":           gaussdb.DataSourceSchemasStorageUsage(),
 			"huaweicloud_gaussdb_tables_storage_usage":            gaussdb.DataSourceTablesStorageUsage(),
+			"huaweicloud_gaussdb_top_twenty_tables_storage_usage": gaussdb.DataSourceTopTwentyTablesStorageUsage(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
