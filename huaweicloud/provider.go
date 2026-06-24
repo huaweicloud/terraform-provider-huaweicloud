@@ -4647,6 +4647,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_htap_starrocks_replication":        taurusdb.ResourceTaurusDBHtapStarrocksReplication(),
 			"huaweicloud_taurusdb_htap_starrocks_replication_pause":  taurusdb.ResourceTaurusDBHtapStarrocksReplicationPause(),
 			"huaweicloud_taurusdb_htap_starrocks_replication_resume": taurusdb.ResourceTaurusDBHtapStarrocksReplicationResume(),
+			"huaweicloud_taurusdb_htap_starrocks_user":               taurusdb.ResourceTaurusDBHtapStarrocksUser(),
 			"huaweicloud_taurusdb_primary_standby_switch":            taurusdb.ResourceTaurusDBPrimaryStandbySwitch(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
