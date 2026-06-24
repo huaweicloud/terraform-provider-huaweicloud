@@ -17,6 +17,7 @@ import (
 	"github.com/chnsz/golangsdk/auth"
 	"github.com/chnsz/golangsdk/auth/core/signer"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
+
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
