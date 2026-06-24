@@ -219,11 +219,11 @@ func dataSourceGlobalInternetBandwidthsRead(_ context.Context, d *schema.Resourc
 		currentTotal += len(bws)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("internet_bandwidths", results),

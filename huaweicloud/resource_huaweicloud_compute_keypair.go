@@ -55,8 +55,8 @@ func ResourceComputeKeypairV2() *schema.Resource {
 }
 
 func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -95,8 +95,8 @@ func getKeyFilePath(d *schema.ResourceData) string {
 }
 
 func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -108,14 +108,14 @@ func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("name", kp.Name)
 	d.Set("public_key", kp.PublicKey)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", GetRegion(d, cfg))
 
 	return nil
 }
 
 func resourceComputeKeypairV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

@@ -695,12 +695,12 @@ func buildResourceClusterEncryptionConfig(d *schema.ResourceData) *clusters.Encr
 
 // nolint:gocyclo
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
-	icAgentClient, err := config.AomV1Client(config.GetRegion(d))
+	icAgentClient, err := cfg.AomV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM v1 client: %s", err)
 	}
@@ -753,7 +753,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				AuthenticatingProxy: authenticating_proxy,
 			},
 			BillingMode:      billingMode,
-			ExtendParam:      buildResourceClusterExtendParams(d, config),
+			ExtendParam:      buildResourceClusterExtendParams(d, cfg),
 			ClusterTags:      resourceClusterTags(d),
 			CustomSan:        utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
 			IPv6Enable:       d.Get("ipv6_enable").(bool),
@@ -792,7 +792,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if orderId, ok := s.Spec.ExtendParam["orderID"]; ok && orderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -866,8 +866,8 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
@@ -878,7 +878,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", n.Metadata.Name),
 		d.Set("alias", n.Metadata.Alias),
 		d.Set("timezone", n.Metadata.Timezone),
@@ -1223,15 +1223,15 @@ func buildConfigurationsPackagesBodyParams(d *schema.ResourceData) ([]map[string
 }
 
 func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
-		if err := common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
 			return diag.Errorf("error unsubscribing CCE cluster: %s", err)
 		}
 	} else {

@@ -152,11 +152,11 @@ func dataSourceAvailabilityZonesRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error retrieving availability zones: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

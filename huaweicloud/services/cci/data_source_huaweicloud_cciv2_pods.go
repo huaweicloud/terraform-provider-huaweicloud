@@ -1214,11 +1214,11 @@ func dataSourceV2PodsRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error retrieving CCI pods: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	pods := utils.PathSearch("items", listPodsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

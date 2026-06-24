@@ -127,15 +127,15 @@ func BackupBackupDatabaseSchema() *schema.Resource {
 }
 
 func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createBackup: create a RDS backup.
 	var (
 		createBackupHttpUrl = "v3/{project_id}/backups"
 		createBackupProduct = "rds"
 	)
-	createBackupClient, err := config.NewServiceClient(createBackupProduct, region)
+	createBackupClient, err := cfg.NewServiceClient(createBackupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Backup Client: %s", err)
 	}
@@ -149,7 +149,7 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 			200,
 		},
 	}
-	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d, config))
+	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d, cfg))
 	var createBackupResp *http.Response
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
@@ -230,14 +230,14 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			// createBackupWaiting: missing operation notes
 			var (
 				createBackupWaitingHttpUrl = "v3/{project_id}/backups"
 				createBackupWaitingProduct = "rds"
 			)
-			createBackupWaitingClient, err := config.NewServiceClient(createBackupWaitingProduct, region)
+			createBackupWaitingClient, err := cfg.NewServiceClient(createBackupWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Backup Client: %s", err)
 			}
@@ -286,8 +286,8 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 }
 
 func resourceBackupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -296,7 +296,7 @@ func resourceBackupRead(ctx context.Context, d *schema.ResourceData, meta interf
 		getBackupHttpUrl = "v3/{project_id}/backups"
 		getBackupProduct = "rds"
 	)
-	getBackupClient, err := config.NewServiceClient(getBackupProduct, region)
+	getBackupClient, err := cfg.NewServiceClient(getBackupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Backup Client: %s", err)
 	}
@@ -375,15 +375,15 @@ func resourceBackupUpdate(_ context.Context, _ *schema.ResourceData, _ interface
 }
 
 func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteBackup: missing operation notes
 	var (
 		deleteBackupHttpUrl = "v3/{project_id}/backups/{id}"
 		deleteBackupProduct = "rds"
 	)
-	deleteBackupClient, err := config.NewServiceClient(deleteBackupProduct, region)
+	deleteBackupClient, err := cfg.NewServiceClient(deleteBackupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Backup Client: %s", err)
 	}
@@ -439,14 +439,14 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			// deleteBackupWaiting: missing operation notes
 			var (
 				deleteBackupWaitingHttpUrl = "v3/{project_id}/backups"
 				deleteBackupWaitingProduct = "rds"
 			)
-			deleteBackupWaitingClient, err := config.NewServiceClient(deleteBackupWaitingProduct, region)
+			deleteBackupWaitingClient, err := cfg.NewServiceClient(deleteBackupWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Backup Client: %s", err)
 			}

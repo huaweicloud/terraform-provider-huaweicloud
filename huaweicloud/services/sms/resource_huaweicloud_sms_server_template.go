@@ -262,13 +262,13 @@ func buildServerTemplateParameters(d *schema.ResourceData, cfg *config.Config) (
 }
 
 func resourceServerTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	createOpts, err := buildServerTemplateParameters(d, config)
+	createOpts, err := buildServerTemplateParameters(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -300,8 +300,8 @@ func flattenSecGroupIDs(groups []templates.SgObject) []string {
 }
 
 func resourceServerTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
@@ -334,13 +334,13 @@ func resourceServerTemplateRead(_ context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceServerTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	updateOpts, err := buildServerTemplateParameters(d, config)
+	updateOpts, err := buildServerTemplateParameters(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -355,8 +355,8 @@ func resourceServerTemplateUpdate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceServerTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}

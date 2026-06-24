@@ -94,11 +94,11 @@ func dataSourceNacosNamespacesRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error querying namespaces under Nacos engine (%s): %s", engineId, err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

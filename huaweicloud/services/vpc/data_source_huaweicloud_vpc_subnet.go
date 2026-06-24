@@ -112,8 +112,8 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 }
 
 func dataSourceVpcSubnetV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	subnetClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Vpc client: %s", err)
 	}
@@ -166,7 +166,7 @@ func dataSourceVpcSubnetV1Read(_ context.Context, d *schema.ResourceData, meta i
 	d.Set("ipv6_subnet_id", Subnets.IPv6SubnetId)
 	d.Set("ipv6_cidr", Subnets.IPv6CIDR)
 	d.Set("ipv6_gateway", Subnets.IPv6Gateway)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

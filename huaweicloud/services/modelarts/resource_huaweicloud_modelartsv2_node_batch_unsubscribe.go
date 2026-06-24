@@ -120,11 +120,11 @@ func resourceV2NodeBatchUnsubscribeCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error waiting for all resources to be unsubscribed: %s ", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	client, err = cfg.NewServiceClient("modelarts", region)
 	if err != nil {

@@ -65,8 +65,8 @@ func ResourceRepoPwdAuth() *schema.Resource {
 
 func resourceRepoPwdAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
-	config := meta.(*config.Config)
-	client, err := config.ServiceStageV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ServiceStageV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
 	}

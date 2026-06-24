@@ -217,8 +217,8 @@ func DataSourceCCEClusters() *schema.Resource {
 }
 
 func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -229,7 +229,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		Type:                d.Get("cluster_type").(string),
 		Phase:               d.Get("status").(string),
 		VpcID:               d.Get("vpc_id").(string),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
@@ -331,7 +331,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 
 	d.SetId(hashcode.Strings(ids))
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("ids", ids),
 		d.Set("clusters", clustersToSet),
 	)

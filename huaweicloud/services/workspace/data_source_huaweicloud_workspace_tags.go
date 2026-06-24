@@ -138,11 +138,11 @@ func dataSourceTagsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error querying WorkSpace tags: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		nil,

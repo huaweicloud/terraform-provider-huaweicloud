@@ -115,8 +115,8 @@ func ResourceMemberV2() *schema.Resource {
 }
 
 func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -162,8 +162,8 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -176,7 +176,7 @@ func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interf
 	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", member.Name),
 		d.Set("weight", member.Weight),
 		d.Set("tenant_id", member.TenantID),
@@ -195,8 +195,8 @@ func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -244,8 +244,8 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}

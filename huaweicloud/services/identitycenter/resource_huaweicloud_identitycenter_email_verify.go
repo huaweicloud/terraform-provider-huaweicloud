@@ -78,11 +78,11 @@ func resourceIdentityCenterEmailVerifyCreate(_ context.Context, d *schema.Resour
 		return diag.Errorf("error verifying Identity Center user email: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

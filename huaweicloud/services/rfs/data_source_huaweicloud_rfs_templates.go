@@ -83,7 +83,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -93,7 +93,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 	requestPath = fmt.Sprintf("%s?limit=%d", requestPath, limit)
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": randomUUID,
 			"Content-Type":      "application/json",
 		},
 		KeepResponseBody: true,
@@ -128,7 +128,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

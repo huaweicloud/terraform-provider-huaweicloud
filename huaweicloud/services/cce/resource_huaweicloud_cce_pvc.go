@@ -168,15 +168,15 @@ func buildCcePersistentVolumeClaimCreateOpts(d *schema.ResourceData,
 
 func resourceCcePersistentVolumeClaimV1Create(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	c, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	clusterId := d.Get("cluster_id").(string)
 	ns := d.Get("namespace").(string)
-	opts, err := buildCcePersistentVolumeClaimCreateOpts(d, config)
+	opts, err := buildCcePersistentVolumeClaimCreateOpts(d, cfg)
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to build createOpts: %s", err)
 	}
@@ -243,8 +243,8 @@ func GetCcePvcInfoById(c *golangsdk.ServiceClient, clusterId, namespace,
 }
 
 func resourceCcePersistentVolumeClaimV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -256,7 +256,7 @@ func resourceCcePersistentVolumeClaimV1Read(_ context.Context, d *schema.Resourc
 		return common.CheckDeletedDiag(d, err, "pvc")
 	}
 	if resp != nil {
-		if err := saveCcePersistentVolumeClaimState(d, config, resp); err != nil {
+		if err := saveCcePersistentVolumeClaimState(d, cfg, resp); err != nil {
 			return fmtp.DiagErrorf("Error saving the specifies CCE PVC (%s) to state: %s", d.Id(), err)
 		}
 	}
@@ -265,8 +265,8 @@ func resourceCcePersistentVolumeClaimV1Read(_ context.Context, d *schema.Resourc
 }
 
 func resourceCcePersistentVolumeClaimV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	c, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}

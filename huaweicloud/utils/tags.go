@@ -82,9 +82,9 @@ func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceCli
 }
 
 // TagsToMap returns the list of tags into a map.
-func TagsToMap(tags []tags.ResourceTag) map[string]string {
+func TagsToMap(resourceTags []tags.ResourceTag) map[string]string {
 	result := make(map[string]string)
-	for _, val := range tags {
+	for _, val := range resourceTags {
 		result[val.Key] = val.Value
 	}
 
@@ -96,8 +96,8 @@ func TagsToMap(tags []tags.ResourceTag) map[string]string {
 }
 
 // FlattenTagsToMap returns the list of tags into a map.
-func FlattenTagsToMap(tags interface{}) map[string]interface{} {
-	if tagArray, ok := tags.([]interface{}); ok {
+func FlattenTagsToMap(rawTags interface{}) map[string]interface{} {
+	if tagArray, ok := rawTags.([]interface{}); ok {
 		result := make(map[string]interface{})
 		for _, val := range tagArray {
 			if t, ok := val.(map[string]interface{}); ok {

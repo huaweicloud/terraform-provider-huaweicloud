@@ -76,11 +76,11 @@ func resourceLtsLogEnableCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error enabling LTS logs for FunctionGraph: %s", paredErr)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return resourceLtsLogEnableRead(ctx, d, meta)
 }

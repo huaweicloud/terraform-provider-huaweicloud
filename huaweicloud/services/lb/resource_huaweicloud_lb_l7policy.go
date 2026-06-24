@@ -110,8 +110,8 @@ func ResourceL7PolicyV2() *schema.Resource {
 }
 
 func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -191,8 +191,8 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -205,7 +205,7 @@ func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta inte
 	logp.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("action", l7Policy.Action),
 		d.Set("description", l7Policy.Description),
 		d.Set("tenant_id", l7Policy.TenantID),
@@ -223,8 +223,8 @@ func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -323,8 +323,8 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -373,8 +373,8 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceL7PolicyV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

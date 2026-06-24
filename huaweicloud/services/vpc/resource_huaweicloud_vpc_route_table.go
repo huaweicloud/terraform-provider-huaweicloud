@@ -98,8 +98,8 @@ func ResourceVPCRouteTable() *schema.Resource {
 const MaxCreateRoutes int = 5
 
 func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -150,8 +150,8 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -162,7 +162,7 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("vpc_id", routeTable.VpcID),
 		d.Set("name", routeTable.Name),
 		d.Set("description", routeTable.Description),
@@ -179,8 +179,8 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 
 // nolint:gocyclo
 func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -317,8 +317,8 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceVpcRouteTableDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}

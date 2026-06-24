@@ -190,11 +190,11 @@ func dataSourceGlobalEIPPoolsRead(_ context.Context, d *schema.ResourceData, met
 		getGlobalEIPPoolsPath = fmt.Sprintf("%soffset=%v", getGlobalEIPPoolsPath[:index], currentTotal)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("geip_pools", results),

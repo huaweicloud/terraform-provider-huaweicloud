@@ -87,8 +87,8 @@ func ResourceCCENamespaceV1() *schema.Resource {
 }
 
 func resourceCCENamespaceV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -116,8 +116,8 @@ func resourceCCENamespaceV1Create(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -141,7 +141,7 @@ func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("prefix", namespace.Metadata.GenerateName),
 		d.Set("labels", labels),
 		d.Set("annotations", annotations),
@@ -155,8 +155,8 @@ func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceCCENamespaceV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
@@ -204,8 +204,8 @@ func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name stri
 
 func resourceCCENamespaceV1Import(context context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud CCE v1 client: %s", err)
 	}

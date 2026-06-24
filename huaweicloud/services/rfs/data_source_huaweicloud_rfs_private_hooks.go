@@ -122,7 +122,7 @@ func dataSourceRfsPrivateHooksRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -130,7 +130,7 @@ func dataSourceRfsPrivateHooksRead(_ context.Context, d *schema.ResourceData, me
 	requestPath := client.Endpoint + httpUrl
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": randomUUID,
 			"Content-Type":      "application/json",
 		},
 		KeepResponseBody: true,
@@ -161,7 +161,7 @@ func dataSourceRfsPrivateHooksRead(_ context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

@@ -346,11 +346,11 @@ func dataSourceExternalVaultsRead(_ context.Context, d *schema.ResourceData, met
 		offset += len(vaults)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

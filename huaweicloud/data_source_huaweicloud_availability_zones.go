@@ -41,9 +41,9 @@ func DataSourceAvailabilityZones() *schema.Resource {
 }
 
 func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	computeClient, err := config.ComputeV2Client(region)
+	cfg := meta.(*config.Config)
+	region := GetRegion(d, cfg)
+	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

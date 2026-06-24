@@ -235,11 +235,11 @@ func dataSourceV2ServicesRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error retrieving CCI services: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	services := utils.PathSearch("items", listServicesRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

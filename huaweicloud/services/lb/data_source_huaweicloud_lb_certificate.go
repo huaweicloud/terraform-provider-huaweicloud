@@ -50,10 +50,10 @@ func DataSourceLBCertificateV2() *schema.Resource {
 }
 
 func dataSourceLBCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 
 	// LoadBalancerClient catalog info: Name is "elb" and Version is "v2"
-	client, err := config.LoadBalancerClient(config.GetRegion(d))
+	client, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("error creating HuaweiCloud LoadBalancer Client: %s", err)
 	}

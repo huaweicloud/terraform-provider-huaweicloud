@@ -79,8 +79,8 @@ func StoragetypeStorageTypeSchema() *schema.Resource {
 }
 
 func resourceStoragetypeRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -89,7 +89,7 @@ func resourceStoragetypeRead(ctx context.Context, d *schema.ResourceData, meta i
 		listStorageTypesHttpUrl = "v3/{project_id}/storage-type/{db_type}"
 		listStorageTypesProduct = "rds"
 	)
-	listStorageTypesClient, err := config.NewServiceClient(listStorageTypesProduct, region)
+	listStorageTypesClient, err := cfg.NewServiceClient(listStorageTypesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Storagetype Client: %s", err)
 	}
@@ -119,11 +119,11 @@ func resourceStoragetypeRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr = multierror.Append(
 		mErr,

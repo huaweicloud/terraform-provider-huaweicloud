@@ -116,7 +116,7 @@ func dataSourceRfsExecutionPlansRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -127,7 +127,7 @@ func dataSourceRfsExecutionPlansRead(_ context.Context, d *schema.ResourceData, 
 
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": randomUUID,
 			"Content-Type":      "application/json",
 		},
 		KeepResponseBody: true,
@@ -158,7 +158,7 @@ func dataSourceRfsExecutionPlansRead(_ context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

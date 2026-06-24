@@ -64,8 +64,8 @@ func ResourceRepoTokenAuth() *schema.Resource {
 
 func resourceRepoTokenAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var err error
-	config := meta.(*config.Config)
-	client, err := config.ServiceStageV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ServiceStageV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
 	}
@@ -106,9 +106,9 @@ func getAuthorizationByName(c *golangsdk.ServiceClient, name string) (*repositor
 }
 
 func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
 	}
@@ -127,9 +127,9 @@ func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceRepoAuthDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
 	}

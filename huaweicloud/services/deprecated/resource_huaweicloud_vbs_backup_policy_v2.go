@@ -212,7 +212,7 @@ func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("status", n.ScheduledPolicy.Status)
 	d.Set("policy_resource_count", n.ResourceCount)
 
-	tags, err := tags.Get(vbsClient, d.Id()).Extract()
+	resourceTags, err := tags.Get(vbsClient, d.Id()).Extract()
 
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
@@ -221,7 +221,7 @@ func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) err
 		return fmtp.Errorf("Error retrieving Huaweicloud Backup Policy Tags: %s", err)
 	}
 	var tagList []map[string]interface{}
-	for _, v := range tags.Tags {
+	for _, v := range resourceTags.Tags {
 		tag := make(map[string]interface{})
 		tag["key"] = v.Key
 		tag["value"] = v.Value
@@ -369,15 +369,15 @@ func resourceVBSBackupPolicyV2Delete(d *schema.ResourceData, meta interface{}) e
 
 func resourceVBSTagsV2(d *schema.ResourceData) []policies.Tag {
 	rawTags := d.Get("tags").(*schema.Set).List()
-	tags := make([]policies.Tag, len(rawTags))
+	tagList := make([]policies.Tag, len(rawTags))
 	for i, raw := range rawTags {
 		rawMap := raw.(map[string]interface{})
-		tags[i] = policies.Tag{
+		tagList[i] = policies.Tag{
 			Key:   rawMap["key"].(string),
 			Value: rawMap["value"].(string),
 		}
 	}
-	return tags
+	return tagList
 }
 
 func resourceVBSUpdateTagsV2(d *schema.ResourceData) []tags.Tag {

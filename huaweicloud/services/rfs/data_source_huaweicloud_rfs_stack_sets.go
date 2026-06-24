@@ -126,7 +126,7 @@ func dataSourceRfsStackSetsRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -134,7 +134,7 @@ func dataSourceRfsStackSetsRead(_ context.Context, d *schema.ResourceData, meta 
 	requestPath := client.Endpoint + httpUrl
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": randomUUID,
 			"Content-Type":      "application/json",
 		},
 		KeepResponseBody: true,
@@ -165,7 +165,7 @@ func dataSourceRfsStackSetsRead(_ context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

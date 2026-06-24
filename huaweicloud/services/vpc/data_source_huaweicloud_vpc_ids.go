@@ -32,8 +32,8 @@ func DataSourceVpcIdsV1() *schema.Resource {
 }
 
 func dataSourceVpcIdsV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Vpc client: %s", err)
 	}

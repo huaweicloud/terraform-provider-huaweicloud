@@ -54,11 +54,11 @@ func resourceDDSRecyclePolicyCreateOrUpdate(ctx context.Context, d *schema.Resou
 	}
 
 	if d.IsNewResource() {
-		uuid, err := uuid.GenerateUUID()
+		randomUUID, err := uuid.GenerateUUID()
 		if err != nil {
 			return diag.Errorf("unable to generate ID: %s", err)
 		}
-		d.SetId(uuid)
+		d.SetId(randomUUID)
 	}
 
 	return resourceDDSRecyclePolicyRead(ctx, d, meta)

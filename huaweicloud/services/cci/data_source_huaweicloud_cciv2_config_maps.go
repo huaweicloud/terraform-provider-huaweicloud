@@ -111,11 +111,11 @@ func dataSourceV2ConfigMapsRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error retrieving CCI configMaps: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	configMaps := utils.PathSearch("items", listConfigMapsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

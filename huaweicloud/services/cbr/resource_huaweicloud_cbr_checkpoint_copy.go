@@ -121,11 +121,11 @@ func resourceCheckpointCopyCreate(_ context.Context, d *schema.ResourceData, met
 	}
 
 	// Generate UUID as resource ID
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

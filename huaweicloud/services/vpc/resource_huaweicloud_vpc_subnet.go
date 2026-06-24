@@ -283,9 +283,9 @@ func buildDhcpOpts(d *schema.ResourceData, update bool) []subnets.ExtraDhcpOpt {
 }
 
 func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	subnetClient, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	subnetClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking client: %s", err)
 	}
@@ -302,7 +302,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		VPC_ID:           d.Get("vpc_id").(string),
 		PRIMARY_DNS:      d.Get("primary_dns").(string),
 		SECONDARY_DNS:    d.Get("secondary_dns").(string),
-		DnsList:          buildSubnetDNSList(d, config, region),
+		DnsList:          buildSubnetDNSList(d, cfg, region),
 		ExtraDhcpOpts:    buildDhcpOpts(d, false),
 	}
 	log.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
@@ -334,7 +334,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+		vpcSubnetV2Client, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating VpcSubnet client: %s", err)
 		}
@@ -344,7 +344,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	return resourceVpcSubnetRead(ctx, d, config)
+	return resourceVpcSubnetRead(ctx, d, cfg)
 
 }
 
@@ -359,10 +359,10 @@ func GetVpcSubnetById(config *config.Config, region, networkId string) (*subnets
 }
 
 func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	n, err := GetVpcSubnetById(config, region, d.Id())
+	n, err := GetVpcSubnetById(cfg, region, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Error obtain Subnet information")
 	}
@@ -388,7 +388,7 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 	)
 
 	// save VpcSubnet tags
-	if vpcSubnetV2Client, err := config.NetworkingV2Client(region); err == nil {
+	if vpcSubnetV2Client, err := cfg.NetworkingV2Client(region); err == nil {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			mErr = multierror.Append(mErr, d.Set("tags", tagmap))
@@ -421,8 +421,8 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	subnetClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating networking client: %s", err)
 	}
@@ -472,7 +472,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// update tags
 	if d.HasChange("tags") {
-		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+		vpcSubnetV2Client, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating VpcSubnet client: %s", err)
 		}
@@ -488,8 +488,8 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	subnetClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating networking client: %s", err)
 	}

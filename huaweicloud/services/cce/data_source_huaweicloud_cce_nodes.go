@@ -189,8 +189,8 @@ func DataSourceNodes() *schema.Resource {
 }
 
 func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("unable to create CCE client : %s", err)
 	}
@@ -252,7 +252,7 @@ func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 		// fetch tags from ECS instance
 		if !strings.Contains(d.Get("ignore_details").(string), "tags") {
-			computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+			computeClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 			if err != nil {
 				return diag.Errorf("error creating compute client: %s", err)
 			}
@@ -272,7 +272,7 @@ func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	d.SetId(hashcode.Strings(ids))
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("nodes", nodesToSet),
 		d.Set("ids", ids),
 	)

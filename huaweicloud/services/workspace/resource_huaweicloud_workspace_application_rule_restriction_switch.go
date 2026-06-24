@@ -86,11 +86,11 @@ func resourceApplicationRuleRestrictionSwitchCreate(ctx context.Context, d *sche
 		return diag.Errorf("error executing application rule restriction switch (%s): %s", action, err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return resourceApplicationRuleRestrictionSwitchRead(ctx, d, meta)
 }
