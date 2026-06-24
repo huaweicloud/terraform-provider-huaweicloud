@@ -570,7 +570,7 @@ func resourceArchitectureTableModelsRead(_ context.Context, d *schema.ResourceDa
 }
 
 func flattenGetArchitectureTableModels(all []interface{}) []interface{} {
-	if all == nil {
+	if len(all) == 0 {
 		return nil
 	}
 

@@ -36,8 +36,9 @@ func ResourceEnterpriseProjectCollection() *schema.Resource {
 }
 
 func buildEnterpriseProjectCollectionOpts(epIdList []interface{}, collectionID string) map[string]interface{} {
-	if epIdList == nil {
-		epIdList = make([]interface{}, 1)
+	if len(epIdList) == 0 {
+		epIdList = make([]interface{}, 0)
+		epIdList = append(epIdList, "")
 	}
 
 	bodyParams := map[string]interface{}{

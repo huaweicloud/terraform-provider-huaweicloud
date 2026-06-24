@@ -156,7 +156,7 @@ func datasourceVpcepServicesRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func flattenListVpcepServices(allServices []services.Service) []map[string]interface{} {
-	if allServices == nil {
+	if len(allServices) == 0 {
 		return nil
 	}
 	endpointServices := make([]map[string]interface{}, len(allServices))

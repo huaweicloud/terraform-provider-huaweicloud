@@ -151,7 +151,7 @@ func resourceDmsKafkaSmartConnectTasksRead(_ context.Context, d *schema.Resource
 }
 
 func flattenTasks(taskRespBody []interface{}) []interface{} {
-	if taskRespBody == nil {
+	if len(taskRespBody) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(taskRespBody))

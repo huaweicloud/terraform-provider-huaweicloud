@@ -127,7 +127,7 @@ func resourceSQLServerDatabasesRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func flattenListSQLServerDatabasesBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))

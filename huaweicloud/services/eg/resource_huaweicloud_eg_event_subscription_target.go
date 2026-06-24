@@ -580,7 +580,7 @@ func flattenEgDetail(egDetail interface{}) []interface{} {
 }
 
 func flattenHeaderParameters(parameters []interface{}) []interface{} {
-	if parameters == nil {
+	if len(parameters) == 0 {
 		return nil
 	}
 

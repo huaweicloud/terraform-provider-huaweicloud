@@ -199,7 +199,7 @@ func buildGetSlowLogsParams(d *schema.ResourceData, lineNum string, limit int) m
 }
 
 func filterRdsSlowLogs(d *schema.ResourceData, resp []map[string]interface{}) []map[string]interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	result := make([]map[string]interface{}, 0)

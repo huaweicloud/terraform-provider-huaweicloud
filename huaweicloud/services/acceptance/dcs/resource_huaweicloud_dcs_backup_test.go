@@ -94,7 +94,7 @@ func TestAccDcsBackup_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_dcs_instance.instance_1", "id"),
+						"huaweicloud_dcs_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "type", "manual"),
 					resource.TestCheckResourceAttr(rName, "status", "succeed"),
 					resource.TestCheckResourceAttr(rName, "description", "test DCS backup remark"),
@@ -123,7 +123,7 @@ func testDcsBackup_basic(name string) string {
 %s
 
 resource "huaweicloud_dcs_backup" "test" {
-  instance_id   = huaweicloud_dcs_instance.instance_1.id
+  instance_id   = huaweicloud_dcs_instance.test.id
   description   = "test DCS backup remark"
   backup_format = "rdb"
 }

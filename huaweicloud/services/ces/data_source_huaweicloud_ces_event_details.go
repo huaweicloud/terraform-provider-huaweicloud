@@ -284,7 +284,7 @@ func buildCesEventDetailsQueryParams(d *schema.ResourceData) (string, error) {
 }
 
 func flattenEventDetails(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

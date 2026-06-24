@@ -328,7 +328,7 @@ func getDomainResolutionIpAddresses(client *golangsdk.ServiceClient, loadbalance
 }
 
 func flattenDomainResolutionIpAddresses(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

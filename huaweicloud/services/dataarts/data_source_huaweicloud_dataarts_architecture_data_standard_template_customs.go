@@ -139,7 +139,7 @@ func filterArchitectureDataStandardTemplateCustoms(client *golangsdk.ServiceClie
 }
 
 func flattenArchitectureDataStandardTemplateCustoms(customs []interface{}) []map[string]interface{} {
-	if customs == nil {
+	if len(customs) == 0 {
 		return nil
 	}
 	result := make([]map[string]interface{}, 0, len(customs))

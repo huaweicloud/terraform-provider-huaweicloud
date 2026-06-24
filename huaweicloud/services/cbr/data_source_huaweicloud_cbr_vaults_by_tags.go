@@ -632,7 +632,7 @@ func flattenVaultBindRules(rules interface{}) []map[string]interface{} {
 }
 
 func flattenVaultTags(tags []interface{}) []map[string]interface{} {
-	if tags == nil {
+	if len(tags) == 0 {
 		return nil
 	}
 	rst := make([]map[string]interface{}, 0, len(tags))

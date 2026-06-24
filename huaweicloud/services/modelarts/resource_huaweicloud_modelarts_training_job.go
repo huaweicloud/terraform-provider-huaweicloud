@@ -2558,7 +2558,7 @@ func flattenTrainingJobSpecCustomMetricsHttpGet(httpGet interface{}) []interface
 }
 
 func flattenTrainingJobSpecVolumes(volumes []interface{}) []interface{} {
-	if volumes == nil {
+	if len(volumes) == 0 {
 		return nil
 	}
 

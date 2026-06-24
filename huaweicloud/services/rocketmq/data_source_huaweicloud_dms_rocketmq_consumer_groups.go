@@ -143,7 +143,7 @@ func resourceDmsRocketMQConsumerGroupsRead(_ context.Context, d *schema.Resource
 }
 
 func flattenGetConsumerGroupsBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))

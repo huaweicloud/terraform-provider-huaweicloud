@@ -214,7 +214,7 @@ func dataSourcePrivateGatewaysRead(_ context.Context, d *schema.ResourceData, me
 }
 
 func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

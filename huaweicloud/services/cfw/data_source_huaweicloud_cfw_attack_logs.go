@@ -444,7 +444,7 @@ func buildCfwAttackLogQueryParams(d *schema.ResourceData, cfg *config.Config) (s
 }
 
 func flattenListAttackLogs(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

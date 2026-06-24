@@ -118,7 +118,7 @@ func dataSourceRdsSQLServerAccountsRead(_ context.Context, d *schema.ResourceDat
 }
 
 func flattenListSQLServerAccountsBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))

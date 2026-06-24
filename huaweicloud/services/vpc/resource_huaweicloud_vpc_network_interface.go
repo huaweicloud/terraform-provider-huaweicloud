@@ -273,7 +273,7 @@ func flattenFixedIps(fixedIps []ports.FixedIp) string {
 	return ""
 }
 func flattenAllowedAddr(addressPairs []ports.AddressPair) []interface{} {
-	if addressPairs == nil {
+	if len(addressPairs) == 0 {
 		return nil
 	}
 	addressPairsRes := make([]interface{}, len(addressPairs))

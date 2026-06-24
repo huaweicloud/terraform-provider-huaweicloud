@@ -50,7 +50,7 @@ func EncryptShares(input [][]byte, pgpKeys []string) ([]string, [][]byte, error)
 // fingerprints. If entities is nil, it will instead parse both entities and
 // fingerprints from the pgpKeys string slice.
 func GetFingerprints(pgpKeys []string, entities []*openpgp.Entity) ([]string, error) {
-	if entities == nil {
+	if len(entities) == 0 {
 		var err error
 		entities, err = GetEntities(pgpKeys)
 
@@ -68,6 +68,10 @@ func GetFingerprints(pgpKeys []string, entities []*openpgp.Entity) ([]string, er
 // GetEntities takes in a string array of base64-encoded PGP keys and returns
 // the openpgp Entities
 func GetEntities(pgpKeys []string) ([]*openpgp.Entity, error) {
+	if len(pgpKeys) == 0 {
+		return make([]*openpgp.Entity, 0), nil
+	}
+
 	ret := make([]*openpgp.Entity, 0, len(pgpKeys))
 	for _, keystring := range pgpKeys {
 		data, err := base64.StdEncoding.DecodeString(keystring)

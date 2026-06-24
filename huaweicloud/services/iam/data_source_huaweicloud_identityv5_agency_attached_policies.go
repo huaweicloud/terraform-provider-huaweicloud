@@ -132,7 +132,7 @@ func dataSourceV5AgencyAttachedPoliciesRead(_ context.Context, d *schema.Resourc
 }
 
 func flattenV5AgencyAttachedPolicies(policies []interface{}) []interface{} {
-	if policies == nil {
+	if len(policies) == 0 {
 		return nil
 	}
 

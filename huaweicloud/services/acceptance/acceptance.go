@@ -871,6 +871,7 @@ var (
 	HW_DDS_SESSION_ID                      = os.Getenv("HW_DDS_SESSION_ID")
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
+	HW_RDS_INSTANCE_FLAVOR                 = os.Getenv("HW_RDS_INSTANCE_FLAVOR")
 	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
 	HW_RDS_TARGET_INSTANCE_ID              = os.Getenv("HW_RDS_TARGET_INSTANCE_ID")
 	HW_RDS_TARGET_PROJECT_ID               = os.Getenv("HW_RDS_TARGET_PROJECT_ID")

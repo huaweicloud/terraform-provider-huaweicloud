@@ -200,7 +200,7 @@ func dataSourcePrivateTransitIpsRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func flattenListTransitIpsResponseBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 

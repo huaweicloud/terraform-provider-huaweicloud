@@ -165,7 +165,7 @@ func dataSourcePgAccountsRead(_ context.Context, d *schema.ResourceData, meta in
 }
 
 func flattenPgAccountsBody(resp []interface{}) []interface{} {
-	if resp == nil {
+	if len(resp) == 0 {
 		return nil
 	}
 	rst := make([]interface{}, 0, len(resp))
