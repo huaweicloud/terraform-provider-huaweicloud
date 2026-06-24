@@ -46,7 +46,6 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	var (
 		permissions []endpoints.EndpointPermission
 
-		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_apig_endpoint_whitelist.test"
 
 		rc = acceptance.InitResourceCheck(
@@ -65,7 +64,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointWhiteList_basic(name),
+				Config: testAccEndpointWhiteList_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
@@ -73,7 +72,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEndpointWhiteList_update(name),
+				Config: testAccEndpointWhiteList_update(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
@@ -89,7 +88,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	})
 }
 
-func testAccEndpointWhiteList_basic(rName string) string {
+func testAccEndpointWhiteList_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_endpoint_whitelist" "test" {
   instance_id = "%[1]s"
@@ -101,7 +100,7 @@ resource "huaweicloud_apig_endpoint_whitelist" "test" {
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
-func testAccEndpointWhiteList_update(rName string) string {
+func testAccEndpointWhiteList_update() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_endpoint_whitelist" "test" {
   instance_id = "%[1]s"

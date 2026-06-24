@@ -15,7 +15,7 @@ func TestAccAvailabilityZones_basic(t *testing.T) {
 			{
 				Config: testAccAvailabilityZonesConfig_all,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestMatchResourceAttr("data.huaweicloud_availability_zones.all", "names.#", regexp.MustCompile("[1-9]\\d*")),
+					resource.TestMatchResourceAttr("data.huaweicloud_availability_zones.all", "names.#", regexp.MustCompile(`[1-9]\d*`)),
 				),
 			},
 		},

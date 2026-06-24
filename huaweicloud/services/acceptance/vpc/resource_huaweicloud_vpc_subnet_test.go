@@ -97,7 +97,7 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "true"),
 					resource.TestMatchResourceAttr(resourceName, "ipv6_cidr",
-						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}[[:xdigit:]]*/\\d{1,3}")),
+						regexp.MustCompile(`([[:xdigit:]]*):([[:xdigit:]]*:){1,6}[[:xdigit:]]*/\d{1,3}`)),
 					resource.TestMatchResourceAttr(resourceName, "ipv6_gateway",
 						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}([[:xdigit:]]){1,4}")),
 					resource.TestCheckResourceAttrSet(resourceName, "ipv4_subnet_id"),

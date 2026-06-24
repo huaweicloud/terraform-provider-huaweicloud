@@ -60,7 +60,7 @@ func ResourceCphServer() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, oldValue, newValue string, _ *schema.ResourceData) bool {
 					return newValue+"-1" == oldValue
 				},
 				Description: `Server name.`,

@@ -190,7 +190,7 @@ func resourcePartitionUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceNodeRead(ctx, d, meta)
 }
 
-func resourcePartitionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePartitionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := "Deleting partition resource is not supported. The partition resource is only removed from the state."
 	return diag.Diagnostics{
 		diag.Diagnostic{

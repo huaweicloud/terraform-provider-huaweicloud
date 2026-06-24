@@ -264,7 +264,7 @@ func TestAccElbV3Pool_basic_with_type_ip(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccElbV3PoolConfig_update_with_type_ip(rName, rNameUpdate),
+				Config: testAccElbV3PoolConfig_update_with_type_ip(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
@@ -616,7 +616,7 @@ resource "huaweicloud_elb_pool" "test" {
 `, rName)
 }
 
-func testAccElbV3PoolConfig_update_with_type_ip(rName, rNameUpdate string) string {
+func testAccElbV3PoolConfig_update_with_type_ip(rNameUpdate string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_elb_pool" "test" {
   name      = "%s"

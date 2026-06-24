@@ -22,6 +22,8 @@ import (
 	"github.com/chnsz/golangsdk"
 )
 
+var structJSONKeyRegexp = regexp.MustCompile(`"[a-z0-9A-Z_]+":`)
+
 // ConvertStructToMap converts an instance of struct to a map object, and
 // changes each key of fileds to the value of 'nameMap' if the key in it
 // or to its corresponding lowercase.
@@ -31,11 +33,7 @@ func ConvertStructToMap(obj interface{}, nameMap map[string]string) (map[string]
 		return nil, fmt.Errorf("Error converting struct to map, marshal failed:%v", err)
 	}
 
-	m, err := regexp.Compile(`"[a-z0-9A-Z_]+":`)
-	if err != nil {
-		return nil, fmt.Errorf("Error converting struct to map, compile regular express failed")
-	}
-	nb := m.ReplaceAllFunc(
+	nb := structJSONKeyRegexp.ReplaceAllFunc(
 		b,
 		func(src []byte) []byte {
 			k := string(src[1 : len(src)-2])

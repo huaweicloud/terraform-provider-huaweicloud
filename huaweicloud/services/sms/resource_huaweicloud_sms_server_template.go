@@ -354,7 +354,7 @@ func resourceServerTemplateUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceServerTemplateRead(ctx, d, meta)
 }
 
-func resourceServerTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceServerTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	smsClient, err := config.SmsV3Client(config.GetRegion(d))
 	if err != nil {

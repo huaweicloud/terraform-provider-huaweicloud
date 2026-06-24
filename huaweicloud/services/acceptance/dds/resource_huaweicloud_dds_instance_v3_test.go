@@ -446,7 +446,7 @@ func TestAccDDSV3Instance_withAutoEnlargePolicy(t *testing.T) {
 }
 
 func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, groupType, key string, v interface{}) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if key == "num" {
 			if groupType == "shard" {
 				groupIDs := make([]string, 0)

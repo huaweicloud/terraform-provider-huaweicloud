@@ -334,7 +334,7 @@ func resourceV2PersistentVolumeClaimUpdate(_ context.Context, _ *schema.Resource
 	return nil
 }
 
-func resourceV2PersistentVolumeClaimDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV2PersistentVolumeClaimDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("cci", region)

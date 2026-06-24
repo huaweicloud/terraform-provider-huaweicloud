@@ -109,7 +109,7 @@ func isExpireTimeValid(expireTime int) bool {
 	return expireTime >= 12 && expireTime <= 24
 }
 
-func getMeetingEndpoint(endpoints map[string]string, obj string) string {
+func getMeetingEndpoint(endpoints map[string]string) string {
 	if endpoint, ok := endpoints["meeting"]; ok {
 		return endpoint
 	}
@@ -118,12 +118,12 @@ func getMeetingEndpoint(endpoints map[string]string, obj string) string {
 
 // NewMeetingV1Client is a method to general a client with ver.1 meeting endpoint.
 func NewMeetingV1Client(conf *config.Config) *golangsdk.ServiceClient {
-	return common.NewCustomClient(false, getMeetingEndpoint(conf.Endpoints, "meeting"), "v1")
+	return common.NewCustomClient(false, getMeetingEndpoint(conf.Endpoints), "v1")
 }
 
 // NewMeetingV2Client is a method to general a client with ver.2 meeting endpoint.
 func NewMeetingV2Client(conf *config.Config) *golangsdk.ServiceClient {
-	return common.NewCustomClient(false, getMeetingEndpoint(conf.Endpoints, "meeting"), "v2")
+	return common.NewCustomClient(false, getMeetingEndpoint(conf.Endpoints), "v2")
 }
 
 func isValidToken(client *golangsdk.ServiceClient, token string) bool {

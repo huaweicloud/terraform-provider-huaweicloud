@@ -279,7 +279,7 @@ func (c *Config) SetServiceEndpoint(service, endpoint string) {
 	}
 }
 
-func retryBackoffFunc(ctx context.Context, respErr *golangsdk.ErrUnexpectedResponseCode, e error, retries uint) error {
+func retryBackoffFunc(ctx context.Context, _ *golangsdk.ErrUnexpectedResponseCode, e error, retries uint) error {
 	minutes := int(math.Pow(2, float64(retries)))
 	if minutes > 30 { // won't wait more than 30 minutes
 		minutes = 30

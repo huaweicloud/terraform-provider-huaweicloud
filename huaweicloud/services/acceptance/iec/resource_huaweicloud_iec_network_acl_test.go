@@ -103,7 +103,7 @@ func TestAccNetworkACLResource_no_subnets(t *testing.T) {
 }
 
 func testAccCheckNetworkACLNetBlockExists(r *firewalls.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(r.Subnets) == 0 {
 			return fmt.Errorf("the Subnet of IEC network ACL is not set")
 		}

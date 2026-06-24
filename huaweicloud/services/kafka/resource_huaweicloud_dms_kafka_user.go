@@ -114,7 +114,7 @@ func buildCreateDmsKafkaUserBodyParams(d *schema.ResourceData) map[string]interf
 	return bodyParams
 }
 
-func resourceDmsKafkaUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsKafkaUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {

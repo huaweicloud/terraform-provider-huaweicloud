@@ -266,7 +266,7 @@ func TestAccLBV2LoadBalancer_changeToPrePaid(t *testing.T) {
 
 func testAccCheckLBV2LoadBalancerHasSecGroup(
 	lb *loadbalancers.LoadBalancer, sg *groups.SecurityGroup) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {

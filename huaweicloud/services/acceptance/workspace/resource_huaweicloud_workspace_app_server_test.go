@@ -90,7 +90,7 @@ func TestAccResourceAppServer_basic(t *testing.T) {
 	})
 }
 
-func testResourceAppServer_base(name string) string {
+func testResourceAppServer_base() string {
 	return fmt.Sprintf(`
 variable "ou_name" {
   type    = string
@@ -129,7 +129,7 @@ resource "huaweicloud_workspace_app_server" "test" {
     size = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].system_disk_size, null)
   }
 }
-`, testResourceAppServer_base(name), name, acceptance.HW_WORKSPACE_OU_NAME)
+`, testResourceAppServer_base(), name, acceptance.HW_WORKSPACE_OU_NAME)
 }
 
 func testResourceAppServer_basic_step2(name string) string {
@@ -152,7 +152,7 @@ resource "huaweicloud_workspace_app_server" "test" {
     size = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].system_disk_size, null)
   }
 }
-`, testResourceAppServer_base(name), name, acceptance.HW_WORKSPACE_OU_NAME)
+`, testResourceAppServer_base(), name, acceptance.HW_WORKSPACE_OU_NAME)
 }
 
 // Before running this test, please enable a service that connects to LocalAD and the corresponding OU is created.
@@ -256,7 +256,7 @@ resource "huaweicloud_workspace_app_server" "test" {
   period        = 1
   auto_renew    = true
 }
-`, testResourceAppServer_base(name), name, acceptance.HW_WORKSPACE_OU_NAME)
+`, testResourceAppServer_base(), name, acceptance.HW_WORKSPACE_OU_NAME)
 }
 
 func testResourceAppServer_prepaid_step2(name string) string {
@@ -285,5 +285,5 @@ resource "huaweicloud_workspace_app_server" "test" {
   period        = 1
   auto_renew    = false
 }
-`, testResourceAppServer_base(name), name, acceptance.HW_WORKSPACE_OU_NAME)
+`, testResourceAppServer_base(), name, acceptance.HW_WORKSPACE_OU_NAME)
 }

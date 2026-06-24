@@ -116,7 +116,7 @@ func ResourceScript() *schema.Resource {
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
-							DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+							DiffSuppressFunc: func(_, oldValue, _ string, _ *schema.ResourceData) bool {
 								return oldValue == defaultSensitiveValue
 							},
 						},

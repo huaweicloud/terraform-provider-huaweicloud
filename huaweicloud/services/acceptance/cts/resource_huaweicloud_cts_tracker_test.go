@@ -132,7 +132,7 @@ func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 	return nil
 }
 
-func getCTSTrackerResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getCTSTrackerResourceObj(conf *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.NewServiceClient("cts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CTS client: %s", err)

@@ -167,14 +167,14 @@ func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, m
 
 	//  call addIps to support more than 20 ip addresses
 	if val, ok := d.GetOk("ip_addresses"); ok {
-		err = addIps(ctx, d, meta, client, val.(*schema.Set).List())
+		err = addIps(ctx, d, client, val.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if val, ok := d.GetOk("listeners"); ok {
-		err = associateListener(ctx, d, meta, client, val.(*schema.Set).List())
+		err = associateListener(ctx, d, client, val.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -311,14 +311,14 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 		removeIpsRaw := oldIpsRaw.(*schema.Set).Difference(newIpsRaw.(*schema.Set))
 
 		if removeIpsRaw.Len() > 0 {
-			err = removeIps(ctx, d, meta, client, removeIpsRaw.List())
+			err = removeIps(ctx, d, client, removeIpsRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
 		if addIpsRaw.Len() > 0 {
-			err = addIps(ctx, d, meta, client, addIpsRaw.List())
+			err = addIps(ctx, d, client, addIpsRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -338,7 +338,7 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		if associateListenerRaw.Len() > 0 {
-			err = associateListener(ctx, d, meta, client, associateListenerRaw.List())
+			err = associateListener(ctx, d, client, associateListenerRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -348,8 +348,7 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceIpAddressGroupRead(ctx, d, meta)
 }
 
-func addIps(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
-	rawParams interface{}) error {
+func addIps(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, rawParams interface{}) error {
 	addIpsHttpUrl := "v1/ip-groups/{ip_group_id}/add-ips"
 	addIpsPath := client.Endpoint + addIpsHttpUrl
 	addIpsPath = strings.ReplaceAll(addIpsPath, "{ip_group_id}", d.Id())
@@ -396,8 +395,7 @@ func addIps(ctx context.Context, d *schema.ResourceData, meta interface{}, clien
 	return nil
 }
 
-func removeIps(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
-	rawParams interface{}) error {
+func removeIps(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, rawParams interface{}) error {
 	removeIpsHttpUrl := "v1/ip-groups/{ip_group_id}/remove-ips"
 	removeIpsPath := client.Endpoint + removeIpsHttpUrl
 	removeIpsPath = strings.ReplaceAll(removeIpsPath, "{ip_group_id}", d.Id())
@@ -439,8 +437,7 @@ func removeIps(ctx context.Context, d *schema.ResourceData, meta interface{}, cl
 	return nil
 }
 
-func associateListener(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
-	rawParams interface{}) error {
+func associateListener(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, rawParams interface{}) error {
 	associateListenerHttpUrl := "v1/ip-groups/{ip_group_id}/associate-listener"
 	associateListenerPath := client.Endpoint + associateListenerHttpUrl
 	associateListenerPath = strings.ReplaceAll(associateListenerPath, "{ip_group_id}", d.Id())
