@@ -2568,6 +2568,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_htap_starrocks_nodes":                     taurusdb.DataSourceTaurusDBHtapStarrocksNodes(),
 			"huaweicloud_taurusdb_htap_starrocks_parameters":                taurusdb.DataSourceTaurusDBHtapStarrocksParameters(),
 			"huaweicloud_taurusdb_htap_starrocks_replications":              taurusdb.DataSourceTaurusDBHtapStarrocksReplications(),
+			"huaweicloud_taurusdb_htap_starrocks_replication_config":        taurusdb.DataSourceTaurusDBHtapStarrocksReplicationConfig(),
 			"huaweicloud_taurusdb_htap_starrocks_replication_db_parameters": taurusdb.DataSourceTaurusDBHtapStarrocksReplicationDBParameters(),
 			"huaweicloud_taurusdb_htap_starrocks_users":                     taurusdb.DataSourceTaurusDBHtapStarrocksUsers(),
 			"huaweicloud_taurusdb_htap_storage_types":                       taurusdb.DataSourceTaurusDBHtapStorageTypes(),
