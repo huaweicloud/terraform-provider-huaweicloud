@@ -1,11 +1,12 @@
 module github.com/huaweicloud/terraform-provider-huaweicloud
 
-go 1.21
+go 1.22.0
 
-toolchain go1.22.12
+toolchain go1.24.13
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
+	github.com/ProtonMail/go-crypto v1.3.0
 	github.com/chnsz/golangsdk v0.0.0-20260514121205-83ad1d270e52
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
@@ -17,7 +18,6 @@ require (
 	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.98
 	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/jmespath/go-jmespath v0.4.0
-	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/stretchr/testify v1.10.0
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
@@ -28,6 +28,7 @@ require (
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -67,7 +68,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect

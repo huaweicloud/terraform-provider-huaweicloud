@@ -28,12 +28,31 @@ func RetrieveGPGKey(pgpKey string) (string, error) {
 
 // EncryptValue encrypts the given value with the given encryption key. Description
 // should be set such that errors return a meaningful user-facing response.
-func EncryptValue(encryptionKey, value, description string) (string, string, error) {
-	fingerprints, encryptedValue, err :=
-		pgpkeys.EncryptShares([][]byte{[]byte(value)}, []string{encryptionKey})
-	if err != nil {
-		return "", "", fmt.Errorf("Error encrypting %s: %w", description, err)
+func EncryptValue(encryptionKey, value, description string) (fingerprint, encryptedValue string, err error) {
+	fingerprints, encrypted, encryptErr := pgpkeys.EncryptShares([][]byte{[]byte(value)}, []string{encryptionKey})
+	if encryptErr != nil {
+		err = fmt.Errorf("Error encrypting %s: %w", description, encryptErr)
+		return
+	}
+	if len(fingerprints) == 0 || len(encrypted) == 0 {
+		err = fmt.Errorf("No PGP key fingerprints or encrypted values found")
+		return
 	}
 
-	return fingerprints[0], base64.StdEncoding.EncodeToString(encryptedValue[0]), nil
+	fingerprint = fingerprints[0]
+	encryptedValue = base64.StdEncoding.EncodeToString(encrypted[0])
+	return
+}
+
+// GetPGPFingerprint returns the fingerprint of the given base64-encoded PGP public key.
+func GetPGPFingerprint(publicKey string) (string, error) {
+	fingerprints, err := pgpkeys.GetFingerprints([]string{publicKey}, nil)
+	if err != nil {
+		return "", err
+	}
+	if len(fingerprints) == 0 {
+		return "", fmt.Errorf("No PGP key fingerprints found")
+	}
+
+	return fingerprints[0], nil
 }
