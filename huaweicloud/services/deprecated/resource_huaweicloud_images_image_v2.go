@@ -462,7 +462,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 				return "", fmtp.Errorf("Error while trying to access file %q: %s", filename, err)
 			}
 			logp.Printf("[DEBUG] File doens't exists %s. will download from %s", filename, furl)
-			file, err := os.Create(filename)
+			file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 			if err != nil {
 				return "", fmtp.Errorf("Error creating file %q: %s", filename, err)
 			}

@@ -148,7 +148,7 @@ func TestAccMigrationTaskGroup_urlList(t *testing.T) {
 	listFileBucketName := rName + "-list"
 	resourceName := "huaweicloud_oms_migration_task_group.test"
 
-	tmpFile, err := os.Create("temp.txt")
+	tmpFile, err := os.OpenFile("temp.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -56,7 +56,7 @@ func main() {
 	}
 
 	outFile := genPathFile(sourceName)
-	output, err := os.Create(outFile)
+	output, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Printf("falied to create output file: %s", err)
 		os.Exit(4)

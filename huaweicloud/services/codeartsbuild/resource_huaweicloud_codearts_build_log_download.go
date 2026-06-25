@@ -119,7 +119,7 @@ func resourceBuildLogDownloadCreate(_ context.Context, d *schema.ResourceData, m
 
 			defer getResp.Body.Close()
 
-			file, err := os.Create(filePath)
+			file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 			if err != nil {
 				return diag.Errorf("error creating file %s: %s", filePath, err)
 			}
