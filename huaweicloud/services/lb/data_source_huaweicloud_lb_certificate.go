@@ -1,6 +1,7 @@
 package lb
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -63,6 +64,9 @@ func dataSourceLBCertificateV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	r, err := certificates.List(client, listOpts)
+	if err != nil {
+		return fmt.Errorf("error listing certificates: %s", err)
+	}
 	certRst, err := r.Extract()
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve certificates from LoadBalancer: %s", err)
