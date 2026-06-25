@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2020, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 package product
 
 import (
@@ -6,6 +9,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 )
+
+const simpleVersionRe = `v?(?P<version>[0-9]+(?:\.[0-9]+)*(?:-[A-Za-z0-9\.]+)?)`
 
 type Product struct {
 	// Name which identifies the product

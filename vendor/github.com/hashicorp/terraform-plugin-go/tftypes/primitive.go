@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2020, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 package tftypes
 
 import (
@@ -83,7 +86,10 @@ func (p primitive) MarshalJSON() ([]byte, error) {
 	case DynamicPseudoType.name:
 		return []byte(`"dynamic"`), nil
 	}
-	return nil, fmt.Errorf("unknown primitive type %q", p)
+
+	// MarshalJSON should always be error safe and reaching this panic implies
+	// a new primitive type was added that needs to be handled above.
+	panic(fmt.Sprintf("unimplemented tftypes.primitive type: %+v", p))
 }
 
 func (p primitive) supportedGoTypes() []string {

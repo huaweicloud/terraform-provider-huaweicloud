@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2020, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 // Package tf6server implements a server implementation to run
 // tfprotov6.ProviderServers as gRPC servers.
 //

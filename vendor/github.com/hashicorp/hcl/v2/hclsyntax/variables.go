@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package hclsyntax
 
 import (
@@ -17,6 +20,7 @@ func Variables(expr Expression) []hcl.Traversal {
 		},
 	}
 
+	//nolint:errcheck // FIXME: Propogate diagnostics/errors upward.
 	Walk(expr, walker)
 
 	return vars

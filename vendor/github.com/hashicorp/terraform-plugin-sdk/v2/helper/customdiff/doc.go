@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2019, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 // Package customdiff provides a set of reusable and composable functions
 // to enable more "declarative" use of the CustomizeDiff mechanism available
 // for resources in package helper/schema.

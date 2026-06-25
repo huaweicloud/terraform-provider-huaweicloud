@@ -26,7 +26,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: ">=1.18"
+        go-version: "1.24"
     - run: go version
 
     - name: Build
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       - name: Check schemas and markdown docs
         shell: bash {0}
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       - name: Check api comments
         shell: bash {0}
@@ -144,7 +144,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       - name: Check resource read method contains check deleted
         shell: bash {0}
