@@ -172,7 +172,7 @@ resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s"
 }
-`, testAccRdsInstance_base(), name, acceptance.HW_RDS_INSTANCE_FLAVOR)
+`, testAccRdsInstance_base, name, acceptance.HW_RDS_INSTANCE_FLAVOR)
 }
 
 func testSQLServerDatabasePrivilege_basic(name string) string {

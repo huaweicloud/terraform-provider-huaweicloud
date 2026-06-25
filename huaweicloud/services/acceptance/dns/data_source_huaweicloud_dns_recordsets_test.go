@@ -140,8 +140,7 @@ data "huaweicloud_dns_recordsets" "test" {
 `, randomId)
 }
 
-func testAccDataRecordsets_base() string {
-	return fmt.Sprintf(`
+const testAccDataRecordsets_base = `
 data "huaweicloud_dns_recordsets" "test" {
   zone_id = huaweicloud_dns_recordset.test.0.zone_id
 }
@@ -312,8 +311,7 @@ locals {
 output "sort_filter_is_useful" {
   value = length(local.sort_desc_filter_result) > 0 && local.sort_asc_first_name == local.sort_desc_last_name
 }
-`)
-}
+`
 
 func testAccDataRecordsets_basic(name string) string {
 	return fmt.Sprintf(`
@@ -369,7 +367,7 @@ data "huaweicloud_dns_recordsets" "filter_by_not_found_line_id" {
 output "line_id_not_found_validation_pass" {
   value = length(data.huaweicloud_dns_recordsets.filter_by_not_found_line_id.recordsets) == 0
 }
-`, name, testAccDataRecordsets_base())
+`, name, testAccDataRecordsets_base)
 }
 
 func TestAccDataRecordsets_private(t *testing.T) {
@@ -512,5 +510,5 @@ resource "huaweicloud_dns_recordset" "test" {
 }
 
 %[3]s
-`, acceptance.RandomAccResourceName(), name, testAccDataRecordsets_base())
+`, acceptance.RandomAccResourceName(), name, testAccDataRecordsets_base)
 }

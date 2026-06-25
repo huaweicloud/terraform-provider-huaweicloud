@@ -79,7 +79,6 @@ func DataSourceQuotas() *schema.Resource {
 type QuotasDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
-	region string
 }
 
 func newQuotasDSWrapper(d *schema.ResourceData, meta interface{}) *QuotasDSWrapper {

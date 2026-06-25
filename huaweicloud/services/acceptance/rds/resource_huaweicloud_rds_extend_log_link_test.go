@@ -124,7 +124,7 @@ resource "huaweicloud_rds_instance" "test" {
 data "huaweicloud_rds_extend_log_files" "test" {
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, testAccRdsInstance_base(), name, name)
+`, testAccRdsInstance_base, name, name)
 }
 
 func testRdsExtendLogLink_basic(name string) string {

@@ -134,7 +134,7 @@ resource "huaweicloud_rds_pg_database" "test" {
   is_revoke_public_privilege = false
   description                = "test_description"
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testPgSchema_basic(name string) string {

@@ -39,7 +39,7 @@ func TestAccV3UserInfo_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccV3UserInfo_basic_step3(),
+				Config: testAccV3UserInfo_basic_step3,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "mobile"),
@@ -68,12 +68,10 @@ resource "huaweicloud_identity_user_info" "test" {
 `, email)
 }
 
-func testAccV3UserInfo_basic_step3() string {
-	return fmt.Sprintf(`
+const testAccV3UserInfo_basic_step3 = `
 resource "huaweicloud_identity_user_info" "test" {
   mobile = "0086-123456780"
 
   enable_force_new = true
 }
-`)
-}
+`
