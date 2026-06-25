@@ -201,13 +201,7 @@ In addition to all arguments above, the following attributes are exported:
 * `new_table_repl_config` - The updated table synchronization configurations.
   The [new_table_repl_config](#replication_new_table_repl_config_attr) structure is documented below.
 
-* `is_instance_level_sync` - Whether instance-level synchronization is supported.
-
 * `is_support_reg_exp` - Whether wildcards are supported.
-
-* `is_need_repair` - Whether the replication task needs repair.
-
-* `is_main_task` - Whether this is the main replication task.
 
 * `is_tables_change` - Whether there is any change to the synchronization scope.
 
