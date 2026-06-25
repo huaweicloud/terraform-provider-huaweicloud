@@ -45,10 +45,10 @@ func testAccCheckDcsAZV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDcsAZV1DataSource_basic = fmt.Sprintf(`
+const testAccDcsAZV1DataSource_basic = `
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dcs_az" "az1" {
   code = data.huaweicloud_availability_zones.test.names[0]
 }
-`)
+`

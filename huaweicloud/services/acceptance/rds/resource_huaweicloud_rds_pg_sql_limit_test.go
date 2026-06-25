@@ -174,7 +174,7 @@ resource "huaweicloud_rds_pg_plugin" "test" {
   name          = "rds_pg_sql_ccl"
   database_name = "%[2]s"
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testPgSqlLimit_basic(name string) string {

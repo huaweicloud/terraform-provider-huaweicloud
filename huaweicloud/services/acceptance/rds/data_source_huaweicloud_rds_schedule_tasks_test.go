@@ -84,7 +84,7 @@ resource "huaweicloud_rds_instance_restart" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   delay       = true
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testDataSourceDataSourceRdsScheduleTasks_basic(name string) string {

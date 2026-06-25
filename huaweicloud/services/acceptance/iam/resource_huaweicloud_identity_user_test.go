@@ -150,8 +150,7 @@ func TestAccIdentityUser_external(t *testing.T) {
 	})
 }
 
-func testAccIdentityUser_base() string {
-	return fmt.Sprintf(`
+const testAccIdentityUser_base = `
 resource "random_string" "test" {
   length           = 10
   min_numeric      = 1
@@ -159,8 +158,7 @@ resource "random_string" "test" {
   min_lower        = 1
   override_special = "@!"
 }
-`)
-}
+`
 
 func testAccIdentityUser_basic(name string) string {
 	return fmt.Sprintf(`
@@ -175,7 +173,7 @@ resource "huaweicloud_identity_user" "test" {
   
   login_protect_verification_method = "email"
 }
-`, testAccIdentityUser_base(), name)
+`, testAccIdentityUser_base, name)
 }
 
 func testAccIdentityUser_update(name string) string {
@@ -190,7 +188,7 @@ resource "huaweicloud_identity_user" "test" {
   email       = "%[2]s@abcd.com"
   description = "Updated by acc test"
 }
-`, testAccIdentityUser_base(), name)
+`, testAccIdentityUser_base, name)
 }
 
 func testAccIdentityUser_no_desc(name string) string {
@@ -204,7 +202,7 @@ resource "huaweicloud_identity_user" "test" {
   enabled   = false
   email     = "%[2]s@abcd.com"
 }
-`, testAccIdentityUser_base(), name)
+`, testAccIdentityUser_base, name)
 }
 
 func testAccIdentityUser_external(name, xUserID string) string {
@@ -217,5 +215,5 @@ resource "huaweicloud_identity_user" "test" {
   description          = "IAM user with external identity id"
   external_identity_id = "%[3]s"
 }
-`, testAccIdentityUser_base(), name, xUserID)
+`, testAccIdentityUser_base, name, xUserID)
 }

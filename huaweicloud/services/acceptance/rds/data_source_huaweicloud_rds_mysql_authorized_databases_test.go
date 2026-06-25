@@ -79,7 +79,7 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
     readonly = true
   }
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testDataSourceRdsMysqlAuthorizedDatabases_basic(name string) string {

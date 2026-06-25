@@ -2,6 +2,7 @@ package elb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -429,7 +430,7 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	policyId := utils.PathSearch("l7policy.id", createARespBody, "").(string)
 	if policyId == "" {
-		return diag.Errorf("error creating ELB L7 policy: ID is not found in API response")
+		return diag.FromErr(errors.New("error creating ELB L7 policy: ID is not found in API response"))
 	}
 
 	d.SetId(policyId)

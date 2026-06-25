@@ -545,7 +545,7 @@ func getAuthConfigByMeta(c *Config) error {
 	securityToken := utils.PathSearch("credential.securitytoken", parsedBody, "").(string)
 
 	if accessKey == "" || secretKey == "" || securityToken == "" || expiresAt == "" {
-		return fmt.Errorf("Error fetching metadata authentication information")
+		return errors.New("Error fetching metadata authentication information")
 	}
 	expairesTime, err := time.Parse(time.RFC3339, expiresAt)
 	if err != nil {

@@ -84,7 +84,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(), name, currentDate)
+`, testAccRdsInstance_base, name, currentDate)
 }
 
 func testDataSourceRdsPublicationCandidates_basic(name string) string {
