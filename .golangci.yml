@@ -1,169 +1,155 @@
-# Options for analysis running.
+version: "2"
 run:
-  # See the dedicated "run" documentation section.
-  timeout: 5m
-  # Which dirs to skip: issues from them won't be reported.
-  # Can use regexp here: `generated.*`, regexp is applied on full path.
-  # Default value is empty list,
-  # but default dirs are skipped independently of this option's value (see skip-dirs-use-default).
-  # "/" will be replaced by current OS file path separator to properly work on Windows.
-  skip-dirs:
-    - huaweicloud/services/deprecated
-    - huaweicloud/services/acceptance/deprecated
-
+  timeout: 10m
 linters:
-  # Disable all linters.
-  # Default: false
-  disable-all: true
-  # Enable specific linter
-  # https://golangci-lint.run/usage/linters/#enabled-by-default
+  default: none
   enable:
     - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
-    - gci
     - gocritic
     - gocyclo
     - gosec
-    - nestif
+    - govet
+    - ineffassign
     - misspell
-    - unconvert
+    - nestif
     - revive
-
-linters-settings:
-  staticcheck:
-    # SAxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
-    # Default: ["*"]
-    checks: ["all"]
-  gocritic:
-    disabled-checks:
-      - unnamedResult
-  gosimple:
-    # Sxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
-    # Default: ["*"]
-    checks: ["all"]
-  stylecheck:
-    # STxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
-    # Default: ["*"]
-    checks: ["all", "-ST1000", "-ST1016", "-ST1020", "-ST1021", "-ST1022"]
-  gocyclo:
-    # Minimal code complexity to report.
-    # Default: 30 (but we recommend 10-20)
-    min-complexity: 20
-  nestif:
-    # Minimal complexity of if statements to report.
-    # Default: 5
-    min-complexity: 15
-  misspell:
-    # Correct spellings using locale preferences for US or UK.
-    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
-    # Default is to use a neutral variety of English.
-    locale: US
-    ignore-words:
-      - classis
-      - cancelled
-      - criterias
-      - analyses
-      - versoin
-      - cancelling
-      - catalogue
-      - catalogues
-      - subscirption
-      - ageing
-      - defence
-  gci:
-    # Section configuration to compare against.
-    # Section names are case-insensitive and may contain parameters in ().
-    # The default order of sections is `standard > default > custom > blank > dot`,
-    # If `custom-order` is `true`, it follows the order of `sections` option.
-    # Default: ["standard", "default"]
-    sections:
-      - standard
-      - default
-      # Custom section: groups all imports with the specified Prefix.
-      - prefix(github.com/chnsz/golangsdk)
-      - prefix(github.com/huaweicloud/huaweicloud-sdk-go-v3)
-      - prefix(github.com/huaweicloud/terraform-provider-huaweicloud)
-      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
-      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
-    # Skip generated files.
-    # Default: true
-    skip-generated: false
-    # Enable custom order of sections.
-    # If `true`, make the section order the same as the order of `sections`.
-    # Default: false
-    custom-order: true
-  gosec:
-    # To select a subset of rules to run.
-    # Available rules: https://github.com/securego/gosec#available-rules
-    # Default: [] - means include all rules
-    severity: medium
-    confidence: medium
-  revive:
-    enable-all-rules: true
-    severity: warning
+    - staticcheck
+    - unconvert
+    - unused
+  settings:
+    gocritic:
+      disabled-checks:
+        - unnamedResult
+    gocyclo:
+      min-complexity: 20
+    gosec:
+      severity: medium
+      confidence: medium
+    misspell:
+      locale: US
+      ignore-rules:
+        - classis
+        - cancelled
+        - criterias
+        - analyses
+        - versoin
+        - cancelling
+        - catalogue
+        - catalogues
+        - subscirption
+        - ageing
+        - defence
+    nestif:
+      min-complexity: 15
+    revive:
+      severity: warning
+      enable-all-rules: true
+      rules:
+        - name: var-naming
+          arguments:
+            - - API
+              - ID
+              - IDS
+              - IP
+              - VM
+              - JSON
+              - HTTP
+              - URL
+              - XML
+              - YAML
+              - CSS
+              - ACL
+              - CPU
+              - SQL
+            - []
+          disabled: false
+        - name: argument-limit
+          arguments:
+            - 6
+          disabled: false
+        - name: function-result-limit
+          arguments:
+            - 4
+          disabled: false
+        - name: line-length-limit
+          arguments:
+            - 150
+          disabled: false
+        - name: add-constant
+          disabled: true
+        - name: banned-characters
+          disabled: true
+        - name: cyclomatic
+          disabled: true
+        - name: cognitive-complexity
+          disabled: true
+        - name: max-public-structs
+          disabled: true
+        - name: file-header
+          disabled: true
+        - name: function-length
+          disabled: true
+        - name: unhandled-error
+          disabled: true
+        - name: bare-return
+          disabled: true
+        - name: flag-parameter
+          disabled: true
+        - name: use-any
+          disabled: true
+        - name: unchecked-type-assertion
+          disabled: true
+    staticcheck:
+      checks:
+        - all
+        - -ST1000
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: var-naming
-        disabled: false
-        arguments:
-          - ["API", "ID", "IDS", "IP", "VM", "JSON", "HTTP", "URL", "XML", "YAML", "CSS", "ACL", "CPU", "SQL"] # AllowList
-          - [] # DenyList
-      - name: argument-limit
-        disabled: false
-        arguments: [6]
-      - name: function-result-limit
-        disabled: false
-        arguments: [4]
-      - name: line-length-limit
-        disabled: false
-        arguments: [150]
-      - name: add-constant
-        disabled: true
-      - name: banned-characters
-        disabled: true
-      - name: cyclomatic
-        disabled: true
-      - name: cognitive-complexity
-        disabled: true
-      - name: max-public-structs
-        disabled: true
-      - name: file-header
-        disabled: true
-      - name: function-length
-        disabled: true
-      - name: unhandled-error
-        disabled: true
-      - name: bare-return
-        disabled: true
-      - name: flag-parameter
-        disabled: true
-      - name: use-any
-        disabled: true
-      - name: unchecked-type-assertion
-        disabled: true
-
-issues:
-  # List of regexps of issue texts to exclude.
-  #
-  # But independently of this option we use default exclude patterns,
-  # it can be disabled by `exclude-use-default: false`.
-  # To list all excluded by default patterns execute `golangci-lint run --help`
-  #
-  # Default: []
-  exclude:
-    - "Error return value of `d.Set` is not checked"
-  # Excluding configuration per-path, per-linter, per-text and per-source
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      text: "var-naming: don't use underscores in Go names"
-      linters:
-        - revive
-    - path: _test\.go
-      text: "confusing-naming:"
-      linters:
-        - revive
+      - linters:
+          - revive
+        path: _test\.go
+        text: 'var-naming: don''t use underscores in Go names'
+      - linters:
+          - revive
+        path: _test\.go
+        text: 'confusing-naming:'
+      - path: (.+)\.go$
+        text: Error return value of `d.Set` is not checked
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - huaweicloud/services/deprecated
+      - huaweicloud/services/acceptance/deprecated
+formatters:
+  enable:
+    - gci
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/chnsz/golangsdk)
+        - prefix(github.com/huaweicloud/huaweicloud-sdk-go-v3)
+        - prefix(github.com/huaweicloud/terraform-provider-huaweicloud)
+        - blank
+        - dot
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - huaweicloud/services/deprecated
+      - huaweicloud/services/acceptance/deprecated
