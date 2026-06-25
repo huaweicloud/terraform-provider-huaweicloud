@@ -362,12 +362,10 @@ func resourceMigrationSyncTaskUpdate(ctx context.Context, d *schema.ResourceData
 			if err != nil {
 				return diag.Errorf("error starting OMS migration sync task: %s", err)
 			}
-		} else {
-			if d.Get("action").(string) == "stop" {
-				err := stopSyncTask(updateSyncTaskClient, d)
-				if err != nil {
-					return diag.Errorf("error stopping OMS migration sync task: %s", err)
-				}
+		} else if d.Get("action").(string) == "stop" {
+			err := stopSyncTask(updateSyncTaskClient, d)
+			if err != nil {
+				return diag.Errorf("error stopping OMS migration sync task: %s", err)
 			}
 		}
 	}
