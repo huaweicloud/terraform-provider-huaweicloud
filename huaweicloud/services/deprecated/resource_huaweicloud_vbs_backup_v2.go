@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -131,7 +131,7 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
+		return fmt.Errorf("error creating vbs client: %s", err)
 	}
 
 	createOpts := backups.CreateOpts{
@@ -144,7 +144,7 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	n, err := backups.Create(vbsClient, createOpts).ExtractJobResponse()
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud VBS Backup: %s", err)
+		return fmt.Errorf("error creating VBS backup: %s", err)
 	}
 
 	// for job APIs: update the endpoint of vbsClient
@@ -156,7 +156,7 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 	entity, err := backups.GetJobEntity(vbsClient, n.JobID, "backup_id")
 	id, ok := entity.(string)
 	if !ok {
-		return fmtp.Errorf("Unexpected error when converting the VBS Backup ID")
+		return fmt.Errorf("unexpected error when converting the VBS backup ID")
 	}
 
 	d.SetId(id)
@@ -167,12 +167,12 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
+		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
 	n, err := backups.Get(vbsClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "VBS Backup")
+		return common.CheckDeleted(d, err, "VBS backup")
 	}
 
 	d.Set("name", n.Name)
@@ -194,7 +194,7 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud vbs: %s", err)
+		return fmt.Errorf("error creating VBS: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -208,7 +208,7 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting huaweicloud VBS Backup: %s", err)
+		return fmt.Errorf("error deleting VBS backup: %s", err)
 	}
 
 	d.SetId("")

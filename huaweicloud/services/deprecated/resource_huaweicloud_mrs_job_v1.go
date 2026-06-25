@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -136,7 +136,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	createOpts := &job.CreateOpts{
@@ -157,7 +157,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	jobCreate, err := job.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Job: %s", err)
+		return fmt.Errorf("error creating Job: %s", err)
 	}
 
 	d.SetId(jobCreate.ID)
@@ -172,8 +172,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for job (%s) to become ready: %s ",
+		return fmt.Errorf("error waiting for job (%s) to become ready: %s ",
 			jobCreate.ID, err)
 	}
 
@@ -185,7 +184,7 @@ func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
 	region := config.GetRegion(d)
 	client, err := config.MrsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud  MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	jobGet, err := job.Get(client, d.Id()).Extract()
@@ -228,7 +227,7 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmt.Errorf("error creating client: %s", err)
 	}
 
 	rId := d.Id()
@@ -248,7 +247,7 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 			logp.Printf("[INFO] deleting an unavailable MRS Job: %s", rId)
 			return nil
 		}
-		return fmtp.Errorf("Error deleting MRS Job %s: %s", rId, err)
+		return fmt.Errorf("error deleting MRS Job %s: %s", rId, err)
 	}
 	return nil
 }

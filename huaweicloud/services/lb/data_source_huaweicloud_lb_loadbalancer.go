@@ -1,6 +1,8 @@
 package lb
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -9,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -81,7 +82,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 	region := cfg.GetRegion(d)
 	elbClient, err := cfg.LoadBalancerClient(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud elb client %s", err)
+		return fmt.Errorf("error creating ELB client: %s", err)
 	}
 	listOpts := loadbalancers.ListOpts{
 		Name:                d.Get("name").(string),
@@ -94,17 +95,17 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 	}
 	pages, err := loadbalancers.List(elbClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve load balancers: %s", err)
+		return fmt.Errorf("unable to retrieve load balancers: %s", err)
 	}
 	lbList, err := loadbalancers.ExtractLoadBalancers(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to extract load balancers: %s", err)
+		return fmt.Errorf("unable to extract load balancers: %s", err)
 	}
 	if len(lbList) < 1 {
-		return fmtp.Errorf("Your query returned no results, please change your search criteria and try again")
+		return fmt.Errorf("your query returned no results, please change your search criteria and try again")
 	}
 	if len(lbList) > 1 {
-		return fmtp.Errorf("Your query returned more than one result, please try a more specific search criteria")
+		return fmt.Errorf("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	lb := lbList[0]
@@ -126,17 +127,17 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("public_ip", publicIp),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting elb load balancer fields: %s", err)
+		return fmt.Errorf("error setting ELB load balancer fields: %s", err)
 	}
 
 	// Get tags for v2.0 API
 	elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
+		return fmt.Errorf("error creating ELB v2.0 client: %s", err)
 	}
 	resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract()
 	if err != nil {
-		logp.Printf("[WARN] Error fetching tags of elb load balancer %s: %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of ELB load balancer %s: %s", d.Id(), err)
 	}
 	tagmap := utils.TagsToMap(resourceTags.Tags)
 	d.Set("tags", tagmap)

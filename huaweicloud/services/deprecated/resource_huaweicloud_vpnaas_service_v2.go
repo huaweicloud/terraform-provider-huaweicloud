@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -96,7 +96,7 @@ func resourceVpnServiceV2Create(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var createOpts services.CreateOptsBuilder
@@ -148,7 +148,7 @@ func resourceVpnServiceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	service, err := services.Get(networkingClient, d.Id()).Extract()
@@ -177,7 +177,7 @@ func resourceVpnServiceV2Update(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	opts := services.UpdateOpts{}
@@ -238,7 +238,7 @@ func resourceVpnServiceV2Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	err = services.Delete(networkingClient, d.Id()).Err
@@ -272,7 +272,7 @@ func waitForServiceDeletion(networkingClient *golangsdk.ServiceClient, id string
 				logp.Printf("[DEBUG] Service %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
-			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
+			return nil, "", fmt.Errorf("Unexpected error: %s", err)
 		}
 
 		logp.Printf("[DEBUG] Service %s deletion is pending", id)

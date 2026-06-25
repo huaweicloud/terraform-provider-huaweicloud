@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -10,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -94,7 +95,7 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -130,7 +131,7 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
@@ -163,7 +164,7 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	var updateOpts rules.UpdateOpts
@@ -221,7 +222,7 @@ func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()

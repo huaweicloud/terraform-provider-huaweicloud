@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMRSV1Cluster_basic(t *testing.T) {
@@ -44,7 +44,7 @@ func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud mrs: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +57,7 @@ func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return nil
 			}
-			return fmtp.Errorf("cluster still exists. err : %s", err)
+			return fmt.Errorf("cluster still exists: %s", err)
 		}
 		if clusterGet.Clusterstate == "terminated" {
 			return nil
@@ -71,17 +71,17 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s. ", n)
+			return fmt.Errorf("the cluster %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set. ")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud mrs client: %s ", err)
+			return fmt.Errorf("error creating MRS client: %s ", err)
 		}
 
 		found, err := cluster.Get(mrsClient, rs.Primary.ID).Extract()
@@ -90,7 +90,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 		}
 
 		if found.Clusterid != rs.Primary.ID {
-			return fmtp.Errorf("Cluster not found. ")
+			return fmt.Errorf("the cluster is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*clusterGet = *found

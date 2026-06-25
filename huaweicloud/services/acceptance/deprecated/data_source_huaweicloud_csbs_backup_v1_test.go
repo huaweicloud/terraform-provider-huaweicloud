@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCSBSBackupV1DataSource_basic(t *testing.T) {
@@ -32,11 +32,11 @@ func testAccCheckCSBSBackupV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find backup data source: %s ", n)
+			return fmt.Errorf("can't find backup data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("backup data source ID not set ")
+			return errors.New("backup data source ID not set")
 		}
 
 		return nil

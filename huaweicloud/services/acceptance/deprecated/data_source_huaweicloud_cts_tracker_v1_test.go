@@ -1,13 +1,14 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCTSTrackerV1DataSource_basic(t *testing.T) {
@@ -33,11 +34,11 @@ func testAccCheckCTSTrackerV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find cts tracker data source: %s ", n)
+			return fmt.Errorf("can't find cts tracker data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("tracker data source not set ")
+			return errors.New("tracker data source not set")
 		}
 
 		return nil

@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -90,7 +90,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	var createOpts firewall_groups.CreateOptsBuilder
@@ -155,7 +155,7 @@ func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	var firewall_group FirewallGroup
@@ -173,7 +173,7 @@ func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("admin_state_up", firewall_group.AdminStateUp)
 	d.Set("tenant_id", firewall_group.TenantID)
 	if err := d.Set("ports", firewall_group.PortIDs); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving ports to state for HuaweiCloud firewall group (%s): %s", d.Id(), err)
+		return fmt.Errorf("error saving ports to state for firewall group (%s): %s", d.Id(), err)
 	}
 	d.Set("region", config.GetRegion(d))
 
@@ -185,7 +185,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	// PolicyID is required
@@ -251,7 +251,7 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	// Ensure the firewall group was fully created/updated before being deleted.
@@ -310,7 +310,7 @@ func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) 
 				logp.Printf("[DEBUG] Firewall group %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
-			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
+			return nil, "", fmt.Errorf("unexpected error: %s", err)
 		}
 
 		logp.Printf("[DEBUG] Firewall group %s deletion is pending", id)

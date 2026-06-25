@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -88,7 +88,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmt.Errorf("error creating network client: %s", err)
 	}
 
 	createOpts := FloatingIPCreateOpts{
@@ -104,7 +104,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	floatingIP, err := floatingips.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error allocating floating IP: %s", err)
+		return fmt.Errorf("error allocating floating IP: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Floating IP (%s) to become available.", floatingIP.ID)
@@ -119,7 +119,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron Floating IP: %s", err)
+		return fmt.Errorf("error creating Neutron Floating IP: %s", err)
 	}
 
 	d.SetId(floatingIP.ID)
@@ -131,7 +131,7 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmt.Errorf("error creating network client: %s", err)
 	}
 
 	floatingIP, err := floatingips.Get(networkingClient, d.Id()).Extract()
@@ -154,7 +154,7 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmt.Errorf("error creating network client: %s", err)
 	}
 
 	var updateOpts floatingips.UpdateOpts
@@ -168,7 +168,7 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 
 	_, err = floatingips.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating floating IP: %s", err)
+		return fmt.Errorf("error updating floating IP: %s", err)
 	}
 
 	return resourceNetworkFloatingIPV2Read(d, meta)
@@ -178,7 +178,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmt.Errorf("error creating network client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -192,7 +192,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Floating IP: %s", err)
+		return fmt.Errorf("error deleting Neutron Floating IP: %s", err)
 	}
 
 	d.SetId("")

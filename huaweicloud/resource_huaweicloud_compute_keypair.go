@@ -9,7 +9,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -58,7 +57,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 	cfg := meta.(*config.Config)
 	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	pk, isExist := d.GetOk("public_key")
@@ -70,7 +69,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	kp, err := keypairs.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud keypair: %s", err)
+		return fmt.Errorf("error creating keypair: %s", err)
 	}
 
 	d.SetId(kp.Name)
@@ -78,7 +77,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 	if !isExist {
 		fp := getKeyFilePath(d)
 		if err = utils.WriteToPemFile(fp, kp.PrivateKey); err != nil {
-			return fmtp.Errorf("Unable to generate private key: %s", err)
+			return fmt.Errorf("unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
 	}
@@ -98,7 +97,7 @@ func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) erro
 	cfg := meta.(*config.Config)
 	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	kp, err := keypairs.Get(computeClient, d.Id()).Extract()
@@ -117,12 +116,12 @@ func resourceComputeKeypairV2Delete(d *schema.ResourceData, meta interface{}) er
 	cfg := meta.(*config.Config)
 	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	err = keypairs.Delete(computeClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud keypair: %s", err)
+		return fmt.Errorf("error deleting keypair: %s", err)
 	}
 	d.SetId("")
 	return nil

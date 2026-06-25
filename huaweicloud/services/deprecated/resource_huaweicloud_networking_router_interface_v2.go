@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -62,7 +62,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	createOpts := routers.AddInterfaceOpts{
@@ -73,7 +73,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := routers.AddInterface(networkingClient, d.Get("router_id").(string), createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron router interface: %s", err)
+		return fmt.Errorf("error creating Neutron router interface: %s", err)
 	}
 	logp.Printf("[INFO] Router interface Port ID: %s", n.PortID)
 
@@ -99,7 +99,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	n, err := ports.Get(networkingClient, d.Id()).Extract()
@@ -109,7 +109,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 			return nil
 		}
 
-		return fmtp.Errorf("Error retrieving HuaweiCloud Neutron Router Interface: %s", err)
+		return fmt.Errorf("error retrieving Neutron Router Interface: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Retrieved Router Interface %s: %+v", d.Id(), n)
@@ -135,7 +135,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -149,7 +149,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Router Interface: %s", err)
+		return fmt.Errorf("error deleting Neutron Router Interface: %s", err)
 	}
 
 	d.SetId("")

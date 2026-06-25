@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -110,7 +110,7 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	lifetime := resourceIKEPolicyV2LifetimeCreateOpts(d.Get("lifetime").(*schema.Set))
@@ -164,7 +164,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	policy, err := ikepolicies.Get(networkingClient, d.Id()).Extract()
@@ -202,7 +202,7 @@ func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	opts := ikepolicies.UpdateOpts{}
@@ -277,7 +277,7 @@ func resourceVpnIKEPolicyV2Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

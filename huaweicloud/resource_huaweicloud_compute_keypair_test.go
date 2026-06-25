@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/keypairs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2Keypair_basic(t *testing.T) {
@@ -65,7 +65,7 @@ func testAccCheckComputeV2KeypairDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -75,7 +75,7 @@ func testAccCheckComputeV2KeypairDestroy(s *terraform.State) error {
 
 		_, err := keypairs.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Keypair still exists")
+			return errors.New("keypair still exists")
 		}
 	}
 
@@ -86,17 +86,17 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID set for resource %s", n)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := keypairs.Get(computeClient, rs.Primary.ID).Extract()
@@ -105,7 +105,7 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmtp.Errorf("Keypair not found")
+			return errors.New("keypair not found")
 		}
 
 		*kp = *found

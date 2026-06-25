@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 //nolint:revive
@@ -176,7 +175,7 @@ func TestAccProvider_clientCertString(t *testing.T) {
 func envVarContents(varName string) (string, error) {
 	contents, _, err := pathorcontents.Read(os.Getenv(varName))
 	if err != nil {
-		return "", fmtp.Errorf("Error reading %s: %s", varName, err)
+		return "", fmt.Errorf("error reading %s: %s", varName, err)
 	}
 	return contents, nil
 }
@@ -189,7 +188,7 @@ func envVarFile(varName string) (string, error) {
 
 	tmpFile, err := os.CreateTemp("", varName)
 	if err != nil {
-		return "", fmtp.Errorf("Error creating temp file: %s", err)
+		return "", fmt.Errorf("error creating temp file: %s", err)
 	}
 	if _, err := tmpFile.Write([]byte(contents)); err != nil {
 		if err = os.Remove(tmpFile.Name()); err != nil {

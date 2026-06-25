@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -66,7 +67,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	listOpts := networks.ListOpts{
@@ -86,7 +87,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 
 	allNetworks, err := networks.ExtractNetworks(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve networks: %s", err)
+		return fmt.Errorf("unable to retrieve networks: %s", err)
 	}
 
 	var refinedNetworks []networks.Network
@@ -98,7 +99,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 					if _, ok := err.(golangsdk.ErrDefault404); ok {
 						continue
 					}
-					return fmtp.Errorf("Unable to retrieve network subnet: %s", err)
+					return fmt.Errorf("unable to retrieve network subnet: %s", err)
 				}
 				if cidr == subnet.CIDR {
 					refinedNetworks = append(refinedNetworks, n)
@@ -110,13 +111,11 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	}
 
 	if len(refinedNetworks) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedNetworks) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	network := refinedNetworks[0]

@@ -1,12 +1,14 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/cts/v1/tracker"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -73,7 +75,7 @@ func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	trackerClient, err := config.CtsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating cts Client: %s", err)
+		return fmt.Errorf("error creating cts Client: %s", err)
 	}
 
 	listOpts := tracker.ListOpts{
@@ -86,17 +88,15 @@ func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error 
 	refinedTrackers, err := tracker.List(trackerClient, listOpts)
 
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve cts tracker: %s", err)
+		return fmt.Errorf("unable to retrieve cts tracker: %s", err)
 	}
 
 	if len(refinedTrackers) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedTrackers) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	trackers := refinedTrackers[0]

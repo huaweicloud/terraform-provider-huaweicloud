@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -99,7 +99,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	createOpts := NetworkCreateOpts{
@@ -114,7 +114,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	if asuRaw != "" {
 		asu, err := strconv.ParseBool(asuRaw)
 		if err != nil {
-			return fmtp.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
+			return fmt.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
 		}
 		createOpts.AdminStateUp = &asu
 	}
@@ -123,7 +123,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	if sharedRaw != "" {
 		shared, err := strconv.ParseBool(sharedRaw)
 		if err != nil {
-			return fmtp.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
+			return fmt.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
 		}
 		createOpts.Shared = &shared
 	}
@@ -144,7 +144,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	}
 
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron network: %s", err)
+		return fmt.Errorf("error creating Neutron network: %s", err)
 	}
 
 	logp.Printf("[INFO] Network ID: %s", n.ID)
@@ -171,7 +171,7 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	n, err := networks.Get(networkingClient, d.Id()).Extract()
@@ -194,7 +194,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var updateOpts networks.UpdateOpts
@@ -206,7 +206,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 		if asuRaw != "" {
 			asu, err := strconv.ParseBool(asuRaw)
 			if err != nil {
-				return fmtp.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
+				return fmt.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
 			}
 			updateOpts.AdminStateUp = &asu
 		}
@@ -216,7 +216,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 		if sharedRaw != "" {
 			shared, err := strconv.ParseBool(sharedRaw)
 			if err != nil {
-				return fmtp.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
+				return fmt.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
 			}
 			updateOpts.Shared = &shared
 		}
@@ -226,7 +226,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 
 	_, err = networks.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud Neutron Network: %s", err)
+		return fmt.Errorf("error updating Neutron Network: %s", err)
 	}
 
 	return resourceNetworkingNetworkV2Read(d, meta)
@@ -236,7 +236,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -250,7 +250,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
+		return fmt.Errorf("error deleting Neutron Network: %s", err)
 	}
 
 	d.SetId("")

@@ -106,14 +106,14 @@ func resourceEnterpriseProjectCreate(ctx context.Context, d *schema.ResourceData
 	project, err := enterpriseprojects.Create(epsClient, createOpts).Extract()
 
 	if err != nil {
-		return diag.Errorf("error creating Enterprise Project: %s", err)
+		return diag.Errorf("error creating enterprise project: %s", err)
 	}
 
 	d.SetId(project.ID)
 
 	if !d.Get("enable").(bool) {
 		if err := updateEnterpriseProjectEnable(epsClient, d); err != nil {
-			return diag.Errorf("error disabling Enterprise Project in create: %s", err)
+			return diag.Errorf("error disabling enterprise project in create: %s", err)
 		}
 	}
 
@@ -130,7 +130,7 @@ func resourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, me
 
 	project, err := enterpriseprojects.Get(epsClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud Enterprise Project")
+		return common.CheckDeletedDiag(d, err, "error retrieving enterprise project")
 	}
 
 	var enable bool
@@ -177,7 +177,7 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("enable") {
 		if err := updateEnterpriseProjectEnable(epsClient, d); err != nil {
-			return diag.Errorf("error enabling/disabling Enterprise Project in update: %s", err)
+			return diag.Errorf("error enabling/disabling enterprise project in update: %s", err)
 		}
 	}
 
@@ -191,7 +191,7 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 		_, err = enterpriseprojects.Update(epsClient, updateOpts, d.Id()).Extract()
 
 		if err != nil {
-			return diag.Errorf("error updating Enterprise Project: %s", err)
+			return diag.Errorf("error updating enterprise project: %s", err)
 		}
 	}
 
@@ -217,7 +217,7 @@ func resourceEnterpriseProjectDelete(ctx context.Context, d *schema.ResourceData
 
 	_, err = enterpriseprojects.Action(epsClient, actionOpts, d.Id()).Extract()
 	if err != nil {
-		return diag.Errorf("error disabling Enterprise Project: %s", err)
+		return diag.Errorf("error disabling enterprise project: %s", err)
 	}
 
 	if d.Get("delete_flag").(bool) {
@@ -289,7 +289,7 @@ func resourceEnterpriseProjectDeleteFlag(ctx context.Context, d *schema.Resource
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for Enterprise Project (%s) to be deleted: %s", d.Id(), err)
+		return diag.Errorf("error waiting for enterprise project (%s) to be deleted: %s", d.Id(), err)
 	}
 
 	return nil

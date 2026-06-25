@@ -2,6 +2,7 @@ package lb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,7 +15,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -46,10 +46,10 @@ func waitForLBV2Listener(ctx context.Context, networkingClient *golangsdk.Servic
 			case "DELETED":
 				return nil
 			default:
-				return fmtp.Errorf("Error: listener %s not found: %s", id, err)
+				return fmt.Errorf("error: listener %s not found: %s", id, err)
 			}
 		}
-		return fmtp.Errorf("Error waiting for listener %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for listener %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -88,10 +88,10 @@ func waitForLBV2LoadBalancer(ctx context.Context, networkingClient *golangsdk.Se
 			case "DELETED":
 				return nil
 			default:
-				return fmtp.Errorf("Error: loadbalancer %s not found: %s", id, err)
+				return fmt.Errorf("error: loadbalancer %s not found: %s", id, err)
 			}
 		}
-		return fmtp.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for loadbalancer %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -129,10 +129,10 @@ func waitForLBV2Pool(ctx context.Context, networkingClient *golangsdk.ServiceCli
 			case "DELETED":
 				return nil
 			default:
-				return fmtp.Errorf("Error: pool %s not found: %s", id, err)
+				return fmt.Errorf("error: pool %s not found: %s", id, err)
 			}
 		}
-		return fmtp.Errorf("Error waiting for pool %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for pool %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -176,7 +176,7 @@ func waitForLBV2viaPool(ctx context.Context, networkingClient *golangsdk.Service
 	}
 
 	// got a pool but no LB - this is wrong
-	return fmtp.Errorf("No Load Balancer on pool %s", id)
+	return fmt.Errorf("no Load Balancer on pool %s", id)
 }
 
 // nolint:gocyclo
@@ -184,7 +184,7 @@ func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.Servic
 	return func() (interface{}, string, error) {
 		statuses, err := loadbalancers.GetStatuses(lbClient, lbID).Extract()
 		if err != nil {
-			return nil, "", fmtp.Errorf("Unable to get statuses from the Load Balancer %s statuses tree: %s", lbID, err)
+			return nil, "", fmt.Errorf("unable to get statuses from the Load Balancer %s statuses tree: %s", lbID, err)
 		}
 
 		if !utils.StrSliceContains(lbSkipLBStatuses, statuses.Loadbalancer.ProvisioningStatus) {
@@ -265,7 +265,7 @@ func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.Servic
 			return "", "DELETED", nil
 		}
 
-		return nil, "", fmtp.Errorf("An unexpected error occurred querying the status of %s %s by loadbalancer %s", resourceType, resourceID, lbID)
+		return nil, "", fmt.Errorf("an unexpected error occurred querying the status of %s %s by loadbalancer %s", resourceType, resourceID, lbID)
 	}
 }
 
@@ -296,7 +296,7 @@ func waitForLBV2L7Policy(ctx context.Context, lbClient *golangsdk.ServiceClient,
 	logp.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
-		return fmtp.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
+		return fmt.Errorf("unable to determine loadbalancer ID from listener %s", parentListener.ID)
 	}
 
 	lbID := parentListener.Loadbalancers[0].ID
@@ -318,7 +318,7 @@ func waitForLBV2L7Policy(ctx context.Context, lbClient *golangsdk.ServiceClient,
 			}
 		}
 
-		return fmtp.Errorf("Error waiting for l7policy %s to become %s: %s", l7policy.ID, target, err)
+		return fmt.Errorf("error waiting for l7policy %s to become %s: %s", l7policy.ID, target, err)
 	}
 
 	return nil
@@ -328,18 +328,18 @@ func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (str
 	logp.Printf("[DEBUG] Trying to get Listener ID associated with the %s L7 Policy ID", id)
 	lbsPages, err := loadbalancers.List(lbClient, loadbalancers.ListOpts{}).AllPages()
 	if err != nil {
-		return "", fmtp.Errorf("No Load Balancers were found: %s", err)
+		return "", fmt.Errorf("no Load Balancers were found: %s", err)
 	}
 
 	lbs, err := loadbalancers.ExtractLoadBalancers(lbsPages)
 	if err != nil {
-		return "", fmtp.Errorf("Unable to extract Load Balancers list: %s", err)
+		return "", fmt.Errorf("unable to extract Load Balancers list: %s", err)
 	}
 
 	for _, lb := range lbs {
 		statuses, err := loadbalancers.GetStatuses(lbClient, lb.ID).Extract()
 		if err != nil {
-			return "", fmtp.Errorf("Failed to get Load Balancer statuses: %s", err)
+			return "", fmt.Errorf("failed to get Load Balancer statuses: %s", err)
 		}
 		for _, listener := range statuses.Loadbalancer.Listeners {
 			for _, l7policy := range listener.L7Policies {
@@ -350,7 +350,7 @@ func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (str
 		}
 	}
 
-	return "", fmtp.Errorf("Unable to find Listener ID associated with the %s L7 Policy ID", id)
+	return "", fmt.Errorf("unable to find Listener ID associated with the %s L7 Policy ID", id)
 }
 
 func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID string, l7policyID string, l7rule *l7policies.Rule) resource.StateRefreshFunc {
@@ -380,7 +380,7 @@ func waitForLBV2L7Rule(ctx context.Context, lbClient *golangsdk.ServiceClient, p
 	logp.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
-		return fmtp.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
+		return fmt.Errorf("unable to determine loadbalancer ID from listener %s", parentListener.ID)
 	}
 
 	lbID := parentListener.Loadbalancers[0].ID
@@ -402,7 +402,7 @@ func waitForLBV2L7Rule(ctx context.Context, lbClient *golangsdk.ServiceClient, p
 			}
 		}
 
-		return fmtp.Errorf("Error waiting for l7rule %s to become %s: %s", l7rule.ID, target, err)
+		return fmt.Errorf("error waiting for l7rule %s to become %s: %s", l7rule.ID, target, err)
 	}
 
 	return nil

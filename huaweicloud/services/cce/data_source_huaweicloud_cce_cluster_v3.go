@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -191,7 +191,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	cfg := meta.(*config.Config)
 	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -205,17 +205,15 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
 	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve clusters: %s", err)
+		return diag.Errorf("unable to retrieve clusters: %s", err)
 	}
 
 	if len(refinedClusters) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.FromErr(errors.New("your query returned no results, please change your search criteria and try again"))
 	}
 
 	if len(refinedClusters) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.FromErr(errors.New("your query returned more than one result, please try a more specific search criteria"))
 	}
 
 	Cluster := refinedClusters[0]
@@ -304,7 +302,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	mErr = multierror.Append(mErr, d.Set("masters", masterList))
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cluster fields: %s", err)
+		return diag.Errorf("error setting cluster fields: %s", err)
 	}
 
 	return nil

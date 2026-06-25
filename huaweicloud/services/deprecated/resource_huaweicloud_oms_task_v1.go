@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -214,7 +214,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating maas client: %s", err)
+		return fmt.Errorf("error creating maas client: %s", err)
 	}
 
 	enableKMS := d.Get("enable_kms").(bool)
@@ -242,7 +242,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	taskCreate, err := task.Create(maasClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Task: %s", err)
+		return fmt.Errorf("error creating Task: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -250,7 +250,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(taskID)
 	err = waitForTaskCompleted(maasClient, taskID, timeout)
 	if err != nil {
-		return fmtp.Errorf(
+		return fmt.Errorf(
 			"Error waiting for task (%s) completed: %s",
 			taskID, err)
 	}
@@ -262,7 +262,7 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating maas client: %s", err)
+		return fmt.Errorf("error creating maas client: %s", err)
 	}
 
 	taskGet, err := task.Get(maasClient, d.Id()).Extract()
@@ -304,13 +304,13 @@ func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating maas client: %s", err)
+		return fmt.Errorf("error creating maas client: %s", err)
 	}
 
 	id := d.Id()
 	err = task.Delete(maasClient, id).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting task %s: %s", id, err)
+		return fmt.Errorf("error deleting task %s: %s", id, err)
 	}
 	d.SetId("")
 

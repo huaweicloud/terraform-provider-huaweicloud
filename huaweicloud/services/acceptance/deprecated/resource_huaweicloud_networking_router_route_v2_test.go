@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
@@ -73,17 +74,17 @@ func testAccCheckNetworkingV2RouterRouteEmpty(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the router route %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("error creating networking client: %s", err)
 		}
 
 		router, err := routers.Get(networkingClient, rs.Primary.ID).Extract()
@@ -92,11 +93,11 @@ func testAccCheckNetworkingV2RouterRouteEmpty(n string) resource.TestCheckFunc {
 		}
 
 		if router.ID != rs.Primary.ID {
-			return fmtp.Errorf("Router not found")
+			return fmt.Errorf("the router is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		if len(router.Routes) != 0 {
-			return fmtp.Errorf("Invalid number of route entries: %d", len(router.Routes))
+			return fmt.Errorf("invalid number of route entries: %d", len(router.Routes))
 		}
 
 		return nil
@@ -107,17 +108,17 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the router route %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("error creating networking client: %s", err)
 		}
 
 		router, err := routers.Get(networkingClient, rs.Primary.Attributes["router_id"]).Extract()
@@ -126,7 +127,7 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 		}
 
 		if router.ID != rs.Primary.Attributes["router_id"] {
-			return fmtp.Errorf("Router for route not found")
+			return fmt.Errorf("the router for route is not found, which ID is %s", rs.Primary.Attributes["router_id"])
 		}
 
 		var found bool = false
@@ -136,7 +137,8 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 			}
 		}
 		if !found {
-			return fmtp.Errorf("Could not find route for destination CIDR: %s, next hop: %s", rs.Primary.Attributes["destination_cidr"], rs.Primary.Attributes["next_hop"])
+			return fmt.Errorf("could not find route for destination CIDR: %s, next hop: %s",
+				rs.Primary.Attributes["destination_cidr"], rs.Primary.Attributes["next_hop"])
 		}
 
 		return nil
@@ -147,7 +149,7 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -171,7 +173,7 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 		}
 
 		if routeExists {
-			return fmtp.Errorf("Route still exists")
+			return errors.New("the route still exists")
 		}
 	}
 

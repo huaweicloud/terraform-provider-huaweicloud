@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -80,7 +80,7 @@ func resourceFWPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	v := d.Get("rules").([]interface{})
@@ -131,7 +131,7 @@ func resourceFWPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	policy, err := policies.Get(fwClient, d.Id()).Extract()
@@ -147,7 +147,7 @@ func resourceFWPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("audited", policy.Audited)
 	d.Set("tenant_id", policy.TenantID)
 	if err := d.Set("rules", policy.Rules); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving rules to state for HuaweiCloud firewall policy (%s): %s", d.Id(), err)
+		return fmt.Errorf("error saving rules to state for firewall policy (%s): %s", d.Id(), err)
 	}
 	d.Set("region", config.GetRegion(d))
 
@@ -158,7 +158,7 @@ func resourceFWPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	opts := policies.UpdateOpts{}
@@ -200,7 +200,7 @@ func resourceFWPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

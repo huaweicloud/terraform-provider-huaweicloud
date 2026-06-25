@@ -15,7 +15,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -171,7 +170,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var securityGroups []string
@@ -181,7 +180,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 	// Check and make sure an invalid security group configuration wasn't given.
 	if noSecurityGroups && len(securityGroups) > 0 {
-		return fmtp.Errorf("Cannot have both no_security_groups and security_group_ids set")
+		return fmt.Errorf("cannot have both no_security_groups and security_group_ids set")
 	}
 
 	createOpts := PortCreateOpts{
@@ -233,7 +232,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 	err = ports.Create(networkingClient, finalCreateOpts).ExtractInto(&p)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron port: %s", err)
+		return fmt.Errorf("error creating Neutron port: %s", err)
 	}
 	logp.Printf("[INFO] Network ID: %s", p.ID)
 
@@ -258,7 +257,7 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var p struct {
@@ -315,7 +314,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	v := d.Get("security_group_ids").(*schema.Set)
@@ -324,7 +323,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 
 	// Check and make sure an invalid security group configuration wasn't given.
 	if noSecurityGroups && len(securityGroups) > 0 {
-		return fmtp.Errorf("Cannot have both no_security_groups and security_group_ids set")
+		return fmt.Errorf("cannot have both no_security_groups and security_group_ids set")
 	}
 
 	var hasChange bool
@@ -381,7 +380,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 
 		_, err = ports.Update(networkingClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
+			return fmt.Errorf("error updating Neutron Port: %s", err)
 		}
 	}
 
@@ -403,7 +402,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 			logp.Printf("[DEBUG] Deleting old DHCP opts for huaweicloud_networking_port_v2 %s", d.Id())
 			_, err = ports.Update(networkingClient, d.Id(), dhcpUpdateOpts).Extract()
 			if err != nil {
-				return fmtp.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
+				return fmt.Errorf("error updating Neutron Port: %s", err)
 			}
 		}
 
@@ -418,7 +417,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 			logp.Printf("[DEBUG] Updating huaweicloud_networking_port_v2 %s with options: %#v", d.Id(), dhcpUpdateOpts)
 			_, err = ports.Update(networkingClient, d.Id(), dhcpUpdateOpts).Extract()
 			if err != nil {
-				return fmtp.Errorf("Error updating huaweicloud_networking_port_v2 %s: %s", d.Id(), err)
+				return fmt.Errorf("error updating networking port %s: %s", d.Id(), err)
 			}
 		}
 	}
@@ -430,7 +429,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -444,7 +443,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
+		return fmt.Errorf("error deleting Neutron Network: %s", err)
 	}
 
 	d.SetId("")

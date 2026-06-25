@@ -1,13 +1,15 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -61,11 +63,10 @@ func DataSourceNetworkingSubnetV2() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+				ValidateFunc: func(v interface{}, k string) (ws []string, result []error) {
 					value := v.(int)
 					if value != 4 && value != 6 {
-						errors = append(errors, fmtp.Errorf(
-							"Only 4 and 6 are supported values for 'ip_version'"))
+						result = append(result, errors.New("only 4 and 6 are supported values for 'ip_version'"))
 					}
 					return
 				},
@@ -156,7 +157,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{}
@@ -209,22 +210,20 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 
 	pages, err := subnets.List(networkingClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
+		return fmt.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	allSubnets, err := subnets.ExtractSubnets(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to extract subnets: %s", err)
+		return fmt.Errorf("unable to extract subnets: %s", err)
 	}
 
 	if len(allSubnets) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(allSubnets) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	subnet := allSubnets[0]
@@ -257,7 +256,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 		hostRoutes[i] = routes
 	}
 	if err = d.Set("host_routes", hostRoutes); err != nil {
-		return fmtp.Errorf("Saving host_routes failed: %s", err)
+		return fmt.Errorf("error setting host_routes field: %s", err)
 	}
 
 	// Set the allocation_pools

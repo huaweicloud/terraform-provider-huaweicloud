@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/csbs/v1/backup"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -184,7 +184,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
 
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
 	resourceID := d.Get("resource_id").(string)
@@ -201,7 +201,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 	query, err := backup.QueryResourceBackupCapability(backupClient, queryOpts).ExtractQueryResponse()
 	if err != nil {
-		return fmtp.Errorf("Error querying resource backup capability: %s", err)
+		return fmt.Errorf("error querying resource backup capability: %s", err)
 	}
 
 	if query[0].Result {
@@ -214,18 +214,18 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 		checkpoint, err := backup.Create(backupClient, resourceID, createOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error creating backup: %s", err)
+			return fmt.Errorf("error creating CSBS backup: %s", err)
 		}
 
 		backupOpts := backup.ListOpts{CheckpointId: checkpoint.Id}
 		backupItems, err := backup.List(backupClient, backupOpts)
 
 		if err != nil {
-			return fmtp.Errorf("Error listing Backup: %s", err)
+			return fmt.Errorf("error querying CSBS backup: %s", err)
 		}
 
 		if len(backupItems) == 0 {
-			return fmtp.Errorf("Not able to find created Backup: %s", err)
+			return fmt.Errorf("unable to find created CSBS backup: %s", err)
 		}
 
 		backupObject := backupItems[0]
@@ -244,13 +244,10 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 		}
 		_, stateErr := stateConf.WaitForState()
 		if stateErr != nil {
-			return fmtp.Errorf(
-				"Error waiting for Backup (%s) to become available: %s",
-				backupObject.Id, stateErr)
+			return fmt.Errorf("error waiting for CSBS backup (%s) to become available: %s", backupObject.Id, stateErr)
 		}
-
 	} else {
-		return fmtp.Errorf("Error code: %s\n Error msg: %s", query[0].ErrorCode, query[0].ErrorMsg)
+		return fmt.Errorf("error code: %s, error message: %s", query[0].ErrorCode, query[0].ErrorMsg)
 	}
 
 	return resourceCSBSBackupV1Read(d, meta)
@@ -262,7 +259,7 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
 	backupObject, err := backup.Get(backupClient, d.Id()).ExtractBackup()
@@ -275,7 +272,7 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmtp.Errorf("Error retrieving backup: %s", err)
+		return fmt.Errorf("error retrieving backup: %s", err)
 
 	}
 
@@ -299,7 +296,7 @@ func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -313,7 +310,7 @@ func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting csbs backup: %s", err)
+		return fmt.Errorf("error deleting CSBS backup: %s", err)
 	}
 
 	d.SetId("")
@@ -328,7 +325,7 @@ func waitForCSBSBackupActive(backupClient *golangsdk.ServiceClient, backupId str
 		}
 
 		if n.Id == "error" {
-			return nil, "", fmtp.Errorf("Backup status: %s", n.Status)
+			return nil, "", fmt.Errorf("unexpected CSBS backup status: %s", n.Status)
 		}
 
 		return n, n.Status, nil
@@ -341,7 +338,7 @@ func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId str
 		r, err := backup.Get(backupClient, backupId).ExtractBackup()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted csbs backup %s", backupId)
+				logp.Printf("[INFO] Successfully deleted CSBS backup %s", backupId)
 				return r, "deleted", nil
 			}
 			return r, "deleting", err

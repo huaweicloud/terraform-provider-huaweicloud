@@ -12,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // @API ServiceStage POST /v1/{project_id}/git/auths/{repo_type}/password
@@ -68,7 +67,7 @@ func resourceRepoPwdAuthCreate(ctx context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	client, err := cfg.ServiceStageV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
+		return diag.Errorf("error creating ServiceStage v1 client: %s", err)
 	}
 
 	s := fmt.Sprintf("%s:%s", d.Get("user_name").(string), d.Get("password").(string))

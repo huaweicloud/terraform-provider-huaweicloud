@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -19,7 +19,7 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 	config := meta.(*config.Config)
 	client, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
-		return false, fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
+		return false, fmt.Errorf("error creating client: %s", err)
 	}
 
 	rId := instanceID
@@ -40,7 +40,7 @@ func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instan
 	config := meta.(*config.Config)
 	client, err := config.ComputeV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmt.Errorf("error creating client: %s", err)
 	}
 
 	rId := instanceID
@@ -59,7 +59,7 @@ func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instan
 		return nil
 	})
 	if err != nil {
-		return fmtp.Errorf("Error setting ECS-AutoRecovery for instance%s: %s", rId, err)
+		return fmt.Errorf("error setting ECS-AutoRecovery for instance%s: %s", rId, err)
 	}
 	return nil
 }

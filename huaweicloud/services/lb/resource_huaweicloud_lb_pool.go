@@ -14,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -151,7 +150,7 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 	cfg := meta.(*config.Config)
 	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -201,7 +200,7 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	pool, err := pools.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating pool: %s", err)
+		return diag.Errorf("error creating pool: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -224,12 +223,12 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 	cfg := meta.(*config.Config)
 	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb v2 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	pool, err := pools.Get(lbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving member")
+		return common.CheckDeletedDiag(d, err, "error retrieving pool")
 	}
 
 	logp.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
@@ -266,7 +265,7 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting pool fields: %s", err)
+		return diag.Errorf("error setting pool fields: %s", err)
 	}
 	return nil
 }
@@ -275,7 +274,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	cfg := meta.(*config.Config)
 	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -333,7 +332,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	})
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to update pool %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update pool %s: %s", d.Id(), err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -353,7 +352,7 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	cfg := meta.(*config.Config)
 	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing

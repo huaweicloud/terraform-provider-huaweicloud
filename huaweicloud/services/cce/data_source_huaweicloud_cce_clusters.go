@@ -12,7 +12,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -220,7 +219,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -235,7 +234,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 	refinedClusters, err := clusters.List(cceClient, listOpts)
 	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve clusters: %s", err)
+		return diag.Errorf("unable to retrieve clusters: %s", err)
 	}
 
 	ids := make([]string, 0, len(refinedClusters))
@@ -336,7 +335,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		d.Set("clusters", clustersToSet),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cce clusters fields: %s", err)
+		return diag.Errorf("error setting cce clusters fields: %s", err)
 	}
 	return nil
 }

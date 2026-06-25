@@ -16,7 +16,7 @@ import (
 func getRouteTableResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud Network v1 client: %s", err)
+		return nil, fmt.Errorf("error creating VPC network v1 client: %s", err)
 	}
 	return routetables.Get(c, state.Primary.ID).Extract()
 }

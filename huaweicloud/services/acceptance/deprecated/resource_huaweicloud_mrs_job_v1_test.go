@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMRSV1Job_basic(t *testing.T) {
@@ -39,7 +39,7 @@ func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud mrs: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -56,7 +56,7 @@ func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
 			if _, ok := err.(golangsdk.ErrDefault500); ok {
 				return nil
 			}
-			return fmtp.Errorf("job still exists. err : %s", err)
+			return fmt.Errorf("error getting MRS job: %s", err)
 		}
 	}
 
@@ -67,17 +67,17 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s. ", n)
+			return fmt.Errorf("the MRS job %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set. ")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud mrs client: %s ", err)
+			return fmt.Errorf("error creating MRS client: %s ", err)
 		}
 
 		found, err := job.Get(mrsClient, rs.Primary.ID).Extract()
@@ -86,7 +86,7 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Job not found. ")
+			return fmt.Errorf("the MRS job is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*jobGet = *found

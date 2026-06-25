@@ -1,12 +1,14 @@
 package vpc
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/routes"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -58,7 +60,7 @@ func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
 	vpcRouteClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmt.Errorf("error creating VPC client: %s", err)
 	}
 
 	listOpts := routes.ListOpts{
@@ -71,27 +73,25 @@ func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	pages, err := routes.List(vpcRouteClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve vpc routes: %s", err)
+		return fmt.Errorf("unable to retrieve VPC routes: %s", err)
 	}
 
 	refinedRoutes, err := routes.ExtractRoutes(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve vpc routes: %s", err)
+		return fmt.Errorf("unable to retrieve VPC routes: %s", err)
 	}
 
 	if len(refinedRoutes) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedRoutes) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	Route := refinedRoutes[0]
 
-	logp.Printf("[INFO] Retrieved Vpc Route using given filter %s: %+v", Route.RouteID, Route)
+	logp.Printf("[INFO] Retrieved VPC route using given filter %s: %+v", Route.RouteID, Route)
 	d.SetId(Route.RouteID)
 
 	d.Set("type", Route.Type)

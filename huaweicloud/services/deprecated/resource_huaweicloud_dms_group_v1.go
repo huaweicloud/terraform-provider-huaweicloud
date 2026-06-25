@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -9,7 +10,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dms/v1/groups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -69,7 +69,7 @@ func resourceDmsGroupsCreate(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms group client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	var getGroups []groups.GroupOps
@@ -87,7 +87,7 @@ func resourceDmsGroupsCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	v, err := groups.Create(dmsV1Client, d.Get("queue_id").(string), createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud group: %s", err)
+		return diag.Errorf("error creating group: %s", err)
 	}
 	logp.Printf("[INFO] group Name: %s", v[0].Name)
 
@@ -103,21 +103,21 @@ func resourceDmsGroupsRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms group client: %s", err)
+		return diag.Errorf("error creating DMS group client: %s", err)
 	}
 
 	queueID := d.Get("queue_id").(string)
 	page, err := groups.List(dmsV1Client, queueID, false).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting groups in queue %s: %s", queueID, err)
+		return diag.Errorf("error getting groups in queue %s: %s", queueID, err)
 	}
 	groupsList, err := groups.ExtractGroups(page)
 	if len(groupsList) < 1 {
-		return fmtp.DiagErrorf("No matching resource found.")
+		return diag.FromErr(errors.New("no matching resource found"))
 	}
 
 	if len(groupsList) > 1 {
-		return fmtp.DiagErrorf("Multiple resources matched;")
+		return diag.FromErr(errors.New("multiple resources matched"))
 	}
 
 	group := groupsList[0]
@@ -138,12 +138,12 @@ func resourceDmsGroupsDelete(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms group client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	err = groups.Delete(dmsV1Client, d.Get("queue_id").(string), d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud group: %s", err)
+		return diag.Errorf("error deleting DMS group: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Dms group %s deactivated.", d.Id())

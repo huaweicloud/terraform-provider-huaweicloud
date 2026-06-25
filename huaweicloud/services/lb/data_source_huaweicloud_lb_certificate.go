@@ -1,6 +1,7 @@
 package lb
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/elb/v2/certificates"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -55,7 +55,7 @@ func dataSourceLBCertificateV2Read(d *schema.ResourceData, meta interface{}) err
 	// LoadBalancerClient catalog info: Name is "elb" and Version is "v2"
 	client, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud LoadBalancer Client: %s", err)
+		return fmt.Errorf("error creating ELB Client: %s", err)
 	}
 
 	listOpts := certificates.ListOpts{
@@ -69,20 +69,15 @@ func dataSourceLBCertificateV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	certRst, err := r.Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve certificates from LoadBalancer: %s", err)
+		return fmt.Errorf("unable to retrieve ELB certificates: %s", err)
 	}
 	logp.Printf("[DEBUG] Get certificate list: %#v", certRst)
 
-	if len(certRst.Certificates) > 0 {
-		err = setCertificateAttributes(d, certRst.Certificates[0])
-		if err != nil {
-			return err
-		}
-	} else {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	if len(certRst.Certificates) < 1 {
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
-	return nil
+
+	return setCertificateAttributes(d, certRst.Certificates[0])
 }
 
 func setCertificateAttributes(d *schema.ResourceData, c certificates.Certificate) error {
@@ -107,7 +102,7 @@ func setCertificateAttributes(d *schema.ResourceData, c certificates.Certificate
 		d.Set("expiration", expiration),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("error setting LB Certificate fields: %s", err)
+		return fmt.Errorf("error setting LB Certificate fields: %s", err)
 	}
 	return nil
 }

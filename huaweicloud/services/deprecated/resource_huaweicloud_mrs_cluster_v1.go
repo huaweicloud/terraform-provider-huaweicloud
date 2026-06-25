@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -17,7 +18,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -427,22 +427,22 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	client, err := config.MrsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 	vpcClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Vpc client: %s", err)
+		return fmt.Errorf("error creating VPC client: %s", err)
 	}
 
 	// Get vpc name
 	vpc, err := vpcs.Get(vpcClient, d.Get("vpc_id").(string)).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving HuaweiCloud Vpc: %s", err)
+		return fmt.Errorf("error retrieving VPC: %s", err)
 	}
 	// Get subnet name
 	subnet, err := subnets.Get(vpcClient, d.Get("subnet_id").(string)).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving HuaweiCloud Subnet: %s", err)
+		return fmt.Errorf("error retrieving Subnet: %s", err)
 	}
 
 	loginMode := 0
@@ -482,7 +482,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	clusterCreate, err := cluster.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Cluster: %s", err)
+		return fmt.Errorf("error creating cluster: %s", err)
 	}
 
 	d.SetId(clusterCreate.ClusterID)
@@ -497,9 +497,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for cluster (%s) to become ready: %s ",
-			clusterCreate.ClusterID, err)
+		return fmt.Errorf("error waiting for cluster (%s) to become ready: %s ", clusterCreate.ClusterID, err)
 	}
 
 	// create tags
@@ -507,7 +505,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "clusters", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
+			return fmt.Errorf("error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -519,7 +517,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	region := config.GetRegion(d)
 	client, err := config.MrsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	clusterGet, err := cluster.Get(client, d.Id()).Extract()
@@ -544,7 +542,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	if clusterGet.Masternodenum != "" {
 		masterNodeNum, err := strconv.Atoi(clusterGet.Masternodenum)
 		if err != nil {
-			return fmtp.Errorf("Error converting Masternodenum: %s", err)
+			return fmt.Errorf("error converting Masternodenum: %s", err)
 		}
 		d.Set("master_node_num", masterNodeNum)
 	}
@@ -552,7 +550,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	if clusterGet.Corenodenum != "" {
 		coreNodeNum, err := strconv.Atoi(clusterGet.Corenodenum)
 		if err != nil {
-			return fmtp.Errorf("Error converting Corenodenum: %s", err)
+			return fmt.Errorf("error converting Corenodenum: %s", err)
 		}
 		d.Set("core_node_num", coreNodeNum)
 	}
@@ -587,19 +585,19 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	updateAt, err := strconv.ParseInt(clusterGet.Updateat, 10, 64)
 	if err != nil {
-		return fmtp.Errorf("Error converting Updateat: %s", err)
+		return fmt.Errorf("error converting Updateat: %s", err)
 	}
 	updateAtTm := time.Unix(updateAt, 0)
 
 	createAt, err := strconv.ParseInt(clusterGet.Createat, 10, 64)
 	if err != nil {
-		return fmtp.Errorf("Error converting Createat: %s", err)
+		return fmt.Errorf("error converting Createat: %s", err)
 	}
 	createAtTm := time.Unix(createAt, 0)
 
 	chargingStartTime, err := strconv.ParseInt(clusterGet.Chargingstarttime, 10, 64)
 	if err != nil {
-		return fmtp.Errorf("Error converting chargingStartTime: %s", err)
+		return fmt.Errorf("error converting chargingStartTime: %s", err)
 	}
 	chargingStartTimeTm := time.Unix(chargingStartTime, 0)
 
@@ -634,13 +632,13 @@ func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	// update tags
 	tagErr := utils.UpdateResourceTags(client, d, "clusters", d.Id())
 	if tagErr != nil {
-		return fmtp.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
+		return fmt.Errorf("error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 	}
 
 	return resourceClusterV1Read(d, meta)
@@ -650,17 +648,17 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	rId := d.Id()
 	clusterGet, err := cluster.Get(client, d.Id()).Extract()
 	if err != nil {
 		if utils.IsResourceNotFound(err) {
-			logp.Printf("[INFO] getting an unavailable Cluster: %s", rId)
+			logp.Printf("[INFO] getting an unavailable cluster: %s", rId)
 			return nil
 		}
-		return fmtp.Errorf("Error getting Cluster %s: %s", rId, err)
+		return fmt.Errorf("error getting cluster %s: %s", rId, err)
 	}
 
 	if clusterGet.Clusterstate == "terminated" {
@@ -672,7 +670,7 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	err = cluster.Delete(client, rId).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Cluster: %s", err)
+		return fmt.Errorf("error deleting cluster: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Waiting for Cluster (%s) to be terminated", rId)
@@ -688,9 +686,7 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for Cluster (%s) to be terminated: %s",
-			d.Id(), err)
+		return fmt.Errorf("error waiting for cluster (%s) to be terminated: %s", d.Id(), err)
 	}
 
 	d.SetId("")

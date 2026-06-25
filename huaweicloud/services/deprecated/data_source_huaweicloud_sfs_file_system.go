@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/hashicorp/go-multierror"
@@ -127,13 +128,11 @@ func dataSourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, me
 	}
 
 	if len(refinedSfs) < 1 {
-		return diag.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.FromErr(errors.New("your query returned no results, please change your search criteria and try again"))
 	}
 
 	if len(refinedSfs) > 1 {
-		return diag.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.FromErr(errors.New("your query returned more than one result, please try a more specific search criteria"))
 	}
 
 	share := refinedSfs[0]

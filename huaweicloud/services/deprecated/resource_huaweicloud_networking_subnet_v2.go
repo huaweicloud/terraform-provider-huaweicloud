@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,7 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -151,7 +151,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	createOpts := SubnetCreateOpts{
@@ -191,7 +191,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 
 	s, err := subnets.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron subnet: %s", err)
+		return fmt.Errorf("error creating Neutron subnet: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Waiting for Subnet (%s) to become available", s.ID)
@@ -215,7 +215,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	s, err := subnets.Get(networkingClient, d.Id()).Extract()
@@ -245,7 +245,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 		hostRoutes[i] = routes
 	}
 	if err = d.Set("host_routes", hostRoutes); err != nil {
-		return fmtp.Errorf("Saving host_routes failed: %s", err)
+		return fmt.Errorf("error saving host_routes field: %s", err)
 	}
 
 	// Set the allocation_pools
@@ -279,7 +279,7 @@ func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var updateOpts subnets.UpdateOpts
@@ -324,7 +324,7 @@ func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) 
 
 	_, err = subnets.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud Neutron Subnet: %s", err)
+		return fmt.Errorf("error updating Neutron Subnet: %s", err)
 	}
 
 	return resourceNetworkingSubnetV2Read(d, meta)
@@ -334,7 +334,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -348,7 +348,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Subnet: %s", err)
+		return fmt.Errorf("error deleting Neutron Subnet: %s", err)
 	}
 
 	d.SetId("")

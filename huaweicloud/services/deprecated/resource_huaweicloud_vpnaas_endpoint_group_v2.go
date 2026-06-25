@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -81,7 +81,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var createOpts endpointgroups.CreateOptsBuilder
@@ -138,7 +138,7 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	group, err := endpointgroups.Get(networkingClient, d.Id()).Extract()
@@ -163,7 +163,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	opts := endpointgroups.UpdateOpts{}
@@ -218,7 +218,7 @@ func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	err = endpointgroups.Delete(networkingClient, d.Id()).Err
@@ -252,7 +252,7 @@ func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id 
 				logp.Printf("[DEBUG] EndpointGroup %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
-			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
+			return nil, "", fmt.Errorf("Unexpected error: %s", err)
 		}
 
 		logp.Printf("[DEBUG] EndpointGroup %s deletion is pending", id)

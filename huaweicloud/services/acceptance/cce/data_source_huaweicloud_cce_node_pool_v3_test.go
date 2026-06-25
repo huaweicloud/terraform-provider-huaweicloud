@@ -1,6 +1,7 @@
 package cce
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCCENodePoolV3DataSource_basic(t *testing.T) {
@@ -45,11 +45,11 @@ func testAccCheckCCENodePoolV3DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find node pools data source: %s ", n)
+			return fmt.Errorf("can't find node pools data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Node pool data source ID not set ")
+			return errors.New("node pool data source ID not set")
 		}
 
 		return nil

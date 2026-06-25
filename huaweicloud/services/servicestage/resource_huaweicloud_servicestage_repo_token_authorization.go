@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // @API ServiceStage POST /v1/{project_id}/git/auths/{repo_type}/personal
@@ -67,7 +66,7 @@ func resourceRepoTokenAuthCreate(ctx context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 	client, err := cfg.ServiceStageV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
+		return diag.Errorf("error creating ServiceStage v1 client: %s", err)
 	}
 
 	opt := repositories.PersonalAuthOpts{
@@ -110,7 +109,7 @@ func resourceRepoAuthRead(_ context.Context, d *schema.ResourceData, meta interf
 	region := cfg.GetRegion(d)
 	client, err := cfg.ServiceStageV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
+		return diag.Errorf("error creating ServiceStage v1 client: %s", err)
 	}
 
 	auth, err := getAuthorizationByName(client, d.Id())
@@ -131,12 +130,12 @@ func resourceRepoAuthDelete(_ context.Context, d *schema.ResourceData, meta inte
 	region := cfg.GetRegion(d)
 	client, err := cfg.ServiceStageV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating ServiceStage v1 client: %s", err)
+		return diag.Errorf("error creating ServiceStage v1 client: %s", err)
 	}
 
 	err = repositories.Delete(client, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("error deleting ServiceStage repository authorization (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting ServiceStage repository authorization (%s): %s", d.Id(), err)
 	}
 	return nil
 }

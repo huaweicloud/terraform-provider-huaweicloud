@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -10,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -94,7 +95,7 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -139,7 +140,7 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
@@ -174,7 +175,7 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	var updateOpts rules.UpdateOpts
@@ -234,7 +235,7 @@ func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()

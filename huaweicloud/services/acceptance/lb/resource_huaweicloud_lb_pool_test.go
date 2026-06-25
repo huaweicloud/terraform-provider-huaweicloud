@@ -16,7 +16,7 @@ import (
 func getPoolResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+		return nil, fmt.Errorf("error creating ELB v2 client: %s", err)
 	}
 	resp, err := pools.Get(c, state.Primary.ID).Extract()
 	if resp == nil && err == nil {

@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -52,7 +52,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DMS key client V2: %s", err)
+		return diag.Errorf("error creating DMS key client V2: %s", err)
 	}
 
 	v, err := availablezones.Get(dmsV2Client)
@@ -88,7 +88,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	if len(filteredAZs) < 1 {
-		return fmtp.DiagErrorf("Not found any available zones")
+		return diag.FromErr(errors.New("not found any available zones"))
 	}
 
 	az := filteredAZs[0]
@@ -102,7 +102,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("ipv6_enable", az.Ipv6Enable),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting DMS AZ attributes: %s", mErr)
+		return diag.Errorf("error setting DMS AZ attributes: %s", mErr)
 	}
 	return nil
 }

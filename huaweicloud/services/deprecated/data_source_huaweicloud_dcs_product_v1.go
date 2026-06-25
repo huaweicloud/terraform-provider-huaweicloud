@@ -1,12 +1,14 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/dcs/v1/products"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
@@ -54,7 +56,7 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	region := config.GetRegion(d)
 	dcsV1Client, err := config.DcsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error get dcs product client: %s", err)
+		return fmt.Errorf("error getting DCS client: %s", err)
 	}
 
 	v, err := products.Get(dcsV1Client).Extract()
@@ -75,7 +77,7 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if filteredPd == nil {
-		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
+		return errors.New("your query returned no results, please change your filters and try again")
 	}
 
 	logp.Printf("[DEBUG] get DCS product: %+v", filteredPd)

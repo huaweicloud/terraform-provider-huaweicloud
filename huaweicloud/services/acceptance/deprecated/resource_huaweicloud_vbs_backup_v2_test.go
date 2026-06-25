@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
@@ -46,7 +46,7 @@ func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud vbs client: %s", err)
+		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -56,7 +56,7 @@ func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 
 		_, err := backups.Get(vbsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("VBS backup still exists")
+			return fmt.Errorf("the VBS backup still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -67,17 +67,17 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the VBS backup %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud vbs client: %s", err)
+			return fmt.Errorf("error creating VBS client: %s", err)
 		}
 
 		found, err := backups.Get(vbsClient, rs.Primary.ID).Extract()
@@ -86,7 +86,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("VBS backup not found")
+			return fmt.Errorf("the VBS backup is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*configs = *found

@@ -17,7 +17,7 @@ import (
 func getWafInstanceGroupFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return nil, fmt.Errorf("error creating WAF dedicated client: %s", err)
 	}
 	return pools.Get(client, state.Primary.ID)
 }
