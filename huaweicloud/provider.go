@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -5384,7 +5385,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	}
 
 	if conf.Region == "" {
-		return nil, diag.Errorf("region should be provided")
+		return nil, diag.FromErr(errors.New("region should be provided"))
 	}
 
 	cloud := getCloudDomain(d.Get("cloud").(string), conf.Region)
@@ -5576,11 +5577,11 @@ func readConfig(c *config.Config) error {
 	if providerConfig.Mode == "SSO" {
 		ssoAuth := providerConfig.SsoAuth
 		if (ssoAuth == config.SsoAuth{}) {
-			return fmt.Errorf("Error finding ssoAuth config when auth mode is SSO")
+			return errors.New("Error finding ssoAuth config when auth mode is SSO")
 		}
 		stsToken := ssoAuth.StsToken
 		if (stsToken == config.StsToken{}) {
-			return fmt.Errorf("Error finding ssoAuth.stsToken config when auth mode is SSO")
+			return errors.New("Error finding ssoAuth.stsToken config when auth mode is SSO")
 		}
 		c.AccessKey = stsToken.AccessKeyId
 		c.SecretKey = stsToken.SecretAccessKey

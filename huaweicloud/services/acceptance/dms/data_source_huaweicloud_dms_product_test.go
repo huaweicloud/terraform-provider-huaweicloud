@@ -1,7 +1,6 @@
 package dms
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -105,7 +104,7 @@ func TestAccDmsProductDataSource_rabbitmqCluster(t *testing.T) {
 	})
 }
 
-var testAccDmsProductDataSource_basic = fmt.Sprintf(`
+const testAccDmsProductDataSource_basic = `
 data "huaweicloud_availability_zones" "zones" {}
 
 data "huaweicloud_dms_product" "product1" {
@@ -118,7 +117,7 @@ data "huaweicloud_dms_product" "product1" {
 
   availability_zones = data.huaweicloud_availability_zones.zones.names
 }
-`)
+`
 
 var testAccDmsProductDataSource_kafkaVmSpec = `
 data "huaweicloud_dms_product" "test" {

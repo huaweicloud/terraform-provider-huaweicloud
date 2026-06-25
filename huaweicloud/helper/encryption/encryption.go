@@ -2,6 +2,7 @@ package encryption
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -35,7 +36,7 @@ func EncryptValue(encryptionKey, value, description string) (fingerprint, encryp
 		return
 	}
 	if len(fingerprints) == 0 || len(encrypted) == 0 {
-		err = fmt.Errorf("No PGP key fingerprints or encrypted values found")
+		err = errors.New("No PGP key fingerprints or encrypted values found")
 		return
 	}
 
@@ -51,7 +52,7 @@ func GetPGPFingerprint(publicKey string) (string, error) {
 		return "", err
 	}
 	if len(fingerprints) == 0 {
-		return "", fmt.Errorf("No PGP key fingerprints found")
+		return "", errors.New("No PGP key fingerprints found")
 	}
 
 	return fingerprints[0], nil

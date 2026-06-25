@@ -69,7 +69,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     trigger_threshold = 10
   }
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testResourceRdsWalLogReplaySwitch_basic(name string) string {

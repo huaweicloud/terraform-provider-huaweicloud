@@ -3,6 +3,7 @@ package httphelper
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -185,7 +186,7 @@ func (c *HttpHelper) Request() *HttpHelper {
 		return c
 	}
 	if c.method == "" {
-		c.result.Err = fmt.Errorf("`method` is empty, please specify the client through Client(method string)")
+		c.result.Err = errors.New("method is empty, please specify the client through Client(method string)")
 		return c
 	}
 
@@ -207,7 +208,7 @@ func (c *HttpHelper) Send() (*gjson.Result, error) {
 		return nil, c.result.Err
 	}
 	if c.method == "" {
-		return nil, fmt.Errorf("`method` is empty, please specify the client through Client(method string)")
+		return nil, errors.New("`method` is empty, please specify the client through Client(method string)")
 	}
 
 	c.buildURL()

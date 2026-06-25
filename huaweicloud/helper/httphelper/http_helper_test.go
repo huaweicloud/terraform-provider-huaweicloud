@@ -12,10 +12,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
 )

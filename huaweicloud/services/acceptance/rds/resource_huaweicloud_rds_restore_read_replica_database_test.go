@@ -76,7 +76,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     trigger_threshold = 10
   }
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testResourceRdsRestoreReadReplicaDatabase_basic(name string) string {

@@ -104,7 +104,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
 
   depends_on = [huaweicloud_rds_pg_schema.test]
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testDataSourceRdsReadReplicaRestorableDatabases_basic(name string) string {

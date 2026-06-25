@@ -87,7 +87,7 @@ resource "huaweicloud_rds_lts_config" "test" {
   lts_group_id  = huaweicloud_lts_group.test.id
   lts_stream_id = huaweicloud_lts_stream.test.id
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testAccDataSourceRdsLtsConfigsBasic(name string) string {

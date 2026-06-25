@@ -1,7 +1,6 @@
 package deprecated
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -29,6 +28,6 @@ func TestAccDmsAZDataSource_basic(t *testing.T) {
 	})
 }
 
-var testAccDmsAZDataSource_basic = fmt.Sprintf(`
+const testAccDmsAZDataSource_basic = `
 data "huaweicloud_dms_az" "az1" {}
-`)
+`

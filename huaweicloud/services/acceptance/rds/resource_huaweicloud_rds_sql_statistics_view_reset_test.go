@@ -58,7 +58,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base, name)
 }
 
 func testSqlStatisticsViewReset_basic(name string) string {

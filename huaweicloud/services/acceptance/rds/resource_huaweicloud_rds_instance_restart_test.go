@@ -71,7 +71,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(), rName)
+`, testAccRdsInstance_base, rName)
 }
 
 func testAccInstanceRestart_basic(rName string) string {

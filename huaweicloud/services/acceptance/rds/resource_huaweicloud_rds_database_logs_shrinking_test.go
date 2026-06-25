@@ -54,7 +54,7 @@ resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[3]s"
 }
-`, testAccRdsInstance_base(), name, name)
+`, testAccRdsInstance_base, name, name)
 }
 
 func testAccRdsDbLogsShrinking_basic(name string) string {

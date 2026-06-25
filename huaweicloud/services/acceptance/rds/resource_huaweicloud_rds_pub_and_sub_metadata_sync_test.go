@@ -71,7 +71,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(), rName, currentDate)
+`, testAccRdsInstance_base, rName, currentDate)
 }
 
 func testAccPubAndSubMetadataSync_basic(rName string) string {
