@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GeminiDB GET /v3/{project_id}/instances/recycle-policy
+// @API GeminiDB GET /v3/{project_id}/instances/recycle-instances
 func DataSourceGeminiDBRecyclingInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGeminiDBRecyclingInstancesRead,
