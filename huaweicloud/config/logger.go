@@ -248,11 +248,11 @@ func RedactHeaders(headers http.Header) (processedHeaders []string) {
 }
 
 // FormatHeaders processes a headers object plus a deliminator, returning a string
-func FormatHeaders(headers http.Header, seperator string) string {
+func FormatHeaders(headers http.Header, separator string) string {
 	redactedHeaders := RedactHeaders(headers)
 	sort.Strings(redactedHeaders)
 
-	return strings.Join(redactedHeaders, seperator)
+	return strings.Join(redactedHeaders, separator)
 }
 
 func maskSecurityFields(data map[string]interface{}) {
