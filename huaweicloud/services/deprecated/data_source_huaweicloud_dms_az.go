@@ -3,6 +3,7 @@ package deprecated
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dms/v2/availablezones"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDmsAZ() *schema.Resource {
@@ -60,7 +60,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Dms az : %+v", v)
+	log.Printf("[DEBUG] The list of DMS available zones during the API response: %+v", v)
 	var filteredAZs []availablezones.AvailableZone
 	if v.RegionID == config.GetRegion(d) {
 		AZs := v.AvailableZones
@@ -92,7 +92,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	az := filteredAZs[0]
-	logp.Printf("[DEBUG] Dms az : %+v", az)
+	log.Printf("[DEBUG] The first available zone: %+v", az)
 
 	d.SetId(az.ID)
 	mErr := multierror.Append(

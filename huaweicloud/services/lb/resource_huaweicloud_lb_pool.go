@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/pools
@@ -197,7 +197,7 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	pool, err := pools.Create(lbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating pool: %s", err)
@@ -231,7 +231,7 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 		return common.CheckDeletedDiag(d, err, "error retrieving pool")
 	}
 
-	logp.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
+	log.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
@@ -321,7 +321,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = pools.Update(lbClient, d.Id(), updateOpts).Extract()
@@ -365,7 +365,7 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = pools.Delete(lbClient, d.Id()).ExtractErr()

@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/csbs/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceCSBSBackupPolicyV1() *schema.Resource {
@@ -159,7 +159,7 @@ func dataSourceCSBSBackupPolicyV1Read(d *schema.ResourceData, meta interface{}) 
 
 	backupPolicy := refinedPolicies[0]
 
-	logp.Printf("[INFO] Retrieved backup policy %s using given filter", backupPolicy.ID)
+	log.Printf("[INFO] Retrieved backup policy %s using given filter", backupPolicy.ID)
 
 	d.SetId(backupPolicy.ID)
 

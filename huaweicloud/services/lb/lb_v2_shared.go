@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -15,7 +16,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // lbPendingStatuses are the valid statuses a LoadBalancer will be in while
@@ -28,7 +28,7 @@ var lbPendingDeleteStatuses = []string{"ERROR", "PENDING_UPDATE", "PENDING_DELET
 var lbSkipLBStatuses = []string{"ERROR", "ACTIVE"}
 
 func waitForLBV2Listener(ctx context.Context, networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
+	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -70,7 +70,7 @@ func resourceLBV2ListenerRefreshFunc(networkingClient *golangsdk.ServiceClient, 
 func waitForLBV2LoadBalancer(ctx context.Context, networkingClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
 
-	logp.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
+	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -111,7 +111,7 @@ func resourceLBV2LoadBalancerRefreshFunc(networkingClient *golangsdk.ServiceClie
 }
 
 func waitForLBV2Pool(ctx context.Context, networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
+	log.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -293,7 +293,7 @@ func resourceLBV2L7PolicyRefreshFunc(lbClient *golangsdk.ServiceClient, lbID str
 }
 
 func waitForLBV2L7Policy(ctx context.Context, lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, l7policy *l7policies.L7Policy, target string, pending []string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
+	log.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
 		return fmt.Errorf("unable to determine loadbalancer ID from listener %s", parentListener.ID)
@@ -325,7 +325,7 @@ func waitForLBV2L7Policy(ctx context.Context, lbClient *golangsdk.ServiceClient,
 }
 
 func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (string, error) {
-	logp.Printf("[DEBUG] Trying to get Listener ID associated with the %s L7 Policy ID", id)
+	log.Printf("[DEBUG] Trying to get Listener ID associated with the %s L7 Policy ID", id)
 	lbsPages, err := loadbalancers.List(lbClient, loadbalancers.ListOpts{}).AllPages()
 	if err != nil {
 		return "", fmt.Errorf("no Load Balancers were found: %s", err)
@@ -377,7 +377,7 @@ func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID strin
 }
 
 func waitForLBV2L7Rule(ctx context.Context, lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, parentL7policy *l7policies.L7Policy, l7rule *l7policies.Rule, target string, pending []string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
+	log.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
 		return fmt.Errorf("unable to determine loadbalancer ID from listener %s", parentListener.ID)

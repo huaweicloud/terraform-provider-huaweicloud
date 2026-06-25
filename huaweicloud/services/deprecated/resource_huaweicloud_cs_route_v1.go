@@ -15,6 +15,7 @@
 package deprecated
 
 import (
+	"log"
 	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,7 +25,6 @@ import (
 	"fmt"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCsRouteV1() *schema.Resource {
@@ -133,7 +133,7 @@ func resourceCsRouteV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	logp.Printf("[DEBUG] Deleting Route %q", d.Id())
+	log.Printf("[DEBUG] Deleting Route %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,

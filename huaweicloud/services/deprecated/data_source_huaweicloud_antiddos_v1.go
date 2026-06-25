@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceAntiDdosV1() *schema.Resource {
@@ -139,7 +139,7 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	ddosStatus := refinedAntiddos[0]
 
-	logp.Printf("[INFO] Retrieved defense status of EIP %s using given filter", ddosStatus.FloatingIpId)
+	log.Printf("[INFO] Retrieved defense status of EIP %s using given filter", ddosStatus.FloatingIpId)
 
 	d.SetId(ddosStatus.FloatingIpId)
 
@@ -151,7 +151,7 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", cfg.GetRegion(d))
 
 	traffic, err := antiddos.DailyReport(antiddosClient, ddosStatus.FloatingIpId).Extract()
-	logp.Printf("traffic %#v", traffic)
+	log.Printf("traffic %#v", traffic)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve the traffic of a specified EIP, defense is not configured: %s", err)
 	}
@@ -200,7 +200,7 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	listEventOpts := antiddos.ListLogsOpts{}
 	event, err := antiddos.ListLogs(antiddosClient, ddosStatus.FloatingIpId, listEventOpts).Extract()
-	logp.Printf("event %#v", event)
+	log.Printf("event %#v", event)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve the event of a specified EIP, defense is not configured: %s", err)
 	}

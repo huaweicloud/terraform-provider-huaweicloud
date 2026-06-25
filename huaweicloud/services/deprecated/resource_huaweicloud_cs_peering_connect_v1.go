@@ -15,6 +15,7 @@
 package deprecated
 
 import (
+	"log"
 	"reflect"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	"fmt"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCsPeeringConnectV1() *schema.Resource {
@@ -176,7 +176,7 @@ func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) 
 	}
 	url = client.ServiceURL(url)
 
-	logp.Printf("[DEBUG] Deleting PeeringConnect %q", d.Id())
+	log.Printf("[DEBUG] Deleting PeeringConnect %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,

@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsQueues() *schema.Resource {
@@ -106,12 +106,12 @@ func resourceDmsQueuesCreate(ctx context.Context, d *schema.ResourceData, meta i
 		RetentionHours:  d.Get("retention_hours").(int),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := queues.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating queue: %s", err)
 	}
-	logp.Printf("[INFO] Queue ID: %s", v.ID)
+	log.Printf("[INFO] Queue ID: %s", v.ID)
 
 	// Store the queue ID now
 	d.SetId(v.ID)
@@ -131,7 +131,7 @@ func resourceDmsQueuesRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Dms queue %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] DMS queue %s: %+v", d.Id(), v)
 
 	d.SetId(v.ID)
 	d.Set("name", v.Name)
@@ -165,7 +165,7 @@ func resourceDmsQueuesDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting queue: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Dms queue %s: %+v deactivated.", d.Id(), v)
+	log.Printf("[DEBUG] DMS queue %s: %+v has been deleted.", d.Id(), v)
 	d.SetId("")
 	return nil
 }

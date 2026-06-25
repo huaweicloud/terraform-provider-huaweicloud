@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -18,7 +19,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceBlockStorageVolumeV2() *schema.Resource {
@@ -151,15 +151,15 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 		VolumeType:         d.Get("volume_type").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := volumes.Create(blockStorageClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error creating volume: %s", err)
 	}
-	logp.Printf("[INFO] Volume ID: %s", v.ID)
+	log.Printf("[INFO] Volume ID: %s", v.ID)
 
 	// Wait for the volume to become available.
-	logp.Printf(
+	log.Printf(
 		"[DEBUG] Waiting for volume (%s) to become available",
 		v.ID)
 
@@ -195,7 +195,7 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 		return common.CheckDeleted(d, err, "volume")
 	}
 
-	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
 
 	d.Set("size", v.Size)
 	d.Set("description", v.Description)
@@ -227,7 +227,7 @@ OUTER:
 		attachments[i]["id"] = attachment.ID
 		attachments[i]["instance_id"] = attachment.ServerID
 		attachments[i]["device"] = attachment.Device
-		logp.Printf("[DEBUG] attachment: %v", attachment)
+		log.Printf("[DEBUG] attachment: %v", attachment)
 	}
 	d.Set("attachment", attachments)
 
@@ -297,13 +297,13 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 
 	// make sure this volume is detached from all instances before deleting
 	if len(v.Attachments) > 0 {
-		logp.Printf("[DEBUG] detaching volumes")
+		log.Printf("[DEBUG] detaching volumes")
 		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 		if err != nil {
 			return err
 		}
 		for _, volumeAttachment := range v.Attachments {
-			logp.Printf("[DEBUG] Attachment: %v", volumeAttachment)
+			log.Printf("[DEBUG] Attachment: %v", volumeAttachment)
 
 			opts := block_devices.DetachOpts{
 				ServerId: volumeAttachment.ServerID,
@@ -340,7 +340,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	}
 
 	// Wait for the volume to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"deleting", "downloading", "available"},

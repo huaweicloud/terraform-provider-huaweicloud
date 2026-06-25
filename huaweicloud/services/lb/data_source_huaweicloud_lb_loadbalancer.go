@@ -2,6 +2,7 @@ package lb
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB GET /v2/{project_id}/elb/loadbalancers
@@ -137,7 +137,7 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 	}
 	resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract()
 	if err != nil {
-		logp.Printf("[WARN] Error fetching tags of ELB load balancer %s: %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of ELB shared load balancer %s: %s", d.Id(), err)
 	}
 	tagmap := utils.TagsToMap(resourceTags.Tags)
 	d.Set("tags", tagmap)

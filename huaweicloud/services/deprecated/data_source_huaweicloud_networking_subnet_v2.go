@@ -3,6 +3,7 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -10,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceNetworkingSubnetV2() *schema.Resource {
@@ -228,7 +228,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 
 	subnet := allSubnets[0]
 
-	logp.Printf("[DEBUG] Retrieved Subnet %s: %+v", subnet.ID, subnet)
+	log.Printf("[DEBUG] Retrieved subnet %s: %+v", subnet.ID, subnet)
 	d.SetId(subnet.ID)
 
 	d.Set("name", subnet.Name)
@@ -244,7 +244,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 
 	err = d.Set("dns_nameservers", subnet.DNSNameservers)
 	if err != nil {
-		logp.Printf("[DEBUG] Unable to set dns_nameservers: %s", err)
+		log.Printf("[DEBUG] Unable to set dns_nameservers field: %s", err)
 	}
 
 	// Set the host_routes
@@ -270,7 +270,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 	err = d.Set("allocation_pools", allocationPools)
 	if err != nil {
-		logp.Printf("[DEBUG] Unable to set allocation_pools: %s", err)
+		log.Printf("[DEBUG] Unable to set allocation_pools field: %s", err)
 	}
 
 	return nil

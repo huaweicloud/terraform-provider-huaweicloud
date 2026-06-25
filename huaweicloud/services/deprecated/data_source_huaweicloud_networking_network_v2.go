@@ -3,6 +3,7 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -12,7 +13,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceNetworkingNetworkV2() *schema.Resource {
@@ -120,7 +120,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 
 	network := refinedNetworks[0]
 
-	logp.Printf("[DEBUG] Retrieved Network %s: %+v", network.ID, network)
+	log.Printf("[DEBUG] Retrieved Network %s: %+v", network.ID, network)
 	d.SetId(network.ID)
 
 	d.Set("name", network.Name)

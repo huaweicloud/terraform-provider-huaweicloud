@@ -21,7 +21,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceImagesImageV2() *schema.Resource {
@@ -198,7 +197,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.Tags = resourceImagesImageV2BuildTags(tags)
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newImg, err := images.Create(imageClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error creating Image: %s", err)
@@ -224,7 +223,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 	defer imgFile.Close()
 
-	logp.Printf("[DEBUG] Uploading image file %s (%d bytes).", imgFilePath, fileSize)
+	log.Printf("[DEBUG] Uploading image file %s (%d bytes).", imgFilePath, fileSize)
 	res := imagedata.Upload(imageClient, d.Id(), imgFile)
 	if res.Err != nil {
 		return fmt.Errorf("error while uploading file %s: %s", imgFilePath, res.Err)
@@ -260,7 +259,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 		return common.CheckDeleted(d, err, "image")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
+	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
 	d.Set("owner", img.Owner)
 	d.Set("status", img.Status)
@@ -318,7 +317,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 		updateOpts = append(updateOpts, v)
 	}
 
-	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	_, err = images.Update(imageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
@@ -335,7 +334,7 @@ func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error creating image client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Deleting Image %s", d.Id())
+	log.Printf("[DEBUG] Deleting Image %s", d.Id())
 	if err := images.Delete(imageClient, d.Id()).Err; err != nil {
 		return fmt.Errorf("error deleting Image: %s", err)
 	}
@@ -460,7 +459,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 			if !os.IsNotExist(err) {
 				return "", fmt.Errorf("error while trying to access file %q: %s", filename, err)
 			}
-			logp.Printf("[DEBUG] File doens't exists %s. will download from %s", filename, furl)
+			log.Printf("[DEBUG] File doens't exists %s. will download from %s", filename, furl)
 			file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 			if err != nil {
 				return "", fmt.Errorf("error creating file %q: %s", filename, err)
@@ -477,7 +476,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 			}
 			return filename, nil
 		} else {
-			logp.Printf("[DEBUG] File exists %s", filename)
+			log.Printf("[DEBUG] File exists %s", filename)
 			return filename, nil
 		}
 	} else {
@@ -491,7 +490,7 @@ func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string
 		if err != nil {
 			return nil, "", err
 		}
-		logp.Printf("[DEBUG] HuaweiCloud image status is: %s", img.Status)
+		log.Printf("[DEBUG] image status is: %s", img.Status)
 
 		// Huawei Provider doesn't have this set initially.
 		/*

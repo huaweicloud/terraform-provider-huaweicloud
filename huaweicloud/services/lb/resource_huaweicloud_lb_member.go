@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -15,7 +16,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/pools/{pool_id}/members
@@ -144,7 +144,7 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	member, err := pools.CreateMember(lbClient, poolID, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating member: %s", err)
@@ -173,7 +173,7 @@ func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interf
 		return common.CheckDeletedDiag(d, err, "Error retrieving member")
 	}
 
-	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
+	log.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
@@ -221,7 +221,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = pools.UpdateMember(lbClient, poolID, d.Id(), updateOpts).Extract()
@@ -258,7 +258,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete member %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete member %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = pools.DeleteMember(lbClient, poolID, d.Id()).ExtractErr()

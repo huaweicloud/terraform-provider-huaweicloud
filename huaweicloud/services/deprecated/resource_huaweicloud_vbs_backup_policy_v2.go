@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVBSBackupPolicyV2() *schema.Resource {
@@ -354,13 +354,13 @@ func resourceVBSBackupPolicyV2Delete(d *schema.ResourceData, meta interface{}) e
 	delete := policies.Delete(vbsClient, d.Id())
 	if delete.Err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[INFO] Successfully deleted Huaweicloud VBS Backup Policy %s", d.Id())
+			log.Printf("[INFO] Successfully deleted VBS Backup Policy %s", d.Id())
 
 		}
 		if _, ok := err.(golangsdk.ErrDefault409); ok {
-			logp.Printf("[INFO] Error deleting Huaweicloud VBS Backup Policy %s", d.Id())
+			log.Printf("[INFO] Error deleting VBS Backup Policy %s", d.Id())
 		}
-		logp.Printf("[INFO] Successfully deleted Huaweicloud VBS Backup Policy %s", d.Id())
+		log.Printf("[INFO] Successfully deleted VBS Backup Policy %s", d.Id())
 	}
 
 	d.SetId("")

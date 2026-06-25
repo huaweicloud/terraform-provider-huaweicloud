@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMaasTaskV1() *schema.Resource {
@@ -181,7 +181,7 @@ func getSrcNode(d *schema.ResourceData) task.SrcNodeOpts {
 		CloudType: srcNode["cloud_type"].(string),
 	}
 
-	logp.Printf("[DEBUG] getSrcNode: %#v", srcNodeOpts)
+	log.Printf("[DEBUG] getSrcNode: %#v", srcNodeOpts)
 	return srcNodeOpts
 }
 
@@ -197,7 +197,7 @@ func getDstNode(d *schema.ResourceData) task.DstNodeOpts {
 		Bucket:    dstNode["bucket"].(string),
 	}
 
-	logp.Printf("[DEBUG] getDstNode: %#v", dstNodeOpts)
+	log.Printf("[DEBUG] getDstNode: %#v", dstNodeOpts)
 	return dstNodeOpts
 }
 
@@ -239,7 +239,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SmnInfo = &smnInfoOpts
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	taskCreate, err := task.Create(maasClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error creating Task: %s", err)
@@ -269,7 +269,7 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return common.CheckDeleted(d, err, "task")
 	}
-	logp.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), taskGet)
+	log.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), taskGet)
 	d.Set("name", taskGet.Name)
 	d.Set("status", taskGet.Status)
 	d.Set("enable_kms", taskGet.EnableKMS)
@@ -324,7 +324,7 @@ func getTaskStatus(maasClient *golangsdk.ServiceClient, taskId string) resource.
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] Task: %+v", taskGet)
+		log.Printf("[DEBUG] Task: %+v", taskGet)
 		status := strconv.Itoa(taskGet.Status)
 		return taskGet, status, nil
 	}

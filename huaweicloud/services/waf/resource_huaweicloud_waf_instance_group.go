@@ -3,6 +3,7 @@ package waf
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceWafInstanceGroup() *schema.Resource {
@@ -90,7 +90,7 @@ func resourceWafInstanceGroupCreate(ctx context.Context, d *schema.ResourceData,
 		VpcID:       d.Get("vpc_id").(string),
 		Description: d.Get("description").(string),
 	}
-	logp.Printf("[DEBUG] Create WAF instance group options: %#v", createOpts)
+	log.Printf("[DEBUG] Create WAF instance group options: %#v", createOpts)
 
 	pool, err := pools.Create(client, createOpts)
 	if err != nil {
@@ -151,7 +151,7 @@ func resourceWafInstanceGroupUpdate(ctx context.Context, d *schema.ResourceData,
 			Name:        d.Get("name").(string),
 			Description: &desc,
 		}
-		logp.Printf("[DEBUG] Create WAF instance group options: %#v", updateOpts)
+		log.Printf("[DEBUG] Create WAF instance group options: %#v", updateOpts)
 
 		_, err = pools.Update(client, d.Id(), updateOpts)
 		if err != nil {

@@ -3,13 +3,13 @@ package vpc
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/routes"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API VPC GET /v2.0/vpc/routes
@@ -91,7 +91,7 @@ func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	Route := refinedRoutes[0]
 
-	logp.Printf("[INFO] Retrieved VPC route using given filter %s: %+v", Route.RouteID, Route)
+	log.Printf("[INFO] Retrieved VPC route using given filter %s: %+v", Route.RouteID, Route)
 	d.SetId(Route.RouteID)
 
 	d.Set("type", Route.Type)

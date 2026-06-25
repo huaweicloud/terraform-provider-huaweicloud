@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ECS DELETE /v2.1/{project_id}/os-keypairs/{name}
@@ -66,7 +66,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 		PublicKey: pk.(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	kp, err := keypairs.Create(computeClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("error creating keypair: %s", err)

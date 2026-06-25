@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/dcs/v1/products"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDcsProductV1() *schema.Resource {
@@ -65,7 +65,7 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	specCode := d.Get("spec_code").(string)
-	logp.Printf("[DEBUG] query DCS products with %s", specCode)
+	log.Printf("[DEBUG] query DCS products with %s", specCode)
 
 	var filteredPd *products.Product
 	for _, pd := range v.Products {
@@ -80,7 +80,7 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 		return errors.New("your query returned no results, please change your filters and try again")
 	}
 
-	logp.Printf("[DEBUG] get DCS product: %+v", filteredPd)
+	log.Printf("[DEBUG] get DCS product: %+v", filteredPd)
 	d.SetId(filteredPd.ProductID)
 	d.Set("spec_code", filteredPd.SpecCode)
 	d.Set("engine", filteredPd.Engine)

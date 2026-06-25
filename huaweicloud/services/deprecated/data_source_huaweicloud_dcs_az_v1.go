@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDcsAZV1() *schema.Resource {
@@ -57,7 +57,7 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	logp.Printf("[DEBUG] fetching DCS available zones : %+v", v)
+	log.Printf("[DEBUG] fetching DCS available zones : %+v", v)
 	var filteredAZs []availablezones.AvailableZone
 	if v.RegionID == region {
 		AZs := v.AvailableZones
@@ -90,7 +90,7 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	az := filteredAZs[0]
-	logp.Printf("[DEBUG] filter DCS available zone: %+v", az)
+	log.Printf("[DEBUG] filter DCS available zone: %+v", az)
 
 	d.SetId(az.ID)
 	d.Set("code", az.Code)

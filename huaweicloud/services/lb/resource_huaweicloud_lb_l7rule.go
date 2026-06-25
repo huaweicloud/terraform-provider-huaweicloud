@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -17,7 +18,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB GET /v2/{project_id}/elb/l7policies/{l7policy_id}
@@ -133,7 +133,7 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		AdminStateUp: &adminStateUp,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
@@ -165,7 +165,7 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to create L7 Rule")
+	log.Printf("[DEBUG] Attempting to create L7 Rule")
 	l7Rule, err := l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating L7 Rule: %s", err)
@@ -197,7 +197,7 @@ func resourceL7RuleV2Read(_ context.Context, d *schema.ResourceData, meta interf
 		return common.CheckDeletedDiag(d, err, "Error retrieving L7 Rule")
 	}
 
-	logp.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
+	log.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
@@ -283,7 +283,7 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err := l7policies.UpdateRule(lbClient, l7policyID, d.Id(), updateOpts).Extract()
@@ -342,7 +342,7 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = l7policies.DeleteRule(lbClient, l7policyID, d.Id()).ExtractErr()

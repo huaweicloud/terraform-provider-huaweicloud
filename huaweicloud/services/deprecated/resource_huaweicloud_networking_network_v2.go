@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkingNetworkV2() *schema.Resource {
@@ -136,10 +136,10 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 			CreateOptsBuilder: createOpts,
 			Segments:          segments,
 		}
-		logp.Printf("[DEBUG] Create Options: %#v", providerCreateOpts)
+		log.Printf("[DEBUG] Create Options: %#v", providerCreateOpts)
 		n, err = networks.Create(networkingClient, providerCreateOpts).Extract()
 	} else {
-		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+		log.Printf("[DEBUG] Create Options: %#v", createOpts)
 		n, err = networks.Create(networkingClient, createOpts).Extract()
 	}
 
@@ -147,9 +147,9 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error creating Neutron network: %s", err)
 	}
 
-	logp.Printf("[INFO] Network ID: %s", n.ID)
+	log.Printf("[INFO] Network ID: %s", n.ID)
 
-	logp.Printf("[DEBUG] Waiting for Network (%s) to become available", n.ID)
+	log.Printf("[DEBUG] Waiting for Network (%s) to become available", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILD"},
@@ -179,7 +179,7 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 		return common.CheckDeleted(d, err, "network")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Network %s: %+v", d.Id(), n)
+	log.Printf("[DEBUG] Retrieved Network %s: %+v", d.Id(), n)
 
 	d.Set("name", n.Name)
 	d.Set("admin_state_up", strconv.FormatBool(n.AdminStateUp))
@@ -222,7 +222,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	logp.Printf("[DEBUG] Updating Network %s with options: %+v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating Network %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = networks.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
@@ -287,7 +287,7 @@ func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId s
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Neutron Network: %+v", n)
+		log.Printf("[DEBUG] Neutron Network: %+v", n)
 		if n.Status == "DOWN" || n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
@@ -298,12 +298,12 @@ func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId s
 
 func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Network %s.\n", networkId)
+		log.Printf("[DEBUG] Attempting to delete Network %s.\n", networkId)
 
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
+				log.Printf("[DEBUG] Successfully deleted Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			return n, "ACTIVE", err
@@ -312,7 +312,7 @@ func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId s
 		err = networks.Delete(networkingClient, networkId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
+				log.Printf("[DEBUG] Successfully deleted Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault409); ok {
@@ -321,7 +321,7 @@ func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId s
 			return n, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Network %s still active.\n", networkId)
+		log.Printf("[DEBUG] Network %s still active.\n", networkId)
 		return n, "ACTIVE", nil
 	}
 }

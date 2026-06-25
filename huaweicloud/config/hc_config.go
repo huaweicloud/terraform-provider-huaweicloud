@@ -38,8 +38,6 @@ import (
 	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
 	vodv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1"
 	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 /*
@@ -116,7 +114,7 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 
 	if proxyURL, err := parseProxyFromEnv(); err == nil {
 		if proxyURL != nil {
-			logp.Printf("[DEBUG] using https proxy: %s://%s", proxyURL.Scheme, proxyURL.Host)
+			log.Printf("[DEBUG] using https proxy: %s://%s", proxyURL.Scheme, proxyURL.Host)
 
 			httpProxy := hcconfig.Proxy{
 				Schema:   proxyURL.Scheme,
@@ -130,7 +128,7 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 			httpConfig = httpConfig.WithProxy(&httpProxy)
 		}
 	} else {
-		logp.Printf("[WARN] parsing https proxy failed: %s", err)
+		log.Printf("[WARN] parsing https proxy failed: %s", err)
 	}
 
 	return httpConfig

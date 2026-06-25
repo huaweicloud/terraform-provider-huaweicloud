@@ -3,6 +3,7 @@ package deprecated
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/dms/v1/groups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsGroups() *schema.Resource {
@@ -83,13 +83,13 @@ func resourceDmsGroupsCreate(ctx context.Context, d *schema.ResourceData, meta i
 		Groups: getGroups,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	v, err := groups.Create(dmsV1Client, d.Get("queue_id").(string), createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating group: %s", err)
 	}
-	logp.Printf("[INFO] group Name: %s", v[0].Name)
+	log.Printf("[INFO] group name: %s", v[0].Name)
 
 	// Store the group ID now
 	d.SetId(v[0].ID)
@@ -121,7 +121,7 @@ func resourceDmsGroupsRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	group := groupsList[0]
-	logp.Printf("[DEBUG] Dms group %s: %+v", d.Id(), group)
+	log.Printf("[DEBUG] Dms group %s: %+v", d.Id(), group)
 
 	d.SetId(group.ID)
 	d.Set("name", group.Name)
@@ -146,7 +146,7 @@ func resourceDmsGroupsDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting DMS group: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Dms group %s deactivated.", d.Id())
+	log.Printf("[DEBUG] DMS group %s has been deleted.", d.Id())
 	d.SetId("")
 	return nil
 }

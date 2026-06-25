@@ -3,6 +3,7 @@ package cce
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE DELETE /api/v1/namespaces/{name}
@@ -192,7 +192,7 @@ func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name stri
 		namespace, err := namespaces.Get(client, clusterID, name).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud CCE namespace %s", namespace.Metadata.UID)
+				log.Printf("[INFO] Successfully deleted CCE namespace %s", namespace.Metadata.UID)
 				return namespace, "DELETED", nil
 			}
 			return namespace, "ACTIVE", err

@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/csbs/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCSBSBackupPolicyV1() *schema.Resource {
@@ -206,7 +206,7 @@ func resourceCSBSBackupPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	backupPolicy, err := policies.Get(policyClient, d.Id()).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[WARN] Removing backup policy %s as it's already gone", d.Id())
+			log.Printf("[WARN] Removing backup policy %s as it's already gone", d.Id())
 			d.SetId("")
 			return nil
 		}
@@ -311,7 +311,7 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
+				log.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
 				return r, "deleted", nil
 			}
 			return r, "available", err
@@ -321,7 +321,7 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 		err = policy.Err
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
+				log.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
 				return r, "deleted", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault409); ok {

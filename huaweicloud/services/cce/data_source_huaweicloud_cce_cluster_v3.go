@@ -3,6 +3,7 @@ package cce
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
@@ -203,7 +203,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
-	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
+	log.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
 		return diag.Errorf("unable to retrieve clusters: %s", err)
 	}
@@ -218,7 +218,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	Cluster := refinedClusters[0]
 
-	logp.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
+	log.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
 
 	d.SetId(Cluster.Metadata.Id)
 	mErr := multierror.Append(nil,
@@ -261,13 +261,13 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 	if err != nil {
-		logp.Printf("Error marshaling r.Body: %s", err)
+		log.Printf("Error marshaling r.Body: %s", err)
 	}
 	mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
 
 	cert, err := r.Extract()
 	if err != nil {
-		logp.Printf("Error retrieving CCE cluster cert: %s", err)
+		log.Printf("Error retrieving CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters

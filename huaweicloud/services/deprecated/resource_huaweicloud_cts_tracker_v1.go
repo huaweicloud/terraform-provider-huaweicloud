@@ -3,6 +3,7 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cts/v1/tracker"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCTSTrackerV1() *schema.Resource {
@@ -135,7 +135,7 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	trackers, err := tracker.List(ctsClient, listOpts)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[WARN] Removing cts tracker %s as it's already gone", d.Id())
+			log.Printf("[WARN] Removing CTS tracker %s as it's already gone", d.Id())
 			d.SetId("")
 			return nil
 		}
@@ -211,7 +211,7 @@ func resourceCTSTrackerDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	//lintignore:R018
 	time.Sleep(20 * time.Second)
-	logp.Printf("[DEBUG] Successfully deleted cts tracker %s", d.Id())
+	log.Printf("[DEBUG] Successfully deleted CTS tracker %s", d.Id())
 
 	return nil
 }

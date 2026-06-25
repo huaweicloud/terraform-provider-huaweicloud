@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/csbs/v1/backup"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCSBSBackupV1() *schema.Resource {
@@ -232,7 +232,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 		d.SetId(backupObject.Id)
 
-		logp.Printf("[INFO] Resource Backup %s created successfully", backupObject.Id)
+		log.Printf("[INFO] Resource Backup %s created successfully", backupObject.Id)
 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"protecting"},
@@ -267,7 +267,7 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[WARN] Removing backup %s as it's already gone", d.Id())
+			log.Printf("[WARN] Removing backup %s as it's already gone", d.Id())
 			d.SetId("")
 			return nil
 		}
@@ -338,7 +338,7 @@ func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId str
 		r, err := backup.Get(backupClient, backupId).ExtractBackup()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted CSBS backup %s", backupId)
+				log.Printf("[INFO] Successfully deleted CSBS backup %s", backupId)
 				return r, "deleted", nil
 			}
 			return r, "deleting", err
@@ -349,7 +349,7 @@ func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId str
 		if err != nil {
 
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Backup %s", backupId)
+				log.Printf("[INFO] Successfully deleted Backup %s", backupId)
 				return r, "deleted", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault409); ok {

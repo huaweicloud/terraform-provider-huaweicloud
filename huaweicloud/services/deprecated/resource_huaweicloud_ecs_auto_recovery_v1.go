@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, instanceID string) (bool, error) {
@@ -28,7 +27,7 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 	if err != nil {
 		return false, err
 	}
-	logp.Printf("[DEBUG] Retrieved ECS-AutoRecovery:%#v of instance:%s", rId, r)
+	log.Printf("[DEBUG] Retrieved ECS-AutoRecovery:%#v of instance:%s", rId, r)
 	result, err := strconv.ParseBool(r.SupportAutoRecovery)
 	if err != nil {
 		log.Printf("[ERROR] error parsing 'SupportAutoRecovery' field to Boolean: %s", err)
@@ -49,7 +48,7 @@ func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instan
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
 
-	logp.Printf("[DEBUG] Setting ECS-AutoRecovery for instance:%s with options: %#v", rId, updateOpts)
+	log.Printf("[DEBUG] Setting ECS-AutoRecovery for instance:%s with options: %#v", rId, updateOpts)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := auto_recovery.Update(client, rId, updateOpts)

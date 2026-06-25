@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkingRouterRouteV2() *schema.Resource {
@@ -90,14 +90,14 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 
 		if destCidr != "" && nextHop != "" {
 			r := routers.Route{DestinationCIDR: destCidr, NextHop: nextHop}
-			logp.Printf(
+			log.Printf(
 				"[INFO] Adding route %s", r)
 			rts = append(rts, r)
 		}
 
 		updateOpts.Routes = rts
 
-		logp.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
+		log.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
 
 		_, err = routers.Update(networkingClient, routerId, updateOpts).Extract()
 		if err != nil {
@@ -106,7 +106,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 		d.SetId(fmt.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
 
 	} else {
-		logp.Printf("[DEBUG] Router %s has route already", routerId)
+		log.Printf("[DEBUG] Router %s has route already", routerId)
 	}
 
 	return resourceNetworkingRouterRouteV2Read(d, meta)
@@ -151,7 +151,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("error retrieving Neutron Router: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved Router %s: %+v", routerId, n)
+	log.Printf("[DEBUG] Retrieved Router %s: %+v", routerId, n)
 
 	d.Set("next_hop", "")
 	d.Set("destination_cidr", "")
@@ -189,7 +189,7 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 			return nil
 		}
 
-		return fmt.Errorf("error retrieving Neutron Router: %s", err)
+		return fmt.Errorf("error retrieving the neutron router: %s", err)
 	}
 
 	var updateOpts routers.UpdateOpts
@@ -209,15 +209,15 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 
 	if len(oldRts) != len(newRts) {
 		r := routers.Route{DestinationCIDR: destCidr, NextHop: nextHop}
-		logp.Printf(
+		log.Printf(
 			"[INFO] Deleting route %s", r)
 		updateOpts.Routes = newRts
 
-		logp.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
+		log.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
 
 		_, err = routers.Update(networkingClient, routerId, updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("error updating Neutron Router: %s", err)
+			return fmt.Errorf("error updating the neutron router: %s", err)
 		}
 	} else {
 		return fmt.Errorf("route did not exist already")

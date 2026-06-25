@@ -3,6 +3,7 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVBSBackupPolicyV2() *schema.Resource {
@@ -140,7 +140,7 @@ func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	Policy := refinedPolicies[0]
 
-	logp.Printf("[INFO] Retrieved Policy using given filter %s: %+v", Policy.ID, Policy)
+	log.Printf("[INFO] Retrieved Policy using given filter %s: %+v", Policy.ID, Policy)
 	d.SetId(Policy.ID)
 
 	d.Set("name", Policy.Name)

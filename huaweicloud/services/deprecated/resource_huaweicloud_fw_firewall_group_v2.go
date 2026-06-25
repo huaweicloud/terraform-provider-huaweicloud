@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFWFirewallGroupV2() *schema.Resource {
@@ -110,7 +110,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 
 	portsRaw := d.Get("ports").(*schema.Set).List()
 	if len(portsRaw) > 0 {
-		logp.Printf("[DEBUG] Will attempt to associate Firewall group with port(s): %+v", portsRaw)
+		log.Printf("[DEBUG] Will attempt to associate Firewall group with port(s): %+v", portsRaw)
 
 		var portIds []string
 		for _, v := range portsRaw {
@@ -123,14 +123,14 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	logp.Printf("[DEBUG] Create firewall group: %#v", createOpts)
+	log.Printf("[DEBUG] Create firewall group: %#v", createOpts)
 
 	firewall_group, err := firewall_groups.Create(fwClient, createOpts).Extract()
 	if err != nil {
 		return err
 	}
 
-	logp.Printf("[DEBUG] Firewall group created: %#v", firewall_group)
+	log.Printf("[DEBUG] Firewall group created: %#v", firewall_group)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
@@ -142,7 +142,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	}
 
 	_, err = stateConf.WaitForState()
-	logp.Printf("[DEBUG] Firewall group (%s) is active.", firewall_group.ID)
+	log.Printf("[DEBUG] Firewall group (%s) is active.", firewall_group.ID)
 
 	d.SetId(firewall_group.ID)
 
@@ -150,7 +150,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Retrieve information about firewall: %s", d.Id())
+	log.Printf("[DEBUG] Retrieve information about firewall: %s", d.Id())
 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
@@ -164,7 +164,7 @@ func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) err
 		return common.CheckDeleted(d, err, "firewall")
 	}
 
-	logp.Printf("[DEBUG] Read HuaweiCloud Firewall group %s: %#v", d.Id(), firewall_group)
+	log.Printf("[DEBUG] Read firewall group %s: %#v", d.Id(), firewall_group)
 
 	d.Set("name", firewall_group.Name)
 	d.Set("description", firewall_group.Description)
@@ -211,7 +211,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 	var portIds []string
 	if d.HasChange("ports") {
 		portsRaw := d.Get("ports").(*schema.Set).List()
-		logp.Printf("[DEBUG] Will attempt to associate Firewall group with port(s): %+v", portsRaw)
+		log.Printf("[DEBUG] Will attempt to associate Firewall group with port(s): %+v", portsRaw)
 		for _, v := range portsRaw {
 			portIds = append(portIds, v.(string))
 		}
@@ -224,7 +224,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 		updateOpts = opts
 	}
 
-	logp.Printf("[DEBUG] Updating firewall with id %s: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating firewall with id %s: %#v", d.Id(), updateOpts)
 
 	err = firewall_groups.Update(fwClient, d.Id(), updateOpts).Err
 	if err != nil {
@@ -246,7 +246,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
+	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
@@ -303,17 +303,17 @@ func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) 
 
 	return func() (interface{}, string, error) {
 		fw, err := firewall_groups.Get(fwClient, id).Extract()
-		logp.Printf("[DEBUG] Got firewall group %s => %#v", id, fw)
+		log.Printf("[DEBUG] Got firewall group %s => %#v", id, fw)
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Firewall group %s is actually deleted", id)
+				log.Printf("[DEBUG] Firewall group %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
 			return nil, "", fmt.Errorf("unexpected error: %s", err)
 		}
 
-		logp.Printf("[DEBUG] Firewall group %s deletion is pending", id)
+		log.Printf("[DEBUG] Firewall group %s deletion is pending", id)
 		return fw, "DELETING", nil
 	}
 }

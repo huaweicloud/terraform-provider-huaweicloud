@@ -3,6 +3,7 @@ package lb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB GET /v2/{project_id}/elb/pools/{pool_id}
@@ -144,7 +144,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		createOpts.Position = int32(v.(int))
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
@@ -173,7 +173,7 @@ func resourceL7PolicyV2Create(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to create L7 Policy")
+	log.Printf("[DEBUG] Attempting to create L7 Policy")
 	l7Policy, err := l7policies.Create(lbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating L7 Policy: %s", err)
@@ -202,7 +202,7 @@ func resourceL7PolicyV2Read(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "Error retrieving L7 Policy")
 	}
 
-	logp.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
+	log.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
@@ -299,7 +299,7 @@ func resourceL7PolicyV2Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
@@ -350,7 +350,7 @@ func resourceL7PolicyV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
@@ -384,7 +384,7 @@ func resourceL7PolicyV2Import(_ context.Context, d *schema.ResourceData, meta in
 		return nil, common.CheckDeleted(d, err, "L7 Policy")
 	}
 
-	logp.Printf("[DEBUG] Retrieved L7 Policy %s during the import: %#v", d.Id(), l7Policy)
+	log.Printf("[DEBUG] Retrieved L7 Policy %s during the import: %#v", d.Id(), l7Policy)
 
 	if l7Policy.ListenerID != "" {
 		d.Set("listener_id", l7Policy.ListenerID)

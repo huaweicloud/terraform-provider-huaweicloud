@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -18,7 +19,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceEcsInstanceV1() *schema.Resource {
@@ -257,7 +257,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.ServerTags = utils.ExpandResourceTags(tags.(map[string]interface{}))
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.AdminPass = d.Get("password").(string)
 
@@ -303,10 +303,10 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 		if common.HasFilledOpt(d, "auto_recovery") {
 			ar := d.Get("auto_recovery").(bool)
-			logp.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
+			log.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
 			err = setAutoRecoveryForInstance(d, meta, instance_id, ar)
 			if err != nil {
-				logp.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
+				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
 			}
 		}
 
@@ -332,7 +332,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
+	log.Printf("[DEBUG] Retrieved server %s: %+v", d.Id(), server)
 
 	d.Set("name", server.Name)
 	d.Set("image_id", server.Image.ID)
@@ -396,9 +396,9 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		secgroupsToAdd := newSGSet.Difference(oldSGSet)
 		secgroupsToRemove := oldSGSet.Difference(newSGSet)
 
-		logp.Printf("[DEBUG] Security groups to add: %v", secgroupsToAdd)
+		log.Printf("[DEBUG] Security groups to add: %v", secgroupsToAdd)
 
-		logp.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
+		log.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
 
 		for _, g := range secgroupsToRemove.List() {
 			err := secgroups.RemoveServer(computeV2Client, d.Id(), g.(string)).ExtractErr()
@@ -409,7 +409,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 				return fmt.Errorf("error removing security group (%s) from server (%s): %s", g, d.Id(), err)
 			} else {
-				logp.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
+				log.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
 			}
 		}
 
@@ -418,7 +418,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			if err != nil && err.Error() != "EOF" {
 				return fmt.Errorf("error adding security group (%s) to server (%s): %s", g, d.Id(), err)
 			}
-			logp.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
+			log.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
 		}
 	}
 
@@ -428,14 +428,14 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		resizeOpts := &servers.ResizeOpts{
 			FlavorRef: newFlavorId,
 		}
-		logp.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
+		log.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
 		err := servers.Resize(computeV2Client, d.Id(), resizeOpts).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("error resizing server: %s", err)
 		}
 
 		// Wait for the instance to finish resizing.
-		logp.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
+		log.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"RESIZE"},
@@ -452,7 +452,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		}
 
 		// Confirm resize.
-		logp.Printf("[DEBUG] Confirming resize")
+		log.Printf("[DEBUG] Confirming resize")
 		err = servers.ConfirmResize(computeV2Client, d.Id()).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("error confirming resize of server: %s", err)
@@ -487,7 +487,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("auto_recovery") {
 		ar := d.Get("auto_recovery").(bool)
-		logp.Printf("[DEBUG] Update auto recovery of instance to %t", ar)
+		log.Printf("[DEBUG] Update auto recovery of instance to %t", ar)
 		err = setAutoRecoveryForInstance(d, meta, d.Id(), ar)
 		if err != nil {
 			return fmt.Errorf("error updating auto recovery of instance:%s, err:%s", d.Id(), err)
@@ -546,7 +546,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Wait for the instance to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
@@ -633,7 +633,7 @@ func flattenInstanceNicsV1(
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		logp.Printf("Error creating HuaweiCloud networking client: %s", err)
+		log.Printf("Error creating networking client: %s", err)
 	}
 
 	var network string
@@ -649,7 +649,7 @@ func flattenInstanceNicsV1(
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				network = ""
-				logp.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
+				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
 			} else {
 				network = p.NetworkID
 			}
@@ -664,7 +664,7 @@ func flattenInstanceNicsV1(
 		}
 	}
 
-	logp.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
+	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
 	return nics
 }
 

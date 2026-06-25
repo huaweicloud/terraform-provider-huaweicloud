@@ -15,6 +15,7 @@
 package deprecated
 
 import (
+	"log"
 	"reflect"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	"fmt"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCsClusterV1() *schema.Resource {
@@ -208,7 +208,7 @@ func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,

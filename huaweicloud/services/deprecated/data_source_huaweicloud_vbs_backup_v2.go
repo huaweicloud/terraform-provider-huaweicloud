@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/backups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVBSBackupV2() *schema.Resource {
@@ -101,7 +101,7 @@ func dataSourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	Backup := refinedBackups[0]
 
-	logp.Printf("[INFO] Retrieved Backup using given filter %s: %+v", Backup.Id, Backup)
+	log.Printf("[INFO] Retrieved Backup using given filter %s: %+v", Backup.Id, Backup)
 	d.SetId(Backup.Id)
 
 	d.Set("name", Backup.Name)

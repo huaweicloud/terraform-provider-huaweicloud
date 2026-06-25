@@ -3,13 +3,13 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/cts/v1/tracker"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceCTSTrackerV1() *schema.Resource {
@@ -101,7 +101,7 @@ func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	trackers := refinedTrackers[0]
 
-	logp.Printf("[INFO] Retrieved cts tracker %s using given filter", trackers.TrackerName)
+	log.Printf("[INFO] Retrieved cts tracker %s using given filter", trackers.TrackerName)
 
 	d.SetId(trackers.TrackerName)
 

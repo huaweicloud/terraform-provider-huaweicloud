@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsInstancesV1() *schema.Resource {
@@ -202,7 +202,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		SslEnable:       ssl_enable,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
@@ -210,7 +210,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("error creating DMS instance: %s", err)
 	}
-	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
+	log.Printf("[INFO] instance ID: %s", v.InstanceID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
@@ -258,7 +258,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 		return common.CheckDeleted(d, err, "DMS instance")
 	}
 
-	logp.Printf("[DEBUG] Dms instance %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] DMS instance %s: %+v", d.Id(), v)
 
 	d.SetId(v.InstanceID)
 	d.Set("name", v.Name)
@@ -298,7 +298,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 			return fmt.Errorf("error saving tags to state for DMS instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of DMS instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of DMS instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -375,7 +375,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Wait for the instance to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"DELETING", "RUNNING"},
@@ -391,7 +391,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("error waiting for DMS instance (%s) to delete: %s", d.Id(), err)
 	}
 
-	logp.Printf("[DEBUG] Dms instance %s deactivated.", d.Id())
+	log.Printf("[DEBUG] DMS instance %s deactivated.", d.Id())
 	d.SetId("")
 	return nil
 }

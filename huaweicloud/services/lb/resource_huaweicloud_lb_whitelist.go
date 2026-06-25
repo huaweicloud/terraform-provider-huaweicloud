@@ -2,6 +2,7 @@ package lb
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,7 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/whitelists
@@ -86,7 +86,7 @@ func resourceWhitelistV2Create(ctx context.Context, d *schema.ResourceData, meta
 		Whitelist:       d.Get("whitelist").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	wl, err := whitelists.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating whitelist: %s", err)
@@ -108,7 +108,7 @@ func resourceWhitelistV2Read(_ context.Context, d *schema.ResourceData, meta int
 		return common.CheckDeletedDiag(d, err, "error retrieving whitelist")
 	}
 
-	logp.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
+	log.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
 
 	d.SetId(wl.ID)
 
@@ -143,7 +143,7 @@ func resourceWhitelistV2Update(ctx context.Context, d *schema.ResourceData, meta
 		updateOpts.Whitelist = d.Get("whitelist").(string)
 	}
 
-	logp.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
 	_, err = whitelists.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to update whitelist %s: %s", d.Id(), err)
@@ -159,7 +159,7 @@ func resourceWhitelistV2Delete(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
 	err = whitelists.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return diag.Errorf("error deleting whitelist: %s", err)

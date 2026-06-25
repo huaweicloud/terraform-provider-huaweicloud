@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVBSBackupV2() *schema.Resource {
@@ -229,7 +229,7 @@ func waitForBackupDelete(client *golangsdk.ServiceClient, backupID string) resou
 			err := backups.Delete(client, backupID).ExtractErr()
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					logp.Printf("[INFO] Successfully deleted huaweicloud VBS backup %s", backupID)
+					log.Printf("[INFO] Successfully deleted VBS backup %s", backupID)
 					return r, "deleted", nil
 				}
 				return r, r.Status, err
