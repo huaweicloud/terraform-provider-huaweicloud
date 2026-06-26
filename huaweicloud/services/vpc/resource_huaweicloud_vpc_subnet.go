@@ -388,15 +388,15 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 	)
 
 	// save VpcSubnet tags
-	if vpcSubnetV2Client, err := cfg.NetworkingV2Client(region); err == nil {
-		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
-			tagmap := utils.TagsToMap(resourceTags.Tags)
-			mErr = multierror.Append(mErr, d.Set("tags", tagmap))
-		} else {
-			log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
-		}
-	} else {
+	vpcSubnetV2Client, err := cfg.NetworkingV2Client(region)
+	if err != nil {
 		return diag.Errorf("error creating VpcSubnet client: %s", err)
+	}
+	if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
+	} else {
+		log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 	}
 
 	// set dhcp extra opts ntp, addresstime, ipv6_addresstime, domainname
