@@ -183,6 +183,30 @@ The following arguments are supported:
   If the `maintenance_start_time` value is **02:00**, the `maintenance_end_time` value must be **06:00**.
   <br/>3. The parameters `maintenance_start_time` and `maintenance_end_time` must be used together.
 
+* `node_switch_option` - (Optional, Bool) Specifies whether the switch for automatically adding nodes is enabled.
+  The valid values are **true** and **false**.
+
+  -> The node auto expansion policy is only supported GeminiDB Cassandra instance, and the instance CPU
+    need to greater than `2`.
+
+* `overload_node_threshold` - (Optional, Int) Specifies the percentage of overloaded nodes.
+  The value ranges from `1` to `100`.
+  For example, if there are three nodes in the current instance and the policy needs to be triggered
+  when a threshold is reached for two of them, the value can be 67% (= 2/3; rounded up).
+
+* `cpu_threshold` - (Optional, Int) Specifies the CPU usage of nodes for which autoscaling is triggered.
+  The value ranges from `1` to `100`. Defaults to `80`.
+
+* `mem_threshold` - (Optional, Int) Specifies the memory usage of nodes for which autoscaling is triggered.
+  The value ranges from `1` to `100`. Defaults to `80`.
+
+* `step` - (Optional, Int) Specifies the number of nodes to be added each time.
+  The maximum value cannot exceed the upper limit of nodes that can be added. Defaults to `3`.
+
+* `node_limit` - (Optional, Int) Specifies the maximum number of nodes that can be automatically added.
+  The maximum value cannot exceed the upper limit of nodes that can be added to the current instance.
+  The default value is the maximum number of nodes that can be added to the current instance.
+
 * `access_control` - (Optional, List) Specifies the access control for Load Balancer.
   The [access_control](#access_control_struct) structure is documented below.
 

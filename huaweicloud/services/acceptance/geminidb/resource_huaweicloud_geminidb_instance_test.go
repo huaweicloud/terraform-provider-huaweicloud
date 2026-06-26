@@ -582,6 +582,69 @@ func TestAccGeminiDbInstance_coldStorage(t *testing.T) {
 	})
 }
 
+func TestAccGeminiDbInstance_nodeAutoExpansionPolicy(t *testing.T) {
+	var obj interface{}
+	name := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_geminidb_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getGeminiDbInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGeminiDBNodeAutoExpansion_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.type", "cassandra"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.version", "3.11"),
+					resource.TestCheckResourceAttr(resourceName, "datastore.0.storage_engine", "rocksDB"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "Cluster"),
+					resource.TestCheckResourceAttr(resourceName, "node_switch_option", "true"),
+					resource.TestCheckResourceAttr(resourceName, "overload_node_threshold", "60"),
+					resource.TestCheckResourceAttr(resourceName, "cpu_threshold", "60"),
+					resource.TestCheckResourceAttr(resourceName, "mem_threshold", "60"),
+					resource.TestCheckResourceAttr(resourceName, "step", "2"),
+					resource.TestCheckResourceAttr(resourceName, "node_limit", "4"),
+				),
+			},
+			{
+				Config: testAccGeminiDBNodeAutoExpansion_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "node_switch_option", "false"),
+					resource.TestCheckResourceAttr(resourceName, "overload_node_threshold", "90"),
+					resource.TestCheckResourceAttr(resourceName, "cpu_threshold", "90"),
+					resource.TestCheckResourceAttr(resourceName, "mem_threshold", "90"),
+					resource.TestCheckResourceAttr(resourceName, "step", "3"),
+					resource.TestCheckResourceAttr(resourceName, "node_limit", "6"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+					"flavor.0.storage",
+					"ssl_option",
+					"delete_node_list",
+					"cold_storage_size",
+				},
+			},
+		},
+	})
+}
+
 func testAccGeminiDbInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -1240,4 +1303,86 @@ resource "huaweicloud_geminidb_instance" "test" {
   cold_storage_size = %[3]d
 }
 `, common.TestBaseNetwork(name), name, storageSize)
+}
+
+func testAccGeminiDBNodeAutoExpansion_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus  = 4
+  engine = "cassandra"
+}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = "cn-north-4a,cn-north-4b,cn-north-4c"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "Test@1234"
+  mode              = "Cluster"
+
+  datastore {
+    type           = "cassandra"
+    version        = "3.11"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "3"
+    size      = "100"
+    storage   = "ULTRAHIGH"
+    spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  node_switch_option      = true
+  overload_node_threshold = 60
+  cpu_threshold           = 60
+  mem_threshold           = 60
+  step                    = 2
+  node_limit              = 4
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccGeminiDBNodeAutoExpansion_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus  = 4
+  engine = "cassandra"
+}
+
+resource "huaweicloud_geminidb_instance" "test" {
+  name              = "%[2]s"
+  availability_zone = "cn-north-4a,cn-north-4b,cn-north-4c"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  password          = "Test@1234"
+  mode              = "Cluster"
+
+  datastore {
+    type           = "cassandra"
+    version        = "3.11"
+    storage_engine = "rocksDB"
+  }
+
+  flavor {
+    num       = "3"
+    size      = "100"
+    storage   = "ULTRAHIGH"
+    spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  node_switch_option      = false
+  overload_node_threshold = 90
+  cpu_threshold           = 90
+  mem_threshold           = 90
+  step                    = 3
+  node_limit              = 6
+}
+`, common.TestBaseNetwork(name), name)
 }

@@ -58,6 +58,8 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/cold-volume
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/cold-volume
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
+// @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -228,6 +230,36 @@ func ResourceGeminiDbInstance() *schema.Resource {
 			},
 			"maintenance_end_time": {
 				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"node_switch_option": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"overload_node_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"cpu_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"mem_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"step": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"node_limit": {
+				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
@@ -709,6 +741,14 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Setting node auto expansion policy
+	if v := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "node_switch_option"); v != nil && v.(bool) {
+		err = updateNodeAutoExpansionPolicy(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -1061,6 +1101,21 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 	// Set password-free configuration
 	mErr = multierror.Append(mErr, getPasswordFreeConfigurationInfo(d, client))
 
+	// Set node auto expansion policy
+	nodePolicy, err := getNodeAutoExpansionPolicyInfo(client, d.Id())
+	if err != nil {
+		log.Printf("[Warn] error retrieving GeminiDB instance node auto expansion policy information")
+	} else {
+		mErr = multierror.Append(
+			d.Set("node_switch_option", utils.PathSearch("resultMsg.switch_option", nodePolicy, false).(bool)),
+			d.Set("overload_node_threshold", utils.PathSearch("resultMsg.overload_node_threshold", nodePolicy, nil)),
+			d.Set("cpu_threshold", utils.PathSearch("resultMsg.cpu_threshold", nodePolicy, nil)),
+			d.Set("mem_threshold", utils.PathSearch("resultMsg.mem_threshold", nodePolicy, nil)),
+			d.Set("step", utils.PathSearch("resultMsg.step", nodePolicy, nil)),
+			d.Set("node_limit", utils.PathSearch("resultMsg.node_limit", nodePolicy, nil)),
+		)
+	}
+
 	// Querying the Blacklist or Whitelist of Load Balancer IP Addresses
 	accessControlRespBody, err := getLBAccessControlInfo(client, d.Id())
 	if err != nil {
@@ -1336,10 +1391,31 @@ func getPasswordFreeConfigurationInfo(d *schema.ResourceData, client *golangsdk.
 
 	if err != nil {
 		log.Printf("[WARN] error retrieving GeminiDB instance password-free configuration: %s", err)
-		return nil
+		return d.Set("config_ips", make([]interface{}, 0))
 	}
 
 	return d.Set("config_ips", utils.PathSearch("config_ips", getRespBody, make([]interface{}, 0)).([]interface{}))
+}
+
+func getNodeAutoExpansionPolicyInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+	getOpts := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"X-Language":   "en-us",
+		},
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
 }
 
 // nolint:gocyclo
@@ -1489,6 +1565,14 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	// Update maintenance window
 	if d.HasChanges("maintenance_start_time", "maintenance_end_time") {
 		err = updateMaintenanceWindow(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update node auto expansion policy
+	if d.HasChanges("node_switch_option", "overload_node_threshold", "cpu_threshold", "mem_threshold", "step", "node_limit") {
+		err = updateNodeAutoExpansionPolicy(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1960,6 +2044,33 @@ func updateColdStorage(ctx context.Context, d *schema.ResourceData, client, bssC
 		return fmt.Errorf("error updating GeminiDB instance cold storage: %s", err)
 	}
 	return nil
+}
+
+func updateNodeAutoExpansionPolicy(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    utils.RemoveNil(buildUpdateNodeAutoExpansionPolicyBodyParams(d)),
+		isWaitInstanceReady: true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating the GeminiDB instance node auto expansion policy: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateNodeAutoExpansionPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"switch_option":           utils.ValueIgnoreEmpty(utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "node_switch_option")),
+		"overload_node_threshold": utils.ValueIgnoreEmpty(d.Get("overload_node_threshold")),
+		"cpu_threshold":           utils.ValueIgnoreEmpty(d.Get("cpu_threshold")),
+		"mem_threshold":           utils.ValueIgnoreEmpty(d.Get("mem_threshold")),
+		"step":                    utils.ValueIgnoreEmpty(d.Get("step")),
+		"node_limit":              utils.ValueIgnoreEmpty(d.Get("node_limit")),
+	}
+
+	return bodyParams
 }
 
 func updateLBAccessControl(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
