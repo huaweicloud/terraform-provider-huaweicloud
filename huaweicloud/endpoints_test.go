@@ -34,7 +34,7 @@ func testAccPreCheckServiceEndpoints(t *testing.T) {
 
 	projectID := os.Getenv("HW_PROJECT_ID")
 	if projectID == "" {
-		t.Fatalf(yellow("HW_PROJECT_ID must be set for service endpoint acceptance test"))
+		t.Fatalf("%s", yellow("HW_PROJECT_ID must be set for service endpoint acceptance test"))
 	}
 }
 

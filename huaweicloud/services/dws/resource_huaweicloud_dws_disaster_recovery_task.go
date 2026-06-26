@@ -440,7 +440,7 @@ func doAction(ctx context.Context, action string, client *golangsdk.ServiceClien
 			return diag.Errorf("error waiting for the swtichover of DWS disaster recovery (%s) to complete: %s", d.Id(), err)
 		}
 	default:
-		return diag.Errorf("not supported action: " + action)
+		return diag.Errorf("not supported action: %s", action)
 	}
 
 	return nil

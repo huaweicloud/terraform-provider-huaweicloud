@@ -107,7 +107,7 @@ func resourceFileDownloadCreate(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	if err := writeToZipFile(bodyBytes, outputFile); err != nil {
-		return diag.Errorf(err.Error())
+		return diag.Errorf("error writing to zip file: %s", err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()

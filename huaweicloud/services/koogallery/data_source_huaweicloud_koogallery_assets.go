@@ -132,7 +132,7 @@ func dataSourceKooGalleryAssetsRead(_ context.Context, d *schema.ResourceData, m
 
 	assetsList, err := assets.List(client, listOpts).Extract()
 	if err != nil {
-		return diag.Errorf(err.Error())
+		return diag.Errorf("error querying KooGallery assets: %s", err)
 	}
 
 	var resultAssets []interface{}
