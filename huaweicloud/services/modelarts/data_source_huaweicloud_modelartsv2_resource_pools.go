@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ServiceStage GET /v2/{project_id}/pools
+// @API ModelArts GET /v2/{project_id}/pools
 func DataSourceV2ResourcePools() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceV2ResourcePoolsRead,
