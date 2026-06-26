@@ -2,6 +2,7 @@ package dli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -670,7 +671,7 @@ func deleteQueueProperties(client *golangsdk.ServiceClient, queueName string, ma
 	}
 
 	if !resp.IsSuccess {
-		return fmt.Errorf(resp.Message)
+		return errors.New(resp.Message)
 	}
 	return nil
 }
@@ -759,7 +760,7 @@ func updateQueueSparkDriver(client *golangsdk.ServiceClient, queueName string, m
 	}
 
 	if !resp.IsSuccess {
-		return fmt.Errorf(resp.Message)
+		return errors.New(resp.Message)
 	}
 	return nil
 }

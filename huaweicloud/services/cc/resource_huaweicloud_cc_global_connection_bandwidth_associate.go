@@ -2,6 +2,7 @@ package cc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -126,7 +127,7 @@ func associateGlobalConnectionBandwidth(client *golangsdk.ServiceClient, gcbID, 
 		for _, message := range messages {
 			errMessage += fmt.Sprintf(" %s", message)
 		}
-		return fmt.Errorf(errMessage)
+		return errors.New(errMessage)
 	}
 
 	return nil
@@ -277,7 +278,7 @@ func disassociateGlobalConnectionBandwidth(client *golangsdk.ServiceClient, d *s
 		for _, message := range messages {
 			errMessage += fmt.Sprintf(" %s", message)
 		}
-		return fmt.Errorf(errMessage)
+		return errors.New(errMessage)
 	}
 
 	return nil

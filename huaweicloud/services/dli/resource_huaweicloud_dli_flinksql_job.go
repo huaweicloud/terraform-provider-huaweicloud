@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -363,7 +364,7 @@ func updateJobConfig(client *golangsdk.ServiceClient, jobId int, operatorConfig,
 	}
 
 	if !resp.IsSuccess {
-		return fmt.Errorf(resp.Message)
+		return errors.New(resp.Message)
 	}
 	return nil
 }
@@ -490,7 +491,7 @@ func getSteramGraphById(client *golangsdk.ServiceClient, d *schema.ResourceData,
 		return "", err
 	}
 	if !resp.IsSuccess {
-		return "", fmt.Errorf(resp.Message)
+		return "", errors.New(resp.Message)
 	}
 	return resp.StreamGraph, nil
 }
