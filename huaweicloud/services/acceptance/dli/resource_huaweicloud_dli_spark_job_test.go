@@ -85,7 +85,7 @@ resource "huaweicloud_dli_spark_job" "test" {
   name       = "%s"
   app_name   = "${huaweicloud_dli_package.test.group_name}/${huaweicloud_dli_package.test.object_name}"
   
- depends_on = [
+  depends_on = [
     huaweicloud_obs_bucket.test,
     huaweicloud_obs_bucket_object.test,
   ]

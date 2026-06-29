@@ -141,7 +141,7 @@ The `packages` block supports:
 * `type` - (Required, String, ForceNew) Specifies the resource type of the package.
   Changing this parameter will submit a new spark job.
 
-* `package_name` - (Required, String, ForceNew) Specifies the resource name of the package.
+* `package_name` - (Required, String, ForceNew) Specifies the resource name of the package.  
   Changing this parameter will submit a new spark job.
 
 ## Attribute Reference
@@ -150,6 +150,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the spark job.
 
-* `created_at` - Time of the DLI spark job submit.
+* `app_ids` - The back-end application IDs of the batch processing job.
+
+* `kind` - The type of the batch processing job. Only Spark parameters are supported.
 
 * `owner` - The owner of the spark job.
+
+* `created_at` - Time of the DLI spark job submit, in RFC3339 format.
+
+* `updated_at` - Time of the DLI spark job update, in RFC3339 format.
