@@ -389,6 +389,9 @@ func filterOrganizationStructureEmptyValue(bodyParams map[string]interface{}) {
 
 		for _, account := range accounts {
 			accountMap := account.(map[string]interface{})
+			if accountMap["account_id"] == "" {
+				delete(accountMap, "account_id")
+			}
 
 			if accountMap["account_email"] == "" {
 				delete(accountMap, "account_email")
