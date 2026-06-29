@@ -560,6 +560,7 @@ var (
 	HW_SECMASTER_METRIC_ID                = os.Getenv("HW_SECMASTER_METRIC_ID")
 	HW_SECMASTER_COMPONENT_VERSION_ID     = os.Getenv("HW_SECMASTER_COMPONENT_VERSION_ID")
 	HW_SECMASTER_ATTACH_ID                = os.Getenv("HW_SECMASTER_ATTACH_ID")
+	HW_SECMASTER_POLICY_ID                = os.Getenv("HW_SECMASTER_POLICY_ID")
 
 	// The SecMaster pipeline ID
 	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
@@ -3314,6 +3315,13 @@ func TestAccPreCheckSecMasterComponentVersionID(t *testing.T) {
 func TestAccPreCheckSecMasterRDSAssetID(t *testing.T) {
 	if HW_SECMASTER_RDS_ASSET_ID == "" {
 		t.Skip("HW_SECMASTER_RDS_ASSET_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterPolicyID(t *testing.T) {
+	if HW_SECMASTER_POLICY_ID == "" {
+		t.Skip("HW_SECMASTER_POLICY_ID must be set for SecMaster acceptance tests")
 	}
 }
 
