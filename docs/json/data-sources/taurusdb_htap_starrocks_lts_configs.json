@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_lts_configs": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instance_lts_configs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "engine_name": "string",
+                            "engine_version": "string",
+                            "enterprise_project_id": "string",
+                            "enterprise_project_name": "string",
+                            "id": "string",
+                            "mode": "string",
+                            "name": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "lts_configs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enabled": "bool",
+                            "log_type": "string",
+                            "lts_group_id": "string",
+                            "lts_stream_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

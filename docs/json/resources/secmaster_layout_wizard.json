@@ -1,0 +1,124 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_layout_wizard": {
+          "block": {
+            "attributes": {
+              "boa_version": {
+                "type": "string",
+                "description": "Specifies the BOA version.",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "The creator ID.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true,
+                "computed": true
+              },
+              "en_description": {
+                "type": "string",
+                "description": "The English description.",
+                "computed": true
+              },
+              "en_name": {
+                "type": "string",
+                "description": "The English name.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_binding": {
+                "type": "string",
+                "description": "Specifies whether the button is bound.",
+                "optional": true,
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "description": "Whether the wizard is built-in.",
+                "computed": true
+              },
+              "layout_id": {
+                "type": "string",
+                "description": "Specifies the layout ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the wizard name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The SecMaster version.",
+                "computed": true
+              },
+              "wizard_json": {
+                "type": "string",
+                "description": "Specifies the layout wizard information.",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "binding_button": {
+                "block": {
+                  "attributes": {
+                    "button_id": {
+                      "type": "string",
+                      "description": "Specifies the button ID.",
+                      "required": true
+                    },
+                    "button_name": {
+                      "type": "string",
+                      "description": "Specifies the button name.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the binding buttons."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

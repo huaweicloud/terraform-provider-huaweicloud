@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_instance_lts_log_configs": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instance_lts_configs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "actions": [
+                              "list",
+                              "string"
+                            ],
+                            "datastore": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "type": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "enterprise_project_id": "string",
+                            "frozen_flag": "number",
+                            "id": "string",
+                            "mode": "string",
+                            "name": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "lts_configs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enabled": "bool",
+                            "log_type": "string",
+                            "lts_group_id": "string",
+                            "lts_stream_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "instance_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

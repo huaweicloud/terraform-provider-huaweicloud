@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_instance_database_roles": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "roles": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attribute": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "rolbypassrls": "bool",
+                            "rolcanlogin": "bool",
+                            "rolconnlimit": "number",
+                            "rolcreatedb": "bool",
+                            "rolcreaterole": "bool",
+                            "rolinherit": "bool",
+                            "rolpassworddeadline": "string",
+                            "rolreplication": "bool",
+                            "rolsuper": "bool"
+                          }
+                        ]
+                      ],
+                      "lock_status": "bool",
+                      "memberof": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

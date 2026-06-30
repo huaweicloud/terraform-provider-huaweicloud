@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_das_slow_log_templates": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "description": "The database name.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true
+              },
+              "max_avg_execute_time": {
+                "type": "number",
+                "description": "The maximum average execution time, in milliseconds.",
+                "optional": true
+              },
+              "min_avg_execute_time": {
+                "type": "number",
+                "description": "The minimum average execution time, in milliseconds.",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "The node ID of the instance.",
+                "optional": true
+              },
+              "operation": {
+                "type": "string",
+                "description": "The SQL operation types, separated by commas.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the slow log templates are located.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "The SQL template ID.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "avg_cpu_time": "number",
+                      "avg_execute_time": "number",
+                      "avg_lock_wait_time": "number",
+                      "avg_logical_reads": "number",
+                      "avg_physical_reads": "number",
+                      "avg_rows_affected": "number",
+                      "avg_rows_examined": "number",
+                      "avg_rows_sent": "number",
+                      "avg_writes": "number",
+                      "db_names": [
+                        "list",
+                        "string"
+                      ],
+                      "execute_count": "number",
+                      "execute_count_ratio": "string",
+                      "instance_id": "string",
+                      "max_cpu_time": "number",
+                      "max_execute_time": "number",
+                      "max_lock_wait_time": "number",
+                      "max_logical_reads": "number",
+                      "max_physical_reads": "number",
+                      "max_rows_affected": "number",
+                      "max_rows_examined": "number",
+                      "max_rows_sent": "number",
+                      "max_writes": "number",
+                      "node_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "sql_sample": "string",
+                      "template_id": "string",
+                      "template_name": "string",
+                      "total_execute_time_ratio": "string",
+                      "tunable": "bool"
+                    }
+                  ]
+                ],
+                "description": "The list of slow log templates that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

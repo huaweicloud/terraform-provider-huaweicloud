@@ -7,13 +7,13 @@
             "attributes": {
               "app_key": {
                 "type": "string",
-                "description": "Specifies the key of the application to be queried.",
+                "description": "The key of the application to be queried.",
                 "optional": true,
                 "sensitive": true
               },
               "application_id": {
                 "type": "string",
-                "description": "Specifies the ID of the application to be queried.",
+                "description": "The ID of the application to be queried.",
                 "optional": true
               },
               "applications": {
@@ -36,12 +36,8 @@
                     }
                   ]
                 ],
+                "description": "The list of the applications that matched filter parameters.",
                 "computed": true
-              },
-              "created_by": {
-                "type": "string",
-                "description": "Specifies the creator of the application to be queried.",
-                "optional": true
               },
               "id": {
                 "type": "string",
@@ -49,17 +45,17 @@
               },
               "instance_id": {
                 "type": "string",
-                "description": "Specifies the ID of the dedicated instance to which the applications belong.",
+                "description": "The ID of the dedicated instance to which the applications belong.",
                 "required": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the name of the application to be queried.",
+                "description": "The name of the application to be queried.",
                 "optional": true
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the data source.",
+                "description": "The region where the applications are located.",
                 "computed": true
               }
             }

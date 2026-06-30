@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_remaining_quotas": {
+          "block": {
+            "attributes": {
+              "eps_remaining_quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cpu_eps_quota": "number",
+                      "cpu_eps_remaining_quota": "number",
+                      "eps_tag": "string",
+                      "instance_eps_quota": "number",
+                      "instance_eps_remaining_quota": "number",
+                      "mem_eps_quota": "number",
+                      "mem_eps_remaining_quota": "number",
+                      "volume_eps_quota": "number",
+                      "volume_eps_remaining_quota": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "eps_tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

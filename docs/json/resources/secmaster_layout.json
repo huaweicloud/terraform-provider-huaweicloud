@@ -1,0 +1,205 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_layout": {
+          "block": {
+            "attributes": {
+              "binding_code": {
+                "type": "string",
+                "description": "Specifies the data class business code.",
+                "optional": true,
+                "computed": true
+              },
+              "binding_id": {
+                "type": "string",
+                "description": "Specifies the data class ID or workflow ID.",
+                "optional": true,
+                "computed": true
+              },
+              "binding_name": {
+                "type": "string",
+                "description": "The data class name or workflow name.",
+                "computed": true
+              },
+              "boa_version": {
+                "type": "string",
+                "description": "Specifies the BOA version.",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_id": {
+                "type": "string",
+                "description": "Specifies the cloud pack ID.",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_name": {
+                "type": "string",
+                "description": "Specifies the cloud pack name.",
+                "optional": true,
+                "computed": true
+              },
+              "cloud_pack_version": {
+                "type": "string",
+                "description": "Specifies the cloud pack version.",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "The creator ID.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "The creator name.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true,
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the domain ID.",
+                "optional": true,
+                "computed": true
+              },
+              "en_description": {
+                "type": "string",
+                "description": "The English description.",
+                "computed": true
+              },
+              "en_name": {
+                "type": "string",
+                "description": "The English name.",
+                "computed": true
+              },
+              "fields_sum": {
+                "type": "number",
+                "description": "Specifies the total number of fields.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_delete": {
+                "type": "bool",
+                "description": "Specifies whether to directly delete the layout.",
+                "optional": true,
+                "default": true
+              },
+              "layout_cfg": {
+                "type": "string",
+                "description": "The layout configuration used to bind icons on the frontend.",
+                "computed": true
+              },
+              "layout_json": {
+                "type": "string",
+                "description": "Specifies the layout information in JSON format.",
+                "optional": true,
+                "computed": true
+              },
+              "layout_type": {
+                "type": "string",
+                "description": "Specifies the layout type.",
+                "optional": true,
+                "computed": true
+              },
+              "modules_sum": {
+                "type": "number",
+                "description": "The total number of system modules.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the layout name.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The parent layout ID.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The project ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID.",
+                "optional": true,
+                "computed": true
+              },
+              "sections_sum": {
+                "type": "number",
+                "description": "Specifies the total number of system sections.",
+                "optional": true,
+                "computed": true
+              },
+              "tabs_sum": {
+                "type": "number",
+                "description": "Specifies the total number of custom tabs.",
+                "optional": true,
+                "computed": true
+              },
+              "thumbnail": {
+                "type": "string",
+                "description": "Specifies the template thumbnail.",
+                "optional": true,
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "used_by": {
+                "type": "string",
+                "description": "Specifies the business type that uses the layout.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The SecMaster version.",
+                "computed": true
+              },
+              "wizards_sum": {
+                "type": "number",
+                "description": "Specifies the total number of pages.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

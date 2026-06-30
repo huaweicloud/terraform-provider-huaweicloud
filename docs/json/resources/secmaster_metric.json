@@ -1,0 +1,180 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_metric": {
+          "block": {
+            "attributes": {
+              "cache_ttl": {
+                "type": "number",
+                "required": true
+              },
+              "compound_expression": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "data_type": {
+                "type": "string",
+                "required": true
+              },
+              "effective_column": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "max_query_range": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "metric_dimension": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "metric_type": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "report_period": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "derived_metrics": {
+                "block": {
+                  "attributes": {
+                    "date_end": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "date_format": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "date_start": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_query_range": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "metric_dimension": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "query_function": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "query_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "metric_expand_dim": {
+                "block": {
+                  "attributes": {
+                    "functions": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "labels": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "metric_format": {
+                "block": {
+                  "attributes": {
+                    "data": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "data_param": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "display": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "display_param": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_nodes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true
+              },
+              "node_name": {
+                "type": "string",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_by": "string",
+                      "create_time": "number",
+                      "description": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "string",
+                            "error_msg": "string"
+                          }
+                        ]
+                      ],
+                      "device_type": "string",
+                      "ip_address": "string",
+                      "monitor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu_idle": "string",
+                            "cpu_usage": "string",
+                            "disk_count": "string",
+                            "disk_usage": "string",
+                            "down_pps": "string",
+                            "health_status": "string",
+                            "heart_beat": "string",
+                            "heart_beat_time": "number",
+                            "memory_cache": "string",
+                            "memory_count": "string",
+                            "memory_free": "string",
+                            "memory_shared": "string",
+                            "memory_usage": "string",
+                            "mini_on_online": "string",
+                            "read_rate": "string",
+                            "up_pps": "string",
+                            "write_rate": "string"
+                          }
+                        ]
+                      ],
+                      "node_expansion": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_label": "string",
+                            "data_center": "string",
+                            "description": "string",
+                            "maintainer": "string",
+                            "network_plane": "string",
+                            "node_id": "string"
+                          }
+                        ]
+                      ],
+                      "node_id": "string",
+                      "node_name": "string",
+                      "os_type": "string",
+                      "private_ip_address": "string",
+                      "region": "string",
+                      "specification": "string",
+                      "subnet_id": "string",
+                      "update_time": "number",
+                      "vpc_endpoint_address": "string",
+                      "vpc_endpoint_id": "string",
+                      "vpc_id": "string",
+                      "vpcep_service_ip": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

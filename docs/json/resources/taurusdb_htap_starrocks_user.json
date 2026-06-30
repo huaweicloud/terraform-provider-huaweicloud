@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_user": {
+          "block": {
+            "attributes": {
+              "databases": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "ddl": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "dml": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

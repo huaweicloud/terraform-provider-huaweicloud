@@ -41,8 +41,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the application belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
@@ -56,7 +55,7 @@
               },
               "registration_time": {
                 "type": "string",
-                "description": "The registration time.",
+                "description": "The registration time of the application, in RFC3339 format.",
                 "computed": true
               },
               "secret_action": {
@@ -66,7 +65,7 @@
               },
               "updated_at": {
                 "type": "string",
-                "description": "The latest update time of the application.",
+                "description": "The latest update time of the application, in RFC3339 format.",
                 "computed": true
               }
             }

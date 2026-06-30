@@ -1,0 +1,214 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_siem_shipper": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "consumption_type": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "dataspace_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dataspace_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipe_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "pipe_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "shipper_id": {
+                "type": "string",
+                "computed": true
+              },
+              "shipper_name": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_name": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "shipper_destination": {
+                "block": {
+                  "attributes": {
+                    "data_param": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_dataspace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_dataspace_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_identity_role": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_pipe": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_pipe_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_region": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_shipper_type": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_workspace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_workspace_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "shipper_source": {
+                "block": {
+                  "attributes": {
+                    "region": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_dataspace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_dataspace_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_identity_role": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_pipe": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_pipe_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_type": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_workspace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_workspace_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -47,14 +47,39 @@
                       "type": "string",
                       "required": true
                     },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "type": {
                       "type": "string",
                       "required": true
                     }
                   }
                 },
-                "nesting_mode": "set",
+                "nesting_mode": "list",
                 "min_items": 1
+              },
+              "basic_resources_origin": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\n the new value next time the change is made. The corresponding parameter name is 'basic_resources'."
+                },
+                "nesting_mode": "list"
               },
               "optional_resources": {
                 "block": {
@@ -63,13 +88,38 @@
                       "type": "string",
                       "required": true
                     },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "type": {
                       "type": "string",
                       "required": true
                     }
                   }
                 },
-                "nesting_mode": "set"
+                "nesting_mode": "list"
+              },
+              "optional_resources_origin": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\n the new value next time the change is made. The corresponding parameter name is 'optional_resources'."
+                },
+                "nesting_mode": "list"
               }
             }
           },

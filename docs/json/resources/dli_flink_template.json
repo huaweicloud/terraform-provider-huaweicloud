@@ -5,6 +5,11 @@
         "huaweicloud_dli_flink_template": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the flink template, in RFC3339 format.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "The description of the flink template.",
@@ -45,6 +50,11 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the flink template, in RFC3339 format.",
+                "computed": true
               }
             }
           },

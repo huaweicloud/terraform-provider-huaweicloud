@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_create_retry_policy": {
+          "block": {
+            "attributes": {
+              "account_scope": {
+                "type": "string",
+                "optional": true
+              },
+              "action_type": {
+                "type": "string",
+                "required": true
+              },
+              "block_target": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "eps_scope": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_category": {
+                "type": "string",
+                "required": true
+              },
+              "policy_direction": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "region_scope": {
+                "type": "string",
+                "optional": true
+              },
+              "retry_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "block_age": {
+                "block": {
+                  "attributes": {
+                    "block_ageing": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "is_block_ageing": {
+                      "type": "bool",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "defense_policy_list": {
+                "block": {
+                  "attributes": {
+                    "defense_connection_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "defense_connection_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "defense_connection_region_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "defense_connection_region_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "defense_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_enterprise_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_enterprise_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_project_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_project_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "policy_type": {
+                "block": {
+                  "attributes": {
+                    "policy_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

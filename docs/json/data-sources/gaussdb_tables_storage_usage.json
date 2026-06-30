@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_tables_storage_usage": {
+          "block": {
+            "attributes": {
+              "database_name": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schema_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_order": {
+                "type": "string",
+                "optional": true
+              },
+              "table_name": {
+                "type": "string",
+                "optional": true
+              },
+              "table_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "average_size": "string",
+                      "create_time": "string",
+                      "database_name": "string",
+                      "id": "string",
+                      "is_hash_cluster_key": "bool",
+                      "is_part_type": "bool",
+                      "max_ratio": "string",
+                      "min_ratio": "string",
+                      "schema_name": "string",
+                      "skew_ratio": "string",
+                      "skew_size": "string",
+                      "skew_stddev": "string",
+                      "table_name": "string",
+                      "table_owner": "string",
+                      "table_size": "string",
+                      "tuples": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

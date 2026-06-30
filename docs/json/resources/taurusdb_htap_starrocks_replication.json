@@ -1,0 +1,212 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_replication": {
+          "block": {
+            "attributes": {
+              "database_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "database_name": "string",
+                      "db_config_check_results": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_result": "string",
+                            "param_name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "database_repl_scope": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enable_sync": {
+                "type": "string",
+                "optional": true
+              },
+              "error_msg": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "is_instance_level_sync": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "is_main_task": {
+                "type": "string",
+                "computed": true
+              },
+              "is_need_repair": {
+                "type": "string",
+                "computed": true
+              },
+              "is_support_reg_exp": {
+                "type": "string",
+                "computed": true
+              },
+              "is_tables_change": {
+                "type": "bool",
+                "computed": true
+              },
+              "last_error_of_alter_table": {
+                "type": "string",
+                "computed": true
+              },
+              "new_table_repl_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "repl_scope": "string",
+                      "repl_type": "string",
+                      "tables": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "percentage": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_database_name": {
+                "type": "string",
+                "required": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "source_node_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "stage": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "sync_action": {
+                "type": "string",
+                "optional": true
+              },
+              "table_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "check_result": "string",
+                      "table_config": "string",
+                      "table_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "target_database_name": {
+                "type": "string",
+                "required": true
+              },
+              "task_name": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "db_configs": {
+                "block": {
+                  "attributes": {
+                    "param_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "table_repl_config": {
+                "block": {
+                  "attributes": {
+                    "repl_scope": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "repl_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "tables": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "tables_configs": {
+                "block": {
+                  "attributes": {
+                    "table_config": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "table_name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

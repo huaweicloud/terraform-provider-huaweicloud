@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_siem_shipper_authorizations": {
+          "block": {
+            "attributes": {
+              "auth_status": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorize_status": "number",
+                      "data_source_query": "string",
+                      "data_type": "number",
+                      "dataspace": "string",
+                      "handler_time": "number",
+                      "id": "number",
+                      "pipe": "string",
+                      "region": "string",
+                      "request_time": "number",
+                      "run_status": "number",
+                      "shipper_id": "string",
+                      "shipper_name": "string",
+                      "workspace": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "destination_shipper_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "shipper_status": {
+                "type": "string",
+                "optional": true
+              },
+              "source_region": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

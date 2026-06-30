@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_slow_logs": {
+          "block": {
+            "attributes": {
+              "database": {
+                "type": "string",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "operate_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slow_log_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "count": "string",
+                      "database": "string",
+                      "lock_time": "string",
+                      "node_id": "string",
+                      "query_sample": "string",
+                      "rows_examined": "string",
+                      "rows_sent": "string",
+                      "slow_log_date": "number",
+                      "start_time": "string",
+                      "time": "string",
+                      "type": "string",
+                      "users": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

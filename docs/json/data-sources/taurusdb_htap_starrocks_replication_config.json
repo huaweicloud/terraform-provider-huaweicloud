@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_replication_config": {
+          "block": {
+            "attributes": {
+              "database_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "database_name": "string",
+                      "db_config_check_results": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "check_result": "string",
+                            "param_name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "database_repl_scope": {
+                "type": "string",
+                "computed": true
+              },
+              "error_msg": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "is_instance_level_sync": {
+                "type": "string",
+                "computed": true
+              },
+              "is_support_reg_exp": {
+                "type": "string",
+                "computed": true
+              },
+              "is_tables_change": {
+                "type": "bool",
+                "computed": true
+              },
+              "last_error_of_alter_table": {
+                "type": "string",
+                "computed": true
+              },
+              "new_table_repl_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "repl_scope": "string",
+                      "repl_type": "string",
+                      "tables": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "source_node_id": {
+                "type": "string",
+                "computed": true
+              },
+              "table_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "check_result": "string",
+                      "table_config": "string",
+                      "table_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "table_repl_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "repl_scope": "string",
+                      "repl_type": "string",
+                      "tables": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "target_database_name": {
+                "type": "string",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

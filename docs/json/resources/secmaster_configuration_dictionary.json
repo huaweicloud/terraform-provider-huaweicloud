@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_configuration_dictionary": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dict_code": {
+                "type": "string",
+                "required": true
+              },
+              "dict_id": {
+                "type": "string",
+                "required": true
+              },
+              "dict_key": {
+                "type": "string",
+                "required": true
+              },
+              "dict_pcode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dict_pkey": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dict_val": {
+                "type": "string",
+                "required": true
+              },
+              "extend_field": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "bool",
+                "optional": true
+              },
+              "language": {
+                "type": "string",
+                "required": true
+              },
+              "publish_time": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scope": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

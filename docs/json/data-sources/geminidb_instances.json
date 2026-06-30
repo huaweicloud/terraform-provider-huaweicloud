@@ -1,0 +1,177 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_geminidb_instances": {
+          "block": {
+            "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "actions": [
+                        "list",
+                        "string"
+                      ],
+                      "availability_zone": "string",
+                      "backup_strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "keep_days": "number",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "ccm_cert_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cert_id": "string",
+                            "cert_type": "string"
+                          }
+                        ]
+                      ],
+                      "created": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "patch_available": "bool",
+                            "type": "string",
+                            "version": "string",
+                            "whole_version": "string"
+                          }
+                        ]
+                      ],
+                      "db_user_name": "string",
+                      "dedicated_resource_id": "string",
+                      "disk_encryption_id": "string",
+                      "dr_instance_id": "string",
+                      "dual_active_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "destination_instance_id": "string",
+                            "destination_instance_name": "string",
+                            "destination_instance_node_num": "string",
+                            "destination_instance_spec_code": "string",
+                            "destination_region": "string",
+                            "role": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "engine": "string",
+                      "enterprise_project_id": "string",
+                      "groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "nodes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "availability_zone": "string",
+                                  "id": "string",
+                                  "name": "string",
+                                  "private_ip": "string",
+                                  "public_ip": "string",
+                                  "role": "string",
+                                  "spec_code": "string",
+                                  "status": "string",
+                                  "subnet_id": "string",
+                                  "support_reduce": "bool"
+                                }
+                              ]
+                            ],
+                            "status": "string",
+                            "volume": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "string",
+                                  "used": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "lb_ip_address": "string",
+                      "lb_port": "string",
+                      "maintenance_window": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "pay_mode": "string",
+                      "port": "string",
+                      "product_type": "string",
+                      "region": "string",
+                      "security_group_id": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "time_zone": "string",
+                      "updated": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

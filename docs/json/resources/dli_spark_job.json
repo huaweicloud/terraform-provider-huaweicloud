@@ -5,6 +5,13 @@
         "huaweicloud_dli_spark_job": {
           "block": {
             "attributes": {
+              "app_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "app_name": {
                 "type": "string",
                 "required": true,
@@ -72,6 +79,10 @@
                 "optional": true,
                 "forcenew": true
               },
+              "kind": {
+                "type": "string",
+                "computed": true
+              },
               "main_class": {
                 "type": "string",
                 "optional": true,
@@ -120,6 +131,10 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               }
             },
             "block_types": {

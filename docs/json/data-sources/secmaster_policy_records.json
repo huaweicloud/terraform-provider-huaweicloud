@@ -1,0 +1,224 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_policy_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "block_age": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "block_ageing": "string",
+                            "is_block_ageing": "bool"
+                          }
+                        ]
+                      ],
+                      "block_target": "string",
+                      "create_time": "string",
+                      "dataclass_id": "string",
+                      "defense_policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "defense_block_action": "string",
+                            "defense_block_status": "string",
+                            "defense_connection_id": "string",
+                            "defense_connection_name": "string",
+                            "defense_connection_region_id": "string",
+                            "defense_connection_region_name": "string",
+                            "defense_creator_id": "string",
+                            "defense_creator_name": "string",
+                            "defense_failure_description": "string",
+                            "defense_id": "string",
+                            "defense_policy_id": "string",
+                            "defense_policy_name": "string",
+                            "defense_type": "string",
+                            "description": "string",
+                            "target_enterprise_id": "string",
+                            "target_enterprise_name": "string",
+                            "target_project_id": "string",
+                            "target_project_name": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "domain_id": "string",
+                      "domain_name": "string",
+                      "environment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_id": "string",
+                            "domain_name": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "region_name": "string",
+                            "vendor_type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "is_deleted": "bool",
+                      "policy_automation": "string",
+                      "policy_category": "string",
+                      "policy_direction": "string",
+                      "policy_id": "string",
+                      "policy_task_id": "string",
+                      "policy_task_name": "string",
+                      "policyrecord_type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "id": "string",
+                            "policy_type": "string"
+                          }
+                        ]
+                      ],
+                      "project_id": "string",
+                      "region_id": "string",
+                      "region_name": "string",
+                      "trigger_flag": "bool",
+                      "update_time": "string",
+                      "workflow_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "workflow_instance_id": "string",
+                            "workflow_instance_name": "string",
+                            "workflow_instance_status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "group_by": {
+                "block": {
+                  "attributes": {
+                    "group_by_fields": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "group_by_hit": {
+                      "block": {
+                        "attributes": {
+                          "dest": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "source": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "sort": {
+                "block": {
+                  "attributes": {
+                    "order": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "sort_by": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

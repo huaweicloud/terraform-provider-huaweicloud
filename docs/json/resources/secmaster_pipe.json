@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_pipe": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "computed": true
+              },
+              "create_by": {
+                "type": "string",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "dataspace_id": {
+                "type": "string",
+                "required": true
+              },
+              "dataspace_name": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "domain_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mapping": {
+                "type": "string",
+                "description": "The mapping configuration for the pipe. This is a JSON object where keys are dynamic field names. Each field must contain 'type' (string), 'is_chinese_exist' (boolean), and 'properties' (object). Example: {\"field1\": {\"type\": \"text\", \"is_chinese_exist\": true, \"properties\": {}}, \"field2\": {...}}",
+                "optional": true
+              },
+              "owner_type": {
+                "type": "string",
+                "computed": true
+              },
+              "pipe_alias": {
+                "type": "string",
+                "computed": true
+              },
+              "pipe_name": {
+                "type": "string",
+                "required": true
+              },
+              "pipe_type": {
+                "type": "string",
+                "computed": true
+              },
+              "process_status": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "shards": {
+                "type": "number",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "storage_period": {
+                "type": "number",
+                "required": true
+              },
+              "timestamp_field": {
+                "type": "string",
+                "optional": true
+              },
+              "update_by": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

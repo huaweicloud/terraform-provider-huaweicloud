@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_top_twenty_tables_storage_usage": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "job_id": {
+                "type": "string",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "table_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "average_size": "string",
+                      "create_time": "string",
+                      "database_name": "string",
+                      "id": "string",
+                      "is_hash_cluster_key": "bool",
+                      "is_part_type": "bool",
+                      "max_ratio": "string",
+                      "min_ratio": "string",
+                      "schema_name": "string",
+                      "skew_ratio": "string",
+                      "skew_size": "string",
+                      "skew_stddev": "string",
+                      "table_name": "string",
+                      "table_owner": "string",
+                      "table_size": "string",
+                      "tuples": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

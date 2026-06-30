@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_instance_associated_eip": {
+          "block": {
+            "attributes": {
+              "bandwidth_id": {
+                "type": "string",
+                "computed": true
+              },
+              "bandwidth_name": {
+                "type": "string",
+                "computed": true
+              },
+              "bandwidth_share_type": {
+                "type": "string",
+                "computed": true
+              },
+              "bandwidth_size": {
+                "type": "number",
+                "computed": true
+              },
+              "can_enable_public_access": {
+                "type": "bool",
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "eip_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "port_id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "profile": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "order_id": "string",
+                      "product_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "public_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

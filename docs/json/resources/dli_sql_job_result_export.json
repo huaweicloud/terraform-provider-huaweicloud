@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_sql_job_result_export": {
+          "block": {
+            "attributes": {
+              "compress": {
+                "type": "string",
+                "description": "The compression format of the exported data.",
+                "optional": true
+              },
+              "data_path": {
+                "type": "string",
+                "description": "The OBS path for storing the exported data.",
+                "required": true
+              },
+              "data_type": {
+                "type": "string",
+                "description": "The storage format of the exported data.",
+                "required": true
+              },
+              "encoding_type": {
+                "type": "string",
+                "description": "The encoding format of the exported data.",
+                "optional": true
+              },
+              "escape_char": {
+                "type": "string",
+                "description": "The custom escape character.",
+                "optional": true
+              },
+              "export_mode": {
+                "type": "string",
+                "description": "The mode of data export.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "The ID of the SQL job.",
+                "required": true
+              },
+              "limit_num": {
+                "type": "number",
+                "description": "The number of data records to be exported.",
+                "optional": true
+              },
+              "queue_name": {
+                "type": "string",
+                "description": "The queue name used to execute the export task.",
+                "optional": true
+              },
+              "quote_char": {
+                "type": "string",
+                "description": "The custom quote character.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the SQL job with result to be exported is located.",
+                "computed": true
+              },
+              "with_column_header": {
+                "type": "bool",
+                "description": "Whether to export column names when exporting data.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

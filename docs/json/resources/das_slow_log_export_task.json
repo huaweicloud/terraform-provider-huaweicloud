@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_das_slow_log_export_task": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "description": "The OBS bucket name.",
+                "required": true
+              },
+              "client_ip_address": {
+                "type": "string",
+                "description": "The client IP address.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time, in RFC3339 format.",
+                "required": true
+              },
+              "execute_time_max": {
+                "type": "number",
+                "description": "The maximum execution time, in milliseconds.",
+                "optional": true
+              },
+              "execute_time_min": {
+                "type": "number",
+                "description": "The minimum execution time, in milliseconds.",
+                "optional": true
+              },
+              "export_type": {
+                "type": "string",
+                "description": "The export type.",
+                "optional": true
+              },
+              "file_path": {
+                "type": "string",
+                "description": "The OBS file directory.",
+                "optional": true
+              },
+              "fuzzy_sql": {
+                "type": "string",
+                "description": "The fuzzy SQL.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true
+              },
+              "killed": {
+                "type": "string",
+                "description": "The execution status.",
+                "optional": true
+              },
+              "max_avg_execute_time": {
+                "type": "number",
+                "description": "The maximum average execution time.",
+                "optional": true
+              },
+              "min_avg_execute_time": {
+                "type": "number",
+                "description": "The minimum average execution time.",
+                "optional": true
+              },
+              "operation": {
+                "type": "string",
+                "description": "The operation type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the slow log export task is located.",
+                "computed": true
+              },
+              "rows_max_examined": {
+                "type": "number",
+                "description": "The maximum number of scanned rows.",
+                "optional": true
+              },
+              "rows_min_examined": {
+                "type": "number",
+                "description": "The minimum number of scanned rows.",
+                "optional": true
+              },
+              "sort_asc": {
+                "type": "bool",
+                "description": "Whether to sort in ascending order.",
+                "optional": true
+              },
+              "sort_field": {
+                "type": "string",
+                "description": "The sort field.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time, in RFC3339 format.",
+                "required": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time zone.",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DAS",
+            "name": "Data Admin Service",
+            "catalog": "Databases",
+            "name_cn": "数据管理服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

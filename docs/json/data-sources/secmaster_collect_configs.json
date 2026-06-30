@@ -1,0 +1,257 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_collect_configs": {
+          "block": {
+            "attributes": {
+              "all_vendors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_vendor": "string",
+                      "csvc_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "csvc": "string",
+                            "source_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "csvc_display": "string",
+                                  "csvc_help": "string",
+                                  "link": "string",
+                                  "source_display": "string",
+                                  "source_help": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "config_statistics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_num": "number",
+                      "daily_traffic": "number",
+                      "log_num": "number",
+                      "product_all_num": "number",
+                      "product_in_num": "number",
+                      "vendor_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "csvc": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_all_num": "number",
+                      "account_successful_num": "number",
+                      "csvc": "string",
+                      "datasets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account_all_num": "number",
+                            "account_successful_num": "number",
+                            "accounts": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "account_id": "string",
+                                  "last_log_date": "number",
+                                  "log_count": "number",
+                                  "name": "string",
+                                  "process_status": "string",
+                                  "sink_msg": "string"
+                                }
+                              ]
+                            ],
+                            "alert": "bool",
+                            "all_accounts": "bool",
+                            "enable": "string",
+                            "new_account_auto_access": "bool",
+                            "process_status": "string",
+                            "reference": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "csvc_display": "string",
+                                  "csvc_help": "string",
+                                  "link": "string",
+                                  "source_display": "string",
+                                  "source_help": "string"
+                                }
+                              ]
+                            ],
+                            "region_id": "string",
+                            "sink_msg": "string",
+                            "source_id": "number",
+                            "source_name": "string",
+                            "target": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "pipe": "string",
+                                  "shards": "number",
+                                  "ttl": "number"
+                                }
+                              ]
+                            ],
+                            "workspace_id": "string"
+                          }
+                        ]
+                      ],
+                      "last_modified_time": "number",
+                      "log_all_num": "number",
+                      "log_in_num": "number",
+                      "log_in_num_last_one_hour": "number",
+                      "process_status": "string",
+                      "vendor": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "datasets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "csvc": "string",
+                      "enable": "string",
+                      "is_region": "number",
+                      "reference": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "csvc_display": "string",
+                            "csvc_help": "string",
+                            "link": "string",
+                            "source_display": "string",
+                            "source_help": "string"
+                          }
+                        ]
+                      ],
+                      "source_id": "number",
+                      "source_name": "string",
+                      "target": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "pipe": "string",
+                            "shards": "number",
+                            "ttl": "number"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dataspace_id": {
+                "type": "string",
+                "computed": true
+              },
+              "dataspace_name": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_sets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config_name": "string",
+                      "enable": "string",
+                      "log_group_id": "string",
+                      "log_stream_id": "string",
+                      "log_type": "string",
+                      "pipe_alias": "string",
+                      "type_prefix": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "query_statistics": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "required": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

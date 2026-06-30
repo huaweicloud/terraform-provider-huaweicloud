@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_soc_preprocess_rule": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "create_time": "string",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "expression": "string",
+                      "id": "string",
+                      "mapper_id": "string",
+                      "mapper_type_id": "string",
+                      "mapping_id": "string",
+                      "modifier_id": "string",
+                      "modifier_name": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "update_time": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mapping_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "preprocess_rules": {
+                "block": {
+                  "attributes": {
+                    "action": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "expression": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mapper_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mapper_type_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -20,8 +20,16 @@
                 "type": "string",
                 "required": true
               },
+              "bucket_name": {
+                "type": "string",
+                "optional": true
+              },
               "charging_mode": {
                 "type": "string",
+                "optional": true
+              },
+              "cold_storage_size": {
+                "type": "number",
                 "optional": true
               },
               "config_ips": {
@@ -37,9 +45,18 @@
                 "optional": true,
                 "computed": true
               },
+              "cpu_threshold": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "created": {
                 "type": "string",
                 "computed": true
+              },
+              "data_export_switch": {
+                "type": "string",
+                "optional": true
               },
               "db_user_name": {
                 "type": "string",
@@ -131,6 +148,21 @@
                 "type": "string",
                 "computed": true
               },
+              "maintenance_end_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "maintenance_start_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "mem_threshold": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "mode": {
                 "type": "string",
                 "required": true
@@ -138,6 +170,21 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "node_limit": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "node_switch_option": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "overload_node_threshold": {
+                "type": "number",
+                "optional": true,
+                "computed": true
               },
               "password": {
                 "type": "string",
@@ -181,6 +228,11 @@
               },
               "status": {
                 "type": "string",
+                "computed": true
+              },
+              "step": {
+                "type": "number",
+                "optional": true,
                 "computed": true
               },
               "subnet_id": {

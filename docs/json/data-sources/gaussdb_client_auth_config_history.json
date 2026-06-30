@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_client_auth_config_history": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "hba_histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "after_confs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "database": "string",
+                            "method": "string",
+                            "type": "string",
+                            "user": "string"
+                          }
+                        ]
+                      ],
+                      "before_confs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "database": "string",
+                            "method": "string",
+                            "type": "string",
+                            "user": "string"
+                          }
+                        ]
+                      ],
+                      "fail_reason": "string",
+                      "id": "string",
+                      "status": "string",
+                      "time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

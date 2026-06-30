@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_security_report": {
+          "block": {
+            "attributes": {
+              "binding_wizard": {
+                "type": "string",
+                "description": "Specifies the report page content.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "language": {
+                "type": "string",
+                "description": "Specifies the language.",
+                "required": true
+              },
+              "layout_id": {
+                "type": "string",
+                "description": "Specifies the layout ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "report_name": {
+                "type": "string",
+                "description": "Specifies the report name.",
+                "required": true
+              },
+              "report_period": {
+                "type": "string",
+                "description": "Specifies the report period.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the report status.",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "report_range": {
+                "block": {
+                  "attributes": {
+                    "end": {
+                      "type": "string",
+                      "description": "Specifies the end time of the data range.",
+                      "required": true
+                    },
+                    "start": {
+                      "type": "string",
+                      "description": "Specifies the start time of the data range.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the data range."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
