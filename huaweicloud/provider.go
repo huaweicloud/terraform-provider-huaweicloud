@@ -2426,6 +2426,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_soc_mappings":                    secmaster.DataSourceSocMappings(),
 			"huaweicloud_secmaster_soc_policys_search":              secmaster.DataSourceSocPolicysSearch(),
 			"huaweicloud_secmaster_soc_preprocess_rules":            secmaster.DataSourceSocPreprocessRules(),
+			"huaweicloud_secmaster_subscription_orders":             secmaster.DataSourceSubscriptionOrders(),
 			"huaweicloud_secmaster_subscription_products":           secmaster.DataSourceSubscriptionProducts(),
 			"huaweicloud_secmaster_subscription_resource":           secmaster.DataSourceSecmasterSubscriptionResource(),
 			"huaweicloud_secmaster_table_consumption":               secmaster.DataSourceTableConsumption(),
