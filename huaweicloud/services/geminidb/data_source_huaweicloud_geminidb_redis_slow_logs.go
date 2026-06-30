@@ -122,7 +122,7 @@ func dataSourceRedisSlowLogsRead(_ context.Context, d *schema.ResourceData, meta
 		httpUrl    = "v3/{project_id}/redis/instances/{instance_id}/slow-logs"
 		instanceId = d.Get("instance_id").(string)
 		lineNum    = ""
-		limit      = 3
+		limit      = 100
 		result     = make([]interface{}, 0)
 	)
 
