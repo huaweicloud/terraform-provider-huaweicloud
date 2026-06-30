@@ -8,151 +8,134 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/kafka"
 )
 
-func getDmsKafkaTopicFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
+func getResourceTopicFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.NewServiceClient("dms", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DMS client(V2): %s", err)
-	}
-	instanceID := state.Primary.Attributes["instance_id"]
-	allTopics, err := topics.List(client, instanceID).Extract()
-	if err != nil {
-		return nil, fmt.Errorf("Error listing DMS kafka topics in %s, error: %s", instanceID, err)
+		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	topicID := state.Primary.ID
-	for _, item := range allTopics {
-		if item.Name == topicID {
-			return item, nil
-		}
-	}
-
-	return nil, fmt.Errorf("can not found dms kafka topic instance")
+	return kafka.GetTopicByName(client, state.Primary.Attributes["instance_id"], state.Primary.ID)
 }
 
-func TestAccDmsKafkaTopic_basic(t *testing.T) {
-	var kafkaTopic topics.Topic
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_dms_kafka_topic.topic"
+func TestAccTopic_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceNameWithDash()
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&kafkaTopic,
-		getDmsKafkaTopicFunc,
+		obj   interface{}
+		rName = "huaweicloud_dms_kafka_topic.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getResourceTopicFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaTopic_basic(rName),
+				Config: testAccTopic_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "partitions", "10"),
-					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
-					resource.TestCheckResourceAttr(resourceName, "aging_time", "36"),
-					resource.TestCheckResourceAttr(resourceName, "sync_replication", "false"),
-					resource.TestCheckResourceAttr(resourceName, "sync_flushing", "false"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test"),
-					resource.TestCheckResourceAttrSet(resourceName, "policies_only"),
-					resource.TestCheckResourceAttrSet(resourceName, "configs.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "type"),
-					resource.TestMatchResourceAttr(resourceName, "created_at",
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_DMS_KAFKA_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "partitions", "4"),
+					resource.TestCheckResourceAttr(rName, "replicas", "3"),
+					resource.TestCheckResourceAttr(rName, "aging_time", "36"),
+					resource.TestCheckResourceAttr(rName, "sync_replication", "true"),
+					resource.TestCheckResourceAttr(rName, "sync_flushing", "true"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by Terraform script"),
+					resource.TestCheckResourceAttr(rName, "configs.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "configs.*", map[string]string{
+						"name":  "max.message.bytes",
+						"value": "10000000",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "configs.*", map[string]string{
+						"name":  "message.timestamp.type",
+						"value": "LogAppendTime",
+					}),
+					resource.TestCheckResourceAttrSet(rName, "policies_only"),
+					resource.TestCheckResourceAttrSet(rName, "type"),
+					resource.TestMatchResourceAttr(rName, "created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
-				Config: testAccDmsKafkaTopic_update_part1(rName),
+				Config: testAccTopic_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "partitions", "20"),
-					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
-					resource.TestCheckResourceAttr(resourceName, "aging_time", "72"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "partitions", "5"),
+					resource.TestCheckResourceAttr(rName, "replicas", "3"),
+					resource.TestCheckResourceAttr(rName, "description", "Updated by Terraform script"),
+					resource.TestCheckResourceAttr(rName, "aging_time", "72"),
+					resource.TestCheckResourceAttr(rName, "sync_replication", "false"),
+					resource.TestCheckResourceAttr(rName, "sync_flushing", "false"),
+					resource.TestCheckResourceAttr(rName, "configs.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "configs.*", map[string]string{
+						"name":  "max.message.bytes",
+						"value": "10000001",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "configs.*", map[string]string{
+						"name":  "message.timestamp.type",
+						"value": "CreateTime",
+					}),
 				),
 			},
 			{
-				Config: testAccDmsKafkaTopic_update_part2(rName),
+				Config: testAccTopic_basic_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "partitions", "20"),
-					resource.TestCheckResourceAttr(resourceName, "replicas", "3"),
-					resource.TestCheckResourceAttr(resourceName, "aging_time", "72"),
-					resource.TestCheckResourceAttr(resourceName, "sync_replication", "true"),
-					resource.TestCheckResourceAttr(resourceName, "sync_flushing", "true"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "partitions", "5"),
+					resource.TestCheckResourceAttr(rName, "replicas", "3"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "aging_time", "72"),
+					resource.TestCheckResourceAttr(rName, "sync_replication", "true"),
+					resource.TestCheckResourceAttr(rName, "sync_flushing", "true"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccKafkaTopicImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccTopicImportStateFunc(rName),
 			},
 		},
 	})
 }
 
-// testAccKafkaTopicImportStateFunc is used to import the resource
-func testAccKafkaTopicImportStateFunc(name string) resource.ImportStateIdFunc {
+func testAccTopicImportStateFunc(rName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		instance, ok := s.RootModule().Resources["huaweicloud_dms_kafka_instance.test"]
+		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("DMS kafka instance not found")
-		}
-		topic, ok := s.RootModule().Resources[name]
-		if !ok {
-			return "", fmt.Errorf("DMS kafka topic not found")
+			return "", fmt.Errorf("resource (%s) not found", rName)
 		}
 
-		return fmt.Sprintf("%s/%s", instance.Primary.ID, topic.Primary.ID), nil
+		instanceId := rs.Primary.Attributes["instance_id"]
+		topicName := rs.Primary.ID
+		if instanceId == "" || topicName == "" {
+			return "", fmt.Errorf("missing some attributes, want '<instance_id>/<name>', but got '%s/%s'", instanceId, topicName)
+		}
+
+		return fmt.Sprintf("%s/%s", instanceId, topicName), nil
 	}
 }
 
-func testAccDmsKafkaTopic_basic(rName string) string {
+func testAccTopic_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  partitions  = 10
-  aging_time  = 36
-  description = "test"
-}
-`, testAccKafkaInstance_newFormat(rName), rName)
-}
-
-func testAccDmsKafkaTopic_update_part1(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  partitions  = 20
-  aging_time  = 72
-}
-`, testAccKafkaInstance_newFormat(rName), rName)
-}
-
-func testAccDmsKafkaTopic_update_part2(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id      = huaweicloud_dms_kafka_instance.test.id
-  name             = "%s"
-  partitions       = 20
-  aging_time       = 72
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id      = "%[1]s"
+  name             = "%[2]s"
+  partitions       = 4
+  aging_time       = 36
+  description      = "Created by Terraform script"
   sync_flushing    = true
   sync_replication = true
 
@@ -160,82 +143,130 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
     name  = "max.message.bytes"
     value = "10000000"
   }
-
   configs {
     name  = "message.timestamp.type"
     value = "LogAppendTime"
   }
 }
-`, testAccKafkaInstance_newFormat(rName), rName)
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
 }
 
-func TestAccDmsKafkaTopic_test_update_partition(t *testing.T) {
-	var kafkaTopic topics.Topic
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_dms_kafka_topic.topic"
+func testAccTopic_basic_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id      = "%[1]s"
+  name             = "%[2]s"
+  partitions       = 5
+  aging_time       = 72
+  description      = "Updated by Terraform script"
+  sync_flushing    = false
+  sync_replication = false
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&kafkaTopic,
-		getDmsKafkaTopicFunc,
+  configs {
+    name  = "max.message.bytes"
+    value = "10000001"
+  }
+  configs {
+    name  = "message.timestamp.type"
+    value = "CreateTime"
+  }
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
+}
+
+func testAccTopic_basic_step3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id      = "%[1]s"
+  name             = "%[2]s"
+  partitions       = 5
+  aging_time       = 72
+  sync_flushing    = true
+  sync_replication = true
+
+  configs {
+    name  = "max.message.bytes"
+    value = "10000001"
+  }
+  configs {
+    name  = "message.timestamp.type"
+    value = "CreateTime"
+  }
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
+}
+
+func TestAccTopic_new_partition_brokers(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceNameWithDash()
+
+		obj   interface{}
+		rName = "huaweicloud_dms_kafka_topic.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getResourceTopicFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaTopic_testUpdatePartitionsBasic(rName, 3),
+				Config: testAccTopic_new_partition_brokers_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestMatchResourceAttr(rName, "configs.#", regexp.MustCompile(`^[1-9]\d*$`)),
+					resource.TestCheckResourceAttr(rName, "partitions", "4"),
 				),
 			},
 			{
-				Config: testAccDmsKafkaTopic_testUpdatePartitionsBasic(rName, 5),
+				Config: testAccTopic_new_partition_brokers_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "partitions", "5"),
 				),
 			},
 			{
-				Config:      testAccDmsKafkaTopic_testError(rName, 3),
+				Config:      testAccTopic_new_partition_brokers_step3(name),
 				ExpectError: regexp.MustCompile(`only support to add partitions`),
-			},
-			{
-				Config: testAccDmsKafkaTopic_testError(rName, 7),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "partitions", "7"),
-				),
 			},
 		},
 	})
 }
 
-func testAccDmsKafkaTopic_testUpdatePartitionsBasic(rName string, partitions int) string {
+func testAccTopic_new_partition_brokers_step1(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  partitions  = %v
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  partitions  = 4
   replicas    = 1
 }
-`, testAccKafkaInstance_newFormat(rName), rName, partitions)
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
 }
 
-func testAccDmsKafkaTopic_testError(rName string, partitions int) string {
+func testAccTopic_new_partition_brokers_step2(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dms_kafka_topic" "topic" {
-  instance_id           = huaweicloud_dms_kafka_instance.test.id
-  name                  = "%s"
-  partitions            = %v
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id           = "%[1]s"
+  name                  = "%[2]s"
+  partitions            = 5
   replicas              = 1
   new_partition_brokers = [0]
 }
-`, testAccKafkaInstance_newFormat(rName), rName, partitions)
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
+}
+
+func testAccTopic_new_partition_brokers_step3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id           = "%[1]s"
+  name                  = "%[2]s"
+  partitions            = 3
+  replicas              = 1
+  new_partition_brokers = [0]
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
 }
