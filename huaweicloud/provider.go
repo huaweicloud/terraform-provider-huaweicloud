@@ -4312,6 +4312,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_code_table_values":       dataarts.ResourceArchitectureCodeTableValues(),
 			"huaweicloud_dataarts_architecture_data_standard":           dataarts.ResourceArchitectureDataStandard(),
 			"huaweicloud_dataarts_architecture_data_standard_template":  dataarts.ResourceArchitectureDataStandardTemplate(),
+			"huaweicloud_dataarts_architecture_dimension":               dataarts.ResourceArchitectureDimension(),
 			"huaweicloud_dataarts_architecture_directory":               dataarts.ResourceArchitectureDirectory(),
 			"huaweicloud_dataarts_architecture_model":                   dataarts.ResourceArchitectureModel(),
 			"huaweicloud_dataarts_architecture_process":                 dataarts.ResourceArchitectureProcess(),
