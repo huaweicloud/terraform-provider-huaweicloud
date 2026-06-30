@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_job_v5
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/jobs:
+        POST:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}:
+        DELETE:
+            tag: DRS
+        GET:
+            tag: DRS
