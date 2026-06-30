@@ -218,6 +218,14 @@ func ResourceDliQueue() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"resource_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
 			"management_subnet_cidr": {
 				Type:       schema.TypeString,
@@ -369,6 +377,8 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("resource_mode", queueDetail.ResourceMode),
 		d.Set("feature", queueDetail.Feature),
 		d.Set("create_time", queueDetail.CreateTime),
+		d.Set("owner", queueDetail.Owner),
+		d.Set("resource_id", queueDetail.ResourceId),
 		d.Set("vpc_cidr", queueDetail.CidrInVpc),
 		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
 		d.Set("tags", d.Get("tags")),
