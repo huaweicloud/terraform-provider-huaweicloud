@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceDmsKafkaMessages_basic(t *testing.T) {
+func TestAccDataSourceMessages_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_dms_kafka_messages.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
@@ -19,11 +19,12 @@ func TestAccDataSourceDmsKafkaMessages_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceDmsKafkaMessages_basic(rName),
+				Config: testAccDataSourceMessages_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "messages.#"),
@@ -39,7 +40,34 @@ func TestAccDataSourceDmsKafkaMessages_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceDmsKafkaMessages_basic(name string) string {
+func testAccDataSourceMessages_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  partitions  = 3
+}
+
+resource "huaweicloud_dms_kafka_message_produce" "test" {
+  depends_on = [huaweicloud_dms_kafka_topic.test]
+
+  instance_id = huaweicloud_dms_kafka_topic.test.instance_id
+  topic       = huaweicloud_dms_kafka_topic.test.name
+  body        = "test"
+
+  property_list {
+    name  = "KEY"
+    value = "testKey"
+  }
+
+  property_list {
+    name  = "PARTITION"
+    value = "1"
+  }
+}`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
+}
+
+func testAccDataSourceMessages_basic(name string) string {
 	startTime := strconv.FormatInt(time.Now().UnixMilli(), 10)
 	endTime := strconv.FormatInt(time.Now().Add(1*time.Hour).UnixMilli(), 10)
 	return fmt.Sprintf(`
@@ -48,8 +76,8 @@ func testDataSourceDataSourceDmsKafkaMessages_basic(name string) string {
 data "huaweicloud_dms_kafka_messages" "test" {
   depends_on = [huaweicloud_dms_kafka_message_produce.test]
 
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  topic       = huaweicloud_dms_kafka_topic.topic.name
+  instance_id = huaweicloud_dms_kafka_topic.test.instance_id
+  topic       = huaweicloud_dms_kafka_topic.test.name
   start_time  = "%[2]s"
   end_time    = "%[3]s"
   download    = false
@@ -59,8 +87,8 @@ data "huaweicloud_dms_kafka_messages" "test" {
 data "huaweicloud_dms_kafka_messages" "by_keyword" {
   depends_on = [huaweicloud_dms_kafka_message_produce.test]
 
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  topic       = huaweicloud_dms_kafka_topic.topic.name
+  instance_id = huaweicloud_dms_kafka_topic.test.instance_id
+  topic       = huaweicloud_dms_kafka_topic.test.name
   start_time  = "%[2]s"
   end_time    = "%[3]s"
   download    = false
@@ -74,8 +102,8 @@ output "by_keyword_validation" {
 data "huaweicloud_dms_kafka_messages" "by_offset" {
   depends_on = [huaweicloud_dms_kafka_message_produce.test]
   
-  instance_id    = huaweicloud_dms_kafka_instance.test.id
-  topic          = huaweicloud_dms_kafka_topic.topic.name
+  instance_id    = huaweicloud_dms_kafka_topic.test.instance_id
+  topic          = huaweicloud_dms_kafka_topic.test.name
   partition      = 1
   message_offset = 0
 }
@@ -85,5 +113,5 @@ output "by_offset_validation" {
     [for v in data.huaweicloud_dms_kafka_messages.by_offset.messages[*].message_offset : v == 0]
   )
 }
-`, testAccKafkaMessageProduce_basic(name), startTime, endTime)
+`, testAccDataSourceMessages_base(name), startTime, endTime)
 }

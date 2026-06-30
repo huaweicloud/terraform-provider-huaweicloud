@@ -3702,7 +3702,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafkav2_smart_connect_task":              kafka.ResourceDmsKafkav2SmartConnectTask(),
 			"huaweicloud_dms_kafka_smart_connect_task_action":         kafka.ResourceDmsKafkaSmartConnectTaskAction(),
 			"huaweicloud_dms_kafka_smart_connector_validate":          kafka.ResourceSmartConnectorValidate(),
-			"huaweicloud_dms_kafka_topic":                             kafka.ResourceDmsKafkaTopic(),
+			"huaweicloud_dms_kafka_topic":                             kafka.ResourceTopic(),
 			"huaweicloud_dms_kafka_topic_message_batch_delete":        kafka.ResourceTopicMessageBatchDelete(),
 			"huaweicloud_dms_kafka_topic_quota":                       kafka.ResourceTopicQuota(),
 			"huaweicloud_dms_kafka_user":                              kafka.ResourceDmsKafkaUser(),
