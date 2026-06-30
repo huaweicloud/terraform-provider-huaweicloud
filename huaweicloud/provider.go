@@ -1534,6 +1534,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_influxdb_slow_logs":            geminidb.DataSourceInfluxdbSlowLogs(),
 			"huaweicloud_geminidb_instances":                     geminidb.DataSourceInstances(),
 			"huaweicloud_geminidb_instances_by_tags":             geminidb.DataSourceInstancesByTags(),
+			"huaweicloud_geminidb_instance_databases":            geminidb.DataSourceGeminiDBInstanceDatabases(),
 			"huaweicloud_geminidb_instance_parameters_histories": geminidb.DataSourceGeminiDBInstanceParametersHistories(),
 			"huaweicloud_geminidb_instance_sessions":             geminidb.DataSourceInstanceSessions(),
 			"huaweicloud_geminidb_memory_mappings":               geminidb.DataSourceMemoryMappings(),
