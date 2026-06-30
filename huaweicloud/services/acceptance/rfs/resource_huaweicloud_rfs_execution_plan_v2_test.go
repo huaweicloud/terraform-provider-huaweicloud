@@ -19,14 +19,14 @@ func getExecutionPlanV2ResourceFunc(cfg *config.Config, state *terraform.Resourc
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate UUID: %s", err)
 	}
 
 	stackName := state.Primary.Attributes["stack_name"]
 	executionPlanName := state.Primary.Attributes["execution_plan_name"]
-	return rfs.ReadExecutionPlanV2Detail(client, uuid, stackName, executionPlanName)
+	return rfs.ReadExecutionPlanV2Detail(client, randomUUID, stackName, executionPlanName)
 }
 
 func TestAccExecutionPlanV2_basic(t *testing.T) {

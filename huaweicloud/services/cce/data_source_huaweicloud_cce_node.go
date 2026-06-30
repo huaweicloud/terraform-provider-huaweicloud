@@ -152,8 +152,8 @@ func DataSourceNode() *schema.Resource {
 }
 
 func dataSourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("unable to create CCE client : %s", err)
 	}
@@ -211,7 +211,7 @@ func dataSourceNodeRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("public_ip", node.Status.PublicIP),
 		d.Set("private_ip", node.Status.PrivateIP),
 		d.Set("status", node.Status.Phase),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("hostname_config", flattenResourceNodeHostnameConfig(node.Spec.HostnameConfig)),
 		d.Set("enterprise_project_id", node.Spec.ServerEnterpriseProjectID),
 	)
@@ -236,7 +236,7 @@ func dataSourceNodeRead(_ context.Context, d *schema.ResourceData, meta interfac
 	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
 
 	// fetch tags from ECS instance
-	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+	computeClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating compute client: %s", err)
 	}

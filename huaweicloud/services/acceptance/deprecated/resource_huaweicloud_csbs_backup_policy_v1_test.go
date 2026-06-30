@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
@@ -75,7 +75,7 @@ func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	policyClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating csbs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -85,7 +85,7 @@ func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
 
 		_, err := policies.Get(policyClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("backup policy still exists")
+			return fmt.Errorf("the backup policy still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -96,17 +96,17 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the backup policy %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		policyClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating csbs client: %s", err)
+			return fmt.Errorf("error creating csbs client: %s", err)
 		}
 
 		found, err := policies.Get(policyClient, rs.Primary.ID).Extract()
@@ -115,7 +115,7 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("backup policy not found")
+			return fmt.Errorf("the backup policy is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*policy = *found

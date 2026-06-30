@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2FloatingIP_basic(t *testing.T) {
@@ -40,7 +41,7 @@ func testAccCheckComputeV2FloatingIPDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -50,7 +51,7 @@ func testAccCheckComputeV2FloatingIPDestroy(s *terraform.State) error {
 
 		_, err := floatingips.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("FloatingIP still exists")
+			return fmt.Errorf("the floating IP still exists, where ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -61,17 +62,17 @@ func testAccCheckComputeV2FloatingIPExists(n string, kp *floatingips.FloatingIP)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the floating IP %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := floatingips.Get(computeClient, rs.Primary.ID).Extract()
@@ -80,7 +81,7 @@ func testAccCheckComputeV2FloatingIPExists(n string, kp *floatingips.FloatingIP)
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("FloatingIP not found")
+			return fmt.Errorf("the floating IP is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*kp = *found

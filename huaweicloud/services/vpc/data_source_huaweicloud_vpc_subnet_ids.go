@@ -36,8 +36,8 @@ func DataSourceVpcSubnetIdsV1() *schema.Resource {
 }
 
 func dataSourceVpcSubnetIdsV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	subnetClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Vpc client: %s", err)
 	}
@@ -64,7 +64,7 @@ func dataSourceVpcSubnetIdsV1Read(_ context.Context, d *schema.ResourceData, met
 	d.SetId(d.Get("vpc_id").(string))
 	d.Set("ids", Subnets)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

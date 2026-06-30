@@ -291,9 +291,9 @@ func managerResourceSpecSchema() *schema.Resource {
 }
 
 func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -372,7 +372,7 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(strconv.Itoa(rst.Job.JobId))
 
-	if err = addTagsToResource(config, region, d); err != nil {
+	if err = addTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 	// run the flink jar job
@@ -440,9 +440,9 @@ func buildFlinkJarJobResourceConfigManagerResourceSpec(managerResourceSpec inter
 }
 
 func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -500,7 +500,7 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("runtime_config", d.Get("runtime_config")),
 	)
 
-	if err = setTagsToResource(config, region, d); err != nil {
+	if err = setTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -547,9 +547,9 @@ func flattenFlinkJarJobManagerResourceSpec(managerResourceSpec flinkjob.ManagerR
 }
 
 func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -571,14 +571,14 @@ func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceFlinkJarJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	if err := updateTagsToResource(config, region, d); err != nil {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	if err := updateTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if d.HasChangesExcept("tags") {
-		client, err := config.DliV1Client(region)
+		client, err := cfg.DliV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating DLI v1 client, err=%s", err)
 		}

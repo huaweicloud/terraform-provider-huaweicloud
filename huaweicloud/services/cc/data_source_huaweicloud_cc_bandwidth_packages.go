@@ -210,11 +210,11 @@ func dataSourceCcBandwidthPackagesRead(_ context.Context, d *schema.ResourceData
 		result = filter(result, resourceIDs)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(

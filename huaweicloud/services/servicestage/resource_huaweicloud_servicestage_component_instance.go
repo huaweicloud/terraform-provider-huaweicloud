@@ -994,8 +994,8 @@ func buildInstanceCreateOpts(d *schema.ResourceData) (instances.CreateOpts, erro
 }
 
 func resourceComponentInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ServiceStageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ServiceStageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -1418,9 +1418,9 @@ func flattenExternalAccesses(accesses []instances.ExternalAccessResp) []map[stri
 }
 
 func resourceComponentInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -1477,9 +1477,9 @@ func buildInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, erro
 }
 
 func resourceComponentInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -1516,9 +1516,9 @@ func resourceComponentInstanceUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceComponentInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}

@@ -1,14 +1,16 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/policies"
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVBSBackupPolicyV2() *schema.Resource {
@@ -99,7 +101,7 @@ func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
+		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
 	policyID := d.Get("id").(string)
@@ -108,11 +110,10 @@ func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 		tagsOpts := tags.ListOpts{Action: "filter", Tags: getVBSFilterTagsV2(d)}
 		querytags, err := tags.ListResources(vbsClient, tagsOpts).ExtractResources()
 		if err != nil {
-			return fmtp.Errorf("Error Querying backup policy using tags: %s ", err)
+			return fmt.Errorf("error querying backup policy using tags: %s ", err)
 		}
 		if querytags.TotalCount > 1 {
-			return fmtp.Errorf("Your tags query returned more than one result." +
-				" Please try a more specific search criteria.")
+			return errors.New("your tags query returned more than one result, please try a more specific search criteria")
 		}
 		if querytags.TotalCount > 0 {
 			policyID = querytags.Resource[0].ResourceID
@@ -126,22 +127,20 @@ func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	refinedPolicies, err := policies.List(vbsClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve policies: %s", err)
+		return fmt.Errorf("unable to retrieve policies: %s", err)
 	}
 
 	if len(refinedPolicies) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedPolicies) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	Policy := refinedPolicies[0]
 
-	logp.Printf("[INFO] Retrieved Policy using given filter %s: %+v", Policy.ID, Policy)
+	log.Printf("[INFO] Retrieved Policy using given filter %s: %+v", Policy.ID, Policy)
 	d.SetId(Policy.ID)
 
 	d.Set("name", Policy.Name)

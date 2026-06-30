@@ -19,12 +19,12 @@ func getPrivateModuleResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate UUID: %s", err)
 	}
 
-	return rfs.QueryPrivateModule(client, state.Primary.ID, uuid)
+	return rfs.QueryPrivateModule(client, state.Primary.ID, randomUUID)
 }
 
 func TestAccPrivateModule_basic(t *testing.T) {

@@ -89,11 +89,11 @@ func dataSourceServiceTrustedAgenciesRead(_ context.Context, d *schema.ResourceD
 		return diag.Errorf("error querying service trusted agencies: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

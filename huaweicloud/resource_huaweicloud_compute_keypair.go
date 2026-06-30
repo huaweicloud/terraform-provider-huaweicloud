@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -9,8 +10,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ECS DELETE /v2.1/{project_id}/os-keypairs/{name}
@@ -55,10 +54,10 @@ func ResourceComputeKeypairV2() *schema.Resource {
 }
 
 func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	pk, isExist := d.GetOk("public_key")
@@ -67,10 +66,10 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 		PublicKey: pk.(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	kp, err := keypairs.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud keypair: %s", err)
+		return fmt.Errorf("error creating keypair: %s", err)
 	}
 
 	d.SetId(kp.Name)
@@ -78,7 +77,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 	if !isExist {
 		fp := getKeyFilePath(d)
 		if err = utils.WriteToPemFile(fp, kp.PrivateKey); err != nil {
-			return fmtp.Errorf("Unable to generate private key: %s", err)
+			return fmt.Errorf("unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
 	}
@@ -95,10 +94,10 @@ func getKeyFilePath(d *schema.ResourceData) string {
 }
 
 func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	kp, err := keypairs.Get(computeClient, d.Id()).Extract()
@@ -108,21 +107,21 @@ func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("name", kp.Name)
 	d.Set("public_key", kp.PublicKey)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", GetRegion(d, cfg))
 
 	return nil
 }
 
 func resourceComputeKeypairV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	err = keypairs.Delete(computeClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud keypair: %s", err)
+		return fmt.Errorf("error deleting keypair: %s", err)
 	}
 	d.SetId("")
 	return nil

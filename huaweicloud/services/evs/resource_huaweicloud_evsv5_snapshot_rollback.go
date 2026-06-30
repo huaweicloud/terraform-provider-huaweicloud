@@ -95,11 +95,11 @@ func resourceV5SnapshotRollBackCreate(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("failed to rollback snapshot to volume: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

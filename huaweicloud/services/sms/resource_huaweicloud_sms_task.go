@@ -571,13 +571,13 @@ func operationMigrateTask(client *golangsdk.ServiceClient, id, operation string)
 }
 
 func resourceMigrateTaskCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	createBodyParams, err := buildCreateTaskBodyParams(d, config)
+	createBodyParams, err := buildCreateTaskBodyParams(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -638,8 +638,8 @@ func resourceMigrateTaskCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceMigrateTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
@@ -840,8 +840,8 @@ func getTaskRelatedPropsByOnlyUrl(client *golangsdk.ServiceClient, taskId string
 }
 
 func resourceMigrateTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
@@ -949,8 +949,8 @@ func buildUpdateTaskSpeedLimitBodyParams(rawParams []interface{}) map[string]int
 }
 
 func resourceMigrateTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	smsClient, err := config.SmsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}

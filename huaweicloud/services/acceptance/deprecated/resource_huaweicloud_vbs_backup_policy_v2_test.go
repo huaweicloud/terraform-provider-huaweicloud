@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
@@ -85,7 +85,7 @@ func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud sfs client: %s", err)
+		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -95,7 +95,7 @@ func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 
 		_, err := policies.List(vbsClient, policies.ListOpts{ID: rs.Primary.ID})
 		if err != nil {
-			return fmtp.Errorf("Backup Policy still exists")
+			return fmt.Errorf("the backup policy still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -106,17 +106,17 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the backup policy %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
+			return fmt.Errorf("error creating VBS client: %s", err)
 		}
 
 		policyList, err := policies.List(vbsClient, policies.ListOpts{ID: rs.Primary.ID})
@@ -125,7 +125,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 		}
 		found := policyList[0]
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("backup policy not found")
+			return fmt.Errorf("the backup policy is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*policy = found

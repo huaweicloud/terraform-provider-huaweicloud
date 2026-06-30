@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCSBSBackupV1_basic(t *testing.T) {
@@ -66,7 +66,7 @@ func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	backupClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating csbs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -76,7 +76,7 @@ func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 
 		_, err := backup.Get(backupClient, rs.Primary.ID).ExtractBackup()
 		if err == nil {
-			return fmtp.Errorf("Backup still exists")
+			return fmt.Errorf("the backup still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -87,17 +87,17 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Backup not found: %s", n)
+			return fmt.Errorf("the backup %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		backupClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating csbs client: %s", err)
+			return fmt.Errorf("error creating csbs client: %s", err)
 		}
 
 		found, err := backup.Get(backupClient, rs.Primary.ID).ExtractBackup()
@@ -106,7 +106,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("backup not found")
+			return fmt.Errorf("the backup is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*backups = *found

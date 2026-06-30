@@ -1,13 +1,15 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/backups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVBSBackupV2() *schema.Resource {
@@ -73,7 +75,7 @@ func dataSourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
+		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
 	listOpts := backups.ListOpts{
@@ -86,22 +88,20 @@ func dataSourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	refinedBackups, err := backups.List(vbsClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve backups: %s", err)
+		return fmt.Errorf("unable to retrieve backups: %s", err)
 	}
 
 	if len(refinedBackups) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return errors.New("your query returned no results, please change your search criteria and try again")
 	}
 
 	if len(refinedBackups) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return errors.New("your query returned more than one result, please try a more specific search criteria")
 	}
 
 	Backup := refinedBackups[0]
 
-	logp.Printf("[INFO] Retrieved Backup using given filter %s: %+v", Backup.Id, Backup)
+	log.Printf("[INFO] Retrieved Backup using given filter %s: %+v", Backup.Id, Backup)
 	d.SetId(Backup.Id)
 
 	d.Set("name", Backup.Name)

@@ -263,8 +263,8 @@ func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.Resource
 }
 
 func ResourceDliDependentPackageV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	c, err := cfg.DliV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}

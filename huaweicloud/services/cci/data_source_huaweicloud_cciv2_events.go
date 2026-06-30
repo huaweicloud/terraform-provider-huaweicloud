@@ -212,11 +212,11 @@ func dataSourceV2EventsRead(_ context.Context, d *schema.ResourceData, meta inte
 		events = utils.PathSearch("items", resp, make([]interface{}, 0)).([]interface{})
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

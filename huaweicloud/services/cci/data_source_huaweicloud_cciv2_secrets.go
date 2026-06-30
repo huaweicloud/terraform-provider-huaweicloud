@@ -115,11 +115,11 @@ func dataSourceV2SecretsRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error retrieving CCI secrets: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	secrets := utils.PathSearch("items", listSecretsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

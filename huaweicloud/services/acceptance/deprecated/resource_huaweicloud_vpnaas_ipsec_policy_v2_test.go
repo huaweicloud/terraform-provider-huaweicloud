@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
@@ -79,7 +80,7 @@ func testAccCheckIPSecPolicyV2Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_vpnaas_ipsec_policy_v2" {
@@ -87,7 +88,7 @@ func testAccCheckIPSecPolicyV2Destroy(s *terraform.State) error {
 		}
 		_, err = ipsecpolicies.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("IPSec policy (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("the IPSec policy still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -100,17 +101,17 @@ func testAccCheckIPSecPolicyV2Exists(n string, policy *ipsecpolicies.Policy) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the IPSec policy %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("error creating networking client: %s", err)
 		}
 
 		found, err := ipsecpolicies.Get(networkingClient, rs.Primary.ID).Extract()

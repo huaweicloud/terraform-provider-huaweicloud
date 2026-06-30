@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceComputeAvailabilityZonesV2() *schema.Resource {
@@ -39,16 +39,16 @@ func dataSourceComputeAvailabilityZonesV2Read(d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	allPages, err := availabilityzones.List(computeClient).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving huaweicloud_compute_availability_zones_v2: %s", err)
+		return fmt.Errorf("error retrieving _compute_availability_zones_v2: %s", err)
 	}
 	zoneInfo, err := availabilityzones.ExtractAvailabilityZones(allPages)
 	if err != nil {
-		return fmtp.Errorf("Error extracting huaweicloud_compute_availability_zones_v2 from response: %s", err)
+		return fmt.Errorf("error extracting _compute_availability_zones_v2 from response: %s", err)
 	}
 
 	stateBool := d.Get("state").(string) == "available"

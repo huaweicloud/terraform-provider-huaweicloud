@@ -2,6 +2,7 @@ package lb
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,8 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/whitelists
@@ -73,10 +72,10 @@ func ResourceWhitelistV2() *schema.Resource {
 }
 
 func resourceWhitelistV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	enableWhitelist := d.Get("enable_whitelist").(bool)
@@ -87,10 +86,10 @@ func resourceWhitelistV2Create(ctx context.Context, d *schema.ResourceData, meta
 		Whitelist:       d.Get("whitelist").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	wl, err := whitelists.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud Whitelist: %s", err)
+		return diag.Errorf("error creating whitelist: %s", err)
 	}
 
 	d.SetId(wl.ID)
@@ -98,23 +97,23 @@ func resourceWhitelistV2Create(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceWhitelistV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	wl, err := whitelists.Get(elbClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving whitelist")
+		return common.CheckDeletedDiag(d, err, "error retrieving whitelist")
 	}
 
-	logp.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
+	log.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
 
 	d.SetId(wl.ID)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("tenant_id", wl.TenantId),
 		d.Set("listener_id", wl.ListenerId),
 		d.Set("enable_whitelist", wl.EnableWhitelist),
@@ -122,17 +121,17 @@ func resourceWhitelistV2Read(_ context.Context, d *schema.ResourceData, meta int
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting whitelist fields: %s", err)
+		return diag.Errorf("error setting whitelist fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceWhitelistV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	var updateOpts whitelists.UpdateOpts
@@ -144,26 +143,26 @@ func resourceWhitelistV2Update(ctx context.Context, d *schema.ResourceData, meta
 		updateOpts.Whitelist = d.Get("whitelist").(string)
 	}
 
-	logp.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
 	_, err = whitelists.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to update whitelist %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update whitelist %s: %s", d.Id(), err)
 	}
 
 	return resourceWhitelistV2Read(ctx, d, meta)
 }
 
 func resourceWhitelistV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
 	err = whitelists.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud whitelist: %s", err)
+		return diag.Errorf("error deleting whitelist: %s", err)
 	}
 	d.SetId("")
 	return nil

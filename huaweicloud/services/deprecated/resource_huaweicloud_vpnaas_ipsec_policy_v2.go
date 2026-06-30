@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVpnIPSecPolicyV2() *schema.Resource {
@@ -111,7 +111,7 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	encapsulationMode := resourceIPSecPolicyV2EncapsulationMode(d.Get("encapsulation_mode").(string))
@@ -136,7 +136,7 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 		MapValueSpecs(d),
 	}
 
-	logp.Printf("[DEBUG] Create IPSec policy: %#v", opts)
+	log.Printf("[DEBUG] Create IPSec policy: %#v", opts)
 
 	policy, err := ipsecpolicies.Create(networkingClient, opts).Extract()
 	if err != nil {
@@ -153,7 +153,7 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 	}
 	_, err = stateConf.WaitForState()
 
-	logp.Printf("[DEBUG] IPSec policy created: %#v", policy)
+	log.Printf("[DEBUG] IPSec policy created: %#v", policy)
 
 	d.SetId(policy.ID)
 
@@ -161,12 +161,12 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Retrieve information about IPSec policy: %s", d.Id())
+	log.Printf("[DEBUG] Retrieve information about IPSec policy: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	policy, err := ipsecpolicies.Get(networkingClient, d.Id()).Extract()
@@ -174,7 +174,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 		return common.CheckDeleted(d, err, "IPSec policy")
 	}
 
-	logp.Printf("[DEBUG] Read HuaweiCloud IPSec policy %s: %#v", d.Id(), policy)
+	log.Printf("[DEBUG] Read IPSec policy %s: %#v", d.Id(), policy)
 
 	d.Set("name", policy.Name)
 	d.Set("description", policy.Description)
@@ -194,7 +194,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 	var lifetime []map[string]interface{}
 	lifetime = append(lifetime, lifetimeMap)
 	if err := d.Set("lifetime", &lifetime); err != nil {
-		logp.Printf("[WARN] unable to set IPSec policy lifetime")
+		log.Printf("[WARN] unable to set IPSec policy lifetime")
 	}
 
 	return nil
@@ -204,7 +204,7 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var hasChange bool
@@ -253,7 +253,7 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 		hasChange = true
 	}
 
-	logp.Printf("[DEBUG] Updating IPSec policy with id %s: %#v", d.Id(), opts)
+	log.Printf("[DEBUG] Updating IPSec policy with id %s: %#v", d.Id(), opts)
 
 	if hasChange {
 		_, err = ipsecpolicies.Update(networkingClient, d.Id(), opts).Extract()
@@ -277,12 +277,12 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Destroy IPSec policy: %s", d.Id())
+	log.Printf("[DEBUG] Destroy IPSec policy: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

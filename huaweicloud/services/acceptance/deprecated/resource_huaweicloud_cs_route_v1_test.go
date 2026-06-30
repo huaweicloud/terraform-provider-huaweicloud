@@ -28,7 +28,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	dep "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCsRouteV1_basic(t *testing.T) {
@@ -85,7 +84,7 @@ func testAccCheckCsRouteV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating sdk client, err=%s", err)
+		return fmt.Errorf("error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -95,7 +94,7 @@ func testAccCheckCsRouteV1Destroy(s *terraform.State) error {
 
 		_, err = fetchCsRouteV1ByListOnTest(rs, client)
 		if err == nil {
-			return fmtp.Errorf("huaweicloud_cs_route_v1 still exists")
+			return fmt.Errorf("resource %s still exists", rs.Type)
 		}
 	}
 
@@ -107,20 +106,20 @@ func testAccCheckCsRouteV1Exists() resource.TestCheckFunc {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating sdk client, err=%s", err)
+			return fmt.Errorf("error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_cs_route_v1.route"]
 		if !ok {
-			return fmtp.Errorf("Error checking huaweicloud_cs_route_v1.route exist, err=not found this resource")
+			return fmt.Errorf("error checking %s exist, err=not found this resource", rs.Type)
 		}
 
 		_, err = fetchCsRouteV1ByListOnTest(rs, client)
 		if err != nil {
 			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
-				return fmtp.Errorf("huaweicloud_cs_route_v1 is not exist")
+				return fmt.Errorf("%s is not exist", rs.Type)
 			}
-			return fmtp.Errorf("Error checking huaweicloud_cs_route_v1.route exist, err=%s", err)
+			return fmt.Errorf("error checking %s exist, err=%s", rs.Type, err)
 		}
 		return nil
 	}

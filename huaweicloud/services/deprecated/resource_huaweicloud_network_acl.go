@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -15,8 +17,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API VPC GET /v2.0/ports
@@ -100,7 +100,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	defer func() {
@@ -108,14 +108,14 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil && inboundPolicyID != "" {
 			deleteErr := policies.Delete(fwClient, inboundPolicyID).Err
 			if deleteErr != nil {
-				logp.Printf("[WARN] Error deleting inbound firewall policy %s: %s", inboundPolicyID, deleteErr)
+				log.Printf("[WARN] Error deleting inbound firewall policy %s: %s", inboundPolicyID, deleteErr)
 			}
 		}
 
 		if err != nil && outboundPolicyID != "" {
 			deleteErr := policies.Delete(fwClient, outboundPolicyID).Err
 			if deleteErr != nil {
-				logp.Printf("[WARN] Error deleting outbound firewall policy %s: %s", outboundPolicyID, deleteErr)
+				log.Printf("[WARN] Error deleting outbound firewall policy %s: %s", outboundPolicyID, deleteErr)
 			}
 		}
 	}()
@@ -130,7 +130,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 			}
 			portIds = append(portIds, port)
 		}
-		logp.Printf("[DEBUG] Will attempt to associate Firewall group with subnets: %+v", subnetsRaw)
+		log.Printf("[DEBUG] Will attempt to associate firewall group with subnets: %+v", subnetsRaw)
 	}
 
 	groupName := d.Get("name").(string)
@@ -148,13 +148,13 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 			Rules: inboundRules,
 		}
 
-		logp.Printf("[DEBUG] Create inbound firewall policy: %#v", policyOpts)
+		log.Printf("[DEBUG] Create inbound firewall policy: %#v", policyOpts)
 		policy, err := policies.Create(fwClient, policyOpts).Extract()
 		if err != nil {
 			return err
 		}
 
-		logp.Printf("[DEBUG] Firewall inbound policy created: %#v", policy)
+		log.Printf("[DEBUG] Firewall inbound policy created: %#v", policy)
 		inboundPolicyID = policy.ID
 	}
 
@@ -172,13 +172,13 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 			Rules: outboundRules,
 		}
 
-		logp.Printf("[DEBUG] Create outbound firewall policy: %#v", policyOpts)
+		log.Printf("[DEBUG] Create outbound firewall policy: %#v", policyOpts)
 		policy, err := policies.Create(fwClient, policyOpts).Extract()
 		if err != nil {
 			return err
 		}
 
-		logp.Printf("[DEBUG] Firewall outbound policy created: %#v", policy)
+		log.Printf("[DEBUG] Firewall outbound policy created: %#v", policy)
 		outboundPolicyID = policy.ID
 	}
 
@@ -197,14 +197,14 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	logp.Printf("[DEBUG] Create firewall group: %#v", createOpts)
+	log.Printf("[DEBUG] Create firewall group: %#v", createOpts)
 	group, err := firewall_groups.Create(fwClient, createOpts).Extract()
 	if err != nil {
 		return err
 	}
 
 	d.SetId(group.ID)
-	logp.Printf("[DEBUG] waiting for Firewall group (%s) to become ACTIVE", d.Id())
+	log.Printf("[DEBUG] waiting for Firewall group (%s) to become ACTIVE", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		// if none subnets was associated with the firewall group, the state will be "INACTIVE"
@@ -218,11 +218,11 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmtp.Errorf("Error waiting for Firewall group (%s) to become ACTIVE: %s",
+		return fmt.Errorf("error waiting for Firewall group (%s) to become ACTIVE: %s",
 			d.Id(), stateErr)
 	}
 
-	logp.Printf("[DEBUG] Firewall group (%s) is active.", group.ID)
+	log.Printf("[DEBUG] Firewall group (%s) is active.", group.ID)
 	return resourceNetworkACLRead(d, meta)
 }
 
@@ -230,7 +230,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	var fwGroup FirewallGroup
@@ -239,7 +239,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 		return common.CheckDeleted(d, err, "firewall")
 	}
 
-	logp.Printf("[DEBUG] Read HuaweiCloud Firewall group %s: %#v", d.Id(), fwGroup)
+	log.Printf("[DEBUG] Read Firewall group %s: %#v", d.Id(), fwGroup)
 
 	d.Set("name", fwGroup.Name)
 	d.Set("status", fwGroup.Status)
@@ -247,7 +247,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("inbound_policy_id", fwGroup.IngressPolicyID)
 	d.Set("outbound_policy_id", fwGroup.EgressPolicyID)
 	if err := d.Set("ports", fwGroup.PortIDs); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving ports to state for HuaweiCloud firewall group (%s): %s", d.Id(), err)
+		return fmt.Errorf("error saving ports to state for firewall group (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -257,7 +257,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	// first of all, inbound_policy/rules and outbound_policy/rules should be updated
@@ -297,7 +297,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			portIds = append(portIds, port)
 		}
-		logp.Printf("[DEBUG] Will attempt to associate Firewall group with subnets: %+v", subnetsRaw)
+		log.Printf("[DEBUG] Will attempt to associate Firewall group with subnets: %+v", subnetsRaw)
 
 		updateOpts = routerinsertion.UpdateOptsExt{
 			UpdateOptsBuilder: opts,
@@ -308,7 +308,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if changed {
-		logp.Printf("[DEBUG] Updating firewall with id %s: %#v", d.Id(), updateOpts)
+		log.Printf("[DEBUG] Updating firewall with id %s: %#v", d.Id(), updateOpts)
 		err = firewall_groups.Update(fwClient, d.Id(), updateOpts).Err
 		if err != nil {
 			return err
@@ -327,7 +327,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmtp.Errorf("Error updating firewall group (%s): %s", d.Id(), err)
+			return fmt.Errorf("error updating firewall group (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -335,12 +335,12 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
+	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	inboundPolicyID := d.Get("inbound_policy_id").(string)
@@ -362,21 +362,21 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting firewall group (%s): %s", d.Id(), err)
+		return fmt.Errorf("error deleting firewall group (%s): %s", d.Id(), err)
 	}
 
 	// delete firewall policies after the firewall group
 	if inboundPolicyID != "" {
 		deleteErr := policies.Delete(fwClient, inboundPolicyID).Err
 		if deleteErr != nil {
-			logp.Printf("[WARN] Error deleting inbound firewall policy %s: %s", inboundPolicyID, deleteErr)
+			log.Printf("[WARN] Error deleting inbound firewall policy %s: %s", inboundPolicyID, deleteErr)
 		}
 	}
 
 	if outboundPolicyID != "" {
 		deleteErr := policies.Delete(fwClient, outboundPolicyID).Err
 		if deleteErr != nil {
-			logp.Printf("[WARN] Error deleting outbound firewall policy %s: %s", outboundPolicyID, deleteErr)
+			log.Printf("[WARN] Error deleting outbound firewall policy %s: %s", outboundPolicyID, deleteErr)
 		}
 	}
 
@@ -390,20 +390,20 @@ func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error)
 
 	subnetClient, err := config.NetworkingV1Client(config.Region)
 	if err != nil {
-		return "", fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		return "", fmt.Errorf("error creating vpc client: %s", err)
 	}
 	networkingClient, err := config.NetworkingV2Client(config.Region)
 	if err != nil {
-		return "", fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return "", fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	// get Gateway IP
 	n, err := subnets.Get(subnetClient, subnetID).Extract()
 	if err != nil {
-		return "", fmtp.Errorf("Error retrieving Huaweicloud subnet %s: %s", subnetID, err)
+		return "", fmt.Errorf("error retrieving subnet %s: %s", subnetID, err)
 	}
 	gatewayIP = n.GatewayIP
-	logp.Printf("[DEBUG] the gateway IP address of subnet %s is %s", subnetID, gatewayIP)
+	log.Printf("[DEBUG] the gateway IP address of subnet %s is %s", subnetID, gatewayIP)
 
 	// list all ports in the subnet
 	listOpts := ports.ListOpts{
@@ -412,17 +412,17 @@ func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error)
 	}
 	allPages, err := ports.List(networkingClient, listOpts).AllPages()
 	if err != nil {
-		return "", fmtp.Errorf("Unable to list Huaweicloud ports of %s: %s", subnetID, err)
+		return "", fmt.Errorf("unable to list ports of %s: %s", subnetID, err)
 	}
 
 	var allPorts []ports.Port
 	err = ports.ExtractPortsInto(allPages, &allPorts)
 	if err != nil {
-		return "", fmtp.Errorf("Unable to retrieve Huaweicloud ports of %s: %s", subnetID, err)
+		return "", fmt.Errorf("unable to retrieve ports of %s: %s", subnetID, err)
 	}
 
 	if len(allPorts) == 0 {
-		return "", fmtp.Errorf("No ports was found in %s", subnetID)
+		return "", fmt.Errorf("no ports was found in %s", subnetID)
 	}
 
 	// Filter IPs by the gatewayIP
@@ -432,7 +432,7 @@ func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error)
 			if ipObject.IPAddress == gatewayIP {
 				isExist = true
 				gatewayPort = p.ID
-				logp.Printf("[DEBUG] the gateway port of subnet %s is %s", subnetID, gatewayPort)
+				log.Printf("[DEBUG] the gateway port of subnet %s is %s", subnetID, gatewayPort)
 				break
 			}
 		}
@@ -441,7 +441,7 @@ func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error)
 		}
 	}
 	if !isExist {
-		return "", fmtp.Errorf("No gateway port was found in %s", subnetID)
+		return "", fmt.Errorf("no gateway port was found in %s", subnetID)
 	}
 
 	return gatewayPort, nil
@@ -475,10 +475,10 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 			Rules: rulesList,
 		}
 
-		logp.Printf("[DEBUG] updating firewall policy with id %s: %#v", policyID, policyOpts)
+		log.Printf("[DEBUG] updating firewall policy with id %s: %#v", policyID, policyOpts)
 		err := policies.Update(client, policyID, policyOpts).Err
 		if err != nil {
-			return fmtp.Errorf("Error updating firewall policy %s: %s", policyID, err)
+			return fmt.Errorf("error updating firewall policy %s: %s", policyID, err)
 		}
 	} else {
 		// create new firewall policy
@@ -487,10 +487,10 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 			Rules: rulesList,
 		}
 
-		logp.Printf("[DEBUG] Create firewall policy: %#v", policyOpts)
+		log.Printf("[DEBUG] Create firewall policy: %#v", policyOpts)
 		policy, err := policies.Create(client, policyOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error creating firewall policy: %s", err)
+			return fmt.Errorf("error creating firewall policy: %s", err)
 		}
 
 		//lintignore:R001

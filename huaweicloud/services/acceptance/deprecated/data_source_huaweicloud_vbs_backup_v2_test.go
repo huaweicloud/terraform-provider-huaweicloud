@@ -1,13 +1,14 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVBSBackupV2DataSource_basic(t *testing.T) {
@@ -31,11 +32,11 @@ func testAccCheckVBSBackupV2DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find backup data source: %s ", n)
+			return fmt.Errorf("can't find backup data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("VBS backup data source ID not set ")
+			return errors.New("the VBS backup data source is not set")
 		}
 
 		return nil

@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"testing"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMaasTask_basic(t *testing.T) {
@@ -36,7 +36,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	maasClient, err := config.MaasV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud maas client: %s", err)
+		return fmt.Errorf("error creating maas client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -46,7 +46,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 
 		_, err := task.Get(maasClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Maas task still exists")
+			return fmt.Errorf("the Maas task still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -57,17 +57,17 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the Maas task %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		maasClient, err := config.MaasV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud maas client: %s", err)
+			return fmt.Errorf("error creating maas client: %s", err)
 		}
 
 		found, err := task.Get(maasClient, rs.Primary.ID).Extract()
@@ -76,7 +76,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 		}
 
 		if strconv.FormatInt(found.ID, 10) != rs.Primary.ID {
-			return fmtp.Errorf("Task not found")
+			return fmt.Errorf("the Maas task is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		return nil

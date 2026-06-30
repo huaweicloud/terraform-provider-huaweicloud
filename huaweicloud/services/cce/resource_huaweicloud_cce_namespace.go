@@ -2,6 +2,8 @@ package cce
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -15,8 +17,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE DELETE /api/v1/namespaces/{name}
@@ -87,10 +87,10 @@ func ResourceCCENamespaceV1() *schema.Resource {
 }
 
 func resourceCCENamespaceV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
+		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -107,7 +107,7 @@ func resourceCCENamespaceV1Create(ctx context.Context, d *schema.ResourceData, m
 
 	namespace, err := namespaces.Create(client, clusterID, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE namespace: %s", err)
+		return diag.Errorf("error creating CCE namespace: %s", err)
 	}
 	d.SetId(namespace.Metadata.UID)
 	d.Set("name", namespace.Metadata.Name)
@@ -116,10 +116,10 @@ func resourceCCENamespaceV1Create(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
+		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
 	clusterId := d.Get("cluster_id").(string)
@@ -127,7 +127,7 @@ func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta 
 
 	namespace, err := namespaces.Get(client, clusterId, name).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud cce namespace")
+		return common.CheckDeletedDiag(d, err, "error retrieving CCE namespace")
 	}
 
 	labels := map[string]interface{}{}
@@ -141,7 +141,7 @@ func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("prefix", namespace.Metadata.GenerateName),
 		d.Set("labels", labels),
 		d.Set("annotations", annotations),
@@ -149,23 +149,23 @@ func resourceCCENamespaceV1Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("status", namespace.Status.Phase),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cce namespace fields: %s", err)
+		return diag.Errorf("error setting CCE namespace fields: %s", err)
 	}
 	return nil
 }
 
 func resourceCCENamespaceV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Client: %s", err)
+		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
 	name := d.Get("name").(string)
 	namespace, err := namespaces.Delete(client, clusterID, name).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting the specifies CCE namespace (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting the specifies CCE namespace (%s): %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -179,8 +179,7 @@ func resourceCCENamespaceV1Delete(ctx context.Context, d *schema.ResourceData, m
 
 	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.DiagErrorf(
-			"Error waiting for cce namespace (%s) to become DELETED: %s",
+		return diag.Errorf("error waiting for CCE namespace (%s) to become DELETED: %s",
 			namespace.Metadata.UID, stateErr)
 	}
 
@@ -193,7 +192,7 @@ func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name stri
 		namespace, err := namespaces.Get(client, clusterID, name).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Huaweicloud CCE namespace %s", namespace.Metadata.UID)
+				log.Printf("[INFO] Successfully deleted CCE namespace %s", namespace.Metadata.UID)
 				return namespace, "DELETED", nil
 			}
 			return namespace, "ACTIVE", err
@@ -204,15 +203,16 @@ func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name stri
 
 func resourceCCENamespaceV1Import(context context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*config.Config)
-	client, err := config.CceV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud CCE v1 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating CCE v1 client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
+	importedId := d.Id()
+	parts := strings.SplitN(importedId, "/", 2)
 	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <cluster_id>/<name>")
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<cluster_id>/<name>', but got '%s'", importedId)
 	}
 	clsuterId := parts[0]
 	name := parts[1]

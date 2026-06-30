@@ -139,11 +139,11 @@ func resourceWorkloadQueuesRead(_ context.Context, d *schema.ResourceData, meta 
 	queuesListJson := utils.PathSearch("workload_queue_name_list", getRespBody, make([]interface{}, 0))
 	queuesList := queuesListJson.([]interface{})
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

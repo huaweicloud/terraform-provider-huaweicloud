@@ -100,8 +100,8 @@ func ResourceNetworkingVip() *schema.Resource {
 }
 
 func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
@@ -194,9 +194,9 @@ func parseNetworkVipStatus(status string) string {
 }
 
 func resourceNetworkingVipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
@@ -222,8 +222,8 @@ func resourceNetworkingVipRead(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceNetworkingVipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}
@@ -242,8 +242,8 @@ func resourceNetworkingVipUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC network v1 client: %s", err)
 	}

@@ -459,11 +459,11 @@ func dataSourceV2DeploymentsRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error retrieving CCI deployments: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	deployments := utils.PathSearch("items", listDeploymentsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCTSTrackerV1_basic(t *testing.T) {
@@ -51,7 +52,7 @@ func testAccCheckCTSTrackerV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
 	if err != nil {
-		return fmtp.Errorf("Error creating cts client: %s", err)
+		return fmt.Errorf("error creating CTS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -61,7 +62,7 @@ func testAccCheckCTSTrackerV1Destroy(s *terraform.State) error {
 
 		_, err := tracker.List(ctsClient, tracker.ListOpts{TrackerName: rs.Primary.ID})
 		if err != nil {
-			return fmtp.Errorf("cts tracker still exists")
+			return fmt.Errorf("the CTS tracker still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -75,17 +76,17 @@ func testAccCheckCTSTrackerV1Exists(n string, trackers *tracker.Tracker) resourc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the CTS tracker %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
 		if err != nil {
-			return fmtp.Errorf("Error creating cts client: %s", err)
+			return fmt.Errorf("error creating CTS client: %s", err)
 		}
 
 		trackerList, err := tracker.List(ctsClient, tracker.ListOpts{TrackerName: rs.Primary.ID})
@@ -94,7 +95,7 @@ func testAccCheckCTSTrackerV1Exists(n string, trackers *tracker.Tracker) resourc
 		}
 		found := trackerList[0]
 		if found.TrackerName != rs.Primary.ID {
-			return fmtp.Errorf("cts tracker not found")
+			return fmt.Errorf("the CTS tracker is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*trackers = found

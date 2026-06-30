@@ -30,7 +30,6 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // ErrorResp is the response when API failed
@@ -69,14 +68,14 @@ func GetEipIDbyAddress(client *golangsdk.ServiceClient, address, epsID string) (
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return "", fmtp.Errorf("Unable to retrieve eips: %s ", err)
+		return "", fmt.Errorf("unable to retrieve eips: %s ", err)
 	}
 
 	total := len(allEips)
 	if total == 0 {
-		return "", fmtp.Errorf("queried none results with %s", address)
+		return "", fmt.Errorf("queried none results with %s", address)
 	} else if total > 1 {
-		return "", fmtp.Errorf("queried more results with %s", address)
+		return "", fmt.Errorf("queried more results with %s", address)
 	}
 
 	return allEips[0].ID, nil
@@ -90,7 +89,7 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 		return nil
 	}
 
-	return fmtp.Errorf("%s: %s", msg, err)
+	return fmt.Errorf("%s: %s", msg, err)
 }
 
 // CheckDeletedDiag checks the error to see if it's a 404 (Not Found) and, if so,
@@ -118,14 +117,14 @@ func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagno
 		}
 	}
 
-	return fmtp.DiagErrorf("%s: %s", msg, err)
+	return diag.Errorf("%s: %s", msg, err)
 }
 
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
 func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
 	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		return fmt.Errorf("error creating bss V2 client: %s", err)
 	}
 
 	unsubscribeOpts := orders.UnsubscribeOpts{
@@ -355,7 +354,7 @@ func GetEipsbyAddresses(client *golangsdk.ServiceClient, addresses []string, eps
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return nil, fmtp.Errorf("Unable to retrieve eips: %s ", err)
+		return nil, fmt.Errorf("unable to retrieve eips: %s ", err)
 	}
 	return allEips, nil
 }

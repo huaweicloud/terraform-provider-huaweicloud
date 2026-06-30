@@ -109,11 +109,11 @@ func resourceComponentActionCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error executing component action: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return resourceComponentActionRead(ctx, d, meta)
 }

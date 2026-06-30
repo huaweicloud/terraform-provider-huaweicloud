@@ -156,8 +156,8 @@ func getNetworkingPortOpts(d *schema.ResourceData) ports.ListOpts {
 }
 
 func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating networking client: %s", err)
 	}
@@ -234,7 +234,7 @@ func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData,
 	d.Set("mac_address", port.MACAddress)
 	d.Set("device_owner", port.DeviceOwner)
 	d.Set("device_id", port.DeviceID)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 	d.Set("all_security_group_ids", port.SecurityGroups)
 	d.Set("all_allowed_ips", expandNetworkingPortAllowedAddressPairToStringSlice(port.AllowedAddressPairs))
 	d.Set("all_fixed_ips", expandNetworkingPortFixedIPToStringSlice(port.FixedIPs))

@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -15,8 +17,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsInstancesV1() *schema.Resource {
@@ -175,7 +175,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
+		return fmt.Errorf("error creating DMS client: %s", err)
 	}
 
 	ssl_enable := false
@@ -202,15 +202,15 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		SslEnable:       ssl_enable,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	v, err := instances.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud instance: %s", err)
+		return fmt.Errorf("error creating DMS instance: %s", err)
 	}
-	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
+	log.Printf("[INFO] instance ID: %s", v.InstanceID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
@@ -222,9 +222,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for instance (%s) to become ready: %s",
-			v.InstanceID, err)
+		return fmt.Errorf("error waiting for DMS instance (%s) to become ready: %s", v.InstanceID, err)
 	}
 
 	// Store the instance ID now
@@ -235,13 +233,13 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	if len(tagRaw) > 0 {
 		dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
+			return fmt.Errorf("error creating DMS v2 client: %s", err)
 		}
 
 		taglist := utils.ExpandResourceTags(tagRaw)
 		engine := d.Get("engine").(string)
 		if tagErr := tags.Create(dmsV2Client, engine, v.InstanceID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of dms instance %s: %s", v.InstanceID, tagErr)
+			return fmt.Errorf("error setting tags of DMS instance %s: %s", v.InstanceID, tagErr)
 		}
 	}
 
@@ -253,14 +251,14 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
+		return fmt.Errorf("error creating DMS client: %s", err)
 	}
 	v, err := instances.Get(dmsV1Client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "DMS instance")
 	}
 
-	logp.Printf("[DEBUG] Dms instance %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] DMS instance %s: %+v", d.Id(), v)
 
 	d.SetId(v.InstanceID)
 	d.Set("name", v.Name)
@@ -290,17 +288,17 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	// set tags
 	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
+		return fmt.Errorf("error creating DMS instance v2 client: %s", err)
 	}
 
 	engine := d.Get("engine").(string)
 	if resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for dms instance (%s): %s", d.Id(), err)
+			return fmt.Errorf("error saving tags to state for DMS instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of dms instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of DMS instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -313,7 +311,7 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
 		dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud dms instance client: %s", err)
+			return fmt.Errorf("error updating DMS instance client: %s", err)
 		}
 
 		var updateOpts instances.UpdateOpts
@@ -339,20 +337,20 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 
 		err = instances.Update(dmsV1Client, d.Id(), updateOpts).Err
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud Dms Instance: %s", err)
+			return fmt.Errorf("error updating DMS instance: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error updating HuaweiCloud dms instance v2 client: %s", err)
+			return fmt.Errorf("error updating DMS instance v2 client: %s", err)
 		}
 		// update tags
 		engine := d.Get("engine").(string)
 		tagErr := utils.UpdateResourceTags(dmsV2Client, d, engine, d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of dms instance:%s, err:%s", d.Id(), tagErr)
+			return fmt.Errorf("error updating tags of DMS instance:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -363,7 +361,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
+		return fmt.Errorf("error creating DMS instance client: %s", err)
 	}
 
 	_, err = instances.Get(dmsV1Client, d.Id()).Extract()
@@ -373,11 +371,11 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 
 	err = instances.Delete(dmsV1Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud instance: %s", err)
+		return fmt.Errorf("error deleting DMS instance: %s", err)
 	}
 
 	// Wait for the instance to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"DELETING", "RUNNING"},
@@ -390,12 +388,10 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+		return fmt.Errorf("error waiting for DMS instance (%s) to delete: %s", d.Id(), err)
 	}
 
-	logp.Printf("[DEBUG] Dms instance %s deactivated.", d.Id())
+	log.Printf("[DEBUG] DMS instance %s deactivated.", d.Id())
 	d.SetId("")
 	return nil
 }

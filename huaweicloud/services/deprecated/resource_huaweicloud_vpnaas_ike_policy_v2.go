@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVpnIKEPolicyV2() *schema.Resource {
@@ -110,7 +110,7 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	lifetime := resourceIKEPolicyV2LifetimeCreateOpts(d.Get("lifetime").(*schema.Set))
@@ -134,7 +134,7 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 		},
 		MapValueSpecs(d),
 	}
-	logp.Printf("[DEBUG] Create IKE policy: %#v", opts)
+	log.Printf("[DEBUG] Create IKE policy: %#v", opts)
 
 	policy, err := ikepolicies.Create(networkingClient, opts).Extract()
 	if err != nil {
@@ -151,7 +151,7 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 	_, err = stateConf.WaitForState()
 
-	logp.Printf("[DEBUG] IKE policy created: %#v", policy)
+	log.Printf("[DEBUG] IKE policy created: %#v", policy)
 
 	d.SetId(policy.ID)
 
@@ -159,12 +159,12 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Retrieve information about IKE policy: %s", d.Id())
+	log.Printf("[DEBUG] Retrieve information about IKE policy: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	policy, err := ikepolicies.Get(networkingClient, d.Id()).Extract()
@@ -172,7 +172,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 		return common.CheckDeleted(d, err, "IKE policy")
 	}
 
-	logp.Printf("[DEBUG] Read HuaweiCloud IKE Policy %s: %#v", d.Id(), policy)
+	log.Printf("[DEBUG] Read IKE Policy %s: %#v", d.Id(), policy)
 
 	d.Set("name", policy.Name)
 	d.Set("description", policy.Description)
@@ -192,7 +192,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 	var lifetime []map[string]interface{}
 	lifetime = append(lifetime, lifetimeMap)
 	if err := d.Set("lifetime", &lifetime); err != nil {
-		logp.Printf("[WARN] unable to set IKE policy lifetime")
+		log.Printf("[WARN] unable to set IKE policy lifetime")
 	}
 
 	return nil
@@ -202,7 +202,7 @@ func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	opts := ikepolicies.UpdateOpts{}
@@ -248,7 +248,7 @@ func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) erro
 		hasChange = true
 	}
 
-	logp.Printf("[DEBUG] Updating IKE policy with id %s: %#v", d.Id(), opts)
+	log.Printf("[DEBUG] Updating IKE policy with id %s: %#v", d.Id(), opts)
 
 	if hasChange {
 		err = ikepolicies.Update(networkingClient, d.Id(), opts).Err
@@ -272,12 +272,12 @@ func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVpnIKEPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Destroy IKE policy: %s", d.Id())
+	log.Printf("[DEBUG] Destroy IKE policy: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

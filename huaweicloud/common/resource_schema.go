@@ -1,10 +1,10 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // TagsSchema returns the schema to use for tags.
@@ -136,7 +136,7 @@ func SchemaAutoPay(conflicts []string) *schema.Schema {
 
 func ValidatePrePaidChargeInfo(d *schema.ResourceData) error {
 	if _, ok := d.GetOk("period_unit"); !ok {
-		return fmtp.Errorf("both of `period, period_unit` must be specified in prePaid charging mode")
+		return fmt.Errorf("both of `period, period_unit` must be specified in prePaid charging mode")
 	}
 	return nil
 }

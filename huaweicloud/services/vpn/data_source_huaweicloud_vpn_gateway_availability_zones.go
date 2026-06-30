@@ -87,11 +87,11 @@ func resourceVpnGatewayAZsRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	flavor := strings.ToLower(d.Get("flavor").(string))
 	attachmentType := d.Get("attachment_type").(string)

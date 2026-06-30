@@ -105,11 +105,11 @@ func dataSourceV3InnerRuntimeStacksRead(_ context.Context, d *schema.ResourceDat
 		return diag.Errorf("error getting inner runtime stacks: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

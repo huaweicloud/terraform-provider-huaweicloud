@@ -32,7 +32,7 @@ func getSfsAccessRuleResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		}
 	}
 
-	return nil, fmt.Errorf("the sfs access rule %s does not exist", resourceID)
+	return nil, fmt.Errorf("the SFS access rule %s does not exist", resourceID)
 }
 
 func TestAccSFSAccessRuleV2_basic(t *testing.T) {

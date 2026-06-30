@@ -84,11 +84,11 @@ func resourceIdentityCenterUserSessionDeleteCreate(_ context.Context, d *schema.
 		return diag.Errorf("error deleting Identity Center user sessions: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

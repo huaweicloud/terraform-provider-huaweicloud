@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVpnEndpointGroupV2() *schema.Resource {
@@ -81,7 +81,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	var createOpts endpointgroups.CreateOptsBuilder
@@ -104,7 +104,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 		MapValueSpecs(d),
 	}
 
-	logp.Printf("[DEBUG] Create group: %#v", createOpts)
+	log.Printf("[DEBUG] Create group: %#v", createOpts)
 
 	group, err := endpointgroups.Create(networkingClient, createOpts).Extract()
 	if err != nil {
@@ -125,7 +125,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	logp.Printf("[DEBUG] EndpointGroup created: %#v", group)
+	log.Printf("[DEBUG] EndpointGroup created: %#v", group)
 
 	d.SetId(group.ID)
 
@@ -133,12 +133,12 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Retrieve information about group: %s", d.Id())
+	log.Printf("[DEBUG] Retrieve information about group: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	group, err := endpointgroups.Get(networkingClient, d.Id()).Extract()
@@ -146,7 +146,7 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 		return common.CheckDeleted(d, err, "group")
 	}
 
-	logp.Printf("[DEBUG] Read HuaweiCloud Endpoint EndpointGroup %s: %#v", d.Id(), group)
+	log.Printf("[DEBUG] Read Endpoint EndpointGroup %s: %#v", d.Id(), group)
 
 	d.Set("name", group.Name)
 	d.Set("description", group.Description)
@@ -163,7 +163,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	opts := endpointgroups.UpdateOpts{}
@@ -185,7 +185,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 	var updateOpts endpointgroups.UpdateOptsBuilder
 	updateOpts = opts
 
-	logp.Printf("[DEBUG] Updating endpoint group with id %s: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating endpoint group with id %s: %#v", d.Id(), updateOpts)
 
 	if hasChange {
 		group, err := endpointgroups.Update(networkingClient, d.Id(), updateOpts).Extract()
@@ -206,19 +206,19 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		logp.Printf("[DEBUG] Updated group with id %s", d.Id())
+		log.Printf("[DEBUG] Updated group with id %s", d.Id())
 	}
 
 	return resourceVpnEndpointGroupV2Read(d, meta)
 }
 
 func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	logp.Printf("[DEBUG] Destroy group: %s", d.Id())
+	log.Printf("[DEBUG] Destroy group: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	err = endpointgroups.Delete(networkingClient, d.Id()).Err
@@ -245,17 +245,17 @@ func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id 
 
 	return func() (interface{}, string, error) {
 		group, err := endpointgroups.Get(networkingClient, id).Extract()
-		logp.Printf("[DEBUG] Got group %s => %#v", id, group)
+		log.Printf("[DEBUG] Got group %s => %#v", id, group)
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] EndpointGroup %s is actually deleted", id)
+				log.Printf("[DEBUG] EndpointGroup %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
-			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
+			return nil, "", fmt.Errorf("Unexpected error: %s", err)
 		}
 
-		logp.Printf("[DEBUG] EndpointGroup %s deletion is pending", id)
+		log.Printf("[DEBUG] EndpointGroup %s deletion is pending", id)
 		return group, "DELETING", nil
 	}
 }

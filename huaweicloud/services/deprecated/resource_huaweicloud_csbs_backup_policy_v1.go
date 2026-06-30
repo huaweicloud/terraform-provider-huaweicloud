@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,8 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/csbs/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCSBSBackupPolicyV1() *schema.Resource {
@@ -154,7 +154,7 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
 
 	if err != nil {
-		return fmtp.Errorf("Error creating backup policy Client: %s", err)
+		return fmt.Errorf("error creating backup policy client: %s", err)
 	}
 
 	createOpts := policies.CreateOpts{
@@ -172,7 +172,7 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	backupPolicy, err := policies.Create(policyClient, createOpts).Extract()
 
 	if err != nil {
-		return fmtp.Errorf("Error creating Backup Policy : %s", err)
+		return fmt.Errorf("error creating CSBS backup policy: %s", err)
 	}
 
 	d.SetId(backupPolicy.ID)
@@ -188,7 +188,7 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 	_, StateErr := stateConf.WaitForState()
 	if StateErr != nil {
-		return fmtp.Errorf("Error waiting for Backup Policy (%s) to become available: %s", backupPolicy.ID, StateErr)
+		return fmt.Errorf("error waiting for CSBS backup policy (%s) to become available: %s", backupPolicy.ID, StateErr)
 	}
 
 	return resourceCSBSBackupPolicyRead(d, meta)
@@ -200,18 +200,18 @@ func resourceCSBSBackupPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
 	backupPolicy, err := policies.Get(policyClient, d.Id()).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[WARN] Removing backup policy %s as it's already gone", d.Id())
+			log.Printf("[WARN] Removing backup policy %s as it's already gone", d.Id())
 			d.SetId("")
 			return nil
 		}
 
-		return fmtp.Errorf("Error retrieving backup policy: %s", err)
+		return fmt.Errorf("error retrieving backup policy: %s", err)
 	}
 
 	if err := d.Set("resource", flattenCSBSPolicyResources(*backupPolicy)); err != nil {
@@ -238,7 +238,7 @@ func resourceCSBSBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 	var updateOpts policies.UpdateOpts
 	if d.HasChange("name") {
@@ -259,7 +259,7 @@ func resourceCSBSBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 
 	_, err = policies.Update(policyClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating Backup Policy: %s", err)
+		return fmt.Errorf("error updating CSBS backup policy: %s", err)
 	}
 
 	return resourceCSBSBackupPolicyRead(d, meta)
@@ -269,7 +269,7 @@ func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating csbs client: %s", err)
+		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -283,7 +283,7 @@ func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) er
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting Backup Policy: %s", err)
+		return fmt.Errorf("error deleting CSBS backup policy: %s", err)
 	}
 
 	d.SetId("")
@@ -311,7 +311,7 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Backup Policy %s", policyID)
+				log.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
 				return r, "deleted", nil
 			}
 			return r, "available", err
@@ -321,7 +321,7 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 		err = policy.Err
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted Backup Policy %s", policyID)
+				log.Printf("[INFO] Successfully deleted CSBS backup policy %s", policyID)
 				return r, "deleted", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault409); ok {

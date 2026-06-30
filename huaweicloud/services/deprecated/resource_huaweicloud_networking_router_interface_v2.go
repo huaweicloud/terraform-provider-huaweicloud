@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,8 +13,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkingRouterInterfaceV2() *schema.Resource {
@@ -62,7 +62,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	createOpts := routers.AddInterfaceOpts{
@@ -70,14 +70,14 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 		PortID:   d.Get("port_id").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := routers.AddInterface(networkingClient, d.Get("router_id").(string), createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Neutron router interface: %s", err)
+		return fmt.Errorf("error creating Neutron router interface: %s", err)
 	}
-	logp.Printf("[INFO] Router interface Port ID: %s", n.PortID)
+	log.Printf("[INFO] Router interface Port ID: %s", n.PortID)
 
-	logp.Printf("[DEBUG] Waiting for Router Interface (%s) to become available", n.PortID)
+	log.Printf("[DEBUG] Waiting for Router Interface (%s) to become available", n.PortID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILD", "PENDING_CREATE", "PENDING_UPDATE"},
@@ -99,7 +99,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	n, err := ports.Get(networkingClient, d.Id()).Extract()
@@ -109,10 +109,10 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 			return nil
 		}
 
-		return fmtp.Errorf("Error retrieving HuaweiCloud Neutron Router Interface: %s", err)
+		return fmt.Errorf("error retrieving Neutron Router Interface: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved Router Interface %s: %+v", d.Id(), n)
+	log.Printf("[DEBUG] Retrieved Router Interface %s: %+v", d.Id(), n)
 
 	d.Set("router_id", n.DeviceID)
 	d.Set("port_id", n.ID)
@@ -135,7 +135,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -149,7 +149,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Router Interface: %s", err)
+		return fmt.Errorf("error deleting Neutron Router Interface: %s", err)
 	}
 
 	d.SetId("")
@@ -163,7 +163,7 @@ func waitForRouterInterfaceActive(networkingClient *golangsdk.ServiceClient, rId
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Neutron Router Interface: %+v", r)
+		log.Printf("[DEBUG] Neutron Router Interface: %+v", r)
 		return r, r.Status, nil
 	}
 }
@@ -173,7 +173,7 @@ func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *
 		routerId := d.Get("router_id").(string)
 		routerInterfaceId := d.Id()
 
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Router Interface %s.", routerInterfaceId)
+		log.Printf("[DEBUG] Attempting to delete Router Interface %s.", routerInterfaceId)
 
 		removeOpts := routers.RemoveInterfaceOpts{
 			SubnetID: d.Get("subnet_id").(string),
@@ -183,7 +183,7 @@ func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *
 		r, err := ports.Get(networkingClient, routerInterfaceId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s", routerInterfaceId)
+				log.Printf("[DEBUG] Successfully deleted Router Interface %s", routerInterfaceId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -192,18 +192,18 @@ func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *
 		_, err = routers.RemoveInterface(networkingClient, routerId, removeOpts).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s.", routerInterfaceId)
+				log.Printf("[DEBUG] Successfully deleted Router Interface %s.", routerInterfaceId)
 				return r, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault409); ok {
-				logp.Printf("[DEBUG] Router Interface %s is still in use.", routerInterfaceId)
+				log.Printf("[DEBUG] Router Interface %s is still in use.", routerInterfaceId)
 				return r, "ACTIVE", nil
 			}
 
 			return r, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Router Interface %s is still active.", routerInterfaceId)
+		log.Printf("[DEBUG] Router Interface %s is still active.", routerInterfaceId)
 		return r, "ACTIVE", nil
 	}
 }

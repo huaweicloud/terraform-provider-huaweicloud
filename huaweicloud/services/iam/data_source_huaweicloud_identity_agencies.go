@@ -98,11 +98,11 @@ func dataSourceIdentityAgenciesRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error querying IAM agencies: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 	mErr := multierror.Append(nil,
 		d.Set("agencies", flattenAgencies(resp)),
 	)

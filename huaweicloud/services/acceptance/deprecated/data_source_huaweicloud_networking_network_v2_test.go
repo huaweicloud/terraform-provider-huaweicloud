@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -10,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
@@ -50,11 +50,11 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find network data source: %s", n)
+			return fmt.Errorf("can't find network data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Network data source ID not set")
+			return errors.New("network data source ID not set")
 		}
 
 		return nil

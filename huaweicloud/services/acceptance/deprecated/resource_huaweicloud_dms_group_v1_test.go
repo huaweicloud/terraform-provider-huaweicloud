@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getDmsGroupFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -24,7 +23,7 @@ func getDmsGroupFunc(c *config.Config, state *terraform.ResourceState) (interfac
 	if err == nil {
 		groupsList, err := groups.ExtractGroups(page)
 		if err != nil {
-			return nil, fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
+			return nil, fmt.Errorf("error getting groups in queue %s: %s", queueID, err)
 		}
 		if len(groupsList) > 0 {
 			for _, group := range groupsList {

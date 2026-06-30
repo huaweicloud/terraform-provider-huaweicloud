@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkACL_basic(t *testing.T) {
@@ -117,7 +116,7 @@ func testAccCheckNetworkACLDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_network_acl" {
@@ -126,7 +125,7 @@ func testAccCheckNetworkACLDestroy(s *terraform.State) error {
 
 		_, err = firewall_groups.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Firewall group (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("the firewall group still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -139,17 +138,17 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the network ACL %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set in %s", n)
+			return fmt.Errorf("no ID is set in %s", n)
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmt.Errorf("error creating fw client: %s", err)
 		}
 
 		var found FirewallGroup
@@ -159,7 +158,7 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Firewall group not found")
+			return fmt.Errorf("the firewall group is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*fwGroup = found

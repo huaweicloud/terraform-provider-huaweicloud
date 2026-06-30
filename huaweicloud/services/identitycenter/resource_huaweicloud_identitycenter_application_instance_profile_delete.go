@@ -77,11 +77,11 @@ func resourceIdentityCenterApplicationInstanceProfileDeleteCreate(_ context.Cont
 		return common.CheckDeletedDiag(d, err, "error deleting IdentityCenter application profile")
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

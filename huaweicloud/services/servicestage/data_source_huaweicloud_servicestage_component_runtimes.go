@@ -58,9 +58,9 @@ func DataSourceComponentRuntimes() *schema.Resource {
 }
 
 func dataSourceComponentRuntimesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}

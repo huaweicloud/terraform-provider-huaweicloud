@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -12,7 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccFWPolicyV2_basic(t *testing.T) {
@@ -92,7 +93,7 @@ func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_fw_policy_v2" {
@@ -100,7 +101,7 @@ func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
 		}
 		_, err = policies.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Firewall policy (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("the firewall policy still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -113,17 +114,17 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the firewall policy %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmt.Errorf("error creating fw client: %s", err)
 		}
 
 		var found *policies.Policy
@@ -144,11 +145,11 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 
 		switch {
 		case name != found.Name:
-			err = fmtp.Errorf("Expected name <%s>, but found <%s>", name, found.Name)
+			err = fmt.Errorf("expected name <%s>, but found <%s>", name, found.Name)
 		case description != found.Description:
-			err = fmtp.Errorf("Expected description <%s>, but found <%s>", description, found.Description)
+			err = fmt.Errorf("expected description <%s>, but found <%s>", description, found.Description)
 		case ruleCount != len(found.Rules):
-			err = fmtp.Errorf("Expected rule count <%d>, but found <%d>", ruleCount, len(found.Rules))
+			err = fmt.Errorf("expected rule count <%d>, but found <%d>", ruleCount, len(found.Rules))
 		}
 
 		if err != nil {

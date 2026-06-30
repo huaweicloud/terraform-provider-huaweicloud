@@ -367,11 +367,11 @@ func dataSourceVaultsRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// Set the ID and other parameters.
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 	mErr := multierror.Append(nil,
 		d.Set("vaults", flattenAllVaults(client, filterVaults(vaults, d))),
 	)

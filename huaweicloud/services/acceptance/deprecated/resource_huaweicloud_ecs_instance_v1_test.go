@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccEcsV1Instance_basic(t *testing.T) {
@@ -60,7 +60,7 @@ func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -71,7 +71,7 @@ func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 		server, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmtp.Errorf("Instance still exists")
+				return fmt.Errorf("the instance still exists, which ID is %s", rs.Primary.ID)
 			}
 		}
 	}
@@ -83,17 +83,17 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the instance %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("error creating compute client: %s", err)
 		}
 
 		found, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
@@ -102,7 +102,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Instance not found")
+			return fmt.Errorf("the instance is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*instance = *found

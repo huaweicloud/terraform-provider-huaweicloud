@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,8 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
@@ -217,10 +216,10 @@ func DataSourceCCEClusters() *schema.Resource {
 }
 
 func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -229,13 +228,13 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		Type:                d.Get("cluster_type").(string),
 		Phase:               d.Get("status").(string),
 		VpcID:               d.Get("vpc_id").(string),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
-	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
+	log.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve clusters: %s", err)
+		return diag.Errorf("unable to retrieve clusters: %s", err)
 	}
 
 	ids := make([]string, 0, len(refinedClusters))
@@ -284,7 +283,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 
 		if err != nil {
-			logp.Printf("Error marshaling r.Body: %s", err)
+			log.Printf("Error marshaling r.Body: %s", err)
 		}
 
 		cluster["kube_config_raw"] = string(kubeConfigRaw)
@@ -292,7 +291,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		cert, err := r.Extract()
 
 		if err != nil {
-			logp.Printf("Error retrieving CCE cluster cert: %s", err)
+			log.Printf("Error retrieving CCE cluster cert: %s", err)
 		}
 
 		//Set Certificate Clusters
@@ -331,12 +330,12 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 
 	d.SetId(hashcode.Strings(ids))
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("ids", ids),
 		d.Set("clusters", clustersToSet),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cce clusters fields: %s", err)
+		return diag.Errorf("error setting cce clusters fields: %s", err)
 	}
 	return nil
 }

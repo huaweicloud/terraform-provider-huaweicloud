@@ -321,11 +321,11 @@ func dataSourceV2PersistentVolumesRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error retrieving CCI persistent volumes: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	pvs := utils.PathSearch("items", listPersistentVolumesRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

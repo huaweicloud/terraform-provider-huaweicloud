@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,8 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsQueues() *schema.Resource {
@@ -95,7 +94,7 @@ func resourceDmsQueuesCreate(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	createOpts := &queues.CreateOps{
@@ -107,12 +106,12 @@ func resourceDmsQueuesCreate(ctx context.Context, d *schema.ResourceData, meta i
 		RetentionHours:  d.Get("retention_hours").(int),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := queues.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud queue: %s", err)
+		return diag.Errorf("error creating queue: %s", err)
 	}
-	logp.Printf("[INFO] Queue ID: %s", v.ID)
+	log.Printf("[INFO] Queue ID: %s", v.ID)
 
 	// Store the queue ID now
 	d.SetId(v.ID)
@@ -125,14 +124,14 @@ func resourceDmsQueuesRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 	v, err := queues.Get(dmsV1Client, d.Id(), true).Extract()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Dms queue %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] DMS queue %s: %+v", d.Id(), v)
 
 	d.SetId(v.ID)
 	d.Set("name", v.Name)
@@ -153,7 +152,7 @@ func resourceDmsQueuesDelete(ctx context.Context, d *schema.ResourceData, meta i
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	v, err := queues.Get(dmsV1Client, d.Id(), false).Extract()
@@ -163,10 +162,10 @@ func resourceDmsQueuesDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	err = queues.Delete(dmsV1Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud queue: %s", err)
+		return diag.Errorf("error deleting queue: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Dms queue %s: %+v deactivated.", d.Id(), v)
+	log.Printf("[DEBUG] DMS queue %s: %+v has been deleted.", d.Id(), v)
 	d.SetId("")
 	return nil
 }

@@ -2,6 +2,8 @@ package lb
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -14,8 +16,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/pools/{pool_id}/members
@@ -115,10 +115,10 @@ func ResourceMemberV2() *schema.Resource {
 }
 
 func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -144,10 +144,10 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	member, err := pools.CreateMember(lbClient, poolID, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating member: %s", err)
+		return diag.Errorf("error creating member: %s", err)
 	}
 
 	// Wait for LB to become ACTIVE again
@@ -162,10 +162,10 @@ func resourceMemberV2Create(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	member, err := pools.GetMember(lbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -173,10 +173,10 @@ func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interf
 		return common.CheckDeletedDiag(d, err, "Error retrieving member")
 	}
 
-	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
+	log.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", member.Name),
 		d.Set("weight", member.Weight),
 		d.Set("tenant_id", member.TenantID),
@@ -188,17 +188,17 @@ func resourceMemberV2Read(_ context.Context, d *schema.ResourceData, meta interf
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting member fields: %s", err)
+		return diag.Errorf("error setting member fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -221,7 +221,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err = pools.UpdateMember(lbClient, poolID, d.Id(), updateOpts).Extract()
@@ -232,7 +232,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	})
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to update member %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update member %s: %s", d.Id(), err)
 	}
 
 	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)
@@ -244,10 +244,10 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// Wait for Pool to become active before continuing
@@ -258,7 +258,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete member %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete member %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = pools.DeleteMember(lbClient, poolID, d.Id()).ExtractErr()
@@ -283,7 +283,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 func resourceMemberV2Import(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmtp.Errorf("invalid format specified for member. Format must be <pool_id>/<member_id>")
+		err := fmt.Errorf("invalid format specified for member. Format must be <pool_id>/<member_id>")
 		return nil, err
 	}
 

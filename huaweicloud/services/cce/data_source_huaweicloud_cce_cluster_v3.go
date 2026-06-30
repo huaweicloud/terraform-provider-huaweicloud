@@ -2,6 +2,8 @@ package cce
 
 import (
 	"context"
+	"errors"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
@@ -188,10 +188,10 @@ func DataSourceCCEClusterV3() *schema.Resource {
 }
 
 func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return diag.Errorf("unable to create CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -203,28 +203,26 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
-	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
+	log.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve clusters: %s", err)
+		return diag.Errorf("unable to retrieve clusters: %s", err)
 	}
 
 	if len(refinedClusters) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.FromErr(errors.New("your query returned no results, please change your search criteria and try again"))
 	}
 
 	if len(refinedClusters) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.FromErr(errors.New("your query returned more than one result, please try a more specific search criteria"))
 	}
 
 	Cluster := refinedClusters[0]
 
-	logp.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
+	log.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
 
 	d.SetId(Cluster.Metadata.Id)
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", Cluster.Metadata.Name),
 		d.Set("status", Cluster.Status.Phase),
 		d.Set("flavor_id", Cluster.Spec.Flavor),
@@ -263,13 +261,13 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 	if err != nil {
-		logp.Printf("Error marshaling r.Body: %s", err)
+		log.Printf("Error marshaling r.Body: %s", err)
 	}
 	mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
 
 	cert, err := r.Extract()
 	if err != nil {
-		logp.Printf("Error retrieving CCE cluster cert: %s", err)
+		log.Printf("Error retrieving CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters
@@ -304,7 +302,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	mErr = multierror.Append(mErr, d.Set("masters", masterList))
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting cluster fields: %s", err)
+		return diag.Errorf("error setting cluster fields: %s", err)
 	}
 
 	return nil

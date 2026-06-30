@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccImagesImageV2_basic(t *testing.T) {
@@ -162,7 +163,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+		return fmt.Errorf("error creating IMS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -172,7 +173,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 
 		_, err := images.Get(imageClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Image still exists")
+			return fmt.Errorf("the image still exists, which ID is %s", rs.Primary.ID)
 		}
 	}
 
@@ -183,17 +184,17 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the image %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmt.Errorf("error creating IMS client: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -202,7 +203,7 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Image not found")
+			return fmt.Errorf("the image is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		*image = *found
@@ -215,17 +216,17 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the image %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmt.Errorf("error creating IMS client: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -234,7 +235,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Image not found")
+			return fmt.Errorf("the image is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		for _, v := range found.Tags {
@@ -243,7 +244,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 			}
 		}
 
-		return fmtp.Errorf("Tag not found: %s", tag)
+		return fmt.Errorf("the tag is not found: %s", tag)
 	}
 }
 
@@ -251,17 +252,17 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the image %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmt.Errorf("error creating IMS client: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -270,11 +271,11 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Image not found")
+			return fmt.Errorf("the image is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		if len(found.Tags) != expected {
-			return fmtp.Errorf("Expecting %d tags, found %d", expected, len(found.Tags))
+			return fmt.Errorf("expected %d tags, found %d", expected, len(found.Tags))
 		}
 
 		return nil

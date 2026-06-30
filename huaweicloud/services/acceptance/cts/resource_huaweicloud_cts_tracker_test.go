@@ -1,6 +1,7 @@
 package cts
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -73,12 +74,12 @@ func testAccCTSTrackerImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		tracker, ok := s.RootModule().Resources[name]
 		if !ok {
-			return "", fmt.Errorf("CTS tracker not found")
+			return "", fmt.Errorf("the CTS tracker %s not found", name)
 		}
 
 		name := tracker.Primary.Attributes["name"]
 		if name == "" {
-			return "", fmt.Errorf("CTS tracker resource %s not found", tracker.Primary.ID)
+			return "", fmt.Errorf("the CTS tracker %s not found", tracker.Primary.ID)
 		}
 		return name, nil
 	}
@@ -88,11 +89,11 @@ func testAccCheckCTSTrackerExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("the CTS tracker %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)

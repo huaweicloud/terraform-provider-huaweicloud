@@ -16,7 +16,7 @@ import (
 func getNetworkVipResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return nil, fmt.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	return ports.Get(client, state.Primary.ID)

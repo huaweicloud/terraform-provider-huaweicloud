@@ -3,6 +3,7 @@ package deprecated
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -589,7 +590,7 @@ func buildFunctionGraphTriggerParameters(d *schema.ResourceData, cfg *config.Con
 		}
 		opts.EventData = eventData
 	default:
-		return opts, fmt.Errorf("Currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' " +
+		return opts, errors.New("currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' " +
 			"and 'DEDICATEDGATEWAY'.")
 	}
 	return opts, nil
@@ -770,7 +771,7 @@ func setTriggerEventData(d *schema.ResourceData, resp *trigger.Trigger) error {
 	case ltsTrigger:
 		return setLtsEventData(d, resp.EventData)
 	}
-	return fmt.Errorf("the type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' and " +
+	return errors.New("the type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' and " +
 		"'DEDICATEDGATEWAY'.")
 }
 
@@ -810,7 +811,7 @@ func resourceFunctionGraphTriggerRead(_ context.Context, d *schema.ResourceData,
 				setTriggerParameters(d, &v),
 			)
 			if mErr.ErrorOrNil() != nil {
-				return diag.Errorf("error setting Trigger Parameters: %s", mErr.ErrorOrNil())
+				return diag.Errorf("error setting trigger parameters: %s", mErr.ErrorOrNil())
 			}
 			return nil
 		}

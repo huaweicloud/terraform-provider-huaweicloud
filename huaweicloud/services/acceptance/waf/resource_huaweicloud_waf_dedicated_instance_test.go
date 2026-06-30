@@ -12,13 +12,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getWafDedicatedInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating WAF dedicated client: %s", err)
+		return nil, fmt.Errorf("error creating WAF dedicated client: %s", err)
 	}
 	return instances.GetWithEpsId(client, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"])
 }

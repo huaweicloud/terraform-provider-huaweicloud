@@ -102,7 +102,7 @@ func dataSourcePrivateModulesRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -110,7 +110,7 @@ func dataSourcePrivateModulesRead(_ context.Context, d *schema.ResourceData, met
 	requestPath := client.Endpoint + httpUrl
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": randomUUID,
 		},
 		KeepResponseBody: true,
 	}
@@ -140,7 +140,7 @@ func dataSourcePrivateModulesRead(_ context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
 		d.Set("region", region),

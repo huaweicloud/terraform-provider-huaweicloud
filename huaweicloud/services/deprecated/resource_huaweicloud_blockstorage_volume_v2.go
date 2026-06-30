@@ -2,7 +2,9 @@ package deprecated
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -17,8 +19,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceBlockStorageVolumeV2() *schema.Resource {
@@ -134,7 +134,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		return fmt.Errorf("error creating block storage client: %s", err)
 	}
 
 	createOpts := &volumes.CreateOpts{
@@ -151,15 +151,15 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 		VolumeType:         d.Get("volume_type").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := volumes.Create(blockStorageClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud volume: %s", err)
+		return fmt.Errorf("error creating volume: %s", err)
 	}
-	logp.Printf("[INFO] Volume ID: %s", v.ID)
+	log.Printf("[INFO] Volume ID: %s", v.ID)
 
 	// Wait for the volume to become available.
-	logp.Printf(
+	log.Printf(
 		"[DEBUG] Waiting for volume (%s) to become available",
 		v.ID)
 
@@ -174,9 +174,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for volume (%s) to become ready: %s",
-			v.ID, err)
+		return fmt.Errorf("error waiting for volume (%s) to become ready: %s", v.ID, err)
 	}
 
 	// Store the ID now
@@ -189,7 +187,7 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		return fmt.Errorf("error creating block storage client: %s", err)
 	}
 
 	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
@@ -197,7 +195,7 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 		return common.CheckDeleted(d, err, "volume")
 	}
 
-	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
 
 	d.Set("size", v.Size)
 	d.Set("description", v.Description)
@@ -229,7 +227,7 @@ OUTER:
 		attachments[i]["id"] = attachment.ID
 		attachments[i]["instance_id"] = attachment.ServerID
 		attachments[i]["device"] = attachment.Device
-		logp.Printf("[DEBUG] attachment: %v", attachment)
+		log.Printf("[DEBUG] attachment: %v", attachment)
 	}
 	d.Set("attachment", attachments)
 
@@ -240,7 +238,7 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		return fmt.Errorf("error creating block storage client: %s", err)
 	}
 
 	updateOpts := volumes.UpdateOpts{
@@ -259,7 +257,7 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 
 		err = volumeactions.ExtendSize(blockStorageClient, d.Id(), extendOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("Error extending huaweicloud_blockstorage_volume_v2 %s size: %s", d.Id(), err)
+			return fmt.Errorf("error extending  blockstorage volume size, which ID is %s: %s", d.Id(), err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -273,14 +271,13 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 
 		_, err := stateConf.WaitForState()
 		if err != nil {
-			return fmtp.Errorf(
-				"Error waiting for huaweicloud_blockstorage_volume_v2 %s to become ready: %s", d.Id(), err)
+			return fmt.Errorf("error waiting for blockstorage volume to become ready, which ID is %s: %s", d.Id(), err)
 		}
 	}
 
 	_, err = volumes.Update(blockStorageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud volume: %s", err)
+		return fmt.Errorf("error updating volume: %s", err)
 	}
 
 	return resourceBlockStorageVolumeV2Read(d, meta)
@@ -290,7 +287,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		return fmt.Errorf("error creating block storage client: %s", err)
 	}
 
 	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
@@ -300,13 +297,13 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 
 	// make sure this volume is detached from all instances before deleting
 	if len(v.Attachments) > 0 {
-		logp.Printf("[DEBUG] detaching volumes")
+		log.Printf("[DEBUG] detaching volumes")
 		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
 		if err != nil {
 			return err
 		}
 		for _, volumeAttachment := range v.Attachments {
-			logp.Printf("[DEBUG] Attachment: %v", volumeAttachment)
+			log.Printf("[DEBUG] Attachment: %v", volumeAttachment)
 
 			opts := block_devices.DetachOpts{
 				ServerId: volumeAttachment.ServerID,
@@ -343,7 +340,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	}
 
 	// Wait for the volume to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"deleting", "downloading", "available"},
@@ -356,9 +353,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for volume (%s) to delete: %s",
-			d.Id(), err)
+		return fmt.Errorf("error waiting for volume to delete, which ID is %s: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -386,9 +381,9 @@ func VolumeV2StateRefreshFunc(client *golangsdk.ServiceClient, volumeID string) 
 		}
 
 		if v.Status == "error" {
-			return v, v.Status, fmtp.Errorf("There was an error creating the volume. " +
+			return v, v.Status, errors.New("there was an error creating the volume. " +
 				"Please check with your cloud admin or check the Block Storage " +
-				"API logs to see why this error occurred.")
+				"API logs to see why this error occurred")
 		}
 
 		return v, v.Status, nil

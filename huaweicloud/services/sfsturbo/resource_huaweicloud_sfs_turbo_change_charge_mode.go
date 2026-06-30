@@ -132,12 +132,12 @@ func resourceSFSTurboChangeChargeModeCreate(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	return nil
 }

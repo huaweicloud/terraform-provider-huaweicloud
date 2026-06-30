@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeFloatingIPV2() *schema.Resource {
@@ -63,16 +63,16 @@ func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	createOpts := &floatingips.CreateOpts{
 		Pool: d.Get("pool").(string),
 	}
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newFip, err := floatingips.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Floating IP: %s", err)
+		return fmt.Errorf("error creating floating IP: %s", err)
 	}
 
 	d.SetId(newFip.ID)
@@ -84,15 +84,15 @@ func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	fip, err := floatingips.Get(computeClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "floating ip")
+		return common.CheckDeleted(d, err, "floating IP")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Floating IP %s: %+v", d.Id(), fip)
+	log.Printf("[DEBUG] Retrieved Floating IP %s: %+v", d.Id(), fip)
 
 	d.Set("pool", fip.Pool)
 	d.Set("instance_id", fip.InstanceID)
@@ -107,16 +107,16 @@ func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *sch
 	return func() (interface{}, string, error) {
 		s, err := floatingips.Get(computeClient, d.Id()).Extract()
 		if err != nil {
-			err = common.CheckDeleted(d, err, "Floating IP")
+			err = common.CheckDeleted(d, err, "floating IP")
 			if err != nil {
 				return s, "", err
 			} else {
-				logp.Printf("[DEBUG] Successfully deleted Floating IP %s", d.Id())
+				log.Printf("[DEBUG] Successfully deleted Floating IP %s", d.Id())
 				return s, "DELETED", nil
 			}
 		}
 
-		logp.Printf("[DEBUG] Floating IP %s still active.\n", d.Id())
+		log.Printf("[DEBUG] Floating IP %s still active.\n", d.Id())
 		return s, "ACTIVE", nil
 	}
 }
@@ -125,13 +125,13 @@ func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete Floating IP %s.\n", d.Id())
+	log.Printf("[DEBUG] Attempting to delete Floating IP %s.\n", d.Id())
 
 	if err := floatingips.Delete(computeClient, d.Id()).ExtractErr(); err != nil {
-		return fmtp.Errorf("Error deleting Floating IP: %s", err)
+		return fmt.Errorf("error deleting floating IP: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -145,7 +145,7 @@ func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud Floating IP: %s", err)
+		return fmt.Errorf("error deleting floating IP: %s", err)
 	}
 
 	return nil

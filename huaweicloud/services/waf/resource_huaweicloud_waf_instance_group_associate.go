@@ -2,6 +2,7 @@ package waf
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceWafInstGroupAssociate() *schema.Resource {
@@ -51,13 +51,13 @@ func resourceWafInsGroupAssociateCreate(ctx context.Context, d *schema.ResourceD
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	groupID := d.Get("group_id").(string)
 	group, err := pools.Get(client, groupID)
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying WAF instance group: %s", err)
+		return diag.Errorf("error querying WAF instance group: %s", err)
 	}
 
 	if len(group.Bindings) > 0 {
@@ -65,7 +65,7 @@ func resourceWafInsGroupAssociateCreate(ctx context.Context, d *schema.ResourceD
 		for _, v := range group.Bindings {
 			err = pools.RemoveELB(client, groupID, v.ID)
 			if err != nil {
-				return fmtp.DiagErrorf("Error removing load balance[%s] from the group[%s]: %s", v, groupID, err)
+				return diag.Errorf("error removing load balance[%s] from the group[%s]: %s", v, groupID, err)
 			}
 		}
 	}
@@ -86,7 +86,7 @@ func addELBInstances(c *golangsdk.ServiceClient, groupID string, ids []interface
 		lbID := v.(string)
 		_, e := pools.AddELB(c, groupID, lbID)
 		if e != nil {
-			err := fmtp.Errorf("Error in binding load balance[%s] to the group[%s]: %s", lbID, groupID, e)
+			err := fmt.Errorf("error in binding load balance[%s] to the group[%s]: %s", lbID, groupID, e)
 			mErr = multierror.Append(mErr, err)
 		}
 	}
@@ -97,7 +97,7 @@ func resourceWafInsGroupAssociateRead(_ context.Context, d *schema.ResourceData,
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	group, err := pools.Get(client, d.Id())
@@ -115,7 +115,7 @@ func resourceWafInsGroupAssociateRead(_ context.Context, d *schema.ResourceData,
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error setting WAF dedicated group attributes: %s", err)
+		return diag.Errorf("error setting WAF dedicated group attributes: %s", err)
 	}
 
 	return nil
@@ -125,7 +125,7 @@ func resourceWafInsGroupAssociateUpdate(ctx context.Context, d *schema.ResourceD
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	mErr := &multierror.Error{}
@@ -145,7 +145,7 @@ func resourceWafInsGroupAssociateUpdate(ctx context.Context, d *schema.ResourceD
 		mErr = multierror.Append(mErr, errs.Errors...)
 	}
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error setting WAF dedicated group attributes: %s", err)
+		return diag.Errorf("error setting WAF dedicated group attributes: %s", err)
 	}
 
 	return resourceWafInsGroupAssociateRead(ctx, d, meta)
@@ -155,14 +155,14 @@ func resourceWafInsGroupAssociateDelete(_ context.Context, d *schema.ResourceDat
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error in creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error in creating WAF dedicated client : %s", err)
 	}
 	// remove the bound ELB instances before deleting the group
 	elbIDs := d.Get("load_balancers").(*schema.Set)
 	if elbIDs.Len() > 0 {
 		mErr := batchRemoveELBInstances(client, d.Id(), elbIDs.List())
 		if mErr.ErrorOrNil() != nil {
-			return fmtp.DiagErrorf("error in removing ELB instances from group: %s", err)
+			return diag.Errorf("error in removing ELB instances from group: %s", err)
 		}
 	}
 

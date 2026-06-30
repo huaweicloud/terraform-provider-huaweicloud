@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -13,7 +15,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccFWRuleV2_basic(t *testing.T) {
@@ -113,7 +114,7 @@ func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -122,7 +123,7 @@ func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
 		}
 		_, err = rules.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Firewall rule (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("the firewall rule still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -135,17 +136,17 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("the firewall rule %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return errors.New("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmt.Errorf("error creating fw client: %s", err)
 		}
 
 		var found *rules.Rule
@@ -170,7 +171,7 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 		found.TenantID = ""
 
 		if !reflect.DeepEqual(expected, found) {
-			return fmtp.Errorf("Expected:\n%#v\nFound:\n%#v", expected, found)
+			return fmt.Errorf("expected:\n%#v\nfound:\n%#v", expected, found)
 		}
 
 		return nil

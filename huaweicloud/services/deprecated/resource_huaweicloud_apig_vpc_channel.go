@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -226,7 +227,7 @@ func buildVpcChannelHealthConfig(d *schema.ResourceData) (channels.VpcHealthConf
 	if ProtocolType(protocol) == ProtocolTypeHTTP || ProtocolType(protocol) == ProtocolTypeHTTPS {
 		codes, ok := d.GetOk("http_code")
 		if !ok {
-			return result, fmt.Errorf("the HTTP code cannot be empty if the protocol is 'HTTP' or 'HTTPS'")
+			return result, errors.New("the HTTP code cannot be empty if the protocol is 'HTTP' or 'HTTPS'")
 		}
 		result.HttpCodes = codes.(string)
 	}
@@ -256,7 +257,7 @@ func buildVpcChannelMembers(d *schema.ResourceData, config *config.Config) ([]ch
 		case MemberTypeEcs:
 			id, ok := member["id"]
 			if !ok || id == "" {
-				return result, fmt.Errorf("the instance ID is missing, please check your input of members")
+				return result, errors.New("the instance ID is missing, please check your input of members")
 			}
 			info.EcsId = id.(string)
 			server, err := cloudservers.Get(ecsClient, id.(string)).Extract()
@@ -267,11 +268,11 @@ func buildVpcChannelMembers(d *schema.ResourceData, config *config.Config) ([]ch
 		case MemberTypeEip:
 			addr, ok := member["ip_address"]
 			if !ok || addr == "" {
-				return result, fmt.Errorf("the IP address of EIP is missing, please check your input of members")
+				return result, errors.New("the IP address of EIP is missing, please check your input of members")
 			}
 			info.Host = addr.(string)
 		default:
-			return result, fmt.Errorf("the member type is wrong, please check your input of members")
+			return result, errors.New("the member type is wrong, please check your input of members")
 		}
 		result[i] = info
 	}
@@ -312,7 +313,7 @@ func buildVpcChannelParameters(d *schema.ResourceData, config *config.Config) (c
 	if ok {
 		opt.BalanceStrategy = v
 	} else {
-		return opt, fmt.Errorf("the value of algorithm parameter is invalid")
+		return opt, errors.New("the value of algorithm parameter is invalid")
 	}
 	return opt, nil
 }
@@ -403,7 +404,7 @@ func resourceVpcChannelRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	status, ok := channelStatus[resp.Status]
 	if !ok {
-		return diag.Errorf("the response status is invalid")
+		return diag.FromErr(errors.New("the response status is invalid"))
 	} else {
 		mErr = multierror.Append(mErr, d.Set("status", status))
 	}
@@ -466,9 +467,10 @@ func resourceVpcChannelDelete(_ context.Context, d *schema.ResourceData, meta in
 // The ID cannot find on console, so we need to import by VPC channel name.
 func resourceVpcChannelResourceImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+	importedId := d.Id()
+	parts := strings.SplitN(importedId, "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<name>")
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<instance_id>/<name>', but got '%s'", importedId)
 	}
 	instanceId := parts[0]
 	cfg := meta.(*config.Config)

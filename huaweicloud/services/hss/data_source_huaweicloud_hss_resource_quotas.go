@@ -131,11 +131,11 @@ func dataSourceResourceQuotasRead(_ context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	quotaList := utils.PathSearch("data_list", respBody, make([]interface{}, 0)).([]interface{})
 	mErr = multierror.Append(

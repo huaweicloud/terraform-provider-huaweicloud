@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkACLRule_basic(t *testing.T) {
@@ -100,7 +99,7 @@ func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -109,7 +108,7 @@ func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
 		}
 		_, err = rules.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Network ACL rule (%s) still exists.", rs.Primary.ID)
+			return fmt.Errorf("the network ACL rule still exists, which ID is %s", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -122,17 +121,17 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[key]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", key)
+			return fmt.Errorf("the network ACL rule %s not found", key)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set in %s", key)
+			return fmt.Errorf("no ID is set in %s", key)
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmt.Errorf("error creating fw client: %s", err)
 		}
 
 		found, err := rules.Get(fwClient, rs.Primary.ID).Extract()
@@ -141,7 +140,7 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Network ACL rule not found")
+			return fmt.Errorf("the network ACL rule is not found, which ID is %s", rs.Primary.ID)
 		}
 
 		return nil

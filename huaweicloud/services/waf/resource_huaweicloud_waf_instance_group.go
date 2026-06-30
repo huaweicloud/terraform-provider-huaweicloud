@@ -2,6 +2,8 @@ package waf
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,8 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceWafInstanceGroup() *schema.Resource {
@@ -80,7 +80,7 @@ func resourceWafInstanceGroupCreate(ctx context.Context, d *schema.ResourceData,
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	createOpts := pools.CreateOpts{
@@ -90,7 +90,7 @@ func resourceWafInstanceGroupCreate(ctx context.Context, d *schema.ResourceData,
 		VpcID:       d.Get("vpc_id").(string),
 		Description: d.Get("description").(string),
 	}
-	logp.Printf("[DEBUG] Create WAF instance group options: %#v", createOpts)
+	log.Printf("[DEBUG] Create WAF instance group options: %#v", createOpts)
 
 	pool, err := pools.Create(client, createOpts)
 	if err != nil {
@@ -105,7 +105,7 @@ func resourceWafInstanceGroupRead(_ context.Context, d *schema.ResourceData, met
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	pool, err := pools.Get(client, d.Id())
@@ -132,7 +132,7 @@ func resourceWafInstanceGroupRead(_ context.Context, d *schema.ResourceData, met
 	d.Set("description", pool.Description)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting WAF dedicated group attributes: %s", err)
+		return diag.Errorf("error setting WAF dedicated group attributes: %s", err)
 	}
 
 	return nil
@@ -142,7 +142,7 @@ func resourceWafInstanceGroupUpdate(ctx context.Context, d *schema.ResourceData,
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client : %s", err)
 	}
 
 	if d.HasChanges("name", "description") {
@@ -151,11 +151,11 @@ func resourceWafInstanceGroupUpdate(ctx context.Context, d *schema.ResourceData,
 			Name:        d.Get("name").(string),
 			Description: &desc,
 		}
-		logp.Printf("[DEBUG] Create WAF instance group options: %#v", updateOpts)
+		log.Printf("[DEBUG] Create WAF instance group options: %#v", updateOpts)
 
 		_, err = pools.Update(client, d.Id(), updateOpts)
 		if err != nil {
-			return fmtp.DiagErrorf("Error in update the groups[%s] : %s", d.Id(), err)
+			return diag.Errorf("error in update the groups[%s] : %s", d.Id(), err)
 		}
 	}
 
@@ -166,14 +166,14 @@ func resourceWafInstanceGroupDelete(_ context.Context, d *schema.ResourceData, m
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error in creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error in creating WAF dedicated client : %s", err)
 	}
 	// remove the bound ELB instances before deleting the group
 	elbs := d.Get("load_balancers").([]interface{})
 	if len(elbs) > 0 {
 		mErr := batchRemoveELBInstances(client, d.Id(), elbs)
 		if err = mErr.ErrorOrNil(); err != nil {
-			return fmtp.DiagErrorf("error in removing ELB instances from group: %s", err)
+			return diag.Errorf("error in removing ELB instances from group: %s", err)
 		}
 	}
 
@@ -206,7 +206,7 @@ func batchRemoveELBInstances(c *golangsdk.ServiceClient, poolID string, ids []in
 		if bindingID, ok := idMapping[v.(string)]; ok {
 			err = pools.RemoveELB(c, poolID, bindingID)
 			if err != nil {
-				err = fmtp.Errorf("Error in removing load balance[%s] from the group[%s]: %s", v, poolID, err)
+				err = fmt.Errorf("error in removing load balance[%s] from the group[%s]: %s", v, poolID, err)
 				mErr = multierror.Append(mErr, err)
 			}
 		}

@@ -118,8 +118,8 @@ func createEnvironmentVariables(client *golangsdk.ServiceClient, appId string, e
 }
 
 func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ServiceStageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ServiceStageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -128,7 +128,7 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 	opt := applications.CreateOpts{
 		Name:                d.Get("name").(string),
 		Description:         &desc,
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 	log.Printf("[DEBUG] The CreateOpts of ServiceStage application is: %v", opt)
 	resp, err := applications.Create(client, opt)
@@ -180,9 +180,9 @@ func flattenComponentIds(list []components.Component) []string {
 }
 
 func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -226,9 +226,9 @@ func removeEnvironmentVariables(client *golangsdk.ServiceClient, appId string, e
 }
 
 func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}
@@ -261,9 +261,9 @@ func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ServiceStageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ServiceStageV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage v2 client: %s", err)
 	}

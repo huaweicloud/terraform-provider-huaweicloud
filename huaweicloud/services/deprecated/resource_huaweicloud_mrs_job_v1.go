@@ -1,6 +1,8 @@
 package deprecated
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,8 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API MRS DELETE /v1.1/{project_id}/job-executions/{id}
@@ -113,7 +113,7 @@ func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobID string) resource
 			}
 			return nil, "", err
 		}
-		logp.Printf("[DEBUG] JobStateRefreshFunc: %#v", jobGet)
+		log.Printf("[DEBUG] JobStateRefreshFunc: %#v", jobGet)
 		jobState := "Starting"
 		if jobGet.JobState == -1 {
 			jobState = "Terminated"
@@ -136,7 +136,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	createOpts := &job.CreateOpts{
@@ -153,11 +153,11 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 		IsPublic:       d.Get("is_public").(bool),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	jobCreate, err := job.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Job: %s", err)
+		return fmt.Errorf("error creating Job: %s", err)
 	}
 
 	d.SetId(jobCreate.ID)
@@ -172,9 +172,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for job (%s) to become ready: %s ",
-			jobCreate.ID, err)
+		return fmt.Errorf("error waiting for job (%s) to become ready: %s ", jobCreate.ID, err)
 	}
 
 	return resourceMRSJobV1Read(d, meta)
@@ -185,14 +183,14 @@ func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
 	region := config.GetRegion(d)
 	client, err := config.MrsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud  MRS client: %s", err)
+		return fmt.Errorf("error creating MRS client: %s", err)
 	}
 
 	jobGet, err := job.Get(client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "MRS Job")
 	}
-	logp.Printf("[DEBUG] Retrieved MRS Job %s: %#v", d.Id(), jobGet)
+	log.Printf("[DEBUG] Retrieved MRS Job %s: %#v", d.Id(), jobGet)
 
 	d.Set("region", region)
 	d.SetId(jobGet.ID)
@@ -228,11 +226,11 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmt.Errorf("error creating client: %s", err)
 	}
 
 	rId := d.Id()
-	logp.Printf("[DEBUG] Deleting MRS Job %s", rId)
+	log.Printf("[DEBUG] Deleting MRS Job %s", rId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
@@ -245,10 +243,10 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 	if err != nil {
 		if utils.IsResourceNotFound(err) {
-			logp.Printf("[INFO] deleting an unavailable MRS Job: %s", rId)
+			log.Printf("[INFO] deleting an unavailable MRS Job: %s", rId)
 			return nil
 		}
-		return fmtp.Errorf("Error deleting MRS Job %s: %s", rId, err)
+		return fmt.Errorf("error deleting MRS Job %s: %s", rId, err)
 	}
 	return nil
 }

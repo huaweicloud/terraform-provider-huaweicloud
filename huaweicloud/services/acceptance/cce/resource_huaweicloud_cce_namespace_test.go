@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getNamespaceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -109,7 +108,7 @@ func testAccCCENamespaceImportStateIdFunc(name string) resource.ImportStateIdFun
 			}
 		}
 		if clusterID == "" || name == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", clusterID, name)
+			return "", fmt.Errorf("resource not found: %s/%s", clusterID, name)
 		}
 		return fmt.Sprintf("%s/%s", clusterID, name), nil
 

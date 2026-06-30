@@ -246,9 +246,9 @@ func ResourceFlinkSqlJob() *schema.Resource {
 }
 
 func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -325,7 +325,7 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 	jobId := rst.Job.JobId
 	d.SetId(strconv.Itoa(jobId))
 
-	if err = addTagsToResource(config, region, d); err != nil {
+	if err = addTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -386,9 +386,9 @@ func addTagsToResource(cfg *config.Config, region string, d *schema.ResourceData
 }
 
 func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -440,13 +440,13 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("tags", d.Get("tags")),
 	)
 
-	if err = setTagsToResource(config, region, d); err != nil {
+	if err = setTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
 	_, ok := d.GetOk("graph_type")
 	if d.Get("type").(string) == flinkjob.JobTypeFlinkOpenSourceSql && ok {
-		v3Client, err := config.DliV3Client(region)
+		v3Client, err := cfg.DliV3Client(region)
 		if err != nil {
 			return diag.Errorf("error creating DLI v3 client: %s", err)
 		}
@@ -498,9 +498,9 @@ func getSteramGraphById(client *golangsdk.ServiceClient, d *schema.ResourceData,
 
 // This API is used to cancel a submitted job. If execution of a job completes or fails, this job cannot be canceled.
 func resourceFlinkSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -539,14 +539,14 @@ func updateTagsToResource(cfg *config.Config, region string, d *schema.ResourceD
 }
 
 func resourceFlinkSqlJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	if err := updateTagsToResource(config, region, d); err != nil {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	if err := updateTagsToResource(cfg, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if d.HasChangesExcept("tags", "graph_type") {
-		client, err := config.DliV1Client(region)
+		client, err := cfg.DliV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating DLI v1 client, err=%s", err)
 		}

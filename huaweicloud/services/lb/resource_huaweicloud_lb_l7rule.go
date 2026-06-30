@@ -2,6 +2,8 @@ package lb
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -16,8 +18,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB GET /v2/{project_id}/elb/l7policies/{l7policy_id}
@@ -104,10 +104,10 @@ func ResourceL7RuleV2() *schema.Resource {
 }
 
 func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// Assign some required variables for use in creation.
@@ -121,7 +121,7 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 	// Ensure the right combination of options have been specified.
 	err = checkL7RuleType(ruleType, key)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create L7 Rule: %s", err)
+		return diag.Errorf("unable to create L7 Rule: %s", err)
 	}
 
 	createOpts := l7policies.CreateRuleOpts{
@@ -133,14 +133,14 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		AdminStateUp: &adminStateUp,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
 	// Get a clean copy of the parent L7 Policy.
 	parentL7Policy, err := l7policies.Get(lbClient, l7policyID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to get parent L7 Policy: %s", err)
+		return diag.Errorf("unable to get parent L7 Policy: %s", err)
 	}
 
 	if parentL7Policy.ListenerID != "" {
@@ -156,7 +156,7 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 	// Get a clean copy of the parent listener.
 	parentListener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve listener %s: %s", listenerID, err)
+		return diag.Errorf("unable to retrieve listener %s: %s", listenerID, err)
 	}
 
 	// Wait for parent L7 Policy to become active before continuing
@@ -165,10 +165,10 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to create L7 Rule")
+	log.Printf("[DEBUG] Attempting to create L7 Rule")
 	l7Rule, err := l7policies.CreateRule(lbClient, l7policyID, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating L7 Rule: %s", err)
+		return diag.Errorf("error creating L7 Rule: %s", err)
 	}
 
 	// Wait for L7 Rule to become active before continuing
@@ -184,10 +184,10 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceL7RuleV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -197,10 +197,10 @@ func resourceL7RuleV2Read(_ context.Context, d *schema.ResourceData, meta interf
 		return common.CheckDeletedDiag(d, err, "Error retrieving L7 Rule")
 	}
 
-	logp.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
+	log.Printf("[DEBUG] Retrieved L7 Rule %s: %#v", d.Id(), l7Rule)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("l7policy_id", l7policyID),
 		d.Set("type", l7Rule.RuleType),
 		d.Set("compare_type", l7Rule.CompareType),
@@ -210,17 +210,17 @@ func resourceL7RuleV2Read(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("admin_state_up", l7Rule.AdminStateUp),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting L7 Rule fields: %s", err)
+		return diag.Errorf("error setting L7 Rule fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	// Assign some required variables for use in updating.
@@ -256,19 +256,19 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	// Get a clean copy of the parent listener.
 	parentListener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve listener %s: %s", listenerID, err)
+		return diag.Errorf("unable to retrieve listener %s: %s", listenerID, err)
 	}
 
 	// Get a clean copy of the parent L7 Policy.
 	parentL7Policy, err := l7policies.Get(lbClient, l7policyID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to get parent L7 Policy: %s", err)
+		return diag.Errorf("unable to get parent L7 Policy: %s", err)
 	}
 
 	// Get a clean copy of the L7 Rule.
 	l7Rule, err := l7policies.GetRule(lbClient, l7policyID, d.Id()).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to get L7 Rule: %s", err)
+		return diag.Errorf("unable to get L7 Rule: %s", err)
 	}
 
 	// Wait for parent L7 Policy to become active before continuing
@@ -283,7 +283,7 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		_, err := l7policies.UpdateRule(lbClient, l7policyID, d.Id(), updateOpts).Extract()
@@ -294,7 +294,7 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	})
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to update L7 Rule %s: %s", d.Id(), err)
+		return diag.Errorf("unable to update L7 Rule %s: %s", d.Id(), err)
 	}
 
 	// Wait for L7 Rule to become active before continuing
@@ -307,10 +307,10 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
@@ -321,13 +321,13 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	// Get a clean copy of the parent listener.
 	parentListener, err := listeners.Get(lbClient, listenerID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve parent listener (%s) for the L7 Rule: %s", listenerID, err)
+		return diag.Errorf("unable to retrieve parent listener (%s) for the L7 Rule: %s", listenerID, err)
 	}
 
 	// Get a clean copy of the parent L7 Policy.
 	parentL7Policy, err := l7policies.Get(lbClient, l7policyID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve parent L7 Policy (%s) for the L7 Rule: %s", l7policyID, err)
+		return diag.Errorf("unable to retrieve parent L7 Policy (%s) for the L7 Rule: %s", l7policyID, err)
 	}
 
 	// Get a clean copy of the L7 Rule.
@@ -342,7 +342,7 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
+	log.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
 	//lintignore:R006
 	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 		err = l7policies.DeleteRule(lbClient, l7policyID, d.Id()).ExtractErr()
@@ -367,14 +367,14 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 func resourceL7RuleV2Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmtp.Errorf("Invalid format specified for L7 Rule. Format must be <policy id>/<rule id>")
+		err := fmt.Errorf("invalid format specified for L7 Rule. Format must be <policy id>/<rule id>")
 		return nil, err
 	}
 
-	config := meta.(*config.Config)
-	lbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
 	}
 
 	listenerID := ""
@@ -384,7 +384,7 @@ func resourceL7RuleV2Import(_ context.Context, d *schema.ResourceData, meta inte
 	// Get a clean copy of the parent L7 Policy.
 	parentL7Policy, err := l7policies.Get(lbClient, l7policyID).Extract()
 	if err != nil {
-		return nil, fmtp.Errorf("Unable to get parent L7 Policy: %s", err)
+		return nil, fmt.Errorf("unable to get parent L7 Policy: %s", err)
 	}
 
 	if parentL7Policy.ListenerID != "" {
@@ -407,9 +407,9 @@ func resourceL7RuleV2Import(_ context.Context, d *schema.ResourceData, meta inte
 func checkL7RuleType(ruleType, key string) error {
 	keyRequired := []string{"COOKIE", "HEADER"}
 	if utils.StrSliceContains(keyRequired, ruleType) && key == "" {
-		return fmtp.Errorf("key attribute is required, when the L7 Rule type is %s", strings.Join(keyRequired, " or "))
+		return fmt.Errorf("key attribute is required, when the L7 Rule type is %s", strings.Join(keyRequired, " or "))
 	} else if !utils.StrSliceContains(keyRequired, ruleType) && key != "" {
-		return fmtp.Errorf("key attribute must not be used, when the L7 Rule type is not %s", strings.Join(keyRequired, " or "))
+		return fmt.Errorf("key attribute must not be used, when the L7 Rule type is not %s", strings.Join(keyRequired, " or "))
 	}
 	return nil
 }

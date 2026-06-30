@@ -953,7 +953,7 @@ func (c *Config) KmsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("kmsv3", region)
 }
 
-// WafV1Client is not avaliable in HuaweiCloud, will be imported by other clouds
+// WafV1Client is not available in HuaweiCloud, will be imported by other clouds
 func (c *Config) WafV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("waf", region)
 }

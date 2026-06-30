@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // @API ECS GET /v2.1/{project_id}/os-availability-zone
@@ -41,20 +41,20 @@ func DataSourceAvailabilityZones() *schema.Resource {
 }
 
 func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	computeClient, err := config.ComputeV2Client(region)
+	cfg := meta.(*config.Config)
+	region := GetRegion(d, cfg)
+	computeClient, err := cfg.ComputeV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	allPages, err := availabilityzones.List(computeClient).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving Availability Zones: %s", err)
+		return fmt.Errorf("error retrieving Availability Zones: %s", err)
 	}
 	zoneInfo, err := availabilityzones.ExtractAvailabilityZones(allPages)
 	if err != nil {
-		return fmtp.Errorf("Error extracting Availability Zones: %s", err)
+		return fmt.Errorf("error extracting Availability Zones: %s", err)
 	}
 
 	stateBool := d.Get("state").(string) == "available"

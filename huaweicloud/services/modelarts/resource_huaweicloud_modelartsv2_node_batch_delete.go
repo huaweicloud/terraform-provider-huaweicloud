@@ -124,11 +124,11 @@ func resourceV2NodeBatchDeleteCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error executing batch delete operation: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	err = waitForV2NodeBatchDeleteCompleted(ctx, client, resourcePoolName, deleteNodeNames, d.Timeout(schema.TimeoutCreate))
 	if err != nil {

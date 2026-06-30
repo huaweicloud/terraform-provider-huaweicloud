@@ -256,11 +256,11 @@ func dataSourceGlobalEIPsRead(_ context.Context, d *schema.ResourceData, meta in
 		currentTotal += len(geips)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(randomUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("global_eips", results),
