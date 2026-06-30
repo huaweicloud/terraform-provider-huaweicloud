@@ -40,6 +40,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB POST /v3/{project_id}/instances
 // @API GaussDB GET /v3/{project_id}/jobs
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/alias
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/mysql-compatibility
@@ -59,6 +60,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/port
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/sharding
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/coordinators
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
@@ -178,6 +180,10 @@ func ResourceGaussDbInstance() *schema.Resource {
 						},
 					},
 				},
+			},
+			"alias": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"sharding_num": {
 				Type:     schema.TypeInt,
@@ -548,6 +554,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("error waiting for instance (%s) to become ready: %s", d.Id(), err)
+	}
+
+	if _, ok := d.GetOk("alias"); ok {
+		if err = updateInstanceAlias(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
@@ -1179,6 +1191,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if d.HasChange("alias") {
+		if err = updateInstanceAlias(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("password") {
 		if err = updateInstancePassword(ctx, d, client); err != nil {
 			return diag.FromErr(err)
@@ -1349,6 +1367,27 @@ func updateInstanceName(ctx context.Context, d *schema.ResourceData, client *gol
 func buildUpdateInstanceNameBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name": d.Get("name"),
+	}
+	return bodyParams
+}
+
+func updateInstanceAlias(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/alias",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateInstanceAliasBodyParams(d)),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance alias: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceAliasBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alias": d.Get("alias"),
 	}
 	return bodyParams
 }

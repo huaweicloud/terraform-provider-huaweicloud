@@ -20,7 +20,7 @@ import (
 )
 
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/limit-task
-// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/limit-task/{task_id}
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/limit-task/{task_id}
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/limit-task-list
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/limit-task/{task_id}
 func ResourceGaussDbSqlThrottlingTask() *schema.Resource {
