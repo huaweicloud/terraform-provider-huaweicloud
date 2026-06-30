@@ -36,6 +36,14 @@ paths:
     /v3/{project_id}/instances/{instance_id}/backups/policy:
         PUT:
             tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/cold-volume:
+        POST:
+            tag: GeminiDB
+        PUT:
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/data-dump:
+        PUT:
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/disk-auto-expansion:
         GET:
             tag: GeminiDB
@@ -50,12 +58,20 @@ paths:
             tag: GeminiDB
         PUT:
             tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/maintenance-window:
+        PUT:
+            tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch:
         GET:
             tag: GeminiDB
         PUT:
             tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/name:
+        PUT:
+            tag: GeminiDB
+    /v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy:
+        GET:
+            tag: GeminiDB
         PUT:
             tag: GeminiDB
     /v3/{project_id}/instances/{instance_id}/password:

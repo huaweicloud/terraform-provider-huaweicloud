@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_instance_database_role
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3.1/{project_id}/instances/{instance_id}/db-role:
+        GET:
+            tag: GaussDB
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDB

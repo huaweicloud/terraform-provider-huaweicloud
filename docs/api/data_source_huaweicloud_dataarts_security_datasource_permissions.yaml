@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dataarts_security_datasource_permissions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/security/permission-sets/datasource/configurations:
+        GET:
+            tag: DataArtsStudio

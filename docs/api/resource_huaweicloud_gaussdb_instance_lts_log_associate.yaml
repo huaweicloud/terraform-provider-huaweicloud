@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_instance_lts_log_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/logs/lts-config:
+        DELETE:
+            tag: GaussDB
+        GET:
+            tag: GaussDB
+        POST:
+            tag: GaussDB

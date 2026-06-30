@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_client_auth_config_restore
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/restore-hba-info:
+        PUT:
+            tag: GaussDB

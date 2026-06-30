@@ -9,9 +9,10 @@ tags:
     - name: ModelArts
 paths:
     /v2/{project_id}/modelarts-service-v2/{service_id}/tags/create:
-        DELETE:
-            tag: ModelArts
         POST:
+            tag: ModelArts
+    /v2/{project_id}/modelarts-service-v2/{service_id}/tags/delete:
+        DELETE:
             tag: ModelArts
     /v2/{project_id}/services:
         POST:

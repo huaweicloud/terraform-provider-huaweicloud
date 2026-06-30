@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_geminidb_instance_lts_log_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/instances:
+        POST:
+            tag: GeminiDB
+    /v3/{project_id}/instances/logs/lts-configs:
+        DELETE:
+            tag: GeminiDB
+        GET:
+            tag: GeminiDB
+        POST:
+            tag: GeminiDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GeminiDB

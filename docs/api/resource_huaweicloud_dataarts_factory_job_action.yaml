@@ -11,6 +11,9 @@ paths:
     /v1/{project_id}/jobs:
         GET:
             tag: DataArtsStudio
+    /v1/{project_id}/jobs/{job_name}/instances/{instance_id}:
+        GET:
+            tag: DataArtsStudio
     /v1/{project_id}/jobs/{job_name}/run-immediate:
         POST:
             tag: DataArtsStudio

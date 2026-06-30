@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_configuration_dictionary
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/configurations/dictionaries:
+        DELETE:
+            tag: SecMaster
+        GET:
+            tag: SecMaster
+        POST:
+            tag: SecMaster
+        PUT:
+            tag: SecMaster

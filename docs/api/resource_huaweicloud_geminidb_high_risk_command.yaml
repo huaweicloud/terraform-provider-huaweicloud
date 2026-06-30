@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_geminidb_high_risk_command
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/high-risk-commands:
+        GET:
+            tag: GeminiDB
+        PUT:
+            tag: GeminiDB

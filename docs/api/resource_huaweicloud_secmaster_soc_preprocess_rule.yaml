@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_soc_preprocess_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/preprocess-rules:
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/preprocess-rules/search:
+        POST:
+            tag: SecMaster

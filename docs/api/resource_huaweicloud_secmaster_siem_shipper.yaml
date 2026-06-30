@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_siem_shipper
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/siem/shippers:
+        DELETE:
+            tag: SecMaster
+        GET:
+            tag: SecMaster
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/siem/shippers/{shipper_id}/pause:
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/siem/shippers/{shipper_id}/resume:
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/siem/shippers/{shipper_id}/retry:
+        POST:
+            tag: SecMaster

@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_instance_plugin
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/kernel-plugin:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/plugins:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDB

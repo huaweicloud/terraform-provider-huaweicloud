@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_gaussdb_sql_execution_plan_status
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/sql/{node_id}/plans/query:
+        POST:
+            tag: GaussDB

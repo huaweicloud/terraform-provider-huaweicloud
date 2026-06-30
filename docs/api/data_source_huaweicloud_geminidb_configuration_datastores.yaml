@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_geminidb_scheduled_task_cancel
+    title: data_source_huaweicloud_geminidb_configuration_datastores
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: GeminiDB
 paths:
-    /v3/{project_id}/scheduled-jobs/{job_id}:
-        DELETE:
+    /v3/{project_id}/configurations/datastores:
+        GET:
             tag: GeminiDB

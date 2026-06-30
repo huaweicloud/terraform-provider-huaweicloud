@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_instance_full_sqls_config
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/full-sqls/start:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/full-sqls/stop:
+        POST:
+            tag: GaussDB
