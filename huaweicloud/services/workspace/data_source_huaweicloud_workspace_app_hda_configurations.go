@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -197,11 +197,11 @@ func dataSourceAppHdaConfigurationsRead(_ context.Context, d *schema.ResourceDat
 		return diag.Errorf("error retrieving HDA configurations: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

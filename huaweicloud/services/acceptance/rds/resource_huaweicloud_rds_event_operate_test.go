@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -41,8 +41,8 @@ func TestAccRdsEventOperate_basic(t *testing.T) {
 }
 
 func testAccRdsEventOperate_basic(name string) string {
-	randEventId1, _ := uuid.GenerateUUID()
-	randEventId2, _ := uuid.GenerateUUID()
+	randEventId1, _ := uuid.NewRandom()
+	randEventId2, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
@@ -64,5 +64,5 @@ resource "huaweicloud_rds_event_operate" "test" {
     end_time    = "12:00"
   }
 }
-`, testAccRdsInstance_mysql_step1(name), randEventId1, randEventId2)
+`, testAccRdsInstance_mysql_step1(name), randEventId1.String(), randEventId2.String())
 }

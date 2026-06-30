@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -130,7 +130,7 @@ func resourceTemplateRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -147,7 +147,7 @@ func resourceTemplateRead(_ context.Context, d *schema.ResourceData, meta interf
 		listTemplateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			MoreHeaders: map[string]string{
-				"Client-Request-Id": randUUID,
+				"Client-Request-Id": randUUID.String(),
 				"Content-Type":      "application/json",
 				"X-Language":        "en-us",
 			},
@@ -212,7 +212,7 @@ func resourceTemplateDelete(_ context.Context, d *schema.ResourceData, meta inte
 	deleteTemplatePath := deleteTemplateClient.Endpoint + deleteTemplateHttpUrl
 	deleteTemplatePath = strings.ReplaceAll(deleteTemplatePath, "{template_name}", d.Get("template_name").(string))
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceTemplateDelete(_ context.Context, d *schema.ResourceData, meta inte
 	deleteTemplateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": randUUID,
+			"Client-Request-Id": randUUID.String(),
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
 		},

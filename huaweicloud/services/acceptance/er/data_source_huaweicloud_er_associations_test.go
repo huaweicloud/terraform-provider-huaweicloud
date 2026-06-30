@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -182,7 +182,7 @@ output "is_status_filter_useful" {
 }
 
 func testAccDataSourceAssociations_basic_step2(baseConfig string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -195,11 +195,11 @@ data "huaweicloud_er_associations" "instance_id_not_found" {
   instance_id    = "%[2]s"
   route_table_id = huaweicloud_er_route_table.test.id
 }
-`, baseConfig, randUUID)
+`, baseConfig, randUUID.String())
 }
 
 func testAccDataSourceAssociations_basic_step3(baseConfig string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -212,5 +212,5 @@ data "huaweicloud_er_associations" "route_table_id_not_found" {
   instance_id    = huaweicloud_er_instance.test.id
   route_table_id = "%[2]s"
 }
-`, baseConfig, randUUID)
+`, baseConfig, randUUID.String())
 }

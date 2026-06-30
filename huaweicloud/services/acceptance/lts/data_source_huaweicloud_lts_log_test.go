@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -28,7 +28,7 @@ func TestAccDataLogs_basic(t *testing.T) {
 		byKeywordsHighlight   = "data.huaweicloud_lts_logs.filter_by_keywords_highlight"
 		dcByKeywordsHighlight = acceptance.InitDataSourceCheck(byKeywordsHighlight)
 
-		randomId, _ = uuid.GenerateUUID()
+		randomId, _ = uuid.NewRandom()
 		currentTime = time.Now()
 		startTime   = currentTime.Format(time.RFC3339)
 		endTime     = currentTime.Add(1 * time.Hour).Format(time.RFC3339)
@@ -48,11 +48,11 @@ func TestAccDataLogs_basic(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataLogs_logGroupNotFound(randomId, startTime, endTime),
+				Config:      testAccDataLogs_logGroupNotFound(randomId.String(), startTime, endTime),
 				ExpectError: regexp.MustCompile(`The log group does not existed`),
 			},
 			{
-				Config:      testAccDataLogs_logStreamNotFound(name, randomId, startTime, endTime),
+				Config:      testAccDataLogs_logStreamNotFound(name, randomId.String(), startTime, endTime),
 				ExpectError: regexp.MustCompile(`The log stream does not existed`),
 			},
 			{

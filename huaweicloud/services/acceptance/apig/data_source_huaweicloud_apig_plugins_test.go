@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -14,7 +14,7 @@ import (
 func TestAccDataSourcePlugins_basic(t *testing.T) {
 	var (
 		rName       = acceptance.RandomAccResourceName()
-		randomId, _ = uuid.GenerateUUID()
+		randomId, _ = uuid.NewRandom()
 
 		dataSource = "data.huaweicloud_apig_plugins.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
@@ -46,11 +46,11 @@ func TestAccDataSourcePlugins_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourcePlugins_basic_step1(randomId),
+				Config:      testAccDataSourcePlugins_basic_step1(randomId.String()),
 				ExpectError: regexp.MustCompile(`The instance does not exist`),
 			},
 			{
-				Config: testAccDataSourcePlugins_basic_step2(rName, randomId),
+				Config: testAccDataSourcePlugins_basic_step2(rName, randomId.String()),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "plugins.#", regexp.MustCompile(`[1-9]\d*`)),

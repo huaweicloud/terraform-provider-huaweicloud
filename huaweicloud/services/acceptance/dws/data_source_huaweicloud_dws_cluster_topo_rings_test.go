@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -47,12 +47,12 @@ func TestAccDataSourceClusterTopoRings_basic(t *testing.T) {
 }
 
 func testDataSourceClusterTopoRings_clusterNotExist() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dws_cluster_topo_rings" "test" {
   cluster_id = "%s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testDataSourceClusterTopoRings_basic() string {

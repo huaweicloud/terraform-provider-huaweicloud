@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -44,13 +44,13 @@ func TestAccDataDesktopTags_basic(t *testing.T) {
 }
 
 func testAccDataDesktopTags_basic_invalidDesktopId() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 # Filter by 'desktop_id' parameter and with invalid value.
 data "huaweicloud_workspace_desktop_tags" "invalid_desktop_id" {
   desktop_id = "%[1]s"
 }
-`, randomId)
+`, randomId.String())
 }
 
 func testAccDataDesktopTags_base(name string) string {

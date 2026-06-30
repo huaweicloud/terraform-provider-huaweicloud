@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -68,13 +68,13 @@ func TestAccDataSecurityDataRecognitionRuleGroups_basic(t *testing.T) {
 }
 
 func testAccDataSecurityDataRecognitionRuleGroups_nonExistentWorkspace() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_dataarts_security_data_recognition_rule_groups" "test" {
   workspace_id = "%[1]s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataSecurityDataRecognitionRuleGroups_basic_base(name string) string {

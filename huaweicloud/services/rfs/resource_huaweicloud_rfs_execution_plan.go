@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -97,7 +97,7 @@ func resourceExecutionPlanCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -109,7 +109,7 @@ func resourceExecutionPlanCreate(ctx context.Context, d *schema.ResourceData, me
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
 		},
@@ -162,7 +162,7 @@ func resourceExecutionPlanDelete(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -175,7 +175,7 @@ func resourceExecutionPlanDelete(_ context.Context, d *schema.ResourceData, meta
 	deletetOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 			"X-Language":        "en-us",
 		},

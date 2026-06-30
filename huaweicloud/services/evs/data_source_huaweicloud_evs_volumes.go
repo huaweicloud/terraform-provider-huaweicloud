@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -418,12 +418,12 @@ func dataSourceEvsVolumesRead(_ context.Context, d *schema.ResourceData, meta in
 		offset += len(volumes)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("volumes", flattenEvsVolumes(filterEvsVolumes(allVolumes, d))),

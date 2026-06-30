@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -90,11 +90,11 @@ func DataSourceIdentityEnterpriseProjectGroupsRead(_ context.Context, d *schema.
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 	groupsList := flattenEnterpriseProjectGroupsList(utils.PathSearch("groups", respBody, make([]interface{}, 0)).([]interface{}), iamClient)
 	if e := d.Set("groups", groupsList); e != nil {
 		return diag.FromErr(e)

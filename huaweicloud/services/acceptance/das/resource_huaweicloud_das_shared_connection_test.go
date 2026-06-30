@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -126,7 +126,7 @@ data "huaweicloud_identity_users" "test" {
 }
 
 func testAccSharedConnection_nonExistentSharedConnection(name, password string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 %[1]s
@@ -136,7 +136,7 @@ resource "huaweicloud_das_shared_connection" "non_existent_shared_connection" {
   user_id       = "%[3]s"
   user_name     = "%[4]s"
 }
-`, testAccSharedConnection_basic_base(name, password), randUUID, name, password)
+`, testAccSharedConnection_basic_base(name, password), randUUID.String(), name, password)
 }
 
 func testAccSharedConnection_basic(name, password, currentTime string) string {

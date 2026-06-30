@@ -3,8 +3,8 @@ package eps
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -59,11 +59,11 @@ func dataSourceResourcesMappingRead(_ context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	respMap := utils.PathSearch("resource_mapping", respBody, make(map[string]interface{})).(map[string]interface{})
 	mErr := multierror.Append(nil,

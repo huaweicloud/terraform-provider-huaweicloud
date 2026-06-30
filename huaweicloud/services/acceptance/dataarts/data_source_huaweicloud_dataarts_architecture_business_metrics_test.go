@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -124,13 +124,13 @@ func TestAccDataArchitectureBusinessMetrics_basic(t *testing.T) {
 }
 
 func testAccDataArchitectureBusinessMetrics_nonExistentWorkspace() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_dataarts_architecture_business_metrics" "test" {
   workspace_id = "%[1]s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testAccDataSourceArchitectureBusinessMetrics_basic(name string) string {

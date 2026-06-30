@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -57,7 +57,7 @@ func TestAccCatalogMetadataTaskAction_basic(t *testing.T) {
 }
 
 func testAccCatalogMetadataTaskAction_nonExistentMetadataTask() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_catalog_metadata_task_action" "non_existent_metadata_task" {
@@ -65,7 +65,7 @@ resource "huaweicloud_dataarts_catalog_metadata_task_action" "non_existent_metad
   task_id      = "%[2]s"
   action       = "run"
 }
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, randUUID)
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, randUUID.String())
 }
 
 func testAccCatalogMetadataTaskAction_basic_base(name, currentTime string) string {

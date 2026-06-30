@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -70,11 +70,11 @@ func resourceDdmPhysicalSessionsKillCreate(_ context.Context, d *schema.Resource
 		return diag.Errorf("error killing DDM physical sessions: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return nil
 }

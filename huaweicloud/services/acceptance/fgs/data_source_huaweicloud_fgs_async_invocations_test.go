@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -76,7 +76,7 @@ func TestAccDataAsyncInvocations_basic(t *testing.T) {
 }
 
 func testAccDataAsyncInvocations_basic() string {
-	randRequestId, _ := uuid.GenerateUUID()
+	randRequestId, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_fgs_functions" "test" {
@@ -228,5 +228,5 @@ locals {
 output "is_end_time_filter_useful" {
   value = length(local.end_time_filter_result) > 0 && alltrue(local.end_time_filter_result)
 }
-`, acceptance.HW_FGS_FUNCTION_NAME, randRequestId)
+`, acceptance.HW_FGS_FUNCTION_NAME, randRequestId.String())
 }

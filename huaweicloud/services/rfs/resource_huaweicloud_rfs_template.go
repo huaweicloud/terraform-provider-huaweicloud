@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -109,7 +109,7 @@ func resourceRfsTemplateCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -120,7 +120,7 @@ func resourceRfsTemplateCreate(ctx context.Context, d *schema.ResourceData, meta
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 		JSONBody: utils.RemoveNil(buildCreateRfsTemplateBodyParams(d)),
@@ -215,12 +215,12 @@ func resourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
 
-	template, err := GetRfsTemplateByName(client, templateName, requestId)
+	template, err := GetRfsTemplateByName(client, templateName, requestId.String())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving RFS template")
 	}
@@ -253,7 +253,7 @@ func resourceRfsTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -265,7 +265,7 @@ func resourceRfsTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 		JSONBody: utils.RemoveNil(buildUpdateRfsTemplateBodyParams(d)),
@@ -301,7 +301,7 @@ func resourceRfsTemplateDelete(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -313,7 +313,7 @@ func resourceRfsTemplateDelete(_ context.Context, d *schema.ResourceData, meta i
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 	}

@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -136,12 +136,12 @@ func dataSourceCssFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 	log.Printf("[DEBUG] filter %d CSS flavors from %d through options %v", len(filterFlavors), len(allFlavors), filter)
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

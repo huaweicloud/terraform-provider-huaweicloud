@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,11 +91,11 @@ func resourceBestPracticeCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error waiting for best practice to create: %s", err)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 
 	return resourceBestPracticeRead(ctx, d, meta)
 }

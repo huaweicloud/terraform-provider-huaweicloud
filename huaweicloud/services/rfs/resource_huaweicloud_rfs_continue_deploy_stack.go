@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -140,7 +140,7 @@ func resourceRfsContinueDeployStackCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -152,7 +152,7 @@ func resourceRfsContinueDeployStackCreate(ctx context.Context, d *schema.Resourc
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 		JSONBody: utils.RemoveNil(buildStackContinuationBodyParams(d)),
@@ -175,7 +175,7 @@ func resourceRfsContinueDeployStackCreate(ctx context.Context, d *schema.Resourc
 
 	d.SetId(deploymentId)
 
-	if err := waitingForStackDeploymentCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate), requestId); err != nil {
+	if err := waitingForStackDeploymentCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate), requestId.String()); err != nil {
 		return diag.Errorf("error waiting for stack deployment to complete: %s", err)
 	}
 

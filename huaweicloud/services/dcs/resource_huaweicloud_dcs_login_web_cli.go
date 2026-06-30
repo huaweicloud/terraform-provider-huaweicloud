@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -104,12 +104,12 @@ func resourceDcsLoginWebCliCreate(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("client_id not found in login response")
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 
 	if err := d.Set("client_id", clientID); err != nil {
 		return diag.Errorf("failed to set client_id: %s", err)

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -129,12 +129,12 @@ func dataSourceV5UserRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error querying users: %s", err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	if userId, ok := d.GetOk("user_id"); ok {
 		users = utils.PathSearch(fmt.Sprintf("[?user_id=='%s']", userId.(string)), users, make([]interface{}, 0)).([]interface{})

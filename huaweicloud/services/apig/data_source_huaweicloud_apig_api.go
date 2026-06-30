@@ -3,8 +3,8 @@ package apig
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -853,11 +853,11 @@ func dataSourceApiRead(_ context.Context, d *schema.ResourceData, meta interface
 		return diag.Errorf("error querying API (%s): %s", apiId, err)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+	d.SetId(dataSourceId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

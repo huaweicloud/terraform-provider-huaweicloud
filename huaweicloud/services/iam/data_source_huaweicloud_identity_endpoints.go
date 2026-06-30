@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -103,8 +103,8 @@ func dataSourceIdentityEndpointsRead(_ context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	if endpointId != "" {
 		resp := utils.PathSearch("endpoint", respBody, nil)
 		if resp == nil {

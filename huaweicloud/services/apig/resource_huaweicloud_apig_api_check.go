@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -130,12 +130,12 @@ func resourceApiCheckCreate(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error checking API under APIG instance (%s): %s", instanceId, err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	return nil
 }

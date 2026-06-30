@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -48,7 +47,7 @@ func getApplicationInstanceResourceFunc(cfg *config.Config, state *terraform.Res
 func TestAccApplicationInstance_basic(t *testing.T) {
 	var obj interface{}
 
-	name, _ := uuid.GenerateUUID()
+	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_identitycenter_application_instance.test"
 
 	rc := acceptance.InitResourceCheck(

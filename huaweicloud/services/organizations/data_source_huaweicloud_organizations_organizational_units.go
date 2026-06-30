@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -124,12 +124,12 @@ func dataSourceOrganizationalUnitsRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error querying organizational units: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	return diag.FromErr(d.Set("children", flattenOrganizationalUnits(ous)))
 }

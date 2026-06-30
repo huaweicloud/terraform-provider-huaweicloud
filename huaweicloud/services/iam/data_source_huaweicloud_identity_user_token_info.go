@@ -3,8 +3,8 @@ package iam
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -199,8 +199,8 @@ func dataSourceIdentityUserTokenInfoRead(_ context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	tokenModel := utils.PathSearch("token", respBody, nil)
 	return flattenResponse(tokenModel, noCatalog, d)
 }

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -56,7 +56,7 @@ func TestAccDataInstanceIngressAssociatedDomains_basic(t *testing.T) {
 }
 
 func testAccDataInstanceIngressAssociatedDomains_basic(name string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_apig_instances" "test" {
@@ -153,5 +153,5 @@ data "huaweicloud_apig_instance_ingress_associated_domains" "filter_by_not_found
   instance_id     = local.instance_id
   ingress_port_id = "%[4]s"
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, acceptance.HW_DNS_ZONE_NAMES, name, randUUID)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, acceptance.HW_DNS_ZONE_NAMES, name, randUUID.String())
 }

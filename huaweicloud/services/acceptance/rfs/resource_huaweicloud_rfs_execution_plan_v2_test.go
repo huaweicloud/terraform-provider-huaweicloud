@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -19,14 +19,14 @@ func getExecutionPlanV2ResourceFunc(cfg *config.Config, state *terraform.Resourc
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate UUID: %s", err)
 	}
 
 	stackName := state.Primary.Attributes["stack_name"]
 	executionPlanName := state.Primary.Attributes["execution_plan_name"]
-	return rfs.ReadExecutionPlanV2Detail(client, uuid, stackName, executionPlanName)
+	return rfs.ReadExecutionPlanV2Detail(client, uuid.String(), stackName, executionPlanName)
 }
 
 func TestAccExecutionPlanV2_basic(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -80,13 +80,13 @@ func TestAccDataInstanceAssociatedCertificates_basic(t *testing.T) {
 }
 
 func testAccDataInstanceAssociatedSSLCertificates_instanceNotFound() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 # Filter by Invalid Instance ID
 data "huaweicloud_apig_instance_associated_certificates" "filter_by_invalid_instance_id" {
   instance_id = "%[1]s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataInstanceAssociatedSSLCertificates_basic(name string) string {

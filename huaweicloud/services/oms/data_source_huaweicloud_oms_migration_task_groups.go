@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -402,12 +402,12 @@ func dataSourceMigrationTaskGroupsRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error retrieving migration task groups: %s", err)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

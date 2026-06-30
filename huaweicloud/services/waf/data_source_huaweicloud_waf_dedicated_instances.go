@@ -3,8 +3,8 @@ package waf
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -151,7 +151,9 @@ func generateDatasourceID(d *schema.ResourceData) (string, error) {
 		return instanceID.(string), nil
 	}
 
-	return uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
+
+	return randomUUID.String(), err
 }
 
 func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -360,11 +360,11 @@ func dataSourceRouteTablesRead(_ context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("error retrieving route tables: %s", err)
 	}
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

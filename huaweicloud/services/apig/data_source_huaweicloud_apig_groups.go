@@ -3,8 +3,8 @@ package apig
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -229,11 +229,11 @@ func dataSourceGroupsRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("unable to get the group list form server: %v", err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	result := make([]map[string]interface{}, 0)
 	for _, group := range resp {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -159,7 +159,7 @@ func dataSourceExecutionPlanPricesRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request UUID: %s", err)
 	}
@@ -170,7 +170,7 @@ func dataSourceExecutionPlanPricesRead(_ context.Context, d *schema.ResourceData
 	requestPath = strings.ReplaceAll(requestPath, "{execution_plan_name}", planName)
 	requestPath += buildExecutionPlanPricesQueryParams(d)
 	requestOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID},
+		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID.String()},
 		KeepResponseBody: true,
 	}
 
@@ -184,7 +184,7 @@ func dataSourceExecutionPlanPricesRead(_ context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	d.SetId(reqUUID)
+	d.SetId(reqUUID.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

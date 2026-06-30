@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -32,7 +32,7 @@ func TestAccResolverRuleAssociate_basic(t *testing.T) {
 		rName         = "huaweicloud_dns_resolver_rule_associate.test"
 		rc            = acceptance.InitResourceCheck(rName, &associatedVpc, getResolverRuleAssociatedVpc)
 
-		randomId, _ = uuid.GenerateUUID()
+		randomId, _ = uuid.NewRandom()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -41,11 +41,11 @@ func TestAccResolverRuleAssociate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config:      testResolverRuleAssociate_ruleNotExist(randomId),
+				Config:      testResolverRuleAssociate_ruleNotExist(randomId.String()),
 				ExpectError: regexp.MustCompile("Resolver rule not exist"),
 			},
 			{
-				Config: testResolverRuleAssociate_VPCNotExist(name, randomId),
+				Config: testResolverRuleAssociate_VPCNotExist(name, randomId.String()),
 				// DNS.0711: The associated VPC does not exist.
 				ExpectError: regexp.MustCompile("DNS.0711"),
 			},

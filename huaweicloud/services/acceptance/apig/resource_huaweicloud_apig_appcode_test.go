@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -93,7 +93,7 @@ func TestAccAppcode_basic(t *testing.T) {
 }
 
 func testAccAppcode_withValueAndNonExistentParentResources(code string) string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_appcode" "test" {
@@ -101,18 +101,18 @@ resource "huaweicloud_apig_appcode" "test" {
   application_id = "%[1]s"
   value          = "%[2]s"
 }
-`, randomUUID, code)
+`, randomUUID.String(), code)
 }
 
 func testAccAppcode_withoutValueAndNonExistentParentResources() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_appcode" "test" {
   instance_id    = "%[1]s"
   application_id = "%[1]s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccAppcode_basic(name, code string) string {

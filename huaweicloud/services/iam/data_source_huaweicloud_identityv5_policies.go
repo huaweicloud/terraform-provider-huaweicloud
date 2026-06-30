@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -152,8 +152,8 @@ func dataSourceIdentityV5PoliciesRead(_ context.Context, d *schema.ResourceData,
 		}
 	}
 
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	mErr := multierror.Append(nil,
 		d.Set("policies", allPolicies),
 	)

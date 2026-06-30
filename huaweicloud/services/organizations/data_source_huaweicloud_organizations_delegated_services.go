@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -107,11 +107,11 @@ func dataSourceDelegatedServicesRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error retrieving Organizations delegated services for account (%s): %s", accountId, err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	return diag.FromErr(d.Set("delegated_services", flattenDelegatedServiceResp(delegatedServices)))
 }

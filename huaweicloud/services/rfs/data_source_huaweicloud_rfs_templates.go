@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -83,7 +83,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
@@ -93,7 +93,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 	requestPath = fmt.Sprintf("%s?limit=%d", requestPath, limit)
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": uuid,
+			"Client-Request-Id": uuid.String(),
 			"Content-Type":      "application/json",
 		},
 		KeepResponseBody: true,
@@ -128,7 +128,7 @@ func dataSourceRfsTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

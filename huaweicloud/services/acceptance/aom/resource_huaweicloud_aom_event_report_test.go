@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -59,7 +59,7 @@ resource "huaweicloud_aom_event_report" "test_with_error" {
 
 func testEventReport_basic_step1() string {
 	timestamp := time.Now().UnixMilli()
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_event_report" "test" {
@@ -77,12 +77,12 @@ resource "huaweicloud_aom_event_report" "test" {
     }
   }
 }
-`, timestamp, randomUUID)
+`, timestamp, randomUUID.String())
 }
 
 func testEventReport_basic_step2() string {
 	timestamp := time.Now().UnixMilli()
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_event_report" "test_with_annotations" {
@@ -104,14 +104,14 @@ resource "huaweicloud_aom_event_report" "test_with_annotations" {
     })
   }
 }
-`, timestamp, randomUUID)
+`, timestamp, randomUUID.String())
 }
 
 func testEventReport_basic_step3() string {
 	// 1 minute later
 	timestamp := time.Now().UnixMilli()
 	clearTimestamp := timestamp + 60000
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_event_report" "test_with_clear_action" {
@@ -130,12 +130,12 @@ resource "huaweicloud_aom_event_report" "test_with_clear_action" {
     }
   }
 }
-`, clearTimestamp, randomUUID)
+`, clearTimestamp, randomUUID.String())
 }
 
 func testEventReport_basic_step4() string {
 	timestamp := time.Now().UnixMilli()
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_event_report" "test_with_default_ep_id" {
@@ -154,12 +154,12 @@ resource "huaweicloud_aom_event_report" "test_with_default_ep_id" {
     }
   }
 }
-`, timestamp, randomUUID)
+`, timestamp, randomUUID.String())
 }
 
 func testEventReport_basic_step5() string {
 	timestamp := time.Now().UnixMilli()
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_event_report" "test_with_ep_id" {
@@ -178,5 +178,5 @@ resource "huaweicloud_aom_event_report" "test_with_ep_id" {
     }
   }
 }
-`, acceptance.HW_ENTERPRISE_PROJECT_ID, timestamp, randomUUID)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID, timestamp, randomUUID.String())
 }

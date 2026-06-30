@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -106,7 +106,7 @@ func testAccV2WorkflowScheduleImportStateIDFunc(name string) resource.ImportStat
 }
 
 func testAccV2WorkflowSchedule_nonExistentWorkflow() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_modelartsv2_workflow_schedule" "test" {
@@ -116,7 +116,7 @@ resource "huaweicloud_modelartsv2_workflow_schedule" "test" {
     method = "fixed"
   })
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccV2WorkflowSchedule_basic_step1() string {

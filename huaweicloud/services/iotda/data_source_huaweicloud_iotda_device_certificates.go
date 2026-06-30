@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -138,12 +138,12 @@ func dataSourceDeviceCertificatesRead(_ context.Context, d *schema.ResourceData,
 		offset += len(certificates)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

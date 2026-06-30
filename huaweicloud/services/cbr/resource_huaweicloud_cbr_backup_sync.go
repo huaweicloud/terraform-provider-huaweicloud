@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -210,11 +210,11 @@ func resourceBackupSyncCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CBR backup sync: Operation Log ID is not found in API response")
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID for CBR backup sync: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	if err := waitingForSyncTaskSuccess(ctx, client, d.Timeout(schema.TimeoutCreate), operationLogID); err != nil {
 		return diag.Errorf("error waiting for CBR backup sync to complete: %s", err)

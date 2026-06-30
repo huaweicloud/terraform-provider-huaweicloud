@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -168,11 +168,11 @@ func dataSourceCloudConnectionsRead(_ context.Context, d *schema.ResourceData, m
 		result = filter(result, resourceIDs)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(

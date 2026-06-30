@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -95,12 +95,12 @@ func dataSourceGaPopsRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error listing GA Pops: %s", err)
 	}
 
-	generateUUID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
 
-	d.SetId(generateUUID)
+	d.SetId(generateUUID.String())
 
 	return diag.FromErr(d.Set("pops", flattenPops(pops)))
 }

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -58,13 +58,13 @@ func TestAccDataPublicZoneRecordsets_basic(t *testing.T) {
 }
 
 func testAccDataPublicZoneRecordsets_notFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dns_public_zone_recordsets" "test" {
   zone_id = replace("%[1]s", "-", "")
   type    = "email"
 }
-`, randomId)
+`, randomId.String())
 }
 
 func testAccDataPublicZoneRecordsets_basic(name string) string {

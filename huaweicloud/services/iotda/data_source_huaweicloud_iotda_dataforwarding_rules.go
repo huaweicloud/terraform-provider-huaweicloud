@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -180,12 +180,12 @@ func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData
 		offset += len(rules)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 
 	targetRoutingRules := filterListDataForwardingRules(allRules, d)
 	mErr := multierror.Append(nil,

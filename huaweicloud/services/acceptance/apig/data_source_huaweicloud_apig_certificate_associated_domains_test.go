@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -107,12 +107,12 @@ resource "huaweicloud_apig_certificate_batch_domains_associate" "test" {
 }
 
 func testAccDataCertificateAssociatedDomains_certificateNotFound() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_apig_certificate_associated_domains" "test" {
   certificate_id = replace("%[1]s", "-", "")
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataCertificateAssociatedDomains_basic() string {

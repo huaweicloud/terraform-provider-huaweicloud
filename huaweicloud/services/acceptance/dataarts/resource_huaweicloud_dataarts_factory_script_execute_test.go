@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -70,14 +70,14 @@ func TestAccFactoryScriptExecute_basic(t *testing.T) {
 }
 
 func testAccFactoryScriptExecute_nonExistentWorkspaceAndScript() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_factory_script_execute" "non_existent_script" {
   workspace_id = "%[1]s"
   script_name  = "non_existent_script"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testAccFactoryScriptExecute_basic(name string) string {

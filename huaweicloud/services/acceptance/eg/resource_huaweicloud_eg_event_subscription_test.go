@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -29,9 +29,9 @@ func TestAccEventSubscription_basic(t *testing.T) {
 
 		rName              = "huaweicloud_eg_event_subscription.test"
 		name               = acceptance.RandomAccResourceName()
-		uuidOfficialEG, _  = uuid.GenerateUUID()
-		uuidOfficialSMN, _ = uuid.GenerateUUID()
-		uuidCustomHTTPS, _ = uuid.GenerateUUID()
+		uuidOfficialEG, _  = uuid.NewRandom()
+		uuidOfficialSMN, _ = uuid.NewRandom()
+		uuidCustomHTTPS, _ = uuid.NewRandom()
 
 		rc = acceptance.InitResourceCheck(rName, &obj, getEventSubscriptionFunc)
 	)
@@ -45,7 +45,7 @@ func TestAccEventSubscription_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEventSubscription_basic_step1(name, uuidOfficialEG, uuidOfficialSMN),
+				Config: testAccEventSubscription_basic_step1(name, uuidOfficialEG.String(), uuidOfficialSMN.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "huaweicloud_eg_custom_event_channel.test", "id"),
@@ -61,7 +61,7 @@ func TestAccEventSubscription_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEventSubscription_basic_step2(name, uuidOfficialEG, uuidCustomHTTPS),
+				Config: testAccEventSubscription_basic_step2(name, uuidOfficialEG.String(), uuidCustomHTTPS.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "huaweicloud_eg_custom_event_channel.test", "id"),
@@ -268,8 +268,8 @@ func TestAccEventSubscription_official(t *testing.T) {
 
 		rName              = "huaweicloud_eg_event_subscription.test"
 		name               = acceptance.RandomAccResourceNameWithDash()
-		uuidOfficialOBS, _ = uuid.GenerateUUID()
-		uuidOfficialFGS, _ = uuid.GenerateUUID()
+		uuidOfficialOBS, _ = uuid.NewRandom()
+		uuidOfficialFGS, _ = uuid.NewRandom()
 
 		rc = acceptance.InitResourceCheck(rName, &obj, getEventSubscriptionFunc)
 	)
@@ -283,7 +283,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEventSubscription_official_step1(name, uuidOfficialOBS, uuidOfficialFGS),
+				Config: testAccEventSubscription_official_step1(name, uuidOfficialOBS.String(), uuidOfficialFGS.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "data.huaweicloud_eg_event_channels.test", "channels.0.id"),
@@ -292,7 +292,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					// Sources check
 					resource.TestCheckResourceAttr(rName, "sources.#", "1"),
-					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS),
+					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS.String()),
 					resource.TestCheckResourceAttr(rName, "sources.0.name", "HC.OBS.DWR"),
 					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "OFFICIAL"),
 					resource.TestCheckResourceAttr(rName, "sources.0.detail_name", "detail"),
@@ -300,7 +300,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
 					// Targets check
 					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
-					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS),
+					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS.String()),
 					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.FunctionGraph"),
 					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
 					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "detail"),
@@ -309,7 +309,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEventSubscription_official_step2(name, uuidOfficialOBS, uuidOfficialFGS),
+				Config: testAccEventSubscription_official_step2(name, uuidOfficialOBS.String(), uuidOfficialFGS.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "data.huaweicloud_eg_event_channels.test", "channels.0.id"),
@@ -319,7 +319,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					// Sources check
 					resource.TestCheckResourceAttr(rName, "sources.#", "1"),
-					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS),
+					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS.String()),
 					resource.TestCheckResourceAttr(rName, "sources.0.name", "HC.OBS.DWR"),
 					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "OFFICIAL"),
 					resource.TestCheckResourceAttr(rName, "sources.0.detail_name", "detail"),
@@ -327,7 +327,7 @@ func TestAccEventSubscription_official(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
 					// Targets check
 					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
-					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS),
+					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS.String()),
 					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.FunctionGraph"),
 					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
 					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "detail"),

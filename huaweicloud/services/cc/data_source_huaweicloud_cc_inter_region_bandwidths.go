@@ -5,8 +5,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/tidwall/gjson"
@@ -149,8 +149,8 @@ func dataSourceCcInterRegionBandwidthsRead(_ context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 
 	err = wrapper.listInterRegionBandwidthsToSchema(lisIntRegBanRst)
 	if err != nil {

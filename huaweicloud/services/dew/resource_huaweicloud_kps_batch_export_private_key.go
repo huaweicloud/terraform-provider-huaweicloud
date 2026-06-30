@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -165,11 +165,11 @@ func resourceKpsBatchExportPrivateKeyCreate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("failed to write zip file to (%s): %s", exportFileName, err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return resourceKpsBatchExportPrivateKeyRead(ctx, d, meta)
 }

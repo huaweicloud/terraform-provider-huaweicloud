@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -69,7 +69,7 @@ func TestAccDataSourceTracedEvents_basic(t *testing.T) {
 }
 
 func testAccDataSourceTracedEvents_base(name, eventID, eventType, startTime string) string {
-	targetID, _ := uuid.GenerateUUID()
+	targetID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_eg_custom_event_channel" "test" {
@@ -167,11 +167,11 @@ resource "huaweicloud_eg_event_batch_action" "test" {
     huaweicloud_eg_event_subscription.test
   ]
 }
-`, name, targetID, eventID, eventType, startTime)
+`, name, targetID.String(), eventID, eventType, startTime)
 }
 
 func testAccDataSourceTracedEvents_basic(name, startTime, endTime, eventType string) string {
-	eventID, _ := uuid.GenerateUUID()
+	eventID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 %[1]s
 
@@ -238,6 +238,5 @@ data "huaweicloud_eg_traced_events" "filter_by_event_type" {
 output "is_event_type_filter_useful" {
   value = length(data.huaweicloud_eg_traced_events.filter_by_event_type.events) >= 0
 }
-`, testAccDataSourceTracedEvents_base(name, eventType, eventID, startTime), startTime, endTime, name,
-		eventID, eventType)
+`, testAccDataSourceTracedEvents_base(name, eventType, eventID.String(), startTime), startTime, endTime, name, eventID.String(), eventType)
 }

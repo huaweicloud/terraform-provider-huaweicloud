@@ -3,7 +3,7 @@ package iam
 import (
 	"context"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -78,8 +78,8 @@ func dataSourceIdentityServicesRead(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	if serviceId != "" {
 		resp := utils.PathSearch("service", respBody, nil)
 		if resp == nil {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -41,7 +41,7 @@ func TestAccDataSourceSecmasterWorkspaces_basic(t *testing.T) {
 }
 
 func testDataSourceSecmasterWorkspaces_basic() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	randName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
 data "huaweicloud_secmaster_workspaces" "test" {}
@@ -141,5 +141,5 @@ output "view_bind_name_filter_is_useful" {
 output "eps_id_filter_is_useful" {
   value = length(local.list_by_eps_id) >= 1 && length(local.list_null_by_eps_id) == 0
 }
-`, randUUID, randName)
+`, randUUID.String(), randName)
 }

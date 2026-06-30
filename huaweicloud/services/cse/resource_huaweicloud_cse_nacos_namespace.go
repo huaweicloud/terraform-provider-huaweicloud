@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -127,12 +127,12 @@ func resourceNacosNamespaceCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CSE client: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate resource ID of Nacos namespace (%s): %s", name, err)
 	}
 
-	err = createNacosNamespace(client, engineId, enterpriseProjectId, resourceId, name)
+	err = createNacosNamespace(client, engineId, enterpriseProjectId, resourceId.String(), name)
 	if err != nil {
 		// When the Nacos engine does not exist, the error code returned is 400, and the error information is:
 		// {"error_code": "SVCSTG.00401116", "error_message": "engine does not exist"}
@@ -147,7 +147,7 @@ func resourceNacosNamespaceCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceNacosNamespaceRead(ctx, d, meta)
 }

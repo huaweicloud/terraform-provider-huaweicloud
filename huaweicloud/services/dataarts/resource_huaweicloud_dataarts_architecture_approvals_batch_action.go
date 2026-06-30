@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -162,11 +162,11 @@ func resourceArchitectureApprovalsBatchActionCreate(ctx context.Context, d *sche
 		return diag.Errorf("invalid action type: %s, expected 'resolve', 'reject', or 'recall'", action)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceArchitectureApprovalsBatchActionRead(ctx, d, meta)
 }

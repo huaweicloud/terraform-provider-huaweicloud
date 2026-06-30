@@ -3,8 +3,8 @@ package vpc
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -165,11 +165,11 @@ func dataSourceNetworkingSecGroupRulesRead(_ context.Context, d *schema.Resource
 		rules[i] = ruleInfo
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("rules", rules),

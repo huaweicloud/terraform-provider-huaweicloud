@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -120,11 +120,11 @@ func dataSourceV5ServicePrincipalsRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error retrieving service principals: %s", err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	return diag.FromErr(d.Set("service_principals", flattenV5ServicePrincipals(principals)))
 }

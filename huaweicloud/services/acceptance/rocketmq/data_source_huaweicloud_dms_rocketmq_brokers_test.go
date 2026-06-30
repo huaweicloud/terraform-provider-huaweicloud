@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -62,12 +62,12 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
 }
 
 func testAccDataBrokers_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_rocketmq_brokers" "test" {
   instance_id = "%s"
 }
-`, randomId)
+`, randomId.String())
 }
 
 func testAccDataBrokers_basic(name string) string {

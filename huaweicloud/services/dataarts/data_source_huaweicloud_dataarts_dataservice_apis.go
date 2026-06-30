@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -626,11 +626,11 @@ func dataSourceDataServiceApisRead(_ context.Context, d *schema.ResourceData, me
 			fmt.Sprintf("error getting Data Service API (%s) for DataArts Studio", d.Id()))
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+	d.SetId(dataSourceId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

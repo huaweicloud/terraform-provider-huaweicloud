@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -188,11 +188,11 @@ func dataSourceDataArtsStudioWorkSpaceRead(_ context.Context, d *schema.Resource
 		listWorkspacePath = fmt.Sprintf("%soffset=%v", listWorkspacePath[:index], currentTotal)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

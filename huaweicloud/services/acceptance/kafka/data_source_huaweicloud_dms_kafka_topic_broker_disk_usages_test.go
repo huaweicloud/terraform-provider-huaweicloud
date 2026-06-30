@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -66,12 +66,12 @@ func TestAccDataTopicBrokerDiskUsages_basic(t *testing.T) {
 }
 
 func testAccDataTopicBrokerDiskUsages_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dms_kafka_topic_broker_disk_usages" "test" {
   instance_id = "%s"
 }
-`, randomId)
+`, randomId.String())
 }
 
 func testAccDataTopicBrokerDiskUsages_basic() string {

@@ -3,7 +3,7 @@ package iam
 import (
 	"context"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -99,11 +99,11 @@ func ListAccessKey(path string, iamClient *golangsdk.ServiceClient, d *schema.Re
 	if err = d.Set("credentials", credential); err != nil {
 		return diag.Errorf("error setting credentials fields: %s", err)
 	}
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 	return nil
 }
 
@@ -122,11 +122,11 @@ func ShowAccessKey(userId string, path string, iamClient *golangsdk.ServiceClien
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 	credentials := flattenAccessKey(utils.PathSearch("credentials", respBody, make([]interface{}, 0)).([]interface{}))
 	if err = d.Set("credentials", credentials); err != nil {
 		return diag.Errorf("error setting credentials fields: %s", err)

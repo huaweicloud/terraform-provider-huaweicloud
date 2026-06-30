@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -111,11 +111,11 @@ func dataSourceV2ConfigMapsRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error retrieving CCI configMaps: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	configMaps := utils.PathSearch("items", listConfigMapsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(

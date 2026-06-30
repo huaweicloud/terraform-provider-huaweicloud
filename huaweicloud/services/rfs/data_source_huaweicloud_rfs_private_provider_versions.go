@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -120,7 +120,7 @@ func dataSourcePrivateProviderVersionsRead(_ context.Context, d *schema.Resource
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request UUID: %s", err)
 	}
@@ -128,7 +128,7 @@ func dataSourcePrivateProviderVersionsRead(_ context.Context, d *schema.Resource
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{provider_name}", providerName)
 	requestOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID},
+		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID.String()},
 		KeepResponseBody: true,
 	}
 
@@ -157,7 +157,7 @@ func dataSourcePrivateProviderVersionsRead(_ context.Context, d *schema.Resource
 		}
 	}
 
-	d.SetId(reqUUID)
+	d.SetId(reqUUID.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

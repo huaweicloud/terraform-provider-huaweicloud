@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -80,11 +80,11 @@ func resourceInstanceUpgradeCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error upgrading Kafka instance: %s", err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	isSchedule := d.Get("is_schedule").(bool)
 	jobId := utils.PathSearch("job_id", respBody, "").(string)

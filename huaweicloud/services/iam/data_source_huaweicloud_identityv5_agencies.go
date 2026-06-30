@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -192,12 +192,12 @@ func dataSourceV5AgenciesRead(_ context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
 
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	return diag.FromErr(d.Set("agencies", flattenV5Agencies(agencies)))
 }

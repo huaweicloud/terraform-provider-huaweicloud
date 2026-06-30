@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -30,7 +30,7 @@ func TestAccApplication_basic(t *testing.T) {
 		rc           = acceptance.InitResourceCheck(resourceName, &obj, getApplicationFunc)
 
 		name        = acceptance.RandomAccResourceName()
-		randUUID, _ = uuid.GenerateUUID()
+		randUUID, _ = uuid.NewRandom()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -43,8 +43,8 @@ func TestAccApplication_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccApplication_invalidTemplateId(randUUID),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`initAppModel failed.*templateId\[%s\]`, randUUID)),
+				Config:      testAccApplication_invalidTemplateId(randUUID.String()),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`initAppModel failed.*templateId\[%s\]`, randUUID.String())),
 			},
 			{
 				Config: testAccApplication_basic(name),

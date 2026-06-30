@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -63,11 +63,11 @@ func dataSourceAdOusRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error querying OUs in AD service: %s", err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

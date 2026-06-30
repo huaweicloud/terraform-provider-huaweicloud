@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -82,11 +82,11 @@ func resourceUnblockIpCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error unblocking AAD IP address: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return resourceUnblockIpRead(ctx, d, meta)
 }

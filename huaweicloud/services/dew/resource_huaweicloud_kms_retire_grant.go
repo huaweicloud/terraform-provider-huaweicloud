@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -94,12 +94,12 @@ func resourceRetireGrantCreate(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error retiring grant: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -117,11 +117,11 @@ func resourceFlinkJobImportCreate(ctx context.Context, d *schema.ResourceData, m
 			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	return resourceFlinkJobImportRead(ctx, d, meta)
 }

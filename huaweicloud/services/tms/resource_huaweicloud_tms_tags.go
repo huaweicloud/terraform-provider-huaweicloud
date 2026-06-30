@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -63,11 +63,11 @@ func resourceTmsTagCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating TMS tags: %s", err)
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	return resourceTmsTagRead(ctx, d, meta)
 }

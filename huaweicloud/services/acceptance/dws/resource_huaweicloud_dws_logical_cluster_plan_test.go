@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -128,7 +128,7 @@ func TestAccLogicalClusterPlan_basic(t *testing.T) {
 }
 
 func testAccLogicalClusterPlan_invalidCluster(name string) string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 variable "logical_cluster_plan_actions" {
   type    = list(object({
@@ -162,7 +162,7 @@ resource "huaweicloud_dws_logical_cluster_plan" "invalid" {
     }
   }
 }
-`, randomUUID, name)
+`, randomUUID.String(), name)
 }
 
 func testAccLogicalClusterPlan_basic(name string, startTime, endTime int64) string {

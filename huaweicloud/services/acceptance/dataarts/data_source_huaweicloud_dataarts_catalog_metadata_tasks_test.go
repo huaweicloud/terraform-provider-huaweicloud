@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -142,13 +142,13 @@ func TestAccDataCatalogMetadataTasks_basic(t *testing.T) {
 }
 
 func testAccDataCatalogMetadataTasks_nonExistentWorkspace() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_dataarts_catalog_metadata_tasks" "test" {
   workspace_id = "%[1]s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testAccDataSourceCatalogMetadataTasks_basic_step1(name, currentTime string) string {

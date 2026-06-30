@@ -3,8 +3,8 @@ package kafka
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -87,12 +87,12 @@ func dataSourceMaintainWindowsRead(_ context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	randomId, err := uuid.GenerateUUID()
+	randomId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(randomId)
+	d.SetId(randomId.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

@@ -3,8 +3,8 @@ package eip
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -73,11 +73,11 @@ func dataSourceGlobalEipSegmentTagsRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	generateId, err := uuid.GenerateUUID()
+	generateId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
-	d.SetId(generateId)
+	d.SetId(generateId.String())
 
 	mErr := multierror.Append(
 		d.Set("region", region),

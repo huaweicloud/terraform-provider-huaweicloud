@@ -3,8 +3,8 @@ package cbr
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -289,11 +289,11 @@ func dataSourcePoliciesRead(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "CBR policies")
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	result, err := flattenAllPolicies(d, policyList)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -39,14 +39,14 @@ func TestAccMessageOffsetReset_basic(t *testing.T) {
 }
 
 func testAccMessageOffsetReset_instanceNotFound() string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_dms_kafka_message_offset_reset" "not_found" {
   instance_id = "%[1]s"
   group       = "%[2]s"
   partition   = -1
   timestamp   = "0"
-}`, randomId, acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME)
+}`, randomId.String(), acceptance.HW_DMS_KAFKA_CONSUMER_GROUP_NAME)
 }
 
 // Reset message offset for all topic with timestamp.

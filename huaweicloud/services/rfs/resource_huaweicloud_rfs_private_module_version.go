@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -106,7 +106,7 @@ func resourcePrivateModuleVersionCreate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -117,7 +117,7 @@ func resourcePrivateModuleVersionCreate(ctx context.Context, d *schema.ResourceD
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		JSONBody: utils.RemoveNil(buildCreatePrivateModuleVersionBodyParams(d)),
 	}
@@ -183,12 +183,12 @@ func resourcePrivateModuleVersionRead(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
 
-	respBody, err := QueryPrivateModuleVersion(client, moduleName, moduleVersion, requestId)
+	respBody, err := QueryPrivateModuleVersion(client, moduleName, moduleVersion, requestId.String())
 
 	if err != nil {
 		// If the resource does not exist, the response HTTP status code of the details API is `404`.
@@ -223,7 +223,7 @@ func resourcePrivateModuleVersionDelete(_ context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -235,7 +235,7 @@ func resourcePrivateModuleVersionDelete(_ context.Context, d *schema.ResourceDat
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 

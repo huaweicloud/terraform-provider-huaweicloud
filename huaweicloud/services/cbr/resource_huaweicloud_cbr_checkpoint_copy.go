@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -121,11 +121,11 @@ func resourceCheckpointCopyCreate(_ context.Context, d *schema.ResourceData, met
 	}
 
 	// Generate UUID as resource ID
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(uuid.String())
 
 	return nil
 }

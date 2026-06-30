@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -76,11 +76,11 @@ func resourceDmsRocketMQMessageOffsetResetCreate(_ context.Context, d *schema.Re
 		return diag.Errorf("error resetting RocketMQ message offset: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return nil
 }

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -114,7 +114,7 @@ func resourceRfsTemplateVersionCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -127,7 +127,7 @@ func resourceRfsTemplateVersionCreate(ctx context.Context, d *schema.ResourceDat
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 		JSONBody: utils.RemoveNil(buildCreateRfsTemplateVersionBodyParams(d)),
@@ -188,12 +188,12 @@ func resourceRfsTemplateVersionRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
 
-	respBody, err := QueryRfsTemplateVersion(client, templateName, versionId, requestId)
+	respBody, err := QueryRfsTemplateVersion(client, templateName, versionId, requestId.String())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving RFS template version")
 	}
@@ -229,7 +229,7 @@ func resourceRfsTemplateVersionDelete(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -242,7 +242,7 @@ func resourceRfsTemplateVersionDelete(_ context.Context, d *schema.ResourceData,
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 			"Content-Type":      "application/json",
 		},
 	}

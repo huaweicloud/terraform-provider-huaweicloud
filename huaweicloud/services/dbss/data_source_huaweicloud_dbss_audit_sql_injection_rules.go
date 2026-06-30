@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -123,11 +123,11 @@ func dataSourceAuditSqlInjectionRulesRead(_ context.Context, d *schema.ResourceD
 
 	rules := utils.PathSearch("rules", listRulesRespBody, make([]interface{}, 0)).([]interface{})
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -68,11 +68,11 @@ func resourceDRSPrimaryStandbySwitchCreate(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error performing primary standby switch for job: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	// wait for switch complete
 	err = waitingforJobActionComplete(ctx, client, d.Get("job_id").(string), d.Timeout(schema.TimeoutCreate))

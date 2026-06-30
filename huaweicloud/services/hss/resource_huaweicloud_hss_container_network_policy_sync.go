@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -92,11 +92,11 @@ func resourceContainerNetworkPolicySyncCreate(ctx context.Context, d *schema.Res
 		return diag.Errorf("error synchronizing container network policies for cluster %s: %s", clusterId, err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return resourceContainerNetworkPolicySyncRead(ctx, d, meta)
 }

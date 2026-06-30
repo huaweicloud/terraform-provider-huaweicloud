@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -85,7 +85,7 @@ func TestAccIdentityCenterApplicationAssignment_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	uuid, _ := uuid.GenerateUUID()
+	uuid, _ := uuid.NewRandom()
 	rName := "huaweicloud_identitycenter_application_assignment.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -103,7 +103,7 @@ func TestAccIdentityCenterApplicationAssignment_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testApplicationAssignment_basic(name, uuid),
+				Config: testApplicationAssignment_basic(name, uuid.String()),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",

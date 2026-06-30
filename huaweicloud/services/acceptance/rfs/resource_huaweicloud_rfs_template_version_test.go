@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -26,12 +26,12 @@ func getRfsTemplateVersionResourceFunc(cfg *config.Config, state *terraform.Reso
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate RFS request ID: %s", err)
 	}
 
-	return rfs.QueryRfsTemplateVersion(client, templateName, versionId, requestId)
+	return rfs.QueryRfsTemplateVersion(client, templateName, versionId, requestId.String())
 }
 
 func TestAccRfsTemplateVersion_basic(t *testing.T) {

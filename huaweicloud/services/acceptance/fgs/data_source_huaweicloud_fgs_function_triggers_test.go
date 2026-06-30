@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -96,7 +96,7 @@ func TestAccDataFunctionTriggers_basic(t *testing.T) {
 
 func testAccDataFunctionTriggers_basic() string {
 	name := acceptance.RandomAccResourceName()
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 variable "function_code_content" {
@@ -301,5 +301,5 @@ output "trigger_type_consistency_check_pass" {
     ])
   ])
 }
-`, name, randUUID)
+`, name, randUUID.String())
 }

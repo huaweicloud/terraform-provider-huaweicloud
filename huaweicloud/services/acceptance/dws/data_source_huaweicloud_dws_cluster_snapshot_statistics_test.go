@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -40,12 +40,12 @@ func TestAccDataSourceDwsClusterSnapshotStatistics_basic(t *testing.T) {
 }
 
 func testDataSourceClusterSnapshotStatistics_clusterNotFound() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dws_cluster_snapshot_statistics" "test" {
   cluster_id = "%s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testDataSourceClusterSnapshotStatistics_basic(name string) string {

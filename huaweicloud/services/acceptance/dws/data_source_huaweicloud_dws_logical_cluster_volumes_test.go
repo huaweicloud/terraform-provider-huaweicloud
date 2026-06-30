@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -43,12 +43,12 @@ func TestAccDataSourceLogicalClusterVolumes_basic(t *testing.T) {
 }
 
 func testDataSourceLogicalClusterVolumes_expectError() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dws_logical_cluster_volumes" "test" {
   cluster_id = "%s"
 }
-`, randUUID)
+`, randUUID.String())
 }
 
 func testDataSourceLogicalClusterVolumes_basic() string {

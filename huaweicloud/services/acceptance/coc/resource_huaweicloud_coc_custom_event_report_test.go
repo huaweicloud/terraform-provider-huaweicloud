@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -30,7 +30,7 @@ func TestAccResourceCocCustomEventReport_basic(t *testing.T) {
 }
 
 func testCocCustomEventReport_basic(name string) string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_coc_custom_event_report" "test" {
@@ -52,5 +52,5 @@ resource "huaweicloud_coc_custom_event_report" "test" {
     "key": "test"
   })
 }
-`, acceptance.HW_COC_INTEGRATION_KEY, randUUID, name)
+`, acceptance.HW_COC_INTEGRATION_KEY, randUUID.String(), name)
 }

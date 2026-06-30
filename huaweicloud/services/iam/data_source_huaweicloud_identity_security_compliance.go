@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -68,8 +68,8 @@ func showSecurityCompliance(iamClient *golangsdk.ServiceClient, d *schema.Resour
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	mErr := multierror.Append(nil,
 		d.Set("password_regex", utils.PathSearch("config.security_compliance.password_regex", respBody, "")),
 		d.Set("password_regex_description", utils.PathSearch("config.security_compliance.password_regex_description", respBody, "")),
@@ -94,8 +94,8 @@ func showSecurityComplianceByOption(iamClient *golangsdk.ServiceClient, optionSt
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	if optionStr == "password_regex" {
 		err = d.Set("password_regex", utils.PathSearch("config.password_regex", respBody, ""))
 	} else if optionStr == "password_regex_description" {

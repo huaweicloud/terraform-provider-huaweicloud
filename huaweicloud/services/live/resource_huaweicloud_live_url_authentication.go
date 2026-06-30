@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -121,12 +121,12 @@ func resourceUrlAuthenticationCreate(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("err creating URL authentication, the 'key_chain' not found in API response")
 	}
 
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 
 	mErr := multierror.Append(
 		d.Set("key_chain", keyChain),

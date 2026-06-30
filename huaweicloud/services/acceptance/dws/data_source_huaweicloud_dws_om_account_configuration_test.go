@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -48,12 +48,12 @@ func TestAccDataSourceOmAccountConfiguration_basic(t *testing.T) {
 }
 
 func testAccOmAccountConfiguration_clusterNotExist() string {
-	clusterId, _ := uuid.GenerateUUID()
+	clusterId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 data "huaweicloud_dws_om_account_configuration" "test" {
   cluster_id = "%s"
 }
-`, clusterId)
+`, clusterId.String())
 }
 
 func testAccOmAccountConfiguration_basic() string {

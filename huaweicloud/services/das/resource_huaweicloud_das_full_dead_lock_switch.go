@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -182,11 +182,11 @@ func resourceFullDeadLockSwitchCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error switching DAS full dead lock: %s", err)
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	if err = waitForFullDeadLockSwitchComplete(ctx, client, d); err != nil {
 		return diag.FromErr(err)

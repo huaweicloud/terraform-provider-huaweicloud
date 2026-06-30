@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -184,11 +184,11 @@ func resourceFactoryJobExportCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error exporting DataArts Factory job (%s): %s", jobName, err)
 	}
 
-	randomUUID, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randomUUID)
+	d.SetId(randomUUID.String())
 
 	outputObsPath := utils.PathSearch("obsPath", respBody, "").(string)
 	if err := d.Set("folder_path", buildFactoryJobExportFolderPath(d.Get("obs_path").(string), outputObsPath)); err != nil {

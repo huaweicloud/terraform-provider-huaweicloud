@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -312,12 +312,12 @@ func resourceDeleteNodesCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error setting SecMaster delete nodes attributes: %s", mErr)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(dataSourceId)
+	d.SetId(randomUUID.String())
 
 	return resourceDeleteNodesRead(ctx, d, meta)
 }

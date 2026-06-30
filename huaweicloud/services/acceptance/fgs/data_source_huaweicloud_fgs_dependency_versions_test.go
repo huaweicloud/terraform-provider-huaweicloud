@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -84,7 +84,7 @@ func TestAccDataDependencyVersions_basic(t *testing.T) {
 func testAccDataDependencyVersions_basic() string {
 	var (
 		name             = acceptance.RandomAccResourceName()
-		randVersionId, _ = uuid.GenerateUUID()
+		randVersionId, _ = uuid.NewRandom()
 		randVersion      = acctest.RandIntRange(10000, 99999)
 	)
 
@@ -196,5 +196,5 @@ output "is_runtime_filter_useful" {
 output "runtime_not_found_validation_pass" {
   value = length(data.huaweicloud_fgs_dependency_versions.filter_by_not_found_runtime.versions) == 0
 }
-`, testAccDependencyVersion_basic(name), randVersionId, randVersion)
+`, testAccDependencyVersion_basic(name), randVersionId.String(), randVersion)
 }

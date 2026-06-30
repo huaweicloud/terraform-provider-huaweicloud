@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -147,7 +147,7 @@ func resourceApplyExecutionPlanCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate UUID: %s", err)
 	}
@@ -158,7 +158,7 @@ func resourceApplyExecutionPlanCreate(ctx context.Context, d *schema.ResourceDat
 	requestPath = strings.ReplaceAll(requestPath, "{execution_plan_name}", executionPlanName)
 	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildApplyExecutionPlanBodyParams(d)),
@@ -181,7 +181,7 @@ func resourceApplyExecutionPlanCreate(ctx context.Context, d *schema.ResourceDat
 
 	d.SetId(deploymentId)
 
-	if err := waitingForExecutionPlanApplied(ctx, client, d, d.Timeout(schema.TimeoutCreate), requestId); err != nil {
+	if err := waitingForExecutionPlanApplied(ctx, client, d, d.Timeout(schema.TimeoutCreate), requestId.String()); err != nil {
 		return diag.Errorf("error waiting for RFS execution plan to be applied: %s", err)
 	}
 

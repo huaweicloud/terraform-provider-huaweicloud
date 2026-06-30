@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -155,11 +155,11 @@ func resourceResourceTagsCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating resource tags: %#v", failResp)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate resource ID of the TMS tags management: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	if err := waitingResourceTagsConfigCompleted(ctx, cfg, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for TMS resource tags config to complete: %s", err)

@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -156,7 +156,7 @@ func resourcePrivateHookCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -166,7 +166,7 @@ func resourcePrivateHookCreate(ctx context.Context, d *schema.ResourceData, meta
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		JSONBody: utils.RemoveNil(buildPrivateHookCreateBodyParams(d)),
 	}
@@ -207,7 +207,7 @@ func queryPrivateHookByName(client *golangsdk.ServiceClient, name string) (inter
 	httpUrl := "v1/private-hooks/{hook_name}/metadata"
 
 	// Generate a random UUID as the RFS request ID.
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
@@ -223,7 +223,7 @@ func queryPrivateHookByName(client *golangsdk.ServiceClient, name string) (inter
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 
@@ -238,7 +238,7 @@ func queryPrivateHookVersionMetadata(client *golangsdk.ServiceClient, name, vers
 	httpUrl := "v1/private-hooks/{hook_name}/versions/{hook_version}/metadata"
 
 	// Generate a random UUID as the RFS request ID.
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -250,7 +250,7 @@ func queryPrivateHookVersionMetadata(client *golangsdk.ServiceClient, name, vers
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 
@@ -327,7 +327,7 @@ func createNewHookVersion(client *golangsdk.ServiceClient, d *schema.ResourceDat
 		name    = d.Get("name").(string)
 	)
 	// Generate a random UUID as the RFS request ID.
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return fmt.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -338,7 +338,7 @@ func createNewHookVersion(client *golangsdk.ServiceClient, d *schema.ResourceDat
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		JSONBody: buildPrivateHookVersionCreateBodyParams(d),
 	}
@@ -352,7 +352,7 @@ func deleteOldHookVersion(client *golangsdk.ServiceClient, hookName, hookVersion
 		httpUrl = "v1/private-hooks/{hook_name}/versions/{hook_version}"
 	)
 	// Generate a random UUID as the RFS request ID.
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return fmt.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -364,7 +364,7 @@ func deleteOldHookVersion(client *golangsdk.ServiceClient, hookName, hookVersion
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 
@@ -375,7 +375,7 @@ func deleteOldHookVersion(client *golangsdk.ServiceClient, hookName, hookVersion
 func updatePrivateHookMetadata(client *golangsdk.ServiceClient, name string, requestBody map[string]interface{}) error {
 	httpUrl := "v1/private-hooks/{hook_name}/metadata"
 	// Generate a random UUID as the RFS request ID.
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return fmt.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -386,7 +386,7 @@ func updatePrivateHookMetadata(client *golangsdk.ServiceClient, name string, req
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 		JSONBody: requestBody,
 	}
@@ -455,7 +455,7 @@ func resourcePrivateHookDelete(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	requestId, err := uuid.GenerateUUID()
+	requestId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request ID: %s", err)
 	}
@@ -466,7 +466,7 @@ func resourcePrivateHookDelete(_ context.Context, d *schema.ResourceData, meta i
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
-			"Client-Request-Id": requestId,
+			"Client-Request-Id": requestId.String(),
 		},
 	}
 

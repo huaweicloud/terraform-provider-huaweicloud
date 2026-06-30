@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -76,11 +76,11 @@ func DataSourceIdentityUserProjectsRead(_ context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 	projectsBody := utils.PathSearch("projects", respBody, make([]interface{}, 0)).([]interface{})
 	projects := flattenProjects(projectsBody)
 	if err = d.Set("projects", projects); err != nil {

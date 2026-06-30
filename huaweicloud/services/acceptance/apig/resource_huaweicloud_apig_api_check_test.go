@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -76,14 +76,14 @@ resource "huaweicloud_apig_api" "test" {
 }
 
 func testAccApiCheck_basic_step1(name string) string {
-	randomId, _ := uuid.GenerateUUID()
+	randomId, _ := uuid.NewRandom()
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_api_check" "test" {
   instance_id = "%[1]s"
   type        = "name"
   name        = "%[2]s"
 }
-`, randomId, name)
+`, randomId.String(), name)
 }
 
 func testAccApiCheck_basic_step2(name string) string {

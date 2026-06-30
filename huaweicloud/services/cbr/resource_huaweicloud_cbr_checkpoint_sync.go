@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -113,11 +113,11 @@ func resourceCheckpointSyncCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CBR checkpoint sync: Operation Log ID is not found in API response")
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating UUID for CBR checkpoint sync: %s", err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	if err := waitingForSyncTaskSuccess(ctx, client, d.Timeout(schema.TimeoutCreate), operationLogID); err != nil {
 		return diag.Errorf("error waiting for CBR checkpoint sync to complete: %s", err)

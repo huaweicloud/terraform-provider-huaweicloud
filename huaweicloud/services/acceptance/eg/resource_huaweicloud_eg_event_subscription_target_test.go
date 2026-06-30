@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -93,7 +93,7 @@ func testAccEventSubscriptionTargetImportStateFunc(rsName string) resource.Impor
 }
 
 func testEventSubscriptionTarget_base(name string) string {
-	targetId, _ := uuid.GenerateUUID()
+	targetId, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 resource "huaweicloud_eg_custom_event_channel" "test" {
@@ -153,7 +153,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   lifecycle {
     ignore_changes = [sources, targets]
   }
-}`, name, targetId, acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
+}`, name, targetId.String(), acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
 }
 
 func testEventSubscriptionTarget_basic(name string) string {

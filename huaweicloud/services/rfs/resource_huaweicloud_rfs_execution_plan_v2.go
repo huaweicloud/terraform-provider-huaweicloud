@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -351,7 +351,7 @@ func resourceExecutionPlanV2Create(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request UUID: %s", err)
 	}
@@ -360,7 +360,7 @@ func resourceExecutionPlanV2Create(ctx context.Context, d *schema.ResourceData, 
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestPath = strings.ReplaceAll(requestPath, "{stack_name}", stackName)
 	requestOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID},
+		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID.String()},
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateExecutionPlanV2BodyParams(d)),
 	}
@@ -372,7 +372,7 @@ func resourceExecutionPlanV2Create(ctx context.Context, d *schema.ResourceData, 
 
 	d.SetId(executionPlanName)
 
-	if err := waitingForExecutionPlanV2Available(ctx, client, d, d.Timeout(schema.TimeoutCreate), reqUUID); err != nil {
+	if err := waitingForExecutionPlanV2Available(ctx, client, d, d.Timeout(schema.TimeoutCreate), reqUUID.String()); err != nil {
 		return diag.Errorf("error waiting for RFS execution plan to be available: %s", err)
 	}
 
@@ -455,12 +455,12 @@ func resourceExecutionPlanV2Read(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request UUID: %s", err)
 	}
 
-	respBody, err := ReadExecutionPlanV2Detail(client, reqUUID, stackName, executionPlanName)
+	respBody, err := ReadExecutionPlanV2Detail(client, reqUUID.String(), stackName, executionPlanName)
 	if err != nil {
 		// If the resource does not exist, the response HTTP status code of the details API is `404`.
 		return common.CheckDeletedDiag(d, err, "error retrieving RFS execution plan")
@@ -505,7 +505,7 @@ func resourceExecutionPlanV2Delete(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	reqUUID, err := uuid.GenerateUUID()
+	reqUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate RFS request UUID: %s", err)
 	}
@@ -515,7 +515,7 @@ func resourceExecutionPlanV2Delete(_ context.Context, d *schema.ResourceData, me
 	requestPath = strings.ReplaceAll(requestPath, "{stack_name}", stackName)
 	requestPath = strings.ReplaceAll(requestPath, "{execution_plan_name}", executionPlanName)
 	requestOpt := golangsdk.RequestOpts{
-		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID},
+		MoreHeaders:      map[string]string{"Client-Request-Id": reqUUID.String()},
 		KeepResponseBody: true,
 	}
 

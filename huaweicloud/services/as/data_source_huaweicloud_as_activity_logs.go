@@ -3,8 +3,8 @@ package as
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -119,12 +119,12 @@ func dataSourceActivityLogsRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error retrieving activity logs in AS group %s: %s", groupID, err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("activity_logs", filterAndFlattenDataSourceLogs(activityLogList, d)),

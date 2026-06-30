@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -19,12 +19,12 @@ func getPrivateModuleResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate UUID: %s", err)
 	}
 
-	return rfs.QueryPrivateModule(client, state.Primary.ID, uuid)
+	return rfs.QueryPrivateModule(client, state.Primary.ID, uuid.String())
 }
 
 func TestAccPrivateModule_basic(t *testing.T) {

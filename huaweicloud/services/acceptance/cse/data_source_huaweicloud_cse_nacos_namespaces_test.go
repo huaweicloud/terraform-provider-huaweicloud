@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -41,7 +41,7 @@ func TestAccDataNacosNamespaces_basic(t *testing.T) {
 }
 
 func testAccDataNacosNamespaces_basic_invalidEngine() string {
-	randUUID, _ := uuid.GenerateUUID()
+	randUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 variable "enterprise_project_id" {
@@ -52,7 +52,7 @@ data "huaweicloud_cse_nacos_namespaces" "test" {
   engine_id             = "%[1]s"
   enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
-`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, randUUID.String())
 }
 
 func testAccDataNacosNamespaces_basic() string {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -112,11 +112,11 @@ func resourceCsmsScheduledDeleteSecretTaskCreate(_ context.Context, d *schema.Re
 		return diag.Errorf("error managing (%s) CSMS scheduled delete secret task: %s", action, err)
 	}
 
-	id, err := uuid.GenerateUUID()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId(id)
+	d.SetId(id.String())
 
 	return nil
 }

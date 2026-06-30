@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -58,25 +58,25 @@ func TestAccDataAppcodes_basic(t *testing.T) {
 }
 
 func testAccDataAppcodes_nonExistentInstance() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_apig_appcodes" "test" {
   instance_id    = "%[1]s"
   application_id = "%[1]s"
 }
-`, randomUUID)
+`, randomUUID.String())
 }
 
 func testAccDataAppcodes_nonExistentApplication() string {
-	randomUUID, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	return fmt.Sprintf(`
 data "huaweicloud_apig_appcodes" "test" {
   instance_id    = "%[1]s"
   application_id = "%[2]s"
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, randomUUID)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, randomUUID.String())
 }
 
 func testAccDataAppcodes_base(name string) string {

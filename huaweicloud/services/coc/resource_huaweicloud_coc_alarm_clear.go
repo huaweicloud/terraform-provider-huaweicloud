@@ -3,7 +3,7 @@ package coc
 import (
 	"context"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -91,12 +91,12 @@ func resourceAlarmClearCreate(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating COC alarm clear: %s", err)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(uuId.String())
 
 	return nil
 }

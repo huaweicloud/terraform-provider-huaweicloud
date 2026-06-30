@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -80,8 +80,8 @@ func DataSourceIdentityProjectQuotaRead(_ context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, _ := uuid.GenerateUUID()
-	d.SetId(id)
+	id, _ := uuid.NewRandom()
+	d.SetId(id.String())
 	resources := utils.PathSearch("quotas.resources", respBody, make([]interface{}, 0))
 	if err = d.Set("resources", resources); err != nil {
 		return diag.Errorf("error setting regions fields: %s", err)

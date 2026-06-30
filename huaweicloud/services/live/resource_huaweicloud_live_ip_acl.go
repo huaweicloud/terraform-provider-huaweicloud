@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -88,7 +88,7 @@ func resourceIpAclCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	resourceID, err := uuid.GenerateUUID()
+	resourceID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("error generating Live IP address acl resource ID: %s", err)
 	}
@@ -97,7 +97,7 @@ func resourceIpAclCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating Live IP address acl: %s", err)
 	}
 
-	d.SetId(resourceID)
+	d.SetId(resourceID.String())
 
 	return resourceIpAclRead(ctx, d, meta)
 }
@@ -193,11 +193,11 @@ func resourceIpAclDelete(_ context.Context, d *schema.ResourceData, meta interfa
 func resourceIpAclImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	importedId := d.Id()
-	resourceId, err := uuid.GenerateUUID()
+	resourceId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(resourceId)
+	d.SetId(resourceId.String())
 	return []*schema.ResourceData{d}, d.Set("domain_name", importedId)
 }

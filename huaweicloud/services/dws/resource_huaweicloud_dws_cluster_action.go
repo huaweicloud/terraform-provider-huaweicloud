@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -159,11 +159,11 @@ func resourceClusterActionCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error operating cluster (%s) with action (%s): %s", clusterId, action, err)
 	}
 
-	randUUID, err := uuid.GenerateUUID()
+	randUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(randUUID)
+	d.SetId(randUUID.String())
 
 	err = waitForClusterActionCompleted(ctx, client, clusterId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {

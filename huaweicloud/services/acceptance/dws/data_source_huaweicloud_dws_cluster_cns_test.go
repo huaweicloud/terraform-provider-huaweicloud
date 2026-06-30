@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -14,7 +14,7 @@ import (
 func TestAccDataSourcClusterCns_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_dws_cluster_cns.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
-	uuid, _ := uuid.GenerateUUID()
+	randomUUID, _ := uuid.NewRandom()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,7 +24,7 @@ func TestAccDataSourcClusterCns_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testDataSourceClusterCns_basic(uuid),
+				Config:      testDataSourceClusterCns_basic(randomUUID.String()),
 				ExpectError: regexp.MustCompile("Cluster does not exist or has been deleted"),
 			},
 			{
