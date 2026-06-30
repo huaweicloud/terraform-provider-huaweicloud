@@ -21,7 +21,8 @@ func getDmsKafkaPermissionsFunc(cfg *config.Config, state *terraform.ResourceSta
 	return kafka.GetDmsKafkaPermissions(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["topic_name"])
 }
 
-func TestAccDmsKafkaPermissions_basic(t *testing.T) {
+// Before running this test, please ensure that the Kafka instance has SSL authentication enabled.
+func TestAccPermissions_basic(t *testing.T) {
 	var policies interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_kafka_permissions.test"
@@ -34,12 +35,15 @@ func TestAccDmsKafkaPermissions_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaPermissions_basic(rName, password),
+				Config: testAccPermissions_basic_step1(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "policies.0.user_name",
@@ -48,7 +52,7 @@ func TestAccDmsKafkaPermissions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDmsKafkaPermissions_update(rName, password),
+				Config: testAccPermissions_basic_step2(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "policies.0.user_name",
@@ -68,47 +72,57 @@ func TestAccDmsKafkaPermissions_basic(t *testing.T) {
 	})
 }
 
-func testAccDmsKafkaPermissions_basic(rName, password string) string {
+func testAccPermissions_base(rName string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  partitions  = 3
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, rName)
+}
+
+func testAccPermissions_basic_step1(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_dms_kafka_user" "test1" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
+  instance_id = "%[4]s"
   name        = "%[2]s-1"
   password    = "%[3]s"
 }
 
 resource "huaweicloud_dms_kafka_permissions" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  topic_name  = huaweicloud_dms_kafka_topic.topic.name
+  instance_id = "%[4]s"
+  topic_name  = huaweicloud_dms_kafka_topic.test.name
 
   policies {
     user_name     = huaweicloud_dms_kafka_user.test1.name
     access_policy = "all"
   }
 }
-`, testAccDmsKafkaTopic_basic(rName), rName, password)
+`, testAccPermissions_base(rName), rName, password, acceptance.HW_DMS_KAFKA_INSTANCE_ID)
 }
 
-func testAccDmsKafkaPermissions_update(rName, password string) string {
+func testAccPermissions_basic_step2(rName, password string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dms_kafka_user" "test1" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
+  instance_id = "%[4]s"
   name        = "%[2]s-1"
   password    = "%[3]s"
 }
 
 resource "huaweicloud_dms_kafka_user" "test2" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
+  instance_id = "%[4]s"
   name        = "%[2]s-2"
   password    = "%[3]s"
 }
 
 resource "huaweicloud_dms_kafka_permissions" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  topic_name  = huaweicloud_dms_kafka_topic.topic.name
+  instance_id = "%[4]s"
+  topic_name  = huaweicloud_dms_kafka_topic.test.name
 
   policies {
     user_name     = huaweicloud_dms_kafka_user.test1.name
@@ -120,5 +134,5 @@ resource "huaweicloud_dms_kafka_permissions" "test" {
     access_policy = "sub"
   }
 }
-`, testAccDmsKafkaTopic_basic(rName), rName, password)
+`, testAccPermissions_base(rName), rName, password, acceptance.HW_DMS_KAFKA_INSTANCE_ID)
 }

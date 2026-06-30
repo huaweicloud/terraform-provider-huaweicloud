@@ -9,32 +9,43 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccKafkaMessageProduce_basic(t *testing.T) {
+func TestAccMessageProduce_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKafkaMessageProduce_basic(rName),
+				Config: testAccMessageProduce_basic(rName),
 			},
 		},
 	})
 }
 
-func testAccKafkaMessageProduce_basic(rName string) string {
+func testAccMessageProduce_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  partitions  = 3
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID, name)
+}
+
+func testAccMessageProduce_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_dms_kafka_message_produce" "test" {
-  depends_on = [huaweicloud_dms_kafka_topic.topic]
+  depends_on = [huaweicloud_dms_kafka_topic.test]
 
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  topic       = huaweicloud_dms_kafka_topic.topic.name
+  instance_id = huaweicloud_dms_kafka_topic.test.instance_id
+  topic       = huaweicloud_dms_kafka_topic.test.name
   body        = "test"
 
   property_list {
@@ -46,5 +57,5 @@ resource "huaweicloud_dms_kafka_message_produce" "test" {
     name  = "PARTITION"
     value = "1"
   }
-}`, testAccDmsKafkaTopic_basic(rName))
+}`, testAccMessageProduce_base(name))
 }
