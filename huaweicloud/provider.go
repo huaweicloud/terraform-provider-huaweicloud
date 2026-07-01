@@ -1525,6 +1525,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_available_flavors":             geminidb.DataSourceAvailableFlavors(),
 			"huaweicloud_geminidb_backups":                       geminidb.DataSourceGeminiDBBackups(),
 			"huaweicloud_geminidb_big_keys":                      geminidb.DataSourceBigKeys(),
+			"huaweicloud_geminidb_cassandra_slow_logs":           geminidb.DataSourceCassandraSlowLogs(),
 			"huaweicloud_geminidb_configuration_datastores":      geminidb.DataSourceConfigurationDatastores(),
 			"huaweicloud_geminidb_database_versions":             geminidb.DataSourceDatabaseVersions(),
 			"huaweicloud_geminidb_dedicated_resources":           geminidb.DataSourceDedicatedResources(),
