@@ -2613,6 +2613,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_instant_tasks":                            taurusdb.DataSourceTaurusDBInstantTasks(),
 			"huaweicloud_taurusdb_scheduled_tasks":                          taurusdb.DataSourceTaurusDBScheduledTasks(),
 			"huaweicloud_taurusdb_slow_logs":                                taurusdb.DataSourceTaurusDBSlowLogs(),
+			"huaweicloud_taurusdb_slow_logs_download_links":                 taurusdb.DataSourceTaurusDBSlowLogsDownloadLinks(),
 			"huaweicloud_taurusdb_error_logs":                               taurusdb.DataSourceTaurusDBErrorLogs(),
 			"huaweicloud_taurusdb_error_logs_download_links":                taurusdb.DataSourceTaurusDBErrorLogsDownloadLinks(),
 			"huaweicloud_taurusdb_diagnosis_statistics":                     taurusdb.DataSourceTaurusDBDiagnosisStatistics(),
