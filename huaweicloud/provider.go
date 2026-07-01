@@ -1408,6 +1408,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_timelines":                drs.DataSourceDrsTimelines(),
 			"huaweicloud_drs_drivers":                  drs.DataSourceDrsDrivers(),
 
+			"huaweicloud_dsc_event_overview": dsc.DataSourceDscEventOverview(),
 			// EventGrid
 			"huaweicloud_eg_connections":           eg.DataSourceConnections(),
 			"huaweicloud_eg_custom_event_channels": eg.DataSourceCustomEventChannels(),
