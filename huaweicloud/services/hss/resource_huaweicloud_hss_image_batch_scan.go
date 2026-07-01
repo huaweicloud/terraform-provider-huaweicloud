@@ -8,10 +8,12 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var imageBatchScanNonUpdatableParams = []string{
@@ -122,6 +124,19 @@ func ResourceImageBatchScan() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}

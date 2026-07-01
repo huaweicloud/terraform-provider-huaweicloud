@@ -6,10 +6,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action
@@ -35,6 +37,19 @@ func ResourceExecutePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the AS group policy ID or AS bandwidth policy ID.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
