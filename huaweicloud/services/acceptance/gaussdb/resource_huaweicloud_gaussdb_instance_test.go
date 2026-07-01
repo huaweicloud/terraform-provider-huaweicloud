@@ -396,6 +396,7 @@ resource "huaweicloud_gaussdb_instance" "test" {
 
   flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s"
+  alias             = "%[2]s_alias"
   password          = "%[3]s"
   port              = "9000"
   sharding_num      = 1
@@ -471,6 +472,7 @@ resource "huaweicloud_gaussdb_instance" "test" {
 
   flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   name              = "%[2]s-update"
+  alias             = "%[2]s_alias_update"
   password          = "%[3]s"
   port              = "8000"
   sharding_num      = 1

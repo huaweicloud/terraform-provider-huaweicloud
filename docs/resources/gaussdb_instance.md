@@ -131,7 +131,9 @@ The following arguments are supported:
 * `configuration_id` - (Optional, String) Specifies the parameter template ID.
   Changing this parameter will create a new resource.
 
-* `sharding_num` - (Optional, Int) Specifies the sharding number.  
+* `alias` - (Optional, String) Specifies the alias of the instance.
+
+* `sharding_num` - (Optional, Int) Specifies the sharding number.
   The valid value is range form `1` to `9`.
 
 * `coordinator_num` - (Optional, Int) Specifies the coordinator number.
@@ -342,7 +344,7 @@ $ terraform import huaweicloud_gaussdb_opengauss_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
 API response. The missing attributes include: `password`, `ha.0.mode`, `ha.0.instance_mode`, `configuration_id`,
-`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `period_unit`, `period` and
+`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `alias`, `period_unit`, `period` and
 `auto_renew`. It is generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can
 then decide if changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated
 to align with the GaussDB OpenGauss instance. Also you can ignore changes as below.
@@ -353,8 +355,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, parameters, period_unit,
-      period, auto_renew,
+      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, parameters, alias,
+      period_unit,  period, auto_renew,
     ]
   }
 }
