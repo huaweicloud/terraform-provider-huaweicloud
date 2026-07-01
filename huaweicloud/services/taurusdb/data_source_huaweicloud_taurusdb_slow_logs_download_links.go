@@ -116,7 +116,7 @@ func waitingForSlowLogsExportJobCompleted(ctx context.Context, client *golangsdk
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"EXPORTING"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      waitErrorLogsLinksStatusRefreshFunc(client, instanceId, nodeId),
+		Refresh:      waitSlowLogsLinksStatusRefreshFunc(client, instanceId, nodeId),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -129,7 +129,7 @@ func waitingForSlowLogsExportJobCompleted(ctx context.Context, client *golangsdk
 	return links.([]interface{}), nil
 }
 
-func waitErrorLogsLinksStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, nodeId string) resource.StateRefreshFunc {
+func waitSlowLogsLinksStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, nodeId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		links, err := getTaurusDBSlowLogsDownloadLinks(client, instanceId, nodeId)
 		if err != nil {
