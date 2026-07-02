@@ -4073,7 +4073,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_token_with_id_token":          iam.ResourceIdentityTokenWithIdToken(),
 			"huaweicloud_identity_unscoped_token_saml":          iam.ResourceV3UnscopedTokenSaml(),
 			"huaweicloud_identity_unscoped_token_with_id_token": iam.ResourceIdentityUnscopedTokenWithIdToken(),
-			"huaweicloud_identity_policy_agency_attach":         iam.ResourceIdentityPolicyAgencyAttach(),
 			"huaweicloud_identity_provider_conversion":          iam.ResourceV3ProviderConversion(),
 			"huaweicloud_identity_temporary_access_key":         iam.ResourceIdentityTemporaryAccessKey(),
 
@@ -4083,6 +4082,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identityv5_login_policy":                iam.ResourceV5LoginPolicy(),
 			"huaweicloud_identityv5_password_policy":             iam.ResourceV5PasswordPolicy(),
 			"huaweicloud_identityv5_policy":                      iam.ResourceV5Policy(),
+			"huaweicloud_identityv5_policy_agency_attach":        iam.ResourceV5PolicyAgencyAttach(),
 			"huaweicloud_identityv5_policy_default_version":      iam.ResourceV5PolicyDefaultVersion(),
 			"huaweicloud_identityv5_policy_group_attach":         iam.ResourceV5PolicyGroupAttach(),
 			"huaweicloud_identityv5_policy_user_attach":          iam.ResourceV5PolicyUserAttach(),
