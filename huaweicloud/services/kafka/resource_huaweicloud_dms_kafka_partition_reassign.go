@@ -163,17 +163,9 @@ func resourceDmsKafkaPartitionReassignCreate(ctx context.Context, d *schema.Reso
 	case jobID != nil:
 		// wait for task complete
 		// if it's not scheduled task, use `/v2/{project_id}/instances/{instance_id}/tasks/{task_id}` to search task.
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"CREATED", "EXECUTING"},
-			Target:       []string{"SUCCESS"},
-			Refresh:      kafkaInstanceTaskStatusRefreshFunc(client, instanceID, jobID.(string)),
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			Delay:        1 * time.Second,
-			PollInterval: 5 * time.Second,
-		}
-		if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-			return diag.Errorf("error waiting for the Kafka instance (%s) partition reassignment task to be finished: %s ",
-				instanceID, err)
+		err = waitForInstanceTaskStateComplete(ctx, client, instanceID, jobID.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for the instance (%s) partition reassignment task to be finished: %s ", instanceID, err)
 		}
 
 		// since the resource ID is in UUID format, return `job_id`.
@@ -191,6 +183,20 @@ func resourceDmsKafkaPartitionReassignCreate(ctx context.Context, d *schema.Reso
 	}
 
 	return resourceDmsKafkaPartitionReassignRead(ctx, d, meta)
+}
+
+// Delay and PollInterval are shorter here than in waitForInstanceTaskStatusComplete (common.go), so the common helper is not applicable.
+func waitForInstanceTaskStateComplete(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskId string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      instanceTaskStatusRefreshFunc(client, instanceId, taskId, []string{"SUCCESS"}),
+		Timeout:      timeout,
+		Delay:        2 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func buildCreateKafkaPartitionReassignBodyParams(d *schema.ResourceData) map[string]interface{} {

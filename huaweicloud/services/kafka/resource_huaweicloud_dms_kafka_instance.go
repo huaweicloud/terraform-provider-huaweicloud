@@ -993,16 +993,9 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	log.Printf("[INFO] Creating Kafka instance, ID: %s", instanceID)
 	d.SetId(instanceID)
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        delayTime * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for Kafka instance (%s) to be ready: %s", instanceID, err)
+	err = waitForInstanceStatusComplete(ctx, client, instanceID, d.Timeout(schema.TimeoutCreate), delayTime)
+	if err != nil {
+		return diag.Errorf("error waiting for Kafka instance (%s) to be created: %s", instanceID, err)
 	}
 
 	return nil
@@ -1148,15 +1141,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	// Store the instance ID now
 	d.SetId(instanceID)
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        delayTime * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForInstanceStatusComplete(ctx, client, instanceID, d.Timeout(schema.TimeoutCreate), delayTime)
 	if err != nil {
 		return diag.Errorf("error waiting for Kafka instance (%s) to be ready: %s", instanceID, err)
 	}
@@ -1609,6 +1594,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error initializing DMS Kafka(v2) client: %s", err)
 	}
 
+	instanceId := d.Id()
 	var mErr *multierror.Error
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end",
 		"security_group_id", "retention_policy", "enterprise_project_id") {
@@ -1627,14 +1613,14 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 
 		retryFunc := func() (interface{}, bool, error) {
-			err = instances.Update(client, d.Id(), updateOpts).Err
+			err = instances.Update(client, instanceId, updateOpts).Err
 			retry, err := handleMultiOperationsError(err)
 			return nil, retry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -1654,9 +1640,9 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("tags") {
 		// update tags
-		if err = utils.UpdateResourceTags(client, d, engineKafka, d.Id()); err != nil {
+		if err = utils.UpdateResourceTags(client, d, engineKafka, instanceId); err != nil {
 			mErr = multierror.Append(mErr, fmt.Errorf("error updating tags of Kafka instance: %s, err: %s",
-				d.Id(), err))
+				instanceId, err))
 		}
 	}
 
@@ -1671,8 +1657,8 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the Kafka instance (%s): %s", d.Id(), err)
+		if err = cbc.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the Kafka instance (%s): %s", instanceId, err)
 		}
 	}
 
@@ -1682,14 +1668,14 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 			EnableAutoTopic: &enableAutoTopic,
 		}
 		retryFunc := func() (interface{}, bool, error) {
-			err = instances.UpdateAutoTopic(client, d.Id(), autoTopicOpts).Err
+			err = instances.UpdateAutoTopic(client, instanceId, autoTopicOpts).Err
 			retry, err := handleMultiOperationsError(err)
 			return nil, retry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -1700,19 +1686,10 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 
 		// The enabling or disabling automatic topic is done if the status of its related task is SUCCESS
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"CREATED"},
-			Target:       []string{"SUCCESS"},
-			Refresh:      FilterTaskRefreshFunc(client, d.Id(), "kafkaConfigModify"),
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			Delay:        1 * time.Second,
-			PollInterval: 5 * time.Second,
-		}
-
-		_, err = stateConf.WaitForStateContext(ctx)
+		err = waitForInstanceTaskStatusCompleteByName(ctx, client, instanceId, "kafkaConfigModify", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			mErr = multierror.Append(mErr,
-				fmt.Errorf("error waiting for the automatic topic task of the instance (%s) to be done: %s", d.Id(), err))
+			mErr = multierror.Append(mErr, fmt.Errorf("error waiting for the automatic topic task of the instance (%s) to be done: %s",
+				instanceId, err))
 		}
 	}
 
@@ -2012,17 +1989,7 @@ func switchInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceCl
 		return fmt.Errorf("unable to find job ID of the instance port protocol (%s) update", protocol)
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATED"},
-		Target:       []string{"SUCCESS"},
-		Refresh:      kafkaInstanceTaskStatusRefreshFunc(client, instanceId, jobId),
-		Timeout:      updateTimeout,
-		Delay:        15 * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-
-	return err
+	return waitForInstanceTaskStatusComplete(ctx, client, instanceId, jobId, updateTimeout)
 }
 
 func updateInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -2175,6 +2142,52 @@ func KafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID s
 		}
 
 		return v, v.Status, nil
+	}
+}
+
+func waitForInstanceStatusComplete(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, timeout time.Duration,
+	delay ...time.Duration) error {
+	var delayTime time.Duration = 10
+	if len(delay) > 0 {
+		delayTime = delay[0]
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      instanceStatusRefreshFunc(client, instanceId, []string{"RUNNING"}),
+		Timeout:      timeout,
+		Delay:        delayTime * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := instances.Get(client, instanceId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return nil, "DELETED", nil
+			}
+			return nil, "QUERY ERROR", err
+		}
+
+		status := respBody.Status
+		// The status enumeration values are as follows:
+		// + ERROR: The instance is fault.
+		// + EXTENDEDFAILED: The instance specification change operation failed.
+		// + FROZEN: The instance is frozen.
+		if utils.StrSliceContains([]string{"ERROR", "EXTENDEDFAILED", "FROZEN"}, status) {
+			return respBody, "FAILED", fmt.Errorf("unexpected status (%s)", status)
+		}
+
+		if utils.StrSliceContains(targets, status) {
+			return respBody, "COMPLETED", nil
+		}
+
+		return respBody, "PENDING", nil
 	}
 }
 
@@ -2348,15 +2361,8 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, time
 	modifyConfigurationResp := r.(*instances.ModifyConfigurationResp)
 
 	// wait for task complete
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATED"},
-		Target:       []string{"SUCCESS"},
-		Refresh:      kafkaInstanceTaskStatusRefreshFunc(client, instanceID, modifyConfigurationResp.JobId),
-		Timeout:      timeout,
-		Delay:        2 * time.Second,
-		PollInterval: 2 * time.Second,
-	}
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+	err = waitForInstanceTaskStateComplete(ctx, client, instanceID, modifyConfigurationResp.JobId, timeout)
+	if err != nil {
 		return nil, fmt.Errorf("error waiting for the Kafka instance (%s) parameter to be updated: %s ", instanceID, err)
 	}
 
@@ -2391,17 +2397,11 @@ func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *go
 	}
 
 	// wait for the instance state to be 'RUNNING'.
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"RESTARTING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
-		Timeout:      timeout,
-		Delay:        5 * time.Second,
-		PollInterval: 5 * time.Second,
-	}
-	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+	err = waitForInstanceStatusComplete(ctx, client, instanceID, timeout)
+	if err != nil {
 		return fmt.Errorf("error waiting for the Kafka instance (%s) become RUNNING status: %s", instanceID, err)
 	}
+
 	return nil
 }
 
@@ -2438,17 +2438,4 @@ func updateKafkaParameters(ctx context.Context, d *schema.ResourceData, client *
 	}
 
 	return ctx, nil
-}
-
-func kafkaInstanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		taskResp, err := instances.GetTask(client, instanceID, taskID).Extract()
-		if err != nil {
-			return nil, "QUERY ERROR", err
-		}
-		if len(taskResp.Tasks) == 0 {
-			return nil, "NIL ERROR", fmt.Errorf("failed to find task(%s)", taskID)
-		}
-		return taskResp.Tasks[0], taskResp.Tasks[0].Status, nil
-	}
 }

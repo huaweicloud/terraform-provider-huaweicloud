@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -83,6 +82,7 @@ func resourceMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceDat
 		cfg           = meta.(*config.Config)
 		createHttpUrl = "v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset"
 		consumerGroup = d.Get("group").(string)
+		instanceId    = d.Get("instance_id").(string)
 	)
 
 	client, err := cfg.NewServiceClient("dmsv2", cfg.GetRegion(d))
@@ -97,7 +97,7 @@ func resourceMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceDat
 
 	createPath := client.Endpoint + createHttpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
 	createPath = strings.ReplaceAll(createPath, "{group}", consumerGroup)
 
 	createOpt := golangsdk.RequestOpts{
@@ -121,21 +121,9 @@ func resourceMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceDat
 
 	// when topic is empty string, reset all topic, and a job will be created
 	if _, ok := d.GetOk("topic"); !ok {
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"CREATED"},
-			Target:       []string{"SUCCESS"},
-			Refresh:      FilterTaskRefreshFunc(client, d.Get("instance_id").(string), "kafkaResetConsumerOffset"),
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			Delay:        5 * time.Second,
-			PollInterval: 5 * time.Second,
-		}
-
-		task, err := stateConf.WaitForStateContext(ctx)
+		err = waitForInstanceTaskStatusCompleteByName(ctx, client, instanceId, "kafkaResetConsumerOffset", d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			if taskID := utils.PathSearch("id", task, ""); taskID != "" {
-				return diag.Errorf("error waiting for job (%s) to be done: %s", taskID, err)
-			}
-			return diag.Errorf("error waiting for job to be done: %s", err)
+			return diag.Errorf("error waiting for resetting message offset task to be done: %s", err)
 		}
 	}
 
