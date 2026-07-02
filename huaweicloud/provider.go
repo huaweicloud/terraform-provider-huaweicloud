@@ -1570,6 +1570,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_instance_lts_log_configs":        gaussdb.DataSourceGaussDBInstanceLtsLogConfigs(),
 			"huaweicloud_gaussdb_instance_supported_plugins":      gaussdb.DataSourceSupportedPlugins(),
 			"huaweicloud_gaussdb_instance_plugin_extensions":      gaussdb.DataSourceInstancePluginExtensions(),
+			"huaweicloud_gaussdb_instance_real_time_sessions":     gaussdb.DataSourceGaussDBInstanceRealTimeSessions(),
 			"huaweicloud_gaussdb_instance_auto_enlarge_policy":    gaussdb.DataSourceGaussDBInstanceAutoEnlargePolicy(),
 			"huaweicloud_gaussdb_storage_types":                   gaussdb.DataSourceGaussDbStorageTypes(),
 			"huaweicloud_gaussdb_datastores":                      gaussdb.DataSourceGaussDbDatastores(),
