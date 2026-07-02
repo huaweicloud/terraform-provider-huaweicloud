@@ -322,7 +322,7 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
-	//lintignore:R006
+	// lintignore:R006
 	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		_, err = pools.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -366,7 +366,7 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
-	//lintignore:R006
+	// lintignore:R006
 	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		err = pools.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {

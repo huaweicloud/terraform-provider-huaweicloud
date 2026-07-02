@@ -63,7 +63,7 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"labels": { //(k8s_tags)
+			"labels": { // Corresponding Kubernetes labels
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},

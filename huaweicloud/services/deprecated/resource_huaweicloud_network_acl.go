@@ -409,7 +409,6 @@ func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error)
 	// list all ports in the subnet
 	listOpts := ports.ListOpts{
 		NetworkID: subnetID,
-		//Status:    "ACTIVE",
 	}
 	allPages, err := ports.List(networkingClient, listOpts).AllPages()
 	if err != nil {
@@ -494,7 +493,7 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 			return fmt.Errorf("error creating firewall policy: %s", err)
 		}
 
-		//lintignore:R001
+		// lintignore:R001
 		d.Set(policyKey, policy.ID)
 	}
 

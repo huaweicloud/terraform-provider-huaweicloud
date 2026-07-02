@@ -230,7 +230,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error while uploading file %s: %s", imgFilePath, res.Err)
 	}
 
-	//wait for active
+	// wait for active
 	stateConf := &retry.StateChangeConf{
 		Pending:    []string{string(images.ImageStatusQueued), string(images.ImageStatusSaving)},
 		Target:     []string{string(images.ImageStatusActive)},

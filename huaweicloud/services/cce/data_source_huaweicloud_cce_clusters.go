@@ -294,7 +294,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 			log.Printf("Error retrieving CCE cluster cert: %s", err)
 		}
 
-		//Set Certificate Clusters
+		// Set Certificate Clusters
 		var clusterList []map[string]interface{}
 		for _, clusterObj := range cert.Clusters {
 			clusterCert := make(map[string]interface{})
@@ -305,7 +305,7 @@ func dataSourceCCEClustersV3Read(_ context.Context, d *schema.ResourceData, meta
 		}
 		cluster["certificate_clusters"] = clusterList
 
-		//Set Certificate Users
+		// Set Certificate Users
 		var userList []map[string]interface{}
 		for _, userObj := range cert.Users {
 			userCert := make(map[string]interface{})

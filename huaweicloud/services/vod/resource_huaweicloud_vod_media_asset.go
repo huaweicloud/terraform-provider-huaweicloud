@@ -42,7 +42,7 @@ func ResourceMediaAsset() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Second),
 		},
 
-		//request and response parameters
+		// request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

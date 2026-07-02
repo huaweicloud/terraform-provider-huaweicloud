@@ -128,12 +128,12 @@ func getProducts(config *config.Config, region, engine string) (*products.GetRes
 	if err != nil {
 		return nil, fmt.Errorf("error getting DMS product client V2: %s", err)
 	}
-	v, err := products.Get(dmsV2Client, engine) //nolint: staticcheck
+	v, err := products.Get(dmsV2Client, engine) // nolint: staticcheck
 	return v, err
 }
 
 // Currently the complex is 37 and will be repaired later.
-func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { //nolint: gocyclo
+func dataSourceDmsProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // nolint: gocyclo
 	cfg := meta.(*config.Config)
 
 	instanceEngine := d.Get("engine").(string)

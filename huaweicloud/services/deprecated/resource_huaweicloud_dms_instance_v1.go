@@ -229,7 +229,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	// Store the instance ID now
 	d.SetId(v.InstanceID)
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
@@ -308,7 +308,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
 		dmsV1Client, err := config.DmsV1Client(config.GetRegion(d))
 		if err != nil {

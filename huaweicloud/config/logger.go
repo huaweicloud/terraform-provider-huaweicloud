@@ -108,7 +108,7 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 
 		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
 
-		//lintignore:R018
+		// lintignore:R018
 		time.Sleep(retryTimeout(retry))
 		response, err = lrt.Rt.RoundTrip(request)
 		retry++

@@ -30,7 +30,7 @@ func ComposeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schem
 	}
 }
 
-func SuppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressEquivalentAwsPolicyDiffs(_, old, new string, d *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
 		return false

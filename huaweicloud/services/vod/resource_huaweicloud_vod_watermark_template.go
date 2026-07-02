@@ -39,7 +39,7 @@ func ResourceWatermarkTemplate() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		//request and response parameters
+		// request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

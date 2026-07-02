@@ -261,10 +261,9 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("vpnservice_id", conn.VPNServiceID)
 	d.Set("local_ep_group_id", conn.LocalEPGroupID)
 	d.Set("ipsecpolicy_id", conn.IPSecPolicyID)
-	// Do not set psk here as the response value is not same with the requested
-	//d.Set("psk", conn.PSK)
 	d.Set("mtu", conn.MTU)
 	d.Set("peer_cidrs", conn.PeerCIDRs)
+	// Do not set `psk` parameter here as the response value is not same with the requested
 
 	// Set the dpd
 	var dpdMap map[string]interface{}

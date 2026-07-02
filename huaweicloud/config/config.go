@@ -295,7 +295,7 @@ func retryBackoffFunc(ctx context.Context, _ *golangsdk.ErrUnexpectedResponseCod
 			return e
 		}
 	} else {
-		//lintignore:R018
+		// lintignore:R018
 		time.Sleep(sleep)
 	}
 

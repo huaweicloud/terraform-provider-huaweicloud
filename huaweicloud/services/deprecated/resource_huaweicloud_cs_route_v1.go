@@ -252,7 +252,7 @@ func flattenCsRouteV1Options(response map[string]interface{}) (map[string]interf
 
 func setCsRouteV1States(d *schema.ResourceData, opts map[string]interface{}) error {
 	for k, v := range opts {
-		//lintignore:R001
+		// lintignore:R001
 		if err := d.Set(k, v); err != nil {
 			return fmt.Errorf("error setting CS route:%s: %s", k, err)
 		}

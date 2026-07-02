@@ -31,7 +31,7 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		//request and response parameters
+		// request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

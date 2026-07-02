@@ -222,7 +222,7 @@ func resourceMemberV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
-	//lintignore:R006
+	// lintignore:R006
 	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		_, err = pools.UpdateMember(lbClient, poolID, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -259,7 +259,7 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Attempting to delete member %s", d.Id())
-	//lintignore:R006
+	// lintignore:R006
 	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		err = pools.DeleteMember(lbClient, poolID, d.Id()).ExtractErr()
 		if err != nil {

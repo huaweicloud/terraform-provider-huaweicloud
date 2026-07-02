@@ -49,7 +49,7 @@ func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instan
 	timeout := d.Timeout(schema.TimeoutUpdate)
 
 	log.Printf("[DEBUG] Setting ECS-AutoRecovery for instance:%s with options: %#v", rId, updateOpts)
-	//lintignore:R006
+	// lintignore:R006
 	err = retry.Retry(timeout, func() *retry.RetryError {
 		err := auto_recovery.Update(client, rId, updateOpts)
 		if err != nil {

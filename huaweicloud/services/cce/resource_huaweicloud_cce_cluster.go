@@ -93,7 +93,7 @@ func ResourceCluster() *schema.Resource {
 
 		CustomizeDiff: config.MergeDefaultTags(),
 
-		//request and response parameters
+		// request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -931,7 +931,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		log.Printf("error retrieving CCE cluster certificate: %s", err)
 	}
 
-	//Set Certificate Clusters
+	// Set Certificate Clusters
 	var clusterList []map[string]interface{}
 	for _, clusterObj := range cert.Clusters {
 		clusterCert := make(map[string]interface{})
@@ -942,7 +942,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 	mErr = multierror.Append(mErr, d.Set("certificate_clusters", clusterList))
 
-	//Set Certificate Users
+	// Set Certificate Users
 	var userList []map[string]interface{}
 	for _, userObj := range cert.Users {
 		userCert := make(map[string]interface{})

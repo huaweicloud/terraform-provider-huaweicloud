@@ -729,7 +729,7 @@ func buildHistoryConferenceGetOpts(uuid, userId, token string) conferences.GetHi
 
 func buildHistoryConferenceListOpts(userId, startTime, token string, duration int) (conferences.ListHistoryOpts,
 	error) {
-	tm, err := time.Parse(standardTimeFormat, startTime)
+	nanoTimestamp, err := time.Parse(standardTimeFormat, startTime)
 	if err != nil {
 		return conferences.ListHistoryOpts{}, nil
 	}
@@ -737,8 +737,8 @@ func buildHistoryConferenceListOpts(userId, startTime, token string, duration in
 		UserUUID: userId,
 		// The time range here refers to the time range when the meeting starts, the actual start time depends on when
 		// the meeting is used.
-		StartDate: int(tm.Unix()) * 1000, //ms
-		EndDate:   (int(tm.Unix()) + duration*60) * 1000,
+		StartDate: int(nanoTimestamp.Unix()) * 1000,
+		EndDate:   (int(nanoTimestamp.Unix()) + duration*60) * 1000,
 		Limit:     500,
 		Token:     token,
 	}, nil
