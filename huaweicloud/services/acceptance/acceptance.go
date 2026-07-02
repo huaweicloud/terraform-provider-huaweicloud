@@ -594,6 +594,12 @@ var (
 	HW_SECMASTER_MAPPER_TYPE_ID = os.Getenv("HW_SECMASTER_MAPPER_TYPE_ID")
 	HW_SECMASTER_PIPE_ID        = os.Getenv("HW_SECMASTER_PIPE_ID")
 
+	// The SecMaster data class ID
+	HW_SECMASTER_DATACLASS_ID = os.Getenv("HW_SECMASTER_DATACLASS_ID")
+
+	// The SecMaster type ID
+	HW_SECMASTER_TYPE_ID = os.Getenv("HW_SECMASTER_TYPE_ID")
+
 	// The SecMaster dataspace ID
 	HW_SECMASTER_DATASPACE_ID = os.Getenv("HW_SECMASTER_DATASPACE_ID")
 
@@ -3329,6 +3335,20 @@ func TestAccPreCheckSecMasterPolicyID(t *testing.T) {
 func TestAccPreCheckSecMasterLayoutID(t *testing.T) {
 	if HW_SECMASTER_LAYOUT_ID == "" {
 		t.Skip("HW_SECMASTER_LAYOUT_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterDataClassID(t *testing.T) {
+	if HW_SECMASTER_DATACLASS_ID == "" {
+		t.Skip("HW_SECMASTER_DATACLASS_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterTypeID(t *testing.T) {
+	if HW_SECMASTER_TYPE_ID == "" {
+		t.Skip("HW_SECMASTER_TYPE_ID must be set for SecMaster acceptance tests")
 	}
 }
 

@@ -4520,6 +4520,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_collector_parser":            secmaster.ResourceCollectorParser(),
 			"huaweicloud_secmaster_component_template":          secmaster.ResourceComponentTemplate(),
 			"huaweicloud_secmaster_configuration_dictionary":    secmaster.ResourceConfigurationDictionary(),
+			"huaweicloud_secmaster_data_class_type_layout":      secmaster.ResourceDataClassTypeLayout(),
 			"huaweicloud_secmaster_data_object_relations":       secmaster.ResourceDataObjectRelations(),
 			"huaweicloud_secmaster_dataspace":                   secmaster.ResourceDataspace(),
 			"huaweicloud_secmaster_delete_nodes":                secmaster.ResourceDeleteNodes(),
