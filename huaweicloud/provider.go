@@ -3926,6 +3926,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_geminidb_high_risk_command":           geminidb.ResourceHighRiskCommand(),
 			"huaweicloud_geminidb_instance":                    geminidb.ResourceGeminiDbInstance(),
 			"huaweicloud_geminidb_instance_lts_log_associate":  geminidb.ResourceGeminiDBInstanceLtsLogAssociate(),
+			"huaweicloud_geminidb_instance_parameter":          geminidb.ResourceGeminiDBInstanceParameter(),
 			"huaweicloud_geminidb_instance_restart":            geminidb.ResourceInstanceRestart(),
 			"huaweicloud_geminidb_memory_mapping":              geminidb.ResourceMemoryMapping(),
 			"huaweicloud_geminidb_memory_rule":                 geminidb.ResourceMemoryRule(),
