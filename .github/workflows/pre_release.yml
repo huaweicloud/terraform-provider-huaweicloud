@@ -39,7 +39,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       - name: Get the provider release version
         run: |
@@ -98,7 +98,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # /home/runner/work/terraform-provider-huaweicloud/terraform-provider-huaweicloud
@@ -176,7 +176,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ">=1.18"
+          go-version: "1.24"
 
       # run acceptance test
       - name: Run acceptance basic test

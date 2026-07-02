@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2019, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 package schema
 
 import (
@@ -21,6 +24,23 @@ func TestResourceDataRaw(t testing.T, schema map[string]*Schema, raw map[string]
 	}
 
 	result, err := sm.Data(nil, diff)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	return result
+}
+
+// TestResourceDataWithIdentityRaw creates a ResourceData with an identity from a raw identity map.
+func TestResourceDataWithIdentityRaw(t testing.T, schema map[string]*Schema, identitySchema map[string]*Schema, raw map[string]string) *ResourceData {
+	t.Helper()
+
+	sm := schemaMapWithIdentity{schema, identitySchema}
+	state := terraform.InstanceState{
+		Identity: raw,
+	}
+
+	result, err := sm.Data(&state, nil)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

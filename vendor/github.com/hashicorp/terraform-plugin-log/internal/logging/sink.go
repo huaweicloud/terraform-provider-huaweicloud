@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package logging
 
 import (
@@ -13,7 +16,13 @@ func GetSink(ctx context.Context) hclog.Logger {
 	if logger == nil {
 		return nil
 	}
-	return logger.(hclog.Logger)
+
+	hclogger, ok := logger.(hclog.Logger)
+	if !ok {
+		return nil
+	}
+
+	return hclogger
 }
 
 // GetSinkOptions returns the root logger options used for

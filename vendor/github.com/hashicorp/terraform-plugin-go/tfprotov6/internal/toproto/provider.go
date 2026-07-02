@@ -1,122 +1,160 @@
+// Copyright IBM Corp. 2020, 2026
+// SPDX-License-Identifier: MPL-2.0
+
 package toproto
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/internal/tfplugin6"
 )
 
-func GetProviderSchema_Request(in *tfprotov6.GetProviderSchemaRequest) (*tfplugin6.GetProviderSchema_Request, error) {
-	return &tfplugin6.GetProviderSchema_Request{}, nil
-}
-
-func GetProviderSchema_Response(in *tfprotov6.GetProviderSchemaResponse) (*tfplugin6.GetProviderSchema_Response, error) {
+func GetMetadata_Response(in *tfprotov6.GetMetadataResponse) *tfplugin6.GetMetadata_Response {
 	if in == nil {
-		return nil, nil
+		return nil
 	}
-	resp := tfplugin6.GetProviderSchema_Response{
-		ServerCapabilities: GetProviderSchema_ServerCapabilities(in.ServerCapabilities),
+
+	resp := &tfplugin6.GetMetadata_Response{
+		Actions:            make([]*tfplugin6.GetMetadata_ActionMetadata, 0, len(in.Actions)),
+		DataSources:        make([]*tfplugin6.GetMetadata_DataSourceMetadata, 0, len(in.DataSources)),
+		Diagnostics:        Diagnostics(in.Diagnostics),
+		EphemeralResources: make([]*tfplugin6.GetMetadata_EphemeralResourceMetadata, 0, len(in.EphemeralResources)),
+		ListResources:      make([]*tfplugin6.GetMetadata_ListResourceMetadata, 0, len(in.ListResources)),
+		Functions:          make([]*tfplugin6.GetMetadata_FunctionMetadata, 0, len(in.Functions)),
+		Resources:          make([]*tfplugin6.GetMetadata_ResourceMetadata, 0, len(in.Resources)),
+		StateStores:        make([]*tfplugin6.GetMetadata_StateStoreMetadata, 0, len(in.StateStores)),
+		ServerCapabilities: ServerCapabilities(in.ServerCapabilities),
 	}
-	if in.Provider != nil {
-		schema, err := Schema(in.Provider)
-		if err != nil {
-			return &resp, fmt.Errorf("error marshaling provider schema: %w", err)
-		}
-		resp.Provider = schema
+
+	for _, datasource := range in.DataSources {
+		resp.DataSources = append(resp.DataSources, GetMetadata_DataSourceMetadata(&datasource))
 	}
-	if in.ProviderMeta != nil {
-		schema, err := Schema(in.ProviderMeta)
-		if err != nil {
-			return &resp, fmt.Errorf("error marshaling provider_meta schema: %w", err)
-		}
-		resp.ProviderMeta = schema
+
+	for _, ephemeralResource := range in.EphemeralResources {
+		resp.EphemeralResources = append(resp.EphemeralResources, GetMetadata_EphemeralResourceMetadata(&ephemeralResource))
 	}
-	resp.ResourceSchemas = make(map[string]*tfplugin6.Schema, len(in.ResourceSchemas))
-	for k, v := range in.ResourceSchemas {
-		if v == nil {
-			resp.ResourceSchemas[k] = nil
-			continue
-		}
-		schema, err := Schema(v)
-		if err != nil {
-			return &resp, fmt.Errorf("error marshaling resource schema for %q: %w", k, err)
-		}
-		resp.ResourceSchemas[k] = schema
+
+	for _, listResource := range in.ListResources {
+		resp.ListResources = append(resp.ListResources, GetMetadata_ListResourceMetadata(&listResource))
 	}
-	resp.DataSourceSchemas = make(map[string]*tfplugin6.Schema, len(in.DataSourceSchemas))
-	for k, v := range in.DataSourceSchemas {
-		if v == nil {
-			resp.DataSourceSchemas[k] = nil
-			continue
-		}
-		schema, err := Schema(v)
-		if err != nil {
-			return &resp, fmt.Errorf("error marshaling data source schema for %q: %w", k, err)
-		}
-		resp.DataSourceSchemas[k] = schema
+
+	for _, function := range in.Functions {
+		resp.Functions = append(resp.Functions, GetMetadata_FunctionMetadata(&function))
 	}
-	diags, err := Diagnostics(in.Diagnostics)
-	if err != nil {
-		return &resp, err
+
+	for _, resource := range in.Resources {
+		resp.Resources = append(resp.Resources, GetMetadata_ResourceMetadata(&resource))
 	}
-	resp.Diagnostics = diags
-	return &resp, nil
+
+	for _, action := range in.Actions {
+		resp.Actions = append(resp.Actions, GetMetadata_ActionMetadata(&action))
+	}
+
+	for _, stateStore := range in.StateStores {
+		resp.StateStores = append(resp.StateStores, GetMetadata_StateStoreMetadata(&stateStore))
+	}
+
+	return resp
 }
 
-func ValidateProviderConfig_Request(in *tfprotov6.ValidateProviderConfigRequest) (*tfplugin6.ValidateProviderConfig_Request, error) {
-	resp := &tfplugin6.ValidateProviderConfig_Request{}
-	if in.Config != nil {
-		resp.Config = DynamicValue(in.Config)
+func GetProviderSchema_Response(in *tfprotov6.GetProviderSchemaResponse) *tfplugin6.GetProviderSchema_Response {
+	if in == nil {
+		return nil
 	}
-	return resp, nil
+
+	resp := &tfplugin6.GetProviderSchema_Response{
+		ActionSchemas:            make(map[string]*tfplugin6.ActionSchema, len(in.ActionSchemas)),
+		DataSourceSchemas:        make(map[string]*tfplugin6.Schema, len(in.DataSourceSchemas)),
+		Diagnostics:              Diagnostics(in.Diagnostics),
+		EphemeralResourceSchemas: make(map[string]*tfplugin6.Schema, len(in.EphemeralResourceSchemas)),
+		ListResourceSchemas:      make(map[string]*tfplugin6.Schema, len(in.ListResourceSchemas)),
+		StateStoreSchemas:        make(map[string]*tfplugin6.Schema, len(in.StateStoreSchemas)),
+		Functions:                make(map[string]*tfplugin6.Function, len(in.Functions)),
+		Provider:                 Schema(in.Provider),
+		ProviderMeta:             Schema(in.ProviderMeta),
+		ResourceSchemas:          make(map[string]*tfplugin6.Schema, len(in.ResourceSchemas)),
+		ServerCapabilities:       ServerCapabilities(in.ServerCapabilities),
+	}
+
+	for name, schema := range in.EphemeralResourceSchemas {
+		resp.EphemeralResourceSchemas[name] = Schema(schema)
+	}
+
+	for name, schema := range in.ListResourceSchemas {
+		resp.ListResourceSchemas[name] = Schema(schema)
+	}
+
+	for name, schema := range in.StateStoreSchemas {
+		resp.StateStoreSchemas[name] = Schema(schema)
+	}
+
+	for name, schema := range in.ResourceSchemas {
+		resp.ResourceSchemas[name] = Schema(schema)
+	}
+
+	for name, schema := range in.DataSourceSchemas {
+		resp.DataSourceSchemas[name] = Schema(schema)
+	}
+
+	for name, function := range in.Functions {
+		resp.Functions[name] = Function(function)
+	}
+
+	for name, actionSchema := range in.ActionSchemas {
+		resp.ActionSchemas[name] = ActionSchema(actionSchema)
+	}
+
+	return resp
 }
 
-func ValidateProviderConfig_Response(in *tfprotov6.ValidateProviderConfigResponse) (*tfplugin6.ValidateProviderConfig_Response, error) {
-	diags, err := Diagnostics(in.Diagnostics)
-	if err != nil {
-		return nil, err
+func GetResourceIdentitySchemas_Response(in *tfprotov6.GetResourceIdentitySchemasResponse) *tfplugin6.GetResourceIdentitySchemas_Response {
+	if in == nil {
+		return nil
 	}
+
+	resp := &tfplugin6.GetResourceIdentitySchemas_Response{
+		Diagnostics:     Diagnostics(in.Diagnostics),
+		IdentitySchemas: make(map[string]*tfplugin6.ResourceIdentitySchema, len(in.IdentitySchemas)),
+	}
+
+	for name, schema := range in.IdentitySchemas {
+		resp.IdentitySchemas[name] = ResourceIdentitySchema(schema)
+	}
+
+	return resp
+}
+
+func ValidateProviderConfig_Response(in *tfprotov6.ValidateProviderConfigResponse) *tfplugin6.ValidateProviderConfig_Response {
+	if in == nil {
+		return nil
+	}
+
 	resp := &tfplugin6.ValidateProviderConfig_Response{
-		Diagnostics: diags,
+		Diagnostics: Diagnostics(in.Diagnostics),
 	}
-	return resp, nil
+
+	return resp
 }
 
-func Configure_Request(in *tfprotov6.ConfigureProviderRequest) (*tfplugin6.ConfigureProvider_Request, error) {
-	resp := &tfplugin6.ConfigureProvider_Request{
-		TerraformVersion: in.TerraformVersion,
+func ConfigureProvider_Response(in *tfprotov6.ConfigureProviderResponse) *tfplugin6.ConfigureProvider_Response {
+	if in == nil {
+		return nil
 	}
-	if in.Config != nil {
-		resp.Config = DynamicValue(in.Config)
+
+	resp := &tfplugin6.ConfigureProvider_Response{
+		Diagnostics: Diagnostics(in.Diagnostics),
 	}
-	return resp, nil
+
+	return resp
 }
 
-func Configure_Response(in *tfprotov6.ConfigureProviderResponse) (*tfplugin6.ConfigureProvider_Response, error) {
-	diags, err := Diagnostics(in.Diagnostics)
-	if err != nil {
-		return nil, err
+func StopProvider_Response(in *tfprotov6.StopProviderResponse) *tfplugin6.StopProvider_Response {
+	if in == nil {
+		return nil
 	}
-	return &tfplugin6.ConfigureProvider_Response{
-		Diagnostics: diags,
-	}, nil
-}
 
-func Stop_Request(in *tfprotov6.StopProviderRequest) (*tfplugin6.StopProvider_Request, error) {
-	return &tfplugin6.StopProvider_Request{}, nil
-}
-
-func Stop_Response(in *tfprotov6.StopProviderResponse) (*tfplugin6.StopProvider_Response, error) {
-	return &tfplugin6.StopProvider_Response{
+	resp := &tfplugin6.StopProvider_Response{
 		Error: in.Error,
-	}, nil
-}
+	}
 
-// we have to say this next thing to get golint to stop yelling at us about the
-// underscores in the function names. We want the function names to match
-// actually-generated code, so it feels like fair play. It's just a shame we
-// lose golint for the entire file.
-//
-// This file is not actually generated. You can edit it. Ignore this next line.
-// Code generated by hand ignore this next bit DO NOT EDIT.
+	return resp
+}

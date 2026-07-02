@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package hcl
 
 // AbsTraversalForExpr attempts to interpret the given expression as
@@ -13,7 +16,7 @@ package hcl
 //
 // In most cases the calling application is interested in the value
 // that results from an expression, but in rarer cases the application
-// needs to see the the name of the variable and subsequent
+// needs to see the name of the variable and subsequent
 // attributes/indexes itself, for example to allow users to give references
 // to the variables themselves rather than to their values. An implementer
 // of this function should at least support attribute and index steps.
@@ -71,7 +74,7 @@ func RelTraversalForExpr(expr Expression) (Traversal, Diagnostics) {
 // For example, the following attribute has an expression that would produce
 // the keyword "foo":
 //
-//     example = foo
+//	example = foo
 //
 // This function is a variant of AbsTraversalForExpr, which uses the same
 // interface on the given expression. This helper constrains the result
@@ -81,16 +84,16 @@ func RelTraversalForExpr(expr Expression) (Traversal, Diagnostics) {
 // situations where one of a fixed set of keywords is required and arbitrary
 // expressions are not allowed:
 //
-//     switch hcl.ExprAsKeyword(expr) {
-//     case "allow":
-//         // (take suitable action for keyword "allow")
-//     case "deny":
-//         // (take suitable action for keyword "deny")
-//     default:
-//         diags = append(diags, &hcl.Diagnostic{
-//             // ... "invalid keyword" diagnostic message ...
-//         })
-//     }
+//	switch hcl.ExprAsKeyword(expr) {
+//	case "allow":
+//	    // (take suitable action for keyword "allow")
+//	case "deny":
+//	    // (take suitable action for keyword "deny")
+//	default:
+//	    diags = append(diags, &hcl.Diagnostic{
+//	        // ... "invalid keyword" diagnostic message ...
+//	    })
+//	}
 //
 // The above approach will generate the same message for both the use of an
 // unrecognized keyword and for not using a keyword at all, which is usually
