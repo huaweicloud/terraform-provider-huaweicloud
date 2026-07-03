@@ -40,6 +40,8 @@ type ctxType string
 // @API TaurusDB GET /v3/{project_id}/dedicated-resources
 // @API TaurusDB POST /v3/{project_id}/instances
 // @API TaurusDB POST /v3/{project_id}/instance/{instance_id}/audit-log/switch
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/audit-log-policy
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/audit-log-policy
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/sql-filter/switch
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/proxy
@@ -465,6 +467,22 @@ func ResourceTaurusDBInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"audit_log_keep_days": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"audit_types": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+			"reserve_audit_logs": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -486,6 +504,10 @@ func ResourceTaurusDBInstance() *schema.Resource {
 			},
 			"upgrade_flag": {
 				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"all_audit_log_action": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"current_version": {
@@ -785,6 +807,13 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	// audit-log policy
+	if _, ok := d.GetOk("audit_log_keep_days"); ok {
+		if err = updateAuditLogPolicy(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// sql-filter switch
 	if _, ok := d.GetOk("sql_filter_enabled"); ok {
 		err = switchSQLFilter(ctx, client, d, schema.TimeoutCreate)
@@ -1013,6 +1042,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setProxy(d, client, instanceID)...)
 	// set audit log status
 	mErr = multierror.Append(mErr, setAuditLog(d, client, instanceID))
+	// set audit log policy
+	mErr = multierror.Append(mErr, setAuditLogPolicy(d, client, instanceID))
 	// set sql filter status
 	mErr = multierror.Append(mErr, setSqlFilter(d, client, instanceID))
 	// set seconds level monitoring
@@ -1176,6 +1207,113 @@ func setAuditLog(d *schema.ResourceData, client *golangsdk.ServiceClient, instan
 	return d.Set("audit_log_enabled", status)
 }
 
+func setAuditLogPolicy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	keepDays, auditTypes, allAuditLogAction, err := getAuditLogPolicy(client, instanceId)
+	if err != nil {
+		log.Printf("[WARN] query instance %s audit log policy failed: %s", instanceId, err)
+		return nil
+	}
+
+	mErr := multierror.Append(nil,
+		d.Set("reserve_audit_logs", d.Get("reserve_audit_logs").(string)),
+		d.Set("audit_log_keep_days", keepDays),
+		d.Set("audit_types", auditTypes),
+		d.Set("all_audit_log_action", allAuditLogAction),
+	)
+	return mErr.ErrorOrNil()
+}
+
+func getAuditLogPolicy(client *golangsdk.ServiceClient, instanceId string) (int, []string, string, error) {
+	getPath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/audit-log-policy"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return 0, nil, "", fmt.Errorf("error retrieving audit log policy for instance (%s): %s", instanceId, err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return 0, nil, "", err
+	}
+
+	keepDays := int(utils.PathSearch("keep_days", getRespBody, float64(0)).(float64))
+	allAuditLogAction := utils.PathSearch("all_audit_log_action", getRespBody, "").(string)
+
+	auditTypesRaw := utils.PathSearch("audit_types", getRespBody, []interface{}{}).([]interface{})
+	auditTypes := utils.ExpandToStringList(auditTypesRaw)
+
+	return keepDays, auditTypes, allAuditLogAction, nil
+}
+
+func updateAuditLogPolicy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updatePath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/audit-log-policy"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildUpdateAuditLogPolicyRequestBody(d)),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating audit log policy for instance %s: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", updateRespBody, "").(string)
+	if result != "COMPLETED" {
+		return fmt.Errorf("error updating audit log policy for instance %s: result is %s", d.Id(), result)
+	}
+
+	return nil
+}
+
+func buildUpdateAuditLogPolicyRequestBody(d *schema.ResourceData) map[string]interface{} {
+	body := map[string]interface{}{
+		"keep_days": d.Get("audit_log_keep_days").(int),
+	}
+
+	if v, ok := d.GetOk("audit_types"); ok {
+		body["audit_types"] = utils.ExpandToStringList(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("reserve_audit_logs"); ok {
+		reserveAuditLog, err := strconv.ParseBool(v.(string))
+		if err == nil {
+			body["reserve_audit_logs"] = reserveAuditLog
+		}
+	}
+	return body
+}
 func setSqlFilter(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
 	resp, err := sqlfilter.Get(client, instanceId).Extract()
 	if err != nil {
@@ -1392,6 +1530,12 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("audit_log_enabled") {
 		err = switchAuditLog(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("audit_log_keep_days", "audit_types", "reserve_audit_logs") {
+		if err = updateAuditLogPolicy(ctx, client, d, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}

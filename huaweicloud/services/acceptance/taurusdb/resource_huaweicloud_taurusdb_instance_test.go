@@ -37,9 +37,13 @@ func TestAccTaurusDBInstance_basic(t *testing.T) {
 						"data.huaweicloud_taurusdb_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "09:00-10:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
-					resource.TestCheckResourceAttr(resourceName, "read_replicas", "2"),
+					resource.TestCheckResourceAttr(resourceName, "read_replicas", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "30"),
+					resource.TestCheckResourceAttr(resourceName, "audit_types.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "reserve_audit_logs", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_audit_log_action"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
 						"huaweicloud_taurusdb_parameter_template.test.0", "id"),
@@ -95,8 +99,12 @@ func TestAccTaurusDBInstance_basic(t *testing.T) {
 						"data.huaweicloud_taurusdb_flavors.test", "flavors.1.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "12:00-13:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "10"),
-					resource.TestCheckResourceAttr(resourceName, "read_replicas", "4"),
-					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "read_replicas", "2"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "10"),
+					resource.TestCheckResourceAttr(resourceName, "audit_types.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "reserve_audit_logs", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_audit_log_action"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
 						"huaweicloud_taurusdb_parameter_template.test.1", "id"),
@@ -136,6 +144,7 @@ func TestAccTaurusDBInstance_basic(t *testing.T) {
 					"auto_scaling.0.scaling_strategy",
 					"encryption_type",
 					"kms_key_id",
+					"reserve_audit_logs",
 				},
 			},
 		},
@@ -236,7 +245,11 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "09:00-10:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "10"),
+					resource.TestCheckResourceAttr(resourceName, "audit_types.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "reserve_audit_logs", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_audit_log_action"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
 						"huaweicloud_taurusdb_parameter_template.test.0", "id"),
@@ -295,7 +308,11 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 						"data.huaweicloud_taurusdb_flavors.test", "flavors.1.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "12:00-13:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "10"),
-					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "0"),
+					resource.TestCheckResourceAttr(resourceName, "audit_types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "reserve_audit_logs", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_audit_log_action"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
 						"huaweicloud_taurusdb_parameter_template.test.1", "id"),
@@ -341,6 +358,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					"charging_mode",
 					"period",
 					"period_unit",
+					"reserve_audit_logs",
 				},
 			},
 		},
@@ -450,7 +468,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
   security_group_id        = huaweicloud_networking_secgroup.test[0].id
   availability_zone_mode   = "multi"
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  read_replicas            = 2
+  read_replicas            = 1
   enterprise_project_id    = "0"
   sql_filter_enabled       = true
   configuration_id         = huaweicloud_taurusdb_parameter_template.test[0].id
@@ -462,6 +480,10 @@ resource "huaweicloud_taurusdb_instance" "test" {
   ssl_option               = "false"
   description              = "test_description"
   multi_tenant_switch      = "true"
+  audit_log_enabled        = true
+  audit_log_keep_days      = 30
+  audit_types              = ["CREATE", "ALTER"]
+  reserve_audit_logs       = "false"
 
   seconds_level_monitoring_enabled = true
   seconds_level_monitoring_period  = 1
@@ -520,9 +542,12 @@ resource "huaweicloud_taurusdb_instance" "test" {
   security_group_id        = huaweicloud_networking_secgroup.test[1].id
   availability_zone_mode   = "multi"
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  read_replicas            = 4
+  read_replicas            = 2
   enterprise_project_id    = "0"
-  audit_log_enabled        = true
+  audit_log_enabled        = false
+  audit_log_keep_days      = 10
+  audit_types              = ["CREATE", "ALTER", "DROP"]
+  reserve_audit_logs       = "true"
   sql_filter_enabled       = false
   configuration_id         = huaweicloud_taurusdb_parameter_template.test[1].id
   private_write_ip         = "192.168.0.157"
@@ -639,6 +664,10 @@ resource "huaweicloud_taurusdb_instance" "test" {
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
   enterprise_project_id    = "0"
   read_replicas            = 0
+  audit_log_enabled        = true
+  audit_log_keep_days      = 10
+  audit_types              = ["CREATE", "ALTER", "DROP"]
+  reserve_audit_logs       = "true"
   sql_filter_enabled       = true
   configuration_id         = huaweicloud_taurusdb_parameter_template.test[0].id
   private_write_ip         = "192.168.0.156"
@@ -715,7 +744,9 @@ resource "huaweicloud_taurusdb_instance" "test" {
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
   read_replicas            = 0
   enterprise_project_id    = "0"
-  audit_log_enabled        = true
+  audit_log_enabled        = false
+  audit_log_keep_days      = 0
+  reserve_audit_logs       = "false"
   sql_filter_enabled       = false
   configuration_id         = huaweicloud_taurusdb_parameter_template.test[1].id
   private_write_ip         = "192.168.0.157"

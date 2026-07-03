@@ -195,6 +195,19 @@ The `backup_strategy` block supports:
 
 * `audit_log_enabled` - (Optional, Bool) Specifies whether audit log is enabled. The default value is `false`.
 
+* `audit_log_keep_days` - (Optional, Int) Specifies the number of days for storing audit logs.
+   Value range: **0** to **732**. Defaults to **7**.
+
+   **Note**: When set it to `0`, SQL audit will be disabled and the parameter `audit_types` will not take effect.
+
+* `audit_types` - (Optional, List) Specifies the operation types recorded in audit logs. If this parameter is left blank,
+  all operation types will be recorded by default.
+
+* `reserve_audit_logs` - (Optional, String) Specifies whether to reserve historical audit logs when SQL audit is disabled.
+  + **true**: Historical audit logs will be reserved for some time when SQL audit is disabled.
+  + **false**: Historical audit logs will be deleted immediately when SQL audit is disabled.
+  Defaults to **true**.
+
 * `sql_filter_enabled` - (Optional, Bool) Specifies whether sql filter is enabled. The default value is `false`.
 
 * `encryption_status` - (Optional, String) Specifies whether to enable or disable encrypted backup. Value options:
@@ -286,6 +299,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `current_kernel_version` - Indicates the current database kernel version.
 
+* `all_audit_log_action` - Indicates all operation types that can be recorded in audit logs.
+
 * `created_at` - Indicates the creation time in the **yyyy-mm-ddThh:mm:ssZ** format.
 
 * `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
@@ -338,11 +353,11 @@ GaussDB instance can be imported using the `id`, e.g.
 $ terraform import huaweicloud_taurusdb_instance.test <id>
 ```
 
-Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`, `ssl_option`,
-`encryption_type`, `kms_key_id` and `parameters`. It is generally recommended running `terraform plan` after importing
-a TaurusDB instance. You can then decide if changes should be applied to the TaurusDB instance, or the resource
-definition should be updated to align with the TaurusDB instance. Also you can ignore changes as below.
+Note that the imported state may not be identical to your resource definition, due to the attribute missing from the API
+response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`,`ssl_option`,
+`encryption_type`, `kms_key_id`, `reserve_audit_logs`. It is generally recommended running`terraform plan` after
+importing a TaurusDB instance. You can then decide if changes should be applied to the TaurusDB instance,
+or the resource definition should be updated to align with the TaurusDB instance. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_taurusdb_instance" "test" {
@@ -350,7 +365,8 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option, encryption_type, kms_key_id
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option, encryption_type, kms_key_id, 
+      reserve_audit_logs,
     ]
   }
 }
