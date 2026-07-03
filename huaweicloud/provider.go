@@ -1410,6 +1410,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_timelines":                drs.DataSourceDrsTimelines(),
 			"huaweicloud_drs_drivers":                  drs.DataSourceDrsDrivers(),
 
+			"huaweicloud_dsc_alarms":               dsc.DataSourceDscAlarms(),
 			"huaweicloud_dsc_alarm_handling_trend": dsc.DataSourceDscAlarmHandlingTrend(),
 			"huaweicloud_dsc_event_overview":       dsc.DataSourceDscEventOverview(),
 			"huaweicloud_dsc_threat_trend":         dsc.DataSourceDscThreatTrend(),
