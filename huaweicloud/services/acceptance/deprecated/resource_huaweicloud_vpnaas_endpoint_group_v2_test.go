@@ -45,8 +45,8 @@ func TestAccVpnGroupV2_basic(t *testing.T) {
 }
 
 func testAccCheckEndpointGroupV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -76,8 +76,8 @@ func testAccCheckEndpointGroupV2Exists(n string, group *endpointgroups.EndpointG
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating networking client: %s", err)
 		}

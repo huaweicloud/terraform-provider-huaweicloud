@@ -49,8 +49,8 @@ func DataSourceDmsAZ() *schema.Resource {
 }
 
 func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	dmsV2Client, err := config.DmsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	dmsV2Client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS key client V2: %s", err)
 	}
@@ -62,7 +62,7 @@ func dataSourceDmsAZRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] The list of DMS available zones during the API response: %+v", v)
 	var filteredAZs []availablezones.AvailableZone
-	if v.RegionID == config.GetRegion(d) {
+	if v.RegionID == cfg.GetRegion(d) {
 		AZs := v.AvailableZones
 		for _, newAZ := range AZs {
 			if newAZ.ResourceAvailability != "true" || newAZ.SoldOut {

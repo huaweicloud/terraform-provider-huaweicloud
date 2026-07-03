@@ -123,8 +123,8 @@ func getIOByType(d *schema.ResourceData, productIOs []products.IO) []products.IO
 	return productIOs
 }
 
-func getProducts(config *config.Config, region, engine string) (*products.GetResponse, error) {
-	dmsV2Client, err := config.DmsV2Client(region)
+func getProducts(cfg *config.Config, region, engine string) (*products.GetResponse, error) {
+	dmsV2Client, err := cfg.DmsV2Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error getting DMS product client V2: %s", err)
 	}

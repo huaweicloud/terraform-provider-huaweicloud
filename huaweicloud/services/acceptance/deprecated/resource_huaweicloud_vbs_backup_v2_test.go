@@ -16,7 +16,7 @@ import (
 )
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
-	var config backups.Backup
+	var obj backups.Backup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vbs_backup.backup_1"
 
@@ -28,7 +28,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 			{
 				Config: testAccVBSBackupV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVBSBackupV2Exists(resourceName, &config),
+					testAccCheckVBSBackupV2Exists(resourceName, &obj),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 				),
@@ -43,8 +43,8 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 }
 
 func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
@@ -74,8 +74,8 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		vbsClient, err := cfg.VbsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating VBS client: %s", err)
 		}

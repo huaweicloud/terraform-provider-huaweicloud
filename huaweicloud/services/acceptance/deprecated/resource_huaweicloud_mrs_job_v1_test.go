@@ -36,8 +36,8 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 }
 
 func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	mrsClient, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -74,8 +74,8 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		mrsClient, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating MRS client: %s ", err)
 		}

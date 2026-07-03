@@ -451,8 +451,8 @@ func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceDat
 	return resourceNetworkingSecGroupRead(ctx, d, meta)
 }
 
-func resourceNetworkingSecGroupUpdateV2(d *schema.ResourceData, config *config.Config, region string) error {
-	v2Client, err := config.NetworkingV2Client(region)
+func resourceNetworkingSecGroupUpdateV2(d *schema.ResourceData, cfg *config.Config, region string) error {
+	v2Client, err := cfg.NetworkingV2Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating networking v2 client: %s", err)
 	}

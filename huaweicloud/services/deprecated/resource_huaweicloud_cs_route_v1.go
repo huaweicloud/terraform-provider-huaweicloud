@@ -71,8 +71,8 @@ func resourceCsRouteV1UserInputParams(d *schema.ResourceData) map[string]interfa
 }
 
 func resourceCsRouteV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -98,8 +98,8 @@ func resourceCsRouteV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsRouteV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -121,8 +121,8 @@ func resourceCsRouteV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsRouteV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}

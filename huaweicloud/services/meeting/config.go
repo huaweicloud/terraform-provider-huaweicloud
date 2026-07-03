@@ -193,13 +193,13 @@ func getMeetingToken(conf *config.Config, opt AuthOpts) (string, error) {
 
 func buildAuthorization(username, password string) string {
 	authInfo := []byte(username + ":" + password)
-	auth := "Basic " + base64.StdEncoding.EncodeToString(authInfo)
-	return auth
+	authHeader := "Basic " + base64.StdEncoding.EncodeToString(authInfo)
+	return authHeader
 }
 
 // buildAppAccessToken returns a authorization string according to the SP/Administrator account informations.
 // Note: make sure the number is not a negative integer or a big integer.
-func buildAppAuthorization(appId, appKey, corpInfo, userId string, validPeriod int) (auth, nonce string, expireTime int) {
+func buildAppAuthorization(appId, appKey, corpInfo, userId string, validPeriod int) (authorization, nonce string, expireTime int) {
 	nonce = utils.RandomString(64)
 	duration := validPeriod * 60 * 60
 	expireTime = int(time.Now().Unix()) + duration
@@ -212,7 +212,7 @@ func buildAppAuthorization(appId, appKey, corpInfo, userId string, validPeriod i
 	if err != nil {
 		log.Printf("[ERROR] Failed to build app authorization: %v", err)
 	}
-	auth = fmt.Sprintf("%s signature=%s", BasicAlgorithm, hex.EncodeToString(hmac256))
+	authorization = fmt.Sprintf("%s signature=%s", BasicAlgorithm, hex.EncodeToString(hmac256))
 	return
 }
 

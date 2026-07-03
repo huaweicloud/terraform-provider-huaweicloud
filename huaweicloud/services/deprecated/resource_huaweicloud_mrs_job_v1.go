@@ -134,8 +134,8 @@ func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobID string) retry.St
 }
 
 func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -180,9 +180,9 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.MrsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.MrsV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -224,8 +224,8 @@ func resourceMRSJobV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating client: %s", err)
 	}

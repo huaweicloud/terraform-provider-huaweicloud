@@ -92,8 +92,8 @@ func ResourceNetworkACLRule() *schema.Resource {
 }
 
 func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -128,8 +128,8 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -161,8 +161,8 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -219,8 +219,8 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}

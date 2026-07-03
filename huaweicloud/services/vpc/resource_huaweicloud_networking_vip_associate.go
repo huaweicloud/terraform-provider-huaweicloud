@@ -142,8 +142,8 @@ func resourceNetworkingVIPAssociateV2Create(ctx context.Context, d *schema.Resou
 	}
 
 	portids := resourceNetworkingPortIDs(d)
-	if diag := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diag != nil {
-		return diag
+	if diags := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diags != nil {
+		return diags
 	}
 
 	// set id
@@ -166,8 +166,8 @@ func resourceNetworkingVIPAssociateV2Update(ctx context.Context, d *schema.Resou
 	}
 
 	portids := resourceNetworkingPortIDs(d)
-	if diag := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diag != nil {
-		return diag
+	if diags := updateNetworkingVIPAssociate(networkingClient, vipID, portids); diags != nil {
+		return diags
 	}
 
 	return resourceNetworkingVIPAssociateV2Read(ctx, d, meta)

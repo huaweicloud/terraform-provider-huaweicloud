@@ -212,8 +212,8 @@ func getTriggerConditions(v []interface{}) []string {
 }
 
 func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	maasClient, err := config.MaasV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	maasClient, err := cfg.MaasV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating maas client: %s", err)
 	}
@@ -260,8 +260,8 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	maasClient, err := config.MaasV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	maasClient, err := cfg.MaasV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating maas client: %s", err)
 	}
@@ -302,8 +302,8 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	maasClient, err := config.MaasV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	maasClient, err := cfg.MaasV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating maas client: %s", err)
 	}

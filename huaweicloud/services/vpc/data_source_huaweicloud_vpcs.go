@@ -133,7 +133,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] retrieved VPC using given filter: %+v", vpcList)
 
-	var vpcs []map[string]interface{}
+	var vpcInfos []map[string]interface{}
 	tagFilter := d.Get("tags").(map[string]interface{})
 	var ids []string
 	for _, vpcResource := range vpcList {
@@ -169,12 +169,12 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		}
 		vpc["secondary_cidrs"] = utils.PathSearch("vpc.extend_cidrs", res, nil)
 
-		vpcs = append(vpcs, vpc)
+		vpcInfos = append(vpcInfos, vpc)
 		ids = append(ids, vpcResource.ID)
 	}
-	log.Printf("[DEBUG] VPC List after filter, count: %d vpcs: %+v", len(vpcs), vpcs)
+	log.Printf("[DEBUG] VPC List after filter, count: %d vpcs: %+v", len(vpcInfos), vpcInfos)
 
-	mErr := d.Set("vpcs", vpcs)
+	mErr := d.Set("vpcs", vpcInfos)
 	if mErr != nil {
 		return diag.Errorf("set vpcs err: %s", mErr)
 	}

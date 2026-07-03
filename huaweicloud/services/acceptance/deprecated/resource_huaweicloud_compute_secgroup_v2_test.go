@@ -152,8 +152,8 @@ func TestAccComputeV2SecGroup_timeout(t *testing.T) {
 }
 
 func testAccCheckComputeV2SecGroupDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -183,8 +183,8 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating compute client: %s", err)
 		}

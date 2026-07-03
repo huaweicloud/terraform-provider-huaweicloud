@@ -113,8 +113,8 @@ func TestAccNetworkACL_remove(t *testing.T) {
 }
 
 func testAccCheckNetworkACLDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -145,8 +145,8 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 			return fmt.Errorf("no ID is set in %s", n)
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating fw client: %s", err)
 		}

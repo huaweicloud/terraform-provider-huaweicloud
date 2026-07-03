@@ -131,8 +131,8 @@ func TestAccNetworkingV2Subnet_timeout(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2SubnetDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -162,8 +162,8 @@ func testAccCheckNetworkingV2SubnetExists(n string, subnet *subnets.Subnet) reso
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating networking client: %s", err)
 		}

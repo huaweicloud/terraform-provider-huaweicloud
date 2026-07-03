@@ -98,8 +98,8 @@ func ResourceNetworkingRouterV2() *schema.Resource {
 }
 
 func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -176,8 +176,8 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -198,7 +198,7 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("admin_state_up", n.AdminStateUp)
 	d.Set("distributed", n.Distributed)
 	d.Set("tenant_id", n.TenantID)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	// Gateway settings
 	d.Set("external_network_id", n.GatewayInfo.NetworkID)
@@ -224,8 +224,8 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 	config.MutexKV.Lock(routerId)
 	defer config.MutexKV.Unlock(routerId)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -293,8 +293,8 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceNetworkingRouterV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

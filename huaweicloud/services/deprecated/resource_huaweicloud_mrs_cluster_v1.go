@@ -423,14 +423,14 @@ func ClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterID string) 
 }
 
 func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	client, err := config.MrsV1Client(region)
+	client, err := cfg.MrsV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
-	vpcClient, err := config.NetworkingV1Client(region)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating VPC client: %s", err)
 	}
@@ -514,9 +514,9 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.MrsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.MrsV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -630,8 +630,8 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -646,8 +646,8 @@ func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.MrsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}

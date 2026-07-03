@@ -111,8 +111,8 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 }
 
 func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -143,8 +143,8 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating fw client: %s", err)
 		}

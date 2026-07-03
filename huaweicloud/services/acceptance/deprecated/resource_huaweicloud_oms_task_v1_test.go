@@ -33,8 +33,8 @@ func TestAccMaasTask_basic(t *testing.T) {
 }
 
 func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	maasClient, err := config.MaasV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	maasClient, err := cfg.MaasV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating maas client: %s", err)
 	}
@@ -64,8 +64,8 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		maasClient, err := config.MaasV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		maasClient, err := cfg.MaasV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating maas client: %s", err)
 		}

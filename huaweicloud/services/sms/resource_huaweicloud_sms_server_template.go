@@ -284,11 +284,11 @@ func resourceServerTemplateCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func flattenSubnetIDs(nics []templates.NicObject) []string {
-	subnets := make([]string, len(nics))
+	subnetIds := make([]string, len(nics))
 	for i, nic := range nics {
-		subnets[i] = nic.Id
+		subnetIds[i] = nic.Id
 	}
-	return subnets
+	return subnetIds
 }
 
 func flattenSecGroupIDs(groups []templates.SgObject) []string {

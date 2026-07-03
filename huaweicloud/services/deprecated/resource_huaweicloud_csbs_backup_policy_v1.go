@@ -151,8 +151,8 @@ func ResourceCSBSBackupPolicyV1() *schema.Resource {
 }
 
 func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	policyClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 
 	if err != nil {
 		return fmt.Errorf("error creating backup policy client: %s", err)
@@ -198,8 +198,8 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceCSBSBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	policyClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
@@ -230,14 +230,14 @@ func resourceCSBSBackupPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("provider_id", backupPolicy.ProviderId)
 	d.Set("created_at", backupPolicy.CreatedAt.Format(time.RFC3339))
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceCSBSBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	policyClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
@@ -267,8 +267,8 @@ func resourceCSBSBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	policyClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	policyClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}

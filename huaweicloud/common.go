@@ -13,12 +13,12 @@ import (
 // GetRegion returns the region that was specified in the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
 // region can either be set by the region argument or by HW_REGION_NAME.
-func GetRegion(d *schema.ResourceData, config *config.Config) string {
+func GetRegion(d *schema.ResourceData, cfg *config.Config) string {
 	if v, ok := d.GetOk("region"); ok {
 		return v.(string)
 	}
 
-	return config.Region
+	return cfg.Region
 }
 
 // CheckDeleted checks the error to see if it's a 404 (Not Found) and, if so,

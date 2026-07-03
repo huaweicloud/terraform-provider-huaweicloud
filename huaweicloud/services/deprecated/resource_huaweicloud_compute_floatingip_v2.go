@@ -61,8 +61,8 @@ func ResourceComputeFloatingIPV2() *schema.Resource {
 }
 
 func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -82,8 +82,8 @@ func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -99,7 +99,7 @@ func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("instance_id", fip.InstanceID)
 	d.Set("address", fip.IP)
 	d.Set("fixed_ip", fip.FixedIP)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
@@ -123,8 +123,8 @@ func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *sch
 }
 
 func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}

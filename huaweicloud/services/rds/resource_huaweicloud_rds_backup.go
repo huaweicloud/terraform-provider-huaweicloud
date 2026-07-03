@@ -149,7 +149,7 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 			200,
 		},
 	}
-	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d, cfg))
+	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d))
 	var createBackupResp *http.Response
 	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
@@ -184,7 +184,7 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return resourceBackupRead(ctx, d, meta)
 }
 
-func buildCreateBackupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateBackupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"instance_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),

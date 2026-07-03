@@ -335,8 +335,8 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if runtimConfig, ok := d.GetOk("runtime_config"); ok {
-		config := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
-		configStr, err := json.Marshal(config)
+		cfg := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
+		configStr, err := json.Marshal(cfg)
 		if err != nil {
 			log.Printf("[ERROR] error marshaling runtime config: %s", err)
 		}
@@ -711,8 +711,8 @@ func updateFlinkJarJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 		}
 
 		if runtimConfig, ok := d.GetOk("runtime_config"); ok {
-			config := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
-			configStr, err := json.Marshal(config)
+			cfg := utils.ExpandResourceTags(runtimConfig.(map[string]interface{}))
+			configStr, err := json.Marshal(cfg)
 			if err != nil {
 				log.Printf("[ERROR] error marshaling runtime config: %s", err)
 			}

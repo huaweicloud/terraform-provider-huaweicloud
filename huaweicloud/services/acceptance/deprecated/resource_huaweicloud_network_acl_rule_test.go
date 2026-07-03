@@ -96,8 +96,8 @@ func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 }
 
 func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -128,8 +128,8 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set in %s", key)
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := cfg.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating fw client: %s", err)
 		}

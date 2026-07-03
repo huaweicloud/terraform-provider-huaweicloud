@@ -150,8 +150,8 @@ func TestAccVpcSubnetV1_dhcp(t *testing.T) {
 }
 
 func testAccCheckVpcSubnetV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	subnetClient, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating VPC client: %s", err)
 	}
@@ -181,8 +181,8 @@ func testAccCheckVpcSubnetV1Exists(n string, subnet *subnets.Subnet) resource.Te
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		subnetClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		subnetClient, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating VPC client: %s", err)
 		}

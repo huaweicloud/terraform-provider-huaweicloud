@@ -75,8 +75,8 @@ func TestAccLBV2Member_basic(t *testing.T) {
 }
 
 func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	elbClient, err := config.LoadBalancerClient(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating ELB client: %s", err)
 	}

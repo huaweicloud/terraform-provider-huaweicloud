@@ -88,8 +88,8 @@ func ResourceFWFirewallGroupV2() *schema.Resource {
 
 func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -153,8 +153,8 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about firewall: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -176,15 +176,15 @@ func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("ports", firewall_group.PortIDs); err != nil {
 		return fmt.Errorf("error saving ports to state for firewall group (%s): %s", d.Id(), err)
 	}
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -249,8 +249,8 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}

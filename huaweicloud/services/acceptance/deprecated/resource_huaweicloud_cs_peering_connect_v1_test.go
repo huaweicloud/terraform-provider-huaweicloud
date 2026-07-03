@@ -73,8 +73,8 @@ resource "huaweicloud_cs_peering_connect_v1" "peering" {
 }
 
 func testAccCheckCsPeeringConnectV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating sdk client, err=%s", err)
 	}
@@ -102,8 +102,8 @@ func testAccCheckCsPeeringConnectV1Destroy(s *terraform.State) error {
 
 func testAccCheckCsPeeringConnectV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := cfg.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating sdk client, err=%s", err)
 		}

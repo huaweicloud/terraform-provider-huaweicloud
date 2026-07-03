@@ -94,8 +94,8 @@ func resourceCsPeeringConnectV1UserInputParams(d *schema.ResourceData) map[strin
 }
 
 func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	csClient, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	csClient, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -115,7 +115,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error creating CS peering connect: %s", err)
 	}
 
-	networkClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	networkClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -127,7 +127,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	obj, err := asyncWaitCsPeeringConnectV1Create(d, config, r, csClient, timeout)
+	obj, err := asyncWaitCsPeeringConnectV1Create(d, cfg, r, csClient, timeout)
 	if err != nil {
 		return err
 	}
@@ -141,8 +141,8 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -164,8 +164,8 @@ func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -188,7 +188,7 @@ func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error deleting CS peering connect, which ID is %s: %s", d.Id(), r.Err)
 	}
 
-	_, err = asyncWaitCsPeeringConnectV1Delete(d, config, r.Body, client, d.Timeout(schema.TimeoutDelete))
+	_, err = asyncWaitCsPeeringConnectV1Delete(d, cfg, r.Body, client, d.Timeout(schema.TimeoutDelete))
 	return err
 }
 

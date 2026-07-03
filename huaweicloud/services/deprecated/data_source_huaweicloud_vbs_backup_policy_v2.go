@@ -98,8 +98,8 @@ func DataSourceVBSBackupPolicyV2() *schema.Resource {
 }
 
 func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
@@ -150,7 +150,7 @@ func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("rentention_num", Policy.ScheduledPolicy.RententionNum)
 	d.Set("start_time", Policy.ScheduledPolicy.StartTime)
 	d.Set("status", Policy.ScheduledPolicy.Status)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	n, err := tags.Get(vbsClient, Policy.ID).Extract()
 	var tag []map[string]interface{}

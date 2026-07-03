@@ -86,8 +86,8 @@ func ResourceNetworkingFloatingIPV2() *schema.Resource {
 }
 
 func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating network client: %s", err)
 	}
@@ -129,8 +129,8 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating network client: %s", err)
 	}
@@ -146,14 +146,14 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("tenant_id", floatingIP.TenantID)
 	d.Set("pool", PoolName)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating network client: %s", err)
 	}
@@ -176,8 +176,8 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 }
 
 func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating network client: %s", err)
 	}

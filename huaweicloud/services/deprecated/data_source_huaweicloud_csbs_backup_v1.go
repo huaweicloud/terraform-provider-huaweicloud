@@ -186,8 +186,8 @@ func DataSourceCSBSBackupV1() *schema.Resource {
 }
 
 func dataSourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	backupClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating csbs client: %s", err)
 	}
@@ -235,7 +235,7 @@ func dataSourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("volume_backups", flattenCSBSVolumeBackups(&backupObject))
 	d.Set("vm_metadata", flattenCSBSVMMetadata(&backupObject))
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

@@ -181,8 +181,8 @@ func ResourceCSBSBackupV1() *schema.Resource {
 }
 
 func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	backupClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
@@ -257,8 +257,8 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	backupClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
@@ -288,14 +288,14 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("backup_record_id", backupObject.CheckpointId)
 	d.Set("auto_trigger", backupObject.ExtendInfo.AutoTrigger)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	backupClient, err := config.CsbsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	backupClient, err := cfg.CsbsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}

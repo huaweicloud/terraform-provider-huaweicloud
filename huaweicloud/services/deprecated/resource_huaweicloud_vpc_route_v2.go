@@ -64,8 +64,8 @@ func ResourceVPCRouteV2() *schema.Resource {
 }
 
 func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcRouteClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 
 	if err != nil {
 		return diag.Errorf("error creating vpc route client: %s", err)
@@ -94,8 +94,8 @@ func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceVpcRouteV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcRouteClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Vpc route client: %s", err)
 	}
@@ -114,15 +114,15 @@ func resourceVpcRouteV2Read(_ context.Context, d *schema.ResourceData, meta inte
 	d.Set("nexthop", n.NextHop)
 	d.Set("destination", n.Destination)
 	d.Set("vpc_id", n.VPC_ID)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	config := meta.(*config.Config)
-	vpcRouteClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcRouteClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating vpc route: %s", err)
 	}

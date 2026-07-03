@@ -63,8 +63,8 @@ func TestAccCSBSBackupV1_timeout(t *testing.T) {
 }
 
 func testAccCSBSBackupV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	backupClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	backupClient, err := cfg.CsbsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating csbs client: %s", err)
 	}
@@ -94,8 +94,8 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		backupClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		backupClient, err := cfg.CsbsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating csbs client: %s", err)
 		}

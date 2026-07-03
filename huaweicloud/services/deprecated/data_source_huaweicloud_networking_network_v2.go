@@ -64,8 +64,8 @@ func DataSourceNetworkingNetworkV2() *schema.Resource {
 }
 
 func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -127,7 +127,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	d.Set("admin_state_up", strconv.FormatBool(network.AdminStateUp))
 	d.Set("shared", strconv.FormatBool(network.Shared))
 	d.Set("tenant_id", network.TenantID)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

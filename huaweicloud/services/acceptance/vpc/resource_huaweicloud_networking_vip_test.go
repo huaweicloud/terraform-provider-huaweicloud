@@ -13,8 +13,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getNetworkVipResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+func getNetworkVipResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VPC network v1 client: %s", err)
 	}

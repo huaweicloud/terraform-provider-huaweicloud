@@ -15,8 +15,8 @@ import (
 )
 
 func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, instanceID string) (bool, error) {
-	config := meta.(*config.Config)
-	client, err := config.ComputeV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return false, fmt.Errorf("error creating client: %s", err)
 	}
@@ -36,8 +36,8 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 }
 
 func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instanceID string, ar bool) error {
-	config := meta.(*config.Config)
-	client, err := config.ComputeV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating client: %s", err)
 	}

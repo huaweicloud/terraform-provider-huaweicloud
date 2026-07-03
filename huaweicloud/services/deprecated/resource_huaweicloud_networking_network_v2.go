@@ -97,8 +97,8 @@ func ResourceNetworkingNetworkV2() *schema.Resource {
 }
 
 func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -169,8 +169,8 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -186,14 +186,14 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("admin_state_up", strconv.FormatBool(n.AdminStateUp))
 	d.Set("shared", strconv.FormatBool(n.Shared))
 	d.Set("tenant_id", n.TenantID)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -234,8 +234,8 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 }
 
 func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

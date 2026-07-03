@@ -107,10 +107,10 @@ func createEnvironmentVariables(client *golangsdk.ServiceClient, appId string, e
 		}
 
 		envId := envMap["id"].(string)
-		config := applications.Configuration{
+		cfg := applications.Configuration{
 			EnvVariables: variables,
 		}
-		if _, err := applications.UpdateConfig(client, appId, envId, config); err != nil {
+		if _, err := applications.UpdateConfig(client, appId, envId, cfg); err != nil {
 			return err
 		}
 	}

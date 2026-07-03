@@ -47,12 +47,12 @@ func ParseErrorMsg(body []byte) (ErrorResp, error) {
 // GetRegion returns the region that was specified ina the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
 // region can either be set by the region argument or by HW_REGION_NAME.
-func GetRegion(d *schema.ResourceData, config *config.Config) string {
+func GetRegion(d *schema.ResourceData, cfg *config.Config) string {
 	if v, ok := d.GetOk("region"); ok {
 		return v.(string)
 	}
 
-	return config.Region
+	return cfg.Region
 }
 
 // GetEipIDbyAddress returns the EIP ID of address when success.
@@ -121,8 +121,8 @@ func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagno
 }
 
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
-func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
-	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
+func UnsubscribePrePaidResource(d *schema.ResourceData, cfg *config.Config, resourceIDs []string) error {
+	bssV2Client, err := cfg.BssV2Client(GetRegion(d, cfg))
 	if err != nil {
 		return fmt.Errorf("error creating bss V2 client: %s", err)
 	}

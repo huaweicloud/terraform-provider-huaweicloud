@@ -109,8 +109,8 @@ func ResourceVpnIPSecPolicyV2() *schema.Resource {
 }
 
 func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -164,8 +164,8 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about IPSec policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -185,7 +185,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("transform_protocol", policy.TransformProtocol)
 	d.Set("pfs", policy.PFS)
 	d.Set("auth_algorithm", policy.AuthAlgorithm)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	// Set the lifetime
 	var lifetimeMap map[string]interface{}
@@ -202,8 +202,8 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -280,8 +280,8 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy IPSec policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

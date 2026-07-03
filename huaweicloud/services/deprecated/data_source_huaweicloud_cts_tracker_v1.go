@@ -72,8 +72,8 @@ func DataSourceCTSTrackerV1() *schema.Resource {
 }
 
 func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	trackerClient, err := config.CtsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	trackerClient, err := cfg.CtsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating cts Client: %s", err)
 	}
@@ -115,7 +115,7 @@ func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("operations", trackers.SimpleMessageNotification.Operations)
 	d.Set("need_notify_user_list", trackers.SimpleMessageNotification.NeedNotifyUserList)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

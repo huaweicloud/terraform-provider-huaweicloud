@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getBackupResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getBackup: Query the RDS manual backup
 	var (
 		getBackupHttpUrl = "v3/{project_id}/backups"
 		getBackupProduct = "rds"
 	)
-	getBackupClient, err := config.NewServiceClient(getBackupProduct, region)
+	getBackupClient, err := cfg.NewServiceClient(getBackupProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Backup Client: %s", err)
 	}

@@ -931,19 +931,19 @@ func buildConfigurationStructure(configs []interface{}) (instances.Configuration
 		return instances.Configuration{}, nil
 	}
 
-	config := configs[0].(map[string]interface{})
-	probe, err := buildProbeStructure(config["probe"].([]interface{}))
+	cfg := configs[0].(map[string]interface{})
+	probe, err := buildProbeStructure(cfg["probe"].([]interface{}))
 	if err != nil {
 		return instances.Configuration{}, err
 	}
 
 	return instances.Configuration{
-		EnvVariables:          buildEnvVariables(config["env_variable"].(*schema.Set)),
-		Storages:              buildStoragesList(config["storage"].(*schema.Set)),
-		Strategy:              buildStrategyStructure(config["strategy"].([]interface{})),
-		Lifecycle:             buildLifecycleStructure(config["lifecycle"].([]interface{})),
-		LogCollectionPolicies: buildLogCollectionPoliciesStructure(config["log_collection_policy"].(*schema.Set)),
-		Scheduler:             buildSchedulerStructure(config["scheduler"].([]interface{})),
+		EnvVariables:          buildEnvVariables(cfg["env_variable"].(*schema.Set)),
+		Storages:              buildStoragesList(cfg["storage"].(*schema.Set)),
+		Strategy:              buildStrategyStructure(cfg["strategy"].([]interface{})),
+		Lifecycle:             buildLifecycleStructure(cfg["lifecycle"].([]interface{})),
+		LogCollectionPolicies: buildLogCollectionPoliciesStructure(cfg["log_collection_policy"].(*schema.Set)),
+		Scheduler:             buildSchedulerStructure(cfg["scheduler"].([]interface{})),
 		Probe:                 probe,
 	}, nil
 }

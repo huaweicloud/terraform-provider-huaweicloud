@@ -45,9 +45,9 @@ func DataSourceDcsAZV1() *schema.Resource {
 }
 
 func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	dcsV1Client, err := config.DcsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dcsV1Client, err := cfg.DcsV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating DCS client: %s", err)
 	}

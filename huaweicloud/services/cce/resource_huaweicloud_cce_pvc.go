@@ -203,12 +203,12 @@ func resourceCcePersistentVolumeClaimV1Create(ctx context.Context, d *schema.Res
 	return resourceCcePersistentVolumeClaimV1Read(ctx, d, meta)
 }
 
-func saveCcePersistentVolumeClaimState(d *schema.ResourceData, config *config.Config,
+func saveCcePersistentVolumeClaimState(d *schema.ResourceData, cfg *config.Config,
 	resp *persistentvolumeclaims.PersistentVolumeClaim) error {
 	metadata := &resp.Metadata
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", metadata.Name),
 		d.Set("namespace", metadata.Namespace),
 		d.Set("access_modes", resp.Spec.AccessModes),

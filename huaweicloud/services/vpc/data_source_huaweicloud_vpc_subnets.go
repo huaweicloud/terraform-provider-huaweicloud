@@ -193,7 +193,7 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Retrieved subnets using given filter: %+v", subnetList)
 
-	var subnets []map[string]interface{}
+	var subnetInfos []map[string]interface{}
 	tagFilter := d.Get("tags").(map[string]interface{})
 	var ids []string
 	for _, item := range subnetList {
@@ -229,12 +229,12 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 			log.Printf("[WARN] error query tags of subnets (%s): %s", item.ID, err)
 		}
 
-		subnets = append(subnets, subnet)
+		subnetInfos = append(subnetInfos, subnet)
 		ids = append(ids, item.ID)
 	}
-	log.Printf("[DEBUG] Subnets List after filter, count=%d :%+v", len(subnets), subnets)
+	log.Printf("[DEBUG] Subnets List after filter, count=%d :%+v", len(subnetInfos), subnetInfos)
 
-	mErr := d.Set("subnets", subnets)
+	mErr := d.Set("subnets", subnetInfos)
 	if mErr != nil {
 		return diag.Errorf("set subnets err:%s", mErr)
 	}

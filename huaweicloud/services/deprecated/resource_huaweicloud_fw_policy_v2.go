@@ -78,8 +78,8 @@ func ResourceFWPolicyV2() *schema.Resource {
 }
 
 func resourceFWPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -129,8 +129,8 @@ func resourceFWPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 func resourceFWPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about firewall policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -150,14 +150,14 @@ func resourceFWPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("rules", policy.Rules); err != nil {
 		return fmt.Errorf("error saving rules to state for firewall policy (%s): %s", d.Id(), err)
 	}
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceFWPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -198,8 +198,8 @@ func resourceFWPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 func resourceFWPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}

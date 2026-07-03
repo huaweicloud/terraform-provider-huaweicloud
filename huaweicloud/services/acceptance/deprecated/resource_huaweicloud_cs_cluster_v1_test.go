@@ -54,8 +54,8 @@ resource "huaweicloud_cs_cluster_v1" "cluster" {
 }
 
 func testAccCheckCsClusterV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating sdk client, err=%s", err)
 	}
@@ -83,8 +83,8 @@ func testAccCheckCsClusterV1Destroy(s *terraform.State) error {
 
 func testAccCheckCsClusterV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.CloudStreamV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := cfg.CloudStreamV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating sdk client, err=%s", err)
 		}

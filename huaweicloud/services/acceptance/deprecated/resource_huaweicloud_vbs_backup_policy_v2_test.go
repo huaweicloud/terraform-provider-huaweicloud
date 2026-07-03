@@ -82,8 +82,8 @@ func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 }
 
 func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
@@ -113,8 +113,8 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		vbsClient, err := config.VbsV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		vbsClient, err := cfg.VbsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating VBS client: %s", err)
 		}

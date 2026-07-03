@@ -132,8 +132,8 @@ func ResourceBlockStorageVolumeV2() *schema.Resource {
 }
 
 func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	blockStorageClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating block storage client: %s", err)
 	}
@@ -185,8 +185,8 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 }
 
 func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	blockStorageClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating block storage client: %s", err)
 	}
@@ -205,7 +205,7 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 	d.Set("snapshot_id", v.SnapshotID)
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	// NOTE: This tries to remove system metadata on huawei cloud :(
 	md := make(map[string]string)
@@ -236,8 +236,8 @@ OUTER:
 }
 
 func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	blockStorageClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating block storage client: %s", err)
 	}
@@ -285,8 +285,8 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 }
 
 func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	blockStorageClient, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	blockStorageClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating block storage client: %s", err)
 	}
@@ -299,7 +299,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	// make sure this volume is detached from all instances before deleting
 	if len(v.Attachments) > 0 {
 		log.Printf("[DEBUG] detaching volumes")
-		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+		computeClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 		if err != nil {
 			return err
 		}

@@ -170,7 +170,7 @@ func testAccCheckObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 }
 
 func testAccObsBucketObjectDataSource_content(randInt int) (string, string) {
-	resource := fmt.Sprintf(`
+	resourceScript := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -196,13 +196,13 @@ resource "huaweicloud_obs_bucket_object" "object" {
 data "huaweicloud_obs_bucket_object" "obj" {
   bucket = "tf-acc-test-bucket-%d"
   key    = "test-key-%d"
-}`, resource, randInt, randInt)
+}`, resourceScript, randInt, randInt)
 
-	return resource, dataSource
+	return resourceScript, dataSource
 }
 
 func testAccObsBucketObjectDataSource_source(randInt int, source string) (string, string) {
-	resource := fmt.Sprintf(`
+	resourceScript := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -221,13 +221,13 @@ resource "huaweicloud_obs_bucket_object" "object" {
 data "huaweicloud_obs_bucket_object" "obj" {
   bucket = "tf-acc-test-bucket-%d"
   key    = "test-key-%d"
-}`, resource, randInt, randInt)
+}`, resourceScript, randInt, randInt)
 
-	return resource, dataSource
+	return resourceScript, dataSource
 }
 
 func testAccObsBucketObjectDataSource_allParams(randInt int) (string, string) {
-	resource := fmt.Sprintf(`
+	resourceScript := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -251,7 +251,7 @@ CONTENT
 data "huaweicloud_obs_bucket_object" "obj" {
   bucket = "tf-acc-test-bucket-%d"
   key    = "test-key-%d"
-}`, resource, randInt, randInt)
+}`, resourceScript, randInt, randInt)
 
-	return resource, dataSource
+	return resourceScript, dataSource
 }

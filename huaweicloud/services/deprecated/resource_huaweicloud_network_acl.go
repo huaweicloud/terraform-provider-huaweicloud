@@ -98,8 +98,8 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	var portIds []string
 	var inboundPolicyID, outboundPolicyID string
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	subnetsRaw := d.Get("subnets").(*schema.Set).List()
 	if len(subnetsRaw) > 0 {
 		for _, v := range subnetsRaw {
-			port, err := getGWPortFromSubnet(config, v.(string))
+			port, err := getGWPortFromSubnet(cfg, v.(string))
 			if err != nil {
 				return err
 			}
@@ -228,8 +228,8 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -255,8 +255,8 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -292,7 +292,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 		// get port Ids from subnets
 		subnetsRaw := d.Get("subnets").(*schema.Set).List()
 		for _, v := range subnetsRaw {
-			port, err := getGWPortFromSubnet(config, v.(string))
+			port, err := getGWPortFromSubnet(cfg, v.(string))
 			if err != nil {
 				return err
 			}
@@ -338,8 +338,8 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -385,15 +385,15 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error) {
+func getGWPortFromSubnet(cfg *config.Config, subnetID string) (string, error) {
 	var gatewayIP string
 	var gatewayPort string
 
-	subnetClient, err := config.NetworkingV1Client(config.Region)
+	subnetClient, err := cfg.NetworkingV1Client(cfg.Region)
 	if err != nil {
 		return "", fmt.Errorf("error creating vpc client: %s", err)
 	}
-	networkingClient, err := config.NetworkingV2Client(config.Region)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.Region)
 	if err != nil {
 		return "", fmt.Errorf("error creating networking client: %s", err)
 	}

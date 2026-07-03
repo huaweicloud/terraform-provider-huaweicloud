@@ -41,8 +41,8 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 }
 
 func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	mrsClient, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating MRS client: %s", err)
 	}
@@ -78,8 +78,8 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		mrsClient, err := config.MrsV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		mrsClient, err := cfg.MrsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating MRS client: %s ", err)
 		}

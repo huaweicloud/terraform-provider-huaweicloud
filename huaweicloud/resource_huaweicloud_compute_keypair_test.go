@@ -62,8 +62,8 @@ func TestAccComputeV2Keypair_privateKey(t *testing.T) {
 }
 
 func testAccCheckComputeV2KeypairDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+	cfg := testAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -93,8 +93,8 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 			return fmt.Errorf("no ID set for resource %s", n)
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+		cfg := testAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating compute client: %s", err)
 		}

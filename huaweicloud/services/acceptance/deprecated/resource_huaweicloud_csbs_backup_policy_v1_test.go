@@ -72,8 +72,8 @@ func TestAccCSBSBackupPolicyV1_timeout(t *testing.T) {
 }
 
 func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	policyClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	policyClient, err := cfg.CsbsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating csbs client: %s", err)
 	}
@@ -103,8 +103,8 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		policyClient, err := config.CsbsV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		policyClient, err := cfg.CsbsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating csbs client: %s", err)
 		}

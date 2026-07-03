@@ -108,8 +108,8 @@ func ResourceVpnIKEPolicyV2() *schema.Resource {
 }
 
 func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -162,8 +162,8 @@ func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) erro
 func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about IKE policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -183,7 +183,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("pfs", policy.PFS)
 	d.Set("phase1_negotiation_mode", policy.Phase1NegotiationMode)
 	d.Set("ike_version", policy.IKEVersion)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	// Set the lifetime
 	var lifetimeMap map[string]interface{}
@@ -200,8 +200,8 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -275,8 +275,8 @@ func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) erro
 func resourceVpnIKEPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy IKE policy: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

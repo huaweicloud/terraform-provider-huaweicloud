@@ -275,8 +275,8 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 }
 
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating VPC client: %s", err)
 	}
@@ -306,8 +306,8 @@ func testAccCheckCustomRegionVpcV1Exists(name string, vpc *vpcs.Vpc, region stri
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		vpcClient, err := config.NetworkingV1Client(region)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		vpcClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
 			return fmt.Errorf("error creating VPC client: %s", err)
 		}
@@ -337,8 +337,8 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		vpcClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		vpcClient, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating VPC client: %s", err)
 		}

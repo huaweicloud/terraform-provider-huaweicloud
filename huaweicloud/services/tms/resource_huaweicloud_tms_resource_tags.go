@@ -81,10 +81,10 @@ func buildResourcesInfo(resources []interface{}) []tags.Resource {
 
 	result := make([]tags.Resource, len(resources))
 	for i, val := range resources {
-		resource := val.(map[string]interface{})
+		resourceMap := val.(map[string]interface{})
 		result[i] = tags.Resource{
-			ResourceType: resource["resource_type"].(string),
-			ResourceId:   resource["resource_id"].(string),
+			ResourceType: resourceMap["resource_type"].(string),
+			ResourceId:   resourceMap["resource_id"].(string),
 		}
 	}
 	return result
@@ -215,11 +215,11 @@ func GetResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) ([
 	// Check whether all tagged resources contain the expected tags correctly. If not, inconsistent tags information
 	// will be printed in the log.
 	for _, val := range resources {
-		resource := val.(map[string]interface{})
-		resourceId := resource["resource_id"].(string)
+		resourceMap := val.(map[string]interface{})
+		resourceId := resourceMap["resource_id"].(string)
 		opts := tags.QueryOpts{
 			ResourceId:   resourceId,
-			ResourceType: resource["resource_type"].(string),
+			ResourceType: resourceMap["resource_type"].(string),
 			ProjectId:    projectId,
 		}
 		resp, err := tags.Get(client, opts)

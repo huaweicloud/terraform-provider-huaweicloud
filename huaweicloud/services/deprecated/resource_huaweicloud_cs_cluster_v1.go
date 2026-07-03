@@ -116,8 +116,8 @@ func resourceCsClusterV1UserInputParams(d *schema.ResourceData) map[string]inter
 }
 
 func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -135,7 +135,7 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	obj, err := asyncWaitCsClusterV1Create(d, config, r, client, timeout)
+	obj, err := asyncWaitCsClusterV1Create(d, cfg, r, client, timeout)
 	if err != nil {
 		return err
 	}
@@ -149,8 +149,8 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -172,9 +172,9 @@ func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -196,8 +196,8 @@ func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CloudStreamV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.CloudStreamV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating SDK client: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error deleting CS cluster, which ID is %s: %s", d.Id(), r.Err)
 	}
 
-	_, err = asyncWaitCsClusterV1Delete(d, config, r.Body, client, d.Timeout(schema.TimeoutDelete))
+	_, err = asyncWaitCsClusterV1Delete(d, cfg, r.Body, client, d.Timeout(schema.TimeoutDelete))
 	return err
 }
 

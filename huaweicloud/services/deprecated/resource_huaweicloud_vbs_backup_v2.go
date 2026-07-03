@@ -129,8 +129,8 @@ func resourceVBSBackupTagsV2(d *schema.ResourceData) []backups.Tag {
 }
 
 func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating vbs client: %s", err)
 	}
@@ -165,8 +165,8 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
@@ -186,14 +186,14 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("object_count", n.ObjectCount)
 	d.Set("created_at", n.CreatedAt.Format(time.RFC3339))
 	d.Set("volume_id", n.VolumeId)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating VBS: %s", err)
 	}

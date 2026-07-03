@@ -86,8 +86,8 @@ func ResourceCTSTrackerV1() *schema.Resource {
 }
 
 func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(d))
 
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
@@ -121,8 +121,8 @@ func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
 	}
@@ -155,14 +155,14 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("operations", ctsTracker.SimpleMessageNotification.Operations)
 	d.Set("need_notify_user_list", ctsTracker.SimpleMessageNotification.NeedNotifyUserList)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
 	}
@@ -199,8 +199,8 @@ func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCTSTrackerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
 	}

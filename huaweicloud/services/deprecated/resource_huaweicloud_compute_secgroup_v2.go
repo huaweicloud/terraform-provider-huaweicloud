@@ -98,8 +98,8 @@ func ResourceComputeSecGroupV2() *schema.Resource {
 }
 
 func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -136,8 +136,8 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSecGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -157,14 +157,14 @@ func resourceComputeSecGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] rulesToMap(sg.Rules): %+v", rtm)
 	d.Set("rule", rtm)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -218,8 +218,8 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeSecGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}

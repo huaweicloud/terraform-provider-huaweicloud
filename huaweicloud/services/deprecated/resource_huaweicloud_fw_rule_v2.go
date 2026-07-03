@@ -92,8 +92,8 @@ func ResourceFWRuleV2() *schema.Resource {
 
 func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -137,8 +137,8 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about firewall rule: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -166,14 +166,14 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("protocol", rule.Protocol)
 	}
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
@@ -232,8 +232,8 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall rule: %s", d.Id())
 
-	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}

@@ -168,8 +168,8 @@ func ResourceNetworkingPortV2() *schema.Resource {
 }
 
 func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -255,8 +255,8 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -306,14 +306,14 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("allowed_address_pairs", pairs)
 	d.Set("extra_dhcp_option", flattenNetworkingPortDHCPOptsV2(p.ExtraDHCPOptsExt))
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
 
 func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -427,8 +427,8 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

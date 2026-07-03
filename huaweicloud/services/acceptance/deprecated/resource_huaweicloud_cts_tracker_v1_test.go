@@ -16,7 +16,7 @@ import (
 )
 
 func TestAccCTSTrackerV1_basic(t *testing.T) {
-	var tracker tracker.Tracker
+	var obj tracker.Tracker
 	resourceName := "huaweicloud_cts_tracker.tracker"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -27,7 +27,7 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 			{
 				Config: testAccCTSTrackerV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCTSTrackerV1Exists(resourceName, &tracker),
+					testAccCheckCTSTrackerV1Exists(resourceName, &obj),
 					resource.TestCheckResourceAttr(resourceName, "bucket_name", "tf-test-bucket"),
 					resource.TestCheckResourceAttr(resourceName, "file_prefix_name", "yO8Q"),
 				),
@@ -40,7 +40,7 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 			{
 				Config: testAccCTSTrackerV1_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCTSTrackerV1Exists(resourceName, &tracker),
+					testAccCheckCTSTrackerV1Exists(resourceName, &obj),
 					resource.TestCheckResourceAttr(resourceName, "file_prefix_name", "yO8Q1"),
 				),
 			},
@@ -49,8 +49,8 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 }
 
 func testAccCheckCTSTrackerV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(nil))
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
 	}
@@ -83,8 +83,8 @@ func testAccCheckCTSTrackerV1Exists(n string, trackers *tracker.Tracker) resourc
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		ctsClient, err := cfg.CtsV1Client(cfg.GetRegion(nil))
 		if err != nil {
 			return fmt.Errorf("error creating CTS client: %s", err)
 		}

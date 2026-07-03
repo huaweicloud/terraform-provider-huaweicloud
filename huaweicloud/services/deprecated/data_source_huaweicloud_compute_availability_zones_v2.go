@@ -36,8 +36,8 @@ func DataSourceComputeAvailabilityZonesV2() *schema.Resource {
 }
 
 func dataSourceComputeAvailabilityZonesV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}

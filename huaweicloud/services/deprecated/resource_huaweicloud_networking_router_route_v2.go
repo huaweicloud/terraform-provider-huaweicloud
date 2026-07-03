@@ -58,8 +58,8 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 	var destCidr string = d.Get("destination_cidr").(string)
 	var nextHop string = d.Get("next_hop").(string)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -116,8 +116,8 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 
 	routerId := d.Get("router_id").(string)
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }
@@ -176,9 +176,9 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 	config.MutexKV.Lock(routerId)
 	defer config.MutexKV.Unlock(routerId)
 
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

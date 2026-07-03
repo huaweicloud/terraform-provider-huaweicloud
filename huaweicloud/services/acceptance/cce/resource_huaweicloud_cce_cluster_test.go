@@ -407,8 +407,8 @@ func TestAccCluster_resizePeriod(t *testing.T) {
 }
 
 func testAccCheckClusterDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating CCE v3 client: %s", err)
 	}
@@ -438,8 +438,8 @@ func testAccCheckClusterExists(n string, cluster *clusters.Clusters) resource.Te
 			return fmt.Errorf("resource ID is not set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating CCE v3 client: %s", err)
 		}

@@ -175,8 +175,8 @@ func ResourceImagesImageV2() *schema.Resource {
 }
 
 func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	imageClient, err := cfg.ImageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating image client: %s", err)
 	}
@@ -248,9 +248,9 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	imageClient, err := config.ImageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	imageClient, err := cfg.ImageV2Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating image client: %s", err)
 	}
@@ -291,8 +291,8 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	imageClient, err := cfg.ImageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating image client: %s", err)
 	}
@@ -329,8 +329,8 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	imageClient, err := cfg.ImageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating image client: %s", err)
 	}

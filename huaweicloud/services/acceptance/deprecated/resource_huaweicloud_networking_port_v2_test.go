@@ -186,8 +186,8 @@ func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -217,8 +217,8 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating networking client: %s", err)
 		}

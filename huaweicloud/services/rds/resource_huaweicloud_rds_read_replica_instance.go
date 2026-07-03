@@ -574,9 +574,9 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	return resourceRdsReadReplicaInstanceRead(ctx, d, meta)
 }
 
-func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) error {
+func updateRdsInstanceAutoRenew(d *schema.ResourceData, cfg *config.Config) error {
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating BSS V2 client: %s", err)
 		}

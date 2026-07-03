@@ -155,8 +155,8 @@ func ResourceVpnSiteConnectionV2() *schema.Resource {
 
 func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -235,8 +235,8 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about site connection: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -294,8 +294,8 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 
 func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -413,8 +413,8 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 func resourceVpnSiteConnectionV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy service: %s", d.Id())
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}

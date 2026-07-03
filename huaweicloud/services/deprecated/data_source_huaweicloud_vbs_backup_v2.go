@@ -72,8 +72,8 @@ func DataSourceVBSBackupV2() *schema.Resource {
 }
 
 func dataSourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	vbsClient, err := config.VbsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
@@ -113,7 +113,7 @@ func dataSourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("size", Backup.Size)
 	d.Set("container", Backup.Container)
 	d.Set("volume_id", Backup.VolumeId)
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", cfg.GetRegion(d))
 
 	return nil
 }

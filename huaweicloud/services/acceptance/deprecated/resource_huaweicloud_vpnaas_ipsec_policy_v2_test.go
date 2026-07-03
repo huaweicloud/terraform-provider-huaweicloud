@@ -77,8 +77,8 @@ func TestAccVpnIPSecPolicyV2_withLifetime(t *testing.T) {
 }
 
 func testAccCheckIPSecPolicyV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
@@ -108,8 +108,8 @@ func testAccCheckIPSecPolicyV2Exists(n string, policy *ipsecpolicies.Policy) res
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := cfg.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating networking client: %s", err)
 		}

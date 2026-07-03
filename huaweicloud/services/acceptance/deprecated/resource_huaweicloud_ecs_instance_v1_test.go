@@ -57,8 +57,8 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 }
 
 func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -90,8 +90,8 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV1Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating compute client: %s", err)
 		}

@@ -277,11 +277,11 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 			return err
 		}
 
-		resource, err := cloudservers.GetOrderResource(bssV1Client, n.OrderID)
+		resourceId, err := cloudservers.GetOrderResource(bssV1Client, n.OrderID)
 		if err != nil {
 			return err
 		}
-		instance_id = resource.(string)
+		instance_id = resourceId.(string)
 	} else {
 		n, err := cloudservers.Create(computeClient, createOpts).ExtractJobResponse()
 		if err != nil {
@@ -318,8 +318,8 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
@@ -367,13 +367,13 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 
 // nolint:gocyclo
 func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeV2Client, err := config.ComputeV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeV2Client, err := cfg.ComputeV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute v2.1 client: %s", err)
 	}
 
-	computeV1Client, err := config.ComputeV1Client(config.GetRegion(d))
+	computeV1Client, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute v1 client: %s", err)
 	}
@@ -475,7 +475,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("tags") {
-		ecsClient, err := config.ComputeV1Client(config.GetRegion(d))
+		ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating compute v1 client: %s", err)
 		}
@@ -499,14 +499,14 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeV1Client, err := config.ComputeV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeV1Client, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
-		bssV1Client, err := config.BssV1Client(config.GetRegion(d))
+		bssV1Client, err := cfg.BssV1Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating BSS V1 client: %s", err)
 		}
@@ -619,20 +619,20 @@ func resourceInstanceDataVolumesV1(d *schema.ResourceData) []cloudservers.DataVo
 
 func resourceInstanceSecGroupsV1(d *schema.ResourceData) []cloudservers.SecurityGroup {
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
-	secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
+	securityGroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
 	for i, raw := range rawSecGroups {
-		secgroups[i] = cloudservers.SecurityGroup{
+		securityGroups[i] = cloudservers.SecurityGroup{
 			ID: raw.(string),
 		}
 	}
-	return secgroups
+	return securityGroups
 }
 
 func flattenInstanceNicsV1(
 	d *schema.ResourceData, meta interface{}, addresses map[string][]cloudservers.Address) []map[string]interface{} {
 
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
 		log.Printf("Error creating networking client: %s", err)
 	}
