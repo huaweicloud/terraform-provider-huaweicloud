@@ -78,7 +78,6 @@ func ResourceVpnEndpointGroupV2() *schema.Resource {
 }
 
 func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -160,7 +159,6 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -243,7 +241,6 @@ func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) 
 }
 
 func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		group, err := endpointgroups.Get(networkingClient, id).Extract()
 		log.Printf("[DEBUG] Got group %s => %#v", id, group)

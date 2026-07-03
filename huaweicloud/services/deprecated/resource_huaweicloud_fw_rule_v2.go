@@ -91,7 +91,6 @@ func ResourceFWRuleV2() *schema.Resource {
 }
 
 func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {

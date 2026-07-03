@@ -245,7 +245,6 @@ func getWarmPool(client *golangsdk.ServiceClient, instanceId string) (interface{
 
 func resourceAsWarmPoolImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
-
 	mErr := multierror.Append(
 		nil,
 		d.Set("scaling_group_id", d.Id()),

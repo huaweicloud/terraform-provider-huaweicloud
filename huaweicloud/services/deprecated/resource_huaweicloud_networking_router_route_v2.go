@@ -50,7 +50,6 @@ func ResourceNetworkingRouterRouteV2() *schema.Resource {
 }
 
 func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	routerId := d.Get("router_id").(string)
 	config.MutexKV.Lock(routerId)
 	defer config.MutexKV.Unlock(routerId)
@@ -79,7 +78,6 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 
 	var rts []routers.Route = n.Routes
 	for _, r := range rts {
-
 		if r.DestinationCIDR == destCidr && r.NextHop == nextHop {
 			routeExists = true
 			break
@@ -87,7 +85,6 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 	}
 
 	if !routeExists {
-
 		if destCidr != "" && nextHop != "" {
 			r := routers.Route{DestinationCIDR: destCidr, NextHop: nextHop}
 			log.Printf(
@@ -104,7 +101,6 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 			return fmt.Errorf("error updating Neutron Router: %s", err)
 		}
 		d.SetId(fmt.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
-
 	} else {
 		log.Printf("[DEBUG] Router %s has route already", routerId)
 	}
@@ -113,7 +109,6 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 }
 
 func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{}) error {
-
 	routerId := d.Get("router_id").(string)
 
 	cfg := meta.(*config.Config)
@@ -157,7 +152,6 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 	d.Set("destination_cidr", "")
 
 	for _, r := range n.Routes {
-
 		if r.DestinationCIDR == destCidr && r.NextHop == nextHop {
 			d.Set("destination_cidr", destCidr)
 			d.Set("next_hop", nextHop)
@@ -171,7 +165,6 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 }
 
 func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interface{}) error {
-
 	routerId := d.Get("router_id").(string)
 	config.MutexKV.Lock(routerId)
 	defer config.MutexKV.Unlock(routerId)
@@ -201,7 +194,6 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 	var newRts []routers.Route
 
 	for _, r := range oldRts {
-
 		if r.DestinationCIDR != destCidr || r.NextHop != nextHop {
 			newRts = append(newRts, r)
 		}

@@ -596,7 +596,6 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, conf, obsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
-
 	}
 
 	if d.HasChange("user_domain_names") {
@@ -953,7 +952,6 @@ func resourceObsBucketQuotaUpdate(obsClient *obs.ObsClient, d *schema.ResourceDa
 	}
 
 	return nil
-
 }
 
 // nolint:gocyclo

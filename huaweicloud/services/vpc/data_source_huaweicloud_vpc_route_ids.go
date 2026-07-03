@@ -63,7 +63,6 @@ func dataSourceVpcRouteIdsV2Read(d *schema.ResourceData, meta interface{}) error
 
 	for _, route := range refinedRoutes {
 		listRoutes = append(listRoutes, route.RouteID)
-
 	}
 
 	d.SetId(d.Get("vpc_id").(string))

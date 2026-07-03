@@ -392,7 +392,6 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 		if jobId == "" {
 			return diag.Errorf("error creating IMS image copy within region: job ID is not found in API response")
 		}
-
 	} else {
 		createPath := client.Endpoint + crossRegionCopyHttpUrl
 		createPath = strings.ReplaceAll(createPath, "{image_id}", sourceImageId)

@@ -38,7 +38,6 @@ func getDeviceGroupResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving IoTDA device group: %s", err)
-
 	}
 
 	return utils.FlattenResponse(getResp)

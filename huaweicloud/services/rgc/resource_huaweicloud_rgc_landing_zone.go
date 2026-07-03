@@ -19,7 +19,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var landingZoneNonUpdatableParams = []string{"home_region", "organization_structure_type", "deny_ungoverned_regions", "kms_key_id", "organization_structure_type"}
+var landingZoneNonUpdatableParams = []string{
+	"home_region",
+	"organization_structure_type",
+	"deny_ungoverned_regions",
+	"kms_key_id",
+	"organization_structure_type",
+}
 
 // @API RGC POST /v1/landing-zone/setup
 // @API RGC GET /v1/landing-zone/status

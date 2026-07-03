@@ -100,7 +100,6 @@ func buildAlarmsParams(d *schema.ResourceData) string {
 }
 
 func listAlarms(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
-
 	var (
 		httpUrl = "v3/{project_id}/alarm-history-record?limit={limit}"
 		result  = make([]interface{}, 0)

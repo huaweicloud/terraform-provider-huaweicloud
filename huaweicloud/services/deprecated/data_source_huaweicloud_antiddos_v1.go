@@ -242,5 +242,4 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("trigger_http_pps", trigger_http_pps)
 
 	return nil
-
 }

@@ -65,10 +65,12 @@ output "charging_modes_validation" {
 }
 
 output "storage_spec_code_validation" {
-  value = !contains([for ios in local.test_results.flavors[*].ios : !contains([for io in ios : io.storage_spec_code == local.test_refer.ios[0].storage_spec_code], false)], false)
+  value = !contains([for ios in local.test_results.flavors[*].ios : !contains([for io in ios : io.storage_spec_code == 
+  local.test_refer.ios[0].storage_spec_code], false)], false)
 }
 
 output "availability_zones_validation" {
-  value = !contains([for ios in local.test_results.flavors[*].ios : !contains([for io in ios : length(setintersection(io.availability_zones, local.test_refer.ios[0].availability_zones)) == length(local.test_refer.ios[0].availability_zones)], false)], false)
+  value = !contains([for ios in local.test_results.flavors[*].ios : !contains([for io in ios : length(setintersection(io.availability_zones,
+  local.test_refer.ios[0].availability_zones)) == length(local.test_refer.ios[0].availability_zones)], false)], false)
 }
 `

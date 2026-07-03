@@ -161,7 +161,6 @@ func buildNicsOpts(client *golangsdk.ServiceClient, nics []string) ([]templates.
 				Cidr: rst.CIDR,
 			}
 		}
-
 	}
 	return request, nil
 }
@@ -194,7 +193,6 @@ func buildSecGroupOpts(client *golangsdk.ServiceClient, sgs []string) ([]templat
 				Name: rst.Name,
 			}
 		}
-
 	}
 	return request, nil
 }

@@ -216,7 +216,6 @@ func dataSourceElbLoadbalancersByTagsRead(_ context.Context, d *schema.ResourceD
 	}
 
 	for {
-
 		if tagsAction == "filter" {
 			requestBody["offset"] = offset
 		}

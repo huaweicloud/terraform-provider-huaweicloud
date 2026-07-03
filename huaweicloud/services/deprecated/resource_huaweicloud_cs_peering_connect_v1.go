@@ -15,6 +15,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"time"
@@ -22,8 +23,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-
-	"fmt"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -248,7 +247,6 @@ func sendCsPeeringConnectV1CreateRequest(d *schema.ResourceData, params interfac
 
 func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
-
 	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"peering_id": []string{"peering", "id"},
@@ -289,7 +287,6 @@ func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, result interface{
 }
 
 func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
-
 	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{id}", nil)
 	if err != nil {
 		return nil, err

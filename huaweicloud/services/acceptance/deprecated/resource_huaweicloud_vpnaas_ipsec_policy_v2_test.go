@@ -34,7 +34,8 @@ func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_ipsec_policy_v2.policy_1", "transform_protocol", &policy.TransformProtocol),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_ipsec_policy_v2.policy_1", "encapsulation_mode", &policy.EncapsulationMode),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_ipsec_policy_v2.policy_1", "auth_algorithm", &policy.AuthAlgorithm),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_ipsec_policy_v2.policy_1", "encryption_algorithm", &policy.EncryptionAlgorithm),
+					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_ipsec_policy_v2.policy_1", "encryption_algorithm",
+						&policy.EncryptionAlgorithm),
 				),
 			},
 			{

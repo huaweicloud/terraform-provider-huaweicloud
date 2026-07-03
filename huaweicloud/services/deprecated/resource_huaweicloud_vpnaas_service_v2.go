@@ -93,7 +93,6 @@ func ResourceVpnServiceV2() *schema.Resource {
 }
 
 func resourceVpnServiceV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -174,7 +173,6 @@ func resourceVpnServiceV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpnServiceV2Update(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -263,7 +261,6 @@ func resourceVpnServiceV2Delete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func waitForServiceDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		serv, err := services.Get(networkingClient, id).Extract()
 		log.Printf("[DEBUG] Got service %s => %#v", id, serv)

@@ -862,7 +862,6 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	diags = append(diags, resourceClusterRead(ctx, d, meta)...)
 
 	return diags
-
 }
 
 func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1324,7 +1323,6 @@ func getClusterIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, j
 		} else {
 			return "", fmt.Errorf("error waiting for job (%s) to become success: %s", jobID, err)
 		}
-
 	}
 
 	job := v.(*nodes.Job)

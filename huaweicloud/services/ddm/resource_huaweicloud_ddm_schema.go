@@ -463,7 +463,6 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string,
 	timeout string) error {
-
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},

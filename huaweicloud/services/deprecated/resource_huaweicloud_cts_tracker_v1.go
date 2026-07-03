@@ -82,7 +82,6 @@ func ResourceCTSTrackerV1() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {

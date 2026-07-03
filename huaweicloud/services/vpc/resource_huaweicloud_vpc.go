@@ -439,7 +439,6 @@ func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) retry.St
 
 func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-
 		r, err := vpcs.Get(vpcClient, vpcId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {

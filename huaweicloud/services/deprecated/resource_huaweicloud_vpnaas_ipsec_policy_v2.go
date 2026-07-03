@@ -348,7 +348,6 @@ func resourceIPSecPolicyV2TransformProtocol(trp string) ipsecpolicies.TransformP
 		protocol = ipsecpolicies.TransformProtocolAHESP
 	}
 	return protocol
-
 }
 
 func resourceIPSecPolicyV2PFS(pfsString string) ipsecpolicies.PFS {
@@ -362,7 +361,6 @@ func resourceIPSecPolicyV2PFS(pfsString string) ipsecpolicies.PFS {
 		pfs = ipsecpolicies.PFSGroup14
 	}
 	return pfs
-
 }
 
 func resourceIPSecPolicyV2EncryptionAlgorithm(encryptionAlgo string) ipsecpolicies.EncryptionAlgorithm {
@@ -445,5 +443,4 @@ func resourceIPSecPolicyV2LifetimeUpdateOpts(d *schema.Set) ipsecpolicies.Lifeti
 		lifetimeUpdateOpts.Value = value
 	}
 	return lifetimeUpdateOpts
-
 }

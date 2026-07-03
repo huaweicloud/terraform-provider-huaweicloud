@@ -421,7 +421,6 @@ func resourceDomainNameGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 				return diag.FromErr(err)
 			}
 		}
-
 	}
 	return resourceDomainNameGroupRead(ctx, d, meta)
 }

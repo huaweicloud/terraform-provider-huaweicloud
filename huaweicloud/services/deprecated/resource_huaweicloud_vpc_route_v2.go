@@ -90,7 +90,6 @@ func resourceVpcRouteV2Create(ctx context.Context, d *schema.ResourceData, meta 
 	d.SetId(n.RouteID)
 
 	return resourceVpcRouteV2Read(ctx, d, meta)
-
 }
 
 func resourceVpcRouteV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -120,7 +119,6 @@ func resourceVpcRouteV2Read(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-
 	cfg := meta.(*config.Config)
 	vpcRouteClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -147,7 +145,6 @@ func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 
 func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-
 		r, err := routes.Get(vpcRouteClient, routeId).Extract()
 
 		if err != nil {

@@ -50,7 +50,6 @@ func getLogstashPipelineResourceFunc(cfg *config.Config, state *terraform.Resour
 }
 
 func TestAccLogstashPipeline_basic(t *testing.T) {
-
 	var (
 		obj   interface{}
 		name  = acceptance.RandomAccResourceName()

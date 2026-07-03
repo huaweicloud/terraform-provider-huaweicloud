@@ -23,7 +23,8 @@ func TestAccNetworkingV2SubnetDataSource_basic(t *testing.T) {
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
-					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1", "huaweicloud_networking_network_v2.network_1"),
+					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1",
+						"huaweicloud_networking_network_v2.network_1"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_networking_subnet_v2.subnet_1", "name", "subnet_1"),
 				),
@@ -77,7 +78,8 @@ func TestAccNetworkingV2SubnetDataSource_networkIdAttribute(t *testing.T) {
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
-					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1", "huaweicloud_networking_network_v2.network_1"),
+					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1",
+						"huaweicloud_networking_network_v2.network_1"),
 					testAccCheckNetworkingPortV2ID("huaweicloud_networking_port_v2.port_1"),
 				),
 			},

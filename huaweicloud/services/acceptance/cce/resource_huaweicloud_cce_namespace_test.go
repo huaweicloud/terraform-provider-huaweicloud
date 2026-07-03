@@ -111,7 +111,6 @@ func testAccCCENamespaceImportStateIdFunc(name string) resource.ImportStateIdFun
 			return "", fmt.Errorf("resource not found: %s/%s", clusterID, name)
 		}
 		return fmt.Sprintf("%s/%s", clusterID, name), nil
-
 	}
 }
 

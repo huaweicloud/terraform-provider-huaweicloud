@@ -246,7 +246,6 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	// set endpoints
 	var v []map[string]interface{}
 	for _, endpoint := range Cluster.Status.Endpoints {
-
 		mapping := map[string]interface{}{
 			"url":  endpoint.Url,
 			"type": endpoint.Type,

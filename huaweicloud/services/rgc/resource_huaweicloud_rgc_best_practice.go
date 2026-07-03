@@ -139,7 +139,6 @@ func resourceBestPracticeRead(_ context.Context, d *schema.ResourceData, meta in
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-
 }
 
 func resourceBestPracticeUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

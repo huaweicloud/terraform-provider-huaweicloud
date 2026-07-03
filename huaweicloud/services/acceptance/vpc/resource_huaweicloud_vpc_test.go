@@ -249,7 +249,6 @@ func TestAccVpcV1_WithEnhancedLocalRoute(t *testing.T) {
 // TestAccVpcV1_WithCustomRegion this case will run a test for resource-level region. Before run this case,
 // you shoule set `HW_CUSTOM_REGION_NAME` in your system and it should be different from `HW_REGION_NAME`.
 func TestAccVpcV1_WithCustomRegion(t *testing.T) {
-
 	vpcName1 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
 	vpcName2 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
 

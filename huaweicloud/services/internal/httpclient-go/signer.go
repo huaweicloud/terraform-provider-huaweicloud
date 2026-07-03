@@ -37,7 +37,8 @@ func CanonicalRequest(r *http.Request, signedHeaders []string) (string, error) {
 			return "", err
 		}
 	}
-	return fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s", r.Method, CanonicalURI(r), CanonicalQueryString(r), CanonicalHeaders(r, signedHeaders), strings.Join(signedHeaders, ";"), hexencode), err
+	return fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s", r.Method, CanonicalURI(r), CanonicalQueryString(r),
+		CanonicalHeaders(r, signedHeaders), strings.Join(signedHeaders, ";"), hexencode), err
 }
 
 //nolint:unused

@@ -115,10 +115,8 @@ func convertToInt(v interface{}) (int64, error) {
 
 	if i, ok := v.(int); ok {
 		return int64(i), nil
-
 	} else if i, ok := v.(float64); ok {
 		return int64(i), nil
-
 	} else if i, ok := v.(float32); ok {
 		return int64(i), nil
 	}

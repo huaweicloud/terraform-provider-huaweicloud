@@ -449,7 +449,8 @@ func testAccCheckV3AccessKeyPgpEncryption(resourceName string) resource.TestChec
 
 		gotFingerprint := rs.Primary.Attributes["key_fingerprint"]
 		if gotFingerprint != fingerprint {
-			return fmt.Errorf("The fingerprint of the PGP key used to encrypt the secret is incorrect, want '%v', but got '%v'", fingerprint, gotFingerprint)
+			return fmt.Errorf("The fingerprint of the PGP key used to encrypt the secret is incorrect, want '%v', but got '%v'",
+				fingerprint, gotFingerprint)
 		}
 
 		encryptedSecret := rs.Primary.Attributes["encrypted_secret"]

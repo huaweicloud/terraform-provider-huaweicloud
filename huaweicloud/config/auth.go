@@ -221,7 +221,6 @@ func buildClientByToken(c *Config) error {
 	for _, ao := range []*golangsdk.AuthOptions{&projectAuthOptions, &domainAuthOptions} {
 		ao.IdentityEndpoint = c.IdentityEndpoint
 		ao.TokenID = c.Token
-
 	}
 	return genClients(c, projectAuthOptions, domainAuthOptions)
 }

@@ -154,7 +154,6 @@ func ResourceVpnSiteConnectionV2() *schema.Resource {
 }
 
 func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -293,7 +292,6 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -440,7 +438,6 @@ func resourceVpnSiteConnectionV2Delete(d *schema.ResourceData, meta interface{})
 }
 
 func waitForSiteConnectionDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		conn, err := siteconnections.Get(networkingClient, id).Extract()
 		log.Printf("[DEBUG] Got site connection %s => %#v", id, conn)

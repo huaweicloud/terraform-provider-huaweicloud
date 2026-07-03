@@ -97,7 +97,6 @@ func resourceDliPermissionCreate(ctx context.Context, d *schema.ResourceData, me
 		if rst != nil && !rst.IsSuccess {
 			return diag.Errorf("error granting permission in DLI: %s", rst.Message)
 		}
-
 	} else {
 		opts := auth.GrantDataPermissionOpts{
 			UserName: userName,

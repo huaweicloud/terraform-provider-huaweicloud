@@ -230,7 +230,6 @@ func resourceV2PersistentVolumeClaimCreate(ctx context.Context, d *schema.Resour
 }
 
 func buildCreateV2PersistentVolumeClaimParams(d *schema.ResourceData) map[string]interface{} {
-
 	bodyParams := map[string]interface{}{
 		"metadata": map[string]interface{}{
 			"namespace":   d.Get("namespace"),

@@ -178,11 +178,9 @@ func resourceVBSBackupPolicyV2Create(d *schema.ResourceData, meta interface{}) e
 	}
 
 	return resourceVBSBackupPolicyV2Read(d, meta)
-
 }
 
 func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	vbsClient, err := cfg.VbsV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -355,7 +353,6 @@ func resourceVBSBackupPolicyV2Delete(d *schema.ResourceData, meta interface{}) e
 	if delete.Err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			log.Printf("[INFO] Successfully deleted VBS Backup Policy %s", d.Id())
-
 		}
 		if _, ok := err.(golangsdk.ErrDefault409); ok {
 			log.Printf("[INFO] Error deleting VBS Backup Policy %s", d.Id())

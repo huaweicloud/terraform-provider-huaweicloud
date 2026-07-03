@@ -15,6 +15,7 @@
 package deprecated
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"time"
@@ -22,8 +23,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-
-	"fmt"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -306,7 +305,6 @@ func sendCsClusterV1CreateRequest(params interface{},
 
 func asyncWaitCsClusterV1Create(d *schema.ResourceData, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
-
 	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"cluster_id": []string{"payload", "cluster_id"},
@@ -401,7 +399,6 @@ func sendCsClusterV1UpdateRequest(d *schema.ResourceData, params interface{},
 }
 
 func asyncWaitCsClusterV1Delete(d *schema.ResourceData, client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
-
 	url, err := replaceVars(d, "reserved_cluster/{id}", nil)
 	if err != nil {
 		return nil, err

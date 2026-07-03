@@ -345,7 +345,6 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return resourceVpcSubnetRead(ctx, d, cfg)
-
 }
 
 // GetVpcSubnetById is a method to obtain subnet informations from special region through subnet ID.
@@ -487,7 +486,6 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-
 	cfg := meta.(*config.Config)
 	subnetClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -535,7 +533,6 @@ func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string)
 
 func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string, subnetId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-
 		r, err := subnets.Get(subnetClient, subnetId).Extract()
 
 		if err != nil {

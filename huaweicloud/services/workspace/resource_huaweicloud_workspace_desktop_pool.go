@@ -1064,7 +1064,6 @@ func getDesktopPoolDataVolumesDiff(d *schema.ResourceData, oldDataVolumes []inte
 			}
 			oldDataVolumesCopy = append(oldDataVolumesCopy[:idx], oldDataVolumesCopy[idx+1:]...)
 		}
-
 	}
 
 	rmVolumes = oldDataVolumesCopy

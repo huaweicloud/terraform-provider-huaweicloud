@@ -87,7 +87,6 @@ func ResourceFWFirewallGroupV2() *schema.Resource {
 }
 
 func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -182,7 +181,6 @@ func resourceFWFirewallGroupV2Read(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-
 	cfg := meta.(*config.Config)
 	fwClient, err := cfg.FwV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -288,7 +286,6 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 }
 
 func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		var fw FirewallGroup
 
@@ -301,7 +298,6 @@ func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) re
 }
 
 func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
 		fw, err := firewall_groups.Get(fwClient, id).Extract()
 		log.Printf("[DEBUG] Got firewall group %s => %#v", id, fw)

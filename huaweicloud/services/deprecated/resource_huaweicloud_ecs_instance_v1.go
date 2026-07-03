@@ -630,7 +630,6 @@ func resourceInstanceSecGroupsV1(d *schema.ResourceData) []cloudservers.Security
 
 func flattenInstanceNicsV1(
 	d *schema.ResourceData, meta interface{}, addresses map[string][]cloudservers.Address) []map[string]interface{} {
-
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {

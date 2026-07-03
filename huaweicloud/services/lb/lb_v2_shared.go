@@ -70,7 +70,6 @@ func resourceLBV2ListenerRefreshFunc(networkingClient *golangsdk.ServiceClient, 
 
 func waitForLBV2LoadBalancer(ctx context.Context, networkingClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
-
 	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
 
 	stateConf := &retry.StateChangeConf{

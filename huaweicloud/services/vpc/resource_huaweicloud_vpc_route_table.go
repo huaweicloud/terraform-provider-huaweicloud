@@ -146,7 +146,6 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	return resourceVpcRouteTableRead(ctx, d, meta)
-
 }
 
 func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

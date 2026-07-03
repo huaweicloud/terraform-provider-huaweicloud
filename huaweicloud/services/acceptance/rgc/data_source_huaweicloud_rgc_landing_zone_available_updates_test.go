@@ -9,7 +9,6 @@ import (
 )
 
 func TestAccDataSourceLandingZoneAvailableUpdates_basic(t *testing.T) {
-
 	dataSource := "data.huaweicloud_rgc_landing_zone_available_updates.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
