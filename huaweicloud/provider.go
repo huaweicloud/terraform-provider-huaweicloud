@@ -1277,8 +1277,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_sql_templates":           dli.DataSourceDliSqlTemplates(),
 			"huaweicloud_dli_system_sql_defend_rules": dli.DataSourceSystemSQLDefendRules(),
 
-			"huaweicloud_dsc_database_instances": dsc.DataSourceDatabaseInstances(),
-			"huaweicloud_dsc_multi_accounts":     dsc.DataSourceMultiAccounts(),
+			"huaweicloud_dsc_database_instances":  dsc.DataSourceDatabaseInstances(),
+			"huaweicloud_dsc_multi_accounts":      dsc.DataSourceMultiAccounts(),
+			"huaweicloud_dsc_multi_organizations": dsc.DataSourceMultiOrganizations(),
 
 			"huaweicloud_dms_product":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow": dms.DataSourceDmsMaintainWindow(),
