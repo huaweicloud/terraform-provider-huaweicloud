@@ -1410,8 +1410,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_timelines":                drs.DataSourceDrsTimelines(),
 			"huaweicloud_drs_drivers":                  drs.DataSourceDrsDrivers(),
 
-			"huaweicloud_dsc_event_overview": dsc.DataSourceDscEventOverview(),
-			"huaweicloud_dsc_threat_trend":   dsc.DataSourceDscThreatTrend(),
+			"huaweicloud_dsc_alarm_handling_trend": dsc.DataSourceDscAlarmHandlingTrend(),
+			"huaweicloud_dsc_event_overview":       dsc.DataSourceDscEventOverview(),
+			"huaweicloud_dsc_threat_trend":         dsc.DataSourceDscThreatTrend(),
 			// EventGrid
 			"huaweicloud_eg_connections":           eg.DataSourceConnections(),
 			"huaweicloud_eg_custom_event_channels": eg.DataSourceCustomEventChannels(),
