@@ -146,7 +146,7 @@ func resourceAdminAssignmentDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceAdminAssignmentImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,
+func resourceAdminAssignmentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	var mErr *multierror.Error
 	parts := strings.Split(d.Id(), "/")

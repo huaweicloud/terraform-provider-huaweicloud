@@ -481,7 +481,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
 		rName      = "huaweicloud_apig_channel.test"
 		name       = acceptance.RandomAccResourceName()
-		baseConfig = testAccChannel_eipBase(name)
+		baseConfig = testAccChannel_eipBase()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -537,7 +537,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 	})
 }
 
-func testAccChannel_eipBase(name string) string {
+func testAccChannel_eipBase() string {
 	return fmt.Sprintf(`
 data "huaweicloud_apig_instances" "test" {
   instance_id = "%[1]s"

@@ -148,7 +148,7 @@ func resourceDmsQueuesRead(_ context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func resourceDmsQueuesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsQueuesDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	dmsV1Client, err := cfg.DmsV1Client(cfg.GetRegion(d))
 	if err != nil {

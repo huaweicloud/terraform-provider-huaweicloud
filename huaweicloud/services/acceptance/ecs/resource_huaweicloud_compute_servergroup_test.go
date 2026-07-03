@@ -155,7 +155,7 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 }
 
 func testAccCheckComputeInstanceInServerGroup(instance *cloudservers.CloudServer, sg *servergroups.ServerGroup) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(sg.Members) > 0 {
 			for _, m := range sg.Members {
 				if m == instance.ID {

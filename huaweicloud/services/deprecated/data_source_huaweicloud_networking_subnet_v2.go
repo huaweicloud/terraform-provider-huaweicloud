@@ -63,7 +63,7 @@ func DataSourceNetworkingSubnetV2() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, result []error) {
+				ValidateFunc: func(v interface{}, _ string) (ws []string, result []error) {
 					value := v.(int)
 					if value != 4 && value != 6 {
 						result = append(result, errors.New("only 4 and 6 are supported values for 'ip_version'"))

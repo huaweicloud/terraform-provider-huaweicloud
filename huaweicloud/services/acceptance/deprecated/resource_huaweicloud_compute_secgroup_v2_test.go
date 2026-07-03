@@ -205,7 +205,7 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 }
 
 func testAccCheckComputeV2SecGroupRuleCount(secgroup *secgroups.SecurityGroup, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(secgroup.Rules) != count {
 			return fmt.Errorf("the security group rule count does not match. Expected %d, got %d", count, len(secgroup.Rules))
 		}
@@ -215,7 +215,7 @@ func testAccCheckComputeV2SecGroupRuleCount(secgroup *secgroups.SecurityGroup, c
 }
 
 func testAccCheckComputeV2SecGroupGroupIDMatch(sg1, sg2 *secgroups.SecurityGroup) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(sg2.Rules) == 1 {
 			if sg1.Name != sg2.Rules[0].Group.Name || sg1.TenantID != sg2.Rules[0].Group.TenantID {
 				return fmt.Errorf("%s was not correctly applied to %s", sg1.Name, sg2.Name)

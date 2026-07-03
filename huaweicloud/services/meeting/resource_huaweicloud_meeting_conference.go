@@ -1139,7 +1139,7 @@ func resourceConferenceDelete(_ context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceConferenceImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,
+func resourceConferenceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	var mErr *multierror.Error
 	parts := strings.Split(d.Id(), "/")

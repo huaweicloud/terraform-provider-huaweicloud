@@ -171,7 +171,7 @@ func ResourceAomEnvironmentCreate(ctx context.Context, d *schema.ResourceData, m
 	return diag.Errorf("error create Environment %v. error: %s", opts.EnvName, string(body))
 }
 
-func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomEnvironmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
@@ -223,7 +223,7 @@ func ResourceAomEnvironmentRead(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomEnvironmentUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
@@ -258,7 +258,7 @@ func ResourceAomEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, m
 	return diag.Errorf("error update Environment %s:  %s", opts.EnvName, string(body))
 }
 
-func ResourceAomEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomEnvironmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {

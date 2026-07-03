@@ -173,7 +173,7 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 
 func testAccCheckBlockStorageV2VolumeMetadata(
 	volume *volumes.Volume, k string, v string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if volume.Metadata == nil {
 			return errors.New("no metadata")
 		}

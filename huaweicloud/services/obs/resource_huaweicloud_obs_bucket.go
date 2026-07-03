@@ -867,7 +867,7 @@ func resourceObsBucketVersioningUpdate(obsClient *obs.ObsClient, d *schema.Resou
 	return nil
 }
 
-func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.ObsClient, d *schema.ResourceData) error {
+func resourceObsBucketEncryptionUpdate(_ *config.Config, obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 
 	if d.Get("encryption").(bool) {

@@ -201,8 +201,7 @@ func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name stri
 	}
 }
 
-func resourceCCENamespaceV1Import(context context.Context, d *schema.ResourceData,
-	meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCCENamespaceV1Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	cfg := meta.(*config.Config)
 	client, err := cfg.CceV1Client(cfg.GetRegion(d))
 	if err != nil {

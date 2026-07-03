@@ -201,7 +201,7 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 }
 
 func testAccCheckFWFirewallPortCount(firewall_group *FirewallGroup, expected int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(firewall_group.PortIDs) != expected {
 			return fmt.Errorf("expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
 		}

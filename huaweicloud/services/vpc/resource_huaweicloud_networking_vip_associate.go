@@ -173,7 +173,7 @@ func resourceNetworkingVIPAssociateV2Update(ctx context.Context, d *schema.Resou
 	return resourceNetworkingVIPAssociateV2Read(ctx, d, meta)
 }
 
-func resourceNetworkingVIPAssociateV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkingVIPAssociateV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -255,7 +255,7 @@ func resourceNetworkingVIPAssociateV2Delete(_ context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceNetworkingVIPAssociateV2Import(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNetworkingVIPAssociateV2Import(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <vip_id>/<port_id>," +

@@ -141,7 +141,7 @@ func ResourceAomApplicationCreate(ctx context.Context, d *schema.ResourceData, m
 	return diag.Errorf("error create Application %v. error: %s", opts.Name, string(body))
 }
 
-func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
@@ -182,7 +182,7 @@ func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomApplicationUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {
@@ -214,7 +214,7 @@ func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, m
 	return diag.Errorf("error update Application %s:  %s", opts.Name, string(body))
 }
 
-func ResourceAomApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceAomApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
 	if err != nil {

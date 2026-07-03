@@ -81,7 +81,7 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 								return equal
 							},
@@ -97,7 +97,7 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 								return equal
 							},
@@ -113,7 +113,7 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 								return equal
 							},

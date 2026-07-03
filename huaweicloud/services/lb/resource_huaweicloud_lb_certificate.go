@@ -259,7 +259,7 @@ func buildUpdateCertificateBodyParams(d *schema.ResourceData) map[string]interfa
 	return bodyParams
 }
 
-func resourceCertificateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

@@ -109,7 +109,7 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 }
 
 func waitForDeletionCooldownComplete() resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		// After elastic resource pool is created, it cannot be deleted within 15 minete.
 		// lintignore:R018
 		time.Sleep(15 * time.Minute)

@@ -212,7 +212,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error opening file for Image: %s", err)
 
 	}
-	fileSize, fileChecksum, err := resourceImagesImageV2FileProps(imgFilePath)
+	fileSize, _, err := resourceImagesImageV2FileProps(imgFilePath)
 	if err != nil {
 		return fmt.Errorf("error getting file props: %s", err)
 	}
@@ -234,7 +234,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	stateConf := &retry.StateChangeConf{
 		Pending:    []string{string(images.ImageStatusQueued), string(images.ImageStatusSaving)},
 		Target:     []string{string(images.ImageStatusActive)},
-		Refresh:    resourceImagesImageV2RefreshFunc(imageClient, d.Id(), fileSize, fileChecksum),
+		Refresh:    resourceImagesImageV2RefreshFunc(imageClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -485,7 +485,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 	}
 }
 
-func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string, fileSize int64, checksum string) retry.StateRefreshFunc {
+func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		img, err := images.Get(client, id).Extract()
 		if err != nil {

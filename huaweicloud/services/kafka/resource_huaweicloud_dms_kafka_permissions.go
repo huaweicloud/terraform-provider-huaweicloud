@@ -146,7 +146,7 @@ func updateKafkaPermissions(client *golangsdk.ServiceClient, instanceId string, 
 	return err
 }
 
-func resourceDmsKafkaPermissionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsKafkaPermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {

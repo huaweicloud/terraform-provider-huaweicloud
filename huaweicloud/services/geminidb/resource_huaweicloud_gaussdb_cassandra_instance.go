@@ -152,7 +152,7 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+							DiffSuppressFunc: func(_, _, new string, _ *schema.ResourceData) bool {
 								return new == "GeminiDB-Cassandra"
 							},
 						},

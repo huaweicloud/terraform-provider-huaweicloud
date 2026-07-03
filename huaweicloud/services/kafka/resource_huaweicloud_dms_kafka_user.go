@@ -215,7 +215,7 @@ func buildUpdateDmsKafkaUserBodyParams(d *schema.ResourceData) map[string]interf
 	return bodyParams
 }
 
-func resourceDmsKafkaUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsKafkaUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {

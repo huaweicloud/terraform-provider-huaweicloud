@@ -78,7 +78,7 @@ func StoragetypeStorageTypeSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceStoragetypeRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceStoragetypeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

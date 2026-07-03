@@ -134,7 +134,7 @@ func resourceDmsGroupsRead(_ context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func resourceDmsGroupsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsGroupsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	dmsV1Client, err := cfg.DmsV1Client(cfg.GetRegion(d))
 	if err != nil {

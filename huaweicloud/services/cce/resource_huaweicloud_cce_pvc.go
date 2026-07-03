@@ -141,7 +141,7 @@ func resourcePvcAccessMode(d *schema.ResourceData) []string {
 }
 
 func buildCcePersistentVolumeClaimCreateOpts(d *schema.ResourceData,
-	config *config.Config) (persistentvolumeclaims.CreateOpts, error) {
+	_ *config.Config) (persistentvolumeclaims.CreateOpts, error) {
 	createOpts := persistentvolumeclaims.CreateOpts{
 		ApiVersion: "v1",                    // The value is fixed at v1.
 		Kind:       "PersistentVolumeClaim", // The value is fixed at PersistentVolumeClaim.
@@ -330,8 +330,7 @@ func pvcStateRefreshFunc(c *golangsdk.ServiceClient, clusterId, namespace, id st
 	}
 }
 
-func resourceCcePvcResourceImportState(context context.Context, d *schema.ResourceData,
-	meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCcePvcResourceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.SplitN(importedId, "/", 3)
 	if len(parts) != 3 {

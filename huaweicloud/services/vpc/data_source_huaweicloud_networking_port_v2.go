@@ -155,7 +155,7 @@ func getNetworkingPortOpts(d *schema.ResourceData) ports.ListOpts {
 	return listOpts
 }
 
-func dataSourceNetworkingPortV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceNetworkingPortV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {

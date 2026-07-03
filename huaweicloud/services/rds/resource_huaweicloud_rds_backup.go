@@ -285,7 +285,7 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 	return err
 }
 
-func resourceBackupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBackupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -496,7 +496,7 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 	return err
 }
 
-func backupImportState(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func backupImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<backup_id>")

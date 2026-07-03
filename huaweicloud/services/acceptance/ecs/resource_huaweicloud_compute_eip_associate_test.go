@@ -116,7 +116,7 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 }
 
 func testAccCheckComputeEIPAssociateAssociated(eip *eips.PublicIp, instance *cloudservers.CloudServer) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {

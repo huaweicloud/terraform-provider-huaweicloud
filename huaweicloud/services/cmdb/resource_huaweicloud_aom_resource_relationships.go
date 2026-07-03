@@ -168,7 +168,7 @@ func ResourceResourceCiRelationshipsCreate(ctx context.Context, d *schema.Resour
 	return diag.Errorf("error Associate Resource %v. error: %s", opts, string(body))
 }
 
-func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceResourceCiRelationshipsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "cmdb", cfg.GetRegion(d))
 	if err != nil {
@@ -213,7 +213,7 @@ func ResourceResourceCiRelationshipsRead(ctx context.Context, d *schema.Resource
 	return diag.Errorf("error Read Resource fields %v : %s", opts, string(body))
 }
 
-func ResourceResourceCiRelationshipsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceResourceCiRelationshipsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "cmdb", cfg.GetRegion(d))
 	if err != nil {

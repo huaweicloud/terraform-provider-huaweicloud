@@ -51,7 +51,7 @@ func ResourceCustomRoleAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the custom role to attach to a permission set.`,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
 					return equal
 				},

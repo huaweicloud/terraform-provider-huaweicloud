@@ -239,7 +239,7 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 }
 
 func testAccCheckNetworkingV2PortCountFixedIPs(port *ports.Port, expected int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if len(port.FixedIPs) != expected {
 			return fmt.Errorf("expected %d fixed IPs, got %d", expected, len(port.FixedIPs))
 		}

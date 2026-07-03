@@ -127,7 +127,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	obj, err := asyncWaitCsPeeringConnectV1Create(d, cfg, r, csClient, timeout)
+	obj, err := asyncWaitCsPeeringConnectV1Create(d, r, csClient, timeout)
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error deleting CS peering connect, which ID is %s: %s", d.Id(), r.Err)
 	}
 
-	_, err = asyncWaitCsPeeringConnectV1Delete(d, cfg, r.Body, client, d.Timeout(schema.TimeoutDelete))
+	_, err = asyncWaitCsPeeringConnectV1Delete(d, client, d.Timeout(schema.TimeoutDelete))
 	return err
 }
 
@@ -246,7 +246,7 @@ func sendCsPeeringConnectV1CreateRequest(d *schema.ResourceData, params interfac
 	return r.Body, nil
 }
 
-func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *config.Config, result interface{},
+func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -288,8 +288,7 @@ func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *config.Co
 	)
 }
 
-func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, config *config.Config, result interface{},
-	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
+func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{id}", nil)
 	if err != nil {

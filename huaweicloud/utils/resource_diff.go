@@ -30,7 +30,7 @@ func ComposeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schem
 	}
 }
 
-func SuppressEquivalentAwsPolicyDiffs(_, old, new string, d *schema.ResourceData) bool {
+func SuppressEquivalentAwsPolicyDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
 		return false
@@ -40,7 +40,7 @@ func SuppressEquivalentAwsPolicyDiffs(_, old, new string, d *schema.ResourceData
 }
 
 // Suppress all changes
-func SuppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
+func SuppressDiffAll(_, _, _ string, _ *schema.ResourceData) bool {
 	return true
 }
 
@@ -53,12 +53,12 @@ func SuppressCaseDiffs() schema.SchemaDiffSuppressFunc {
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
-func SuppressMinDisk(k, old, new string, d *schema.ResourceData) bool {
+func SuppressMinDisk(_, old, new string, _ *schema.ResourceData) bool {
 	return new == "0" || old == new
 }
 
 // Suppress changes if we get a base64 format or plaint text user_data
-func SuppressUserData(k, old, new string, d *schema.ResourceData) bool {
+func SuppressUserData(_, old, new string, _ *schema.ResourceData) bool {
 	// user_data is in base64 format
 	if HashAndHexEncode(old) == new {
 		return true
@@ -78,7 +78,7 @@ func SuppressTrimSpace(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.TrimSpace(old) == strings.TrimSpace(new)
 }
 
-func SuppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressLBWhitelistDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	if len(old) != len(new) {
 		return false
 	}
@@ -90,7 +90,7 @@ func SuppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
 	return reflect.DeepEqual(old_array, new_array)
 }
 
-func SuppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressSnatFiplistDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	if len(old) != len(new) {
 		return false
 	}
@@ -103,11 +103,11 @@ func SuppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 }
 
 // Suppress changes if we get a string with or without new line
-func SuppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressNewLineDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
 }
 
-func SuppressVersionDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressVersionDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	oldArray := regexp.MustCompile(`[\.\-]+`).Split(old, -1)
 	newArray := regexp.MustCompile(`[\.\-]+`).Split(new, -1)
 	if len(newArray) > len(oldArray) {

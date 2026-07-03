@@ -948,7 +948,7 @@ func buildUpdateTaskSpeedLimitBodyParams(rawParams []interface{}) map[string]int
 	return bodyParams
 }
 
-func resourceMigrateTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceMigrateTaskDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
