@@ -1415,6 +1415,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_alarms":               dsc.DataSourceDscAlarms(),
 			"huaweicloud_dsc_alarm_handling_trend": dsc.DataSourceDscAlarmHandlingTrend(),
 			"huaweicloud_dsc_asset_overview":       dsc.DataSourceDscAssetOverview(),
+			"huaweicloud_dsc_dashboard_score":      dsc.DataSourceDscDashboardScore(),
 			"huaweicloud_dsc_event_overview":       dsc.DataSourceDscEventOverview(),
 			"huaweicloud_dsc_threat_trend":         dsc.DataSourceDscThreatTrend(),
 			// EventGrid
