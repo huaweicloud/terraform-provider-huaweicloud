@@ -59,23 +59,23 @@ func ResourceFirewall() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ValidateChange("east_west_firewall_inspection_cidr", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("east_west_firewall_inspection_cidr", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from empty
-				if old.(string) != new.(string) && old.(string) != "" {
+				if oldVal.(string) != newVal.(string) && oldVal.(string) != "" {
 					return fmt.Errorf("east_west_firewall_inspection_cidr can't be updated")
 				}
 				return nil
 			}),
-			customdiff.ValidateChange("east_west_firewall_er_id", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("east_west_firewall_er_id", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from empty
-				if old.(string) != new.(string) && old.(string) != "" {
+				if oldVal.(string) != newVal.(string) && oldVal.(string) != "" {
 					return fmt.Errorf("east_west_firewall_er_id can't be updated")
 				}
 				return nil
 			}),
-			customdiff.ValidateChange("east_west_firewall_mode", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("east_west_firewall_mode", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from empty
-				if old.(string) != new.(string) && old.(string) != "" {
+				if oldVal.(string) != newVal.(string) && oldVal.(string) != "" {
 					return fmt.Errorf("east_west_firewall_mode can't be updated")
 				}
 				return nil

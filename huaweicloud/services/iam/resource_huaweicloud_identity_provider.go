@@ -119,8 +119,8 @@ func ResourceV3Provider() *schema.Resource {
 						"signing_key": {
 							Type:     schema.TypeString,
 							Required: true,
-							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+							DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 								return equal
 							},
 							Description: `The public key used to sign the ID token of the OpenID Connect

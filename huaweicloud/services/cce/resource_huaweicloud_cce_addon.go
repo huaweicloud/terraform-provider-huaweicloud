@@ -81,8 +81,8 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+							DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 								return equal
 							},
 							ExactlyOneOf: []string{"values.0.basic", "values.0.basic_json"},
@@ -97,8 +97,8 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+							DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 								return equal
 							},
 							ConflictsWith: []string{"values.0.custom"},
@@ -113,8 +113,8 @@ func ResourceAddon() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
-							DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+							DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 								return equal
 							},
 							ConflictsWith: []string{"values.0.flavor"},

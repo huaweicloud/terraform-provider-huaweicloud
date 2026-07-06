@@ -584,13 +584,13 @@ func resourceDianosisReportImportState(_ context.Context, d *schema.ResourceData
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func suppressTimeDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	oldTime, err := time.Parse(time.RFC3339, old)
+func suppressTimeDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	oldTime, err := time.Parse(time.RFC3339, oldVal)
 	if err != nil {
 		return false
 	}
 
-	newTime, err := time.Parse(time.RFC3339, new)
+	newTime, err := time.Parse(time.RFC3339, newVal)
 	if err != nil {
 		return false
 	}

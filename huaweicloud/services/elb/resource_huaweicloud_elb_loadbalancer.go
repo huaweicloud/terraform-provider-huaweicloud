@@ -64,23 +64,23 @@ func ResourceLoadBalancerV3() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			config.FlexibleForceNew(loadBalancerNonUpdatableParams),
-			customdiff.ValidateChange("charging_mode", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("charging_mode", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from postPaid
-				if old.(string) != new.(string) && (old.(string) == "prePaid") {
+				if oldVal.(string) != newVal.(string) && (oldVal.(string) == "prePaid") {
 					return fmt.Errorf("charging_mode can only be updated from postPaid to prePaid")
 				}
 				return nil
 			}),
-			customdiff.ValidateChange("period_unit", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("period_unit", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from empty
-				if old.(string) != new.(string) && old.(string) != "" {
+				if oldVal.(string) != newVal.(string) && oldVal.(string) != "" {
 					return fmt.Errorf("period_unit can only be updated when changing charging_mode to prePaid")
 				}
 				return nil
 			}),
-			customdiff.ValidateChange("period", func(_ context.Context, old, new, _ any) error {
+			customdiff.ValidateChange("period", func(_ context.Context, oldVal, newVal, _ any) error {
 				// can only update from empty
-				if old.(int) != new.(int) && old.(int) != 0 {
+				if oldVal.(int) != newVal.(int) && oldVal.(int) != 0 {
 					return fmt.Errorf("period can only be updated when changing charging_mode to prePaid")
 				}
 				return nil

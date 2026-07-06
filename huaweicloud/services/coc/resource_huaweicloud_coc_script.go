@@ -456,6 +456,6 @@ func resourceScriptDelete(_ context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func suppressDosOrUnix(_, old, new string, _ *schema.ResourceData) bool {
-	return strings.ReplaceAll(old, "\r\n", "\n") == strings.ReplaceAll(new, "\r\n", "\n")
+func suppressDosOrUnix(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	return strings.ReplaceAll(oldVal, "\r\n", "\n") == strings.ReplaceAll(newVal, "\r\n", "\n")
 }

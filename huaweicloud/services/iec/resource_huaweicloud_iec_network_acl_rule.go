@@ -310,13 +310,13 @@ func getFirewallRuleEntity(fwPolicy firewalls.RespPolicyEntity, ruleID string) f
 	return firewalls.RespFirewallRulesEntity{}
 }
 
-func getNewFirewallRuleID(old []string, new []string) string {
+func getNewFirewallRuleID(oldVals []string, newVals []string) string {
 	ruleMap := make(map[string]int)
-	for _, v := range old {
+	for _, v := range oldVals {
 		ruleMap[v] = 1
 	}
 
-	for _, v := range new {
+	for _, v := range newVals {
 		if ruleMap[v] == 0 {
 			return v
 		}

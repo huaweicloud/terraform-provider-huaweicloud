@@ -699,12 +699,12 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	return resourceDdsInstanceV3Read(ctx, d, meta)
 }
 
-func isEqualPeriod(old, new string) bool {
-	if len(old) != len(new) {
+func isEqualPeriod(oldVal, newVal string) bool {
+	if len(oldVal) != len(newVal) {
 		return false
 	}
-	oldArray := strings.Split(old, ",")
-	newArray := strings.Split(new, ",")
+	oldArray := strings.Split(oldVal, ",")
+	newArray := strings.Split(newVal, ",")
 	sort.Strings(oldArray)
 	sort.Strings(newArray)
 

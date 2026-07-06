@@ -262,8 +262,8 @@ func refreshOrderAllResourceStatusFunc(client *golangsdk.ServiceClient, orderId 
 }
 
 func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
-	return func(_, old, new string, _ *schema.ResourceData) bool {
-		return strings.EqualFold(old, new)
+	return func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+		return strings.EqualFold(oldVal, newVal)
 	}
 }
 

@@ -56,8 +56,8 @@ func ResourceV3TrustAgency() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 					return equal
 				},
 				Description: `The trust policy of the trust agency.`,

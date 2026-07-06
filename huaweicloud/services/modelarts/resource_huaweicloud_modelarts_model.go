@@ -146,8 +146,8 @@ func ResourceModelartsModel() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					return utils.JSONStringsEqual(old, new)
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return utils.JSONStringsEqual(oldVal, newVal)
 				},
 				Description: `The model configuration file.`,
 			},

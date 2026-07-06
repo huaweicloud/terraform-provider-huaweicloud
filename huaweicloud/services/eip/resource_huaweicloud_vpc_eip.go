@@ -606,9 +606,9 @@ func updateEipConfig(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceDat
 func updateEipPortId(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	resourceId := d.Id()
 	timeout := d.Timeout(schema.TimeoutUpdate)
-	old, new := d.GetChange("publicip.0.port_id")
-	oldPort := old.(string)
-	newPort := new.(string)
+	oldVal, newVal := d.GetChange("publicip.0.port_id")
+	oldPort := oldVal.(string)
+	newPort := newVal.(string)
 
 	if oldPort != "" {
 		err := unbindPort(vpcV1Client, resourceId, oldPort, timeout)
@@ -657,9 +657,9 @@ func buildUpdatePublicipBodyParams(d *schema.ResourceData) map[string]interface{
 }
 
 func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
-	old, new := d.GetChange("bandwidth")
-	oldRaw := old.([]interface{})
-	newRaw := new.([]interface{})
+	oldVal, newVal := d.GetChange("bandwidth")
+	oldRaw := oldVal.([]interface{})
+	newRaw := newVal.([]interface{})
 	// Bandwidth blocks are required and must be present.
 	oldMap := oldRaw[0].(map[string]interface{})
 	newMap := newRaw[0].(map[string]interface{})

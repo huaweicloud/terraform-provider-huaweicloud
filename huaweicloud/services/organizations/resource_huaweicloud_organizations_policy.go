@@ -46,8 +46,8 @@ func ResourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The policy text content to be added to the new policy.`,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+				DiffSuppressFunc: func(_, oldRaw, newRaw string, _ *schema.ResourceData) bool {
+					equal, _ := utils.CompareJsonTemplateAreEquivalent(oldRaw, newRaw)
 					return equal
 				},
 			},

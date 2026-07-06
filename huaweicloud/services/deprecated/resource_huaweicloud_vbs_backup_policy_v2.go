@@ -307,10 +307,10 @@ func resourceVBSBackupPolicyV2Update(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.HasChange("resources") {
-		old, new := d.GetChange("resources")
+		oldVal, newVal := d.GetChange("resources")
 
 		// disassociate old volumes from backup policy
-		removeResources := buildDisassociateResource(old.([]interface{}))
+		removeResources := buildDisassociateResource(oldVal.([]interface{}))
 		if len(removeResources) > 0 {
 			opts := policies.DisassociateOpts{
 				Resources: removeResources,
@@ -324,7 +324,7 @@ func resourceVBSBackupPolicyV2Update(d *schema.ResourceData, meta interface{}) e
 		}
 
 		// associate new volumes to backup policy
-		addResources := buildAssociateResource(new.([]interface{}))
+		addResources := buildAssociateResource(newVal.([]interface{}))
 		if len(addResources) > 0 {
 			opts := policies.AssociateOpts{
 				PolicyID:  d.Id(),
@@ -349,8 +349,8 @@ func resourceVBSBackupPolicyV2Delete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error creating VBS client: %s", err)
 	}
 
-	delete := policies.Delete(vbsClient, d.Id())
-	if delete.Err != nil {
+	respBody := policies.Delete(vbsClient, d.Id())
+	if respBody.Err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			log.Printf("[INFO] Successfully deleted VBS Backup Policy %s", d.Id())
 		}

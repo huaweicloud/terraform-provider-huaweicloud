@@ -60,8 +60,8 @@ func ResourcePlugin() *schema.Resource {
 			"content": {
 				Type:     schema.TypeString,
 				Required: true,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					return utils.JSONStringsEqual(old, new)
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return utils.JSONStringsEqual(oldVal, newVal)
 				},
 				Description: "The configuration details for plugin.",
 			},

@@ -30,8 +30,8 @@ func ComposeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schem
 	}
 }
 
-func SuppressEquivalentAwsPolicyDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
+func SuppressEquivalentAwsPolicyDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	equivalent, err := awspolicy.PoliciesAreEquivalent(oldVal, newVal)
 	if err != nil {
 		return false
 	}
@@ -53,20 +53,20 @@ func SuppressCaseDiffs() schema.SchemaDiffSuppressFunc {
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
-func SuppressMinDisk(_, old, new string, _ *schema.ResourceData) bool {
-	return new == "0" || old == new
+func SuppressMinDisk(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	return newVal == "0" || oldVal == newVal
 }
 
 // Suppress changes if we get a base64 format or plaint text user_data
-func SuppressUserData(_, old, new string, _ *schema.ResourceData) bool {
+func SuppressUserData(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	// user_data is in base64 format
-	if HashAndHexEncode(old) == new {
+	if HashAndHexEncode(oldVal) == newVal {
 		return true
 	}
 
 	// user_data is plaint text
-	if plaint, err := base64.StdEncoding.DecodeString(old); err == nil {
-		if HashAndHexEncode(string(plaint)) == new {
+	if plaint, err := base64.StdEncoding.DecodeString(oldVal); err == nil {
+		if HashAndHexEncode(string(plaint)) == newVal {
 			return true
 		}
 	}
@@ -74,28 +74,28 @@ func SuppressUserData(_, old, new string, _ *schema.ResourceData) bool {
 	return false
 }
 
-func SuppressTrimSpace(_, old, new string, _ *schema.ResourceData) bool {
-	return strings.TrimSpace(old) == strings.TrimSpace(new)
+func SuppressTrimSpace(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	return strings.TrimSpace(oldVal) == strings.TrimSpace(newVal)
 }
 
-func SuppressLBWhitelistDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	if len(old) != len(new) {
+func SuppressLBWhitelistDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	if len(oldVal) != len(newVal) {
 		return false
 	}
-	old_array := strings.Split(old, ",")
-	new_array := strings.Split(new, ",")
+	old_array := strings.Split(oldVal, ",")
+	new_array := strings.Split(newVal, ",")
 	sort.Strings(old_array)
 	sort.Strings(new_array)
 
 	return reflect.DeepEqual(old_array, new_array)
 }
 
-func SuppressSnatFiplistDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	if len(old) != len(new) {
+func SuppressSnatFiplistDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	if len(oldVal) != len(newVal) {
 		return false
 	}
-	old_array := strings.Split(old, ",")
-	new_array := strings.Split(new, ",")
+	old_array := strings.Split(oldVal, ",")
+	new_array := strings.Split(newVal, ",")
 	sort.Strings(old_array)
 	sort.Strings(new_array)
 
@@ -103,13 +103,13 @@ func SuppressSnatFiplistDiffs(_, old, new string, _ *schema.ResourceData) bool {
 }
 
 // Suppress changes if we get a string with or without new line
-func SuppressNewLineDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
+func SuppressNewLineDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	return strings.Trim(oldVal, "\n") == strings.Trim(newVal, "\n")
 }
 
-func SuppressVersionDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	oldArray := regexp.MustCompile(`[\.\-]+`).Split(old, -1)
-	newArray := regexp.MustCompile(`[\.\-]+`).Split(new, -1)
+func SuppressVersionDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	oldArray := regexp.MustCompile(`[\.\-]+`).Split(oldVal, -1)
+	newArray := regexp.MustCompile(`[\.\-]+`).Split(newVal, -1)
 	if len(newArray) > len(oldArray) {
 		return false
 	}
@@ -152,12 +152,12 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	return equal, nil
 }
 
-func SuppressStringSepratedByCommaDiffs(_, old, new string, _ *schema.ResourceData) bool {
-	if len(old) != len(new) {
+func SuppressStringSepratedByCommaDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+	if len(oldVal) != len(newVal) {
 		return false
 	}
-	oldArray := strings.Split(old, ",")
-	newArray := strings.Split(new, ",")
+	oldArray := strings.Split(oldVal, ",")
+	newArray := strings.Split(newVal, ",")
 	sort.Strings(oldArray)
 	sort.Strings(newArray)
 
