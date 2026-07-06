@@ -2379,6 +2379,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_compliance_packages":             secmaster.DataSourceCompliancePackages(),
 			"huaweicloud_secmaster_component_alliances":             secmaster.DataSourceComponentAlliances(),
 			"huaweicloud_secmaster_configuration_functions":         secmaster.DataSourceConfigurationFunctions(),
+			"huaweicloud_secmaster_dataclass_types":                 secmaster.DataSourceDataclassTypes(),
 			"huaweicloud_secmaster_cloud_log_platforms":             secmaster.DataSourceCloudLogPlatforms(),
 			"huaweicloud_secmaster_cloud_log_resources":             secmaster.DataSourceCloudLogResources(),
 			"huaweicloud_secmaster_collect_configs":                 secmaster.DataSourceCollectConfigs(),
