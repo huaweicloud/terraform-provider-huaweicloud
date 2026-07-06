@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -42,6 +43,10 @@ import (
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/{engine_name}/proxy-version
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API TaurusDB DELETE /v3/{project_id}/instances/{instance_id}/proxy
+// @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns
+// @API TaurusDB DELETE /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}
 func ResourceTaurusDBProxy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBProxyCreate,
@@ -181,6 +186,10 @@ func ResourceTaurusDBProxy() *schema.Resource {
 				Elem:         gaussDBMysqlProxyAccessControlIpListSchema(),
 				RequiredWith: []string{"access_control_type"},
 			},
+			"dns_name_prefix": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -200,6 +209,10 @@ func ResourceTaurusDBProxy() *schema.Resource {
 			},
 			"can_upgrade": {
 				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"dns_name": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -369,6 +382,18 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if _, ok := d.GetOk("dns_name_prefix"); ok {
+		// The creation API will create a dns with random prefix, use update API to modify the prefix
+		err = createProxyDNSName(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = updateProxyDNSName(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -484,6 +509,17 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 			d.Set("access_control_ip_list", accessControlIpList),
 		)
 	}
+
+	dnsName := utils.PathSearch("proxy.dns_name", proxy, "").(string)
+	dnsNamePrefix := ""
+	if dnsName != "" {
+		dnsNamePrefix = strings.Split(dnsName, ".")[0]
+	}
+
+	mErr = multierror.Append(mErr,
+		d.Set("dns_name", dnsName),
+		d.Set("dns_name_prefix", dnsNamePrefix),
+	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -796,6 +832,13 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChanges("access_control_type", "access_control_ip_list") {
 		err = updateGaussDBMySQLAccessControlRule(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("dns_name_prefix") {
+		err = updateProxyDNSNamePrefix(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1454,4 +1497,132 @@ func resourceGaussDBMySQLProxyImportState(_ context.Context, d *schema.ResourceD
 	)
 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+}
+
+func createProxyDNSName(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns"
+	)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{proxy_id}", d.Id())
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return fmt.Errorf("error creating TaurusDB proxy DNS name: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error creating TaurusDB proxy DNS name: job_id is not found in API response")
+	}
+
+	return checkGaussDBMySQLProxyJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+}
+
+func updateProxyDNSName(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	// Get vpc_id from instance details
+	instanceId := d.Get("instance_id").(string)
+	instance, err := instances.Get(client, instanceId).Extract()
+	if err != nil {
+		return fmt.Errorf("error retrieving TaurusDB instance (%s) for VPC ID: %s", instanceId, err)
+	}
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	updateOpt.JSONBody = map[string]interface{}{
+		"new_dns_name": d.Get("dns_name_prefix").(string),
+		"vpc_id":       instance.VpcId,
+	}
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating TaurusDB proxy DNS name: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error updating TaurusDB proxy DNS name: job_id is not found in API response")
+	}
+
+	return checkGaussDBMySQLProxyJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+}
+
+func updateProxyDNSNamePrefix(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	oldPrefix, newPrefix := d.GetChange("dns_name_prefix")
+
+	// If new dns_name_prefix is empty, delete the DNS name
+	if newPrefix.(string) == "" {
+		return deleteProxyDNSName(ctx, d, client)
+	}
+
+	// If old dns_name_prefix is empty, need to create first then update
+	if oldPrefix.(string) == "" {
+		err := createProxyDNSName(ctx, d, client)
+		if err != nil {
+			return err
+		}
+		return updateProxyDNSName(ctx, d, client)
+	}
+
+	// Otherwise, just update the DNS name
+	return updateProxyDNSName(ctx, d, client)
+}
+
+func deleteProxyDNSName(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/dns"
+	)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", d.Get("instance_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{proxy_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting TaurusDB proxy DNS name: %s", err)
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", deleteRespBody, "").(string)
+	if jobId == "" {
+		return errors.New("error deleting TaurusDB proxy DNS name: job_id is not found in API response")
+	}
+
+	return checkGaussDBMySQLProxyJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
 }
