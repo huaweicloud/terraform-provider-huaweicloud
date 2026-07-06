@@ -352,3 +352,25 @@ func getInstanceField(client *golangsdk.ServiceClient, params getInstanceFieldPa
 	}
 	return utils.FlattenResponse(getResp)
 }
+
+func handleTimeoutError(err error) bool {
+	if err == nil {
+		return false
+	}
+	// if the http status code is 500 and the error code is DBS.111205, it indicates timeout for the service
+	// error should be ignored, just wait for success
+	if errCode, ok := err.(golangsdk.ErrDefault500); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false
+		}
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false
+		}
+		if errorCode.(string) == "DBS.111205" {
+			return true
+		}
+	}
+	return false
+}

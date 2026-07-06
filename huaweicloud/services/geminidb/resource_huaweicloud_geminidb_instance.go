@@ -21,6 +21,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -30,6 +31,8 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 	"product_type", "dedicated_resource_id", "availability_zone_detail", "availability_zone_detail.*.primary_availability_zone",
 	"availability_zone_detail.*.secondary_availability_zone", "charging_mode", "period_unit", "period",
 }
+
+type ctxType string
 
 // @API GeminiDB POST /v3/{project_id}/instances
 // @API GeminiDB GET /v3/{project_id}/jobs
@@ -62,6 +65,9 @@ var geminiDbInstanceNonUpdatableParams = []string{"datastore", "datastore.*.type
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/node-auto-expansion-policy
 // @API GeminiDB PUT /v3/{project_id}/instances/{instance_id}/lb/access-control
 // @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/lb/access-control
+// @API GeminiDB PUT /v3.1/{project_id}/instances/{instance_id}/configurations
+// @API GeminiDB GET /v3/{project_id}/instances/{instance_id}/configurations
+// @API GeminiDB POST /v3/{project_id}/instances/{instance_id}/restart
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -299,6 +305,13 @@ func ResourceGeminiDbInstance() *schema.Resource {
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"tags":       common.TagsSchema(),
+			"parameters": {
+				Type:     schema.TypeSet,
+				Elem:     geminiDbInstanceParameterSchema(),
+				Set:      parameterToHash,
+				Optional: true,
+				Computed: true,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -346,6 +359,22 @@ func ResourceGeminiDbInstance() *schema.Resource {
 			},
 		},
 	}
+}
+
+func geminiDbInstanceParameterSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func geminiDbAccessControlSchema() *schema.Resource {
@@ -749,6 +778,13 @@ func resourceGeminiDbInstanceCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// Set Parameters
+	if parameters := d.Get("parameters").(*schema.Set); parameters.Len() > 0 {
+		if err = initializeParameters(ctx, d, client, parameters); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGeminiDbInstanceRead(ctx, d, meta)
 }
 
@@ -959,6 +995,77 @@ func buildCreateGeminiDbInstanceChargeInfoBody(d *schema.ResourceData) map[strin
 	return rst
 }
 
+func buildUpdateInstanceParametersBodyParams(params *schema.Set) map[string]interface{} {
+	values := make(map[string]string)
+	for _, v := range params.List() {
+		key := v.(map[string]interface{})["name"].(string)
+		value := v.(map[string]interface{})["value"].(string)
+		values[key] = value
+	}
+	bodyParams := map[string]interface{}{
+		"values": values,
+	}
+	return bodyParams
+}
+
+func initializeParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	parametersRaw *schema.Set) error {
+	bodyParams := buildUpdateInstanceParametersBodyParams(parametersRaw)
+	res, err := modifyParameters(ctx, d, client, bodyParams)
+	if err != nil {
+		return err
+	}
+
+	restart := utils.PathSearch("restart_required", res, false).(bool)
+	if restart {
+		if err = rebootInstance(ctx, d, client); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func modifyParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	bodyParams interface{}) (interface{}, error) {
+	res, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3.1/{project_id}/instances/{instance_id}/configurations",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   bodyParams,
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		checkJobExpression: "job_id",
+	})
+	if err != nil && !handleTimeoutError(err) {
+		return nil, fmt.Errorf("error modifying parameters for GeminiDB instance (%s): %s", d.Id(), err)
+	}
+
+	return res, nil
+}
+
+func rebootInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/restart",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   buildRebootInstanceBodyParams(),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error rebooting instance (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func buildRebootInstanceBodyParams() map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"restart": make(map[string]interface{}),
+	}
+	return bodyParams
+}
+
 func updateSecondLevelMonitor(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	if !d.HasChange("second_level_monitoring_enabled") {
 		return nil
@@ -1010,7 +1117,7 @@ func buildUpdatePasswordFreeConfigurationBodyParams(d *schema.ResourceData) map[
 	return bodyParams
 }
 
-func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGeminiDbInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -1126,7 +1233,73 @@ func resourceGeminiDbInstanceRead(_ context.Context, d *schema.ResourceData, met
 		)
 	}
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	diagErr := setGeminiDBInstanceParameters(ctx, d, client)
+	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
+
+	return resErr
+}
+
+func setGeminiDBInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
+	// Set Parameters
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/configurations",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching parameters of instance (%s): %s", d.Id(), err)
+		return nil
+	}
+
+	configParameters := utils.PathSearch("configuration_parameters", getRespBody, make([]interface{}, 0)).([]interface{})
+	var configurationRestart bool
+	var paramRestart []string
+	var params []map[string]interface{}
+	rawParameterList := d.Get("parameters").(*schema.Set).List()
+	for _, v := range configParameters {
+		if utils.PathSearch("restart_required", v, false).(bool) {
+			configurationRestart = true
+		}
+		for _, parameter := range rawParameterList {
+			name := parameter.(map[string]interface{})["name"]
+			if utils.PathSearch("name", v, "").(string) == name {
+				p := map[string]interface{}{
+					"name":  utils.PathSearch("name", v, nil),
+					"value": utils.PathSearch("value", v, nil),
+				}
+				params = append(params, p)
+				if utils.PathSearch("restart_required", v, false).(bool) {
+					paramRestart = append(paramRestart, utils.PathSearch("name", v, "").(string))
+				}
+				break
+			}
+		}
+	}
+
+	var diagnostics diag.Diagnostics
+	if len(params) > 0 {
+		if err = d.Set("parameters", params); err != nil {
+			log.Printf("error saving parameters to GeminiDB instance (%s): %s", d.Id(), err)
+		}
+		if len(paramRestart) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
+			diagnostics = append(diagnostics, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Parameters Changed",
+				Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", paramRestart),
+			})
+		}
+	}
+	if configurationRestart && ctx.Value(ctxType("configurationChanged")) == "true" {
+		diagnostics = append(diagnostics, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Configuration Changed",
+			Detail:   "Configuration changed which needs reboot.",
+		})
+	}
+	if len(diagnostics) > 0 {
+		return diagnostics
+	}
+	return nil
 }
 
 func getLBAccessControlInfo(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
@@ -1455,8 +1628,11 @@ func resourceGeminiDbInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	err = updateGeminiDbInstanceConfigurationId(ctx, d, client)
-	if err != nil {
+	if ctx, err = updateGeminiDbInstanceConfigurationId(ctx, d, client); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if ctx, err = updateGeminiDbParameters(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1685,9 +1861,9 @@ func buildUpdateGeminiDbInstancePortBodyParams(d *schema.ResourceData) map[strin
 	return bodyParams
 }
 
-func updateGeminiDbInstanceConfigurationId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+func updateGeminiDbInstanceConfigurationId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
 	if !d.HasChange("configuration_id") {
-		return nil
+		return ctx, nil
 	}
 
 	_, err := updateGeminiDbInstanceField(ctx, d, client, updateInstanceFieldParams{
@@ -1701,9 +1877,21 @@ func updateGeminiDbInstanceConfigurationId(ctx context.Context, d *schema.Resour
 		isWaitInstanceReady: true,
 	})
 	if err != nil {
-		return fmt.Errorf("error updating GeminiDB instance(%s) configuration ID: %s", d.Id(), err)
+		return ctx, fmt.Errorf("error updating GeminiDB instance(%s) configuration ID: %s", d.Id(), err)
 	}
-	return nil
+
+	// if parameters is set, it should be modified
+	if parameters, ok := d.GetOk("parameters"); ok {
+		bodyParams := buildUpdateInstanceParametersBodyParams(parameters.(*schema.Set))
+		_, err = modifyParameters(ctx, d, client, bodyParams)
+		if err != nil {
+			return ctx, err
+		}
+	}
+
+	// Sending configurationChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("configurationChanged"), "true")
+	return ctx, nil
 }
 
 func buildUpdateGeminiDbInstanceConfigurationIdBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -1711,6 +1899,30 @@ func buildUpdateGeminiDbInstanceConfigurationIdBodyParams(d *schema.ResourceData
 		"instance_ids": []string{d.Id()},
 	}
 	return bodyParams
+}
+
+func updateGeminiDbParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	if !d.HasChange("parameters") {
+		return ctx, nil
+	}
+
+	o, n := d.GetChange("parameters")
+	os, ns := o.(*schema.Set), n.(*schema.Set)
+	change := ns.Difference(os)
+	if change.Len() > 0 {
+		bodyParams := buildUpdateInstanceParametersBodyParams(change)
+		res, err := modifyParameters(ctx, d, client, bodyParams)
+		if err != nil {
+			return ctx, nil
+		}
+
+		if utils.PathSearch("restart_required", res, false).(bool) {
+			// Sending parametersChanged to Read to warn users the instance needs a reboot.
+			ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+		}
+	}
+
+	return ctx, nil
 }
 
 func updateGeminiDbInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
@@ -2310,4 +2522,9 @@ func getGeminiDbInstance(client *golangsdk.ServiceClient, instanceId string) (in
 	}
 
 	return instance, nil
+}
+
+func parameterToHash(v interface{}) int {
+	m := v.(map[string]interface{})
+	return hashcode.String(m["name"].(string) + m["value"].(string))
 }

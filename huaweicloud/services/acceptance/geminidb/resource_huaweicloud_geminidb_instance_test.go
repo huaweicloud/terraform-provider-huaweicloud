@@ -391,6 +391,8 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "flavor.0.storage", "ULTRAHIGH"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor.0.spec_code",
 						"data.huaweicloud_gaussdb_nosql_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "AuthFailLockTime"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "6"),
 					resource.TestCheckResourceAttr(resourceName, "switch_option", "on"),
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "config_ips.#", "2"),
@@ -423,6 +425,8 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lb_ip_address", "192.168.0.118"),
 					resource.TestCheckResourceAttr(resourceName, "maintenance_start_time", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintenance_end_time", "10:00"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "AuthFailLockTime"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "7"),
 
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "true"),
@@ -440,6 +444,9 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.type", "blackList"),
 					resource.TestCheckResourceAttr(resourceName, "access_control.0.enabled", "false"),
 
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "AuthFailLockTime"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "8"),
+
 					resource.TestCheckResourceAttrSet(resourceName, "maintenance_start_time"),
 					resource.TestCheckResourceAttrSet(resourceName, "maintenance_end_time"),
 				),
@@ -453,6 +460,7 @@ func TestAccGeminiDbInstance_configuration(t *testing.T) {
 					"flavor.0.storage",
 					"ssl_option",
 					"delete_node_list",
+					"parameters",
 				},
 			},
 		},
@@ -1042,6 +1050,11 @@ resource "huaweicloud_geminidb_instance" "test" {
     spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   }
 
+  parameters {
+    name  = "AuthFailLockTime"
+    value = "6"
+  }
+
   # setting auto enlarge policy
   switch_option = "on"
 
@@ -1105,6 +1118,11 @@ resource "huaweicloud_geminidb_instance" "test" {
     spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
   }
 
+  parameters {
+    name  = "AuthFailLockTime"
+    value = "7"
+  }
+
   switch_option = "on"
 
   policy {
@@ -1163,6 +1181,11 @@ resource "huaweicloud_geminidb_instance" "test" {
     size      = "16"
     storage   = "ULTRAHIGH"
     spec_code = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  }
+
+  parameters {
+    name  = "AuthFailLockTime"
+    value = "8"
   }
 
   switch_option                   = "off"

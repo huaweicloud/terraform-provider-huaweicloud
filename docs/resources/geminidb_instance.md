@@ -55,6 +55,11 @@ resource "huaweicloud_geminidb_instance" "test" {
     foo = "bar"
     key = "value"
   }
+
+  parameters {
+    name  = "AuthFailLockTime"
+    value = "6"
+  }
 }
 ```
 
@@ -128,6 +133,9 @@ The following arguments are supported:
   The [availability_zone_detail](#availability_zone_detail_struct) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
+
+* `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the GeminiDB instance after
+  launched. You can check on console to see which parameters supported. Structure is documented below.
 
 * `switch_option` - (Optional, String) Specifies whether the autoscaling is enabled.
   The valid values are as follows:
@@ -227,6 +235,13 @@ The following arguments are supported:
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are **true** and **false**.
+
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the parameter name. Some of them needs the instance to be restarted
+  to take effect.
+
+* `value` - (Required, String) Specifies the parameter value.
 
 <a name="datastore_struct"></a>
 The `datastore` block supports:
