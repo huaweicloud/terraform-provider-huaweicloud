@@ -106,6 +106,10 @@ The following arguments are supported:
   `300` IP addresses or CIDR blocks can be added.
   The [access_control_ip_list](#access_control_ip_list_struct) structure is documented below.
 
+* `dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name for the proxy. If specified,
+  a private domain name will be applied for the proxy and updated to the specified prefix. If this parameter is changed
+  to an empty string, the private domain name will be deleted.
+
 <a name="node_weight_struct"></a>
 The `master_node_weight` and `readonly_nodes_weight` block supports:
 
@@ -149,6 +153,8 @@ In addition to all arguments above, the following attributes are exported:
 * `current_version` - Indicates the current version of the proxy.
 
 * `can_upgrade` - Indicates whether the proxy can be upgrade.
+
+* `dns_name` - Indicates the private domain name of the proxy.
 
 <a name="nodes_struct"></a>
 The `nodes` block supports:

@@ -109,6 +109,8 @@ func TestAccTaurusDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.ip", "3.3.3.3"),
 					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.description",
 						"test description"),
+					resource.TestCheckResourceAttr(resourceName, "dns_name_prefix", "tftestdnsname"),
+					resource.TestCheckResourceAttrSet(resourceName, "dns_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 					resource.TestCheckResourceAttrSet(resourceName, "current_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "can_upgrade"),
@@ -151,6 +153,8 @@ func TestAccTaurusDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.ip", "4.4.4.4"),
 					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.description",
 						"test description update"),
+					resource.TestCheckResourceAttr(resourceName, "dns_name_prefix", "tftestdnsnameupdate"),
+					resource.TestCheckResourceAttrSet(resourceName, "dns_name"),
 				),
 			},
 			{
@@ -231,6 +235,7 @@ resource "huaweicloud_taurusdb_proxy" "test" {
   connection_pool_type     = "SESSION"
   open_access_control      = true
   access_control_type      = "white"
+  dns_name_prefix          = "tftestdnsname"
 
   access_control_ip_list {
     ip          = "3.3.3.3"
@@ -276,6 +281,7 @@ resource "huaweicloud_taurusdb_proxy" "test" {
   connection_pool_type     = "CLOSED"
   open_access_control      = false
   access_control_type      = "black"
+  dns_name_prefix          = "tftestdnsnameupdate"
 
   access_control_ip_list {
     ip          = "4.4.4.4"
@@ -326,6 +332,7 @@ resource "huaweicloud_taurusdb_proxy" "test" {
   connection_pool_type     = "CLOSED"
   open_access_control      = false
   access_control_type      = "black"
+  dns_name_prefix          = ""
 
   access_control_ip_list {
     ip          = "4.4.4.4"
