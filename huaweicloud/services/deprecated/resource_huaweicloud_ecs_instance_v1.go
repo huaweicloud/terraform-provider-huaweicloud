@@ -262,7 +262,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.AdminPass = d.Get("password").(string)
 
-	var instance_id string
+	var instanceId string
 	if d.Get("charging_mode") == "prePaid" {
 		bssV1Client, err := cfg.BssV1Client(cfg.GetRegion(d))
 		if err != nil {
@@ -281,7 +281,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		instance_id = resourceId.(string)
+		instanceId = resourceId.(string)
 	} else {
 		n, err := cloudservers.Create(computeClient, createOpts).ExtractJobResponse()
 		if err != nil {
@@ -296,18 +296,18 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		instance_id = entity.(string)
+		instanceId = entity.(string)
 	}
 
-	if instance_id != "" {
-		d.SetId(instance_id)
+	if instanceId != "" {
+		d.SetId(instanceId)
 
 		if common.HasFilledOpt(d, "auto_recovery") {
 			ar := d.Get("auto_recovery").(bool)
 			log.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
-			err = setAutoRecoveryForInstance(d, meta, instance_id, ar)
+			err = setAutoRecoveryForInstance(d, meta, instanceId, ar)
 			if err != nil {
-				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
+				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instanceId, err)
 			}
 		}
 
@@ -584,12 +584,12 @@ func resourceInstanceNicsV1(d *schema.ResourceData) []cloudservers.Nic {
 }
 
 func resourceInstanceRootVolumeV1(d *schema.ResourceData) cloudservers.RootVolume {
-	disk_type := d.Get("system_disk_type").(string)
-	if disk_type == "" {
-		disk_type = "GPSSD"
+	diskType := d.Get("system_disk_type").(string)
+	if diskType == "" {
+		diskType = "GPSSD"
 	}
 	volRequest := cloudservers.RootVolume{
-		VolumeType: disk_type,
+		VolumeType: diskType,
 		Size:       d.Get("system_disk_size").(int),
 	}
 	return volRequest

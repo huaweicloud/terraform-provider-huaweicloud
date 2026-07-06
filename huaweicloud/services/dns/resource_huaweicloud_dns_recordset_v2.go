@@ -362,7 +362,7 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 	var client *golangsdk.ServiceClient
 	var zoneInfo *zones.Zone
 	// Firstly, try to ues the DNS global endpoint
-	client, err := conf.DnsV2Client(region)
+	client, err := conf.DNSV2Client(region)
 	if err != nil {
 		return nil, "", golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
@@ -378,7 +378,7 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 
 		// try to ues the DNS region endpoint
 		var clientErr error
-		client, clientErr = conf.DnsWithRegionClient(region)
+		client, clientErr = conf.DNSWithRegionClient(region)
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
 			return nil, "", err

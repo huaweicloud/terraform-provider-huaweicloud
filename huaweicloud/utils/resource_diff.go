@@ -82,24 +82,24 @@ func SuppressLBWhitelistDiffs(_, oldVal, newVal string, _ *schema.ResourceData) 
 	if len(oldVal) != len(newVal) {
 		return false
 	}
-	old_array := strings.Split(oldVal, ",")
-	new_array := strings.Split(newVal, ",")
-	sort.Strings(old_array)
-	sort.Strings(new_array)
+	oldArray := strings.Split(oldVal, ",")
+	newArray := strings.Split(newVal, ",")
+	sort.Strings(oldArray)
+	sort.Strings(newArray)
 
-	return reflect.DeepEqual(old_array, new_array)
+	return reflect.DeepEqual(oldArray, newArray)
 }
 
 func SuppressSnatFiplistDiffs(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	if len(oldVal) != len(newVal) {
 		return false
 	}
-	old_array := strings.Split(oldVal, ",")
-	new_array := strings.Split(newVal, ",")
-	sort.Strings(old_array)
-	sort.Strings(new_array)
+	oldArray := strings.Split(oldVal, ",")
+	newArray := strings.Split(newVal, ",")
+	sort.Strings(oldArray)
+	sort.Strings(newArray)
 
-	return reflect.DeepEqual(old_array, new_array)
+	return reflect.DeepEqual(oldArray, newArray)
 }
 
 // Suppress changes if we get a string with or without new line

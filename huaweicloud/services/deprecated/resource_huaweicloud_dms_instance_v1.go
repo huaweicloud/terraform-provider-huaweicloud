@@ -179,9 +179,9 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	ssl_enable := false
+	sslEnable := false
 	if d.Get("access_user").(string) != "" || d.Get("password").(string) != "" {
-		ssl_enable = true
+		sslEnable = true
 	}
 	createOpts := &instances.CreateOps{
 		Name:            d.Get("name").(string),
@@ -200,7 +200,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		PartitionNum:    d.Get("partition_num").(int),
 		Specification:   d.Get("specification").(string),
 		StorageSpecCode: d.Get("storage_spec_code").(string),
-		SslEnable:       ssl_enable,
+		SslEnable:       sslEnable,
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -324,16 +324,16 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 			updateOpts.Description = &description
 		}
 		if d.HasChange("maintain_begin") {
-			maintain_begin := d.Get("maintain_begin").(string)
-			updateOpts.MaintainBegin = maintain_begin
+			maintainBegin := d.Get("maintain_begin").(string)
+			updateOpts.MaintainBegin = maintainBegin
 		}
 		if d.HasChange("maintain_end") {
-			maintain_end := d.Get("maintain_end").(string)
-			updateOpts.MaintainEnd = maintain_end
+			maintainEnd := d.Get("maintain_end").(string)
+			updateOpts.MaintainEnd = maintainEnd
 		}
 		if d.HasChange("security_group_id") {
-			security_group_id := d.Get("security_group_id").(string)
-			updateOpts.SecurityGroupID = security_group_id
+			securityGroupId := d.Get("security_group_id").(string)
+			updateOpts.SecurityGroupID = securityGroupId
 		}
 
 		err = instances.Update(dmsV1Client, d.Id(), updateOpts).Err

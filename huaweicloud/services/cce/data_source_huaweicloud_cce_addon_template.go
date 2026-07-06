@@ -97,8 +97,8 @@ func dataSourceAddonTemplateRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating CCE client : %s", err)
 	}
 	// Get all addon templates by List function
-	cluster_id := d.Get("cluster_id").(string)
-	templateList, err := templates.List(client, cluster_id).Extract()
+	clusterId := d.Get("cluster_id").(string)
+	templateList, err := templates.List(client, clusterId).Extract()
 	if err != nil {
 		return diag.Errorf("unable to retrieve template list: %s", err)
 	}

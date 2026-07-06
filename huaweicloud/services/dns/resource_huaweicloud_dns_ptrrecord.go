@@ -95,7 +95,7 @@ func ResourcePtrRecord() *schema.Resource {
 func resourcePtrRecordCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	dnsClient, err := cfg.DnsV2Client(region)
+	dnsClient, err := cfg.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -163,7 +163,7 @@ func resourcePtrRecordRead(_ context.Context, d *schema.ResourceData, meta inter
 		region      = conf.GetRegion(d)
 		ptrRecordId = d.Id()
 	)
-	dnsClient, err := conf.DnsV2Client(region)
+	dnsClient, err := conf.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -208,7 +208,7 @@ func resourcePtrRecordUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		region      = conf.GetRegion(d)
 		ptrRecordId = d.Id()
 	)
-	dnsClient, err := conf.DnsV2Client(region)
+	dnsClient, err := conf.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -248,7 +248,7 @@ func resourcePtrRecordDelete(ctx context.Context, d *schema.ResourceData, meta i
 		conf        = meta.(*config.Config)
 		ptrRecordId = d.Id()
 	)
-	dnsClient, err := conf.DnsV2Client(conf.GetRegion(d))
+	dnsClient, err := conf.DNSV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}

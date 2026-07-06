@@ -950,7 +950,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "fw", "v2.0", t)
 
 	// test the endpoint of DNS service
-	serviceClient, err = cfg.DnsV2Client(HW_REGION_NAME)
+	serviceClient, err = cfg.DNSV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -962,7 +962,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	t.Logf("DNS endpoint:\t %s", actualURL)
 
 	// test the endpoint of DNS service (with region)
-	serviceClient, err = cfg.DnsWithRegionClient(HW_REGION_NAME)
+	serviceClient, err = cfg.DNSWithRegionClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DNS region client: %s", err)
 	}

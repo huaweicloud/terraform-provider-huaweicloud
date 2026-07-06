@@ -879,11 +879,11 @@ func (c *Config) FwV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkv2", region)
 }
 
-func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DNSV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dns", region)
 }
 
-func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DNSWithRegionClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dns_region", region)
 }
 

@@ -15,7 +15,7 @@ import (
 )
 
 func getPtrRecord(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
+	client, err := c.DNSV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client : %s", err)
 	}

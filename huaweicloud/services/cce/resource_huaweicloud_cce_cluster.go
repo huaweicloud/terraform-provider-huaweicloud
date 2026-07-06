@@ -705,11 +705,11 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating AOM v1 client: %s", err)
 	}
 
-	authenticating_proxy := make(map[string]string)
+	authenticatingProxy := make(map[string]string)
 	if common.HasFilledOpt(d, "authenticating_proxy_ca") {
-		authenticating_proxy["ca"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_ca").(string))
-		authenticating_proxy["cert"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_cert").(string))
-		authenticating_proxy["privateKey"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_private_key").(string))
+		authenticatingProxy["ca"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_ca").(string))
+		authenticatingProxy["cert"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_cert").(string))
+		authenticatingProxy["privateKey"] = utils.TryBase64EncodeString(d.Get("authenticating_proxy_private_key").(string))
 	}
 
 	billingMode := 0
@@ -750,7 +750,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			EniNetwork: buildEniNetworkOpts(d.Get("eni_subnet_id").(string)),
 			Authentication: clusters.AuthenticationSpec{
 				Mode:                d.Get("authentication_mode").(string),
-				AuthenticatingProxy: authenticating_proxy,
+				AuthenticatingProxy: authenticatingProxy,
 			},
 			BillingMode:      billingMode,
 			ExtendParam:      buildResourceClusterExtendParams(d, cfg),

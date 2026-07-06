@@ -368,10 +368,10 @@ func getAllClusterComponents(d *schema.ResourceData) []cluster.ComponentOpts {
 	components := d.Get("component_list").(*schema.Set)
 	for _, v := range components.List() {
 		component := v.(map[string]interface{})
-		component_name := component["component_name"].(string)
+		componentName := component["component_name"].(string)
 
 		v := cluster.ComponentOpts{
-			ComponentName: component_name,
+			ComponentName: componentName,
 		}
 		componentOpts = append(componentOpts, v)
 	}

@@ -502,8 +502,8 @@ func backupImportState(_ context.Context, d *schema.ResourceData, _ interface{})
 		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<backup_id>")
 	}
 	instanceId := parts[0]
-	backup_id := parts[1]
-	d.SetId(backup_id)
+	backupId := parts[1]
+	d.SetId(backupId)
 	d.Set("instance_id", instanceId)
 	return []*schema.ResourceData{d}, nil
 }

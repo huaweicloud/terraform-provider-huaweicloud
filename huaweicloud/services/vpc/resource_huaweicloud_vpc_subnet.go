@@ -75,7 +75,7 @@ func buildSubnetDNSList(d *schema.ResourceData, cfg *config.Config, region strin
 	// public DNS: 8.8.8.8(google-public-dns-a.google.com) and 114.114.114.114(China)
 	publicDNSList := []string{"8.8.8.8", "114.114.114.114"}
 
-	dnsClient, err := cfg.DnsWithRegionClient(region)
+	dnsClient, err := cfg.DNSWithRegionClient(region)
 	if err != nil {
 		log.Printf("[WARN] cannot generate DNS client, use %v as the DNS list", publicDNSList)
 		return publicDNSList

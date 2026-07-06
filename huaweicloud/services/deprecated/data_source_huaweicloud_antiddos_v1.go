@@ -156,47 +156,47 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("unable to retrieve the traffic of a specified EIP, defense is not configured: %s", err)
 	}
 
-	period_start := make([]int, 0)
+	periodStart := make([]int, 0)
 	for _, param := range traffic {
-		period_start = append(period_start, param.PeriodStart)
+		periodStart = append(periodStart, param.PeriodStart)
 	}
-	d.Set("period_start", period_start)
+	d.Set("period_start", periodStart)
 
-	bps_in := make([]int, 0)
+	bpsIn := make([]int, 0)
 	for _, param := range traffic {
-		bps_in = append(bps_in, param.BpsIn)
+		bpsIn = append(bpsIn, param.BpsIn)
 	}
-	d.Set("bps_in", bps_in)
+	d.Set("bps_in", bpsIn)
 
-	bps_attack := make([]int, 0)
+	bpsAttack := make([]int, 0)
 	for _, param := range traffic {
-		bps_attack = append(bps_attack, param.BpsAttack)
+		bpsAttack = append(bpsAttack, param.BpsAttack)
 	}
-	d.Set("bps_attack", bps_attack)
+	d.Set("bps_attack", bpsAttack)
 
-	total_bps := make([]int, 0)
+	totalBps := make([]int, 0)
 	for _, param := range traffic {
-		total_bps = append(total_bps, param.TotalBps)
+		totalBps = append(totalBps, param.TotalBps)
 	}
-	d.Set("total_bps", total_bps)
+	d.Set("total_bps", totalBps)
 
-	pps_in := make([]int, 0)
+	ppsIn := make([]int, 0)
 	for _, param := range traffic {
-		pps_in = append(pps_in, param.PpsIn)
+		ppsIn = append(ppsIn, param.PpsIn)
 	}
-	d.Set("pps_in", pps_in)
+	d.Set("pps_in", ppsIn)
 
-	pps_attack := make([]int, 0)
+	ppsAttack := make([]int, 0)
 	for _, param := range traffic {
-		pps_attack = append(pps_attack, param.PpsAttack)
+		ppsAttack = append(ppsAttack, param.PpsAttack)
 	}
-	d.Set("pps_attack", pps_attack)
+	d.Set("pps_attack", ppsAttack)
 
-	total_pps := make([]int, 0)
+	totalPps := make([]int, 0)
 	for _, param := range traffic {
-		total_pps = append(total_pps, param.TotalPps)
+		totalPps = append(totalPps, param.TotalPps)
 	}
-	d.Set("total_pps", total_pps)
+	d.Set("total_pps", totalPps)
 
 	listEventOpts := antiddos.ListLogsOpts{}
 	event, err := antiddos.ListLogs(antiddosClient, ddosStatus.FloatingIpId, listEventOpts).Extract()
@@ -205,41 +205,41 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("unable to retrieve the event of a specified EIP, defense is not configured: %s", err)
 	}
 
-	start_time := make([]int, 0)
+	startTime := make([]int, 0)
 	for _, param := range event {
-		start_time = append(start_time, param.StartTime)
+		startTime = append(startTime, param.StartTime)
 	}
-	d.Set("start_time", start_time)
+	d.Set("start_time", startTime)
 
-	end_time := make([]int, 0)
+	endTime := make([]int, 0)
 	for _, param := range event {
-		end_time = append(end_time, param.EndTime)
+		endTime = append(endTime, param.EndTime)
 	}
-	d.Set("end_time", end_time)
+	d.Set("end_time", endTime)
 
-	cleaning_status := make([]int, 0)
+	cleaningStatus := make([]int, 0)
 	for _, param := range event {
-		cleaning_status = append(cleaning_status, param.Status)
+		cleaningStatus = append(cleaningStatus, param.Status)
 	}
-	d.Set("traffic_cleaning_status", cleaning_status)
+	d.Set("traffic_cleaning_status", cleaningStatus)
 
-	trigger_bps := make([]int, 0)
+	triggerBps := make([]int, 0)
 	for _, param := range event {
-		trigger_bps = append(trigger_bps, param.TriggerBps)
+		triggerBps = append(triggerBps, param.TriggerBps)
 	}
-	d.Set("trigger_bps", trigger_bps)
+	d.Set("trigger_bps", triggerBps)
 
-	trigger_pps := make([]int, 0)
+	triggerPps := make([]int, 0)
 	for _, param := range event {
-		trigger_pps = append(trigger_pps, param.TriggerPps)
+		triggerPps = append(triggerPps, param.TriggerPps)
 	}
-	d.Set("trigger_pps", trigger_pps)
+	d.Set("trigger_pps", triggerPps)
 
-	trigger_http_pps := make([]int, 0)
+	triggerHttpPps := make([]int, 0)
 	for _, param := range event {
-		trigger_http_pps = append(trigger_http_pps, param.TriggerHttpPps)
+		triggerHttpPps = append(triggerHttpPps, param.TriggerHttpPps)
 	}
-	d.Set("trigger_http_pps", trigger_http_pps)
+	d.Set("trigger_http_pps", triggerHttpPps)
 
 	return nil
 }

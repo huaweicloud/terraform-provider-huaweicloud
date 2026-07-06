@@ -32,12 +32,7 @@ const (
 	AlgorithmTypeWrr AlgorithmType = "WRR"
 	AlgorithmTypeWlc AlgorithmType = "WLC"
 	AlgorithmTypeSh  AlgorithmType = "SH"
-	AlgorithmTypeUri AlgorithmType = "URI hashing"
-
-	ProtocolTypeTcp   ProtocolType = "TCP"
-	ProtocolTypeHttp  ProtocolType = "HTTP"
-	ProtocolTypeHttps ProtocolType = "HTTPS"
-	ProtocolTypeBoth  ProtocolType = "BOTH"
+	AlgorithmTypeURI AlgorithmType = "URI hashing"
 
 	ChannelStatusNormal   ChannelStatus = 1
 	ChannelStatusAbnormal ChannelStatus = 2
@@ -57,7 +52,7 @@ var (
 		AlgorithmTypeWrr: 1,
 		AlgorithmTypeWlc: 2,
 		AlgorithmTypeSh:  3,
-		AlgorithmTypeUri: 4,
+		AlgorithmTypeURI: 4,
 	}
 
 	channelStatus = map[int]string{
@@ -147,7 +142,7 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 					string(AlgorithmTypeWrr),
 					string(AlgorithmTypeWlc),
 					string(AlgorithmTypeSh),
-					string(AlgorithmTypeUri),
+					string(AlgorithmTypeURI),
 				}, false),
 				Description: "The distribution algorithm.",
 			},

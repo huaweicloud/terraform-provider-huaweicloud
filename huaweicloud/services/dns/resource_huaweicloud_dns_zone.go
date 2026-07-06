@@ -259,7 +259,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 	var dnsClient *golangsdk.ServiceClient
 
-	dnsClient, err := cfg.DnsV2Client(region)
+	dnsClient, err := cfg.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -273,7 +273,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.Errorf("the argument (router) is required when creating DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
-		dnsClient, err = cfg.DnsWithRegionClient(cfg.GetRegion(d))
+		dnsClient, err = cfg.DNSWithRegionClient(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating DNS region client: %s", err)
 		}
@@ -402,7 +402,7 @@ func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interfa
 	region := conf.GetRegion(d)
 
 	// we can not get the corresponding client by zone type in import scene
-	dnsClient, err := conf.DnsV2Client(region)
+	dnsClient, err := conf.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -414,7 +414,7 @@ func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interfa
 		// an error occurred while fetching the zone with DNS global endpoint
 		// try to fetch it again with DNS region endpoint
 		var clientErr error
-		dnsClient, clientErr = conf.DnsWithRegionClient(conf.GetRegion(d))
+		dnsClient, clientErr = conf.DNSWithRegionClient(conf.GetRegion(d))
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
 			return common.CheckDeletedDiag(d, err, "zone")
@@ -538,7 +538,7 @@ func resourceDNSZoneUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	region := conf.GetRegion(d)
 	var dnsClient *golangsdk.ServiceClient
 
-	dnsClient, err := conf.DnsV2Client(region)
+	dnsClient, err := conf.DNSV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -552,7 +552,7 @@ func resourceDNSZoneUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.Errorf("the argument (router) is required when updating DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
-		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
+		dnsClient, err = conf.DNSWithRegionClient(conf.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating DNS region client: %s", err)
 		}
@@ -758,9 +758,9 @@ func resourceDNSZoneDelete(ctx context.Context, d *schema.ResourceData, meta int
 	zoneType := d.Get("zone_type").(string)
 	// update the endpoint with region when creating private zone
 	if zoneType == "private" {
-		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
+		dnsClient, err = conf.DNSWithRegionClient(conf.GetRegion(d))
 	} else {
-		dnsClient, err = conf.DnsV2Client(conf.GetRegion(d))
+		dnsClient, err = conf.DNSV2Client(conf.GetRegion(d))
 	}
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)

@@ -209,12 +209,12 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 
 	// NOTE: This tries to remove system metadata on huawei cloud :(
 	md := make(map[string]string)
-	var sys_keys = [3]string{"billing", "resourceSpecCode", "resourceType"}
+	var sysKeys = [3]string{"billing", "resourceSpecCode", "resourceType"}
 
 OUTER:
 	for key, val := range v.Metadata {
-		for i := range sys_keys {
-			if key == sys_keys[i] {
+		for i := range sysKeys {
+			if key == sysKeys[i] {
 				continue OUTER
 			}
 		}
