@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
-	cleanhttp "github.com/hashicorp/go-cleanhttp"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/internal/vault/sdk/jsonutil"
 )
@@ -42,11 +43,18 @@ type keybaseLookupResponse struct {
 // doesn't use their client code due to both the API and the fact that it is
 // considered alpha and probably best not to rely on it.  The keys are returned
 // as base64-encoded strings.
-func FetchKeybasePubkeys(input []string) (map[string]string, error) {
-	client := cleanhttp.DefaultClient()
-	if client == nil {
-		return nil, fmt.Errorf("unable to create an http client")
+func defaultHTTPClient() *http.Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.DisableKeepAlives = true
+	transport.MaxIdleConnsPerHost = -1
+	return &http.Client{
+		Transport: transport,
+		Timeout:   30 * time.Second,
 	}
+}
+
+func FetchKeybasePubkeys(input []string) (map[string]string, error) {
+	client := defaultHTTPClient()
 
 	if len(input) == 0 {
 		return nil, nil
