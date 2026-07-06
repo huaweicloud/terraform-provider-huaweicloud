@@ -371,6 +371,53 @@ func TestAccGaussDbInstance_haModeCentralized(t *testing.T) {
 	})
 }
 
+func TestAccGaussDbInstance_auto_scaling(t *testing.T) {
+	var (
+		instance     instances.GaussDBInstance
+		resourceName = "huaweicloud_gaussdb_instance.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		password     = fmt.Sprintf("%s@123", acctest.RandString(5))
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getGaussDbInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDbInstance_auto_scaling(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.switch_option", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.limit_volume_size", "400"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.trigger_available_percent", "25"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.step_percent", "50"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_auto_scaling_update(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.switch_option", "false"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.limit_volume_size", "600"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.trigger_available_percent", "50"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.step_size", "40"),
+				),
+			},
+		},
+	})
+}
+
 func testAccGaussDbInstance_base(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -790,4 +837,109 @@ resource "huaweicloud_gaussdb_instance" "test" {
   auto_renew    = "true"
 }
 `, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_auto_scaling(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_flavors" "test" {
+  version = "8.201"
+  ha_mode = "centralization_standard"
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
+}
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  name              = "%[2]s"
+  password          = "%[3]s"
+  replica_num       = 3
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  enterprise_project_id = "%[4]s"
+
+  auto_scaling {
+    switch_option             = true
+    limit_volume_size         = 400
+    trigger_available_percent = 25
+    step_percent              = 50
+  }
+
+  ha {
+    mode             = "centralization_standard"
+    replication_mode = "sync"
+    consistency      = "eventual"
+    instance_mode    = "basic"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, common.TestVpc(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_auto_scaling_update(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_flavors" "test" {
+  version = "8.201"
+  ha_mode = "centralization_standard"
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
+}
+
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  name              = "%[2]s"
+  password          = "%[3]s"
+  replica_num       = 3
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  enterprise_project_id = "%[4]s"
+
+  auto_scaling {
+    switch_option             = false
+    limit_volume_size         = 600
+    trigger_available_percent = 50
+    step_size                 = 40
+  }
+
+  ha {
+    mode             = "centralization_standard"
+    replication_mode = "sync"
+    consistency      = "eventual"
+    instance_mode    = "basic"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, common.TestVpc(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -41,6 +41,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB POST /v3/{project_id}/instances
 // @API GaussDB GET /v3/{project_id}/jobs
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/auto-enlarge-policy
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/mysql-compatibility
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/advance-features
@@ -49,6 +50,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/error-log/switch/{status}
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDB GET /v3.1/{project_id}/instances/{instance_id}/configurations
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/auto-enlarge-policy
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/balance
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/error-log/switch/status
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/advance-features
@@ -278,6 +280,49 @@ func ResourceGaussDbInstance() *schema.Resource {
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
+			"auto_scaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"switch_option": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"limit_volume_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"trigger_available_percent": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"step_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"step_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"min_volume_size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_volume_size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"percents": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeInt},
 						},
 					},
 				},
@@ -586,6 +631,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if _, ok := d.GetOk("auto_scaling"); ok {
+		if err = updateAutoScaling(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -860,6 +911,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 	mErr = multierror.Append(mErr, setAdvanceFeatures(d, client))
 	mErr = multierror.Append(mErr, setWdrSnapshotStatus(d, client))
 	mErr = multierror.Append(mErr, setAspStatus(d, client))
+	mErr = multierror.Append(mErr, setAutoScaling(d, client))
 
 	diagErr := setGaussDBMySQLParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
@@ -1156,6 +1208,36 @@ func getAspStatus(client *golangsdk.ServiceClient, instanceId string) (string, e
 	return status, nil
 }
 
+func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/auto-enlarge-policy",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching GaussDB instance(%s) auto scaling: %s", d.Id(), err)
+		return nil
+	}
+	if len(getRespBody.(map[string]interface{})) == 0 {
+		return d.Set("auto_scaling", nil)
+	}
+
+	autoScaling := []interface{}{
+		map[string]interface{}{
+			"switch_option":             utils.PathSearch("switch_option", getRespBody, nil),
+			"limit_volume_size":         utils.PathSearch("limit_volume_size", getRespBody, nil),
+			"trigger_available_percent": utils.PathSearch("trigger_available_percent", getRespBody, nil),
+			"step_size":                 utils.PathSearch("step_size", getRespBody, nil),
+			"step_percent":              utils.PathSearch("step_percent", getRespBody, nil),
+			"min_volume_size":           utils.PathSearch("min_volume_size", getRespBody, nil),
+			"max_volume_size":           utils.PathSearch("max_volume_size", getRespBody, nil),
+			"percents":                  utils.PathSearch("percents", getRespBody, nil),
+		},
+	}
+
+	return d.Set("auto_scaling", autoScaling)
+}
+
 // nolint:gocyclo
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
@@ -1303,6 +1385,13 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("error_log_switch_status") {
 		if err = updateErrorLogSwitchStatus(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_scaling") {
+		err = updateAutoScaling(ctx, client, d)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1926,6 +2015,38 @@ func updateErrorLogSwitchStatus(ctx context.Context, client *golangsdk.ServiceCl
 		return fmt.Errorf("error updating GaussDB error log switch status: %s", err)
 	}
 
+	return nil
+}
+
+func updateAutoScaling(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/auto-enlarge-policy",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateAutoScalingBodyParams(d)),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance auto scaling: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateAutoScalingBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rawParams := d.Get("auto_scaling").([]interface{})
+	if len(rawParams) == 0 {
+		return nil
+	}
+	if autoScaling, ok := rawParams[0].(map[string]interface{}); ok {
+		bodyParams := map[string]interface{}{
+			"switch_option":             autoScaling["switch_option"],
+			"limit_volume_size":         utils.ValueIgnoreEmpty(autoScaling["limit_volume_size"]),
+			"trigger_available_percent": utils.ValueIgnoreEmpty(autoScaling["trigger_available_percent"]),
+			"step_size":                 utils.ValueIgnoreEmpty(autoScaling["step_size"]),
+			"step_percent":              utils.ValueIgnoreEmpty(autoScaling["step_percent"]),
+		}
+		return bodyParams
+	}
 	return nil
 }
 
