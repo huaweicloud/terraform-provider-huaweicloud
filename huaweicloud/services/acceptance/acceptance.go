@@ -458,6 +458,7 @@ var (
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
 	HW_DSC_ENABLE_FLAG    = os.Getenv("HW_DSC_ENABLE_FLAG")
+	HW_DSC_TYPE_ID        = os.Getenv("HW_DSC_TYPE_ID")
 
 	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
 	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
@@ -5284,6 +5285,13 @@ func TestAccPrecheckDscAlarmTopicID(t *testing.T) {
 func TestAccPreCheckDscEnableFlag(t *testing.T) {
 	if HW_DSC_ENABLE_FLAG == "" {
 		t.Skip("HW_DSC_ENABLE_FLAG must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscTypeId(t *testing.T) {
+	if HW_DSC_TYPE_ID == "" {
+		t.Skip("HW_DSC_TYPE_ID must be set for DSC acceptance tests")
 	}
 }
 
