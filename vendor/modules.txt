@@ -2,6 +2,8 @@
 ## explicit
 github.com/GehirnInc/crypt
 github.com/GehirnInc/crypt/common
+github.com/GehirnInc/crypt/internal
+github.com/GehirnInc/crypt/sha512_crypt
 # github.com/ProtonMail/go-crypto v1.3.0
 ## explicit; go 1.22.0
 github.com/ProtonMail/go-crypto/bitcurves
@@ -140,7 +142,6 @@ github.com/chnsz/golangsdk/openstack/dms/v1/instances
 github.com/chnsz/golangsdk/openstack/dms/v1/queues
 github.com/chnsz/golangsdk/openstack/dms/v2/availablezones
 github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances
-github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics
 github.com/chnsz/golangsdk/openstack/dms/v2/maintainwindows
 github.com/chnsz/golangsdk/openstack/dms/v2/products
 github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances
