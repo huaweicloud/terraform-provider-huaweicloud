@@ -190,14 +190,15 @@ func putContentToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.
 	return obsClient.PutObject(putInput)
 }
 
-func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.PutObjectOutput, error) {
+func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.CompleteMultipartUploadOutput, error) {
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)
 
-	putInput := &obs.PutFileInput{}
+	putInput := &obs.UploadFileInput{}
 	putInput.Bucket = bucket
 	putInput.Key = key
-	putInput.SourceFile = d.Get("source").(string)
+	putInput.UploadFile = d.Get("source").(string)
+	putInput.TaskNum = 5
 
 	if v, ok := d.GetOk("acl"); ok {
 		putInput.ACL = obs.AclType(v.(string))
@@ -221,7 +222,7 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 	}
 
 	log.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
-	return obsClient.PutFile(putInput)
+	return obsClient.UploadFile(putInput)
 }
 
 func deleteBucketObjectTags(obsClient *obs.ObsClient, bucket, key, versionId string) error {
@@ -384,9 +385,9 @@ func resourceObsBucketObjectUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func updateBucketObject(obsClient *obs.ObsClient, d *schema.ResourceData, bucket, key string) (string, error) {
 	var (
-		resp   *obs.PutObjectOutput
-		err    error
-		source = d.Get("source").(string)
+		versionId string
+		err       error
+		source    = d.Get("source").(string)
 	)
 
 	if source != "" {
@@ -401,26 +402,40 @@ func updateBucketObject(obsClient *obs.ObsClient, d *schema.ResourceData, bucket
 		}
 
 		// Put source file.
+		var resp *obs.CompleteMultipartUploadOutput
 		resp, err = putFileToObject(obsClient, d)
+		if err != nil {
+			return "", err
+		}
+
+		log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+		if resp == nil {
+			return "", fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
+		}
+
+		versionId = resp.VersionId
 	}
 
 	content := d.Get("content").(string)
 	if content != "" {
 		// Put content.
+		var resp *obs.PutObjectOutput
 		resp, err = putContentToObject(obsClient, d)
+
+		if err != nil {
+			return "", err
+		}
+
+		log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+		if resp == nil {
+			return "", fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
+		}
+
+		versionId = resp.VersionId
 	}
 
-	if err != nil {
-		return "", err
-	}
-
-	log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
-	if resp == nil {
-		return "", fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
-	}
-
-	if resp.VersionId != "null" {
-		return resp.VersionId, nil
+	if versionId != "null" {
+		return versionId, nil
 	}
 
 	return "", nil
