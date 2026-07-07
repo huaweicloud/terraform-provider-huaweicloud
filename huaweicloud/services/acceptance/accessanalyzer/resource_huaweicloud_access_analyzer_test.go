@@ -109,6 +109,13 @@ resource "huaweicloud_access_analyzer" "test" {
     foo        = "bar_update"
     key_update = "value_update"
   }
+
+  lifecycle {
+    ignore_changes = [
+      last_analyzed_resource,
+      last_resource_analyzed_at,
+    ]
+  }
 }
 `, rName)
 }
