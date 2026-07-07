@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -127,7 +127,7 @@ func resourceRouteTableCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(resp.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      routeTableStatusRefreshFunc(client, instanceId, d.Id(), []string{"available"}),
@@ -143,7 +143,7 @@ func resourceRouteTableCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceRouteTableRead(ctx, d, meta)
 }
 
-func routeTableStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, routeTableId string, targets []string) resource.StateRefreshFunc {
+func routeTableStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, routeTableId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := routetables.Get(client, instanceId, routeTableId)
 		if err != nil {
@@ -216,7 +216,7 @@ func updateRouteTableBasicInfo(ctx context.Context, client *golangsdk.ServiceCli
 		return fmt.Errorf("error updating route table (%s): %s", routeTableId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      routeTableStatusRefreshFunc(client, instanceId, routeTableId, []string{"available"}),
@@ -313,7 +313,7 @@ func resourceRouteTableDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error deleting route table (%s): %s", routeTableId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      routeTableStatusRefreshFunc(client, instanceId, routeTableId, nil),

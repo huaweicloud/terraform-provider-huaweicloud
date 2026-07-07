@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -115,7 +115,7 @@ func ResourceCloudNativeAntiDdos() *schema.Resource {
 
 func waitForAntiDDoSAvailable(ctx context.Context, client *golangsdk.ServiceClient, antiDDoSId string,
 	timeout time.Duration, isDeleteCheck bool) (*antiddossdk.GetResponse, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -353,7 +353,7 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 			}
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"configging"},
 			Target:       []string{"normal"},
 			Refresh:      getAntiDdosStatus(client, antiDDoSId),
@@ -378,7 +378,7 @@ func waitingAntiDdosTaskSuccess(ctx context.Context, client *golangsdk.ServiceCl
 		httpUrl       = "v2/{project_id}/query-task-status"
 	)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (result interface{}, state string, err error) {
@@ -426,7 +426,7 @@ func waitingAntiDdosTaskSuccess(ctx context.Context, client *golangsdk.ServiceCl
 	return err
 }
 
-func getAntiDdosStatus(client *golangsdk.ServiceClient, antiddosID string) resource.StateRefreshFunc {
+func getAntiDdosStatus(client *golangsdk.ServiceClient, antiddosID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := antiddossdk.GetStatus(client, antiddosID).Extract()
 		if err != nil {

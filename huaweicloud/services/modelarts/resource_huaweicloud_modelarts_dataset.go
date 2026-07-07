@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -456,7 +456,7 @@ func createDataset(client *golangsdk.ServiceClient, d *schema.ResourceData) (int
 }
 
 func waitForDatasetStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, datasetId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshDatasetStatusFunc(client, datasetId, []string{"1"}),
@@ -492,7 +492,7 @@ func GetDatasetById(client *golangsdk.ServiceClient, datasetId string) (interfac
 	return utils.FlattenResponse(resp)
 }
 
-func refreshDatasetStatusFunc(client *golangsdk.ServiceClient, datasetId string, targets []string) resource.StateRefreshFunc {
+func refreshDatasetStatusFunc(client *golangsdk.ServiceClient, datasetId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetDatasetById(client, datasetId)
 		if err != nil {

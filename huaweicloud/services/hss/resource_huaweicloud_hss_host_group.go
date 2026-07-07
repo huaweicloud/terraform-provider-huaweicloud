@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -103,7 +103,7 @@ func checkAllHostsAvailable(ctx context.Context, client *golangsdk.ServiceClient
 	unprotectedIDs := make([]string, 0)
 	for _, hostId := range hostIDs {
 		log.Printf("[DEBUG] Waiting for the host (%s) status to become available.", hostId)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      hostStatusRefreshFunc(client, epsId, hostId),
@@ -147,7 +147,7 @@ func getHostFunc(client *golangsdk.ServiceClient, epsId, hostId string) (interfa
 	return hostResp, nil
 }
 
-func hostStatusRefreshFunc(client *golangsdk.ServiceClient, epsId, hostId string) resource.StateRefreshFunc {
+func hostStatusRefreshFunc(client *golangsdk.ServiceClient, epsId, hostId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var unprotectedHostId string
 		if epsId == "" {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -212,7 +212,7 @@ func createDNSRecordset(recordsetClient *golangsdk.ServiceClient, d *schema.Reso
 
 func waitForDNSRecordsetCreateOrUpdate(ctx context.Context, recordsetClient *golangsdk.ServiceClient,
 	waitForConfig *WaitForConfig) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE", "DISABLE"},
 		Pending:      []string{"PENDING"},
 		Refresh:      dnsRecordsetStatusRefreshFunc(recordsetClient, waitForConfig),
@@ -494,7 +494,7 @@ func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, met
 
 func waitForDNSRecordsetDeleted(ctx context.Context, recordsetClient *golangsdk.ServiceClient,
 	waitForConfig *WaitForConfig) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},
 		Refresh:      dnsRecordsetStatusRefreshFunc(recordsetClient, waitForConfig),
@@ -510,7 +510,7 @@ func waitForDNSRecordsetDeleted(ctx context.Context, recordsetClient *golangsdk.
 	return nil
 }
 
-func dnsRecordsetStatusRefreshFunc(client *golangsdk.ServiceClient, waitForConfig *WaitForConfig) resource.StateRefreshFunc {
+func dnsRecordsetStatusRefreshFunc(client *golangsdk.ServiceClient, waitForConfig *WaitForConfig) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		version := getApiVersionByZoneType(waitForConfig.ZoneType)
 		getDNSRecordsetHttpUrl := fmt.Sprintf("%s/zones/{zone_id}/recordsets/{recordset_id}", version)

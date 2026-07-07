@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -741,7 +741,7 @@ func findAddDiskResourcesToVault(resourceType string, rawConfigResources, remote
 
 func waitForAllResourcesDissociated(ctx context.Context, client *golangsdk.ServiceClient, vaultId string,
 	resourceIds []interface{}, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -793,7 +793,7 @@ func dissociateResources(ctx context.Context, client *golangsdk.ServiceClient, v
 
 func waitForAllResourcesAssociated(ctx context.Context, client *golangsdk.ServiceClient, vaultId string,
 	resources []interface{}, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -1352,7 +1352,7 @@ func resourceVaultDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"available", "deleting"},
 		Target:       []string{"deleted"},
 		Refresh:      vaultStateRefreshFunc(client, vaultId),
@@ -1367,7 +1367,7 @@ func resourceVaultDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func vaultStateRefreshFunc(client *golangsdk.ServiceClient, vaultId string) resource.StateRefreshFunc {
+func vaultStateRefreshFunc(client *golangsdk.ServiceClient, vaultId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetVaultById(client, vaultId)
 		if err != nil {

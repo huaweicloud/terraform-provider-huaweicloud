@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -92,7 +92,7 @@ func parseAssociatedAppIds(applications *schema.Set) []string {
 	return result
 }
 
-func bindableAppRefreshFunc(client *golangsdk.ServiceClient, instanceId, quotaId string, appIds []string) resource.StateRefreshFunc {
+func bindableAppRefreshFunc(client *golangsdk.ServiceClient, instanceId, quotaId string, appIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bindable-apps"
@@ -128,7 +128,7 @@ func precheckAllAppIdsAreAvailable(ctx context.Context, client *golangsdk.Servic
 		instanceId = d.Get("instance_id").(string)
 		quotaId    = d.Get("quota_id").(string)
 	)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: bindableAppRefreshFunc(client, instanceId, quotaId, appIds),
@@ -180,7 +180,7 @@ func QueryQuotaAssociatedApplications(client *golangsdk.ServiceClient, instanceI
 }
 
 func appsBindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, quota string,
-	appIds []string) resource.StateRefreshFunc {
+	appIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := QueryQuotaAssociatedApplications(client, instanceId, quota)
 		if err != nil {
@@ -215,7 +215,7 @@ func associateAppsToQuota(ctx context.Context, client *golangsdk.ServiceClient, 
 		return fmt.Errorf("failed to associate application(s) to the application quota (%s): %s", quotaId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: appsBindingRefreshFunc(client, instanceId, quotaId, appIds),
@@ -334,7 +334,7 @@ func disassociateAppsFromQuota(ctx context.Context, client *golangsdk.ServiceCli
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: appsUnbindingRefreshFunc(client, instanceId, quotaId, appIds),
@@ -351,7 +351,7 @@ func disassociateAppsFromQuota(ctx context.Context, client *golangsdk.ServiceCli
 }
 
 func appsUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, quota string,
-	appIds []string) resource.StateRefreshFunc {
+	appIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := QueryQuotaAssociatedApplications(client, instanceId, quota)
 		if err != nil {

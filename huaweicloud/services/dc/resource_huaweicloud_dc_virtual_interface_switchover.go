@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -166,7 +166,7 @@ func resourceVirtualInterfaceSwitchoverRead(_ context.Context, d *schema.Resourc
 }
 
 func checkVirtualInterfaceSwitchoverFinish(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
 		Refresh:      virtualInterfaceSwitchoverRefreshFunc(client, d),
@@ -180,7 +180,7 @@ func checkVirtualInterfaceSwitchoverFinish(ctx context.Context, client *golangsd
 	return nil
 }
 
-func virtualInterfaceSwitchoverRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func virtualInterfaceSwitchoverRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		switchover, err := getVirtualInterfaceSwitchoverRecord(client, d)
 		if err != nil {

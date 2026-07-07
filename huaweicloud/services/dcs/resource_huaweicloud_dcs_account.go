@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -125,8 +125,8 @@ func resourceDcsAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	retryFunc := func() (interface{}, bool, error) {
 		createAccountResp, createErr := createAccountClient.Request("POST", createAccountPath, &createAccountOpt)
-		retry, err := handleOperationError(createErr)
-		return createAccountResp, retry, err
+		shouldRetry, err := handleOperationError(createErr)
+		return createAccountResp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -147,7 +147,7 @@ func resourceDcsAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"AVAILABLE"},
 		Refresh:      accountStatusRefreshFunc(instanceId, accountName, createAccountClient),
@@ -274,8 +274,8 @@ func resetPassword(ctx context.Context, d *schema.ResourceData, client *golangsd
 
 	retryFunc := func() (interface{}, bool, error) {
 		resetPasswordResp, updateErr := client.Request("PUT", resetPasswordPath, &resetPasswordOpt)
-		retry, err := handleOperationError(updateErr)
-		return resetPasswordResp, retry, err
+		shouldRetry, err := handleOperationError(updateErr)
+		return resetPasswordResp, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -291,7 +291,7 @@ func resetPassword(ctx context.Context, d *schema.ResourceData, client *golangsd
 		return fmt.Errorf("error resetting password of the account(%s): %v", accountName, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"UPDATING"},
 		Target:       []string{"AVAILABLE"},
 		Refresh:      accountStatusRefreshFunc(instanceId, accountName, client),
@@ -324,8 +324,8 @@ func updateRole(ctx context.Context, d *schema.ResourceData, client *golangsdk.S
 
 	retryFunc := func() (interface{}, bool, error) {
 		updateRoleResp, updateErr := client.Request("PUT", updateRolePath, &updateRoleOpt)
-		retry, err := handleOperationError(updateErr)
-		return updateRoleResp, retry, err
+		shouldRetry, err := handleOperationError(updateErr)
+		return updateRoleResp, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -341,7 +341,7 @@ func updateRole(ctx context.Context, d *schema.ResourceData, client *golangsdk.S
 		return fmt.Errorf("error updating role of the account (%s): %v", accountName, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"UPDATING"},
 		Target:       []string{"AVAILABLE"},
 		Refresh:      accountStatusRefreshFunc(instanceId, accountName, client),
@@ -379,8 +379,8 @@ func updateDescription(ctx context.Context, d *schema.ResourceData, client *gola
 
 	retryFunc := func() (interface{}, bool, error) {
 		updateDescriptionResp, err := client.Request("PUT", updateDescriptionPath, &updateDescriptionOpt)
-		retry, err := handleOperationError(err)
-		return updateDescriptionResp, retry, err
+		shouldRetry, err := handleOperationError(err)
+		return updateDescriptionResp, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -424,8 +424,8 @@ func resourceDcsAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err = deleteAccountClient.Request("DELETE", deleteAccountPath, &deleteAccountOpt)
-		retry, err := handleOperationError(err)
-		return nil, retry, err
+		shouldRetry, err := handleOperationError(err)
+		return nil, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -441,7 +441,7 @@ func resourceDcsAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error deleting the account (%s): %v", accountName, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXECUTING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      accountTaskStatusRefreshFunc(instanceId, "DeleteAcl", deleteAccountClient),
@@ -458,7 +458,7 @@ func resourceDcsAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceDcsAccountRead(ctx, d, meta)
 }
 
-func accountStatusRefreshFunc(instanceId, accountName string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func accountStatusRefreshFunc(instanceId, accountName string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getAccountHttpUrl = "v2/{project_id}/instances/{instance_id}/accounts"
@@ -487,7 +487,7 @@ func accountStatusRefreshFunc(instanceId, accountName string, client *golangsdk.
 	}
 }
 
-func accountTaskStatusRefreshFunc(instanceId, taskName string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func accountTaskStatusRefreshFunc(instanceId, taskName string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getAccountTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
 		getAccountTaskPath := client.Endpoint + getAccountTaskHttpUrl

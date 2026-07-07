@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -833,17 +833,17 @@ func GetV3AgencyByIdWithRetry(ctx context.Context, client *golangsdk.ServiceClie
 	timeoutVal = timeout[0]
 
 	// lintignore:R006
-	err = resource.RetryContext(ctx, timeoutVal, func() *resource.RetryError {
+	err = retry.RetryContext(ctx, timeoutVal, func() *retry.RetryError {
 		respBody, err = getV3AgencyById(client, agencyId)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			// Retrieving agency details may result in a 404 error, requiring appropriate retries.
 			// If the details are not retrieved within the timeout period, an error will be returned.
 			// lintignore:R018
 			time.Sleep(10 * time.Second)
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -1032,7 +1032,7 @@ func updateV3Agency(ctx context.Context, client *golangsdk.ServiceClient, agency
 	}
 
 	// lintignore:R006
-	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+	err := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		_, retryErr := client.Request("PUT", updatePath, &updateOpt)
 		if retryErr != nil {
 			return common.CheckForRetryableError(retryErr)
@@ -1576,17 +1576,17 @@ func deleteV3Agency(client *golangsdk.ServiceClient, agencyId string) error {
 
 func deleteV3AgencyWithRetry(ctx context.Context, client *golangsdk.ServiceClient, agencyId string, timeout time.Duration) error {
 	// lintignore:R006
-	return resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+	return retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		err := deleteV3Agency(client, agencyId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return resource.NonRetryableError(err)
+				return retry.NonRetryableError(err)
 			}
 			// Retrieving agency details may result in a 404 error, requiring appropriate retries.
 			// If the details are not retrieved within the timeout period, an error will be returned.
 			// lintignore:R018
 			time.Sleep(10 * time.Second)
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		return nil
 	})

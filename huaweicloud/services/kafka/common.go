@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 
 	"github.com/chnsz/golangsdk"
 
@@ -35,7 +35,7 @@ func getInstanceTask(client *golangsdk.ServiceClient, instanceId, taskId string)
 	return utils.FlattenResponse(resp)
 }
 
-func instanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskId string, targets []string) resource.StateRefreshFunc {
+func instanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getInstanceTask(client, instanceID, taskId)
 		if err != nil {
@@ -59,7 +59,7 @@ func instanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, 
 // For Job ID task, use waitForInstanceTaskStatusComplete method.
 func waitForInstanceTaskStatusComplete(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      instanceTaskStatusRefreshFunc(client, instanceId, taskId, []string{"SUCCESS"}),
@@ -114,7 +114,7 @@ func getInstanceTasks(client *golangsdk.ServiceClient, instanceId string) ([]int
 	return result, nil
 }
 
-func refreshTaskStatusByName(client *golangsdk.ServiceClient, instanceId, taskName string, targets []string) resource.StateRefreshFunc {
+func refreshTaskStatusByName(client *golangsdk.ServiceClient, instanceId, taskName string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		tasks, err := getInstanceTasks(client, instanceId)
 		if err != nil {
@@ -144,7 +144,7 @@ func waitForInstanceTaskStatusCompleteByName(ctx context.Context, client *golang
 		completedStatuses = targets[0]
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshTaskStatusByName(client, instanceId, taskName, completedStatuses),

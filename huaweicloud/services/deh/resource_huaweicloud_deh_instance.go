@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -319,7 +319,7 @@ func buildCreateDehInstanceExtendParamsBodyParams(d *schema.ResourceData, cfg *c
 
 func checkDehJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, delay int,
 	timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      dehJobStatusRefreshFunc(client, jobID),
@@ -334,7 +334,7 @@ func checkDehJobFinish(ctx context.Context, client *golangsdk.ServiceClient, job
 	return res, nil
 }
 
-func dehJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func dehJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v1/{project_id}/jobs/{job_id}"
@@ -620,7 +620,7 @@ func resourceDehInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error deleting DEH instance: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"pending"},
 		Target:     []string{"deleted"},
 		Refresh:    dehInstanceStateRefreshFunc(client, d.Id()),
@@ -637,7 +637,7 @@ func resourceDehInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func dehInstanceStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func dehInstanceStateRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		res, err := getDehInstance(client, id)
 		if err != nil {

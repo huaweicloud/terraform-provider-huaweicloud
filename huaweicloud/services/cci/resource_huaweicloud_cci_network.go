@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -144,7 +144,7 @@ func resourceCciNetworkCreate(ctx context.Context, d *schema.ResourceData, meta 
 	d.SetId(create.Metadata.Name)
 
 	log.Printf("[DEBUG] Waiting for CCI network (%s) to become available", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Initializing", "Pending"},
 		Target:       []string{"Active"},
 		Refresh:      waitForCciNetworkActive(cciClient, ns, d.Id()),
@@ -206,7 +206,7 @@ func resourceCciNetworkDelete(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("Error deleting CCI Network: %s", err)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"Terminating", "Active"},
 		Target:     []string{"Deleted"},
 		Refresh:    waitForCciNetworkDelete(cciClient, ns, d.Id()),
@@ -224,7 +224,7 @@ func resourceCciNetworkDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForCciNetworkActive(cciClient *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func waitForCciNetworkActive(cciClient *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := networks.Get(cciClient, ns, name).Extract()
 		if err != nil {
@@ -235,7 +235,7 @@ func waitForCciNetworkActive(cciClient *golangsdk.ServiceClient, ns, name string
 	}
 }
 
-func waitForCciNetworkDelete(cciClient *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func waitForCciNetworkDelete(cciClient *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete CCI network %s.", name)
 

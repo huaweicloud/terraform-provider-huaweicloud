@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -121,7 +121,7 @@ func dataSourceDDSSlowLogLinksRead(ctx context.Context, d *schema.ResourceData, 
 }
 
 func waitForSlowLogLinkCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"FINISH"},
 		Refresh:      slowLogLinksRefreshFunc(client, d),
@@ -138,7 +138,7 @@ func waitForSlowLogLinkCompleted(ctx context.Context, client *golangsdk.ServiceC
 	return res, nil
 }
 
-func slowLogLinksRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func slowLogLinksRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getSlowLogLinks(client, d)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -168,7 +168,7 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("unable to find the account operation ID from the API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      accountStateRefreshFunc(createAccountClient, operationID),
@@ -250,7 +250,7 @@ func buildListAccountsQueryParams(marker string) string {
 	return res
 }
 
-func accountStateRefreshFunc(client *golangsdk.ServiceClient, operationId string) resource.StateRefreshFunc {
+func accountStateRefreshFunc(client *golangsdk.ServiceClient, operationId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getAccountStatusHttpUrl := "v1/managed-organization/{operation_id}"
 		getAccountStatusPath := client.Endpoint + getAccountStatusHttpUrl
@@ -398,7 +398,7 @@ func resourceAccountDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("unable to find the account operation ID from the API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      accountStateRefreshFunc(unEnrollAccountClient, operationID),

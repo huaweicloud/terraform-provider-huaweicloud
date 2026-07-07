@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -74,7 +74,7 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 	}
 }
 
-func databaseCreateRefreshFunc(client *golangsdk.ServiceClient, dbName string) resource.StateRefreshFunc {
+func databaseCreateRefreshFunc(client *golangsdk.ServiceClient, dbName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		detail, queryErr := GetDliSQLDatabaseByName(client, dbName)
 		if queryErr != nil {
@@ -111,7 +111,7 @@ func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, m
 
 		// Return synchronization job result times out.
 		// At this time, the job has entered the creation phase.
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      databaseCreateRefreshFunc(client, dbName),
@@ -232,7 +232,7 @@ func resourceDliSQLDatabaseUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceDliSQLDatabaseRead(ctx, d, meta)
 }
 
-func databaseDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName string) resource.StateRefreshFunc {
+func databaseDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		detail, queryErr := GetDliSQLDatabaseByName(client, dbName)
 		if queryErr != nil {
@@ -262,7 +262,7 @@ func resourceDliSQLDatabaseDelete(ctx context.Context, d *schema.ResourceData, m
 
 		// Return synchronization job result times out.
 		// At this time, the job has entered the delete phase.
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      databaseDeleteRefreshFunc(client, dbName),

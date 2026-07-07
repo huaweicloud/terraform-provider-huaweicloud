@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -107,8 +107,8 @@ func restartStarrocksInstance(ctx context.Context, d *schema.ResourceData, clien
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("PUT", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -136,7 +136,7 @@ func restartStarrocksInstance(ctx context.Context, d *schema.ResourceData, clien
 	return jobId, nil
 }
 
-func htapInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, htapInstanceId string) resource.StateRefreshFunc {
+func htapInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, htapInstanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// Check TaurusDB HTAP instance status is normal and actions is empty list
 		htapInstanceDetail, err := GetHtapInstanceDetail(client, instanceId, htapInstanceId)

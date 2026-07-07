@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -173,7 +173,7 @@ func resourceSecurityGroupDelete(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSecurityGroupDelete(iecClient, d.Id()),
@@ -190,7 +190,7 @@ func resourceSecurityGroupDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
+func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] attempting to delete security group %s.\n", groupID)
 		sg, err := groups.Get(iecClient, groupID).Extract()

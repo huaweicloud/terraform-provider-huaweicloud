@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -281,7 +281,7 @@ func resourceOrganizationalPolicyAssignmentCreateOrUpdate(ctx context.Context, d
 		waitTimeout = d.Timeout(schema.TimeoutCreate)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "UPDATE_SUCCESSFUL"},
 		Pending:      []string{"CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"},
 		Refresh:      refreshOrgPolicyAssignmentDeployStatus(d, createOrgPolicyAssignmentClient),
@@ -428,7 +428,7 @@ func resourceOrganizationalPolicyAssignmentDelete(ctx context.Context, d *schema
 		return diag.Errorf("error deleting RMS organizational assignment package: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{""},
 		Pending:      []string{"DELETE_IN_PROGRESS"},
 		Refresh:      refreshOrgPolicyAssignmentDeployStatus(d, deleteOrgPolicyAssignmentClient),
@@ -444,7 +444,7 @@ func resourceOrganizationalPolicyAssignmentDelete(ctx context.Context, d *schema
 	return nil
 }
 
-func refreshOrgPolicyAssignmentDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func refreshOrgPolicyAssignmentDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (result interface{}, state string, err error) {
 		// getDeployStatus: Query the RMS organizational assignment
 		var (

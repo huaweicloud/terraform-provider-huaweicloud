@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -607,7 +607,7 @@ func resourceGaussDBDataStore(d *schema.ResourceData) instances.DataStoreOpt {
 	return db
 }
 
-func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -764,7 +764,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	d.SetId(id)
 
 	// waiting for the instance to become ready
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"BUILD", "BACKING UP"},
 		Target:       []string{"ACTIVE"},
 		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
@@ -785,7 +785,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	// waiting for the instance to become ready again
 	// as instance will become BACKING UP state after ACTIVE
-	stateConf = &resource.StateChangeConf{
+	stateConf = &retry.StateChangeConf{
 		Pending:      []string{"BUILD", "BACKING UP"},
 		Target:       []string{"ACTIVE"},
 		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
@@ -949,8 +949,8 @@ func restartGaussDBMySQLInstance(ctx context.Context, client *golangsdk.ServiceC
 	// If parameters which requires restart changed, reboot the instance.
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.Restart(client, d.Id(), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1268,8 +1268,8 @@ func updateAuditLogPolicy(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("PUT", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1716,7 +1716,7 @@ func resourceGaussDBInstanceDelete(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE", "BACKING UP", "FAILED"},
 		Target:     []string{"DELETED"},
 		Refresh:    GaussDBInstanceStateRefreshFunc(client, instanceId),
@@ -1741,8 +1741,8 @@ func updateInstanceName(ctx context.Context, client *golangsdk.ServiceClient, d 
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdateName(client, d.Id(), updateNameOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1769,8 +1769,8 @@ func updateInstancePassword(ctx context.Context, client *golangsdk.ServiceClient
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1799,8 +1799,8 @@ func updateInstanceFlavor(ctx context.Context, client, bssClient *golangsdk.Serv
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.Resize(client, d.Id(), resizeOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1877,8 +1877,8 @@ func createInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.CreateReplica(client, d.Id(), createReplicaOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1948,8 +1948,8 @@ func deleteInstanceReadReplica(ctx context.Context, client, bssClient *golangsdk
 	for i := 0; i < shrinkSize; i++ {
 		retryFunc := func() (interface{}, bool, error) {
 			res, err := instances.DeleteReplica(client, d.Id(), slaveNodes[i]).ExtractJobResponse()
-			retry, err := handleMultiOperationsError(err)
-			return res, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return res, shouldRetry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2002,8 +2002,8 @@ func updateInstanceVolumeSize(ctx context.Context, client, bssClient *golangsdk.
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2057,8 +2057,8 @@ func updateInstanceBackupStrategy(ctx context.Context, client *golangsdk.Service
 
 	retryFunc := func() (interface{}, bool, error) {
 		err := backups.Update(client, d.Id(), updateOpts).ExtractErr()
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2096,8 +2096,8 @@ func enableInstanceProxy(ctx context.Context, client *golangsdk.ServiceClient, d
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.EnableProxy(client, d.Id(), proxyOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2118,8 +2118,8 @@ func enableInstanceProxy(ctx context.Context, client *golangsdk.ServiceClient, d
 func deleteInstanceProxy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.DeleteProxy(client, d.Id()).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2146,8 +2146,8 @@ func updateInstanceProxyNodeNum(ctx context.Context, client *golangsdk.ServiceCl
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			res, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
-			retry, err := handleMultiOperationsError(err)
-			return res, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return res, shouldRetry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2184,8 +2184,8 @@ func switchAuditLog(ctx context.Context, client *golangsdk.ServiceClient, d *sch
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := auditlog.Update(client, d.Id(), opts)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2213,8 +2213,8 @@ func switchSQLFilter(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := sqlfilter.Update(client, d.Id(), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2239,8 +2239,8 @@ func updateConfiguration(ctx context.Context, d *schema.ResourceData, client *go
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := configurations.Apply(client, d.Get("configuration_id").(string), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2288,8 +2288,8 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, d *s
 	parameterOpts *parameters.UpdateParametersOpts) (bool, error) {
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := parameters.Update(client, d.Id(), *parameterOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2318,8 +2318,8 @@ func updatePrivateWriteIp(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdatePrivateIp(client, d.Id(), updatePrivateWriteIpOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2345,8 +2345,8 @@ func updatePort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdatePort(client, d.Id(), updatePortOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2372,8 +2372,8 @@ func updateSecurityGroup(ctx context.Context, client *golangsdk.ServiceClient, d
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdateSecurityGroup(client, d.Id(), updateSecurityGroupOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2399,8 +2399,8 @@ func applyPrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, d
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.ApplyPrivateDnsName(client, d.Id(), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2426,8 +2426,8 @@ func updatePrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdatePrivateDnsName(client, d.Id(), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2469,8 +2469,8 @@ func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Servic
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdateSecondLevelMonitoring(client, d.Id(), opts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2500,8 +2500,8 @@ func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := instances.UpdateSslOption(client, d.Id(), updateSslOptionOpts).ExtractJobResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2570,8 +2570,8 @@ func updateAutoScaling(ctx context.Context, client *golangsdk.ServiceClient, d *
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := autoscaling.Update(client, d.Id(), updateAutoScalingOpts).ExtractUpdateResponse()
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2628,8 +2628,8 @@ func updateMultiTenantSwitch(ctx context.Context, client *golangsdk.ServiceClien
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("PUT", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2690,7 +2690,7 @@ func getMultiTenantSwitch(client *golangsdk.ServiceClient, instanceId string) (s
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending", "Running"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobID),
@@ -2704,7 +2704,7 @@ func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceCl
 	return nil
 }
 
-func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v3/{project_id}/jobs?id={job_id}"

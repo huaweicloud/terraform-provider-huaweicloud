@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -162,7 +162,7 @@ func buildCreateNamespaceParams(d *schema.ResourceData) map[string]interface{} {
 }
 
 func waitForCreateNamespaceStatus(ctx context.Context, client *golangsdk.ServiceClient, ns string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"Pending"},
 		Target:  []string{"Active"},
 		Refresh: func() (interface{}, string, error) {
@@ -248,7 +248,7 @@ func resourceNamespaceDelete(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func waitForDeleteNamespaceStatus(ctx context.Context, client *golangsdk.ServiceClient, ns string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"Active", "Terminating"},
 		Target:  []string{"DELETED"},
 		Refresh: func() (interface{}, string, error) {

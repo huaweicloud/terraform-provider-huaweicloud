@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -196,7 +196,7 @@ func resourceOpenGaussSqlThrottlingTaskCreate(ctx context.Context, d *schema.Res
 	}
 	d.SetId(taskId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"WAIT_EXCUTE", "EXCUTING"},
 		Refresh:      sqlThrottlingTaskStateRefreshFunc(client, d),
@@ -274,7 +274,7 @@ func resourceOpenGaussSqlThrottlingTaskUpdate(ctx context.Context, d *schema.Res
 		return diag.Errorf("error updating GaussDB OpenGauss SQL throttling task: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"UPDATING"},
 		Target:       []string{"WAIT_EXCUTE", "EXCUTING"},
 		Refresh:      sqlThrottlingTaskStateRefreshFunc(client, d),
@@ -410,7 +410,7 @@ func buildPageQueryParam(limit, offset int) string {
 	return fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
 }
 
-func sqlThrottlingTaskStateRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func sqlThrottlingTaskStateRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		res, err := getSqlThrottlingTask(client, d)
 		if err != nil {
@@ -451,7 +451,7 @@ func resourceOpenGaussSqlThrottlingTaskDelete(ctx context.Context, d *schema.Res
 			"error deleting GaussDB OpenGauss SQL throttling task")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING"},
 		Target:       []string{"DELETED"},
 		Refresh:      sqlThrottlingTaskStateRefreshFunc(client, d),

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/partitions"
@@ -102,7 +102,7 @@ func resourcePartitionCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// wait for the cce cluster to become available
 	clusterid := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(cceClient, clusterid, []string{"Available"}),

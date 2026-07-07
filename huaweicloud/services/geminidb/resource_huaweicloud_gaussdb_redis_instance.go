@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -348,7 +348,7 @@ func resourceGaussRedisFlavor(d *schema.ResourceData) []instances.FlavorOpt {
 	return flavorList
 }
 
-func GaussRedisInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func GaussRedisInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := instances.GetInstanceByID(client, instanceID)
 
@@ -457,7 +457,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 
 	d.SetId(instance.Id)
 	// waiting for the instance to become ready
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"creating", "BACKUP"},
 		Target:       []string{"normal"},
 		Refresh:      GaussRedisInstanceStateRefreshFunc(client, instance.Id),
@@ -619,7 +619,7 @@ func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
 		Target:       []string{"deleted"},
 		Refresh:      GeminiDBInstanceStateRefreshFunc(client, instanceId),
@@ -737,7 +737,7 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 
 func waitForInstanceReady(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, pending []string) error {
 	// 2. wait instance status
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      pending,
 		Target:       []string{"available"},
 		Refresh:      GaussRedisInstanceUpdateRefreshFunc(client, d.Id(), pending),
@@ -763,14 +763,14 @@ func gaussRedisInstanceUpdateSsl(ctx context.Context, d *schema.ResourceData, cl
 		Ssl: ssl,
 	}
 
-	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err := retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		err := instances.UpdateSsl(client, d.Id(), updateSslOpts).ExtractErr()
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -792,14 +792,14 @@ func gaussRedisInstanceUpdateVolumeSize(ctx context.Context, d *schema.ResourceD
 
 	var res *instances.ExtendResponse
 	var err error
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		res, err = instances.ExtendVolume(client, d.Id(), extendOpts).Extract()
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -847,14 +847,14 @@ func gaussRedisInstanceUpdateSecurityGroup(ctx context.Context, d *schema.Resour
 	}
 
 	var err error
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		res := instances.UpdateSg(client, d.Id(), updateSgOpts)
 		isRetry, err := handleOperationError(res.Err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -895,14 +895,14 @@ func gaussRedisInstanceEnlargeNodeNum(ctx context.Context, d *schema.ResourceDat
 
 	var res *instances.ExtendResponse
 	var err error
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		res, err = instances.EnlargeNode(client, d.Id(), enlargeNodeOpts).Extract()
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -952,14 +952,14 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 	for i := 0; i < shrinkSize; i++ {
 		var res *instances.ExtendResponse
 		var err error
-		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 			res, err = instances.ReduceNode(client, d.Id(), reduceNodeOpts).Extract()
 			isRetry, err := handleOperationError(err)
 			if isRetry {
-				return resource.RetryableError(err)
+				return retry.RetryableError(err)
 			}
 			if err != nil {
-				return resource.NonRetryableError(err)
+				return retry.NonRetryableError(err)
 			}
 			return nil
 		})
@@ -1000,7 +1000,7 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 }
 
 func GaussRedisInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instanceID string,
-	states []string) resource.StateRefreshFunc {
+	states []string) retry.StateRefreshFunc {
 	statesMap := make(map[string]bool)
 	for _, state := range states {
 		statesMap[state] = true
@@ -1043,14 +1043,14 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 	}
 
 	var res *instances.ExtendResponse
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		res, err = instances.Resize(client, d.Id(), resizeOpts).Extract()
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -1066,7 +1066,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 	}
 
 	// 2. wait for instance status.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RESIZE_FLAVOR"},
 		Target:       []string{"available"},
 		Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),

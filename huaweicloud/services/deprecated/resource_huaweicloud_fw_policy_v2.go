@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -203,7 +204,7 @@ func resourceFWPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error creating fw client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFirewallPolicyDeletion(fwClient, d.Id()),
@@ -212,14 +213,14 @@ func resourceFWPolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 2 * time.Second,
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
+	if _, err = stateConf.WaitForStateContext(context.Background()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func waitForFirewallPolicyDeletion(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForFirewallPolicyDeletion(fwClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		err := policies.Delete(fwClient, id).Err
 		if err == nil {

@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -234,7 +234,7 @@ func resourceBatchTaskCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	d.SetId(taskId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      batchTaskStateRefreshFunc(client, taskId),
@@ -344,7 +344,7 @@ func deleteBatchTaskFile(client *golangsdk.ServiceClient, fileId string) error {
 	return nil
 }
 
-func batchTaskStateRefreshFunc(client *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
+func batchTaskStateRefreshFunc(client *golangsdk.ServiceClient, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// There is no need to handle pagination related parameters, as it only applies to the structure of subtasks.
 		resp, err := GetBatchTaskById(client, taskId)

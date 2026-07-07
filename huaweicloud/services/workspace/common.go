@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,7 +16,7 @@ import (
 
 func waitForJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshJobStatusFunc(client, jobId),
@@ -47,7 +47,7 @@ func waitForJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, j
 	return status, nil
 }
 
-func refreshJobStatusFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func refreshJobStatusFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/workspace-jobs/{job_id}"

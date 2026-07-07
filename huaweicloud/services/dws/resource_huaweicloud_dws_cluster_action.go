@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -104,7 +104,7 @@ func doClusterAction(client *golangsdk.ServiceClient, clusterId, action string) 
 	return err
 }
 
-func refreshClusterActionStateFunc(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func refreshClusterActionStateFunc(client *golangsdk.ServiceClient, clusterId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetClusterInfoByClusterId(client, clusterId)
 		if err != nil {
@@ -125,7 +125,7 @@ func refreshClusterActionStateFunc(client *golangsdk.ServiceClient, clusterId st
 }
 
 func waitForClusterActionCompleted(ctx context.Context, client *golangsdk.ServiceClient, clusterId string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshClusterActionStateFunc(client, clusterId),

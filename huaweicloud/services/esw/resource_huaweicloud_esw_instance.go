@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -457,7 +457,7 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func waitForInstanceActive(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Active"},
 		Refresh:      instanceStatusRefreshFunc(client, d.Id()),
@@ -472,7 +472,7 @@ func waitForInstanceActive(ctx context.Context, client *golangsdk.ServiceClient,
 }
 
 func waitForInstanceDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Deleted"},
 		Refresh:      instanceStatusRefreshFunc(client, d.Id()),
@@ -486,7 +486,7 @@ func waitForInstanceDeleted(ctx context.Context, client *golangsdk.ServiceClient
 	return nil
 }
 
-func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string) resource.StateRefreshFunc {
+func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := getInstanceById(client, instanceId)
 		if err != nil {

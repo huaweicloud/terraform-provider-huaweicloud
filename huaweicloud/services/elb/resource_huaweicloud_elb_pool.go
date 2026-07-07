@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -617,7 +617,7 @@ func resourcePoolV3Delete(ctx context.Context, d *schema.ResourceData, meta inte
 
 func waitForPool(ctx context.Context, client *golangsdk.ServiceClient, id string, target string, pending []string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{target},
 		Pending:    pending,
 		Refresh:    resourcePoolRefreshFunc(client, id),
@@ -641,7 +641,7 @@ func waitForPool(ctx context.Context, client *golangsdk.ServiceClient, id string
 	return nil
 }
 
-func resourcePoolRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourcePoolRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		pool, err := getPool(client, id)
 		if err != nil {

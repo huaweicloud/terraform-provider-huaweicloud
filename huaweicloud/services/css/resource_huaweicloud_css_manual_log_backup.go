@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -219,7 +219,7 @@ func createLogBackup(client *golangsdk.ServiceClient, clusterID string) error {
 
 func checkLogBackupCompleted(ctx context.Context, client *golangsdk.ServiceClient, clusterId, id string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      logBackupStateRefreshFunc(client, clusterId, id),
@@ -234,7 +234,7 @@ func checkLogBackupCompleted(ctx context.Context, client *golangsdk.ServiceClien
 	return nil
 }
 
-func logBackupStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id string) resource.StateRefreshFunc {
+func logBackupStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		expression := fmt.Sprintf("clusterLogRecord[?jobId=='%s'] | [0]", id)
 		resp, err := getLogBackupJob(client, clusterID, expression)

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -300,7 +300,7 @@ func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSecGroupRuleDelete(client, d.Id()),
@@ -318,7 +318,7 @@ func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func waitForSecGroupRuleDelete(client *golangsdk.ServiceClient, ruleId string) resource.StateRefreshFunc {
+func waitForSecGroupRuleDelete(client *golangsdk.ServiceClient, ruleId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete Security Group Rule %s.", ruleId)
 

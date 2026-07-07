@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -183,7 +183,7 @@ func getKeypairAssociateTask(client *golangsdk.ServiceClient, taskId string) (in
 	return utils.FlattenResponse(getResp)
 }
 
-func keypairAssociateTaskStatusRefreshFunc(taskId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func keypairAssociateTaskStatusRefreshFunc(taskId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getTaskBody, err := getKeypairAssociateTask(client, taskId)
 		if err != nil {
@@ -205,7 +205,7 @@ func keypairAssociateTaskStatusRefreshFunc(taskId string, client *golangsdk.Serv
 
 func waitForKeypairAssociateStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      keypairAssociateTaskStatusRefreshFunc(taskId, client),

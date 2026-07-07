@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -515,7 +515,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 
 	// wait for the cce cluster to become available
 	clusterid := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(nodeClient, clusterid, []string{"Available"}),
@@ -608,7 +608,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	d.SetId(nodeID)
 
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Build" and "Installing".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -833,7 +833,7 @@ func resourceNodeDelete(ctx context.Context, d *schema.ResourceData, meta interf
 			return diag.FromErr(err)
 		}
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase include "Deleting".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -960,7 +960,7 @@ func getResourceIDsToUnsubscribe(cfg *config.Config, d *schema.ResourceData, ser
 
 func getResourceIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, jobID, jobType, subJobType string,
 	timeout time.Duration) (string, error) {
-	stateJob := &resource.StateChangeConf{
+	stateJob := &retry.StateChangeConf{
 		Pending:      []string{"Initializing", "Running"},
 		Target:       []string{"Success"},
 		Refresh:      waitForJobStatus(client, jobID),
@@ -1012,7 +1012,7 @@ func getResourceIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, 
 }
 
 func nodeStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodeId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Expect the status of CCE node to be any one of the status list: %v", targets)
 		resp, err := nodes.Get(cceClient, clusterId, nodeId).Extract()
@@ -1036,7 +1036,7 @@ func nodeStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodeId 
 	}
 }
 
-func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) resource.StateRefreshFunc {
+func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		job, err := nodes.GetJobDetails(cceClient, jobID).ExtractJob()
 		if err != nil {
@@ -1065,7 +1065,7 @@ func resourceNodeImport(_ context.Context, d *schema.ResourceData, _ interface{}
 
 func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, id string,
 	pending, target []string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      pending,
 		Target:       target,
 		Refresh:      ServerV1StateRefreshFunc(client, id),
@@ -1081,8 +1081,8 @@ func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-// ServerV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch an instance.
-func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+// ServerV1StateRefreshFunc returns a retry.StateRefreshFunc that is used to watch an instance.
+func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := cloudservers.Get(client, instanceID).Extract()
 		if err != nil {

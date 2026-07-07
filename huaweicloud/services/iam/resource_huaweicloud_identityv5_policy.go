@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -221,16 +221,16 @@ func GetV5PolicyById(ctx context.Context, client *golangsdk.ServiceClient, polic
 		requestErr  error
 	)
 
-	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+	err := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		requestResp, requestErr = client.Request("GET", getPath, &getOpt)
 		retryable, err := handlePolicyQueryError(requestErr)
 		if retryable && (len(isRetry) > 0 && isRetry[0]) {
 			// lintignore:R018
 			time.Sleep(15 * time.Second)
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})

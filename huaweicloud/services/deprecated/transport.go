@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -8,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -134,8 +135,8 @@ func convertSeconds2Str(v int64) string {
 	return t.Format("2006-01-02 15:04:05")
 }
 
-func waitToFinish(target, pending []string, timeout, interval time.Duration, f resource.StateRefreshFunc) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+func waitToFinish(target, pending []string, timeout, interval time.Duration, f retry.StateRefreshFunc) (interface{}, error) {
+	stateConf := &retry.StateChangeConf{
 		Target:     target,
 		Pending:    pending,
 		Refresh:    f,
@@ -144,7 +145,7 @@ func waitToFinish(target, pending []string, timeout, interval time.Duration, f r
 		MinTimeout: interval,
 	}
 
-	return stateConf.WaitForState()
+	return stateConf.WaitForStateContext(context.Background())
 }
 
 func checkCsClusterV1DeleteFinished(data interface{}) bool {

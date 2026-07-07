@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -107,7 +107,7 @@ func approveEndpointConnection(ctx context.Context, client *golangsdk.ServiceCli
 		return fmt.Errorf("failed to %s endpoint connection (%s) under dedicated instance (%s): %s", action, endpointId, instanceId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: waitForConnectionApproved(client, instanceId, endpointId),
@@ -212,7 +212,7 @@ func GetEndpointConntionByEndpointId(client *golangsdk.ServiceClient, instanceId
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func waitForConnectionApproved(client *golangsdk.ServiceClient, instanceId, endpointId string) resource.StateRefreshFunc {
+func waitForConnectionApproved(client *golangsdk.ServiceClient, instanceId, endpointId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		connection, err := GetEndpointConntionByEndpointId(client, instanceId, endpointId)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -385,7 +385,7 @@ func resourceServerCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] waiting for IEC server (%s) to become running", serverID)
 
 	// Pending state "DELETED" means the instance has not be ready
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DELETED", "BUILD"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    serverStateRefreshFunc(iecClient, serverID),
@@ -508,7 +508,7 @@ func resourceServerDelete(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// Wait for the servers to delete before moving on.
 	log.Printf("[DEBUG] waiting for servers (%s) to delete", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
 		Target:     []string{"DELETED", "SOFT_DELETED"},
 		Refresh:    serverStateRefreshFunc(iecClient, d.Id()),
@@ -526,9 +526,9 @@ func resourceServerDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-// serverStateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
+// serverStateRefreshFunc returns a retry.StateRefreshFunc that is used to watch
 // an HuaweiCloud IEC servers.
-func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := servers.GetServer(client, id).ExtractServerDetail()
 		if err != nil {

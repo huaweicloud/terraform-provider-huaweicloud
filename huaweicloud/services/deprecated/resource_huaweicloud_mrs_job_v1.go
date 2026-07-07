@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -104,7 +105,7 @@ func ResourceMRSJobV1() *schema.Resource {
 	}
 }
 
-func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobID string) resource.StateRefreshFunc {
+func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		jobGet, err := job.Get(client, jobID).Extract()
 		if err != nil {
@@ -161,7 +162,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(jobCreate.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"Starting", "Running"},
 		Target:     []string{"Completed"},
 		Refresh:    JobStateRefreshFunc(client, jobCreate.ID),
@@ -170,7 +171,7 @@ func resourceMRSJobV1Create(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for job (%s) to become ready: %s ", jobCreate.ID, err)
 	}
@@ -234,7 +235,7 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = retry.Retry(timeout, func() *retry.RetryError {
 		err := job.Delete(client, rId).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
@@ -251,18 +252,18 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func checkForRetryableError(err error) *resource.RetryError {
+func checkForRetryableError(err error) *retry.RetryError {
 	switch errCode := err.(type) {
 	case golangsdk.ErrDefault500:
-		return resource.RetryableError(err)
+		return retry.RetryableError(err)
 	case golangsdk.ErrUnexpectedResponseCode:
 		switch errCode.Actual {
 		case 409, 503:
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		default:
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 	default:
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	}
 }

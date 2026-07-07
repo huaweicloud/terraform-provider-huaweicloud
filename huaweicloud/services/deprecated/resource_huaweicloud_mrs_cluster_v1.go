@@ -1,12 +1,13 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -407,7 +408,7 @@ func getAllClusterJobs(d *schema.ResourceData) []cluster.JobOpts {
 	return jobOpts
 }
 
-func ClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterID string) resource.StateRefreshFunc {
+func ClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		clusterGet, err := cluster.Get(client, clusterID).Extract()
 		if err != nil {
@@ -486,7 +487,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(clusterCreate.ClusterID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"starting"},
 		Target:     []string{"running"},
 		Refresh:    ClusterStateRefreshFunc(client, clusterCreate.ClusterID),
@@ -495,7 +496,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for cluster (%s) to become ready: %s ", clusterCreate.ClusterID, err)
 	}
@@ -675,7 +676,7 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Waiting for cluster (%s) to be terminated", rId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"running", "terminating"},
 		Target:     []string{"terminated"},
 		Refresh:    ClusterStateRefreshFunc(client, rId),
@@ -684,7 +685,7 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for cluster (%s) to be terminated: %s", d.Id(), err)
 	}

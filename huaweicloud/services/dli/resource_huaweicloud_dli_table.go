@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -168,7 +168,7 @@ func ResourceDliTable() *schema.Resource {
 	}
 }
 
-func datatableCreateRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) resource.StateRefreshFunc {
+func datatableCreateRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		detail, queryErr := tables.Get(client, dbName, tableName)
 		if queryErr != nil {
@@ -219,7 +219,7 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 		// Return synchronization job result times out.
 		// At this time, the job has entered the creation phase.
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      datatableCreateRefreshFunc(client, databaseName, tableName),
@@ -332,7 +332,7 @@ func setStoragePropertiesToState(d *schema.ResourceData, storageProperties []map
 	return mErr.ErrorOrNil()
 }
 
-func datatableDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) resource.StateRefreshFunc {
+func datatableDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		detail, queryErr := tables.Get(client, dbName, tableName)
 		if queryErr != nil {
@@ -362,7 +362,7 @@ func resourceDliTableDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 		// Return synchronization job result times out.
 		// At this time, the job has entered the delete phase.
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      datatableDeleteRefreshFunc(client, databaseName, tableName),

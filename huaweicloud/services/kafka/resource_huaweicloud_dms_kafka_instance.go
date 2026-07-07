@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -792,8 +792,8 @@ func UpdateCrossVpcAccess(ctx context.Context, client *golangsdk.ServiceClient, 
 		updateRst, err := instances.UpdateCrossVpc(client, d.Id(), instances.CrossVpcUpdateOpts{
 			Contents: contentMap,
 		})
-		retry, err := handleMultiOperationsError(err)
-		return updateRst, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return updateRst, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -839,7 +839,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	// After the kafka instance is created, wait for the access port to complete the binding.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"BOUND"},
 		Refresh:      kafkaInstanceCrossVpcInfoRefreshFunc(client, d.Id()),
@@ -1233,7 +1233,7 @@ func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, conf *con
 
 func getInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	instanceID string) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EMPTY"},
 		Target:       []string{"CREATING"},
 		Refresh:      kafkaInstanceCreatingFunc(client, instanceID),
@@ -1248,7 +1248,7 @@ func getInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *gol
 	return orderId.(string), nil
 }
 
-func kafkaInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func kafkaInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		res := instances.Get(client, instanceID)
 		if res.Err != nil {
@@ -1614,8 +1614,8 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.Update(client, instanceId, updateOpts).Err
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1669,8 +1669,8 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.UpdateAutoTopic(client, instanceId, autoTopicOpts).Err
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1715,8 +1715,8 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.ResetPassword(client, d.Id(), resetPasswordOpts).Err
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1819,7 +1819,7 @@ func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta inter
 			return err
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"BOUND"},
 			Refresh:      kafkaInstanceBrokerNumberRefreshFunc(client, d.Id(), brokerNum),
@@ -1870,8 +1870,8 @@ func resizeKafkaInstanceStorage(ctx context.Context, d *schema.ResourceData, cli
 func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := instances.ExtendInstance(client, d.Id(), opts)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1886,7 +1886,7 @@ func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *
 		return fmt.Errorf("resize Kafka instance failed: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING", "EXTENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      kafkaResizeStateRefresh(client, d, opts.OperType),
@@ -1900,7 +1900,7 @@ func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *
 	return nil
 }
 
-func kafkaResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, operType *string) resource.StateRefreshFunc {
+func kafkaResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, operType *string) retry.StateRefreshFunc {
 	flavorID := d.Get("flavor_id").(string)
 	if flavorID == "" {
 		flavorID = d.Get("product_id").(string)
@@ -1963,8 +1963,8 @@ func switchInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceCl
 
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := client.Request("POST", updatePath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2040,8 +2040,8 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	if d.Get("charging_mode") == "prePaid" {
 		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2058,8 +2058,8 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	} else {
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.Delete(client, d.Id()).ExtractErr()
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2078,7 +2078,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	// Wait for the instance to delete before moving on.
 	log.Printf("[DEBUG] Waiting for Kafka instance (%s) to be deleted", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
 		Refresh:      KafkaInstanceStateRefreshFunc(client, d.Id()),
@@ -2097,7 +2097,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func kafkaInstanceBrokerNumberRefreshFunc(client *golangsdk.ServiceClient, instanceID string, brokerNum int) resource.StateRefreshFunc {
+func kafkaInstanceBrokerNumberRefreshFunc(client *golangsdk.ServiceClient, instanceID string, brokerNum int) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -2118,7 +2118,7 @@ func kafkaInstanceBrokerNumberRefreshFunc(client *golangsdk.ServiceClient, insta
 	}
 }
 
-func kafkaInstanceCrossVpcInfoRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func kafkaInstanceCrossVpcInfoRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -2131,7 +2131,7 @@ func kafkaInstanceCrossVpcInfoRefreshFunc(client *golangsdk.ServiceClient, insta
 	}
 }
 
-func KafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func KafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -2152,7 +2152,7 @@ func waitForInstanceStatusComplete(ctx context.Context, client *golangsdk.Servic
 		delayTime = delay[0]
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      instanceStatusRefreshFunc(client, instanceId, []string{"RUNNING"}),
@@ -2164,7 +2164,7 @@ func waitForInstanceStatusComplete(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
-func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
+func instanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := instances.Get(client, instanceId).Extract()
 		if err != nil {
@@ -2279,7 +2279,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 	return false, err
 }
 
-func FilterTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, taskName string) resource.StateRefreshFunc {
+func FilterTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, taskName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// getAutoTopicTask: query automatic topic task
 		getTasksHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
@@ -2342,8 +2342,8 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, time
 	// modify configs
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := instances.ModifyConfiguration(client, instanceID, *configOpts).Extract()
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2380,8 +2380,8 @@ func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *go
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := instances.RebootInstance(client, restartInstanceOpts).Extract()
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,

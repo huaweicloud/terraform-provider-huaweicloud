@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1141,7 +1141,7 @@ func resourceV2HPADelete(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func waitForV2CreateOrUpdateStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      refreshCreateOrUpdateStatus(client, ns, name),
@@ -1156,7 +1156,7 @@ func waitForV2CreateOrUpdateStatus(ctx context.Context, client *golangsdk.Servic
 	return nil
 }
 
-func refreshCreateOrUpdateStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshCreateOrUpdateStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2HPA(client, ns, name)
 		if err != nil {
@@ -1185,7 +1185,7 @@ func resourceV2HPAImportState(_ context.Context, d *schema.ResourceData, _ inter
 }
 
 func waitForDeleteV2HPAStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Deleted"},
 		Refresh:      refreshDeleteV2HPAStatus(client, ns, name),
@@ -1200,7 +1200,7 @@ func waitForDeleteV2HPAStatus(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-func refreshDeleteV2HPAStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshDeleteV2HPAStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2HPA(client, ns, name)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {

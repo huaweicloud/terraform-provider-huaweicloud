@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -143,7 +143,7 @@ func querySyncTask(client *golangsdk.ServiceClient, operationLogID string) (inte
 
 func waitingForSyncTaskSuccess(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, operationLogID string) error {
 	unexpectedStatus := []string{"failed", "timeout"}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

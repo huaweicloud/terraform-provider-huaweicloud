@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -608,7 +608,7 @@ func updateFlinkSqlJobInRunning(client *golangsdk.ServiceClient, jobId int, d *s
 
 func checkFlinkJobRunResult(ctx context.Context, client *golangsdk.ServiceClient, id int,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"job_init", "job_submitting"},
 		Target:  []string{"job_running", "job_finish"},
 		Refresh: func() (interface{}, string, error) {
@@ -635,7 +635,7 @@ func checkFlinkJobRunResult(ctx context.Context, client *golangsdk.ServiceClient
 
 func checkFlinkJobStopResult(ctx context.Context, client *golangsdk.ServiceClient, id int,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"job_submitting", "job_running", "job_canceling", "job_savepointing",
 			"job_arrearage_recovering"},
 		Target: []string{"job_init", "job_cancel_success"},

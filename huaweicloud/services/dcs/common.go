@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -106,8 +106,8 @@ func updateDcsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 	if params.isRetry {
 		retryFunc := func() (interface{}, bool, error) {
 			r, err := client.Request(params.httpMethod, updatePath, &updateOpt)
-			retry, err := handleOperationError(err)
-			return r, retry, err
+			shouldRetry, err := handleOperationError(err)
+			return r, shouldRetry, err
 		}
 		res, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -184,7 +184,7 @@ func checkJobAndOrder(params updateInstanceFieldParams, jobId, orderId string) e
 }
 
 func checkDcsInstanceJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      dcsInstanceJobRefreshFunc(client, jobId),
@@ -198,7 +198,7 @@ func checkDcsInstanceJobFinish(ctx context.Context, client *golangsdk.ServiceCli
 	return nil
 }
 
-func dcsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func dcsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v2/{project_id}/jobs/{job_id}"
 		getPath := client.Endpoint + httpUrl
@@ -227,7 +227,7 @@ func dcsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) re
 }
 
 func waitForDcsInstanceRunning(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:                   []string{"PENDING"},
 		Target:                    []string{"RUNNING"},
 		Refresh:                   refreshDcsInstanceState(c, id),
@@ -243,7 +243,7 @@ func waitForDcsInstanceRunning(ctx context.Context, c *golangsdk.ServiceClient, 
 	return nil
 }
 
-func refreshDcsInstanceState(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func refreshDcsInstanceState(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := getDcsInstanceByID(client, id)
 		if err != nil {

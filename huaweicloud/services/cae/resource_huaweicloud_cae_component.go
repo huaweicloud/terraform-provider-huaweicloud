@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -622,7 +622,7 @@ func doActionComponent(ctx context.Context, client *golangsdk.ServiceClient, d *
 	}
 
 	jobId := utils.PathSearch("job_id", respBody, "").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      deployJobRefreshFunc(client, environmentId, jobId, []string{"success"}),
@@ -744,7 +744,7 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDeleteComponentFunc(client, cfg.GetEnterpriseProjectID(d), environmentId, applicationId, componentId),
@@ -760,7 +760,7 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, epsId, environmentId, applicationId, componentId string) resource.StateRefreshFunc {
+func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, epsId, environmentId, applicationId, componentId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetComponentById(client, epsId, environmentId, applicationId, componentId)
 		if err != nil {

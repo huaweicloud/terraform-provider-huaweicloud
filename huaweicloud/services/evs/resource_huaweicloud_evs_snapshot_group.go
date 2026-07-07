@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -185,8 +185,8 @@ func resourceEvsSnapshotGroupCreate(ctx context.Context, d *schema.ResourceData,
 
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := client.Request("POST", requestPath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -246,7 +246,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 
 func waitingForSnapshotGroupJobSuccess(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -419,7 +419,7 @@ func resourceEvsSnapshotGroupDelete(ctx context.Context, d *schema.ResourceData,
 
 func waitingForSnapshotGroupDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

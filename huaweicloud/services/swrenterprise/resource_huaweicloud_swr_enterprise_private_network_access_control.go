@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -174,7 +174,7 @@ func resourceSwrEnterprisePrivateNetworkAccessControlCreate(ctx context.Context,
 
 	d.SetId(id)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      getPrivateNetworkAccessControlStatusRefreshFunc(client, d, false),
@@ -207,7 +207,7 @@ func buildCreateSwrEnterprisePrivateNetworkAccessControlBodyParams(d *schema.Res
 }
 
 func getPrivateNetworkAccessControlStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData,
-	isDelete bool) resource.StateRefreshFunc {
+	isDelete bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rst, err := getSwrEnterprisePrivateNetworkAccessControl(client, d)
 		if err != nil {
@@ -311,7 +311,7 @@ func resourceSwrEnterprisePrivateNetworkAccessControlDelete(ctx context.Context,
 		return common.CheckDeletedDiag(d, err, "error deleting SWR enterprise instance private network access control")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      getPrivateNetworkAccessControlStatusRefreshFunc(client, d, true),

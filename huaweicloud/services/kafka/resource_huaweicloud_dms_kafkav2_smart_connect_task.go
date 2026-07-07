@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -389,7 +389,7 @@ func resourceDmsKafkav2SmartConnectTaskCreate(ctx context.Context, d *schema.Res
 	}
 	d.SetId(taskID.(string))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING", "WAITING"},
 		Refresh:      kafkav2SmartConnectTaskStateRefreshFunc(client, instanceID, d.Id()),
@@ -633,7 +633,7 @@ func resourceDmsKafkav2SmartConnectTaskImportState(_ context.Context, d *schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func kafkav2SmartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
+func kafkav2SmartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/connector/tasks/{task_id}"
 		getTaskPath := client.Endpoint + getTaskHttpUrl

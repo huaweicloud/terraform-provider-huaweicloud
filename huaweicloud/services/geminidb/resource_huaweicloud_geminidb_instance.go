@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -2348,8 +2348,8 @@ func resourceGeminiDbInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
 		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
-			retry, err := handleDeletionError(err)
-			return nil, retry, err
+			shouldRetry, err := handleDeletionError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2385,8 +2385,8 @@ func deleteRdsInstance(ctx context.Context, d *schema.ResourceData, client *gola
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleDeletionError(err)
-		return res, retry, err
+		shouldRetry, err := handleDeletionError(err)
+		return res, shouldRetry, err
 	}
 	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -2417,7 +2417,7 @@ func deleteRdsInstance(ctx context.Context, d *schema.ResourceData, client *gola
 
 func checkGeminiDbInstanceJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      geminiDbInstanceJobRefreshFunc(client, jobID),
@@ -2431,7 +2431,7 @@ func checkGeminiDbInstanceJobFinish(ctx context.Context, client *golangsdk.Servi
 	return nil
 }
 
-func geminiDbInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func geminiDbInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v3/{project_id}/jobs?id={job_id}"
@@ -2472,7 +2472,7 @@ func geminiDbInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobId strin
 	}
 }
 
-func geminiDbInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func geminiDbInstanceStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := getGeminiDbInstance(client, instanceID)
 		if err != nil {

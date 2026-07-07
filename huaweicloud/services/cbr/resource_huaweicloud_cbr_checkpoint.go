@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -167,7 +167,7 @@ func resourceCheckpointCreate(ctx context.Context, d *schema.ResourceData, meta 
 	checkpointId := resp.ID
 	d.SetId(checkpointId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      checkpointStateRefreshFunc(client, checkpointId, []string{"available"}),
@@ -180,7 +180,7 @@ func resourceCheckpointCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error waiting for the checkpoint (%s) to become available: %s", checkpointId, err)
 	}
 
-	stateConf = &resource.StateChangeConf{
+	stateConf = &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      backupsStateRefreshFunc(client, checkpointId, []string{"available"}),
@@ -287,7 +287,7 @@ func resourceCheckpointDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      backupsStateRefreshFunc(client, checkpointId, nil),
@@ -302,7 +302,7 @@ func resourceCheckpointDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func checkpointStateRefreshFunc(client *golangsdk.ServiceClient, checkpointId string, targets []string) resource.StateRefreshFunc {
+func checkpointStateRefreshFunc(client *golangsdk.ServiceClient, checkpointId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := checkpoints.Get(client, checkpointId)
 		if err != nil {
@@ -326,7 +326,7 @@ func checkpointStateRefreshFunc(client *golangsdk.ServiceClient, checkpointId st
 	}
 }
 
-func backupsStateRefreshFunc(client *golangsdk.ServiceClient, checkpointId string, targets []string) resource.StateRefreshFunc {
+func backupsStateRefreshFunc(client *golangsdk.ServiceClient, checkpointId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := checkpoints.Get(client, checkpointId)
 		if err != nil {

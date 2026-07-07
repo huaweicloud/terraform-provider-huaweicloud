@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -187,7 +187,7 @@ func resourceDmsKafkaPartitionReassignCreate(ctx context.Context, d *schema.Reso
 
 // Delay and PollInterval are shorter here than in waitForInstanceTaskStatusComplete (common.go), so the common helper is not applicable.
 func waitForInstanceTaskStateComplete(ctx context.Context, client *golangsdk.ServiceClient, instanceId, taskId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      instanceTaskStatusRefreshFunc(client, instanceId, taskId, []string{"SUCCESS"}),

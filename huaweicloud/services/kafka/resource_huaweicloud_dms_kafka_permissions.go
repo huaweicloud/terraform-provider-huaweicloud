@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -248,7 +248,7 @@ func flattenPolicies(policies []interface{}) []map[string]interface{} {
 
 func waitForKafkaTopicAccessPolicyComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	instanceID string, timeout string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"CREATED"},
 		Refresh:      kafkaInstancePolicyRefreshFunc(client, instanceID),
@@ -264,7 +264,7 @@ func waitForKafkaTopicAccessPolicyComplete(ctx context.Context, client *golangsd
 	return nil
 }
 
-func kafkaInstancePolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func kafkaInstancePolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := instances.Get(client, instanceID).Extract()
 		if err != nil {

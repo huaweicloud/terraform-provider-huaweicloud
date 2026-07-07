@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -73,7 +73,7 @@ func ResourceSignatureAssociate() *schema.Resource {
 }
 
 func signatureBindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/sign-bindings/unbinded-apis"
@@ -130,7 +130,7 @@ func bindSignatureToApis(ctx context.Context, client *golangsdk.ServiceClient, o
 		return fmt.Errorf("error binding signature to the APIs: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: signatureBindingRefreshFunc(client, instanceId, signId, publishIds),
@@ -222,7 +222,7 @@ func resourceSignatureAssociateRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func signatureUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := buildSignBindApiListOpts(instanceId, signId)
 		resp, err := signs.ListBind(client, opts)
@@ -275,7 +275,7 @@ func unbindSignatureFromApis(ctx context.Context, client *golangsdk.ServiceClien
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: signatureUnbindingRefreshFunc(client, instanceId, signId, rmList),

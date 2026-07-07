@@ -2,11 +2,12 @@ package deprecated
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -238,7 +239,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Waiting for the neutron port (%s) to become available.", p.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForNetworkPortActive(networkingClient, p.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -246,7 +247,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	d.SetId(p.ID)
 
@@ -432,7 +433,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForNetworkPortDelete(networkingClient, d.Id()),
@@ -441,7 +442,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting the neutron port: %s", err)
 	}
@@ -509,7 +510,7 @@ func allowedAddressPairsHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {
+func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		p, err := ports.Get(networkingClient, portId).Extract()
 		if err != nil {
@@ -525,7 +526,7 @@ func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId 
 	}
 }
 
-func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {
+func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete the neutron port %s", portId)
 

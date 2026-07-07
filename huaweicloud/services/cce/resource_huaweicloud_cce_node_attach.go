@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
@@ -464,7 +464,7 @@ func resourceNodeAttachCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// Wait for the cce cluster to become available
 	clusterID := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(cceClient, clusterID, []string{"Available"}),
@@ -493,7 +493,7 @@ func resourceNodeAttachCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(nodeID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Build" and "Installing".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -644,7 +644,7 @@ func resourceNodeAttachUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(nodeID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Build" and "Installing".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -689,7 +689,7 @@ func resourceNodeAttachDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error removing CCE node: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Deleting".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},

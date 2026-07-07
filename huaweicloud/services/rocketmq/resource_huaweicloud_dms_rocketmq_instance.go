@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -368,7 +368,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		delayTime = 5
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id),
@@ -440,7 +440,7 @@ func waitForRocketMQOrderComplete(ctx context.Context, d *schema.ResourceData, c
 
 func getRocketMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	instanceID string) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EMPTY"},
 		Target:       []string{"CREATING"},
 		Refresh:      rocketMQInstanceCreatingFunc(client, instanceID),
@@ -455,7 +455,7 @@ func getRocketMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, cli
 	return orderId.(string), nil
 }
 
-func rocketMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rocketMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
@@ -560,8 +560,8 @@ func updateRocketmqConfigs(ctx context.Context, client *golangsdk.ServiceClient,
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("PUT", updateConfigsPath, &updateConfigsOpt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -607,8 +607,8 @@ func updateRocketmqInstanceTLSMode(ctx context.Context, client *golangsdk.Servic
 
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -668,8 +668,8 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqInstanceBodyParams(d))
 		retryFunc := func() (interface{}, bool, error) {
 			_, err := updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -805,8 +805,8 @@ func rocketmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClien
 	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", id)
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("PUT", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -822,7 +822,7 @@ func rocketmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClien
 		return fmt.Errorf("error updating DMS RocketMQ instance with action(%s): %s", action, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      kafka.FilterTaskRefreshFunc(client, id, action),
@@ -1053,7 +1053,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"},
 		Target:       []string{"DELETED"},
 		Refresh:      rocketmqInstanceStateRefreshFunc(deleteRocketmqInstanceClient, d.Id()),
@@ -1072,7 +1072,7 @@ func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func rocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRocketmqInstancePath := client.Endpoint + "v2/{project_id}/instances/{instance_id}"
 		getRocketmqInstancePath = strings.ReplaceAll(getRocketmqInstancePath, "{project_id}", client.ProjectID)
@@ -1147,8 +1147,8 @@ func doRocketmqInstanceResize(ctx context.Context, client *golangsdk.ServiceClie
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("POST", resizeRocketmqInstancePath, &resizeRocketmqInstanceOpt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1163,7 +1163,7 @@ func doRocketmqInstanceResize(ctx context.Context, client *golangsdk.ServiceClie
 		return fmt.Errorf("error resizing RocketMQ instance: bodyParams: %#v, err: %s", bodyParams, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXTENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rocketmqInstanceStateRefreshFunc(client, instanceID),

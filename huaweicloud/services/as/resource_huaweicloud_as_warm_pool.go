@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -190,7 +190,7 @@ func resourceAsWarmPoolDelete(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error deleting AS warm pool")
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      waitForWarmPoolDelete(client, d.Id()),
@@ -206,7 +206,7 @@ func resourceAsWarmPoolDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForWarmPoolDelete(client *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
+func waitForWarmPoolDelete(client *golangsdk.ServiceClient, serverId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getWarmPool(client, serverId)
 		if err != nil {

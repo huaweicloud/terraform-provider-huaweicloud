@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -134,7 +134,7 @@ func getActionJobDetail(client *golangsdk.ServiceClient, environmentId, jobId st
 	return respBody, nil
 }
 
-func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId string, targets []string) resource.StateRefreshFunc {
+func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getActionJobDetail(client, environmentId, jobId)
 		if err != nil {

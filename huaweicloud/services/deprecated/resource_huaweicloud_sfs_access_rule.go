@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -93,7 +93,7 @@ func resourceSFSAccessRuleV2Create(ctx context.Context, d *schema.ResourceData, 
 
 	d.SetId(grant.ID)
 	// wait access rule to become active
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"new", "queued_to_apply", "applying"},
 		Target:     []string{"active"},
 		Refresh:    waitForSFSAccessStatus(sfsClient, shareID, d.Id()),
@@ -155,7 +155,7 @@ func resourceSFSAccessRuleV2Delete(ctx context.Context, d *schema.ResourceData, 
 		return common.CheckDeletedDiag(d, deny.Err, "Error deleting access rule")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"active", "queued_to_deny", "denying"},
 		Target:     []string{"deleted"},
 		Refresh:    waitForSFSAccessStatus(sfsClient, shareID, d.Id()),
@@ -173,7 +173,7 @@ func resourceSFSAccessRuleV2Delete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func waitForSFSAccessStatus(sfsClient *golangsdk.ServiceClient, shareID, ruleID string) resource.StateRefreshFunc {
+func waitForSFSAccessStatus(sfsClient *golangsdk.ServiceClient, shareID, ruleID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rules, err := shares.ListAccessRights(sfsClient, shareID).ExtractAccessRights()
 		if err != nil {

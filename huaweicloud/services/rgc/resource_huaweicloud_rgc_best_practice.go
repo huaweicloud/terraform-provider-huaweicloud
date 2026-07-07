@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -77,7 +77,7 @@ func resourceBestPracticeCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating best practice: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
 		Refresh:      bestPracticeStateRefreshFunc(createBestPracticeClient),
@@ -156,7 +156,7 @@ func resourceBestPracticeDelete(_ context.Context, _ *schema.ResourceData, _ int
 	}
 }
 
-func bestPracticeStateRefreshFunc(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func bestPracticeStateRefreshFunc(client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getBestPracticeStatusHttpUrl := "v1/best-practice/status"
 		getBestPracticeStatusPath := client.Endpoint + getBestPracticeStatusHttpUrl

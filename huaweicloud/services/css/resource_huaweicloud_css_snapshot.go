@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -102,7 +102,7 @@ func resourceCssSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(snap.ID)
 
 	log.Printf("[DEBUG] waiting for snapshot (%s) to complete", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"BUILDING"},
 		Target:     []string{"COMPLETED"},
 		Refresh:    cssSnapshotStateRefreshFunc(cssClient, clusterID, d.Id()),
@@ -181,9 +181,9 @@ func resourceCssSnapshotDelete(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-// cssSnapshotStateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
+// cssSnapshotStateRefreshFunc returns a retry.StateRefreshFunc that is used to watch
 // an CSS cluster snapshot.
-func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id string) resource.StateRefreshFunc {
+func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		snapList, err := snapshots.List(client, clusterID).Extract()
 		if err != nil {

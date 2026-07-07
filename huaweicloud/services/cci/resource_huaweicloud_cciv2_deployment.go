@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1191,7 +1191,7 @@ func resourceV2DeploymentDelete(ctx context.Context, d *schema.ResourceData, met
 }
 
 func waitForV2DeploymentStatusToCompleted(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      refreshCreateV2DeploymentStatus(client, ns, name),
@@ -1206,7 +1206,7 @@ func waitForV2DeploymentStatusToCompleted(ctx context.Context, client *golangsdk
 	return nil
 }
 
-func refreshCreateV2DeploymentStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshCreateV2DeploymentStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2Deployment(client, ns, name)
 		if err != nil {
@@ -1222,7 +1222,7 @@ func refreshCreateV2DeploymentStatus(client *golangsdk.ServiceClient, ns, name s
 }
 
 func waitForDeleteV2DeploymentStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Deleted"},
 		Refresh:      refreshDeleteV2DeploymentStatus(client, ns, name),
@@ -1237,7 +1237,7 @@ func waitForDeleteV2DeploymentStatus(ctx context.Context, client *golangsdk.Serv
 	return nil
 }
 
-func refreshDeleteV2DeploymentStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshDeleteV2DeploymentStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2Deployment(client, ns, name)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {

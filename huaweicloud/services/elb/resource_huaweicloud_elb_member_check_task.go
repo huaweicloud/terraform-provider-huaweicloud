@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -232,7 +232,7 @@ func buildCreateMemberCheckTaskBodyParams(d *schema.ResourceData) map[string]int
 }
 
 func waitForMemberCheckTaskComplete(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"processed"},
 		Pending:      []string{"processing"},
 		Refresh:      resourceMemberCheckTaskRefreshFunc(client, id),
@@ -245,7 +245,7 @@ func waitForMemberCheckTaskComplete(ctx context.Context, client *golangsdk.Servi
 	return nil
 }
 
-func resourceMemberCheckTaskRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceMemberCheckTaskRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getMemberCheckTask(client, id)
 		if err != nil {

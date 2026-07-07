@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -2529,7 +2529,7 @@ func resourceV2PodDelete(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func waitForCreateV2PodStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      refreshCreateV2PodStatus(client, ns, name),
@@ -2544,7 +2544,7 @@ func waitForCreateV2PodStatus(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-func refreshCreateV2PodStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshCreateV2PodStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2Pod(client, ns, name)
 		if err != nil {
@@ -2560,7 +2560,7 @@ func refreshCreateV2PodStatus(client *golangsdk.ServiceClient, ns, name string) 
 }
 
 func waitForDeleteV2PodStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Deleted"},
 		Refresh:      refreshDeleteV2PodStatus(client, ns, name),
@@ -2575,7 +2575,7 @@ func waitForDeleteV2PodStatus(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-func refreshDeleteV2PodStatus(client *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
+func refreshDeleteV2PodStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2Pod(client, ns, name)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {

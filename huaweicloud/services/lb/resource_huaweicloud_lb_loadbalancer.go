@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -441,7 +441,7 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 
 		log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
 		// lintignore:R006
-		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 			_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
 			if err != nil {
 				return common.CheckForRetryableError(err)
@@ -552,7 +552,7 @@ func resourceLoadBalancerV2Delete(ctx context.Context, d *schema.ResourceData, m
 		}
 	} else {
 		// lintignore:R006
-		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 			err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr()
 			if err != nil {
 				return common.CheckForRetryableError(err)

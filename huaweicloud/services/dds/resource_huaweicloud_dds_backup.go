@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -152,8 +152,8 @@ func resourceDdsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 	instanceId := d.Get("instance_id").(string)
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -185,7 +185,7 @@ func resourceDdsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating DDS backup: job_id is not found in API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      ddsJobStatusRefreshFunc(jobId, region, cfg),
@@ -214,7 +214,7 @@ func buildCreateBackupBodyParams(d *schema.ResourceData) map[string]interface{} 
 	return params
 }
 
-func ddsJobStatusRefreshFunc(jobId, region string, cfg *config.Config) resource.StateRefreshFunc {
+func ddsJobStatusRefreshFunc(jobId, region string, cfg *config.Config) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v3/{project_id}/jobs"
@@ -376,8 +376,8 @@ func resourceDdsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 	instanceId := d.Get("instance_id").(string)
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -404,7 +404,7 @@ func resourceDdsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting DDS backup: job_id is not found in API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed", "Deleted"},
 		Refresh:      ddsJobStatusRefreshFunc(jobId, region, cfg),

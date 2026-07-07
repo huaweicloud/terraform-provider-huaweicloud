@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -201,7 +201,7 @@ func resourceDwsDisasterRecoveryTaskCreate(ctx context.Context, d *schema.Resour
 	return resourceDwsDisasterRecoveryTaskRead(ctx, d, meta)
 }
 
-func DisasterRecoveryTaskStatusRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) resource.StateRefreshFunc {
+func DisasterRecoveryTaskStatusRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getDisasterRecoveryTask(client, d.Id())
 		if err != nil {
@@ -229,7 +229,7 @@ func DisasterRecoveryTaskStatusRefresh(client *golangsdk.ServiceClient, d *schem
 
 func waitingForActionDisasterRecvery(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	target string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      DisasterRecoveryTaskStatusRefresh(client, d, []string{target}),
@@ -497,7 +497,7 @@ func resourceDwsDisasterRecoveryTaskDelete(ctx context.Context, d *schema.Resour
 }
 
 func waitingForDisasterDeleteStatus(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      DisasterRecoveryTaskStatusRefresh(client, d, []string{}),
@@ -510,7 +510,7 @@ func waitingForDisasterDeleteStatus(ctx context.Context, d *schema.ResourceData,
 }
 
 func waitingForDisasterDeleteStopStatus(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      DisasterRecoveryTaskStopStatusRefresh(client, d, []string{"stopped", "stop_failed"}),
@@ -522,7 +522,7 @@ func waitingForDisasterDeleteStopStatus(ctx context.Context, d *schema.ResourceD
 	return err
 }
 
-func DisasterRecoveryTaskStopStatusRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) resource.StateRefreshFunc {
+func DisasterRecoveryTaskStopStatusRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getDisasterRecoveryTask(client, d.Id())
 		if err != nil {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -139,7 +139,7 @@ func getFactoryJobImportSystemTask(client *golangsdk.ServiceClient, workspaceId,
 	return utils.FlattenResponse(resp)
 }
 
-func factoryJobImportTaskStateRefreshFunc(client *golangsdk.ServiceClient, workspaceId, taskId string) resource.StateRefreshFunc {
+func factoryJobImportTaskStateRefreshFunc(client *golangsdk.ServiceClient, workspaceId, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		taskResp, err := getFactoryJobImportSystemTask(client, workspaceId, taskId)
 		if err != nil {
@@ -179,7 +179,7 @@ func resourceFactoryJobImportCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	workspaceId := d.Get("workspace_id").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      factoryJobImportTaskStateRefreshFunc(client, workspaceId, taskId),

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -974,7 +974,7 @@ func resourceMigrateTaskDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func waitForTaskStateRunning(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, id string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"READY"},
 		Target:       []string{"RUNNING"},
 		Refresh:      taskStateRefreshFunc(client, id),
@@ -986,7 +986,7 @@ func waitForTaskStateRunning(ctx context.Context, client *golangsdk.ServiceClien
 	return err
 }
 
-func taskStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func taskStateRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		migTask, err := tasks.Get(client, id)
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -346,7 +346,7 @@ func resourceDevServerCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func waitForDevServerCreated(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, devServerId string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshDevServerStatusFunc(client, devServerId, []string{"RUNNING"}),
@@ -359,7 +359,7 @@ func waitForDevServerCreated(ctx context.Context, client *golangsdk.ServiceClien
 	return err
 }
 
-func refreshDevServerStatusFunc(client *golangsdk.ServiceClient, serverId string, targets []string) resource.StateRefreshFunc {
+func refreshDevServerStatusFunc(client *golangsdk.ServiceClient, serverId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetDevServerById(client, serverId)
 		if err != nil {
@@ -403,7 +403,7 @@ func waitForPrePaidDevServerComplete(ctx context.Context, client, bssClient *gol
 
 	// When DevServer creation fails, the `common.WaitOrderResourceComplete` method cannot obtain the resource ID.
 	// so the Devserver list query interface is called here.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -665,7 +665,7 @@ func deleteDevServerById(client *golangsdk.ServiceClient, devServerId string) er
 }
 
 func waitForDevServerDeleted(ctx context.Context, client *golangsdk.ServiceClient, devServerId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshDevServerStatusFunc(client, devServerId, nil),

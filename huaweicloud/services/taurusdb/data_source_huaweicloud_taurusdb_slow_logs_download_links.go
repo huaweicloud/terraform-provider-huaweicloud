@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -113,7 +113,7 @@ func dataSourceTaurusDBSlowLogsDownloadLinksRead(ctx context.Context, d *schema.
 
 func waitingForSlowLogsExportJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
 	instanceId, nodeId string) ([]interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXPORTING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      waitSlowLogsLinksStatusRefreshFunc(client, instanceId, nodeId),
@@ -129,7 +129,7 @@ func waitingForSlowLogsExportJobCompleted(ctx context.Context, client *golangsdk
 	return links.([]interface{}), nil
 }
 
-func waitSlowLogsLinksStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, nodeId string) resource.StateRefreshFunc {
+func waitSlowLogsLinksStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, nodeId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		links, err := getTaurusDBSlowLogsDownloadLinks(client, instanceId, nodeId)
 		if err != nil {

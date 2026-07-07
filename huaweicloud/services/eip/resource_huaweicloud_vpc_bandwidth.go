@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -199,7 +199,7 @@ func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(b.ID)
 
 	log.Printf("[DEBUG] Waiting for bandwidth (%s) to become available.", b.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"NORMAL"},
 		Pending:    []string{"CREATING"},
 		Refresh:    waitForBandwidth(bwClient, b.ID),
@@ -383,7 +383,7 @@ func resourceVpcBandWidthV2Delete(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"NORMAL"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForBandwidth(bwClient, bwID),
@@ -401,7 +401,7 @@ func resourceVpcBandWidthV2Delete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func waitForBandwidth(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForBandwidth(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		b, err := bandwidthsv1.Get(client, id).Extract()
 		if err != nil {

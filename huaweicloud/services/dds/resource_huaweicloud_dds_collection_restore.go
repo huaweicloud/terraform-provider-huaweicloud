@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -112,8 +112,8 @@ func resourceDDSCollectionRestoreCreate(ctx context.Context, d *schema.ResourceD
 	// retry
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := client.Request("POST", restorePath, &restoreOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	restoreResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -141,7 +141,7 @@ func resourceDDSCollectionRestoreCreate(ctx context.Context, d *schema.ResourceD
 	d.SetId(jobID)
 
 	// wait for job complete
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, jobID),

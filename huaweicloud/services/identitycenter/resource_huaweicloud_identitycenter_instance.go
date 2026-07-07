@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -78,7 +78,7 @@ func resourceIdentityCenterInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating IdentityCenter instance: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"disable"},
 		Target:  []string{"enable"},
 		Refresh: identityCenterServiceStatusRefreshFunc(getIdentityCenterServiceStatusHttpUrl,
@@ -139,7 +139,7 @@ func buildCreateAliasBodyParams(d *schema.ResourceData) map[string]interface{} {
 }
 
 func identityCenterServiceStatusRefreshFunc(getRequestStatusHttpUrl, searchExpression string,
-	client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getPath := client.Endpoint + getRequestStatusHttpUrl
 

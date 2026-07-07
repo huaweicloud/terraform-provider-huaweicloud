@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -435,7 +435,7 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 		delayTime = 5
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rabbitmqInstanceStateRefreshFunc(client, instanceID),
@@ -481,7 +481,7 @@ func waitForRabbitMQOrderComplete(ctx context.Context, d *schema.ResourceData, c
 
 func getRabbitMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	instanceID string) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EMPTY"},
 		Target:       []string{"CREATING"},
 		Refresh:      rabbitMQInstanceCreatingFunc(client, instanceID),
@@ -496,7 +496,7 @@ func getRabbitMQInstanceOrderId(ctx context.Context, d *schema.ResourceData, cli
 	return orderId.(string), nil
 }
 
-func rabbitMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rabbitMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -586,7 +586,7 @@ func createRabbitMQInstanceWithProductID(ctx context.Context, d *schema.Resource
 	d.SetId(v.InstanceID)
 
 	log.Printf("[INFO] Creating RabbitMQ instance, ID: %s", v.InstanceID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rabbitmqInstanceStateRefreshFunc(client, v.InstanceID),
@@ -738,8 +738,8 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.Update(client, d.Id(), updateOpts).Err
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -805,8 +805,8 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.ResetPassword(client, d.Id(), resetPasswordOpts).Err
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -909,8 +909,8 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 	instnaceId := d.Id()
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := instances.Resize(client, instnaceId, opts)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -925,7 +925,7 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 		return fmt.Errorf("resize RabbitMQ instance failed: resizeInstanceOpts: %#v, err: %s", opts, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      rabbitMQResizeStateRefresh(client, instnaceId),
@@ -939,7 +939,7 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 	return nil
 }
 
-func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, instnaceId string) resource.StateRefreshFunc {
+func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, instnaceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instnaceId).Extract()
 		if err != nil {
@@ -964,8 +964,8 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	if d.Get("charging_mode") == "prePaid" {
 		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -982,8 +982,8 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	} else {
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.Delete(client, d.Id()).ExtractErr()
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1002,7 +1002,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	// Wait for the instance to delete before moving on.
 	log.Printf("[DEBUG] Waiting for DMS RabbitMQ instance (%s) to be deleted", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
 		Refresh:      rabbitmqInstanceStateRefreshFunc(client, d.Id()),
@@ -1021,7 +1021,7 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func rabbitmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rabbitmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -1039,8 +1039,8 @@ func rabbitmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClien
 	updateOpts instances.UpdateOpts, id, action string) error {
 	retryFunc := func() (interface{}, bool, error) {
 		err := instances.Update(client, id, updateOpts).Err
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1055,7 +1055,7 @@ func rabbitmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClien
 		return fmt.Errorf("error updating DMS RabbitMQ Instance with action(%s): %s", action, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      kafka.FilterTaskRefreshFunc(client, id, action),

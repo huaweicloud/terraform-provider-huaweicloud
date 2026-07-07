@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -191,7 +191,7 @@ func resourceEventRouterClusterCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	d.SetId(clusterId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      eventRouterClusterStateRefreshFunc(client, clusterId, []string{"RUNNING", "RUNNING_PARTIALLY"}),
@@ -207,7 +207,7 @@ func resourceEventRouterClusterCreate(ctx context.Context, d *schema.ResourceDat
 	return resourceEventRouterClusterRead(ctx, d, meta)
 }
 
-func eventRouterClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterId string, targets []string) resource.StateRefreshFunc {
+func eventRouterClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetEventRouterClusterById(client, clusterId)
 		if err != nil {
@@ -394,7 +394,7 @@ func resourceEventRouterClusterDelete(ctx context.Context, d *schema.ResourceDat
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting event router cluster (%s)", clusterId))
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      eventRouterClusterStateRefreshFunc(client, clusterId, nil),

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -118,7 +118,7 @@ func GetClusterDefaultTagsSwitchStatus(client *golangsdk.ServiceClient, clusterI
 
 func waitForClusterDefaultTagsStatus(ctx context.Context, client *golangsdk.ServiceClient, clusterId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshClusterDefaultTagsStatusFunc(client, clusterId),
@@ -131,7 +131,7 @@ func waitForClusterDefaultTagsStatus(ctx context.Context, client *golangsdk.Serv
 	return err
 }
 
-func refreshClusterDefaultTagsStatusFunc(client *golangsdk.ServiceClient, clusterID string) resource.StateRefreshFunc {
+func refreshClusterDefaultTagsStatusFunc(client *golangsdk.ServiceClient, clusterID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetClusterDefaultTagsSwitchStatus(client, clusterID)
 		if err != nil {

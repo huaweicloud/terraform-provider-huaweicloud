@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -197,7 +198,7 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error creating VBS: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
 		Target:     []string{"deleted"},
 		Refresh:    waitForBackupDelete(vbsClient, d.Id()),
@@ -206,7 +207,7 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting VBS backup: %s", err)
 	}
@@ -215,7 +216,7 @@ func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func waitForBackupDelete(client *golangsdk.ServiceClient, backupID string) resource.StateRefreshFunc {
+func waitForBackupDelete(client *golangsdk.ServiceClient, backupID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := backups.Get(client, backupID).Extract()
 		if err != nil {

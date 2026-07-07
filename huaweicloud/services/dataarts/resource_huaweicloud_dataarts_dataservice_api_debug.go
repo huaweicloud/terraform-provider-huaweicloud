@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -166,7 +166,7 @@ func parseApiDebugHeaders(headers interface{}) interface{} {
 	return string(jsonFilter)
 }
 
-func apiDebugRetryFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func apiDebugRetryFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := debugApi(client, d)
 		if err != nil {
@@ -190,7 +190,7 @@ func resourceDataServiceApiDebugCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:        []string{"DEBUG_FAILED"},
 		Target:         []string{"SUCCESS"},
 		Refresh:        apiDebugRetryFunc(client, d),

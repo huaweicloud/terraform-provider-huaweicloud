@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -107,7 +107,7 @@ func resourceRecycleInstanceRestoreCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("unable to find the job ID for restoring instance (%s) from API response", instanceId)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      recycleInstanceRestoreTaskStatusRefreshFunc(client, instanceId, jobId),
@@ -131,7 +131,7 @@ func resourceRecycleInstanceRestoreCreate(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func recycleInstanceRestoreTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) resource.StateRefreshFunc {
+func recycleInstanceRestoreTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getInstanceTaskById(client, instanceId, taskId)
 		if err != nil {

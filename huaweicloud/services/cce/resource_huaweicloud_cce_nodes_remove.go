@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -107,7 +107,7 @@ func resourceNodesRemoveCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	// Wait for the cce cluster to become available
 	clusterID := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(client, clusterID, []string{"Available"}),
@@ -149,7 +149,7 @@ func resourceNodesRemoveCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error removing nodes: status.jobID is not found in API response")
 	}
 
-	stateJob := &resource.StateChangeConf{
+	stateJob := &retry.StateChangeConf{
 		Pending:      []string{"Initializing", "Running"},
 		Target:       []string{"Success"},
 		Refresh:      waitForJobStatus(client, jobID.(string)),

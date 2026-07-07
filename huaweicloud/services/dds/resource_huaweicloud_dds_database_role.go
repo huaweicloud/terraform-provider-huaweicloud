@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -135,7 +135,7 @@ func buildDatabaseRoles(roleList []interface{}) []roles.Role {
 	return result
 }
 
-func instanceActionsRefreshFunc(client *golangsdk.ServiceClient, instanceId string) resource.StateRefreshFunc {
+func instanceActionsRefreshFunc(client *golangsdk.ServiceClient, instanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := instances.ListInstanceOpts{
 			Id: instanceId,
@@ -175,8 +175,8 @@ func resourceDatabaseRoleCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		err = roles.Create(client, instanceId, opt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -277,7 +277,7 @@ func resourceDatabaseRoleRead(_ context.Context, d *schema.ResourceData, meta in
 }
 
 func databaseRoleRefreshFunc(client *golangsdk.ServiceClient, instanceId, dbName,
-	roleName string) resource.StateRefreshFunc {
+	roleName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := roles.ListOpts{
 			DbName: dbName,
@@ -311,8 +311,8 @@ func resourceDatabaseRoleDelete(ctx context.Context, d *schema.ResourceData, met
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		err = roles.Delete(client, instanceId, opts)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -328,7 +328,7 @@ func resourceDatabaseRoleDelete(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error deleting database role (%s) from DDS instance (%s): %v", name, instanceId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"ACTIVE"},
 		Target:       []string{"DELETED"},
 		Refresh:      databaseRoleRefreshFunc(client, instanceId, dbName, name),

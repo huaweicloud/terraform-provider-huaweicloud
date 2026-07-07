@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -421,7 +421,7 @@ func buildUpdateIPv6SwitchBodyParams(d *schema.ResourceData, domainName string) 
 }
 
 func waitingForDomainStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration, domainName, status string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitDomainStatusRefreshFunc(client, domainName, status),
@@ -434,7 +434,7 @@ func waitingForDomainStateCompleted(ctx context.Context, client *golangsdk.Servi
 	return err
 }
 
-func waitDomainStatusRefreshFunc(client *golangsdk.ServiceClient, domainName, status string) resource.StateRefreshFunc {
+func waitDomainStatusRefreshFunc(client *golangsdk.ServiceClient, domainName, status string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetDomain(client, domainName)
 		if err != nil {

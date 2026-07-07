@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -78,8 +78,8 @@ func dataSourceRdsErrorLogLinkRead(ctx context.Context, d *schema.ResourceData, 
 	instanceID := d.Get("instance_id").(string)
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := waitForErrorLogLinkCompleted(ctx, client, instanceID, d.Timeout(schema.TimeoutRead))
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -113,7 +113,7 @@ func dataSourceRdsErrorLogLinkRead(ctx context.Context, d *schema.ResourceData, 
 
 func waitForErrorLogLinkCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceID string,
 	timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXPORTING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      rdsErrorLogLinkRefreshFunc(client, instanceID),
@@ -128,7 +128,7 @@ func waitForErrorLogLinkCompleted(ctx context.Context, client *golangsdk.Service
 	return res, nil
 }
 
-func rdsErrorLogLinkRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rdsErrorLogLinkRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := errorLogLink(client, instanceID)
 		if err != nil {

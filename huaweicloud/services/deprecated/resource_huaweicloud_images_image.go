@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -726,7 +726,7 @@ func resourceImsImageDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return common.CheckDeletedDiag(d, err, "error deleting Image")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForImageDelete(imageClient, d.Id()),
@@ -743,7 +743,7 @@ func resourceImsImageDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func waitForImageDelete(imageClient *golangsdk.ServiceClient, imageID string) resource.StateRefreshFunc {
+func waitForImageDelete(imageClient *golangsdk.ServiceClient, imageID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := images.Get(imageClient, imageID).Extract()
 		if err != nil {

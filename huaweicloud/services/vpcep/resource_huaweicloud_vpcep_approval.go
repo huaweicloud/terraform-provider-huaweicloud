@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -218,7 +218,7 @@ func doConnectionAction(ctx context.Context, d *schema.ResourceData, client *gol
 		}
 
 		log.Printf("[INFO] Waiting for VPC endpoint(%s) to become %s", epID, targetStatus)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"creating", "pendingAcceptance"},
 			Target:       []string{targetStatus},
 			Refresh:      waitForVPCEndpointConnected(client, serviceID, epID),
@@ -238,7 +238,7 @@ func doConnectionAction(ctx context.Context, d *schema.ResourceData, client *gol
 }
 
 func waitForVPCEndpointConnected(vpcepClient *golangsdk.ServiceClient, serviceId,
-	endpointId string) resource.StateRefreshFunc {
+	endpointId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listOpts := services.ListConnOpts{
 			EndpointID: endpointId,

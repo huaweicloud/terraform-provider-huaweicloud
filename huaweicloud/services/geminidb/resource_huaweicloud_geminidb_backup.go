@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -166,8 +166,8 @@ func resourceGeminiDBBackupCreate(ctx context.Context, d *schema.ResourceData, m
 	createOpt.JSONBody = utils.RemoveNil(buildCreateGeminiDBBackupBodyParams(d))
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 
 	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -319,8 +319,8 @@ func resourceGeminiDBBackupDelete(ctx context.Context, d *schema.ResourceData, m
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleDeletionError(err)
-		return res, retry, err
+		shouldRetry, err := handleDeletionError(err)
+		return res, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -387,7 +387,7 @@ func flattenGeminiDBBackupDatastore(backup interface{}) []map[string]interface{}
 }
 
 func waitingForBackupDeleteCompleted(ctx context.Context, d *schema.ResourceData, t time.Duration, client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"BUILDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

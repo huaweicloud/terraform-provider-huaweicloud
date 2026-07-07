@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1353,7 +1353,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
 			Refresh:    cloudVolumeRefreshFunc(evsV2Client, systemDiskID),
@@ -1406,7 +1406,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
-func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
+func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		response, err := cloudvolumes.Get(c, volumeId).Extract()
 		if err != nil {
@@ -1580,7 +1580,7 @@ func updateInstanceNetwork(ctx context.Context, d *schema.ResourceData, client, 
 	}
 
 	// Wait for job status become `SUCCESS`.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      getJobRefreshFunc(client, jobID),
@@ -1703,7 +1703,7 @@ func updateInstanceDehId(ctx context.Context, d *schema.ResourceData, client *go
 	}
 
 	// Wait for job status become `SUCCESS`.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      getJobRefreshFunc(client, jobID),
@@ -1840,8 +1840,8 @@ func resourceComputeInstanceImportState(_ context.Context, d *schema.ResourceDat
 	return []*schema.ResourceData{d}, nil
 }
 
-// ServerV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch an HuaweiCloud instance.
-func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+// ServerV1StateRefreshFunc returns a retry.StateRefreshFunc that is used to watch an HuaweiCloud instance.
+func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := cloudservers.Get(client, instanceID).Extract()
 		if err != nil {
@@ -2113,7 +2113,7 @@ func getVpcID(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, 
 
 func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, instanceID string, pending, target []string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      pending,
 		Target:       target,
 		Refresh:      ServerV1StateRefreshFunc(client, instanceID),
@@ -2373,7 +2373,7 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 }
 
 func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      ecsJobRefreshFunc(client, jobId),
@@ -2387,7 +2387,7 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, jo
 	return nil
 }
 
-func ecsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func ecsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v1/{project_id}/jobs/{job_id}"

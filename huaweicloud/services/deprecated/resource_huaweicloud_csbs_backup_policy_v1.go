@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -177,7 +178,7 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId(backupPolicy.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"suspended"},
 		Refresh:    waitForCSBSBackupPolicyActive(policyClient, backupPolicy.ID),
@@ -186,7 +187,7 @@ func resourceCSBSBackupPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, StateErr := stateConf.WaitForState()
+	_, StateErr := stateConf.WaitForStateContext(context.Background())
 	if StateErr != nil {
 		return fmt.Errorf("error waiting for CSBS backup policy (%s) to become available: %s", backupPolicy.ID, StateErr)
 	}
@@ -272,7 +273,7 @@ func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"available"},
 		Target:     []string{"deleted"},
 		Refresh:    waitForVBSPolicyDelete(policyClient, d.Id()),
@@ -281,7 +282,7 @@ func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) er
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting CSBS backup policy: %s", err)
 	}
@@ -290,7 +291,7 @@ func resourceCSBSBackupPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func waitForCSBSBackupPolicyActive(policyClient *golangsdk.ServiceClient, policyID string) resource.StateRefreshFunc {
+func waitForCSBSBackupPolicyActive(policyClient *golangsdk.ServiceClient, policyID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := policies.Get(policyClient, policyID).Extract()
 		if err != nil {
@@ -304,7 +305,7 @@ func waitForCSBSBackupPolicyActive(policyClient *golangsdk.ServiceClient, policy
 	}
 }
 
-func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID string) resource.StateRefreshFunc {
+func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
 		r, err := policies.Get(policyClient, policyID).Extract()

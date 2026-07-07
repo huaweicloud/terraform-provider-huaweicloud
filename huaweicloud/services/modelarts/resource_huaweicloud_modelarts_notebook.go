@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -337,7 +337,7 @@ func createNotebook(client *golangsdk.ServiceClient, requestBody map[string]inte
 	return utils.FlattenResponse(requestResp)
 }
 
-func refreshNotebookStatus(client *golangsdk.ServiceClient, notebookId string, targetStatus []string) resource.StateRefreshFunc {
+func refreshNotebookStatus(client *golangsdk.ServiceClient, notebookId string, targetStatus []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetNotebookById(client, notebookId)
 		if err != nil {
@@ -374,7 +374,7 @@ func refreshNotebookStatus(client *golangsdk.ServiceClient, notebookId string, t
 
 func waitForNotebookStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, notebookId string, targetStatus []string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshNotebookStatus(client, notebookId, targetStatus),

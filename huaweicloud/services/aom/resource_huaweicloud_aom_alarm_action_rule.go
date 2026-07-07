@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -340,7 +340,7 @@ func resourceAlarmActionRuleDelete(ctx context.Context, d *schema.ResourceData, 
 
 func waitForAlarmActionRuleDeleted(ctx context.Context, client *golangsdk.ServiceClient, ruleName string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshAlarmActionRuleStatus(client, ruleName),
@@ -352,7 +352,7 @@ func waitForAlarmActionRuleDeleted(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
-func refreshAlarmActionRuleStatus(client *golangsdk.ServiceClient, ruleName string) resource.StateRefreshFunc {
+func refreshAlarmActionRuleStatus(client *golangsdk.ServiceClient, ruleName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getAlarmActionRule(client, ruleName)
 		if err != nil {

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -246,7 +246,7 @@ func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	d.SetId(topicName)
 
 	// wait for topic create complete
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      kafkaTopicCreateRefreshFunc(client, instanceId, topicName),
@@ -327,7 +327,7 @@ func GetTopicByName(client *golangsdk.ServiceClient, instanceId, topicName strin
 	return topic, nil
 }
 
-func kafkaTopicCreateRefreshFunc(client *golangsdk.ServiceClient, instanceId, topicName string) resource.StateRefreshFunc {
+func kafkaTopicCreateRefreshFunc(client *golangsdk.ServiceClient, instanceId, topicName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		topic, err := GetTopicByName(client, instanceId, topicName)
 		if err != nil {

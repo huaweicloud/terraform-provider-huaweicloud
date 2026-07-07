@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -572,7 +572,7 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("update dli queues failed, queueName=%s, error:%s", queueName, result.Err)
 		}
 
-		updateStateConf := &resource.StateChangeConf{
+		updateStateConf := &retry.StateChangeConf{
 			Pending: []string{fmt.Sprintf("%d", oldValue)},
 			Target:  []string{fmt.Sprintf("%d", newValue)},
 			Refresh: func() (interface{}, string, error) {

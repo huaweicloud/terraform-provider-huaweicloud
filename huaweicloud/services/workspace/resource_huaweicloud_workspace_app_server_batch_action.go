@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -208,7 +208,7 @@ func resourceAppServerBatchActionCreate(ctx context.Context, d *schema.ResourceD
 
 func waitForAppServerBatchActionCompleted(ctx context.Context, client *golangsdk.ServiceClient, serverIds []string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshAppServerBatchActionStatusFunc(client, serverIds),
@@ -221,7 +221,7 @@ func waitForAppServerBatchActionCompleted(ctx context.Context, client *golangsdk
 	return err
 }
 
-func refreshAppServerBatchActionStatusFunc(client *golangsdk.ServiceClient, serverIds []string) resource.StateRefreshFunc {
+func refreshAppServerBatchActionStatusFunc(client *golangsdk.ServiceClient, serverIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// Some action not return job ID, so we use query all server list API to check the status.
 		servers, err := listAppServers(client)

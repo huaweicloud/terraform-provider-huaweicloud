@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -230,7 +231,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	//wait for active
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{string(images.ImageStatusQueued), string(images.ImageStatusSaving)},
 		Target:     []string{string(images.ImageStatusActive)},
 		Refresh:    resourceImagesImageV2RefreshFunc(imageClient, d.Id(), fileSize, fileChecksum),
@@ -239,7 +240,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		MinTimeout: 3 * time.Second,
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
+	if _, err = stateConf.WaitForStateContext(context.Background()); err != nil {
 		return fmt.Errorf("error waiting for Image: %s", err)
 	}
 
@@ -484,7 +485,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 	}
 }
 
-func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string, fileSize int64, checksum string) resource.StateRefreshFunc {
+func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string, fileSize int64, checksum string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		img, err := images.Get(client, id).Extract()
 		if err != nil {

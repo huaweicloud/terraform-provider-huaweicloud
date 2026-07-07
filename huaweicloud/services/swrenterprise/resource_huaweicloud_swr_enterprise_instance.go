@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -420,7 +420,7 @@ func buildSwrEnterpriseInstanceBodyParams(d *schema.ResourceData, projectId stri
 }
 
 func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, jobId string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      getJobStatusRefreshFunc(client, jobId),
@@ -437,7 +437,7 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, ti
 	return nil
 }
 
-func getJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func getJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getJobStatusHttpUrl := "v2/{project_id}/jobs/{job_id}"
 		getJobStatusPath := client.Endpoint + getJobStatusHttpUrl
@@ -806,7 +806,7 @@ func updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx context.Context, 
 		return fmt.Errorf("error updating SWR instance public network access control status: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"SUCCESS"},
 		Refresh: func() (interface{}, string, error) {

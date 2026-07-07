@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -441,31 +441,31 @@ func attachPolicyByID(ctx context.Context, client *golangsdk.ServiceClient, agen
 		},
 	}
 	count := 0
-	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+	err := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		_, err := client.Request("POST", attachPath, &attachOpt)
 		if err != nil {
 			// send a maximum of three requests, wait for agency to be created complete
 			if count == 3 {
-				return resource.NonRetryableError(err)
+				return retry.NonRetryableError(err)
 			}
 			if errCode, ok := err.(golangsdk.ErrDefault404); ok {
 				var apiError interface{}
 				if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-					return resource.NonRetryableError(jsonErr)
+					return retry.NonRetryableError(jsonErr)
 				}
 
 				errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
 				if errorCodeErr != nil {
-					return resource.NonRetryableError(errorCodeErr)
+					return retry.NonRetryableError(errorCodeErr)
 				}
 				if errorCode.(string) == "PAP5.0012" {
 					count++
 					// lintignore:R018
 					time.Sleep(2 * time.Second)
-					return resource.RetryableError(err)
+					return retry.RetryableError(err)
 				}
 			}
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})

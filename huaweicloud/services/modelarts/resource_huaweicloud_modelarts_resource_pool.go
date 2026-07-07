@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -610,7 +610,7 @@ func modelartsResourcePoolUserLoginSchema() *schema.Resource {
 
 func waitingForResourcePoolOrderStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId, orderName string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshResourcePoolOrderStatus(client, resourcePoolId, orderName, []string{"successed", "partialSuccessed"}),
@@ -669,7 +669,7 @@ func getResourcePoolOrdersByResourcePoolId(client *golangsdk.ServiceClient, reso
 	return result, nil
 }
 
-func refreshResourcePoolOrderStatus(client *golangsdk.ServiceClient, resourcePoolId, orderName string, targets []string) resource.StateRefreshFunc {
+func refreshResourcePoolOrderStatus(client *golangsdk.ServiceClient, resourcePoolId, orderName string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		orders, err := getResourcePoolOrdersByResourcePoolId(client, resourcePoolId)
 		if err != nil {
@@ -737,7 +737,7 @@ func getResourcePoolNodeNamesByOrderName(client *golangsdk.ServiceClient, orderN
 
 func waitForNodesDriverStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{},
 	timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshNodesDriverStatus(client, resourcePoolId, nodeNames),
@@ -747,7 +747,7 @@ func waitForNodesDriverStatusCompleted(ctx context.Context, client *golangsdk.Se
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func refreshNodesDriverStatus(client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{}) resource.StateRefreshFunc {
+func refreshNodesDriverStatus(client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{}) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		nodes, err := listV2ResourcePoolNodes(client, resourcePoolId)
 		if err != nil {
@@ -789,7 +789,7 @@ func getServerIdsByNodeNames(actionNodeNames []interface{}, actionNodes []interf
 
 func waitForResourcePoolScopeStatusesCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshResourcePoolScopeStatuses(client, resourcePoolId),
@@ -801,7 +801,7 @@ func waitForResourcePoolScopeStatusesCompleted(ctx context.Context, client *gola
 	return err
 }
 
-func refreshResourcePoolScopeStatuses(client *golangsdk.ServiceClient, resourcePoolId string) resource.StateRefreshFunc {
+func refreshResourcePoolScopeStatuses(client *golangsdk.ServiceClient, resourcePoolId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		scopes, err := GetResourcePoolById(client, resourcePoolId)
 		if err != nil {
@@ -2275,7 +2275,7 @@ func unsubscribePrePaidBillingNodes(ctx context.Context, client, bssClient *gola
 }
 
 func deleteResourcePoolWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -351,7 +351,7 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func waitForConnectionReady(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Ready"},
 		Refresh:      connectionStatusRefreshFunc(client, d),
@@ -366,7 +366,7 @@ func waitForConnectionReady(ctx context.Context, client *golangsdk.ServiceClient
 }
 
 func waitForConnectionDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Deleted"},
 		Refresh:      connectionStatusRefreshFunc(client, d),
@@ -380,7 +380,7 @@ func waitForConnectionDeleted(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-func connectionStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func connectionStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		connection, err := getConnectionIdById(client, d)
 		if err != nil {

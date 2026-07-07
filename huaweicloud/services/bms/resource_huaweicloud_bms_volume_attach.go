@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -225,7 +225,7 @@ func resourceVolumeAttachDelete(ctx context.Context, d *schema.ResourceData, met
 }
 
 func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      bmsJobRefreshFunc(client, jobId),
@@ -239,7 +239,7 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, jo
 	return nil
 }
 
-func bmsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func bmsJobRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v1/{project_id}/jobs/{job_id}"

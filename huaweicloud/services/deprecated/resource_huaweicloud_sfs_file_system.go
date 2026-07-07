@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -180,7 +180,7 @@ func resourceSFSFileSystemV2Create(ctx context.Context, d *schema.ResourceData, 
 	d.SetId(create.ID)
 
 	log.Printf("[DEBUG] Waiting for SFS file system (%s) to be available", create.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"available"},
 		Refresh:    waitForSFSFileRefresh(sfsClient, create.ID),
@@ -431,7 +431,7 @@ func resourceSFSFileSystemV2Delete(ctx context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.Errorf("error deleting SFS file system: %s", err)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
 		Target:     []string{"deleted"},
 		Refresh:    waitForSFSFileRefresh(sfsClient, d.Id()),
@@ -449,7 +449,7 @@ func resourceSFSFileSystemV2Delete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func waitForSFSFileRefresh(sfsClient *golangsdk.ServiceClient, shareID string) resource.StateRefreshFunc {
+func waitForSFSFileRefresh(sfsClient *golangsdk.ServiceClient, shareID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := shares.Get(sfsClient, shareID).Extract()
 		if err != nil {

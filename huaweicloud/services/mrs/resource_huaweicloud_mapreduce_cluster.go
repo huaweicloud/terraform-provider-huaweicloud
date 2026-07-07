@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -729,7 +729,7 @@ func buildComponentConfigOpts(d *schema.ResourceData) []clusterv2.ComponentConfi
 	return result
 }
 
-func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		clusterGet, err := cluster.Get(client, clusterId).Extract()
 		if err != nil {
@@ -743,7 +743,7 @@ func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string
 }
 
 func waitForMrsClusterStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, id string, refresh stateRefresh) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      refresh.Pending,
 		Target:       refresh.Target,
 		Refresh:      clusterV2StateRefreshFunc(client, id),
@@ -1463,7 +1463,7 @@ func resourceMRSClusterV2Delete(ctx context.Context, d *schema.ResourceData, met
 			return diag.Errorf("error unsubscribing MRS cluster: %s", err)
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"running", "terminating"},
 			Target:       []string{"terminated", "DELETED"},
 			Refresh:      clusterV2StateRefreshFunc(client, d.Id()),

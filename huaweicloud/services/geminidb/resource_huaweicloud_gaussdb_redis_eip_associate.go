@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -109,15 +109,15 @@ func resourceGaussRedisEipAssociateCreate(ctx context.Context, d *schema.Resourc
 	createGaussRedisEipAssociateOpt.JSONBody = utils.RemoveNil(buildGaussRedisEipAssociateBodyParams("BIND", publicIP,
 		publicID))
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		_, err = createGaussRedisEipAssociateClient.Request("POST", createGaussRedisEipAssociatePath,
 			&createGaussRedisEipAssociateOpt)
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -127,7 +127,7 @@ func resourceGaussRedisEipAssociateCreate(ctx context.Context, d *schema.Resourc
 
 	d.SetId(instanceID + "/" + nodeID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"BIND_EIP"},
 		Target:  []string{"available"},
 		Refresh: GaussRedisInstanceUpdateRefreshFunc(createGaussRedisEipAssociateClient, instanceID,
@@ -246,15 +246,15 @@ func resourceGaussRedisEipAssociateDelete(ctx context.Context, d *schema.Resourc
 	deleteGaussRedisEipAssociateOpt.JSONBody = utils.RemoveNil(buildGaussRedisEipAssociateBodyParams("UNBIND",
 		publicIP, nil))
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		_, err = deleteGaussRedisEipAssociateClient.Request("POST", deleteGaussRedisEipAssociatePath,
 			&deleteGaussRedisEipAssociateOpt)
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -262,7 +262,7 @@ func resourceGaussRedisEipAssociateDelete(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error deleting EipAssociate: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"UNBIND_EIP"},
 		Target:  []string{"available"},
 		Refresh: GaussRedisInstanceUpdateRefreshFunc(deleteGaussRedisEipAssociateClient, instanceID,

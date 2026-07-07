@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -98,8 +98,8 @@ func resourceDdsInstanceStorageSpaceUpdateCreate(ctx context.Context, d *schema.
 	createOpt.JSONBody = utils.RemoveNil(createBody)
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	createResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -140,7 +140,7 @@ func resourceDdsInstanceStorageSpaceUpdateCreate(ctx context.Context, d *schema.
 	}
 
 	if jobId != "" {
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
 			Refresh:      JobStateRefreshFunc(client, jobId),

@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -562,7 +562,7 @@ func buildDesktopPoolDataVolumesOrder(d *schema.ResourceData) []interface{} {
 
 func waitForWorkspaceResourcePoolJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId, jobId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"WAITING", "RUNNING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      refreshWorkspaceJobFunc(client, jobId, fmt.Sprintf("&desktop_pool_id=%s", desktopPoolId)),
@@ -581,7 +581,7 @@ func waitForWorkspaceResourcePoolJobCompleted(ctx context.Context, client *golan
 
 func waitForWorkspacePoolStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolName string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshWorkspacePoolJobStatus(client, desktopPoolName),
@@ -636,7 +636,7 @@ func getDesktopPoolbyName(client *golangsdk.ServiceClient, desktopPoolName strin
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func refreshWorkspacePoolJobStatus(client *golangsdk.ServiceClient, desktopPoolName string) resource.StateRefreshFunc {
+func refreshWorkspacePoolJobStatus(client *golangsdk.ServiceClient, desktopPoolName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		desktopPool, err := getDesktopPoolbyName(client, desktopPoolName)
 		if err != nil {
@@ -1112,7 +1112,7 @@ func addDesktopPoolDataVolumes(ctx context.Context, client *golangsdk.ServiceCli
 
 func waitForDesktopsUnderDesktopPoolStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopPoolId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshDesktopsUnderDesktopPoolStatusFunc(client, desktopPoolId),
@@ -1125,7 +1125,7 @@ func waitForDesktopsUnderDesktopPoolStatusCompleted(ctx context.Context, client 
 	return err
 }
 
-func refreshDesktopsUnderDesktopPoolStatusFunc(client *golangsdk.ServiceClient, desktopPoolId string) resource.StateRefreshFunc {
+func refreshDesktopsUnderDesktopPoolStatusFunc(client *golangsdk.ServiceClient, desktopPoolId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		desktops, err := getDesktopsUnderDesktopPoolById(client, desktopPoolId)
 		if err != nil {
@@ -1187,8 +1187,8 @@ func removeDesktopPoolDataVolumes(ctx context.Context, client *golangsdk.Service
 		Ctx: ctx,
 		RetryFunc: func() (interface{}, bool, error) {
 			res, err := client.Request("POST", updatePath, &opt)
-			retry, err := handleOperationDesktopPoolError409(err)
-			return res, retry, err
+			shouldRetry, err := handleOperationDesktopPoolError409(err)
+			return res, shouldRetry, err
 		},
 		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
@@ -1236,8 +1236,8 @@ func updateDesktopPoolProductId(ctx context.Context, client *golangsdk.ServiceCl
 		Ctx: ctx,
 		RetryFunc: func() (interface{}, bool, error) {
 			res, err := client.Request("POST", updatePath, &opt)
-			retry, err := handleOperationDesktopPoolError409(err)
-			return res, retry, err
+			shouldRetry, err := handleOperationDesktopPoolError409(err)
+			return res, shouldRetry, err
 		},
 		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
@@ -1288,7 +1288,7 @@ func handleOperationDesktopPoolError409(err error) (bool, error) {
 
 func waitForDesktopPoolJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshJobStatusFunc(client, jobId),

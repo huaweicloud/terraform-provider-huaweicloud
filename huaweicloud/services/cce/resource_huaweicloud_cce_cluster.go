@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -820,7 +820,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become available", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase include "Creating".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -1261,7 +1261,7 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Deleting", "Available" and "Unavailable".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -1282,7 +1282,7 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func clusterStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Expect the status of CCE cluster to be any one of the status list: %v", targets)
 		resp, err := clusters.Get(cceClient, clusterId).Extract()
@@ -1307,7 +1307,7 @@ func clusterStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId strin
 }
 
 func getClusterIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) (string, error) {
-	stateJob := &resource.StateChangeConf{
+	stateJob := &retry.StateChangeConf{
 		Pending:      []string{"Initializing", "Running"},
 		Target:       []string{"Success"},
 		Refresh:      waitForJobStatus(client, jobID),
@@ -1372,7 +1372,7 @@ func resourceClusterResize(ctx context.Context, cfg *config.Config, d *schema.Re
 	}
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become available", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(cceClient, d.Id(), []string{"Available"}),
@@ -1396,7 +1396,7 @@ func resourceClusterHibernate(ctx context.Context, d *schema.ResourceData, cceCl
 	}
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become hibernate", clusterID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Available" and "Hibernating".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -1421,7 +1421,7 @@ func resourceClusterAwake(ctx context.Context, d *schema.ResourceData, cceClient
 	}
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become available", clusterID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase include "Awaking".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},

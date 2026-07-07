@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -126,7 +126,7 @@ func resourceServerRestartDelete(_ context.Context, _ *schema.ResourceData, _ in
 }
 
 func checkServerStatus(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      serverStateRefreshFunc(client, id),
@@ -141,7 +141,7 @@ func checkServerStatus(ctx context.Context, client *golangsdk.ServiceClient, id 
 	return nil
 }
 
-func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getServerRespBody, err := getServerDetail(client, id)
 		if err != nil {

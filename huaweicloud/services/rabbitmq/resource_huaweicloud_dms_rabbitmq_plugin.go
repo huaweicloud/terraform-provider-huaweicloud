@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -111,8 +111,8 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := createRabbitmqPluginClient.Request("PUT", createRabbitmqPluginPath, &reqOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -141,7 +141,7 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(id)
 
 	// The RabbitMQ enabling plugin is done if the status of its task is SUCCESS.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      rabbitmqInstanceTaskStatusRefreshFunc(createRabbitmqPluginClient, instanceID, jobId.(string)),
@@ -241,8 +241,8 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := deleteRabbitmqPluginClient.Request("PUT", deleteRabbitmqPluginPath, &reqOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -267,7 +267,7 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	// The RabbitMQ disabling plugin is done if the status of its task is SUCCESS.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      rabbitmqInstanceTaskStatusRefreshFunc(deleteRabbitmqPluginClient, instanceID, jobId.(string)),
@@ -283,7 +283,7 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 	return resourceDmsRabbitmqPluginRead(ctx, d, cfg)
 }
 
-func rabbitmqInstanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
+func rabbitmqInstanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRabbitmqTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks/{task_id}"
 		getRabbitmqTaskPath := client.Endpoint + getRabbitmqTaskHttpUrl

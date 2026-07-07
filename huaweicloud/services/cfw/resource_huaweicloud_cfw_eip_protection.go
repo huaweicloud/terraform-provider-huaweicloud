@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -331,7 +331,7 @@ func protectEips(ctx context.Context, client *golangsdk.ServiceClient, objectId 
 	requestParams, protectedEipIds := buildModifyProtectedEipsParams(objectId, protectedEipSet, openEipProtection)
 
 	// Before modifying the EIP protection, synchronize all public IPs to the CFW service.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      syncedEipsRefreshFunc(client, queryHttpUrl, objectId, protectedEipIds, closeEipProtection),
@@ -358,7 +358,7 @@ func protectEips(ctx context.Context, client *golangsdk.ServiceClient, objectId 
 	}
 
 	// After modifying the EIP protection, check the status of all protected public IPs.
-	stateConf = &resource.StateChangeConf{
+	stateConf = &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      syncedEipsRefreshFunc(client, queryHttpUrl, objectId, protectedEipIds, openEipProtection),
@@ -389,7 +389,7 @@ func unprotectEips(ctx context.Context, client *golangsdk.ServiceClient, objectI
 		return fmt.Errorf("error disabling EIP protection: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      syncedEipsRefreshFunc(client, queryHttpUrl, objectId, protectedEipIds, closeEipProtection),
@@ -405,7 +405,7 @@ func unprotectEips(ctx context.Context, client *golangsdk.ServiceClient, objectI
 }
 
 func syncedEipsRefreshFunc(client *golangsdk.ServiceClient, url, objectId string, syncEips []string,
-	targetStatus int) resource.StateRefreshFunc {
+	targetStatus int) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := QuerySyncedEips(client, url, objectId)
 		if err != nil {

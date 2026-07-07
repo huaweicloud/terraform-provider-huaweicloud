@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -182,7 +182,7 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 	}
 	d.SetId(id)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
 		Pending:      []string{"CREATE_IN_PROGRESS"},
 		Refresh:      refreshDeployStatus(d, createOrgAssignmentPackageClient),
@@ -343,7 +343,7 @@ func resourceOrgAssignmentPackageUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error updating RMS organizational assignment package: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"UPDATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
 		Pending:      []string{"UPDATE_IN_PROGRESS"},
 		Refresh:      refreshDeployStatus(d, updateOrgAssignmentPackageClient),
@@ -403,7 +403,7 @@ func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error deleting RMS organizational assignment package: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{""},
 		Pending:      []string{"DELETE_IN_PROGRESS"},
 		Refresh:      refreshDeployStatus(d, deleteOrgAssignmentPackageClient),
@@ -419,7 +419,7 @@ func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func refreshDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func refreshDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (result interface{}, state string, err error) {
 		// getDeployStatus: Query the RMS organizational assignment package
 		var (

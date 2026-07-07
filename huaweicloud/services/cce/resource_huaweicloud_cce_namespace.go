@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -168,7 +168,7 @@ func resourceCCENamespaceV1Delete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error deleting the specifies CCE namespace (%s): %s", d.Id(), err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Active", "Terminating"},
 		Target:       []string{"DELETED"},
 		Refresh:      waitForNamepaceDelete(client, clusterID, name),
@@ -187,7 +187,7 @@ func resourceCCENamespaceV1Delete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name string) resource.StateRefreshFunc {
+func waitForNamepaceDelete(client *golangsdk.ServiceClient, clusterID, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		namespace, err := namespaces.Get(client, clusterID, name).Extract()
 		if err != nil {

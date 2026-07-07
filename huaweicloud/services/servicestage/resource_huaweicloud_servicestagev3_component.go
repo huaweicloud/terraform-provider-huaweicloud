@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1048,7 +1048,7 @@ func queryV3Job(client *golangsdk.ServiceClient, jobId string) (interface{}, err
 	return utils.FlattenResponse(requestResp)
 }
 
-func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := queryV3Job(client, jobId)
 		if err != nil {
@@ -1067,7 +1067,7 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resourc
 }
 
 func waitV3JobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
@@ -1518,7 +1518,7 @@ func buildV3ComponentUpdteBodyParams(d *schema.ResourceData) map[string]interfac
 	}
 }
 
-func componentStatusRefreshFunc(client *golangsdk.ServiceClient, appId, commponetId string, targets []string) resource.StateRefreshFunc {
+func componentStatusRefreshFunc(client *golangsdk.ServiceClient, appId, commponetId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := QueryV3Component(client, appId, commponetId)
 		if err != nil {
@@ -1547,7 +1547,7 @@ func waitV3ComponentUpdateCompleted(ctx context.Context, client *golangsdk.Servi
 		"GRAYING", // Upgrade the component by gray release and waiting for manual continuation.
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      componentStatusRefreshFunc(client, d.Get("application_id").(string), d.Id(), expectedStatuses),
@@ -1609,7 +1609,7 @@ func resourceV3ComponentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func waitV3ComponentDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      componentStatusRefreshFunc(client, d.Get("application_id").(string), d.Id(), nil),

@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -265,7 +265,7 @@ func resourceStudioInstanceDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("Error unsubscribing DataArts Studio instance %s: %s", instanceID, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"deleting"},
 		Target:       []string{"deleted"},
 		Refresh:      refreshInstanceStatusFunc(client, instanceID),
@@ -282,7 +282,7 @@ func resourceStudioInstanceDelete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func refreshInstanceStatusFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func refreshInstanceStatusFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := findStudioInstanceByID(client, id)
 		if err != nil {

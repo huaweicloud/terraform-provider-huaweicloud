@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -319,7 +319,7 @@ func resourceLogConvergeCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(fmt.Sprintf("%s/%s", organizationId, memberAccountId))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      logConvergeStateRefreshFunc(client, memberAccountId, []string{"done"}),
@@ -445,7 +445,7 @@ func resourceLogConvergeUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      logConvergeStateRefreshFunc(client, memberAccountId, []string{"done"}),
@@ -505,7 +505,7 @@ func resourceLogConvergeDelete(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error deleting the configuration of LTS log converge: %s", err)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      logConvergeStateRefreshFunc(client, memberAccountId, nil),
@@ -518,7 +518,7 @@ func resourceLogConvergeDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func logConvergeStateRefreshFunc(client *golangsdk.ServiceClient, memberAccountId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetLogConvergeConfigsById(client, memberAccountId)
 		if err != nil {

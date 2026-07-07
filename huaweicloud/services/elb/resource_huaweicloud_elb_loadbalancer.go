@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -943,7 +943,7 @@ func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceC
 	id string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for LoadBalancer %s to become %s", id, target)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{target},
 		Pending:      pending,
 		Refresh:      resourceElbV3LoadBalancerRefreshFunc(elbClient, id),
@@ -968,7 +968,7 @@ func waitForElbV3LoadBalancer(ctx context.Context, elbClient *golangsdk.ServiceC
 	return nil
 }
 
-func resourceElbV3LoadBalancerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceElbV3LoadBalancerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		lb, err := loadbalancers.Get(elbClient, id).Extract()
 		if err != nil {

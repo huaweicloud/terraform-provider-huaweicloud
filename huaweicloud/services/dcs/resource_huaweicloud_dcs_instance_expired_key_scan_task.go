@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -120,7 +120,7 @@ func resourceDcsInstanceExpiredKeyScanTaskCreate(ctx context.Context, d *schema.
 
 	d.SetId(taskId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"success"},
 		Refresh:      instanceExpiredKeyScanTaskRefreshFunc(client, instanceId, taskId),
@@ -134,7 +134,7 @@ func resourceDcsInstanceExpiredKeyScanTaskCreate(ctx context.Context, d *schema.
 	return resourceDcsInstanceExpiredKeyScanTaskRead(ctx, d, meta)
 }
 
-func instanceExpiredKeyScanTaskRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) resource.StateRefreshFunc {
+func instanceExpiredKeyScanTaskRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getInstanceExpiredKeyScanTaskHistories(client, instanceId)
 		if err != nil {

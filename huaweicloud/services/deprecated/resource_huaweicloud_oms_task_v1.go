@@ -1,12 +1,13 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -317,7 +318,7 @@ func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getTaskStatus(maasClient *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
+func getTaskStatus(maasClient *golangsdk.ServiceClient, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		taskGet, err := task.Get(maasClient, taskId).Extract()
 		if err != nil {
@@ -331,7 +332,7 @@ func getTaskStatus(maasClient *golangsdk.ServiceClient, taskId string) resource.
 }
 
 func waitForTaskCompleted(maasClient *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"0", "1", "2", "3"},
 		Target:     []string{"5"},
 		Refresh:    getTaskStatus(maasClient, taskID),
@@ -340,6 +341,6 @@ func waitForTaskCompleted(maasClient *golangsdk.ServiceClient, taskID string, ti
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(context.Background())
 	return err
 }

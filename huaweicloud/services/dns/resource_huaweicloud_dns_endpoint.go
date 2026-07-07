@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -169,7 +169,7 @@ func resourceDNSEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(endpoint.ID)
 	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become available", endpoint.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
 		Refresh:      waitForDNSEndpoint(dnsClient, endpoint.ID),
@@ -188,7 +188,7 @@ func resourceDNSEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceDNSEndpointRead(ctx, d, meta)
 }
 
-func waitForDNSEndpoint(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForDNSEndpoint(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		endpoint, err := endpoints.Get(client, id).Extract()
 		if err != nil {
@@ -229,7 +229,7 @@ func resourceDNSEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become available", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
 		Refresh:      waitForDNSEndpoint(dnsClient, d.Id()),
@@ -440,7 +440,7 @@ func resourceDNSEndpointDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become DELETED", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target: []string{"DELETED"},
 		// we allow to try to delete ERROR endpoint
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},

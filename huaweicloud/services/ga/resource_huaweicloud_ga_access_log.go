@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -251,7 +251,7 @@ func resourceAccessLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return common.CheckDeletedDiag(d, err, "error deleting access log")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      waitAccessLogStatusRefreshFunc(client, d.Id()),
@@ -265,7 +265,7 @@ func resourceAccessLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func waitingForAccessLogStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration, logId string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitAccessLogStatusRefreshFunc(client, logId),
@@ -278,7 +278,7 @@ func waitingForAccessLogStateCompleted(ctx context.Context, client *golangsdk.Se
 	return err
 }
 
-func waitAccessLogStatusRefreshFunc(client *golangsdk.ServiceClient, logId string) resource.StateRefreshFunc {
+func waitAccessLogStatusRefreshFunc(client *golangsdk.ServiceClient, logId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetAccessLogInfo(client, logId)
 		if err != nil {

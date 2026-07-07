@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -472,7 +472,7 @@ func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy 
 	return backupStrategy
 }
 
-func ddsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func ddsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := instances.ListInstanceOpts{
 			Id: instanceID,
@@ -597,7 +597,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"creating", "updating"},
 		Target:     []string{"normal"},
 		Refresh:    ddsInstanceStateRefreshFunc(client, instance.Id),
@@ -714,8 +714,8 @@ func isEqualPeriod(old, new string) bool {
 func createBackupStrategy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := instances.CreateBackupPolicy(client, d.Id(), resourceDdsBackupStrategy(d))
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -738,8 +738,8 @@ func updateBalancerStatus(ctx context.Context, client *golangsdk.ServiceClient, 
 	instanceId, action string) error {
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := instances.UpdateBalancerSwicth(client, instanceId, action)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -754,7 +754,7 @@ func updateBalancerStatus(ctx context.Context, client *golangsdk.ServiceClient, 
 		return fmt.Errorf("error updating balancer switch: %s", err)
 	}
 	resp := r.(*instances.CommonResp)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, resp.JobId),
@@ -779,8 +779,8 @@ func updateBalancerActiveWindow(ctx context.Context, client *golangsdk.ServiceCl
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := instances.UpdateBalancerActiveWindow(client, instanceId, opt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -795,7 +795,7 @@ func updateBalancerActiveWindow(ctx context.Context, client *golangsdk.ServiceCl
 		return fmt.Errorf("error updating balancer active window: %s", err)
 	}
 	resp := r.(*instances.CommonResp)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, resp.JobId),
@@ -820,8 +820,8 @@ func updateClientNetworkRanges(ctx context.Context, client *golangsdk.ServiceCli
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		err := instances.UpdateClientNetWorkRanges(client, instanceId, opt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -843,8 +843,8 @@ func UpdateSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Service
 	instanceId string, enabled bool) error {
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := instances.UpdateSecondsLevelMonitoring(client, instanceId, enabled)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -866,8 +866,8 @@ func UpdateSlowLogStatus(ctx context.Context, client *golangsdk.ServiceClient, t
 	instanceId, slowLogStatus string) error {
 	retryFunc := func() (interface{}, bool, error) {
 		err := instances.UpdateSlowLogStatus(client, instanceId, slowLogStatus)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -892,8 +892,8 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 	}
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := instances.UpdateReplicaSetName(client, instanceId, opt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -908,7 +908,7 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 		return fmt.Errorf("error updating replica set name: %s", err)
 	}
 	resp := r.(*instances.CommonResp)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, resp.JobId),
@@ -1198,7 +1198,7 @@ func flattenPolicyInfo(policyInfo interface{}) []map[string]interface{} {
 	return []map[string]interface{}{result}
 }
 
-func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := jobs.Get(client, jobId)
 		if err != nil {
@@ -1210,7 +1210,7 @@ func JobStateRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource
 }
 
 func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"updating"},
 		Target:     []string{"normal"},
 		Refresh:    ddsInstanceStateRefreshFunc(client, instanceId),
@@ -1306,8 +1306,8 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	if len(opts) > 0 {
 		retryFunc := func() (interface{}, bool, error) {
 			resp, err := instances.Update(client, instanceId, opts).Extract()
-			retry, err := handleMultiOperationsError(err)
-			return resp, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return resp, shouldRetry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1360,8 +1360,8 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	if d.HasChange("port") {
 		retryFunc := func() (interface{}, bool, error) {
 			resp, err := instances.UpdatePort(client, instanceId, d.Get("port").(int))
-			retry, err := handleMultiOperationsError(err)
-			return resp, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return resp, shouldRetry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1376,7 +1376,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			return diag.Errorf("error updating database access port: %s", err)
 		}
 		resp := r.(*instances.PortUpdateResp)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
 			Refresh:      JobStateRefreshFunc(client, resp.JobId),
@@ -1404,8 +1404,8 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.UpdateMaintenanceWindow(client, instanceId, windowOpts)
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1520,8 +1520,8 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			resp, err := instances.UpdateAvailabilityZone(client, instanceId, azOpt)
-			retry, err := handleMultiOperationsError(err)
-			return resp, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return resp, shouldRetry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1536,7 +1536,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			return diag.Errorf("error updating availability zone: %s", err)
 		}
 		resp := r.(*instances.AvailabilityZoneResp)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
 			Refresh:      JobStateRefreshFunc(client, resp.JobId),
@@ -1573,8 +1573,8 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	if d.Get("charging_mode").(string) == "prePaid" {
 		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, conf, []string{instanceId})
-			retry, err := handleDeletionError(err)
-			return nil, retry, err
+			shouldRetry, err := handleDeletionError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1591,8 +1591,8 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	} else {
 		retryFunc := func() (interface{}, bool, error) {
 			result := instances.Delete(client, instanceId)
-			retry, err := handleDeletionError(result.Err)
-			return nil, retry, err
+			shouldRetry, err := handleDeletionError(result.Err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -1608,7 +1608,7 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"normal", "abnormal", "frozen", "createfail", "enlargefail", "data_disk_full"},
 		Target:     []string{"deleted"},
 		Refresh:    ddsInstanceStateRefreshFunc(client, instanceId),
@@ -1731,8 +1731,8 @@ func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.Se
 	opts []instances.UpdateOpt) error {
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := instances.Update(client, d.Id(), opts).Extract()
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1871,8 +1871,8 @@ func deleteInstanceNodes(ctx context.Context, client *golangsdk.ServiceClient, d
 
 	retryFunc := func() (interface{}, bool, error) {
 		requestResp, err := client.Request("DELETE", requestPath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return requestResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return requestResp, shouldRetry, err
 	}
 
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -1924,7 +1924,7 @@ func waitForDeleteInstanceNodesCompleted(ctx context.Context, cfg *config.Config
 			return errors.New("error deleting DDS instance node: unable to find job ID from the API response")
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
 			Refresh:      JobStateRefreshFunc(client, jobId),
@@ -2088,8 +2088,8 @@ func applyConfigurationToEntity(ctx context.Context, client *golangsdk.ServiceCl
 	// retry, the job_id in return is useless
 	retryFunc := func() (interface{}, bool, error) {
 		resp, err := client.Request("PUT", applyConfigurationToEntityPath, &applyConfigurationToEntityOpt)
-		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return resp, shouldRetry, err
 	}
 
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{

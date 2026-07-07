@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -190,7 +190,7 @@ func resourceMessageDetectionDelete(_ context.Context, _ *schema.ResourceData, _
 
 func checkDetectionTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient, topicUrn, id string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      detectionTaskStateRefreshFunc(client, topicUrn, id),
@@ -205,7 +205,7 @@ func checkDetectionTaskCompleted(ctx context.Context, client *golangsdk.ServiceC
 	return nil
 }
 
-func detectionTaskStateRefreshFunc(client *golangsdk.ServiceClient, topicUrn, id string) resource.StateRefreshFunc {
+func detectionTaskStateRefreshFunc(client *golangsdk.ServiceClient, topicUrn, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getMessageDetectionDetail(client, topicUrn, id)
 		if err != nil {

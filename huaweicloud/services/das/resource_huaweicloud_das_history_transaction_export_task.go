@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -214,7 +214,7 @@ func GetHistoryTransactionExportTask(client *golangsdk.ServiceClient, instanceId
 	return utils.FlattenResponse(requestResp)
 }
 
-func refreshHistoryTransactionExportTaskStatusFunc(client *golangsdk.ServiceClient, instanceId, taskId string) resource.StateRefreshFunc {
+func refreshHistoryTransactionExportTaskStatusFunc(client *golangsdk.ServiceClient, instanceId, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetHistoryTransactionExportTask(client, instanceId, taskId)
 		if err != nil {
@@ -240,7 +240,7 @@ func waitForHistoryTransactionExportTaskComplete(ctx context.Context, client *go
 	instanceId := d.Get("instance_id").(string)
 	taskId := d.Id()
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshHistoryTransactionExportTaskStatusFunc(client, instanceId, taskId),

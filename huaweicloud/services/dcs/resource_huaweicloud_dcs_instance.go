@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1996,8 +1996,8 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 	if d.Get("charging_mode").(string) == chargeModePrePaid {
 		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
-			retry, err := handleOperationError(err)
-			return nil, retry, err
+			shouldRetry, err := handleOperationError(err)
+			return nil, shouldRetry, err
 		}
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -2019,7 +2019,7 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// Waiting to delete success
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING", "PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDcsInstanceState(client, d.Id()),
@@ -2048,8 +2048,8 @@ func deleteDcsInstance(ctx context.Context, d *schema.ResourceData, client *gola
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleOperationError(err)
-		return nil, retry, err
+		shouldRetry, err := handleOperationError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -105,7 +105,7 @@ func waitingForRestartCompleted(ctx context.Context, client *golangsdk.ServiceCl
 	timeout time.Duration) (interface{}, error) {
 	logicaClusterId := d.Get("logical_cluster_id").(string)
 	expression := fmt.Sprintf("logical_clusters[?logical_cluster_id=='%s']|[0]", logicaClusterId)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshLogicalClusterStateFun(client, d, expression),
@@ -116,7 +116,7 @@ func waitingForRestartCompleted(ctx context.Context, client *golangsdk.ServiceCl
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func refreshLogicalClusterStateFun(client *golangsdk.ServiceClient, d *schema.ResourceData, expression string) resource.StateRefreshFunc {
+func refreshLogicalClusterStateFun(client *golangsdk.ServiceClient, d *schema.ResourceData, expression string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		clusterRespBody, err := readLogicalClusters(client, d)
 		if err != nil {

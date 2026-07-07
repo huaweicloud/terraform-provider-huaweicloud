@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -364,7 +364,7 @@ func createPostPaidEip(ctx context.Context, cfg *config.Config, client *golangsd
 	d.SetId(resp.ID)
 
 	log.Printf("[DEBUG] Waiting for EIP (%s) to become available", resp.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      eipStatusRefreshFunc(client, resp.ID, []string{"DOWN", "ACTIVE"}),
@@ -452,7 +452,7 @@ func NormalizeEipStatus(status string) string {
 	return status
 }
 
-func eipStatusRefreshFunc(networkingClient *golangsdk.ServiceClient, eipId string, targets []string) resource.StateRefreshFunc {
+func eipStatusRefreshFunc(networkingClient *golangsdk.ServiceClient, eipId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := eips.Get(networkingClient, eipId).Extract()
 		if err != nil {
@@ -858,7 +858,7 @@ func resourceVpcEipDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING"},
 		Target:     []string{"COMPLETED"},
 		Refresh:    eipStatusRefreshFunc(networkingClient, resourceId, nil),

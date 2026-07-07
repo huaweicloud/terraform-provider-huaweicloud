@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -348,7 +348,7 @@ func resourceFlowLogDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error deleting flow log: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      flowLogStatusRefreshFunc(client, instanceId, flowLogId, true),
@@ -364,7 +364,7 @@ func resourceFlowLogDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func flowLogStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, flowLogId string, isDelete bool) resource.StateRefreshFunc {
+func flowLogStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, flowLogId string, isDelete bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getFlowLogInfo(client, instanceId, flowLogId)
 		if err != nil {
@@ -391,7 +391,7 @@ func flowLogStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, flowL
 }
 
 func flowLogWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceId, flowLogId string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      flowLogStatusRefreshFunc(client, instanceId, flowLogId, false),

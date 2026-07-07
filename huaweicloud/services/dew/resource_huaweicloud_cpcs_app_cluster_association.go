@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -116,7 +116,7 @@ func waitingForCpcsAppClusterAssociationSuccess(ctx context.Context, client *gol
 	timeout time.Duration) error {
 	appId := d.Get("app_id").(string)
 	clusterId := d.Get("cluster_id").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -252,7 +252,7 @@ func waitingForCpcsAppClusterAssociationDelete(ctx context.Context, client *gola
 	timeout time.Duration) error {
 	appId := d.Get("app_id").(string)
 	clusterId := d.Get("cluster_id").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

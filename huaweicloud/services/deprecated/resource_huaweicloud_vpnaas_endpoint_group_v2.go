@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -111,7 +112,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForEndpointGroupCreation(networkingClient, group.ID),
@@ -119,7 +120,7 @@ func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) 
 		Delay:      0,
 		MinTimeout: 2 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	if err != nil {
 		return err
@@ -192,7 +193,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"PENDING_UPDATE"},
 			Target:     []string{"UPDATED"},
 			Refresh:    waitForEndpointGroupUpdate(networkingClient, group.ID),
@@ -200,7 +201,7 @@ func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) 
 			Delay:      0,
 			MinTimeout: 2 * time.Second,
 		}
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(context.Background())
 
 		if err != nil {
 			return err
@@ -227,7 +228,7 @@ func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DELETING"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForEndpointGroupDeletion(networkingClient, d.Id()),
@@ -236,12 +237,12 @@ func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) 
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	return err
 }
 
-func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
 		group, err := endpointgroups.Get(networkingClient, id).Extract()
@@ -260,7 +261,7 @@ func waitForEndpointGroupDeletion(networkingClient *golangsdk.ServiceClient, id 
 	}
 }
 
-func waitForEndpointGroupCreation(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForEndpointGroupCreation(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		group, err := endpointgroups.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -270,7 +271,7 @@ func waitForEndpointGroupCreation(networkingClient *golangsdk.ServiceClient, id 
 	}
 }
 
-func waitForEndpointGroupUpdate(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForEndpointGroupUpdate(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		group, err := endpointgroups.Get(networkingClient, id).Extract()
 		if err != nil {

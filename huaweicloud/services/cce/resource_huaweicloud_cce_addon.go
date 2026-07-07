@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -216,7 +216,7 @@ func resourceAddonCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	d.SetId(create.Metadata.Id)
 
 	log.Printf("[DEBUG] Waiting for CCE add-on (%s) to become available", create.Metadata.Id)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "installing" and "abnormal".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -302,7 +302,7 @@ func resourceAddonUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error updating CCE add-on (%s): %s", addonID, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "installing" and "abnormal".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -333,7 +333,7 @@ func resourceAddonDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error deleting CCE add-on: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Deleting", "Available" and "Unavailable".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -350,7 +350,7 @@ func resourceAddonDelete(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func addonStateRefreshFunc(cceClient *golangsdk.ServiceClient, addonId, clusterId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Expect the status of CCE add-on to be any one of the status list: %v.", targets)
 		resp, err := addons.Get(cceClient, addonId, clusterId).Extract()

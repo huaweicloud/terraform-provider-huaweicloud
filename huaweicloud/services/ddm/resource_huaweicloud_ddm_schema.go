@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -211,14 +211,14 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createSchemaOpt.JSONBody = utils.RemoveNil(buildCreateSchemaBodyParams(d))
 
 	var createSchemaResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		createSchemaResp, err = createSchemaClient.Request("POST", createSchemaPath, &createSchemaOpt)
 		isRetry, err := handleOperationError(err, "creating", "schema")
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -410,14 +410,14 @@ func resourceDdmSchemaDelete(ctx context.Context, d *schema.ResourceData, meta i
 		},
 	}
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		_, err = deleteSchemaClient.Request("DELETE", deleteSchemaPath, &deleteSchemaOpt)
 		isRetry, err := handleOperationError(err, "deleting", "schema")
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -464,7 +464,7 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string,
 	timeout string) error {
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceID, client),

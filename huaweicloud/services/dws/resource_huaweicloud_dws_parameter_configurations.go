@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -126,7 +126,7 @@ func modifyConfigurations(ctx context.Context, client *golangsdk.ServiceClient, 
 		return fmt.Errorf("error setting the DWS cluster (%s) paramsters: %s", clusterId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshParamesterStateFun(client, clusterId),
@@ -142,7 +142,7 @@ func modifyConfigurations(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
-func refreshParamesterStateFun(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func refreshParamesterStateFun(client *golangsdk.ServiceClient, clusterId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getParameterGroup(client, clusterId)
 		if err != nil {

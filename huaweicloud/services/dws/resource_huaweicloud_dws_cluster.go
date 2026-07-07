@@ -16,7 +16,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -704,7 +704,7 @@ func buildCreateDwsClusterReqBodyVolume(rawParams interface{}) map[string]interf
 }
 
 func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -1232,7 +1232,7 @@ func buildDeleteDwsClusterBodyParams(d *schema.ResourceData) map[string]interfac
 }
 
 func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -1380,7 +1380,7 @@ func bindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Serv
 	if jobId == "" {
 		return fmt.Errorf("error binding ELB to DWS cluster: job ID is not found in API response")
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
@@ -1428,7 +1428,7 @@ func unbindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Se
 	if jobId == "" {
 		return fmt.Errorf("error unbinding ELB from DWS cluster: job ID is not found in API response: %s", jobId)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
@@ -1481,7 +1481,7 @@ func updateEip(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	return nil
 }
 
-func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getJobStatusHttpUrl := "v1.0/{project_id}/job/{job_id}"
 
@@ -1650,7 +1650,7 @@ func updateClusterName(ctx context.Context, client *golangsdk.ServiceClient, clu
 	if jobId == "" {
 		return fmt.Errorf("error updating name for cluster (%s): job ID is not found in API response", clusterId)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
@@ -1692,7 +1692,7 @@ func updateClusterTimezone(ctx context.Context, client *golangsdk.ServiceClient,
 	if jobId == "" {
 		return fmt.Errorf("error updating timezone for cluster (%s): job ID is not found in API response", clusterId)
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -77,7 +77,7 @@ func resourceClusterRestartCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// After the interface is sent successfully, the task ID will not be returned, so the query cluster details interface is called
 	// to determine whether the restart is successful.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshClusterStateFun(client, clusterId),
@@ -95,7 +95,7 @@ func resourceClusterRestartCreate(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func refreshClusterStateFun(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func refreshClusterStateFun(client *golangsdk.ServiceClient, clusterId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetClusterInfoByClusterId(client, clusterId)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -90,8 +90,8 @@ func updateGaussDbInstanceField(ctx context.Context, d *schema.ResourceData, cli
 	if params.isRetry {
 		retryFunc := func() (interface{}, bool, error) {
 			r, err := client.Request(params.httpMethod, updatePath, &updateOpt)
-			retry, err := handleMultiOperationsError(err)
-			return r, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return r, shouldRetry, err
 		}
 		res, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -166,7 +166,7 @@ func checkJobAndOrderExpression(params updateInstanceFieldParams, jobId, orderId
 }
 
 func waitForInstanceReady(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Refresh:      instanceStateRefreshFunc(client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),

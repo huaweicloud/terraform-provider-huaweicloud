@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -126,15 +126,15 @@ func dealGaussDBSqlControlRule(ctx context.Context, d *schema.ResourceData, cfg 
 	gaussDBSqlControlRuleOpt.JSONBody = utils.RemoveNil(buildGaussDBSqlControlRuleBodyParams(d))
 
 	var gaussDBSqlControlRuleResp *http.Response
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		gaussDBSqlControlRuleResp, err = gaussDBSqlControlRuleClient.Request("PUT", gaussDBSqlControlRulePath,
 			&gaussDBSqlControlRuleOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -285,15 +285,15 @@ func resourceTaurusDBSqlControlRuleDelete(ctx context.Context, d *schema.Resourc
 	deleteGaussDBSqlControlRuleOpt.JSONBody = utils.RemoveNil(buildDeleteGaussDBSqlControlRuleBodyParams(d))
 
 	var deleteGaussDBSqlControlRuleResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		deleteGaussDBSqlControlRuleResp, err = deleteGaussDBSqlControlRuleClient.Request("DELETE",
 			deleteGaussDBSqlControlRulePath, &deleteGaussDBSqlControlRuleOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})

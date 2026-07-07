@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 
 	"github.com/chnsz/golangsdk"
 
@@ -44,7 +44,7 @@ func getClusterById(client *golangsdk.ServiceClient, clusterId string) (interfac
 
 func waitForClusterStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, clusterId string, timeout time.Duration,
 	targets ...string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"COMPLETED"},
 		Pending:      []string{"PENDING"},
 		Refresh:      refreshClusterStatusFunc(client, clusterId, targets...),
@@ -56,7 +56,7 @@ func waitForClusterStatusCompleted(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
-func refreshClusterStatusFunc(client *golangsdk.ServiceClient, clusterId string, targets ...string) resource.StateRefreshFunc {
+func refreshClusterStatusFunc(client *golangsdk.ServiceClient, clusterId string, targets ...string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getClusterById(client, clusterId)
 		if err != nil {

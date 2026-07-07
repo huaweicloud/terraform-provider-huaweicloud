@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -143,7 +144,7 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForIPSecPolicyCreation(networkingClient, policy.ID),
@@ -151,7 +152,7 @@ func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) er
 		Delay:      0,
 		MinTimeout: 2 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	log.Printf("[DEBUG] IPSec policy created: %#v", policy)
 
@@ -261,7 +262,7 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"PENDING_UPDATE"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    waitForIPSecPolicyUpdate(networkingClient, d.Id()),
@@ -269,7 +270,7 @@ func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) er
 			Delay:      0,
 			MinTimeout: 2 * time.Second,
 		}
-		if _, err = stateConf.WaitForState(); err != nil {
+		if _, err = stateConf.WaitForStateContext(context.Background()); err != nil {
 			return err
 		}
 	}
@@ -285,7 +286,7 @@ func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForIPSecPolicyDeletion(networkingClient, d.Id()),
@@ -294,14 +295,14 @@ func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) er
 		MinTimeout: 2 * time.Second,
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
+	if _, err = stateConf.WaitForStateContext(context.Background()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func waitForIPSecPolicyDeletion(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForIPSecPolicyDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		err := ipsecpolicies.Delete(networkingClient, id).Err
 		if err == nil {
@@ -316,7 +317,7 @@ func waitForIPSecPolicyDeletion(networkingClient *golangsdk.ServiceClient, id st
 	}
 }
 
-func waitForIPSecPolicyCreation(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForIPSecPolicyCreation(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		policy, err := ipsecpolicies.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -326,7 +327,7 @@ func waitForIPSecPolicyCreation(networkingClient *golangsdk.ServiceClient, id st
 	}
 }
 
-func waitForIPSecPolicyUpdate(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForIPSecPolicyUpdate(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		policy, err := ipsecpolicies.Get(networkingClient, id).Extract()
 		if err != nil {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -127,7 +127,7 @@ func resourceIpAddressCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func waitForAddIpAddressCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"updating"},
 		Target:       []string{"normal"},
 		Refresh:      ddsInstanceStateRefreshFunc(client, instanceId),
@@ -308,7 +308,7 @@ func resourceIpAddressDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting %s IP addresses: unable to find job ID from the API response", nodeType)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, jobId),

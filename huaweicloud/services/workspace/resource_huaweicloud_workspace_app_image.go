@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -158,7 +158,7 @@ func resourceAppImageDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting generated image (%s)", imageId))
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshImageStatusFunc(imsClient, imageId),
@@ -175,7 +175,7 @@ func resourceAppImageDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func refreshImageStatusFunc(client *golangsdk.ServiceClient, imageId string) resource.StateRefreshFunc {
+func refreshImageStatusFunc(client *golangsdk.ServiceClient, imageId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v2/cloudimages?id={image_id}"
 		listPath := client.Endpoint + httpUrl

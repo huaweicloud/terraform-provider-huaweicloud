@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -162,7 +162,7 @@ func createSlowLogs(d *schema.ResourceData, client *golangsdk.ServiceClient) err
 
 func waitForSlowLogLinkCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceId string,
 	timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXPORTING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      openGaussSlowLogLinkRefreshFunc(client, instanceId),
@@ -177,7 +177,7 @@ func waitForSlowLogLinkCompleted(ctx context.Context, client *golangsdk.ServiceC
 	return res, nil
 }
 
-func openGaussSlowLogLinkRefreshFunc(client *golangsdk.ServiceClient, instanceId string) resource.StateRefreshFunc {
+func openGaussSlowLogLinkRefreshFunc(client *golangsdk.ServiceClient, instanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getSlowLogs(client, instanceId)
 		if err != nil {

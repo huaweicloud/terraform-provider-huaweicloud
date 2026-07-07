@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -136,7 +136,7 @@ func resourceSubnetCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	d.SetId(n.ID)
 	log.Printf("[DEBUG] Waiting for IEC subnets (%s) to become active", n.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"UNKNOWN"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForSubnetStatus(subnetClient, n.ID),
@@ -225,7 +225,7 @@ func resourceSubnetDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	// waiting for subnets to become deleted
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE", "UNKNOWN"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSubnetStatus(subnetClient, d.Id()),
@@ -244,7 +244,7 @@ func resourceSubnetDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func waitForSubnetStatus(subnetClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForSubnetStatus(subnetClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := subnets.Get(subnetClient, id).Extract()
 		if err != nil {

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -74,8 +74,8 @@ func resourceDdmInstanceUpgradeCreate(ctx context.Context, d *schema.ResourceDat
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -92,7 +92,7 @@ func resourceDdmInstanceUpgradeCreate(ctx context.Context, d *schema.ResourceDat
 
 	d.SetId(instanceId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, client),

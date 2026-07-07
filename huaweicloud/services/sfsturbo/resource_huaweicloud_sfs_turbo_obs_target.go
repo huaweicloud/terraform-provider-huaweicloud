@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -528,7 +528,7 @@ func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting OBS target from SFS Turbo: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      obsTargetStatusRefreshFunc(client, shareId, d.Id(), true),
@@ -545,7 +545,7 @@ func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func obsTargetWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, shareId, targetId string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      obsTargetStatusRefreshFunc(client, shareId, targetId, false),
@@ -557,7 +557,7 @@ func obsTargetWaitingForStateCompleted(ctx context.Context, client *golangsdk.Se
 	return err
 }
 
-func obsTargetStatusRefreshFunc(client *golangsdk.ServiceClient, shareId, targetId string, isDelete bool) resource.StateRefreshFunc {
+func obsTargetStatusRefreshFunc(client *golangsdk.ServiceClient, shareId, targetId string, isDelete bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getOBSTargetInfo(client, shareId, targetId)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -179,7 +179,7 @@ func resourceSecurityGroupRuleDelete(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSecurityGroupRuleDelete(iecClient, d.Id()),
@@ -197,7 +197,7 @@ func resourceSecurityGroupRuleDelete(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func waitForSecurityGroupRuleDelete(client *golangsdk.ServiceClient, ruleID string) resource.StateRefreshFunc {
+func waitForSecurityGroupRuleDelete(client *golangsdk.ServiceClient, ruleID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rule, err := rules.Get(client, ruleID).Extract()
 		if err != nil {

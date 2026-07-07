@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -248,7 +248,7 @@ func GetNetworkById(client *golangsdk.ServiceClient, networkId string) (interfac
 	return utils.FlattenResponse(requestResp)
 }
 
-func refreshNetworkStatusFunc(client *golangsdk.ServiceClient, networkId string, targets []string) resource.StateRefreshFunc {
+func refreshNetworkStatusFunc(client *golangsdk.ServiceClient, networkId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetNetworkById(client, networkId)
 		if err != nil {
@@ -269,7 +269,7 @@ func refreshNetworkStatusFunc(client *golangsdk.ServiceClient, networkId string,
 
 func waitForNetworkCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshNetworkStatusFunc(client, networkId, []string{"Active"}),
@@ -439,7 +439,7 @@ func checkAllSfsTurboConnectionsExistAndActive(remoteConnections, localSfsTurboI
 	return true
 }
 
-func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			networkId        = d.Id()
@@ -470,7 +470,7 @@ func refreshNetworkConnectionsFunc(client *golangsdk.ServiceClient, d *schema.Re
 }
 
 func waitForNetworkConnectionsUpdateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshNetworkConnectionsFunc(client, d),
@@ -525,7 +525,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 func waitForNetworkDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, networkId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshNetworkStatusFunc(client, networkId, nil),

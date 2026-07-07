@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/auto_recovery"
@@ -50,7 +50,7 @@ func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instan
 
 	log.Printf("[DEBUG] Setting ECS-AutoRecovery for instance:%s with options: %#v", rId, updateOpts)
 	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = retry.Retry(timeout, func() *retry.RetryError {
 		err := auto_recovery.Update(client, rId, updateOpts)
 		if err != nil {
 			return common.CheckForRetryableError(err)

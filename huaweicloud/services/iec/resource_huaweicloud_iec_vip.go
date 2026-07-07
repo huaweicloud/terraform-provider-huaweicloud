@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -116,7 +116,7 @@ func resourceVipCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 
 	d.SetId(p.ID)
 	log.Printf("[DEBUG] Waiting for IEC Port (%s) to become available.", p.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitingForIECVIPActive(iecClient, p.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -203,7 +203,7 @@ func resourceVipDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitingForIECVIPDelete(iecClient, d.Id()),
@@ -220,7 +220,7 @@ func resourceVipDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
+func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		p, err := ports.Get(client, portID).Extract()
 		if err != nil {
@@ -236,7 +236,7 @@ func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) reso
 	}
 }
 
-func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
+func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete IEC Port %s", portID)
 		port, err := ports.Get(client, portID).Extract()

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -86,7 +86,7 @@ func buildHistoryTransactionSwitchBodyParams(d *schema.ResourceData) map[string]
 func waitForHistoryTransactionSwitchComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	targetStatus := d.Get("status").(string)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Switching"},
 		Target:       []string{targetStatus},
 		Refresh:      historyTransactionSwitchRefreshFunc(client, d),
@@ -141,7 +141,7 @@ func resourceHistoryTransactionSwitchCreate(ctx context.Context, d *schema.Resou
 	return resourceHistoryTransactionSwitchRead(ctx, d, meta)
 }
 
-func historyTransactionSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func historyTransactionSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v3/{project_id}/instances/{instance_id}/transaction/switch"
 		getPath := client.Endpoint + httpUrl

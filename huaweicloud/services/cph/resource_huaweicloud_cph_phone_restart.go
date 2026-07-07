@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -146,7 +146,7 @@ func resourcePhoneRestartDelete(_ context.Context, _ *schema.ResourceData, _ int
 }
 
 func checkPhoneRestartStatus(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      phoneRestartStateRefreshFunc(client, id),
@@ -161,7 +161,7 @@ func checkPhoneRestartStatus(ctx context.Context, client *golangsdk.ServiceClien
 	return nil
 }
 
-func phoneRestartStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func phoneRestartStateRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getPhoneRespBody, err := getPhoneDetail(client, id)
 		if err != nil {

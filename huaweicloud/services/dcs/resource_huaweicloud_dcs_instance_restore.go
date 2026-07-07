@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -110,7 +110,7 @@ func resourceDcsRestoreCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(restoreId.(string))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"waiting", "restoring"},
 		Target:       []string{"succeed"},
 		Refresh:      restoreRecordRefreshFunc(instanceID, d.Id(), restoreDcsCreateClient),
@@ -184,7 +184,7 @@ func resourceDcsRestoreDelete(_ context.Context, _ *schema.ResourceData, _ inter
 	}
 }
 
-func restoreRecordRefreshFunc(instanceID, restoreID string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func restoreRecordRefreshFunc(instanceID, restoreID string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		restoreRecord, err := GetRestoreRecord(instanceID, restoreID, client)
 		if err != nil {

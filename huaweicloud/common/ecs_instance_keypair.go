@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
@@ -115,7 +115,7 @@ func buildKeypairAuthOpts(ecsClient *golangsdk.ServiceClient, opts *KeypairAuthO
 }
 
 func waitForKeyPairTaskState(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING", "READY"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      keyPairTaskStateRefreshFunc(client, taskID),
@@ -131,7 +131,7 @@ func waitForKeyPairTaskState(ctx context.Context, client *golangsdk.ServiceClien
 	return nil
 }
 
-func keyPairTaskStateRefreshFunc(c *golangsdk.ServiceClient, taskID string) resource.StateRefreshFunc {
+func keyPairTaskStateRefreshFunc(c *golangsdk.ServiceClient, taskID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		taskInfo, err := keypairs.GetTask(c, taskID).Extract()
 		if err != nil {

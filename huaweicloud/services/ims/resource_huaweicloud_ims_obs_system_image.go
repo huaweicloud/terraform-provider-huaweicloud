@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -397,7 +397,7 @@ func resourceObsSystemImageCreate(ctx context.Context, d *schema.ResourceData, m
 
 func waitForCreateObsSystemImageJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      obsSystemImageJobStatusRefreshFunc(jobId, client),
@@ -419,7 +419,7 @@ func waitForCreateObsSystemImageJobCompleted(ctx context.Context, client *golang
 	return imageId, nil
 }
 
-func obsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func obsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
 		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -734,7 +734,7 @@ func resourceObsSystemImageDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func waitForObsSystemImageDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

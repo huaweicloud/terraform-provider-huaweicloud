@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -237,8 +237,8 @@ func resourceOfflineKeyAnalysisCreate(ctx context.Context, d *schema.ResourceDat
 
 	retryFunc := func() (interface{}, bool, error) {
 		r, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleOperationError(err)
-		return r, retry, err
+		shouldRetry, err := handleOperationError(err)
+		return r, shouldRetry, err
 	}
 	createResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -426,8 +426,8 @@ func resourceOfflineKeyAnalysisDelete(ctx context.Context, d *schema.ResourceDat
 
 	retryFunc := func() (interface{}, bool, error) {
 		r, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleOperationError(err)
-		return r, retry, err
+		shouldRetry, err := handleOperationError(err)
+		return r, shouldRetry, err
 	}
 	deleteResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -464,7 +464,7 @@ func resourceOfflineKeyAnalysisDelete(ctx context.Context, d *schema.ResourceDat
 
 func checkOfflineKeyAnalysisJobFinish(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	target string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{target},
 		Refresh:      offlineKeyAnalysisJobStatusRefreshFunc(client, d.Get("instance_id").(string), d.Id()),
@@ -477,7 +477,7 @@ func checkOfflineKeyAnalysisJobFinish(ctx context.Context, client *golangsdk.Ser
 	return nil
 }
 
-func offlineKeyAnalysisJobStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) resource.StateRefreshFunc {
+func offlineKeyAnalysisJobStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v2/{project_id}/instances/{instance_id}/offline/key-analysis"

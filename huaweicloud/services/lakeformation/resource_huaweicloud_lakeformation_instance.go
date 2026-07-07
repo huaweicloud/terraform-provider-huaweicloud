@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -285,7 +285,7 @@ func GetInstanceById(client *golangsdk.ServiceClient, instanceId string) (interf
 	return respBody, nil
 }
 
-func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
+func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetInstanceById(client, instanceId)
 		if err != nil {
@@ -349,7 +349,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      instanceStateRefreshFunc(client, instanceId, []string{"RUNNING"}),
@@ -497,7 +497,7 @@ func updateInstanceSpecs(ctx context.Context, client *golangsdk.ServiceClient, d
 		return fmt.Errorf("error updating instance (%s) specs: %s", instanceId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      instanceStateRefreshFunc(client, d.Id(), []string{"RUNNING"}),
@@ -605,7 +605,7 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return common.CheckDeletedDiag(d, err, "error deleting instance")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: instanceStateRefreshFunc(client, instanceId, nil),

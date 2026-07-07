@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -126,7 +126,7 @@ func createLineGroup(client *golangsdk.ServiceClient, d *schema.ResourceData) er
 }
 
 func waitForLineGroupCreatedOrUpdated(ctx context.Context, client *golangsdk.ServiceClient, lineGroupId string, timeOut time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"COMPLETED"},
 		Pending:      []string{"PENDING_CREATE", "PENDING_UPDATE"},
 		Refresh:      lineGroupStatusRefreshFunc(client, lineGroupId, []string{"ACTIVE"}),
@@ -266,7 +266,7 @@ func resourceLineGroupDelete(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func waitForLineGroupDeleted(ctx context.Context, client *golangsdk.ServiceClient, lineGroupId string, timeOut time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"ACTIVE", "PENDING_CREATE", "PENDING_DELETE", "PENDING_UPDATE", "ERROR", "FREEZE", "DISABLE"},
 		Refresh:      lineGroupStatusRefreshFunc(client, lineGroupId, nil),
@@ -281,7 +281,7 @@ func waitForLineGroupDeleted(ctx context.Context, client *golangsdk.ServiceClien
 	return nil
 }
 
-func lineGroupStatusRefreshFunc(client *golangsdk.ServiceClient, lineGroupId string, targets []string) resource.StateRefreshFunc {
+func lineGroupStatusRefreshFunc(client *golangsdk.ServiceClient, lineGroupId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		lineGroup, err := GetLineGroupById(client, lineGroupId)
 		if err != nil {

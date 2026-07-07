@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -192,7 +192,7 @@ func buildCreateApplicationBodyParams(d *schema.ResourceData) map[string]interfa
 	}
 }
 
-func applicationStatusRefreshFunc(client *golangsdk.ServiceClient, appId string, targets []string) resource.StateRefreshFunc {
+func applicationStatusRefreshFunc(client *golangsdk.ServiceClient, appId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetApplicationById(client, appId)
 		if err != nil {
@@ -221,7 +221,7 @@ func applicationStatusRefreshFunc(client *golangsdk.ServiceClient, appId string,
 }
 
 func waitForApplicationCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, appId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      applicationStatusRefreshFunc(client, appId, []string{"success"}),
@@ -403,7 +403,7 @@ func resourceApplicationDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func waitForApplicationDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, appId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      applicationStatusRefreshFunc(client, appId, nil),

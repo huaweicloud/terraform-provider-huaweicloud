@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -298,7 +298,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(n.ID)
 	log.Printf("[DEBUG] Waiting for DNS zone (%s) to become available", n.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
 		Refresh:    waitForDNSZone(dnsClient, n.ID),
@@ -330,7 +330,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 					log.Printf("[DEBUG] Waiting for associate zone (%s) to router (%s) become ACTIVE",
 						n.ID, routerList[i].RouterID)
-					stateRouterConf := &resource.StateChangeConf{
+					stateRouterConf := &retry.StateChangeConf{
 						Target:     []string{"ACTIVE"},
 						Pending:    []string{"PENDING"},
 						Refresh:    waitForDNSZoneRouter(dnsClient, n.ID, routerList[i].RouterID),
@@ -627,7 +627,7 @@ func updateDNSZone(ctx context.Context, d *schema.ResourceData, client *golangsd
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS zone (%s) to update", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE", "DISABLE"},
 		Pending:    []string{"PENDING"},
 		Refresh:    waitForDNSZone(client, d.Id()),
@@ -660,7 +660,7 @@ func updateDNSZoneRouters(ctx context.Context, d *schema.ResourceData, client *g
 
 			log.Printf("[DEBUG] Waiting for associate zone (%s) to router (%s) become ACTIVE",
 				d.Id(), associateList[i].RouterID)
-			stateRouterConf := &resource.StateChangeConf{
+			stateRouterConf := &retry.StateChangeConf{
 				Target:     []string{"ACTIVE"},
 				Pending:    []string{"PENDING"},
 				Refresh:    waitForDNSZoneRouter(client, d.Id(), associateList[i].RouterID),
@@ -687,7 +687,7 @@ func updateDNSZoneRouters(ctx context.Context, d *schema.ResourceData, client *g
 
 			log.Printf("[DEBUG] Waiting for disassociate zone (%s) to router (%s) become DELETED",
 				d.Id(), disassociateList[j].RouterID)
-			stateRouterConf := &resource.StateChangeConf{
+			stateRouterConf := &retry.StateChangeConf{
 				Target:     []string{"DELETED"},
 				Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
 				Refresh:    waitForDNSZoneRouter(client, d.Id(), disassociateList[j].RouterID),
@@ -716,7 +716,7 @@ func updateZoneStatus(ctx context.Context, d *schema.ResourceData, client *golan
 		return fmt.Errorf("error updating the status of the zone: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE", "DISABLE", "FREEZE"},
 		Pending:    []string{"PENDING"},
 		Refresh:    waitForDNSZone(client, d.Id()),
@@ -772,7 +772,7 @@ func resourceDNSZoneDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS zone (%s) to become DELETED", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target: []string{"DELETED"},
 		// we allow to try to delete ERROR zone
 		Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
@@ -793,7 +793,7 @@ func resourceDNSZoneDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func waitForDNSZone(dnsClient *golangsdk.ServiceClient, zoneId string) resource.StateRefreshFunc {
+func waitForDNSZone(dnsClient *golangsdk.ServiceClient, zoneId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		zone, err := zones.Get(dnsClient, zoneId).Extract()
 		if err != nil {
@@ -833,7 +833,7 @@ func getDNSRouters(d *schema.ResourceData, region string) []zones.RouterOpts {
 	return res
 }
 
-func waitForDNSZoneRouter(dnsClient *golangsdk.ServiceClient, zoneId string, routerId string) resource.StateRefreshFunc {
+func waitForDNSZoneRouter(dnsClient *golangsdk.ServiceClient, zoneId string, routerId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		zone, err := zones.Get(dnsClient, zoneId).Extract()
 		if err != nil {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -797,7 +797,7 @@ func stopTask(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 }
 
 func waitForTaskStopped(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"0", "7"},
 		Target:     []string{"3"},
 		Refresh:    getTaskStatus(client, taskID),
@@ -903,7 +903,7 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		_, err = client.Request("DELETE", deleteTaskPath, &deleteTaskOpt)
 		if err == nil {
 			return nil
@@ -911,9 +911,9 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 
 		// ErrorCode "OMS.0063" means the task is in progress. This ErrorCode is not accurate, we need retry it.
 		if hasErrorCode(err, "OMS.0063") {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	})
 	if err != nil {
 		return diag.Errorf("error deleting OMS migration task: %s", err)
@@ -922,7 +922,7 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func getTaskStatus(client *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
+func getTaskStatus(client *golangsdk.ServiceClient, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getTaskHttpUrl = "v2/{project_id}/tasks/{task_id}"
@@ -952,7 +952,7 @@ func getTaskStatus(client *golangsdk.ServiceClient, taskId string) resource.Stat
 }
 
 func waitForTaskStartedORCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"0", "1"},
 		Target:     []string{"2", "5"},
 		Refresh:    getTaskStatus(client, taskID),

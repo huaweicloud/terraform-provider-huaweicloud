@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1016,7 +1016,7 @@ func resourceComponentInstanceCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(resp.InstanceId)
 
 	log.Printf("[DEBUG] Waiting for the component instance to become running, the instance ID is %s.", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      componentInstanceRefreshFunc(client, resp.JobId),
@@ -1498,7 +1498,7 @@ func resourceComponentInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	log.Printf("[DEBUG] Waiting for the component instance to become running, the instance ID is %s.", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      componentInstanceRefreshFunc(client, resp.JobId),
@@ -1531,7 +1531,7 @@ func resourceComponentInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	log.Printf("[DEBUG] Waiting for the component instance to become deleted, the instance ID is %s.", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      componentInstanceRefreshFunc(client, resp.JobId),
@@ -1548,7 +1548,7 @@ func resourceComponentInstanceDelete(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func componentInstanceRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func componentInstanceRefreshFunc(c *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opt := jobs.ListOpts{
 			Limit: 50,

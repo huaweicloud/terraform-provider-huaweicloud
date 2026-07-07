@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -109,7 +110,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Waiting for Neutron Floating IP (%s) to become available.", floatingIP.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForFloatingIPActive(networkingClient, floatingIP.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -117,7 +118,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error creating Neutron Floating IP: %s", err)
 	}
@@ -181,7 +182,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error creating network client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFloatingIPDelete(networkingClient, d.Id()),
@@ -190,7 +191,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting Neutron Floating IP: %s", err)
 	}
@@ -199,7 +200,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
+func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		f, err := floatingips.Get(networkingClient, fId).Extract()
 		if err != nil {
@@ -215,7 +216,7 @@ func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId stri
 	}
 }
 
-func waitForFloatingIPDelete(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
+func waitForFloatingIPDelete(networkingClient *golangsdk.ServiceClient, fId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete Floating IP %s.\n", fId)
 

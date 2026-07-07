@@ -1,12 +1,13 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -212,7 +213,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	}
 	log.Printf("[INFO] instance ID: %s", v.InstanceID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"CREATING"},
 		Target:     []string{"RUNNING"},
 		Refresh:    DmsInstancesV1StateRefreshFunc(dmsV1Client, v.InstanceID),
@@ -220,7 +221,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for DMS instance (%s) to become ready: %s", v.InstanceID, err)
 	}
@@ -377,7 +378,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 	// Wait for the instance to delete before moving on.
 	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DELETING", "RUNNING"},
 		Target:     []string{"DELETED"},
 		Refresh:    DmsInstancesV1StateRefreshFunc(dmsV1Client, d.Id()),
@@ -386,7 +387,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for DMS instance (%s) to delete: %s", d.Id(), err)
 	}
@@ -396,7 +397,7 @@ func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func DmsInstancesV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func DmsInstancesV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {

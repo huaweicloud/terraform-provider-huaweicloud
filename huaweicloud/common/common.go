@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -135,25 +135,25 @@ func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, r
 	return err
 }
 
-func CheckForRetryableError(err error) *resource.RetryError {
+func CheckForRetryableError(err error) *retry.RetryError {
 	switch errCode := err.(type) {
 	case golangsdk.ErrDefault500:
-		return resource.RetryableError(err)
+		return retry.RetryableError(err)
 	case golangsdk.ErrUnexpectedResponseCode:
 		switch errCode.Actual {
 		case 409, 503:
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		default:
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 	default:
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	}
 }
 
 func WaitOrderComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"2", "3", "6"}, // 2: Pending refund 3: Processing; 6: Pending payment.
 		Target:       []string{"5"},           // 5: Completed.
 		Refresh:      refreshOrderStatusFunc(client, orderId),
@@ -168,7 +168,7 @@ func WaitOrderComplete(ctx context.Context, client *golangsdk.ServiceClient, ord
 	return nil
 }
 
-func refreshOrderStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
+func refreshOrderStatusFunc(client *golangsdk.ServiceClient, orderId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := orders.Get(client, orderId).Extract()
 		if err != nil {
@@ -183,7 +183,7 @@ func refreshOrderStatusFunc(client *golangsdk.ServiceClient, orderId string) res
 // resources may not be generated when the order is not completed.
 func WaitOrderResourceComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DONE"},
 		Refresh:      refreshOrderResourceStatusFunc(client, orderId),
@@ -200,7 +200,7 @@ func WaitOrderResourceComplete(ctx context.Context, client *golangsdk.ServiceCli
 	return r.ResourceId, nil
 }
 
-func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
+func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		if strings.TrimSpace(orderId) == "" {
 			return nil, "ERROR", fmt.Errorf("order id is empty")
@@ -225,7 +225,7 @@ func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId str
 // resources may not be generated when the order is not completed.
 func WaitOrderAllResourceComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DONE"},
 		Refresh:      refreshOrderAllResourceStatusFunc(client, orderId),
@@ -242,7 +242,7 @@ func WaitOrderAllResourceComplete(ctx context.Context, client *golangsdk.Service
 	return r.ResourceId, nil
 }
 
-func refreshOrderAllResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
+func refreshOrderAllResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		if strings.TrimSpace(orderId) == "" {
 			return nil, "ERROR", fmt.Errorf("order id is empty")
@@ -283,7 +283,7 @@ type RetryContextWithWaitForStateParam struct {
 	// The func that need to be retried
 	RetryFunc RetryFunc
 	// The wait func when the retry which returned by the retry func is true
-	WaitFunc resource.StateRefreshFunc
+	WaitFunc retry.StateRefreshFunc
 	// The target of the wait func
 	WaitTarget []string
 	// The pending of the wait func
@@ -301,13 +301,13 @@ type RetryContextWithWaitForStateParam struct {
 // if the retry of the return is true, the RetryFunc will be retried, and the WaitFunc will be called if it is not nil
 // if the retry of the return is false, the retry will be ended and the error of the retry func will be returned
 func RetryContextWithWaitForState(param *RetryContextWithWaitForStateParam) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"retryable"},
 		Target:       []string{"success"},
 		Timeout:      param.Timeout,
 		PollInterval: param.PollInterval,
 		Refresh: func() (interface{}, string, error) {
-			res, retry, err := param.RetryFunc()
+			res, shouldRetry, err := param.RetryFunc()
 			if err == nil {
 				if res != nil {
 					return res, "success", nil
@@ -317,12 +317,12 @@ func RetryContextWithWaitForState(param *RetryContextWithWaitForStateParam) (int
 				return "", "success", nil
 			}
 
-			if !retry {
+			if !shouldRetry {
 				return nil, "quit", err
 			}
 
 			if param.WaitFunc != nil {
-				stateConf := &resource.StateChangeConf{
+				stateConf := &retry.StateChangeConf{
 					Target:       param.WaitTarget,
 					Pending:      param.WaitPending,
 					Refresh:      param.WaitFunc,

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -128,8 +128,8 @@ func resourceTaurusDBBackupCreate(ctx context.Context, d *schema.ResourceData, m
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -164,7 +164,7 @@ func resourceTaurusDBBackupCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func waitForGaussDBBackupComplete(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"BUILDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      gaussDBBackupStateRefreshFunc(client, d.Id()),
@@ -180,7 +180,7 @@ func waitForGaussDBBackupComplete(ctx context.Context, d *schema.ResourceData, c
 	return nil
 }
 
-func gaussDBBackupStateRefreshFunc(client *golangsdk.ServiceClient, backupID string) resource.StateRefreshFunc {
+func gaussDBBackupStateRefreshFunc(client *golangsdk.ServiceClient, backupID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		backup, err := getGaussDBBackup(client, backupID)
 		if err != nil {

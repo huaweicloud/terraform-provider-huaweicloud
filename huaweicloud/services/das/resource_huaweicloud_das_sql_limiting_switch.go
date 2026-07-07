@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -86,7 +86,7 @@ func buildSqlLimitingSwitchBodyParams(d *schema.ResourceData) map[string]interfa
 func waitForSqlLimitingSwitchComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	targetStatus := d.Get("status").(string)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Switching"},
 		Target:       []string{targetStatus},
 		Refresh:      sqlLimitingSwitchRefreshFunc(client, d),
@@ -141,7 +141,7 @@ func resourceSqlLimitingSwitchCreate(ctx context.Context, d *schema.ResourceData
 	return resourceSqlLimitingSwitchRead(ctx, d, meta)
 }
 
-func sqlLimitingSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func sqlLimitingSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v3/{project_id}/instances/{instance_id}/sql-limit/switch"
 		getPath := client.Endpoint + httpUrl

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -315,7 +315,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	d.SetId(n.ID)
 	log.Printf("[INFO] Vpc Subnet ID: %s", n.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"UNKNOWN"},
 		Target:       []string{"ACTIVE"},
 		Refresh:      waitForVpcSubnetActive(subnetClient, n.ID),
@@ -495,7 +495,7 @@ func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	vpcID := d.Get("vpc_id").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"ACTIVE"},
 		Target:       []string{"DELETED"},
 		Refresh:      waitForVpcSubnetDelete(subnetClient, vpcID, d.Id()),
@@ -513,7 +513,7 @@ func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string) resource.StateRefreshFunc {
+func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := subnets.Get(subnetClient, vpcId).Extract()
 		if err != nil {
@@ -533,7 +533,7 @@ func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string)
 	}
 }
 
-func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string, subnetId string) resource.StateRefreshFunc {
+func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string, subnetId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
 		r, err := subnets.Get(subnetClient, subnetId).Extract()

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -124,7 +124,7 @@ func resourceInstanceBatchActionCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	for _, instanceId := range operatedSuccessedInstanceIds {
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      refreshBatchActionInstancesState(client, instanceId.(string)),
@@ -147,7 +147,7 @@ func resourceInstanceBatchActionCreate(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func refreshBatchActionInstancesState(client *golangsdk.ServiceClient, instanceId string) resource.StateRefreshFunc {
+func refreshBatchActionInstancesState(client *golangsdk.ServiceClient, instanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// When an instance is deleted, the query instance list API returns data that no longer contains the instance,
 		// but the instance is actually in the deletion state. Therefore, use the query instance details API

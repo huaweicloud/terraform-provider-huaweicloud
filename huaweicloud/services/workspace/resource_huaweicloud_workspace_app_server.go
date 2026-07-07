@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -331,7 +331,7 @@ func waitForPrePaidServerComplete(ctx context.Context, cfg *config.Config, regio
 
 func waitForAppServerJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, jobId string) (interface{},
 	error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      refreshAppServerJobStatusFunc(client, jobId),
@@ -344,7 +344,7 @@ func waitForAppServerJobCompleted(ctx context.Context, client *golangsdk.Service
 	return serverResp, err
 }
 
-func refreshAppServerJobStatusFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func refreshAppServerJobStatusFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v2/{project_id}/job/{job_id}"
 		getJobPath := client.Endpoint + httpUrl
@@ -569,7 +569,7 @@ func deleteAppServerById(ctx context.Context, client *golangsdk.ServiceClient, s
 }
 
 func waitingForServerDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, serverId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -124,7 +124,7 @@ func resourceBackupStopCreate(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func waitForStopBackupCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, jobId string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      jobStatusRefreshFunc(client, jobId),
@@ -137,7 +137,7 @@ func waitForStopBackupCompleted(ctx context.Context, client *golangsdk.ServiceCl
 	return err
 }
 
-func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getJobDetailInfo(client, jobId)
 		if err != nil {

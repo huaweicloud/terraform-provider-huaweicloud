@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -132,7 +133,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Firewall group created: %#v", firewall_group)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForFirewallGroupActive(fwClient, firewall_group.ID),
@@ -141,7 +142,7 @@ func resourceFWFirewallGroupV2Create(d *schema.ResourceData, meta interface{}) e
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	log.Printf("[DEBUG] Firewall group (%s) is active.", firewall_group.ID)
 
 	d.SetId(firewall_group.ID)
@@ -231,7 +232,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE", "PENDING_UPDATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForFirewallGroupActive(fwClient, d.Id()),
@@ -240,7 +241,7 @@ func resourceFWFirewallGroupV2Update(d *schema.ResourceData, meta interface{}) e
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	return resourceFWFirewallGroupV2Read(d, meta)
 }
@@ -255,7 +256,7 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Ensure the firewall group was fully created/updated before being deleted.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE", "PENDING_UPDATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForFirewallGroupActive(fwClient, d.Id()),
@@ -264,7 +265,7 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	err = firewall_groups.Delete(fwClient, d.Id()).Err
 
@@ -272,7 +273,7 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	stateConf = &resource.StateChangeConf{
+	stateConf = &retry.StateChangeConf{
 		Pending:    []string{"DELETING"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFirewallGroupDeletion(fwClient, d.Id()),
@@ -281,12 +282,12 @@ func resourceFWFirewallGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	return err
 }
 
-func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
 		var fw FirewallGroup
@@ -299,7 +300,7 @@ func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) re
 	}
 }
 
-func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
 		fw, err := firewall_groups.Get(fwClient, id).Extract()

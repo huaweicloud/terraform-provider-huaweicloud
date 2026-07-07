@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -353,8 +353,8 @@ func resourceDiagnosisTaskCreate(ctx context.Context, d *schema.ResourceData, me
 
 	retryFunc := func() (interface{}, bool, error) {
 		createDiagnosisTaskResp, createErr := createDiagnosisTaskClient.Request("POST", createDiagnosisTaskPath, &createDiagnosisTaskOpt)
-		retry, err := handleOperationError(createErr)
-		return createDiagnosisTaskResp, retry, err
+		shouldRetry, err := handleOperationError(createErr)
+		return createDiagnosisTaskResp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -381,7 +381,7 @@ func resourceDiagnosisTaskCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	d.SetId(reportId.(string))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"diagnosing"},
 		Target:       []string{"finished"},
 		Refresh:      diagnosisTaskRefreshFunc(instanceID, d.Id(), createDiagnosisTaskClient),
@@ -522,7 +522,7 @@ func resourceDiagnosisTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	return resourceDiagnosisTaskRead(ctx, d, meta)
 }
 
-func diagnosisTaskRefreshFunc(instanceID, reportID string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func diagnosisTaskRefreshFunc(instanceID, reportID string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		report, err := getDiagnosisReport(instanceID, reportID, client)
 		if err != nil {

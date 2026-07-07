@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -175,7 +175,7 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId(id)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
 		Pending:      []string{"CREATE_IN_PROGRESS"},
 		Refresh:      rmsAssignmentPackageStateRefreshFunc(createAssignmentPackageClient, cfg, d.Id()),
@@ -315,7 +315,7 @@ func resourceAssignmentPackageUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error updating RMS assignment package: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"UPDATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
 		Pending:      []string{"UPDATE_IN_PROGRESS"},
 		Refresh:      rmsAssignmentPackageStateRefreshFunc(updateAssignmentPackageClient, cfg, assignmentPackageId),
@@ -372,7 +372,7 @@ func resourceAssignmentPackageDelete(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error deleting RMS assignment package: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"DELETE_IN_PROGRESS"},
 		Refresh:      rmsAssignmentPackageStateRefreshFunc(deleteAssignmentPackageClient, cfg, d.Id()),
@@ -388,7 +388,7 @@ func resourceAssignmentPackageDelete(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func rmsAssignmentPackageStateRefreshFunc(client *golangsdk.ServiceClient, cfg *config.Config, id string) resource.StateRefreshFunc {
+func rmsAssignmentPackageStateRefreshFunc(client *golangsdk.ServiceClient, cfg *config.Config, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getAssignmentPackageRespBody, err := getAssignmentPackage(client, cfg, id)
 		if err != nil {

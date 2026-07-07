@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -109,7 +109,7 @@ func resourceVPCPeeringCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	d.SetId(n.ID)
 	log.Printf("[DEBUG] Waiting for VPC Peering Connection(%s) to become available", n.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"CREATING"},
 		Target:     []string{"PENDING_ACCEPTANCE", "ACTIVE"},
 		Refresh:    waitForVpcPeeringActive(peeringClient, n.ID),
@@ -185,7 +185,7 @@ func resourceVPCPeeringDelete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating VPC Peering Connection client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForVpcPeeringDelete(peeringClient, d.Id()),
@@ -202,7 +202,7 @@ func resourceVPCPeeringDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForVpcPeeringActive(peeringClient *golangsdk.ServiceClient, peeringId string) resource.StateRefreshFunc {
+func waitForVpcPeeringActive(peeringClient *golangsdk.ServiceClient, peeringId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := peerings.Get(peeringClient, peeringId).Extract()
 		if err != nil {
@@ -217,7 +217,7 @@ func waitForVpcPeeringActive(peeringClient *golangsdk.ServiceClient, peeringId s
 	}
 }
 
-func waitForVpcPeeringDelete(peeringClient *golangsdk.ServiceClient, peeringId string) resource.StateRefreshFunc {
+func waitForVpcPeeringDelete(peeringClient *golangsdk.ServiceClient, peeringId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := peerings.Get(peeringClient, peeringId).Extract()
 

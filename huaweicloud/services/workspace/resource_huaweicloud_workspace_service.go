@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -338,7 +338,7 @@ func buildServiceCreateOpts(d *schema.ResourceData) services.CreateOpts {
 	}
 }
 
-func refreshServiceStatusFunc(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func refreshServiceStatusFunc(client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := services.Get(client)
 		if err != nil {
@@ -351,7 +351,7 @@ func refreshServiceStatusFunc(client *golangsdk.ServiceClient) resource.StateRef
 
 func waitForServiceCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) (string,
 	error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PREPARING", "SUBSCRIBING"},
 		Target:       []string{"SUBSCRIBED"},
 		Refresh:      refreshServiceStatusFunc(client),
@@ -697,7 +697,7 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceServiceRead(ctx, d, meta)
 }
 
-func refreshServiceClosableStatusFunc(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func refreshServiceClosableStatusFunc(client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := services.Get(client)
 		if err != nil {
@@ -712,7 +712,7 @@ func refreshServiceClosableStatusFunc(client *golangsdk.ServiceClient) resource.
 }
 
 func waitForServiceClosableReady(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
 		Refresh:      refreshServiceClosableStatusFunc(client),
@@ -726,7 +726,7 @@ func waitForServiceClosableReady(ctx context.Context, client *golangsdk.ServiceC
 }
 
 func waitForServiceDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DEREGISTERING"},
 		Target:       []string{"CLOSED"},
 		Refresh:      refreshServiceStatusFunc(client),

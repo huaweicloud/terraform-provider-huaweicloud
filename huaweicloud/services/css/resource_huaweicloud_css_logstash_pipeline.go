@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -307,7 +307,7 @@ func hotStopPipeline(ctx context.Context, d *schema.ResourceData, cssV1Client *g
 
 func pipelineStatusCheck(ctx context.Context, d *schema.ResourceData,
 	cssV1Client *golangsdk.ServiceClient, duration time.Duration, waitingTarget string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{waitingTarget},
 		Refresh:      pipelineStateRefreshFunc(d, cssV1Client),
@@ -322,7 +322,7 @@ func pipelineStatusCheck(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func pipelineStateRefreshFunc(d *schema.ResourceData, cssV1Client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func pipelineStateRefreshFunc(d *schema.ResourceData, cssV1Client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		pipelines, err := getPipelines(d, cssV1Client)
 		if err != nil {

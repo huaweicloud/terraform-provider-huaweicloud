@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -125,7 +125,7 @@ func resourceControlCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("get empty operationId")
 	}
 
-	stateConf := resource.StateChangeConf{
+	stateConf := retry.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      controlStateRefreshFunc(enableControlClient, operationId),
@@ -239,7 +239,7 @@ func resourceControlDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 	operationId := utils.PathSearch("control_operate_request_id", disableControlRespBody, "").(string)
 
-	stateConf := resource.StateChangeConf{
+	stateConf := retry.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
 		Refresh:      controlStateRefreshFunc(disableControlClient, operationId),
@@ -276,7 +276,7 @@ func buildControlBodyParams(d *schema.ResourceData) (map[string]interface{}, err
 	return bodyParams, nil
 }
 
-func controlStateRefreshFunc(client *golangsdk.ServiceClient, operationId string) resource.StateRefreshFunc {
+func controlStateRefreshFunc(client *golangsdk.ServiceClient, operationId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getControlStatusHttpUrl := "v1/governance/operation-control-status/{operation_control_status_id}"
 		getControlStatusPath := client.Endpoint + getControlStatusHttpUrl

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -176,7 +176,7 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	d.SetId(endpointId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
 		Refresh:      refreshEndpointStatus(client, endpointId),
@@ -199,7 +199,7 @@ func resourceEndpointAssignmentCreate(ctx context.Context, d *schema.ResourceDat
 	return resourceEndpointAssignmentRead(ctx, d, meta)
 }
 
-func refreshEndpointStatus(client *golangsdk.ServiceClient, endpointId string) resource.StateRefreshFunc {
+func refreshEndpointStatus(client *golangsdk.ServiceClient, endpointId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		endPoint, err := GetEntpointById(client, endpointId)
 		if err != nil {
@@ -383,7 +383,7 @@ func resourceEndpointAssignmentUpdate(ctx context.Context, d *schema.ResourceDat
 			return diag.FromErr(err)
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Target:       []string{"ACTIVE"},
 			Pending:      []string{"PENDING"},
 			Refresh:      refreshEndpointStatus(client, d.Id()),
@@ -513,7 +513,7 @@ func resourceEndpointAssignmentDelete(ctx context.Context, d *schema.ResourceDat
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting DNS endpoint (%s): %s", endpointId, err))
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target: []string{"DELETED"},
 		// Endpoints with status "ERROR" are allowed to be deleted.
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},

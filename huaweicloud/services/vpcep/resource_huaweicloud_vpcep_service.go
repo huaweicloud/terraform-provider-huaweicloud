@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -330,7 +330,7 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 
 	d.SetId(n.ID)
 	log.Printf("[INFO] Waiting for VPC endpoint service(%s) to become available", n.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"creating"},
 		Target:       []string{"available"},
 		Refresh:      waitForResourceStatus(vpcepClient, n.ID),
@@ -469,7 +469,7 @@ func resourceVPCEndpointServiceDelete(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error deleting VPC endpoint service %s: %s", d.Id(), err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"available", "deleting"},
 		Target:       []string{"deleted"},
 		Refresh:      waitForResourceStatus(vpcepClient, d.Id()),
@@ -540,7 +540,7 @@ func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) (
 	return
 }
 
-func waitForResourceStatus(vpcepClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForResourceStatus(vpcepClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := services.Get(vpcepClient, id).Extract()
 		if err != nil {

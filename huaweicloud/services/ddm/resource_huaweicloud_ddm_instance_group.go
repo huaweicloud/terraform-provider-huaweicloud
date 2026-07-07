@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -166,8 +166,8 @@ func resourceInstanceGroupCreate(ctx context.Context, d *schema.ResourceData, me
 	createOpt.JSONBody = utils.RemoveNil(buildCreateInstanceGroupBodyParams(d))
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", createPath, &createOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	createResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -231,7 +231,7 @@ func resourceInstanceGroupCreate(ctx context.Context, d *schema.ResourceData, me
 		d.SetId(groupId.(string))
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, client),
@@ -410,8 +410,8 @@ func resourceInstanceGroupDelete(ctx context.Context, d *schema.ResourceData, me
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	deleteResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -453,7 +453,7 @@ func resourceInstanceGroupDelete(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, client),
@@ -486,7 +486,7 @@ func resourceInstanceGroupImportState(_ context.Context, d *schema.ResourceData,
 }
 
 func checkJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      jobRefreshFunc(client, jobID),
@@ -500,7 +500,7 @@ func checkJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, job
 	return nil
 }
 
-func jobRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func jobRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v3/{project_id}/jobs/{job_id}"

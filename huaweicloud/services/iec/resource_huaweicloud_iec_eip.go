@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -135,7 +135,7 @@ func resourceEipCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	d.SetId(n.ID)
 
 	log.Printf("[DEBUG] waiting for public IP (%s) to become active", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE", "UNBOUND"},
 		Refresh:    waitForEipStatus(eipClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -253,7 +253,7 @@ func resourceEipDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	// waiting for public IP to become deleted
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"DELETED"},
 		Refresh:    waitForEipStatus(eipClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -287,7 +287,7 @@ func operateOnPort(d *schema.ResourceData, client *golangsdk.ServiceClient, port
 	return nil
 }
 
-func waitForEipStatus(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForEipStatus(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := publicips.Get(client, id).Extract()
 		if err != nil {

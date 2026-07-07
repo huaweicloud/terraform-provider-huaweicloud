@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -218,7 +218,7 @@ func enablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk.
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      policyStateRefreshFunc(client, policyType, "enabled"),
@@ -239,7 +239,7 @@ func disablePolicy(ctx context.Context, timeout time.Duration, client *golangsdk
 	if err != nil {
 		return err
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      policyStateRefreshFunc(client, policyType, "disabled"),
@@ -276,7 +276,7 @@ func buildRequestRootPolicyBodyParams(policyType, rootId string) map[string]inte
 	return bodyParams
 }
 
-func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType, target string) resource.StateRefreshFunc {
+func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType, target string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getRoot(client)
 		if err != nil {

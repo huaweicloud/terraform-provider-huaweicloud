@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -90,7 +90,7 @@ func ResourceEIPAssociate() *schema.Resource {
 	}
 }
 
-func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, id string, portId string) resource.StateRefreshFunc {
+func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, id string, portId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := eips.Get(client, id).Extract()
 		if err != nil {
@@ -111,10 +111,10 @@ func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, id string, portId 
 // Parameters:
 //
 //	context.Context: Context detail.
-//	resource.StateRefreshFunc: Function method to get the validation object.
+//	retry.StateRefreshFunc: Function method to get the validation object.
 //	time.Duration: Maximum waiting time.
-func waitForStateCompleted(ctx context.Context, f resource.StateRefreshFunc, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+func waitForStateCompleted(ctx context.Context, f retry.StateRefreshFunc, t time.Duration) error {
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"STARTING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      f,
@@ -254,7 +254,7 @@ func actionOnPort(client *golangsdk.ServiceClient, eipID, portID string, timeout
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"COMPLETED"},
 		Refresh:    eipStatusRefreshFunc(client, eipID, []string{"DOWN", "ACTIVE"}),
 		Timeout:    timeout,
@@ -263,7 +263,7 @@ func actionOnPort(client *golangsdk.ServiceClient, eipID, portID string, timeout
 	}
 
 	//nolint directives: sa1019
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	return err
 }
 

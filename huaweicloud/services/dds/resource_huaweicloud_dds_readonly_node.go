@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -292,7 +292,7 @@ func waitForJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, t
 
 	resourceId := utils.PathSearch("groups[?type=='readonly'].nodes[]|[?status=='creating'].id|[0]", instanceBody, "").(string)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, jobId),
@@ -504,8 +504,8 @@ func updateReadonlyNodeSpecification(ctx context.Context, cfg *config.Config, cl
 
 	retryFunc := func() (interface{}, bool, error) {
 		requestResp, err := client.Request("POST", requestPath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return requestResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return requestResp, shouldRetry, err
 	}
 
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -562,8 +562,8 @@ func updateReadonlyNodeVolumeSize(ctx context.Context, cfg *config.Config, clien
 
 	retryFunc := func() (interface{}, bool, error) {
 		requestResp, err := client.Request("POST", requestPath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return requestResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return requestResp, shouldRetry, err
 	}
 
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -616,8 +616,8 @@ func updateReadonlyNodePrivateIp(ctx context.Context, cfg *config.Config, client
 
 	retryFunc := func() (interface{}, bool, error) {
 		requestResp, err := client.Request("POST", requestPath, &requestOpt)
-		retry, err := handleMultiOperationsError(err)
-		return requestResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return requestResp, shouldRetry, err
 	}
 
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -673,8 +673,8 @@ func resourceReadonlyNodeDelete(ctx context.Context, d *schema.ResourceData, met
 
 	retryFunc := func() (interface{}, bool, error) {
 		requestResp, err := client.Request("DELETE", deletePath, &deleteOpt)
-		retry, err := handleMultiOperationsError(err)
-		return requestResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return requestResp, shouldRetry, err
 	}
 
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -728,7 +728,7 @@ func waitForReadonlyNodeOperationCompleted(ctx context.Context, cfg *config.Conf
 	}
 
 	if jobId != "" {
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
 			Refresh:      JobStateRefreshFunc(client, jobId),

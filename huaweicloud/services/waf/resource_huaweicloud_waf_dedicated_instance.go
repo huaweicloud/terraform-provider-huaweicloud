@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -173,7 +173,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 	return &createOpts
 }
 
-func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
+func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string) retry.StateRefreshFunc {
 	unexpectedRunStatus := []interface{}{2, 3, 4, 5, 6, 7, 8}
 	return func() (interface{}, string, error) {
 		r, err := instances.GetWithEpsId(c, id, epsId)
@@ -214,7 +214,7 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(r.Instances[0].Id)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitForInstanceCreated(client, d.Id(), epsId),
@@ -320,7 +320,7 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
 
-func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
+func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string, epsId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
@@ -356,7 +356,7 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	log.Printf("[DEBUG] Waiting for WAF dedicated instance (%s) to be deleted.", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitForInstanceDeleted(client, d.Id(), epsId),

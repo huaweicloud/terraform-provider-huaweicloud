@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -262,7 +262,7 @@ func buildGEIPAssociateRequestBodyGCB(rawParams interface{}, epsID string) map[s
 
 func waitForJobStatusComplete(ctx context.Context, timeout time.Duration, id string, domainID string,
 	client *golangsdk.ServiceClient) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      jobStatusRefreshFunc(client, id, domainID),
@@ -274,7 +274,7 @@ func waitForJobStatusComplete(ctx context.Context, timeout time.Duration, id str
 	return err
 }
 
-func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobID, domainID string) resource.StateRefreshFunc {
+func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobID, domainID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getJobHttpUrl := "v3/{domain_id}/geip/jobs/{job_id}"
 		getJobPath := client.Endpoint + getJobHttpUrl
@@ -309,7 +309,7 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobID, domainID strin
 
 func waitForGEIPCompleteWithRespBody(ctx context.Context, timeout time.Duration, id string, domainID string,
 	client *golangsdk.ServiceClient) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      geipStatusRefreshFunc(id, domainID, client),

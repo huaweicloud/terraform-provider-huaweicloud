@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -306,7 +306,7 @@ func buildConfParam(d *schema.ResourceData) []string {
 
 func checkSQLJobCancelledResult(ctx context.Context, client *golangsdk.ServiceClient, id string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"Pending"},
 		Target:  []string{"Done"},
 		Refresh: func() (interface{}, string, error) {
@@ -338,7 +338,7 @@ func checkSQLJobCancelledResult(ctx context.Context, client *golangsdk.ServiceCl
 }
 
 func waitingforJobRunning(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"Pending"},
 		Target:  []string{"Done"},
 		Refresh: func() (interface{}, string, error) {

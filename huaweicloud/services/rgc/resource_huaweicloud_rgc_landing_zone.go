@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -244,7 +244,7 @@ func resourceLandingZoneCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(generateUUID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
 		Refresh:      landingZoneStateRefreshFunc(setupLandingZoneClient),
@@ -329,7 +329,7 @@ func resourceLandingZoneUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error update landing zone: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
 		Refresh:      landingZoneStateRefreshFunc(updateLandingZoneClient),
@@ -372,7 +372,7 @@ func resourceLandingZoneDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error delete landing zone: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
 		Refresh:      landingZoneStateRefreshFunc(deleteLandingZoneClient),
@@ -488,7 +488,7 @@ func buildLoggingBucketBodyParams(loggingBucket interface{}) map[string]interfac
 	return bodyParams
 }
 
-func landingZoneStateRefreshFunc(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func landingZoneStateRefreshFunc(client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getLandingZoneStatusHttpUrl := "v1/landing-zone/status"
 		getLandingZoneStatusPath := client.Endpoint + getLandingZoneStatusHttpUrl

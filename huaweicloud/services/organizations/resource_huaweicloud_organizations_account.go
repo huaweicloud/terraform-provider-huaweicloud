@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -156,7 +156,7 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("unable to find the account creation status ID from the API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      accountStateRefreshFunc(client, statusID),
@@ -193,7 +193,7 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceAccountRead(ctx, d, meta)
 }
 
-func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId string) resource.StateRefreshFunc {
+func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v1/organizations/create-account-status/{create_account_status_id}"
 		getPath := client.Endpoint + httpUrl

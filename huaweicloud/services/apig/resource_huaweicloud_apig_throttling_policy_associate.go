@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -72,7 +72,7 @@ func ResourceThrottlingPolicyAssociate() *schema.Resource {
 }
 
 func throttlingPolicyBindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, policyId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/unbinded-apis"
@@ -129,7 +129,7 @@ func bindThrottlingPolicyToApis(ctx context.Context, client *golangsdk.ServiceCl
 		return fmt.Errorf("error binding throttling policy to one or more APIs: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: throttlingPolicyBindingRefreshFunc(client, instanceId, policyId, publishIds),
@@ -224,7 +224,7 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 }
 
 func throttlingPolicyUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, policyId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/binded-apis"
@@ -308,7 +308,7 @@ func unbindPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt thro
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: throttlingPolicyUnbindingRefreshFunc(client, instanceId, policyId, publishIds),

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -171,7 +171,7 @@ func resourceProvisionPermissionSetDelete(_ context.Context, _ *schema.ResourceD
 func checkProvisionPermissionSetStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	instanceId := d.Get("instance_id").(string)
 	timeout := d.Timeout(schema.TimeoutCreate)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      provisionPermissionSetStateRefreshFunc(client, instanceId, d.Id()),
@@ -186,7 +186,7 @@ func checkProvisionPermissionSetStatus(ctx context.Context, client *golangsdk.Se
 	return nil
 }
 
-func provisionPermissionSetStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, id string) resource.StateRefreshFunc {
+func provisionPermissionSetStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := getProvisionPermissionSetStatus(client, instanceId, id)
 		if err != nil {

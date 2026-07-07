@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -255,7 +255,7 @@ func waitForElbV3Rule(ctx context.Context, elbClient *golangsdk.ServiceClient, l
 	id string, target string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for rule %s to become %s", id, target)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{target},
 		Pending:      nil,
 		Refresh:      resourceElbV3RuleRefreshFunc(elbClient, l7policyID, id),
@@ -281,7 +281,7 @@ func waitForElbV3Rule(ctx context.Context, elbClient *golangsdk.ServiceClient, l
 }
 
 func resourceElbV3RuleRefreshFunc(elbClient *golangsdk.ServiceClient,
-	l7PolicyID string, id string) resource.StateRefreshFunc {
+	l7PolicyID string, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rule, err := l7policies.GetRule(elbClient, l7PolicyID, id).Extract()
 		if err != nil {

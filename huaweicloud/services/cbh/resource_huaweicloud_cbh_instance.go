@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -497,7 +497,7 @@ func waitingForCBHInstanceShutoff(ctx context.Context, client *golangsdk.Service
 	timeout time.Duration) error {
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
 	unexpectedStatus := []string{"DELETING", "DELETED", "ERROR", "FROZEN"}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -539,7 +539,7 @@ func waitingForCBHInstanceActive(ctx context.Context, client *golangsdk.ServiceC
 	timeout time.Duration) error {
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
 	unexpectedStatus := []string{"SHUTOFF", "DELETING", "DELETED", "ERROR", "FROZEN"}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -580,7 +580,7 @@ func waitingForCBHInstanceTaskCompleted(ctx context.Context, client *golangsdk.S
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
 	unexpectedTaskStatus := []string{"delete_wait", "frozen", "unfrozen", "updating", "configuring-ha",
 		"data-migrating", "rollback", "traffic-switchover"}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -1162,7 +1162,7 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 func waitingForCBHInstanceDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration) error {
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

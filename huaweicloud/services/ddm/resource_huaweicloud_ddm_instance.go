@@ -16,7 +16,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -292,7 +292,7 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("unable to find the DDM instance ID from the API response")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, createInstanceClient),
@@ -457,7 +457,7 @@ func updateInstanceName(ctx context.Context, d *schema.ResourceData, client *gol
 		return fmt.Errorf("error updating DDM instance name: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), client),
@@ -526,7 +526,7 @@ func updateInstanceNodeNum(ctx context.Context, d *schema.ResourceData, client *
 		return fmt.Errorf("error updating DDM instance node number: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), client),
@@ -568,7 +568,7 @@ func updateInstanceFlavor(ctx context.Context, d *schema.ResourceData, client *g
 		return fmt.Errorf("error updating DDM instance flavor: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), client),
@@ -722,8 +722,8 @@ func restartDdmInstance(ctx context.Context, client *golangsdk.ServiceClient, in
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", restartPath, &restartOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -738,7 +738,7 @@ func restartDdmInstance(ctx context.Context, client *golangsdk.ServiceClient, in
 		return fmt.Errorf("error restarting instance: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, client),
@@ -788,8 +788,8 @@ func modifyParameters(ctx context.Context, d *schema.ResourceData, client *golan
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("PUT", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
 	}
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -1050,7 +1050,7 @@ func resourceDdmInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error unsubscribe DDM instance: %s", err)
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"RUNNING", "PENDING"},
 			Target:       []string{"DELETED"},
 			Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), deleteInstanceClient),
@@ -1084,7 +1084,7 @@ func resourceDdmInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error deleting DDM instance: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING", "PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), deleteInstanceClient),
@@ -1115,7 +1115,7 @@ func buildDeleteInstanceQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func ddmInstanceStatusRefreshFunc(id string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func ddmInstanceStatusRefreshFunc(id string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v1/{project_id}/instances/{instance_id}"

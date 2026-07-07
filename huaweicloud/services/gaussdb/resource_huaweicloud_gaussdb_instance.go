@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -588,7 +588,7 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"BUILD", "BACKING UP"},
 		Target:       []string{"ACTIVE"},
 		Refresh:      instanceStateRefreshFunc(client, d.Id()),
@@ -1921,7 +1921,7 @@ func buildUpdateAdvanceFeaturesBodyParams(d *schema.ResourceData) map[string]int
 func checkAdvanceFeaturesJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	timeout string) error {
 	rawAdvanceFeatures := d.Get("advance_features").(*schema.Set).List()
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client, d.Id(), rawAdvanceFeatures),
@@ -1936,7 +1936,7 @@ func checkAdvanceFeaturesJobFinish(ctx context.Context, d *schema.ResourceData, 
 }
 
 func gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
-	rawAdvanceFeatures []interface{}) resource.StateRefreshFunc {
+	rawAdvanceFeatures []interface{}) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		features, err := getAdvanceFeatures(client, instanceId)
 		if err != nil {
@@ -1988,7 +1988,7 @@ func buildUpdateWdrSnapshotStatusBodyParams(d *schema.ResourceData) map[string]i
 func checkWdrSnapshotStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	timeout string) error {
 	wdrSnapshotStatus := d.Get("wdr_snapshot_status").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDbWdrSnapshotStatusRefreshFunc(client, d.Id(), wdrSnapshotStatus),
@@ -2003,7 +2003,7 @@ func checkWdrSnapshotStatusJobFinish(ctx context.Context, d *schema.ResourceData
 }
 
 func gaussDbWdrSnapshotStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
-	wdrSnapshotStatus string) resource.StateRefreshFunc {
+	wdrSnapshotStatus string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rawStatus, err := getWdrSnapshotStatus(client, instanceId)
 		if err != nil {
@@ -2092,7 +2092,7 @@ func buildUpdateAutoScalingBodyParams(d *schema.ResourceData) map[string]interfa
 func checkAspStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	timeout string) error {
 	aspStatus := d.Get("asp_status").(string)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDbAspStatusRefreshFunc(client, d.Id(), aspStatus),
@@ -2107,7 +2107,7 @@ func checkAspStatusJobFinish(ctx context.Context, d *schema.ResourceData, client
 }
 
 func gaussDbAspStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
-	aspStatus string) resource.StateRefreshFunc {
+	aspStatus string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		rawStatus, err := getAspStatus(client, instanceId)
 		if err != nil {
@@ -2280,7 +2280,7 @@ func resourceOpenGaussInstanceDelete(ctx context.Context, d *schema.ResourceData
 
 func checkGaussDBOpenGaussJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, delay int,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Running"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDBOpenGaussStatusRefreshFunc(client, jobID),
@@ -2294,7 +2294,7 @@ func checkGaussDBOpenGaussJobFinish(ctx context.Context, client *golangsdk.Servi
 	return nil
 }
 
-func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		res, err := getGaussDBOpenGaussInstancesById(client, instanceID)
 		if err != nil {
@@ -2309,7 +2309,7 @@ func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 	}
 }
 
-func gaussDBOpenGaussStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func gaussDBOpenGaussStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v3/{project_id}/jobs?id={job_id}"

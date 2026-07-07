@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -178,7 +178,7 @@ func waitForRepositoryActive(ctx context.Context, cfg *config.Config, d *schema.
 			200,
 		},
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Refresh:      repositoryRefreshFunc(getRepositoryClient, getRepositoryPath, createRepositoryOpt),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -192,7 +192,7 @@ func waitForRepositoryActive(ctx context.Context, cfg *config.Config, d *schema.
 }
 
 func repositoryRefreshFunc(client *golangsdk.ServiceClient, path string,
-	opts golangsdk.RequestOpts) resource.StateRefreshFunc {
+	opts golangsdk.RequestOpts) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := client.Request("GET", path, &opts)
 		if err != nil {

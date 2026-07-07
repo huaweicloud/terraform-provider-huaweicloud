@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1263,7 +1263,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error unsubscribing BMS server: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Deleting", "ACTIVE", "SHUTOFF"},
 		Target:       []string{"DELETED"},
 		Refresh:      waitForBmsInstanceDelete(client, d.Id()),
@@ -1313,7 +1313,7 @@ func buildGetEipByAddressQueryParams(address string) string {
 	return fmt.Sprintf("?enterprise_project_id=all_granted_eps&public_ip_address=%s", address)
 }
 
-func waitForBmsInstanceDelete(client *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
+func waitForBmsInstanceDelete(client *golangsdk.ServiceClient, serverId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getInstance(client, serverId)
 		if err != nil {

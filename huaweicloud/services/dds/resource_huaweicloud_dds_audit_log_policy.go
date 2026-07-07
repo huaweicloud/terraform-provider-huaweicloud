@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -151,7 +151,7 @@ func setAuditLogPolicy(ctx context.Context, cfg *config.Config, d *schema.Resour
 	if operateMethod == "updating" {
 		timeout = schema.TimeoutUpdate
 	}
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"success"},
 		Refresh:      ddsInstanceAuditLogPolicyRefreshFunc(setAuditLogPolicyClient, instanceId),
@@ -168,7 +168,7 @@ func setAuditLogPolicy(ctx context.Context, cfg *config.Config, d *schema.Resour
 	return nil
 }
 
-func ddsInstanceAuditLogPolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func ddsInstanceAuditLogPolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := instances.ListInstanceOpts{
 			Id: instanceID,
@@ -294,7 +294,7 @@ func resourceDdsAuditLogPolicyDelete(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error deleting DDS audit log policy: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"success"},
 		Refresh:      ddsInstanceAuditLogPolicyRefreshFunc(deleteAuditLogPolicyClient, d.Id()),

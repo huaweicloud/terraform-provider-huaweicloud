@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -915,7 +915,7 @@ func resourceVirtualInterfaceDelete(ctx context.Context, d *schema.ResourceData,
 		return common.CheckDeletedDiag(d, err, "error deleting DC virtual interface")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      virtualInterfaceRefreshFunc(client, d.Id()),
@@ -931,7 +931,7 @@ func resourceVirtualInterfaceDelete(ctx context.Context, d *schema.ResourceData,
 }
 
 func waitForVirtualInterfaceAvailable(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"ACTIVE", "DOWN"},
 		Refresh:      virtualInterfaceRefreshFunc(client, id),
@@ -945,7 +945,7 @@ func waitForVirtualInterfaceAvailable(ctx context.Context, client *golangsdk.Ser
 	return nil
 }
 
-func virtualInterfaceRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func virtualInterfaceRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getVirtualInterface(client, id)
 		if err != nil {

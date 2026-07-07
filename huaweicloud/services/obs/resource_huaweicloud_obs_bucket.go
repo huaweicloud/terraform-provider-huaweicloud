@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -1197,7 +1197,7 @@ func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.R
 
 	// After the EPS service side updates enterprise project ID, it will take a few time to wait the OBS service
 	// read the data back into the database.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Success"},
 		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, d.Get("enterprise_project_id").(string)),
@@ -1212,7 +1212,7 @@ func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.R
 	return nil
 }
 
-func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket string, enterpriseProjectId string) resource.StateRefreshFunc {
+func waitForOBSEnterpriseProjectIdChanged(obsClient *obs.ObsClient, bucket string, enterpriseProjectId string) retry.StateRefreshFunc {
 	return func() (result interface{}, state string, err error) {
 		input := &obs.GetBucketMetadataInput{
 			Bucket: bucket,

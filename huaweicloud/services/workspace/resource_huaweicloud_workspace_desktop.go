@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -317,7 +317,7 @@ func buildDesktopCreateOpts(d *schema.ResourceData, conf *config.Config) map[str
 }
 
 func waitForWorkspaceJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"WAITING", "RUNNING"},
 		Target:       []string{"SUCCESS"},
 		Refresh:      refreshWorkspaceJobFunc(client, jobId),
@@ -334,7 +334,7 @@ func waitForWorkspaceJobCompleted(ctx context.Context, client *golangsdk.Service
 	return utils.PathSearch("entities.desktop_id", resp, "").(string), nil
 }
 
-func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string, queryParams ...string) resource.StateRefreshFunc {
+func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string, queryParams ...string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/workspace-sub-jobs"
@@ -780,14 +780,14 @@ func updateNewVolume(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		requestResp *http.Response
 		retryErr    error
 	)
-	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err := retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		if requestResp, retryErr = client.Request("POST", addVolumePath, &addVolumeOpts); retryErr != nil {
 			if isAddVolumeRetryableError(retryErr) {
 				time.Sleep(5 * time.Minute)
-				return resource.RetryableError(
+				return retry.RetryableError(
 					errors.New("the desktop is adding volumes, the time interval for the each operation must over 5 minutes"))
 			}
-			return resource.NonRetryableError(retryErr)
+			return retry.NonRetryableError(retryErr)
 		}
 		return nil
 	})
@@ -1022,7 +1022,7 @@ func updateDesktopNetwork(ctx context.Context, client *golangsdk.ServiceClient, 
 
 func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId, powerAction string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      desktopStatusRefreshFunc(client, desktopId, powerAction),
@@ -1036,7 +1036,7 @@ func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.Serv
 	return err
 }
 
-func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, desktopId, powerAction string) resource.StateRefreshFunc {
+func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, desktopId, powerAction string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetDesktopById(client, desktopId)
 		if err != nil {
@@ -1240,7 +1240,7 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"ACTIVE", "DELETING", "SHUTOFF", "HIBERNATED"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDesktopStatusFunc(client, desktopId),
@@ -1253,7 +1253,7 @@ func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient,
 	return err
 }
 
-func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string) resource.StateRefreshFunc {
+func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetDesktopById(client, desktopId)
 		if err != nil {
@@ -1274,7 +1274,7 @@ func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string)
 }
 
 func waitForDesktopUserDeleted(ctx context.Context, client *golangsdk.ServiceClient, userName string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"ACTIVE"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDesktopUserStatusFunc(client, userName),
@@ -1287,7 +1287,7 @@ func waitForDesktopUserDeleted(ctx context.Context, client *golangsdk.ServiceCli
 	return err
 }
 
-func refreshDesktopUserStatusFunc(client *golangsdk.ServiceClient, userName string) resource.StateRefreshFunc {
+func refreshDesktopUserStatusFunc(client *golangsdk.ServiceClient, userName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/users"

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -148,7 +148,7 @@ func createCustomLine(customLineClient *golangsdk.ServiceClient, d *schema.Resou
 
 func waitForCustomLineCreateOrUpdate(ctx context.Context, customLineClient *golangsdk.ServiceClient,
 	customLineId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
 		Refresh:      customLineStatusRefreshFunc(customLineClient, customLineId),
@@ -300,7 +300,7 @@ func resourceCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 func waitForCustomLineDeleted(ctx context.Context, customLineClient *golangsdk.ServiceClient, customLineId string,
 	timeOut time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},
 		Refresh:      customLineStatusRefreshFunc(customLineClient, customLineId),
@@ -315,7 +315,7 @@ func waitForCustomLineDeleted(ctx context.Context, customLineClient *golangsdk.S
 	return nil
 }
 
-func customLineStatusRefreshFunc(client *golangsdk.ServiceClient, customLineId string) resource.StateRefreshFunc {
+func customLineStatusRefreshFunc(client *golangsdk.ServiceClient, customLineId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		customLine, err := GetCustomLineById(client, customLineId)
 		if err != nil {

@@ -1,12 +1,13 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -151,7 +152,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Waiting for Network (%s) to become available", n.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"BUILD"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForNetworkActive(networkingClient, n.ID),
@@ -160,7 +161,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	d.SetId(n.ID)
 
@@ -239,7 +240,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForNetworkDelete(networkingClient, d.Id()),
@@ -248,7 +249,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting Neutron Network: %s", err)
 	}
@@ -280,7 +281,7 @@ func resourceNetworkingNetworkV2Segments(d *schema.ResourceData) (providerSegmen
 	return
 }
 
-func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
+func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
@@ -296,7 +297,7 @@ func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId s
 	}
 }
 
-func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
+func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete Network %s.\n", networkId)
 

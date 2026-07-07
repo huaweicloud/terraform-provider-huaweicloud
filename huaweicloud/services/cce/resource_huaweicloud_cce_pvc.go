@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -296,8 +296,8 @@ func resourceCcePersistentVolumeClaimV1Delete(ctx context.Context, d *schema.Res
 }
 
 func buildCcePvcStateRefreshStruct(c *golangsdk.ServiceClient, clusterId, namespace, pvcId string,
-	s StateRefresh) *resource.StateChangeConf {
-	return &resource.StateChangeConf{
+	s StateRefresh) *retry.StateChangeConf {
+	return &retry.StateChangeConf{
 		Pending:      s.Pending,
 		Target:       s.Target,
 		Refresh:      pvcStateRefreshFunc(c, clusterId, namespace, pvcId),
@@ -307,7 +307,7 @@ func buildCcePvcStateRefreshStruct(c *golangsdk.ServiceClient, clusterId, namesp
 	}
 }
 
-func waitForCcePersistentVolumeClaimtateRefresh(ctx context.Context, conf *resource.StateChangeConf) diag.Diagnostics {
+func waitForCcePersistentVolumeClaimtateRefresh(ctx context.Context, conf *retry.StateChangeConf) diag.Diagnostics {
 	_, err := conf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("timeout for waiting PVC status become ready: %s", err)
@@ -315,7 +315,7 @@ func waitForCcePersistentVolumeClaimtateRefresh(ctx context.Context, conf *resou
 	return nil
 }
 
-func pvcStateRefreshFunc(c *golangsdk.ServiceClient, clusterId, namespace, id string) resource.StateRefreshFunc {
+func pvcStateRefreshFunc(c *golangsdk.ServiceClient, clusterId, namespace, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetCcePvcInfoById(c, clusterId, namespace, id)
 		if err != nil {

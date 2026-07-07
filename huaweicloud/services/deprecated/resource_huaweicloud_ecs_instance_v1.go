@@ -1,12 +1,13 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -437,7 +438,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		// Wait for the instance to finish resizing.
 		log.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"RESIZE"},
 			Target:     []string{"VERIFY_RESIZE"},
 			Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
@@ -446,7 +447,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			MinTimeout: 3 * time.Second,
 		}
 
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(context.Background())
 		if err != nil {
 			return fmt.Errorf("error waiting for instance (%s) to resize: %s", d.Id(), err)
 		}
@@ -458,7 +459,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("error confirming resize of server: %s", err)
 		}
 
-		stateConf = &resource.StateChangeConf{
+		stateConf = &retry.StateChangeConf{
 			Pending:    []string{"VERIFY_RESIZE"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
@@ -467,7 +468,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			MinTimeout: 3 * time.Second,
 		}
 
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(context.Background())
 		if err != nil {
 			return fmt.Errorf("error waiting for instance (%s) to confirm resize: %s", d.Id(), err)
 		}
@@ -548,7 +549,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	// Wait for the instance to delete before moving on.
 	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
 		Target:     []string{"DELETED", "SOFT_DELETED"},
 		Refresh:    ServerV1StateRefreshFunc(computeV1Client, d.Id()),
@@ -557,7 +558,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for instance (%s) to delete: %s", d.Id(), err)
 	}
@@ -668,8 +669,8 @@ func flattenInstanceNicsV1(
 	return nics
 }
 
-// ServerV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch an HuaweiCloud instance.
-func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+// ServerV1StateRefreshFunc returns a retry.StateRefreshFunc that is used to watch an HuaweiCloud instance.
+func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := cloudservers.Get(client, instanceID).Extract()
 		if err != nil {

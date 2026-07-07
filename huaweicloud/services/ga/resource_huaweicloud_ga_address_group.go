@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -533,7 +533,7 @@ func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error deleting GA IP address group: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      waitIpAddressGroupStatusRefreshFunc(client, ipGroupId, true),
@@ -547,7 +547,7 @@ func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func waitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, ipGroupId string, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitIpAddressGroupStatusRefreshFunc(client, ipGroupId, false),
@@ -559,7 +559,7 @@ func waitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClie
 	return err
 }
 
-func waitIpAddressGroupStatusRefreshFunc(client *golangsdk.ServiceClient, ipGroupId string, isDelete bool) resource.StateRefreshFunc {
+func waitIpAddressGroupStatusRefreshFunc(client *golangsdk.ServiceClient, ipGroupId string, isDelete bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getIpAddressGroupInfo(client, ipGroupId)
 		if err != nil {

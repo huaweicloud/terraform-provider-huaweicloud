@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -245,7 +245,7 @@ func authentificationSchema() *schema.Resource {
 // The certificate status can only be used normally after it changes to `PAID`.
 func waitingForCCMCertificatePaid(ctx context.Context, client *golangsdk.ServiceClient, certID string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
@@ -540,7 +540,7 @@ func resourceCCMCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func waitingForCCMCertificateDeleted(ctx context.Context, client *golangsdk.ServiceClient, certID string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

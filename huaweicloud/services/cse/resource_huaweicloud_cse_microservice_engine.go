@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -354,7 +354,7 @@ func getMicroserviceEngineJob(client *golangsdk.ServiceClient, engineId, jobId, 
 // The targets parameter specifies the list of status values that indicate completion.
 // If targets is empty and a 404 error occurs, it returns COMPLETED (used for delete operations).
 func refreshMicroserviceEngineJobFunc(client *golangsdk.ServiceClient, engineId, jobId, enterpriseProjectId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := getMicroserviceEngineJob(client, engineId, jobId, enterpriseProjectId)
 		if err != nil {
@@ -531,7 +531,7 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 	jobId := strconv.Itoa(int(utils.PathSearch("jobId", createOpts, float64(0)).(float64)))
 	for {
 		log.Printf("[DEBUG] Waiting for the microservice engine to become running, the engine ID is %s", engineId)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
 			Refresh:      refreshMicroserviceEngineJobFunc(cseClient, engineId, jobId, enterpriseProjectId, []string{"Finished"}),
@@ -780,7 +780,7 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	log.Printf("[DEBUG] Waiting for the Microservice engine delete complete, the engine ID is %s.", engineId)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: refreshMicroserviceEngineJobFunc(client, engineId,

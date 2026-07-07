@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -209,7 +209,7 @@ func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	d.SetId(stackId)
 
 	// When creates a stack using the template_body parameter, it is automatically deployed without calling the deployment API.
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      stackStatusRefreshFunc(client, stackId, []string{"CREATION_COMPLETE", "DEPLOYMENT_COMPLETE"}),
@@ -275,7 +275,7 @@ func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      stackStatusRefreshFunc(client, stackId, []string{"DEPLOYMENT_COMPLETE"}),
@@ -328,7 +328,7 @@ func QueryStackById(client *golangsdk.ServiceClient, stackId string) (interface{
 	return stackDetail, nil
 }
 
-func stackStatusRefreshFunc(client *golangsdk.ServiceClient, stackId string, targets []string) resource.StateRefreshFunc {
+func stackStatusRefreshFunc(client *golangsdk.ServiceClient, stackId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := QueryStackById(client, stackId)
 		if err != nil {
@@ -528,8 +528,8 @@ func updateStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema
 
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("PATCH", requestPath, &requestOpt)
-		retry, err := handleRetryUpdateStackError(err)
-		return nil, retry, err
+		shouldRetry, err := handleRetryUpdateStackError(err)
+		return nil, shouldRetry, err
 	}
 
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -581,7 +581,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting stack (%s)", stackId))
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      stackStatusRefreshFunc(client, stackId, nil),

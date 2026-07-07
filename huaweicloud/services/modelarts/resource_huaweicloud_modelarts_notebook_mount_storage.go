@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -179,7 +179,7 @@ func resourceNotebookMountStorageDelete(ctx context.Context, d *schema.ResourceD
 
 func waitingNotebookForMount(ctx context.Context, client *golangsdk.ServiceClient, notebookId, mountId string,
 	timeout time.Duration) error {
-	createStateConf := &resource.StateChangeConf{
+	createStateConf := &retry.StateChangeConf{
 		Pending: []string{"MOUNTING"},
 		Target:  []string{"MOUNTED"},
 		Refresh: func() (interface{}, string, error) {
@@ -205,7 +205,7 @@ func waitingNotebookForMount(ctx context.Context, client *golangsdk.ServiceClien
 
 func waitingNotebookMountForDeleted(ctx context.Context, client *golangsdk.ServiceClient, notebookId, mountId string,
 	timeout time.Duration) error {
-	createStateConf := &resource.StateChangeConf{
+	createStateConf := &retry.StateChangeConf{
 		Pending: []string{"UNMOUNTING"},
 		Target:  []string{"UNMOUNTED"},
 		Refresh: func() (interface{}, string, error) {

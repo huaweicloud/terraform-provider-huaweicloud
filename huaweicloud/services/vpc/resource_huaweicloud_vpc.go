@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -168,7 +168,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	d.SetId(n.ID)
 	log.Printf("[DEBUG] VPC ID: %s", n.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"CREATING"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForVpcActive(v1Client, n.ID),
@@ -400,7 +400,7 @@ func resourceVirtualPrivateCloudDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForVpcDelete(v1Client, d.Id()),
@@ -417,7 +417,7 @@ func resourceVirtualPrivateCloudDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) resource.StateRefreshFunc {
+func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := vpcs.Get(vpcClient, vpcId).Extract()
 		if err != nil {
@@ -437,7 +437,7 @@ func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 	}
 }
 
-func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource.StateRefreshFunc {
+func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
 		r, err := vpcs.Get(vpcClient, vpcId).Extract()

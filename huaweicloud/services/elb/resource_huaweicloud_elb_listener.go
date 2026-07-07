@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -880,7 +880,7 @@ func waitForELBV3Listener(ctx context.Context, elbClient *golangsdk.ServiceClien
 	pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{target},
 		Pending:    pending,
 		Refresh:    resourceELBV3ListenerRefreshFunc(elbClient, id),
@@ -905,7 +905,7 @@ func waitForELBV3Listener(ctx context.Context, elbClient *golangsdk.ServiceClien
 	return nil
 }
 
-func resourceELBV3ListenerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceELBV3ListenerRefreshFunc(elbClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listener, err := listeners.Get(elbClient, id).Extract()
 		if err != nil {

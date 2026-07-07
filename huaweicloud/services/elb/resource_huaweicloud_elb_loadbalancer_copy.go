@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -840,7 +840,7 @@ func deleteLoadBalancerForce(client *golangsdk.ServiceClient, id string) error {
 }
 
 func waitForLoadBalancer(ctx context.Context, client *golangsdk.ServiceClient, id, target string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{target},
 		Refresh:      resourceLoadBalancerRefreshFunc(client, id),
 		Timeout:      timeout,
@@ -852,7 +852,7 @@ func waitForLoadBalancer(ctx context.Context, client *golangsdk.ServiceClient, i
 	return nil
 }
 
-func resourceLoadBalancerRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceLoadBalancerRefreshFunc(client *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getLoadBalancer(client, id)
 		if err != nil {
@@ -888,7 +888,7 @@ func getLoadBalancer(client *golangsdk.ServiceClient, id string) (interface{}, e
 }
 
 func checkLoadBalancerJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RUNNING"},
 		Target:       []string{"COMPLETE", "SUCCESS"},
 		Refresh:      loadBalancerJobStatusRefreshFunc(client, jobID),
@@ -901,7 +901,7 @@ func checkLoadBalancerJobFinish(ctx context.Context, client *golangsdk.ServiceCl
 	return nil
 }
 
-func loadBalancerJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func loadBalancerJobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v3/{project_id}/elb/jobs/{job_id}"

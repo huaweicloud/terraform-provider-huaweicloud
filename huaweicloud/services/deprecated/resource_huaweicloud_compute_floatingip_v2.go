@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -103,7 +104,7 @@ func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := floatingips.Get(computeClient, d.Id()).Extract()
 		if err != nil {
@@ -134,7 +135,7 @@ func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error deleting floating IP: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    FloatingIPV2StateRefreshFunc(computeClient, d),
@@ -143,7 +144,7 @@ func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting floating IP: %s", err)
 	}

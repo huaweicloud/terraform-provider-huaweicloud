@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -121,7 +122,7 @@ func resourceVpnServiceV2Create(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"NOT_CREATED"},
 		Target:     []string{"PENDING_CREATE"},
 		Refresh:    waitForServiceCreation(networkingClient, service.ID),
@@ -129,7 +130,7 @@ func resourceVpnServiceV2Create(d *schema.ResourceData, meta interface{}) error 
 		Delay:      0,
 		MinTimeout: 2 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	if err != nil {
 		return err
@@ -212,7 +213,7 @@ func resourceVpnServiceV2Update(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"PENDING_UPDATE"},
 			Target:     []string{"UPDATED"},
 			Refresh:    waitForServiceUpdate(networkingClient, service.ID),
@@ -220,7 +221,7 @@ func resourceVpnServiceV2Update(d *schema.ResourceData, meta interface{}) error 
 			Delay:      0,
 			MinTimeout: 2 * time.Second,
 		}
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(context.Background())
 
 		if err != nil {
 			return err
@@ -247,7 +248,7 @@ func resourceVpnServiceV2Delete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DELETING"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForServiceDeletion(networkingClient, d.Id()),
@@ -256,12 +257,12 @@ func resourceVpnServiceV2Delete(d *schema.ResourceData, meta interface{}) error 
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	return err
 }
 
-func waitForServiceDeletion(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForServiceDeletion(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
 		serv, err := services.Get(networkingClient, id).Extract()
@@ -280,7 +281,7 @@ func waitForServiceDeletion(networkingClient *golangsdk.ServiceClient, id string
 	}
 }
 
-func waitForServiceCreation(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForServiceCreation(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		service, err := services.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -290,7 +291,7 @@ func waitForServiceCreation(networkingClient *golangsdk.ServiceClient, id string
 	}
 }
 
-func waitForServiceUpdate(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForServiceUpdate(networkingClient *golangsdk.ServiceClient, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		service, err := services.Get(networkingClient, id).Extract()
 		if err != nil {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -164,7 +164,7 @@ func buildSubnetId(subnetId, networkId string) string {
 	return networkId
 }
 
-func waitingForSnatRuleStateRefresh(client *golangsdk.ServiceClient, ruleId string, targets []string) resource.StateRefreshFunc {
+func waitingForSnatRuleStateRefresh(client *golangsdk.ServiceClient, ruleId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetSnatRule(client, ruleId)
 		if err != nil {
@@ -420,7 +420,7 @@ func resourcePublicSnatRuleDelete(ctx context.Context, d *schema.ResourceData, m
 
 func waitingForSnatRuleStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
 	ruleId string, targets []string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitingForSnatRuleStateRefresh(client, ruleId, targets),

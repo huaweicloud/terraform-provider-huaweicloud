@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -121,15 +121,15 @@ func resourceTaurusDBAccountCreate(ctx context.Context, d *schema.ResourceData, 
 	createGaussDBAccountOpt.JSONBody = utils.RemoveNil(buildCreateGaussDBAccountBodyParams(d, host))
 
 	var createGaussDBAccountResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		createGaussDBAccountResp, err = createGaussDBAccountClient.Request("POST", createGaussDBAccountPath,
 			&createGaussDBAccountOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -353,14 +353,14 @@ func updateGaussDBAccountPassword(ctx context.Context, d *schema.ResourceData, c
 
 	var updateGaussDBAccountResp *http.Response
 	var err error
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		updateGaussDBAccountResp, err = client.Request("PUT", updateGaussDBAccountPath, &updateGaussDBAccountOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -434,15 +434,15 @@ func resourceTaurusDBAccountDelete(ctx context.Context, d *schema.ResourceData, 
 	deleteGaussDBAccountOpt.JSONBody = utils.RemoveNil(buildDeleteGaussDBAccountBodyParams(d))
 
 	var deleteGaussDBAccountResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		deleteGaussDBAccountResp, err = deleteGaussDBAccountClient.Request("DELETE",
 			deleteGaussDBAccountPath, &deleteGaussDBAccountOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})

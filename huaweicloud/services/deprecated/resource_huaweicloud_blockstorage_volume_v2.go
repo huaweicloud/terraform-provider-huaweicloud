@@ -2,12 +2,13 @@ package deprecated
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -163,7 +164,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 		"[DEBUG] Waiting for volume (%s) to become available",
 		v.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"downloading", "creating"},
 		Target:     []string{"available"},
 		Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, v.ID),
@@ -172,7 +173,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for volume (%s) to become ready: %s", v.ID, err)
 	}
@@ -260,7 +261,7 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("error extending  blockstorage volume size, which ID is %s: %s", d.Id(), err)
 		}
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
 			Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
@@ -269,7 +270,7 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 			MinTimeout: 3 * time.Second,
 		}
 
-		_, err := stateConf.WaitForState()
+		_, err := stateConf.WaitForStateContext(context.Background())
 		if err != nil {
 			return fmt.Errorf("error waiting for blockstorage volume to become ready, which ID is %s: %s", d.Id(), err)
 		}
@@ -312,7 +313,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 			if err != nil {
 				return err
 			}
-			stateConf := &resource.StateChangeConf{
+			stateConf := &retry.StateChangeConf{
 				Pending:    []string{"RUNNING"},
 				Target:     []string{"SUCCESS", "NOTFOUND"},
 				Refresh:    ecs.AttachmentJobRefreshFunc(computeClient, job.ID),
@@ -320,7 +321,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 				Delay:      10 * time.Second,
 				MinTimeout: 3 * time.Second,
 			}
-			if _, err = stateConf.WaitForState(); err != nil {
+			if _, err = stateConf.WaitForStateContext(context.Background()); err != nil {
 				return err
 			}
 		}
@@ -342,7 +343,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 	// Wait for the volume to delete before moving on.
 	log.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"deleting", "downloading", "available"},
 		Target:     []string{"deleted"},
 		Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
@@ -351,7 +352,7 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error waiting for volume to delete, which ID is %s: %s", d.Id(), err)
 	}
@@ -368,9 +369,9 @@ func resourceVolumeMetadataV2(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-// VolumeV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
+// VolumeV2StateRefreshFunc returns a retry.StateRefreshFunc that is used to watch
 // an HuaweiCloud volume.
-func VolumeV2StateRefreshFunc(client *golangsdk.ServiceClient, volumeID string) resource.StateRefreshFunc {
+func VolumeV2StateRefreshFunc(client *golangsdk.ServiceClient, volumeID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := volumes.Get(client, volumeID).Extract()
 		if err != nil {

@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -206,7 +207,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(group.ID)
 	log.Printf("[DEBUG] waiting for Firewall group (%s) to become ACTIVE", d.Id())
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// if none subnets was associated with the firewall group, the state will be "INACTIVE"
 		// so we seems the "INACTIVE" as a target state.
 		Pending:    []string{"PENDING_CREATE"},
@@ -216,7 +217,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 		Delay:      2,
 		MinTimeout: 2 * time.Second,
 	}
-	_, stateErr := stateConf.WaitForState()
+	_, stateErr := stateConf.WaitForStateContext(context.Background())
 	if stateErr != nil {
 		return fmt.Errorf("error waiting for Firewall group (%s) to become ACTIVE: %s",
 			d.Id(), stateErr)
@@ -316,7 +317,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		// if none subnets was associated with the firewall group, the state will be "INACTIVE"
 		// so we seems the "INACTIVE" as a target state.
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"PENDING_CREATE", "PENDING_UPDATE"},
 			Target:     []string{"ACTIVE", "INACTIVE"},
 			Refresh:    waitForFirewallGroupActive(fwClient, d.Id()),
@@ -325,7 +326,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 			MinTimeout: 2 * time.Second,
 		}
 
-		_, err = stateConf.WaitForState()
+		_, err = stateConf.WaitForStateContext(context.Background())
 		if err != nil {
 			return fmt.Errorf("error updating firewall group (%s): %s", d.Id(), err)
 		}
@@ -351,7 +352,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DELETING"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFirewallGroupDeletion(fwClient, d.Id()),
@@ -360,7 +361,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 2 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting firewall group (%s): %s", d.Id(), err)
 	}

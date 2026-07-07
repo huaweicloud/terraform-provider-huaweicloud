@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -177,7 +177,7 @@ func buildImageMemberBodyParams(imageId string, projectIds []interface{}) map[st
 
 func waitForImageShareOrAcceptJobSuccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	jobId, timeout string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"INIT", "RUNNING"},
 		Target:     []string{"SUCCESS"},
 		Refresh:    imageShareOrAcceptJobStatusRefreshFunc(jobId, client),
@@ -194,7 +194,7 @@ func waitForImageShareOrAcceptJobSuccess(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func imageShareOrAcceptJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func imageShareOrAcceptJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v1/{project_id}/jobs/{job_id}"

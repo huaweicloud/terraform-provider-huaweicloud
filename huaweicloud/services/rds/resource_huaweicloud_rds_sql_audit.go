@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -111,7 +111,7 @@ func resourceSQLAuditCreate(ctx context.Context, d *schema.ResourceData, meta in
 	instanceID := d.Get("instance_id").(string)
 	d.SetId(instanceID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"COMPLETED"},
 		Refresh:      rdsSQLAuditStateRefreshFunc(createSQLAuditClient, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -223,7 +223,7 @@ func resourceSQLAuditDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error deleting RDS SQL audit: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Refresh:      rdsSQLAuditStateRefreshFunc(deleteSQLAuditClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
@@ -272,8 +272,8 @@ func updateSQLAudit(ctx context.Context, d *schema.ResourceData, client *golangs
 	updateSQLAuditOpt.JSONBody = utils.RemoveNil(params)
 	retryFunc := func() (interface{}, bool, error) {
 		_, err := client.Request("PUT", updateSQLAuditPath, &updateSQLAuditOpt)
-		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return nil, shouldRetry, err
 	}
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -287,7 +287,7 @@ func updateSQLAudit(ctx context.Context, d *schema.ResourceData, client *golangs
 	return err
 }
 
-func rdsSQLAuditStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func rdsSQLAuditStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getSQLAuditRespBody, err := getSQLAudit(client, instanceID)
 		if err != nil {

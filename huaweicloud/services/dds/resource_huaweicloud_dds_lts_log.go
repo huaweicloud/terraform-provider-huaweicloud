@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -117,8 +117,8 @@ func resourceDdsLtsLogCreateOrUpdate(ctx context.Context, d *schema.ResourceData
 
 	retryFunc := func() (interface{}, bool, error) {
 		ddsLtsLogResp, err := ddsLtsLogClient.Request("POST", ddsLtsLogPath, &ddsLtsLogOpt)
-		retry, err := handleMultiOperationsError(err)
-		return ddsLtsLogResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return ddsLtsLogResp, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -135,7 +135,7 @@ func resourceDdsLtsLogCreateOrUpdate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(instanceID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"false"},
 		Target:     []string{"true"},
 		Refresh:    ddsLtsConfigRefreshFunc(ddsLtsLogClient, instanceID, groupID, streamID),
@@ -251,8 +251,8 @@ func resourceDdsLtsLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	retryFunc := func() (interface{}, bool, error) {
 		deleteDdsLtsLogResp, err := deleteDdsLtsLogClient.Request("DELETE", deleteDdsLtsLogPath, &deleteDdsLtsLogOpt)
-		retry, err := handleMultiOperationsError(err)
-		return deleteDdsLtsLogResp, retry, err
+		shouldRetry, err := handleMultiOperationsError(err)
+		return deleteDdsLtsLogResp, shouldRetry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -267,7 +267,7 @@ func resourceDdsLtsLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error unassociating DDS with LTS log: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"true"},
 		Target:     []string{"false"},
 		Refresh:    ddsLtsConfigRefreshFunc(deleteDdsLtsLogClient, instanceID, groupID, streamID),
@@ -284,7 +284,7 @@ func resourceDdsLtsLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceDdsLtsLogRead(ctx, d, meta)
 }
 
-func ddsLtsConfigRefreshFunc(client *golangsdk.ServiceClient, instanceID, groupID, streamID string) resource.StateRefreshFunc {
+func ddsLtsConfigRefreshFunc(client *golangsdk.ServiceClient, instanceID, groupID, streamID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getDdsLtsLogHttpUrl := "v3/{project_id}/instances/logs/lts-configs"
 		getDdsLtsLogPath := client.Endpoint + getDdsLtsLogHttpUrl

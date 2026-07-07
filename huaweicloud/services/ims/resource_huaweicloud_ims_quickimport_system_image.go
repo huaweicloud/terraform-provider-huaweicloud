@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -383,7 +383,7 @@ func resourceQuickImportSystemImageCreate(ctx context.Context, d *schema.Resourc
 
 func waitForQuickImportSystemImageJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
 	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"PENDING"},
 		Target:     []string{"COMPLETED"},
 		Refresh:    quickImportSystemImageJobStatusRefreshFunc(jobId, client),
@@ -400,7 +400,7 @@ func waitForQuickImportSystemImageJobCompleted(ctx context.Context, client *gola
 	return getQuickImportSystemImageIdByJob(client, jobId)
 }
 
-func quickImportSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func quickImportSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
 		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -758,7 +758,7 @@ func resourceQuickImportSystemImageDelete(ctx context.Context, d *schema.Resourc
 }
 
 func waitForQuickImportSystemImageDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {

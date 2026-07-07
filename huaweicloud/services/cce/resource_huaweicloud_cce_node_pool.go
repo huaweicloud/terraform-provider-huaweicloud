@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -645,7 +645,7 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	// Wait for the cce cluster to become available.
 	clusterId := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:    []string{"PENDING"},
 		Target:     []string{"COMPLETED"},
 		Refresh:    clusterStateRefreshFunc(cceClient, clusterId, []string{"Available"}),
@@ -672,7 +672,7 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	d.SetId(resp.Metadata.Id)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -977,7 +977,7 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error updating CCE node pool (%s): %s", nodePoolId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -1008,7 +1008,7 @@ func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error deleting CCE node pool (%s): %s", nodePoolId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase include "Deleting".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -1025,7 +1025,7 @@ func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func nodePoolStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Expect the status of CCE add-on to be any one of the status list: %v.", targets)
 		resp, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -193,7 +193,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"online"},
 		Refresh:      doGetResources(client, instanceID),
@@ -233,7 +233,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(ticketID)
 
 	// waiting the execution status of COC script
-	stateConf = &resource.StateChangeConf{
+	stateConf = &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"exited"},
 		Refresh:      refreshGetExecutionTicketDetail(client, ticketID),
@@ -243,7 +243,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
 		// skip the timeout error, and return error when the result is ABNORMAL
-		if _, ok := err.(*resource.UnexpectedStateError); ok {
+		if _, ok := err.(*retry.UnexpectedStateError); ok {
 			return diag.Errorf("error executing COC script: %s", err)
 		}
 	}
@@ -251,7 +251,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	return resourceScriptExecuteRead(ctx, d, meta)
 }
 
-func refreshGetExecutionTicketDetail(client *golangsdk.ServiceClient, ticketID string) resource.StateRefreshFunc {
+func refreshGetExecutionTicketDetail(client *golangsdk.ServiceClient, ticketID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ticketDetail, err := getExecutionTicketDetail(client, ticketID)
 		if err != nil {
@@ -380,7 +380,7 @@ func syncResourceInfo(client *golangsdk.ServiceClient) error {
 	return nil
 }
 
-func doGetResources(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func doGetResources(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listResourceInfoHttpUrl := fmt.Sprintf("v1/external/resources?provider=%s&type=%s&limit=10&resource_id_list=%s",
 			"ecs", "cloudservers", instanceID)

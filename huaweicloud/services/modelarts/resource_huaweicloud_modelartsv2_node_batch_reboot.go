@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -91,7 +91,7 @@ func getV2JobById(client *golangsdk.ServiceClient, jobId string) (interface{}, e
 	return utils.FlattenResponse(requestResp)
 }
 
-func refreshV2JobStatus(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+func refreshV2JobStatus(client *golangsdk.ServiceClient, jobId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		nodes, err := getV2JobById(client, jobId)
 		if err != nil {
@@ -109,7 +109,7 @@ func refreshV2JobStatus(client *golangsdk.ServiceClient, jobId string) resource.
 }
 
 func waitForV2JobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      refreshV2JobStatus(client, jobId),

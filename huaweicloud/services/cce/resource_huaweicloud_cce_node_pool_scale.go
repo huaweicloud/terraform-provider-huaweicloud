@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -156,7 +156,7 @@ func resourceNodePoolScaleCreate(ctx context.Context, d *schema.ResourceData, me
 
 	// Wait for the cce cluster to become available
 
-	stateCluster := &resource.StateChangeConf{
+	stateCluster := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(client, clusterID, []string{"Available"}),
@@ -190,7 +190,7 @@ func resourceNodePoolScaleCreate(ctx context.Context, d *schema.ResourceData, me
 
 	d.SetId(nodePoolID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},

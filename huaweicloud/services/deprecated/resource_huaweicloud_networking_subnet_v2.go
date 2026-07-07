@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -195,7 +196,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Waiting for Subnet (%s) to become available", s.ID)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForSubnetActive(networkingClient, s.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -203,7 +204,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	d.SetId(s.ID)
 
@@ -337,7 +338,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSubnetDelete(networkingClient, d.Id()),
@@ -346,7 +347,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting Neutron Subnet: %s", err)
 	}
@@ -402,7 +403,7 @@ func resourceNetworkingSubnetV2DetermineIPVersion(v int) golangsdk.IPVersion {
 	return ipVersion
 }
 
-func waitForSubnetActive(networkingClient *golangsdk.ServiceClient, subnetId string) resource.StateRefreshFunc {
+func waitForSubnetActive(networkingClient *golangsdk.ServiceClient, subnetId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := subnets.Get(networkingClient, subnetId).Extract()
 		if err != nil {
@@ -414,7 +415,7 @@ func waitForSubnetActive(networkingClient *golangsdk.ServiceClient, subnetId str
 	}
 }
 
-func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId string) resource.StateRefreshFunc {
+func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete Subnet %s.\n", subnetId)
 

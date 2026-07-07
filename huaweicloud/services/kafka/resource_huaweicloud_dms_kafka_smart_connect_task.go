@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -190,7 +190,7 @@ func resourceDmsKafkaSmartConnectTaskCreate(ctx context.Context, d *schema.Resou
 	}
 	d.SetId(taskID.(string))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      smartConnectTaskStateRefreshFunc(createKafkaSmartConnectTaskClient, connectorID, d.Id()),
@@ -348,7 +348,7 @@ func resourceDmsKafkaSmartConnectTaskImportState(_ context.Context, d *schema.Re
 	return []*schema.ResourceData{d}, nil
 }
 
-func smartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, connectorID, taskID string) resource.StateRefreshFunc {
+func smartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, connectorID, taskID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// getSmartConnectTask: query smart connect task
 		var (

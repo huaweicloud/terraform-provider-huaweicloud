@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -833,7 +833,7 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		_, err := deleteTaskGroupClient.Request("DELETE", deleteTaskGroupPath, &deleteTaskGroupOpt)
 		if err == nil {
 			return nil
@@ -841,9 +841,9 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 
 		// ErrorCode "OMS.0063" means the task group is in progress. This ErrorCode is not accurate, we need retry it.
 		if hasErrorCode(err, "OMS.0063") {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	})
 	if err != nil {
 		return diag.Errorf("error deleting OMS migration task group: %s", err)
@@ -857,7 +857,7 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func getTaskGroupGroupStatus(client *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
+func getTaskGroupGroupStatus(client *golangsdk.ServiceClient, groupID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getTaskGroupHttpUrl = "v2/{project_id}/taskgroups/{group_id}"
@@ -905,7 +905,7 @@ func getTaskGroupGroupStatus(client *golangsdk.ServiceClient, groupID string) re
 }
 
 func waitForTaskGroupStartedOrCompleted(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"0", "1"},
 		Target:       []string{"2", "6"},
 		Refresh:      getTaskGroupGroupStatus(client, groupID),
@@ -919,7 +919,7 @@ func waitForTaskGroupStartedOrCompleted(ctx context.Context, client *golangsdk.S
 }
 
 func waitForTaskGroupStopped(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"7"},
 		Target:       []string{"3", "6"},
 		Refresh:      getTaskGroupGroupStatus(client, groupID),
@@ -933,7 +933,7 @@ func waitForTaskGroupStopped(ctx context.Context, client *golangsdk.ServiceClien
 }
 
 func waitForTaskGroupDeleted(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"8", "9"},
 		Target:       []string{"DELETED"},
 		Refresh:      getTaskGroupGroupStatus(client, groupID),

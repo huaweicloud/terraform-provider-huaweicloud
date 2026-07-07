@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -221,7 +221,7 @@ func operateLogicalClusterPlan(client *golangsdk.ServiceClient, clusterId, planI
 	return err
 }
 
-func logicalClusterPlanStatusRefreshFunc(client *golangsdk.ServiceClient, clusterId, planId string, isEnabled bool) resource.StateRefreshFunc {
+func logicalClusterPlanStatusRefreshFunc(client *golangsdk.ServiceClient, clusterId, planId string, isEnabled bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		plan, err := GetLogicalClusterPlanById(client, clusterId, planId)
 		if err != nil {
@@ -247,7 +247,7 @@ func logicalClusterPlanStatusRefreshFunc(client *golangsdk.ServiceClient, cluste
 
 func waitForLogicalClusterPlanStatus(ctx context.Context, client *golangsdk.ServiceClient, clusterId, planId string,
 	isEnabled bool, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      logicalClusterPlanStatusRefreshFunc(client, clusterId, planId, isEnabled),

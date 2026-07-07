@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -138,14 +138,14 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d))
 	var createBackupResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -165,7 +165,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	d.SetId(instanceId + "/" + backupId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"waiting", "backuping"},
 		Target:       []string{"succeed"},
 		Refresh:      dcsBackupStatusRefreshFunc(instanceId, backupId, createBackupClient),
@@ -267,14 +267,14 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		},
 	}
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		_, err = deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
 		isRetry, err := handleOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -284,7 +284,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 			"error deleting DCS backup")
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"waiting", "succeed"},
 		Target:       []string{"deleted"},
 		Refresh:      dcsBackupStatusRefreshFunc(instanceID, backupID, deleteBackupClient),
@@ -301,7 +301,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		backup, err := getDcsBackup(instanceId, backupId, client)
 		if err != nil {

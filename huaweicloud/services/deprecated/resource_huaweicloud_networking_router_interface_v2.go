@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -79,7 +80,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Waiting for Router Interface (%s) to become available", n.PortID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"BUILD", "PENDING_CREATE", "PENDING_UPDATE"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForRouterInterfaceActive(networkingClient, n.PortID),
@@ -88,7 +89,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 
 	d.SetId(n.PortID)
 
@@ -138,7 +139,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("error creating networking client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForRouterInterfaceDelete(networkingClient, d),
@@ -147,7 +148,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting Neutron Router Interface: %s", err)
 	}
@@ -156,7 +157,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func waitForRouterInterfaceActive(networkingClient *golangsdk.ServiceClient, rId string) resource.StateRefreshFunc {
+func waitForRouterInterfaceActive(networkingClient *golangsdk.ServiceClient, rId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := ports.Get(networkingClient, rId).Extract()
 		if err != nil {
@@ -168,7 +169,7 @@ func waitForRouterInterfaceActive(networkingClient *golangsdk.ServiceClient, rId
 	}
 }
 
-func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		routerId := d.Get("router_id").(string)
 		routerInterfaceId := d.Id()

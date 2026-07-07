@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -111,15 +111,15 @@ func resourceTaurusDBDatabaseCreate(ctx context.Context, d *schema.ResourceData,
 	createGaussDBDatabaseOpt.JSONBody = utils.RemoveNil(buildCreateGaussDBDatabaseBodyParams(d))
 
 	var createGaussDBDatabaseResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		createGaussDBDatabaseResp, err = createGaussDBDatabaseClient.Request("POST",
 			createGaussDBDatabasePath, &createGaussDBDatabaseOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -290,15 +290,15 @@ func resourceTaurusDBDatabaseUpdate(ctx context.Context, d *schema.ResourceData,
 	updateGaussDBDatabaseOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBDatabaseBodyParams(d))
 
 	var updateGaussDBDatabaseResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 		updateGaussDBDatabaseResp, err = updateGaussDBDatabaseClient.Request("PUT",
 			updateGaussDBDatabasePath, &updateGaussDBDatabaseOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -364,15 +364,15 @@ func resourceTaurusDBDatabaseDelete(ctx context.Context, d *schema.ResourceData,
 	deleteGaussDBDatabaseOpt.JSONBody = utils.RemoveNil(buildDeleteGaussDBDatabaseBodyParams(d))
 
 	var deleteGaussDBDatabaseResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 		deleteGaussDBDatabaseResp, err = deleteGaussDBDatabaseClient.Request("DELETE",
 			deleteGaussDBDatabasePath, &deleteGaussDBDatabaseOpt)
 		isRetry, err := handleGaussDBMysqlOperationError(err)
 		if isRetry {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
@@ -407,7 +407,7 @@ func buildDeleteGaussDBDatabaseBodyParams(d *schema.ResourceData) map[string]int
 
 func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
 	instanceId, jobId string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Pending", "Running", "Failed"},
 		Target:       []string{"Completed"},
 		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobId),

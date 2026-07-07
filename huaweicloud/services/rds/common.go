@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -258,8 +258,8 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 	if params.isRetry {
 		retryFunc := func() (interface{}, bool, error) {
 			r, err := client.Request(params.httpMethod, updatePath, &updateOpt)
-			retry, err := handleMultiOperationsError(err)
-			return r, retry, err
+			shouldRetry, err := handleMultiOperationsError(err)
+			return r, shouldRetry, err
 		}
 		res, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
@@ -316,7 +316,7 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 		}
 	}
 	if params.isWaitInstanceReady {
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Target:       []string{"ACTIVE"},
 			Refresh:      rdsInstanceStateRefreshFunc(client, d.Id()),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),

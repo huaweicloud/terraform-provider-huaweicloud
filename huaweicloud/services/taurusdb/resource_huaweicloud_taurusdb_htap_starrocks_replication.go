@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -975,7 +975,7 @@ func resourceTaurusDBHtapStarrocksReplicationImport(_ context.Context, d *schema
 
 func waitForCreateReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
 	instanceId, taskName string) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:        []string{"Waiting"},
 		Target:         []string{"Created"},
 		Refresh:        createReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
@@ -987,7 +987,7 @@ func waitForCreateReplicationTaskCompleted(ctx context.Context, client *golangsd
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func createReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+func createReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		details, err := getHtapReplicationDetails(client, instanceId, taskName)
 		if err != nil {
@@ -1009,7 +1009,7 @@ func createReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, ins
 
 func waitForStartReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
 	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Waiting"},
 		Target:       []string{"Running"},
 		Refresh:      startReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
@@ -1020,7 +1020,7 @@ func waitForStartReplicationTaskCompleted(ctx context.Context, client *golangsdk
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func startReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+func startReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		status, err := GetHtapReplicationStatus(client, instanceId, taskName)
 		if err != nil {
@@ -1036,7 +1036,7 @@ func startReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, inst
 
 func waitForPauseReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
 	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Waiting"},
 		Target:       []string{"Paused"},
 		Refresh:      pauseReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
@@ -1047,7 +1047,7 @@ func waitForPauseReplicationTaskCompleted(ctx context.Context, client *golangsdk
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func pauseReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+func pauseReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		details, err := GetHtapReplicationStatus(client, instanceId, taskName)
 		if err != nil {
@@ -1063,7 +1063,7 @@ func pauseReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, inst
 
 func waitForDeleteReplicationTaskCompleted(ctx context.Context, client *golangsdk.ServiceClient,
 	instanceId, taskName string, timeout time.Duration) (interface{}, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"Waiting"},
 		Target:       []string{"Deleted"},
 		Refresh:      deleteReplicationTaskStatusRefreshFunc(client, instanceId, taskName),
@@ -1074,7 +1074,7 @@ func waitForDeleteReplicationTaskCompleted(ctx context.Context, client *golangsd
 	return stateConf.WaitForStateContext(ctx)
 }
 
-func deleteReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) resource.StateRefreshFunc {
+func deleteReplicationTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceId, taskName string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		details, err := GetHtapReplicationStatus(client, instanceId, taskName)
 		if err != nil {

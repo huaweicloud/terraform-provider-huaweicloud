@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -104,7 +104,7 @@ func buildStaticRouteCreateOpts(d *schema.ResourceData) routes.CreateOpts {
 }
 
 func staticRouteStatusRefreshFunc(client *golangsdk.ServiceClient, routeTableId, staticRouteId string,
-	targets []string) resource.StateRefreshFunc {
+	targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := routes.Get(client, routeTableId, staticRouteId)
 		if err != nil {
@@ -138,7 +138,7 @@ func resourceStaticRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(resp.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), []string{"available"}),
@@ -218,7 +218,7 @@ func resourceStaticRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error updating static route (%s): %s", staticRouteId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), []string{"available"}),
@@ -250,7 +250,7 @@ func resourceStaticRouteDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error deleting static route (%s): %s", staticRouteId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), nil),

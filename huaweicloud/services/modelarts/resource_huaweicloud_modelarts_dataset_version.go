@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -214,7 +214,7 @@ func ResourceDatasetVersionDelete(_ context.Context, d *schema.ResourceData, met
 
 func waitingforDatasetVersionCreated(ctx context.Context, client *golangsdk.ServiceClient, datasetId, versionId string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"0"},
 		Target:  []string{"1"},
 		Refresh: func() (interface{}, string, error) {

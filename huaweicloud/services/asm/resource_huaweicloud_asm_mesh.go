@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -263,7 +263,7 @@ func resourceAsmMeshCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 	d.SetId(id.(string))
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
 		Refresh:      meshStateRefreshFunc(createMeshClient, d.Id(), []string{"Running"}),
@@ -486,7 +486,7 @@ func resourceAsmMeshDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error deleting Mesh: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
 		Refresh:      meshStateRefreshFunc(deleteMeshClient, d.Id(), []string{"Deleted"}),
@@ -502,7 +502,7 @@ func resourceAsmMeshDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func meshStateRefreshFunc(client *golangsdk.ServiceClient, meshId string, targetStatus []string) resource.StateRefreshFunc {
+func meshStateRefreshFunc(client *golangsdk.ServiceClient, meshId string, targetStatus []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getMeshHttpUrl  = "v1/{project_id}/meshes/{mesh_id}"

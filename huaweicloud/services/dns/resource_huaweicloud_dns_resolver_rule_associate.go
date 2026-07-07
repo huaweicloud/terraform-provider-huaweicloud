@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -86,7 +86,7 @@ func resourceResolverRuleAssociateCreate(ctx context.Context, d *schema.Resource
 	d.SetId(fmt.Sprintf("%s/%s", resolverRuleId, vpcId))
 
 	log.Printf("[DEBUG] Waiting for DNS resolver rule (%s) associate VPC (%s) to complete", resolverRuleId, vpcId)
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      waitForResolverRuleAssociate(dnsClient, resolverRuleId, vpcId, false),
@@ -174,7 +174,7 @@ func resourceResolverRuleAssociateDelete(ctx context.Context, d *schema.Resource
 	}
 	log.Printf("[DEBUG] Waiting for disassociating VPC (%s) from DNS resolver rule (%s) to complete", vpcId, resolverRuleId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		// we allow to try to delete ERROR resolver rule associate
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
@@ -193,7 +193,7 @@ func resourceResolverRuleAssociateDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func waitForResolverRuleAssociate(client *golangsdk.ServiceClient, resolverRuleId string, vpcId string, isDelete bool) resource.StateRefreshFunc {
+func waitForResolverRuleAssociate(client *golangsdk.ServiceClient, resolverRuleId string, vpcId string, isDelete bool) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		associatedVpc, err := GetAssociatedVpcById(client, resolverRuleId, vpcId)
 		if err != nil {

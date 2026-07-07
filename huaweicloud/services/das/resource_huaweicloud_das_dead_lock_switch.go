@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -95,7 +95,7 @@ func buildDeadLockSwitchBodyParams(d *schema.ResourceData) map[string]interface{
 	return bodyParams
 }
 
-func deadLockSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func deadLockSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		httpUrl := "v3/{project_id}/dead-lock/switch"
 		getPath := client.Endpoint + httpUrl
@@ -136,7 +136,7 @@ func deadLockSwitchRefreshFunc(client *golangsdk.ServiceClient, d *schema.Resour
 }
 
 func waitForDeadLockSwitchComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      deadLockSwitchRefreshFunc(client, d),

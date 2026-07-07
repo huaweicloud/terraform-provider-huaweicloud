@@ -1,11 +1,12 @@
 package deprecated
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -234,7 +235,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 		log.Printf("[INFO] Resource Backup %s created successfully", backupObject.Id)
 
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"protecting"},
 			Target:     []string{"available"},
 			Refresh:    waitForCSBSBackupActive(backupClient, d.Id()),
@@ -242,7 +243,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 			Delay:      3 * time.Minute,
 			MinTimeout: 3 * time.Minute,
 		}
-		_, stateErr := stateConf.WaitForState()
+		_, stateErr := stateConf.WaitForStateContext(context.Background())
 		if stateErr != nil {
 			return fmt.Errorf("error waiting for CSBS backup (%s) to become available: %s", backupObject.Id, stateErr)
 		}
@@ -299,7 +300,7 @@ func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("error creating CSBS client: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
 		Target:     []string{"deleted"},
 		Refresh:    waitForCSBSBackupDelete(backupClient, d.Id(), d.Get("backup_record_id").(string)),
@@ -308,7 +309,7 @@ func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error 
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("error deleting CSBS backup: %s", err)
 	}
@@ -317,7 +318,7 @@ func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func waitForCSBSBackupActive(backupClient *golangsdk.ServiceClient, backupId string) resource.StateRefreshFunc {
+func waitForCSBSBackupActive(backupClient *golangsdk.ServiceClient, backupId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := backup.Get(backupClient, backupId).ExtractBackup()
 		if err != nil {
@@ -332,7 +333,7 @@ func waitForCSBSBackupActive(backupClient *golangsdk.ServiceClient, backupId str
 	}
 }
 
-func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId string, backupRecordID string) resource.StateRefreshFunc {
+func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId string, backupRecordID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
 		r, err := backup.Get(backupClient, backupId).ExtractBackup()

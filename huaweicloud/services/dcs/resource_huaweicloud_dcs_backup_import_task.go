@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -447,7 +447,7 @@ func buildDeleteMigrationTaskBodyParams(taskId string) interface{} {
 
 func checkMigrationTaskFinish(ctx context.Context, client *golangsdk.ServiceClient, taskId string, target []string,
 	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       target,
 		Refresh:      migrationTaskRefreshFunc(client, taskId),
@@ -461,7 +461,7 @@ func checkMigrationTaskFinish(ctx context.Context, client *golangsdk.ServiceClie
 	return nil
 }
 
-func migrationTaskRefreshFunc(client *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
+func migrationTaskRefreshFunc(client *golangsdk.ServiceClient, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getMigrationTask(client, taskId)
 		if err != nil {
@@ -506,7 +506,7 @@ func getMigrationTask(client *golangsdk.ServiceClient, taskId string) (interface
 }
 
 func checkMigrationTaskDeleted(ctx context.Context, client *golangsdk.ServiceClient, taskId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      migrationTaskDeleteRefreshFunc(client, taskId),
@@ -520,7 +520,7 @@ func checkMigrationTaskDeleted(ctx context.Context, client *golangsdk.ServiceCli
 	return nil
 }
 
-func migrationTaskDeleteRefreshFunc(client *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
+func migrationTaskDeleteRefreshFunc(client *golangsdk.ServiceClient, taskId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getRespBody, err := getMigrationTaskList(client)
 		if err != nil {

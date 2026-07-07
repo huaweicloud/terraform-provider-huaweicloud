@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -146,8 +146,8 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 	retryFunc := func() (interface{}, bool, error) {
 		createBigKeyAnalysisResp, createErr := createBigKeyAnalysisClient.Request("POST", createBigKeyAnalysisPath,
 			&createBigKeyAnalysisOpt)
-		retry, err := handleOperationError(createErr)
-		return createBigKeyAnalysisResp, retry, err
+		shouldRetry, err := handleOperationError(createErr)
+		return createBigKeyAnalysisResp, shouldRetry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
@@ -174,7 +174,7 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	d.SetId(analysisId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"waiting", "running"},
 		Target:       []string{"success"},
 		Refresh:      bigKeyAnalysisStatusRefreshFunc(instanceId, analysisId, createBigKeyAnalysisClient),
@@ -281,7 +281,7 @@ func resourceDmsBigKeyAnalysisImportState(_ context.Context, d *schema.ResourceD
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func bigKeyAnalysisStatusRefreshFunc(instanceId, bigKeyId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func bigKeyAnalysisStatusRefreshFunc(instanceId, bigKeyId string, client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getBigKeyAnalysisResp, err := getBigKeyAnalysis(client, instanceId, bigKeyId)
 		if err != nil {

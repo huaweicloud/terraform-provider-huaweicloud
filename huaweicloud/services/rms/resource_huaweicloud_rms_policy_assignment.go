@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -281,7 +281,7 @@ func updatePolicyAssignmentStatus(client *golangsdk.ServiceClient, domainId, ass
 }
 
 func policyAssignmentRefreshFunc(client *golangsdk.ServiceClient, domainId,
-	assignmentId string) resource.StateRefreshFunc {
+	assignmentId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := policyassignments.Get(client, domainId, assignmentId)
 		if err != nil {
@@ -334,7 +334,7 @@ func resourceePolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData
 	// so we wait for the enabled status only when user want to disable it during creating.
 	if statusConfig := d.Get("status").(string); statusConfig == AssignmentStatusDisabled {
 		log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become enabled, then disable it", assignmentId)
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Pending:                   []string{AssignmentStatusDisabled, AssignmentStatusEvaluating},
 			Target:                    []string{AssignmentStatusEnabled},
 			Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
@@ -578,7 +578,7 @@ func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData
 		if newVal.(string) == AssignmentStatusEnabled {
 			log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become %s.", assignmentId,
 				strings.ToLower(newVal.(string)))
-			stateConf := &resource.StateChangeConf{
+			stateConf := &retry.StateChangeConf{
 				Pending:                   []string{oldVal.(string)},
 				Target:                    []string{AssignmentStatusEvaluating, AssignmentStatusEnabled},
 				Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
@@ -607,7 +607,7 @@ func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData
 		currentStatus := d.Get("status").(string)
 		log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become %s.", assignmentId,
 			strings.ToLower(currentStatus))
-		stateConf := &resource.StateChangeConf{
+		stateConf := &retry.StateChangeConf{
 			Target:                    []string{currentStatus},
 			Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
 			Timeout:                   d.Timeout(schema.TimeoutUpdate),

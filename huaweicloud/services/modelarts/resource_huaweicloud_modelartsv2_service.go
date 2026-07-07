@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -784,7 +784,7 @@ func buildV2ServiceCreateBodyParams(d *schema.ResourceData) map[string]interface
 	}
 }
 
-func serviceStatusRefreshFunc(client *golangsdk.ServiceClient, serviceId string, targets []string) resource.StateRefreshFunc {
+func serviceStatusRefreshFunc(client *golangsdk.ServiceClient, serviceId string, targets []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		respBody, err := GetServiceById(client, serviceId)
 		if err != nil {
@@ -846,7 +846,7 @@ func resourceV2ServiceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(serviceId)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      serviceStatusRefreshFunc(client, serviceId, []string{"STOPPED", "RUNNING"}),
@@ -1250,7 +1250,7 @@ func switchServiceVersion(ctx context.Context, client *golangsdk.ServiceClient, 
 		return nil, fmt.Errorf("error switching specified service version (%s): %s", targetVersion, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      serviceStatusRefreshFunc(client, serviceId, []string{"STOPPED", "RUNNING"}),
@@ -1395,7 +1395,7 @@ func upgradeService(ctx context.Context, client *golangsdk.ServiceClient, d *sch
 		return fmt.Errorf("error upgrading service (%s): %s", serviceId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      serviceStatusRefreshFunc(client, serviceId, []string{"STOPPED", "RUNNING"}),
@@ -1502,7 +1502,7 @@ func resourceV2ServiceDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting service (%s): %s", serviceId, err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      serviceStatusRefreshFunc(client, serviceId, nil),

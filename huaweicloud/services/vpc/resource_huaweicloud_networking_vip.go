@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -149,7 +149,7 @@ func resourceNetworkingVipCreate(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] Waiting for network VIP (%s) to become available.", vip.ID)
 	d.SetId(vip.ID)
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"BUILD"},
 		Target:     []string{"DOWN", "ACTIVE"},
 		Refresh:    waitForNetworkVipStateRefresh(client, vip.ID),
@@ -253,7 +253,7 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error deleting Network VIP: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"DOWN", "ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForNetworkVipStateRefresh(client, d.Id()),
@@ -272,7 +272,7 @@ func resourceNetworkingVipDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func waitForNetworkVipStateRefresh(networkingClient *golangsdk.ServiceClient, vipId string) resource.StateRefreshFunc {
+func waitForNetworkVipStateRefresh(networkingClient *golangsdk.ServiceClient, vipId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := ports.Get(networkingClient, vipId)
 		if err != nil {

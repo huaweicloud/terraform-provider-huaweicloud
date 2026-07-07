@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -72,7 +72,7 @@ func ResourceAclPolicyAssociate() *schema.Resource {
 }
 
 func aclPolicyBindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, policyId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/acl-bindings/unbinded-apis"
@@ -129,7 +129,7 @@ func bindAclPolicyToApis(ctx context.Context, client *golangsdk.ServiceClient, o
 		return fmt.Errorf("error binding ACL policy to one or more APIs: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: aclPolicyBindingRefreshFunc(client, instanceId, policyId, publishIds),
@@ -222,7 +222,7 @@ func resourceAclPolicyAssociateRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func aclPolicyUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, policyId string,
-	publishIds []string) resource.StateRefreshFunc {
+	publishIds []string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/acl-bindings/binded-apis"
@@ -313,7 +313,7 @@ func unbindAclPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt a
 		return fmt.Errorf("an error occurred during unbind: %#v", unbindResp.Failures)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: aclPolicyUnbindingRefreshFunc(client, instanceId, policyId, utils.ExpandToStringList(publishIds.List())),

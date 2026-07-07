@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -127,7 +127,7 @@ func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating vpc route: %s", err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForVpcRouteDelete(vpcRouteClient, d.Id()),
@@ -145,7 +145,7 @@ func resourceVpcRouteV2Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId string) resource.StateRefreshFunc {
+func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
 		r, err := routes.Get(vpcRouteClient, routeId).Extract()

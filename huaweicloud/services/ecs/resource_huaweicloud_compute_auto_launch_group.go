@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -424,7 +424,7 @@ func resourceAutoLaunchGroupDelete(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING"},
 		Target:       []string{"DELETED"},
 		Refresh:      autoLaunchGroupStatusRefreshFunc(d.Id(), cfg, client),
@@ -442,7 +442,7 @@ func resourceAutoLaunchGroupDelete(ctx context.Context, d *schema.ResourceData, 
 }
 
 func autoLaunchGroupStatusRefreshFunc(id string, cfg *config.Config,
-	client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	client *golangsdk.ServiceClient) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getAutoLaunchGroupHttpUrl := "v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}"
 		getAutoLaunchGroupPath := client.Endpoint + getAutoLaunchGroupHttpUrl

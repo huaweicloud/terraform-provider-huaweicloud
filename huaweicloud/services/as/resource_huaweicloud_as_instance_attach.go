@@ -10,7 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -277,16 +277,16 @@ func doBatchAction(ctx context.Context, client *golangsdk.ServiceClient, timeout
 		log.Printf("[DEBUG] try to %s instance %s from AS group %s", strings.ToLower(opt.Action), instanceID, groupID)
 		log.Printf("[DEBUG] the action options: %#v", opt)
 
-		err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		err := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 			if err := instances.BatchAction(client, groupID, opt).ExtractErr(); err != nil {
 				if isRetryableError(err) {
 					// waiting for the AS group is INSERVICE and try again
 					if waitErr := waitASGroupInstancesInService(ctx, client, groupID, "", timeout); waitErr != nil {
-						return resource.NonRetryableError(fmt.Errorf("the AS group %s is not INSERVICE: %s", groupID, waitErr))
+						return retry.NonRetryableError(fmt.Errorf("the AS group %s is not INSERVICE: %s", groupID, waitErr))
 					}
-					return resource.RetryableError(err)
+					return retry.RetryableError(err)
 				}
-				return resource.NonRetryableError(err)
+				return retry.NonRetryableError(err)
 			}
 			return nil
 		})
@@ -330,7 +330,7 @@ func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID s
 }
 
 func waitASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID, instanceID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"INSERVICE"},
 		Refresh:      refreshInstancesStatus(client, groupID, instanceID),
@@ -344,7 +344,7 @@ func waitASGroupInstancesInService(ctx context.Context, client *golangsdk.Servic
 }
 
 func waitASGroupInstanceDeleted(ctx context.Context, client *golangsdk.ServiceClient, groupID, instanceID string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"REMOVING"},
 		Target:       []string{"DELETED"},
 		Refresh:      checkInstanceDeleted(client, groupID, instanceID),
@@ -357,7 +357,7 @@ func waitASGroupInstanceDeleted(ctx context.Context, client *golangsdk.ServiceCl
 	return err
 }
 
-func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
+func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {
@@ -379,7 +379,7 @@ func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instance
 	}
 }
 
-func checkInstanceDeleted(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
+func checkInstanceDeleted(asClient *golangsdk.ServiceClient, groupID, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {

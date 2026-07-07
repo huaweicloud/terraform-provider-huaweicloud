@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -212,7 +212,7 @@ func resourceDiagnosisTaskCreate(ctx context.Context, d *schema.ResourceData, me
 
 func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
 	diagnosisTaskID string, resourceID string) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
 		Refresh:      diagnosisTaskStatusRefreshFunc(client, diagnosisTaskID, resourceID),
@@ -229,7 +229,7 @@ func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, ti
 }
 
 func diagnosisTaskStatusRefreshFunc(client *golangsdk.ServiceClient, diagnosisTaskID string,
-	resourceID string) resource.StateRefreshFunc {
+	resourceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		readRespBody, err := GetDiagnosisTask(client, diagnosisTaskID, resourceID)
 		if err != nil {
