@@ -2629,6 +2629,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_database_character_set":                   taurusdb.DataSourceTaurusDBDatabaseCharacterSet(),
 			"huaweicloud_taurusdb_databases":                                taurusdb.DataSourceTaurusDBDatabases(),
 			"huaweicloud_taurusdb_proxy_flavors":                            taurusdb.DataSourceTaurusDBProxyFlavors(),
+			"huaweicloud_taurusdb_proxy_az_flavors":                         taurusdb.DataSourceTaurusDBProxyAzFlavors(),
 			"huaweicloud_taurusdb_proxies":                                  taurusdb.DataSourceTaurusDBProxies(),
 			"huaweicloud_taurusdb_pt_modify_records":                        taurusdb.DataSourceTaurusDBPtModifyRecords(),
 			"huaweicloud_taurusdb_pt_apply_records":                         taurusdb.DataSourceTaurusDBPtApplyRecords(),
