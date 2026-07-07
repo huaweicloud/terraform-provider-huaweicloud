@@ -105,7 +105,7 @@ func resourceDmsKafkaSmartConnectCreate(ctx context.Context, d *schema.ResourceD
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(createKafkaSmartConnectClient, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(createKafkaSmartConnectClient, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 1 * time.Second,
@@ -131,7 +131,7 @@ func resourceDmsKafkaSmartConnectCreate(ctx context.Context, d *schema.ResourceD
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"EXTENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(createKafkaSmartConnectClient, instanceID),
+		Refresh:      InstanceStateRefreshFunc(createKafkaSmartConnectClient, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -241,7 +241,7 @@ func resourceDmsKafkaSmartConnectDelete(ctx context.Context, d *schema.ResourceD
 	_, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(deleteKafkaSmartConnectClient, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(deleteKafkaSmartConnectClient, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		DelayTimeout: 1 * time.Second,
@@ -256,7 +256,7 @@ func resourceDmsKafkaSmartConnectDelete(ctx context.Context, d *schema.ResourceD
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"CONNECTOR_DELETING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      KafkaInstanceStateRefreshFunc(deleteKafkaSmartConnectClient, instanceID),
+		Refresh:      InstanceStateRefreshFunc(deleteKafkaSmartConnectClient, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,

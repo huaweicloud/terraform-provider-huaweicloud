@@ -132,7 +132,7 @@ func resourceDmsKafkaUserClientQuotaCreate(ctx context.Context, d *schema.Resour
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(createKafkaUserClientQuotaClient, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(createKafkaUserClientQuotaClient, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 1 * time.Second,
@@ -311,7 +311,7 @@ func resourceDmsKafkaUserClientQuotaUpdate(ctx context.Context, d *schema.Resour
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(updateKafkaUserClientQuotaClient, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(updateKafkaUserClientQuotaClient, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 1 * time.Second,
@@ -377,7 +377,7 @@ func resourceDmsKafkaUserClientQuotaDelete(ctx context.Context, d *schema.Resour
 	r, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(deleteKafkaUserClientQuotaClient, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(deleteKafkaUserClientQuotaClient, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		DelayTimeout: 1 * time.Second,

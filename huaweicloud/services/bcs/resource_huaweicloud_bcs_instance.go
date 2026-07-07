@@ -575,7 +575,7 @@ func resourceBCSInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		stateConf := &retry.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    kafka.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    kafka.InstanceStateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,

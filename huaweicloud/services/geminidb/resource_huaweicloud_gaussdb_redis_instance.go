@@ -622,7 +622,7 @@ func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceD
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
 		Target:       []string{"deleted"},
-		Refresh:      GeminiDBInstanceStateRefreshFunc(client, instanceId),
+		Refresh:      InstanceStateRefreshFunc(client, instanceId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        15 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -1069,7 +1069,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"RESIZE_FLAVOR"},
 		Target:       []string{"available"},
-		Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+		Refresh:      instanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		PollInterval: 20 * time.Second,
 	}

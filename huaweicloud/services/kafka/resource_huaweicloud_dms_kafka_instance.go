@@ -798,7 +798,7 @@ func UpdateCrossVpcAccess(ctx context.Context, client *golangsdk.ServiceClient, 
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 10 * time.Second,
@@ -1620,7 +1620,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceId),
+			WaitFunc:     InstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -1675,7 +1675,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceId),
+			WaitFunc:     InstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -1721,7 +1721,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -1876,7 +1876,7 @@ func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		DelayTimeout: 1 * time.Second,
@@ -1969,7 +1969,7 @@ func switchInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceCl
 	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      updateTimeout,
 		DelayTimeout: 10 * time.Second,
@@ -2046,7 +2046,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutDelete),
 			DelayTimeout: 1 * time.Second,
@@ -2064,7 +2064,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     InstanceStateRefreshFunc(client, d.Id()),
 			WaitTarget:   []string{"RUNNING"},
 			Timeout:      d.Timeout(schema.TimeoutDelete),
 			DelayTimeout: 1 * time.Second,
@@ -2081,7 +2081,7 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING", "ERROR"}, // Status may change to ERROR on deletion.
 		Target:       []string{"DELETED"},
-		Refresh:      KafkaInstanceStateRefreshFunc(client, d.Id()),
+		Refresh:      InstanceStateRefreshFunc(client, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        120 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -2131,7 +2131,7 @@ func kafkaInstanceCrossVpcInfoRefreshFunc(client *golangsdk.ServiceClient, insta
 	}
 }
 
-func KafkaInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
+func InstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
@@ -2348,7 +2348,7 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, time
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(client, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
@@ -2386,7 +2386,7 @@ func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *go
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceID),
+		WaitFunc:     InstanceStateRefreshFunc(client, instanceID),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
