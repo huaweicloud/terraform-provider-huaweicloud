@@ -1656,6 +1656,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_gaussdb_enterprise_project_remaining_quotas": gaussdb.DataSourceGaussDBEnterpriseProjectRemainingQuotas(),
 			"huaweicloud_gaussdb_instance_session_memory_contexts":    gaussdb.DataSourceGaussDBInstanceSessionMemoryContexts(),
+			"huaweicloud_gaussdb_instance_real_time_session_overview": gaussdb.DataSourceGaussDBInstanceRealTimeSessionOverview(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
