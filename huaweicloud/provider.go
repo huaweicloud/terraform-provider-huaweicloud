@@ -4712,6 +4712,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_taurusdb_proxy":                             taurusdb.ResourceTaurusDBProxy(),
 			"huaweicloud_taurusdb_proxy_eip_associate":               taurusdb.ResourceTaurusDBProxyEipAssociate(),
 			"huaweicloud_taurusdb_proxy_restart":                     taurusdb.ResourceTaurusDBProxyRestart(),
+			"huaweicloud_taurusdb_proxy_upgrade":                     taurusdb.ResourceTaurusDBProxyUpgrade(),
 			"huaweicloud_taurusdb_database":                          taurusdb.ResourceTaurusDBDatabase(),
 			"huaweicloud_taurusdb_account":                           taurusdb.ResourceTaurusDBAccount(),
 			"huaweicloud_taurusdb_account_privilege":                 taurusdb.ResourceTaurusDBAccountPrivilege(),
