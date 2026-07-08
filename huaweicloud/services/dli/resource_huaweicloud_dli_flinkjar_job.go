@@ -484,7 +484,7 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("resume_checkpoint", detail.JobConfig.ResumeCheckpoint),
 		d.Set("resume_max_num", detail.JobConfig.ResumeMaxNum),
 		d.Set("checkpoint_path", detail.JobConfig.CheckpointPath),
-		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
+		d.Set("runtime_config", parseFlinkJobRuntimeConfig(detail.JobConfig.RuntimeConfig)),
 		d.Set("status", detail.Status),
 		d.Set("tags", d.Get("tags")),
 		d.Set("checkpoint_enabled", detail.JobConfig.CheckpointEnabled),

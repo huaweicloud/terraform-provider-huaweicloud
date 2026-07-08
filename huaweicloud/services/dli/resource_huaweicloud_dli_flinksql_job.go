@@ -432,7 +432,7 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("tm_slot_num", detail.JobConfig.TmSlotNum),
 		d.Set("resume_checkpoint", detail.JobConfig.ResumeCheckpoint),
 		d.Set("resume_max_num", detail.JobConfig.ResumeMaxNum),
-		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
+		d.Set("runtime_config", parseFlinkJobRuntimeConfig(detail.JobConfig.RuntimeConfig)),
 		d.Set("operator_config", detail.JobConfig.OperatorConfig),
 		d.Set("static_estimator_config", detail.JobConfig.StaticEstimatorConfig),
 		d.Set("execution_agency_urn", detail.JobConfig.ExecutionAgencyUrn),
@@ -769,17 +769,21 @@ func updateFlinkSqlJobWithStop(ctx context.Context, client *golangsdk.ServiceCli
 	return nil
 }
 
-func setRuntimeConfigToState(d *schema.ResourceData, configStr string) error {
+func parseFlinkJobRuntimeConfig(configStr string) interface{} {
 	if len(configStr) == 0 {
-		return nil
+		// Returning nil will cause `d.Set` to result in `runtime_config` being null in `tfstate` (equivalent to not
+		// setting the parameter), and will consistently result in a "Known After Apply" error because `runtime_config`
+		// is not being recognized.
+		return make(map[string]interface{})
 	}
+
 	var rst []tags.ResourceTag
 	err := json.Unmarshal([]byte(configStr), &rst)
 	if err != nil {
-		return fmt.Errorf("error parse runtime_config from API response: %s", err)
+		return make(map[string]interface{})
 	}
 
-	return d.Set("runtime_config", utils.TagsToMap(rst))
+	return utils.TagsToMap(rst)
 }
 
 func parseDliFlinkErrToError404(respErr error) error {
