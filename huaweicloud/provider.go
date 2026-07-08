@@ -1423,6 +1423,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_database_instances":         dsc.DataSourceDatabaseInstances(),
 			"huaweicloud_dsc_scan_jobs":                  dsc.DataSourceScanJobs(),
 			"huaweicloud_dsc_dbss_oem_info":              dsc.DataSourceDbssOemInfo(),
+			"huaweicloud_dsc_catalog_statical_chart":     dsc.DataSourceCatalogStaticalChart(),
 			"huaweicloud_dsc_multi_accounts":             dsc.DataSourceMultiAccounts(),
 			"huaweicloud_dsc_multi_account_assets":       dsc.DataSourceMultiAccountAssets(),
 			"huaweicloud_dsc_multi_account_info":         dsc.DataSourceMultiAccountInfo(),
