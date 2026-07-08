@@ -4034,6 +4034,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_dr_instance_to_primary":            gaussdb.ResourceGaussDBDrInstanceToPrimary(),
 			"huaweicloud_gaussdb_dr_relationship_reestablish":       gaussdb.ResourceGaussDbDrRelationshipReestablish(),
 			"huaweicloud_gaussdb_dr_instance_primary_role_switch":   gaussdb.ResourceGaussDbDrInstancePrimaryRoleSwitch(),
+			"huaweicloud_gaussdb_redistribution_parameters_modify":  gaussdb.ResourceGaussDBRedistributionParametersModify(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
