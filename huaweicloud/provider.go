@@ -4980,6 +4980,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_alarm_notification":           dsc.ResourceAlarmNotification(),
 			"huaweicloud_dsc_multi_enable_trusted_service": dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_device":                       dsc.ResourceDscDevice(),
+			"huaweicloud_dsc_stop_scan_job":                dsc.ResourceStopScanJob(),
 
 			// internal only
 			"huaweicloud_apm_aksk": apm.ResourceApmAkSk(),
