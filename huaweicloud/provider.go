@@ -1432,6 +1432,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_multi_account_info":         dsc.DataSourceMultiAccountInfo(),
 			"huaweicloud_dsc_multi_organizations":        dsc.DataSourceMultiOrganizations(),
 			"huaweicloud_dsc_multi_organization_tree":    dsc.DataSourceMultiOrganizationTree(),
+			"huaweicloud_dsc_protect_data_types":         dsc.DataSourceDscProtectDataTypes(),
 			"huaweicloud_dsc_vpc_ep_quotas":              dsc.DataSourceDscVpcEpQuotas(),
 
 			// EventGrid
