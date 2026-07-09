@@ -293,6 +293,7 @@ var (
 	HW_GAUSSDB_INSTANCE_ID           = os.Getenv("HW_GAUSSDB_INSTANCE_ID")
 	HW_GAUSSDB_START_TIME            = os.Getenv("HW_GAUSSDB_START_TIME")
 	HW_GAUSSDB_END_TIME              = os.Getenv("HW_GAUSSDB_END_TIME")
+	HW_GAUSSDB_SQL_EXEC_ID           = os.Getenv("HW_GAUSSDB_SQL_EXEC_ID")
 	HW_GAUSSDB_HBA_HISTORY_ID        = os.Getenv("HW_GAUSSDB_HBA_HISTORY_ID")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
@@ -2407,6 +2408,13 @@ func TestAccPreCheckGaussDBJobId(t *testing.T) {
 func TestAccPreCheckGaussDBInstanceId(t *testing.T) {
 	if HW_GAUSSDB_INSTANCE_ID == "" {
 		t.Skip("HW_GAUSSDB_INSTANCE_ID must be set for GaussDB acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBSqlExecId(t *testing.T) {
+	if HW_GAUSSDB_SQL_EXEC_ID == "" {
+		t.Skip("HW_GAUSSDB_SQL_EXEC_ID must be set for GaussDB acceptance tests")
 	}
 }
 
