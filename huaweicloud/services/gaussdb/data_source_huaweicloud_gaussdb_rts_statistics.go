@@ -18,9 +18,9 @@ import (
 )
 
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/session-statistics
-func DataSourceInstanceRealTimeSessionStatistics() *schema.Resource {
+func DataSourceGaussDbRtsStatistics() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceInstanceRealTimeSessionStatisticsRead,
+		ReadContext: dataSourceGaussDbRtsStatisticsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -47,13 +47,13 @@ func DataSourceInstanceRealTimeSessionStatistics() *schema.Resource {
 			"statistics_list": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     instanceRealTimeSessionStatisticsSchema(),
+				Elem:     gaussDbRtsStatisticsSchema(),
 			},
 		},
 	}
 }
 
-func instanceRealTimeSessionStatisticsSchema() *schema.Resource {
+func gaussDbRtsStatisticsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -72,7 +72,7 @@ func instanceRealTimeSessionStatisticsSchema() *schema.Resource {
 	}
 }
 
-func dataSourceInstanceRealTimeSessionStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceGaussDbRtsStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -87,7 +87,7 @@ func dataSourceInstanceRealTimeSessionStatisticsRead(_ context.Context, d *schem
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
-	getPath += buildGetInstanceRealTimeSessionStatisticsQueryParams(d)
+	getPath += buildGetGaussDbRtsStatisticsQueryParams(d)
 
 	listResp, err := pagination.ListAllItems(
 		client,
@@ -116,13 +116,13 @@ func dataSourceInstanceRealTimeSessionStatisticsRead(_ context.Context, d *schem
 
 	mErr = multierror.Append(
 		d.Set("region", region),
-		d.Set("statistics_list", flattenGetInstanceRealTimeSessionStatisticsBody(listRespBody)),
+		d.Set("statistics_list", flattenGetGaussDbRtsStatisticsBody(listRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildGetInstanceRealTimeSessionStatisticsQueryParams(d *schema.ResourceData) string {
+func buildGetGaussDbRtsStatisticsQueryParams(d *schema.ResourceData) string {
 	res := ""
 	res = fmt.Sprintf("%s&dimension=%v", res, d.Get("dimension").(string))
 	if v, ok := d.GetOk("order_field"); ok {
@@ -137,7 +137,7 @@ func buildGetInstanceRealTimeSessionStatisticsQueryParams(d *schema.ResourceData
 	return res
 }
 
-func flattenGetInstanceRealTimeSessionStatisticsBody(resp interface{}) []interface{} {
+func flattenGetGaussDbRtsStatisticsBody(resp interface{}) []interface{} {
 	curJson := utils.PathSearch("statistics_list", resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	res := make([]interface{}, 0, len(curArray))

@@ -1,24 +1,24 @@
 ---
 subcategory: "GaussDB"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_gaussdb_instance_session_memory_contexts"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_session_memory_contexts"
 description: |-
   Use this data source to query the session memory context list of a GaussDB instance within HuaweiCloud.
 ---
 
-# huaweicloud_gaussdb_instance_session_memory_contexts
+# huaweicloud_gaussdb_session_memory_contexts
 
 Use this data source to query the session memory context list of a GaussDB instance within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-variable "gaussdb_instance_id" {}
+variable "instance_id" {}
 variable "node_id" {}
 variable "session_id" {}
 
-data "huaweicloud_gaussdb_instance_session_memory_contexts" "test" {
-  instance_id = var.gaussdb_instance_id
+data "huaweicloud_gaussdb_session_memory_contexts" "test" {
+  instance_id = var.instance_id
   node_id     = var.node_id
   session_id  = var.session_id
 }

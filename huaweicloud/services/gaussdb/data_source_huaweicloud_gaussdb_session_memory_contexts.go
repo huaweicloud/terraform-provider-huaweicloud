@@ -17,9 +17,9 @@ import (
 )
 
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/session/memory-context
-func DataSourceGaussDBInstanceSessionMemoryContexts() *schema.Resource {
+func DataSourceGaussDBSessionMemoryContexts() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceGaussDBInstanceSessionMemoryContextsRead,
+		ReadContext: dataSourceGaussDBSessionMemoryContextsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -67,7 +67,7 @@ func sessionMemoryContextInfoSchema() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBInstanceSessionMemoryContextsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceGaussDBSessionMemoryContextsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

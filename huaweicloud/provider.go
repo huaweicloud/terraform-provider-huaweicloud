@@ -1661,11 +1661,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_tables_storage_usage":            gaussdb.DataSourceTablesStorageUsage(),
 			"huaweicloud_gaussdb_top_twenty_tables_storage_usage": gaussdb.DataSourceTopTwentyTablesStorageUsage(),
 			"huaweicloud_gaussdb_parameter_setting_template":      gaussdb.DataSourceGaussDBParameterSettingTemplate(),
-
-			"huaweicloud_gaussdb_enterprise_project_remaining_quotas":   gaussdb.DataSourceGaussDBEnterpriseProjectRemainingQuotas(),
-			"huaweicloud_gaussdb_instance_session_memory_contexts":      gaussdb.DataSourceGaussDBInstanceSessionMemoryContexts(),
-			"huaweicloud_gaussdb_instance_real_time_session_overview":   gaussdb.DataSourceGaussDBInstanceRealTimeSessionOverview(),
-			"huaweicloud_gaussdb_instance_real_time_session_statistics": gaussdb.DataSourceInstanceRealTimeSessionStatistics(),
+			"huaweicloud_gaussdb_session_memory_contexts":         gaussdb.DataSourceGaussDBSessionMemoryContexts(),
+			"huaweicloud_gaussdb_rts_overview":                    gaussdb.DataSourceGaussDBRtsOverview(),
+			"huaweicloud_gaussdb_rts_statistics":                  gaussdb.DataSourceGaussDbRtsStatistics(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),

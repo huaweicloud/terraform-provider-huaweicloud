@@ -16,9 +16,9 @@ import (
 )
 
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/session-overview
-func DataSourceGaussDBInstanceRealTimeSessionOverview() *schema.Resource {
+func DataSourceGaussDBRtsOverview() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceGaussDBInstanceRealTimeSessionOverviewRead,
+		ReadContext: dataSourceGaussDBRtsOverviewRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -50,7 +50,7 @@ func DataSourceGaussDBInstanceRealTimeSessionOverview() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBInstanceRealTimeSessionOverviewRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceGaussDBRtsOverviewRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

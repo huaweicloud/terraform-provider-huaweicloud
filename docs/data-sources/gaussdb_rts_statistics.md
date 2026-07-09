@@ -1,12 +1,12 @@
 ---
 subcategory: "GaussDB"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_gaussdb_instance_real_time_session_statistics"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_rts_statistics"
 description: |-
   Use this data source to query the real time session statistics of a GaussDB instance within HuaweiCloud.
 ---
 
-# huaweicloud_gaussdb_instance_real_time_session_statistics
+# huaweicloud_gaussdb_rts_statistics
 
 Use this data source to query the real time session statistics of a GaussDB instance within HuaweiCloud.
 
@@ -15,8 +15,10 @@ Use this data source to query the real time session statistics of a GaussDB inst
 ### Basic Usage
 
 ```hcl
-data "huaweicloud_gaussdb_instance_real_time_session_statistics" "test" {
-  instance_id = "your_instance_id"
+variable "instance_id" {}
+
+data "huaweicloud_gaussdb_rts_statistics" "test" {
+  instance_id = var.instance_id
   dimension   = "usename"
 }
 ```
@@ -24,9 +26,11 @@ data "huaweicloud_gaussdb_instance_real_time_session_statistics" "test" {
 ### Query with sort
 
 ```hcl
-data "huaweicloud_gaussdb_instance_real_time_session_statistics" "test" {
-  instance_id = "your_instance_id"
-  dimension   = "client_addr"
+variable "instance_id" {}
+
+data "huaweicloud_gaussdb_rts_statistics" "test" {
+  instance_id = var.instance_id
+  dimension   = "usename"
   order_field = "active_num"
   order       = "DESC"
 }
@@ -64,9 +68,9 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID.
 
 * `statistics_list` - The list of session statistics.
-  The [statistics_list](#instance_real_time_session_statistics_statistics_list) structure is documented below.
+  The [statistics_list](#rts_statistics_list) structure is documented below.
 
-<a name="instance_real_time_session_statistics_statistics_list"></a>
+<a name="rts_statistics_list"></a>
 The `statistics_list` block supports:
 
 * `name` - The dimension name.

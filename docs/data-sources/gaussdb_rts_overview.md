@@ -1,12 +1,12 @@
 ---
 subcategory: "GaussDB"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_gaussdb_instance_real_time_session_overview"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_rts_overview"
 description: |-
   Use this data source to query the real-time session overview of a GaussDB instance within HuaweiCloud.
 ---
 
-# huaweicloud_gaussdb_instance_real_time_session_overview
+# huaweicloud_gaussdb_rts_overview
 
 Use this data source to query the real-time session overview of a GaussDB instance within HuaweiCloud.
 
@@ -15,7 +15,7 @@ Use this data source to query the real-time session overview of a GaussDB instan
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_gaussdb_instance_real_time_session_overview" "test" {
+data "huaweicloud_gaussdb_rts_overview" "test" {
   instance_id = var.instance_id
 }
 ```

@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceGaussdbInstanceRealTimeSessionStatistics_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_gaussdb_instance_real_time_session_statistics.test"
+func TestAccDataSourceGaussdbRtsStatistics_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_gaussdb_rts_statistics.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,7 +21,7 @@ func TestAccDataSourceGaussdbInstanceRealTimeSessionStatistics_basic(t *testing.
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceGaussdbInstanceRealTimeSessionStatistics_basic(),
+				Config: testDataSourceGaussdbRtsStatistics_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "statistics_list.#"),
@@ -35,15 +35,15 @@ func TestAccDataSourceGaussdbInstanceRealTimeSessionStatistics_basic(t *testing.
 	})
 }
 
-func testDataSourceGaussdbInstanceRealTimeSessionStatistics_basic() string {
+func testDataSourceGaussdbRtsStatistics_basic() string {
 	return fmt.Sprintf(`
-data "huaweicloud_gaussdb_instance_real_time_session_statistics" "test" {
+data "huaweicloud_gaussdb_rts_statistics" "test" {
   instance_id = "%[1]s"
   dimension   = "usename"
 }
 
 
-data "huaweicloud_gaussdb_instance_real_time_session_statistics" "query_filter" {
+data "huaweicloud_gaussdb_rts_statistics" "query_filter" {
   instance_id = "%[1]s"
   dimension   = "usename"
   order_field = "active_num"
@@ -51,7 +51,7 @@ data "huaweicloud_gaussdb_instance_real_time_session_statistics" "query_filter" 
 }
 
 output "query_filter" {
-  value = length(data.huaweicloud_gaussdb_instance_real_time_session_statistics.query_filter.statistics_list) > 0
+  value = length(data.huaweicloud_gaussdb_rts_statistics.query_filter.statistics_list) > 0
 }
 `, acceptance.HW_GAUSSDB_INSTANCE_ID)
 }

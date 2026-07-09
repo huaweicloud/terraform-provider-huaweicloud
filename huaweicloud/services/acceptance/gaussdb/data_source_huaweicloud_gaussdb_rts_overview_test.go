@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceGaussDBInstanceRealTimeSessionOverview_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_gaussdb_instance_real_time_session_overview.test"
+func TestAccDataSourceGaussDBRtsOverview_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_gaussdb_rts_overview.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,7 +21,7 @@ func TestAccDataSourceGaussDBInstanceRealTimeSessionOverview_basic(t *testing.T)
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGaussDBInstanceRealTimeSessionOverview_basic(),
+				Config: testAccDataSourceGaussDBRtsOverview_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "active_num"),
@@ -34,9 +34,9 @@ func TestAccDataSourceGaussDBInstanceRealTimeSessionOverview_basic(t *testing.T)
 	})
 }
 
-func testAccDataSourceGaussDBInstanceRealTimeSessionOverview_basic() string {
+func testAccDataSourceGaussDBRtsOverview_basic() string {
 	return fmt.Sprintf(`
-data "huaweicloud_gaussdb_instance_real_time_session_overview" "test" {
+data "huaweicloud_gaussdb_rts_overview" "test" {
   instance_id = "%s"
 }
 `, acceptance.HW_GAUSSDB_INSTANCE_ID)

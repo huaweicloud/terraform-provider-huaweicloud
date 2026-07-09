@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceGaussDBInstanceSessionMemoryContexts_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_gaussdb_instance_session_memory_contexts.test"
+func TestAccDataSourceGaussDBSessionMemoryContexts_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_gaussdb_session_memory_contexts.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,7 +21,7 @@ func TestAccDataSourceGaussDBInstanceSessionMemoryContexts_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGaussDBInstanceSessionMemoryContexts_basic(),
+				Config: testAccDataSourceGaussDBSessionMemoryContexts_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "memory_context_info.#"),
@@ -34,7 +34,7 @@ func TestAccDataSourceGaussDBInstanceSessionMemoryContexts_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceGaussDBInstanceSessionMemoryContexts_basic() string {
+func testAccDataSourceGaussDBSessionMemoryContexts_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_gaussdb_key_view_nodes_deliver" "test" {
   instance_id = "%[1]s"
@@ -46,7 +46,7 @@ data "huaweicloud_gaussdb_instance_real_time_sessions" "test" {
   component_id = data.huaweicloud_gaussdb_key_view_nodes_deliver.test.nodes.0.component_id
 }
 
-data "huaweicloud_gaussdb_instance_session_memory_contexts" "test" {
+data "huaweicloud_gaussdb_session_memory_contexts" "test" {
   instance_id = "%[1]s"
   node_id     = data.huaweicloud_gaussdb_key_view_nodes_deliver.test.nodes.0.node_id
   session_id  = data.huaweicloud_gaussdb_instance_real_time_sessions.test.sessions.0.session_id
