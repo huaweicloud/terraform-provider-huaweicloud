@@ -293,6 +293,10 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_flavor"),
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.silence_start_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_read_only_count"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.switch_option", "true"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.limit_size", "1000"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.trigger_available_percent", "10"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.step_percent", "20"),
 					resource.TestCheckResourceAttrSet(resourceName, "upgrade_flag"),
 					resource.TestCheckResourceAttrSet(resourceName, "current_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "current_kernel_version"),
@@ -339,6 +343,10 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.switch_option", "true"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.limit_size", "500"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.trigger_available_percent", "15"),
+					resource.TestCheckResourceAttr(resourceName, "storage_auto_expand_policy.0.step_percent", "10"),
 				),
 			},
 			{
@@ -715,6 +723,13 @@ resource "huaweicloud_taurusdb_instance" "test" {
     read_only_weight    = 10
   }
 
+  storage_auto_expand_policy {
+    switch_option             = true
+    limit_size                = 1000
+    trigger_available_percent = 10
+    step_percent              = 20
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -782,6 +797,13 @@ resource "huaweicloud_taurusdb_instance" "test" {
       flavor_switch    = "ON"
       read_only_switch = "OFF"
     }
+  }
+
+  storage_auto_expand_policy {
+    switch_option             = true
+    limit_size                = 500
+    trigger_available_percent = 15
+    step_percent              = 10
   }
 
   tags = {

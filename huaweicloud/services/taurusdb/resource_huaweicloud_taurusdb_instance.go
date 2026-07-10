@@ -2,6 +2,7 @@ package taurusdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -68,6 +69,8 @@ type ctxType string
 // @API TaurusDB PUT /v3/{project_id}/configurations/{configuration_id}/apply
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/storage/auto-expand-policy
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/storage/auto-expand-policy
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/multi-tenant
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/slowlog/modify
@@ -483,6 +486,36 @@ func ResourceTaurusDBInstance() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
+			"storage_auto_expand_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"switch_option": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"limit_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"trigger_available_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"step_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -611,7 +644,8 @@ func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
 				return v, "DELETED", nil
 			}
 			return nil, "", err
@@ -897,6 +931,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.Get("storage_auto_expand_policy.0.switch_option").(bool) {
+		if err = updateStorageAutoExpandPolicy(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if v, ok := d.GetOk("encryption_status"); ok && v.(string) == "ON" {
 		if err = updateEncryption(client, d); err != nil {
 			return diag.FromErr(err)
@@ -1050,6 +1090,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setSecondsLevelMonitoring(d, client, instanceID)...)
 	// set auto scaling
 	mErr = multierror.Append(mErr, setAutoScaling(d, client, instanceID))
+	// set storage auto expand policy
+	mErr = multierror.Append(mErr, setStorageAutoExpandPolicy(d, client, instanceID))
 	// set backup encryption
 	mErr = multierror.Append(mErr, setEncryption(d, client, instanceID))
 	// set version
@@ -1314,6 +1356,109 @@ func buildUpdateAuditLogPolicyRequestBody(d *schema.ResourceData) map[string]int
 	}
 	return body
 }
+
+func getStorageAutoExpandPolicy(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	getPath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/storage/auto-expand-policy"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving storage auto expand policy for instance (%s): %s", instanceId, err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	switchOption := utils.PathSearch("switch_option", getRespBody, false).(bool)
+	limitSize := int(utils.PathSearch("limit_size", getRespBody, float64(0)).(float64))
+	triggerAvailablePercent := int(utils.PathSearch("trigger_available_percent", getRespBody, float64(0)).(float64))
+	stepPercent := int(utils.PathSearch("step_percent", getRespBody, float64(0)).(float64))
+
+	policy := []interface{}{
+		map[string]interface{}{
+			"switch_option":             switchOption,
+			"limit_size":                limitSize,
+			"trigger_available_percent": triggerAvailablePercent,
+			"step_percent":              stepPercent,
+		},
+	}
+
+	return policy, nil
+}
+
+func setStorageAutoExpandPolicy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	policy, err := getStorageAutoExpandPolicy(client, instanceId)
+	if err != nil {
+		log.Printf("[WARN] query instance %s storage auto expand policy failed: %s", instanceId, err)
+		return nil
+	}
+	return d.Set("storage_auto_expand_policy", policy)
+}
+
+func updateStorageAutoExpandPolicy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updatePath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/storage/auto-expand-policy"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildUpdateStorageAutoExpandPolicyRequestBody(d)),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating storage auto expand policy for instance %s: %s", d.Id(), err)
+	}
+
+	_, err = utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateStorageAutoExpandPolicyRequestBody(d *schema.ResourceData) map[string]interface{} {
+	policy := d.Get("storage_auto_expand_policy").([]interface{})
+	if len(policy) == 0 {
+		return nil
+	}
+
+	policyMap, ok := policy[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"switch_option":             policyMap["switch_option"],
+		"limit_size":                utils.ValueIgnoreEmpty(policyMap["limit_size"]),
+		"trigger_available_percent": utils.ValueIgnoreEmpty(policyMap["trigger_available_percent"]),
+		"step_percent":              utils.ValueIgnoreEmpty(policyMap["step_percent"]),
+	}
+	return bodyParams
+}
+
 func setSqlFilter(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
 	resp, err := sqlfilter.Get(client, instanceId).Extract()
 	if err != nil {
@@ -1645,6 +1790,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("auto_scaling") {
 		err = updateAutoScaling(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("storage_auto_expand_policy") {
+		err = updateStorageAutoExpandPolicy(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}

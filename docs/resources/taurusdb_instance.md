@@ -208,6 +208,11 @@ The `backup_strategy` block supports:
   + **false**: Historical audit logs will be deleted immediately when SQL audit is disabled.
   Defaults to **true**.
 
+* `storage_auto_expand_policy` - (Optional, List) Specifies the storage auto expand policy.
+  The [storage_auto_expand_policy](#storage_auto_expand_policy_struct) structure is documented below.
+
+  -> **Note**: This parameter is only supported for prePaid instances.
+
 * `sql_filter_enabled` - (Optional, Bool) Specifies whether sql filter is enabled. The default value is `false`.
 
 * `encryption_status` - (Optional, String) Specifies whether to enable or disable encrypted backup. Value options:
@@ -278,6 +283,25 @@ The `scaling_strategy` block supports:
   Value options:
   + **ON**: Yes
   + **OFF**: No
+
+<a name="storage_auto_expand_policy_struct"></a>
+The `storage_auto_expand_policy` block supports:
+
+* `switch_option` - (Optional, Bool) Specifies whether to enable the storage auto expand policy.
+  + **true**: enabled.
+  + **false**: disabled.
+
+  -> **Note**: If `switch_option` is set to **true**, the other parameters (`limit_size`, `trigger_available_percent`,
+  `step_percent`) are required. If `switch_option` is set to **false**, the other parameters are optional and
+  will not take effect even if configured.
+
+* `limit_size` - (Optional, Int) Specifies the upper limit of storage (GB) that can be automatically scaled up to.
+  The value must be a multiple of 10. Value range: **10–Maximum storage**.
+
+* `trigger_available_percent` - (Optional, Int) Specifies the percentage of available storage. The storage will be
+  automatically scaled up if the available storage drops to or below this value. Value options: **10**, **15**, **20**.
+
+* `step_percent` - (Optional, Int) Specifies the scaling step when the storage is scaled by percentage. Value range: **5–50**.
 
 ## Attribute Reference
 
