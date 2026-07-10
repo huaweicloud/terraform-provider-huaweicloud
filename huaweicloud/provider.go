@@ -1427,6 +1427,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_threat_trend":                dsc.DataSourceDscThreatTrend(),
 			"huaweicloud_dsc_database_instances":          dsc.DataSourceDatabaseInstances(),
 			"huaweicloud_dsc_scan_jobs":                   dsc.DataSourceScanJobs(),
+			"huaweicloud_dsc_scan_tasks":                  dsc.DataSourceDscScanTasks(),
 			"huaweicloud_dsc_scan_rules":                  dsc.DataSourceScanRules(),
 			"huaweicloud_dsc_template_rules":              dsc.DataSourceDscTemplateRules(),
 			"huaweicloud_dsc_dbss_oem_info":               dsc.DataSourceDbssOemInfo(),
