@@ -418,6 +418,47 @@ func TestAccGaussDbInstance_auto_scaling(t *testing.T) {
 	})
 }
 
+func TestAccGaussDbInstance_dn_node_deploy_mode(t *testing.T) {
+	var (
+		instance     instances.GaussDBInstance
+		resourceName = "huaweicloud_gaussdb_instance.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		password     = fmt.Sprintf("%s@123", acctest.RandString(5))
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getGaussDbInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDbInstance_dn_node_deploy_mode(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "dn_node_deploy_mode", "primary_standby_log"),
+				),
+			},
+			{
+				Config: testAccGaussDbInstance_dn_node_deploy_mode_update(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "dn_node_deploy_mode", "primary_standby"),
+				),
+			},
+		},
+	})
+}
+
 func testAccGaussDbInstance_base(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -908,7 +949,6 @@ resource "huaweicloud_networking_secgroup" "test" {
   name = "%s"
 }
 
-
 resource "huaweicloud_gaussdb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
@@ -936,6 +976,104 @@ resource "huaweicloud_gaussdb_instance" "test" {
     replication_mode = "sync"
     consistency      = "eventual"
     instance_mode    = "basic"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, common.TestVpc(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_dn_node_deploy_mode(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_flavors" "test" {
+  version = "8.201"
+  ha_mode = "enterprise"
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
+}
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  name              = "%[2]s"
+  password          = "%[3]s"
+  sharding_num      = 1
+  coordinator_num   = 1
+  replica_num       = 3
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  dn_node_deploy_mode = "primary_standby_log"
+
+  enterprise_project_id = "%[4]s"
+
+  ha {
+    mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "strong"
+    instance_mode    = "enterprise"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+`, common.TestVpc(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccGaussDbInstance_dn_node_deploy_mode_update(rName, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_gaussdb_flavors" "test" {
+  version = "8.201"
+  ha_mode = "enterprise"
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
+}
+
+resource "huaweicloud_gaussdb_instance" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor            = data.huaweicloud_gaussdb_flavors.test.flavors[0].spec_code
+  name              = "%[2]s"
+  password          = "%[3]s"
+  sharding_num      = 1
+  coordinator_num   = 1
+  replica_num       = 3
+  availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
+
+  dn_node_deploy_mode = "primary_standby"
+
+  enterprise_project_id = "%[4]s"
+
+  ha {
+    mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "strong"
+    instance_mode    = "enterprise"
   }
 
   volume {

@@ -377,6 +377,14 @@ func ResourceGaussDbInstance() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"dn_node_deploy_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"primary_standby", "primary_standby_log",
+				}, false),
+			},
 			"tags": common.TagsSchema(),
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -519,6 +527,10 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
 
 	// If force_import set, try to import it instead of creating
 	if common.HasFilledOpt(d, "force_import") {
@@ -563,10 +575,6 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 		orderId := utils.PathSearch("order_id", createRespBody, nil)
 		if orderId == nil {
 			return diag.Errorf("error creating GaussDB OpenGauss instance: order_id is not found in API response")
-		}
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
 		// wait for order success
 		err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
@@ -660,6 +668,19 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	// This is a workaround to avoid db connection issue
 	time.Sleep(360 * time.Second) // lintignore:R018
+
+	if v, ok := d.GetOk("dn_node_deploy_mode"); ok {
+		instance, err := getGaussDBOpenGaussInstancesById(client, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		secondaryNode := utils.PathSearch("instances[0].nodes[?role=='secondary']|[0]", instance, nil)
+		if (secondaryNode == nil && v == "primary_standby_log") || (secondaryNode != nil && v == "primary_standby") {
+			if err = updateDnNodeDeployMode(ctx, client, bssClient, d, schema.TimeoutCreate); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
 
 	return resourceOpenGaussInstanceRead(ctx, d, meta)
 }
@@ -915,6 +936,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 		d.Set("volume", flattenGaussDBOpenGaussResponseBodyVolume(instance, dnNum)),
 		d.Set("mysql_compatibility_port", utils.PathSearch("mysql_compatibility.port", instance, nil)),
 		setOpenGaussPrivateIpsAndEndpoints(d, instance),
+		setDnNodeDeployMode(d, instance),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
 
@@ -1250,6 +1272,24 @@ func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient) err
 	return d.Set("auto_scaling", autoScaling)
 }
 
+func setDnNodeDeployMode(d *schema.ResourceData, instance interface{}) *multierror.Error {
+	instanceType := utils.PathSearch("type", instance, "").(string)
+	if instanceType != "Enterprise" {
+		return nil
+	}
+
+	secondaryNode := utils.PathSearch("nodes[?role=='secondary']|[0]", instance, nil)
+	if secondaryNode != nil {
+		return multierror.Append(
+			d.Set("dn_node_deploy_mode", "primary_standby_log"),
+		)
+	}
+
+	return multierror.Append(
+		d.Set("dn_node_deploy_mode", "primary_standby"),
+	)
+}
+
 // nolint:gocyclo
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
@@ -1410,6 +1450,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	if d.HasChange("auto_scaling") {
 		err = updateAutoScaling(ctx, client, d)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("dn_node_deploy_mode") {
+		if err = updateDnNodeDeployMode(ctx, client, bssClient, d, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2087,6 +2133,79 @@ func buildUpdateAutoScalingBodyParams(d *schema.ResourceData) map[string]interfa
 		return bodyParams
 	}
 	return nil
+}
+
+func updateDnNodeDeployMode(ctx context.Context, client, bssClient *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout string) error {
+	if d.Get("dn_node_deploy_mode") == "primary_standby" {
+		return updateInstanceToPrimaryStandby(ctx, client, bssClient, d, timeout)
+	}
+
+	instance, err := getGaussDBOpenGaussInstancesById(client, d.Id())
+	if err != nil {
+		return err
+	}
+	slaveNodeAz := utils.PathSearch("instances[0].nodes[?role=='slave']|[0].availability_zone", instance, "").(string)
+
+	return updateInstanceToPrimaryStandbyLog(ctx, client, bssClient, d, slaveNodeAz, timeout)
+}
+
+func updateInstanceToPrimaryStandby(ctx context.Context, client, bssClient *golangsdk.ServiceClient,
+	d *schema.ResourceData, timeout string) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/switch-replica",
+		httpMethod:           "POST",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildUpdateInstanceToPrimaryStandbyBodyParams(),
+		isRetry:              true,
+		timeout:              timeout,
+		delay:                180,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance to 1 primary and 2 standby: %s", err)
+	}
+
+	return err
+}
+
+func buildUpdateInstanceToPrimaryStandbyBodyParams() map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"is_auto_pay": true,
+	}
+	return bodyParams
+}
+
+func updateInstanceToPrimaryStandbyLog(ctx context.Context, client, bssClient *golangsdk.ServiceClient,
+	d *schema.ResourceData, az, timeout string) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/switch-logger-replica",
+		httpMethod:           "POST",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     buildUpdateInstanceToPrimaryStandbyLogBodyParams(az),
+		isRetry:              true,
+		timeout:              timeout,
+		delay:                180,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance to 1 primary, 1 standby and 1 log instance: %s", err)
+	}
+
+	return err
+}
+
+func buildUpdateInstanceToPrimaryStandbyLogBodyParams(availabilityZone string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"availability_zone": availabilityZone,
+	}
+	return bodyParams
 }
 
 func checkAspStatusJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,

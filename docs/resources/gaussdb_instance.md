@@ -202,6 +202,10 @@ The following arguments are supported:
   + **ON**: enabled
   + **OFF**: disabled
 
+* `dn_node_deploy_mode` - (Optional, String) Specifies the DN node deployment model of a distributed instance. Value options:
+  + **primary_standby**: 1 primary + 2 standby
+  + **primary_standby_log**: 1 primary + 1 standby + 1 log instance
+
 * `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
   `coordinator_num` should be modified simultaneously when the value is modified.
 
