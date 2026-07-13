@@ -4993,15 +4993,16 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_build_task_action":  codeartsbuild.ResourceCodeArtsBuildTaskAction(),
 			"huaweicloud_codearts_build_log_download": codeartsbuild.ResourceCodeArtsBuildLogDownload(),
 
-			"huaweicloud_dsc_instance":                     dsc.ResourceDscInstance(),
-			"huaweicloud_dsc_asset_obs":                    dsc.ResourceAssetObs(),
 			"huaweicloud_dsc_alarm_notification":           dsc.ResourceAlarmNotification(),
+			"huaweicloud_dsc_asset_domain_label":           dsc.ResourceAssetDomainLabel(),
+			"huaweicloud_dsc_asset_obs":                    dsc.ResourceAssetObs(),
 			"huaweicloud_dsc_batch_delete_obs":             dsc.ResourceBatchDeleteObs(),
-			"huaweicloud_dsc_multi_enable_trusted_service": dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_data_map_score_update":        dsc.ResourceDscDataMapScoreUpdate(),
 			"huaweicloud_dsc_device":                       dsc.ResourceDscDevice(),
-			"huaweicloud_dsc_switch_job":                   dsc.ResourceDscSwitchJob(),
+			"huaweicloud_dsc_instance":                     dsc.ResourceDscInstance(),
+			"huaweicloud_dsc_multi_enable_trusted_service": dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_stop_scan_job":                dsc.ResourceStopScanJob(),
+			"huaweicloud_dsc_switch_job":                   dsc.ResourceDscSwitchJob(),
 
 			// internal only
 			"huaweicloud_apm_aksk": apm.ResourceApmAkSk(),
