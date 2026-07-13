@@ -400,7 +400,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	sparkDriver, err := getSparkDriverByQueueName(v3Client, queueName)
 	if err != nil {
-		return diag.Errorf("error getting properties of the queue (%s): %s", queueName, err)
+		log.Printf("[ERROR] error getting properties of the queue (%s): %s", queueName, err)
 	}
 	mErr = multierror.Append(mErr, d.Set("spark_driver", sparkDriver))
 	return diag.FromErr(mErr.ErrorOrNil())

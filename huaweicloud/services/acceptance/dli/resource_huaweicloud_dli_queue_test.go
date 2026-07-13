@@ -132,6 +132,7 @@ resource "huaweicloud_dli_queue" "general" {
 }`, elasticResourceName, rName, cuCount)
 }
 
+// Before running this test, please ensure that the minimum CU of the second elastic resource pool is not less than 48.
 func TestAccDliQueue_another(t *testing.T) {
 	var (
 		obj                    queues.CreateOpts
