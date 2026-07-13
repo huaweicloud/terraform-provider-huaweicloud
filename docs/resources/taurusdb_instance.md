@@ -156,6 +156,12 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
+* `cross_region_backup_policy` - (Optional, List) Specifies the cross-region backup policy.
+  The [cross_region_backup_policy](#cross_region_backup_policy_struct) structure is documented below.
+
+  -> **Note** Encrypted backup (`encryption_status` is set to **ON**) and cross-region backup (`open_auto_backup` is set
+  to **true**) cannot be both enabled. Please set `encryption_status` to **OFF** or set `open_auto_backup` to **false**.
+
 * `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
   The [parameters](#parameters_struct) structure is documented below.
 
@@ -219,6 +225,8 @@ The `backup_strategy` block supports:
   + **ON**: enabled
   + **OFF**: disabled
 
+  -> **Note** Encrypted backup and cross-region backup (`open_auto_backup` is set to **true**) cannot be both enabled.
+
 * `encryption_type` - (Optional, String) Specifies the encryption type. Currently, only **kms (case-insensitive)** is
   supported. It is mandatory when `encryption_status` is set to **ON**.
   
@@ -269,6 +277,25 @@ The `auto_scaling` block supports:
 
 * `read_only_weight` - (Optional, Int) Specifies the read weights of read replicas. It is mandatory when read replicas
   are automatically added or deleted.
+
+<a name="cross_region_backup_policy_struct"></a>
+The `cross_region_backup_policy` block supports:
+
+* `open_auto_backup` - (Required, Bool) Specifies whether to enable cross-region automated backup.
+  The valid values as follows:
+  + **true**: Cross-region full backup is enabled.
+  + **false**: Cross-region full backup is disabled.
+
+* `open_incremental_backup` - (Required, Bool) Specifies whether to enable cross-region incremental backup.
+  The valid values as follows:
+  + **true**: Cross-region incremental backup is enabled. Only can be enabled when `open_auto_backup` is enabled.
+  + **false**: Cross-region incremental backup is disabled.
+
+* `destination_project_id` - (Required, String) Specifies the project ID of the destination region for cross-region backup.
+
+* `destination_region` - (Required, String) Specifies the destination region for cross-region backup.
+
+* `keep_days` - (Required, Int) Specifies the number of days to retain cross-region backup files. Value range: **1–1,825**.
 
 <a name="scaling_strategy_struct"></a>
 The `scaling_strategy` block supports:
@@ -379,9 +406,10 @@ $ terraform import huaweicloud_taurusdb_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the API
 response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`,`ssl_option`,
-`encryption_type`, `kms_key_id`, `reserve_audit_logs`. It is generally recommended running`terraform plan` after
-importing a TaurusDB instance. You can then decide if changes should be applied to the TaurusDB instance,
-or the resource definition should be updated to align with the TaurusDB instance. Also you can ignore changes as below.
+`encryption_type`, `kms_key_id`, `reserve_audit_logs`, `cross_region_backup_policy`. It is generally recommended
+running `terraform plan` after importing a TaurusDB instance. You can then decide if changes should be applied to
+the TaurusDB instance, or the resource definition should be updated to align with the TaurusDB instance.
+Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_taurusdb_instance" "test" {
@@ -389,8 +417,8 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option, encryption_type, kms_key_id, 
-      reserve_audit_logs,
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option, encryption_type, kms_key_id,
+      reserve_audit_logs, cross_region_backup_policy,
     ]
   }
 }

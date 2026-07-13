@@ -45,6 +45,7 @@ type ctxType string
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/audit-log-policy
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/sql-filter/switch
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/proxy
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/restart
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/ops-window
@@ -312,6 +313,36 @@ func ResourceTaurusDBInstance() *schema.Resource {
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
+						},
+					},
+				},
+			},
+			"cross_region_backup_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"open_auto_backup": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"open_incremental_backup": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"destination_project_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"destination_region": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"keep_days": {
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntBetween(1, 1825),
 						},
 					},
 				},
@@ -858,6 +889,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	if _, ok := d.GetOk("backup_strategy"); ok {
 		if err = updateInstanceBackupStrategy(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.Get("cross_region_backup_policy.0.open_auto_backup").(bool) {
+		if err = updateCrossRegionBackupPolicy(ctx, client, d, schema.TimeoutCreate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1660,6 +1697,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChange("cross_region_backup_policy") {
+		err = updateCrossRegionBackupPolicy(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("proxy_flavor") {
 		if err = updateInstanceProxyFlavor(ctx, client, d); err != nil {
 			return diag.FromErr(err)
@@ -2225,6 +2269,70 @@ func updateInstanceBackupStrategy(ctx context.Context, client *golangsdk.Service
 		return fmt.Errorf("error updating backup_strategy: %s", err)
 	}
 	return nil
+}
+
+func updateCrossRegionBackupPolicy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updatePath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/backups/offsite-policy"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildUpdateCrossRegionBackupPolicyRequestBody(d),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+		shouldRetry, err := handleMultiOperationsError(err)
+		return updateResp, shouldRetry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating cross region backup policy for instance %s: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", updateRespBody, "").(string)
+	if result != "SUCCESS" {
+		return fmt.Errorf("error updating cross region backup policy for instance %s: result is %s", d.Id(), result)
+	}
+
+	return nil
+}
+
+func buildUpdateCrossRegionBackupPolicyRequestBody(d *schema.ResourceData) map[string]interface{} {
+	policy := d.Get("cross_region_backup_policy").([]interface{})
+	if len(policy) == 0 {
+		return nil
+	}
+	policyMap, ok := policy[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"backup_policy": map[string]interface{}{
+			"open_auto_backup":        policyMap["open_auto_backup"],
+			"open_incremental_backup": policyMap["open_incremental_backup"],
+			"destination_project_id":  policyMap["destination_project_id"],
+			"destination_region":      policyMap["destination_region"],
+			"keep_days":               policyMap["keep_days"],
+		},
+	}
+	return bodyParams
 }
 
 func updateInstanceProxyFlavor(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {

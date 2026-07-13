@@ -230,7 +230,10 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 	resourceName := "huaweicloud_taurusdb_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckReplication(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckTaurusDBInstanceDestroy,
 		Steps: []resource.TestStep{
@@ -244,6 +247,13 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 						"data.huaweicloud_taurusdb_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "09:00-10:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.open_auto_backup", "true"),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.open_incremental_backup", "true"),
+					resource.TestCheckResourceAttr(resourceName,
+						"cross_region_backup_policy.0.destination_project_id", acceptance.HW_DEST_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName,
+						"cross_region_backup_policy.0.destination_region", acceptance.HW_DEST_REGION),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.keep_days", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "10"),
@@ -272,7 +282,6 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "DL5"),
-					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -303,7 +312,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccTaurusDBInstanceConfig_single_Update(updateName),
+				Config: testAccTaurusDBInstanceConfig_singleUpdate(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTaurusDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -312,6 +321,13 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 						"data.huaweicloud_taurusdb_flavors.test", "flavors.1.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "12:00-13:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "10"),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.open_auto_backup", "false"),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.open_incremental_backup", "false"),
+					resource.TestCheckResourceAttr(resourceName,
+						"cross_region_backup_policy.0.destination_project_id", acceptance.HW_DEST_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName,
+						"cross_region_backup_policy.0.destination_region", acceptance.HW_DEST_REGION),
+					resource.TestCheckResourceAttr(resourceName, "cross_region_backup_policy.0.keep_days", "10"),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_keep_days", "0"),
 					resource.TestCheckResourceAttr(resourceName, "audit_types.#", "0"),
@@ -338,7 +354,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "volume_size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", "DL5"),
-					resource.TestCheckResourceAttr(resourceName, "encryption_status", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "multi_tenant_switch", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
@@ -367,6 +383,7 @@ func TestAccTaurusDBInstance_single(t *testing.T) {
 					"period",
 					"period_unit",
 					"reserve_audit_logs",
+					"cross_region_backup_policy",
 				},
 			},
 		},
@@ -405,8 +422,8 @@ func testAccCheckTaurusDBInstanceExists(n string, instance *instances.TaurusDBIn
 			return errors.New("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
+		testConfig := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := testConfig.GaussdbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating TaurusDB client: %s", err)
 		}
@@ -692,10 +709,6 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   slow_log_show_original_switch = true
 
-  encryption_status = "ON"
-  encryption_type   = "kms"
-  kms_key_id        = huaweicloud_kms_key.test.id
-
   parameters {
     name  = "auto_increment_increment"
     value = "50"
@@ -704,6 +717,14 @@ resource "huaweicloud_taurusdb_instance" "test" {
   backup_strategy {
     start_time = "09:00-10:00"
     keep_days  = "7"
+  }
+
+  cross_region_backup_policy {
+    open_auto_backup        = true
+    open_incremental_backup = true
+    destination_region      = "%[3]s"
+    destination_project_id  = "%[4]s"
+    keep_days               = 7
   }
 
   auto_scaling {
@@ -740,10 +761,10 @@ resource "huaweicloud_taurusdb_instance" "test" {
   period        = 1
   auto_renew    = "true"
 }
-`, testAccTaurusDBInstanceConfig_base(rName), rName)
+`, testAccTaurusDBInstanceConfig_base(rName), rName, acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }
 
-func testAccTaurusDBInstanceConfig_single_Update(rName string) string {
+func testAccTaurusDBInstanceConfig_singleUpdate(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -778,8 +799,6 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   slow_log_show_original_switch = false
 
-  encryption_status = "OFF"
-
   parameters {
     name  = "character_set_server"
     value = "utf8"
@@ -789,6 +808,18 @@ resource "huaweicloud_taurusdb_instance" "test" {
     start_time = "12:00-13:00"
     keep_days  = "10"
   }
+
+  cross_region_backup_policy {
+    open_auto_backup        = false
+    open_incremental_backup = false
+    destination_region      = "%[3]s"
+    destination_project_id  = "%[4]s"
+    keep_days               = 10
+  }
+
+  encryption_status = "ON"
+  encryption_type   = "kms"
+  kms_key_id        = huaweicloud_kms_key.test.id
 
   auto_scaling {
     status = "OFF"
@@ -820,5 +851,5 @@ resource "huaweicloud_taurusdb_instance" "test" {
     ignore_changes = [auto_scaling.0.scaling_strategy]
   }
 }
-`, testAccTaurusDBInstanceConfig_base(rName), rName)
+`, testAccTaurusDBInstanceConfig_base(rName), rName, acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }
