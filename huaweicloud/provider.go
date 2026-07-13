@@ -4027,6 +4027,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_backup_stop":                       gaussdb.ResourceGaussDbBackupStop(),
 			"huaweicloud_gaussdb_restore":                           gaussdb.ResourceGaussDbRestore(),
 			"huaweicloud_gaussdb_eip_associate":                     gaussdb.ResourceGaussDbEipAssociate(),
+			"huaweicloud_gaussdb_idle_sessions_query_and_kill":      gaussdb.ResourceIdleSessionsQueryAndKill(),
 			"huaweicloud_gaussdb_primary_standby_switch":            gaussdb.ResourceGaussDbPrimaryStandbySwitch(),
 			"huaweicloud_gaussdb_parameter_template":                gaussdb.ResourceGaussDbParameterTemplate(),
 			"huaweicloud_gaussdb_parameter_template_apply":          gaussdb.ResourceGaussDbParameterTemplateApply(),
