@@ -124,14 +124,14 @@ func dataSourceGaussdbOpengaussInstanceSnapshotRead(_ context.Context, d *schema
 	return nil
 }
 
-// @API GaussDB GET /v3/{project_id}/instance-snapshot
+// @API GaussDB GET /v3.1/{project_id}/instance-snapshot
 func (w *OpengaussInstanceSnapshotDSWrapper) ShowInstanceSnapshot() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "opengauss")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v3/{project_id}/instance-snapshot"
+	uri := "/v3.1/{project_id}/instance-snapshot"
 	params := map[string]any{
 		"instance_id":  w.Get("instance_id"),
 		"restore_time": w.Get("restore_time"),
