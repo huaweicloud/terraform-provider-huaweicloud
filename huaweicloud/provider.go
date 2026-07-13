@@ -4984,6 +4984,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_instance":                     dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs":                    dsc.ResourceAssetObs(),
 			"huaweicloud_dsc_alarm_notification":           dsc.ResourceAlarmNotification(),
+			"huaweicloud_dsc_batch_delete_obs":             dsc.ResourceBatchDeleteObs(),
 			"huaweicloud_dsc_multi_enable_trusted_service": dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_data_map_score_update":        dsc.ResourceDscDataMapScoreUpdate(),
 			"huaweicloud_dsc_device":                       dsc.ResourceDscDevice(),
