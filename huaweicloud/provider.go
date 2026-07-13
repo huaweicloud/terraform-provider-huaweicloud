@@ -1115,6 +1115,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_data_standards":                   dataarts.DataSourceArchitectureDataStandards(),
 			"huaweicloud_dataarts_architecture_data_standard_template_customs":   dataarts.DataSourceArchitectureDataStandardTemplateCustoms(),
 			"huaweicloud_dataarts_architecture_data_standard_template_optionals": dataarts.DataSourceArchitectureDataStandardTemplateOptionals(),
+			"huaweicloud_dataarts_architecture_dimensions":                       dataarts.DataSourceArchitectureDimensions(),
 			"huaweicloud_dataarts_architecture_directories":                      dataarts.DataSourceArchitectureDirectories(),
 			"huaweicloud_dataarts_architecture_models":                           dataarts.DataSourceArchitectureModels(),
 			"huaweicloud_dataarts_architecture_model_statistic":                  dataarts.DataSourceArchitectureModelStatistic(),
