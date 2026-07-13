@@ -4991,6 +4991,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_multi_enable_trusted_service": dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_data_map_score_update":        dsc.ResourceDscDataMapScoreUpdate(),
 			"huaweicloud_dsc_device":                       dsc.ResourceDscDevice(),
+			"huaweicloud_dsc_switch_job":                   dsc.ResourceDscSwitchJob(),
 			"huaweicloud_dsc_stop_scan_job":                dsc.ResourceStopScanJob(),
 
 			// internal only
