@@ -1644,6 +1644,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_upgrade_versions":                gaussdb.DataSourceGaussDbUpgradeVersions(),
 			"huaweicloud_gaussdb_tags":                            gaussdb.DataSourceGaussDbTags(),
 			"huaweicloud_gaussdb_predefined_tags":                 gaussdb.DataSourceGaussDbPredefinedTags(),
+			"huaweicloud_gaussdb_shard_storage":                   gaussdb.DataSourceGaussDBShardStorage(),
 			"huaweicloud_gaussdb_slow_logs":                       gaussdb.DataSourceGaussDbSlowLogs(),
 			"huaweicloud_gaussdb_slow_sql_nodes":                  gaussdb.DataSourceGaussDbSlowSqlNodes(),
 			"huaweicloud_gaussdb_error_logs":                      gaussdb.DataSourceGaussDbErrorLogs(),
