@@ -126,6 +126,16 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 		Optional:     true,
 		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 	},
+	"be_parameter_values": {
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"fe_parameter_values": {
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
 	// charge info: charging_mode, period_unit, period, auto_renew
 	"charging_mode": {
 		Type:     schema.TypeString,
@@ -323,6 +333,26 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 		Type:     schema.TypeString,
 		Computed: true,
 	},
+	"be_configurations": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     starrocksParametersConfigurationsSchema(),
+	},
+	"be_parameters": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     starrocksParametersParameterValuesSchema(),
+	},
+	"fe_configurations": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     starrocksParametersConfigurationsSchema(),
+	},
+	"fe_parameters": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem:     starrocksParametersParameterValuesSchema(),
+	},
 }
 
 // @API BSS POST /v3/orders/customer-orders/pay
@@ -330,6 +360,8 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 // @API BSS POST /v2/{project_id}/orders/auto-renew
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/starrocks
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/starrocks/configurations
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/starrocks/configurations
 // @API TaurusDB PUT /v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/starrocks/{starrocks_instance_id}
 // @API TaurusDB DELETE /v3/{project_id}/instances/{instance_id}/starrocks/{starrocks_instance_id}
@@ -779,6 +811,39 @@ func handlePostPaidInstanceCreation(ctx context.Context, client *golangsdk.Servi
 	return nil
 }
 
+// configureStarRocksParameters configures BE and FE parameters after instance creation
+func configureStarRocksParameters(ctx context.Context, client *golangsdk.ServiceClient,
+	d *schema.ResourceData, taurusdbInstanceId string) error {
+	restartRequired := false
+
+	beParamValues := d.Get("be_parameter_values").(map[string]interface{})
+	if len(beParamValues) > 0 {
+		var err error
+		restartRequired, err = modifyStarrocksParameters(ctx, client, d, "be", beParamValues)
+		if err != nil {
+			return err
+		}
+	}
+
+	feParamValues := d.Get("fe_parameter_values").(map[string]interface{})
+	if len(feParamValues) > 0 {
+		var err error
+		restartRequired, err = modifyStarrocksParameters(ctx, client, d, "fe", feParamValues)
+		if err != nil {
+			return err
+		}
+	}
+
+	if restartRequired {
+		err := restartStarrocksInstance(ctx, client, taurusdbInstanceId, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceTaurusDBHtapStarrocksInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -835,6 +900,11 @@ func resourceTaurusDBHtapStarrocksInstanceCreate(ctx context.Context, d *schema.
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	// Configure StarRocks parameters (BE and FE)
+	if err := configureStarRocksParameters(ctx, client, d, taurusdbInstanceId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceTaurusDBHtapStarrocksInstanceRead(ctx, d, meta)
@@ -987,6 +1057,66 @@ func updateStarRocksInstanceUsersSyncSwitch(ctx context.Context, client *golangs
 			"after updating users sync switch: %s", htapInstanceId, err)
 	}
 	return nil
+}
+
+func modifyStarrocksParameters(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	nodeType string, paramValues map[string]interface{}) (bool, error) {
+	var (
+		taurusdbInstanceId  = d.Get("instance_id").(string)
+		starrocksInstanceId = d.Id()
+		timeout             = d.Timeout(schema.TimeoutCreate)
+	)
+	modifyPath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/starrocks/configurations"
+	modifyPath = strings.ReplaceAll(modifyPath, "{project_id}", client.ProjectID)
+	modifyPath = strings.ReplaceAll(modifyPath, "{instance_id}", starrocksInstanceId)
+
+	modifyOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"node_type":        nodeType,
+			"parameter_values": utils.ExpandToStringMap(paramValues),
+		},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", modifyPath, &modifyOpt)
+		shouldRetry, err := handleMultiOperationsError(err)
+		return res, shouldRetry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     htapInstanceStateRefreshFunc(client, taurusdbInstanceId, starrocksInstanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return false, fmt.Errorf("error modifying TaurusDB Htap StarRocks instance(%s) parameters: %s",
+			starrocksInstanceId, err)
+	}
+	modifyRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return false, err
+	}
+
+	jobId := utils.PathSearch("job_id", modifyRespBody, "").(string)
+	if jobId == "" {
+		return false, fmt.Errorf("error modifying TaurusDB Htap StarRocks instance(%s) parameters, job_id is not found in the response",
+			starrocksInstanceId)
+	}
+
+	// Wait for the modify job to complete
+	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return false, fmt.Errorf("error waiting for modifying TaurusDB Htap StarRocks parameters job (%s) to complete: %s", jobId, err)
+	}
+
+	restartRequired := utils.PathSearch("restart_required", modifyRespBody, false).(bool)
+
+	return restartRequired, nil
 }
 
 func waitHtapInstanceStatusNormal(ctx context.Context, client *golangsdk.ServiceClient,
@@ -1148,6 +1278,25 @@ func resourceTaurusDBHtapStarrocksInstanceRead(_ context.Context, d *schema.Reso
 			}
 		}
 	}
+	// Set configurations and parameters of be nodes
+	beConfiguration, beParameterValues, err := getStarrocksParameters(client, htapInstanceId, "be")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("be_configurations", flattenStarrocksParametersConfigurationsBody(beConfiguration)),
+		d.Set("be_parameters", flattenStarrocksParametersParameterValuesBody(beParameterValues)),
+	)
+
+	// Set configurations and parameters of fe nodes
+	feConfiguration, feParameterValues, err := getStarrocksParameters(client, htapInstanceId, "fe")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("fe_configurations", flattenStarrocksParametersConfigurationsBody(feConfiguration)),
+		d.Set("fe_parameters", flattenStarrocksParametersParameterValuesBody(feParameterValues)),
+	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 func flattenStarrocksInstanceActions(instance interface{}) []interface{} {
@@ -1470,6 +1619,36 @@ func handleUpdateFlavor(ctx context.Context, d *schema.ResourceData, client, bss
 	return nil
 }
 
+// handleUpdateParameters handles BE and FE parameters update
+func handleUpdateParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	restartRequired := false
+
+	beParamValues := d.Get("be_parameter_values").(map[string]interface{})
+	if len(beParamValues) > 0 {
+		var err error
+		restartRequired, err = modifyStarrocksParameters(ctx, client, d, "be", beParamValues)
+		if err != nil {
+			return ctx, err
+		}
+	}
+
+	feParamValues := d.Get("fe_parameter_values").(map[string]interface{})
+	if len(feParamValues) > 0 {
+		var err error
+		restartRequired, err = modifyStarrocksParameters(ctx, client, d, "fe", feParamValues)
+		if err != nil {
+			return ctx, err
+		}
+	}
+
+	if restartRequired {
+		// Sending needRestartByParametersChanged to Read to warn users the instance needs a reboot.
+		ctx = context.WithValue(ctx, ctxType("needRestartByParametersChanged"), "true")
+	}
+
+	return ctx, nil
+}
+
 func resourceTaurusDBHtapStarrocksInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -1520,6 +1699,15 @@ func resourceTaurusDBHtapStarrocksInstanceUpdate(ctx context.Context, d *schema.
 	// Update flavor
 	if d.HasChanges("fe_flavor_id", "be_flavor_id") {
 		if err := handleUpdateFlavor(ctx, d, client, bssClient); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update parameters
+	if d.HasChanges("be_parameter_values", "fe_parameter_values") {
+		var err error
+		ctx, err = handleUpdateParameters(ctx, d, client)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}

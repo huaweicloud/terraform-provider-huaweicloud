@@ -10,13 +10,14 @@ import (
 )
 
 var (
-	// Some error codes that need to be retried coming from https://support.huaweicloud.com/api-gaussdbformysql/ErrorCode.html
+	// Some error codes that need to be retried coming from https://support.huaweicloud.com/api-taurusdb/ErrorCode.html
 	retryErrCodes = map[string]struct{}{
 		"DBS.200019":   {},
 		"DBS.201014":   {},
 		"DBS.201015":   {},
 		"DBS.200047":   {},
 		"DBS.05000084": {},
+		"DBS.212033":   {}, // Instance is currently being operated
 	}
 )
 
