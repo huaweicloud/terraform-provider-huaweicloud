@@ -1649,6 +1649,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_slow_logs":                       gaussdb.DataSourceGaussDbSlowLogs(),
 			"huaweicloud_gaussdb_slow_sql_nodes":                  gaussdb.DataSourceGaussDbSlowSqlNodes(),
 			"huaweicloud_gaussdb_error_logs":                      gaussdb.DataSourceGaussDbErrorLogs(),
+			"huaweicloud_gaussdb_sql_stack_information":           gaussdb.DataSourceSqlStackInformation(),
 			"huaweicloud_gaussdb_sql_templates":                   gaussdb.DataSourceGaussDbSqlTemplates(),
 			"huaweicloud_gaussdb_sql_throttling_tasks":            gaussdb.DataSourceGaussDbSqlThrottlingTasks(),
 			"huaweicloud_gaussdb_plugins":                         gaussdb.DataSourceGaussDbPlugins(),
