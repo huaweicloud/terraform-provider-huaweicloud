@@ -3,12 +3,12 @@ subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_sql_throttling_tasks"
 description: |-
-  Use this data source to get the SQL throttling tasks based on search criteria.
+  Use this data source to get the list of SQL throttling tasks.
 ---
 
 # huaweicloud_gaussdb_sql_throttling_tasks
 
-Use this data source to get the SQL throttling tasks based on search criteria.
+Use this data source to get the list of SQL throttling tasks.
 
 ## Example Usage
 
@@ -27,7 +27,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `instance_id` - (Required, String) Specifies the ID of the GaussDB OpenGauss instance.
+* `instance_id` - (Required, String) Specifies the ID of the GaussDB instance.
 
 * `task_scope` - (Optional, String) Specifies the throttling task scope.
   Currently, **SQL** and **SESSION** are supported.
@@ -39,13 +39,11 @@ The following arguments are supported:
 
 * `task_name` - (Optional, String) Specifies the throttling task name. Fuzzy match is supported.
 
-* `sql_model` - (Optional, String) Specifies the SQL template. Fuzzy match is supported.
-
 * `rule_name` - (Optional, String) Specifies the rule name.
 
-* `start_time` - (Optional, String) Specifies the start time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.
+* `sql_id` - (Optional, String) Specifies the throttling task SQL ID.
 
-* `end_time` - (Optional, String) Specifies the end time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.
+* `node_ids` - (Optional, List) Specifies the throttling task node ID list.
 
 ## Attribute Reference
 
