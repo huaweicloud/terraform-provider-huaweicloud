@@ -5010,7 +5010,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lts_access_rule":     lts.ResourceAomMappingRule(),
 			"huaweicloud_lts_dashboard":       lts.ResourceLtsDashboard(),
-			"huaweicloud_elb_log":             lts.ResourceLtsElb(),
+			"huaweicloud_lts_elb_log":         lts.ResourceLtsElb(),
 			"huaweicloud_lts_struct_template": lts.ResourceLtsStruct(),
 
 			// Legacy
@@ -5068,6 +5068,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_key_v1": dew.ResourceKmsKey(),
 
 			"huaweicloud_elb_recycle_bin_loadbalancer_revocer": elb.ResourceElbRecycleBinLoadBalancerRecover(),
+			"huaweicloud_elb_log":                              lts.ResourceLtsElb(),
 
 			"huaweicloud_gaussdb_opengauss_instance":                   gaussdb.ResourceGaussDbInstance(),
 			"huaweicloud_gaussdb_opengauss_instance_restart":           gaussdb.ResourceGaussDbInstanceRestart(),
