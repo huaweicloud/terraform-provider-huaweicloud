@@ -1416,6 +1416,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_asset_quota":                      dsc.DataSourceDscAssetQuota(),
 			"huaweicloud_dsc_catalog_statistics":               dsc.DataSourceCatalogStatistics(),
 			"huaweicloud_dsc_catalog_details_by_obs":           dsc.DataSourceCatalogDetailsByObs(),
+			"huaweicloud_dsc_catalog_instances":                dsc.DataSourceCatalogInstances(),
 			"huaweicloud_dsc_catalog_quantity_variation":       dsc.DataSourceDscCatalogQuantityVariation(),
 			"huaweicloud_dsc_column_details_by_database":       dsc.DataSourceDscColumnDetailsByDatabase(),
 			"huaweicloud_dsc_column_details_by_classification": dsc.DataSourceDscColumnDetailsByClassification(),
