@@ -75,7 +75,7 @@ The following arguments are supported:
 * `kms_key_id` - (Optional, String) The ID of the kms key. If omitted, the default master key will be used.
 
 * `etag` - (Optional, String) Specifies the unique identifier of the object content. It can be used to trigger updates.
-  The only meaningful value is `md5(file("path_to_file"))`. Specifying this argument is not compatible with using encryption or uploading large files and will cause perpetual plan drift, because when encryption or multi-part upload is used, the value of etag in OBS will not be equal to the md5 digest of the original file (see [source_hash](#OBSBucketObject_source_hash) instead).
+  The only meaningful value is `filemd5("path_to_file")`. Specifying this argument is not compatible with using encryption or uploading large files and will cause perpetual plan drift, because when encryption or multi-part upload is used, the value of etag in OBS will not be equal to the md5 digest of the original file (see [source_hash](#OBSBucketObject_source_hash) instead).
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the object.
 
@@ -89,9 +89,14 @@ The following arguments are supported:
 
 <a name="OBSBucketObject_source_hash"></a>
 
-* `source_hash` - (Optional, String) It can be used to trigger updates by setting it to the file's MD5 digest. Similar to the functionality provided by `etag`, but this argument does not suffer from the same limitations when encryption or multi-part upload is used. The only meaningful value is `md5(file("path_to_file"))`.
+* `source_hash` - (Optional, String) It can be used to trigger updates by setting it to the file's MD5 digest. Similar to the functionality provided by `etag`, but this argument does not suffer from the same limitations when encryption or multi-part upload is used. The only meaningful value is `filemd5("path_to_file")`.
 
 Either `source` or `content` must be provided to specify the bucket content. These two arguments are mutually-exclusive.
+
+By default, large files are uploaded using multi-part upload with 5 concurrent tasks. When having limited bandwidth or when facing OBS Throttling (503 SlowDown), you may want to set a lower number of concurrent tasks by defining the environment variable `HW_OBS_UPLOAD_CONCURRENT_TASK_NUM`.
+```bash
+$ export HW_OBS_UPLOAD_CONCURRENT_TASK_NUM=1
+```
 
 ## Attribute Reference
 
@@ -103,11 +108,6 @@ In addition to all arguments above, the following attributes are exported:
   server-side encryption.
 * `size` - the size of the object in bytes.
 * `version_id` - A unique version ID value for the object, if bucket versioning is enabled.
-
-By default, large files are uploaded using multi-part upload with 5 concurrent tasks. When having limited bandwidth or when facing OBS Throttling (503 SlowDown), you may want to set a lower number of concurrent tasks by defining the environment variable `HW_OBS_UPLOAD_CONCURRENT_TASK_NUM`.
-```bash
-$ export HW_OBS_UPLOAD_CONCURRENT_TASK_NUM=1
-```
 
 ## Import
 
