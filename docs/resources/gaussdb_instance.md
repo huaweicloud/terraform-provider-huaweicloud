@@ -178,6 +178,9 @@ The following arguments are supported:
 * `auto_scaling` - (Optional, List) Specifies the instance storage autoscaling policy.
   The [auto_scaling](#auto_scaling_struct) structure is documented below.
 
+* `kms_tde_switch` - (Optional, List) Specifies the enabled transparent data encryption.
+  The [kms_tde_switch](#kms_tde_switch_struct) structure is documented below.
+
 * `mysql_compatibility_port` - (Optional, String) Specifies the port for MySQL compatibility. Value range: **0** or
   **1024** to **39989**.
   + The following ports are used by the system and cannot be used: **2378**, **2379**, **2380**, **2400**, **4999**,
@@ -291,6 +294,15 @@ The `auto_scaling` block supports:
 * `step_size` - (Optional, Int) Specifies the scaling step when the storage is scaled by fixed size.
 
 * `step_percent` - (Optional, Int) Specifies the scaling step when the storage is scaled by percentage.
+
+<a name="kms_tde_switch_struct"></a>
+The `kms_tde_switch` block supports:
+
+* `kms_tde_key_id` - (Required, String) Specifies the id of the KMS master key.
+
+* `kms_project_name` - (Required, String) Specifies the name of a resource space.
+
+* `kms_tde_status` - (Required, String) Specifies the status of TDE.
 
 <a name="advance_features_struct"></a>
 The `advance_features` block supports:

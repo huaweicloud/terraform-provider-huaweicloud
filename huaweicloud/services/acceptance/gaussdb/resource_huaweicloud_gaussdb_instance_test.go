@@ -102,6 +102,10 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "dn:check_disconnect_query"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "off"),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_tde_switch.0.kms_tde_key_id",
+						"huaweicloud_kms_key.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "kms_tde_switch.0.kms_project_name", "cn-north-4"),
+					resource.TestCheckResourceAttr(resourceName, "kms_tde_switch.0.kms_tde_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "on"),
 					resource.TestCheckResourceAttr(resourceName, "wdr_snapshot_status", "OFF"),
@@ -134,6 +138,10 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "cn:auto_increment_increment"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "1000"),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_tde_switch.0.kms_tde_key_id",
+						"huaweicloud_kms_key.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "kms_tde_switch.0.kms_project_name", "cn-north-4"),
+					resource.TestCheckResourceAttr(resourceName, "kms_tde_switch.0.kms_tde_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
 					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "off"),
 					resource.TestCheckResourceAttr(resourceName, "wdr_snapshot_status", "ON"),
@@ -158,6 +166,8 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					"availability_zone",
 					"configuration_id",
 					"parameters",
+					"kms_tde_switch",
+					"alias",
 				},
 			},
 		},
@@ -477,6 +487,21 @@ func testAccGaussDbInstance_basic(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[2]s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "test acc"
+  enterprise_project_id = "%[4]s"
+  pending_days          = "7"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+
 resource "huaweicloud_gaussdb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
@@ -529,6 +554,12 @@ resource "huaweicloud_gaussdb_instance" "test" {
     foo = "bar"
     key = "value"
   }
+
+ kms_tde_switch {
+    kms_tde_key_id   = huaweicloud_kms_key.test.id
+    kms_project_name = "cn-north-4"
+    kms_tde_status   = "on"
+  }
 }
 `, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -536,6 +567,21 @@ resource "huaweicloud_gaussdb_instance" "test" {
 func testAccGaussDbInstance_update(rName, password string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[2]s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "test acc"
+  enterprise_project_id = "%[4]s"
+  pending_days          = "7"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
 
 resource "huaweicloud_gaussdb_parameter_template" "test" {
   name           = "%[2]s"
@@ -605,6 +651,12 @@ resource "huaweicloud_gaussdb_instance" "test" {
   tags = {
     foo_update = "bar"
     key        = "value_update"
+  }
+
+  kms_tde_switch {
+    kms_tde_key_id   = huaweicloud_kms_key.test.id
+    kms_project_name = "cn-north-4"
+    kms_tde_status   = "on"
   }
 
   charging_mode = "prePaid"

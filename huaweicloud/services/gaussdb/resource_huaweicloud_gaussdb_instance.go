@@ -71,6 +71,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB PUT /v3/{project_id}/instances/change-charge-mode
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/tag
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/kms-tde/switch
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -356,6 +357,28 @@ func ResourceGaussDbInstance() *schema.Resource {
 				},
 				Optional: true,
 				Computed: true,
+			},
+			"kms_tde_switch": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_tde_key_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"kms_project_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"kms_tde_status": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
 			},
 			"wdr_snapshot_status": {
 				Type:     schema.TypeString,
@@ -653,6 +676,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	if _, ok := d.GetOk("auto_scaling"); ok {
 		if err = updateAutoScaling(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("kms_tde_switch"); ok {
+		if err = createEnablingTransparentDataEncryption(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1456,6 +1485,13 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("dn_node_deploy_mode") {
 		if err = updateDnNodeDeployMode(ctx, client, bssClient, d, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("kms_tde_switch") {
+		err = updateEnablingTransparentDataEncryption(ctx, client, d)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2272,6 +2308,69 @@ func buildUpdateBillingModeToPeriodBodyParams(d *schema.ResourceData) map[string
 		bodyParams["is_auto_renew"] = true
 	}
 	return bodyParams
+}
+
+func createEnablingTransparentDataEncryption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	err := enablingTransparentDataEncryption(ctx, client, d)
+	if err != nil {
+		return fmt.Errorf("error enabling GaussDB instance transparent data encryption: %s", err)
+	}
+
+	err = restartGaussDBOpenGaussInstance(ctx, client, d)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func enablingTransparentDataEncryption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/kms-tde/switch",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildTransparentDataEncryptionBodyParams(d)),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		delay:              10,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildTransparentDataEncryptionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	kmsTdeSwitchRaw := d.Get("kms_tde_switch").([]interface{})
+	if len(kmsTdeSwitchRaw) == 0 {
+		return nil
+	}
+	kmsTdeSwitch, ok := kmsTdeSwitchRaw[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"kms_tde_key_id":   kmsTdeSwitch["kms_tde_key_id"],
+		"kms_project_name": kmsTdeSwitch["kms_project_name"],
+		"kms_tde_status":   kmsTdeSwitch["kms_tde_status"],
+	}
+
+	return bodyParams
+}
+
+func updateEnablingTransparentDataEncryption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	if !d.HasChange("kms_tde_switch") {
+		return nil
+	}
+	err := enablingTransparentDataEncryption(ctx, client, d)
+	if err != nil {
+		return fmt.Errorf("error enabling GaussDB instance transparent data encryption: %s", err)
+	}
+
+	return nil
 }
 
 func addInstanceTags(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, addTags map[string]interface{}) error {
