@@ -296,7 +296,6 @@ var (
 	HW_GAUSSDB_SQL_EXEC_ID           = os.Getenv("HW_GAUSSDB_SQL_EXEC_ID")
 	HW_GAUSSDB_HBA_HISTORY_ID        = os.Getenv("HW_GAUSSDB_HBA_HISTORY_ID")
 	HW_GAUSSDB_SQL_ID                = os.Getenv("HW_GAUSSDB_SQL_ID")
-	HW_GAUSSDB_SESSION_ID            = os.Getenv("HW_GAUSSDB_SESSION_ID")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -2441,13 +2440,6 @@ func TestAccPreCheckGaussDBHbaHistoryId(t *testing.T) {
 func TestAccPreCheckGaussDBSqlId(t *testing.T) {
 	if HW_GAUSSDB_SQL_ID == "" {
 		t.Skip("HW_GAUSSDB_SQL_ID must be set for GaussDB acceptance tests.")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckGaussDBSessionId(t *testing.T) {
-	if HW_GAUSSDB_SESSION_ID == "" {
-		t.Skip("HW_GAUSSDB_SESSION_ID must be set for GaussDB acceptance tests.")
 	}
 }
 

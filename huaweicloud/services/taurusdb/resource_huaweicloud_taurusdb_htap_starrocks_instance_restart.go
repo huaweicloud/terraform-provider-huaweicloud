@@ -65,29 +65,38 @@ func ResourceTaurusDBHtapStarrocksInstanceRestart() *schema.Resource {
 }
 
 func resourceTaurusDBHtapStarrocksInstanceRestartCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg                 = meta.(*config.Config)
-		region              = cfg.GetRegion(d)
-		instanceId          = d.Get("taurusdb_instance_id").(string)
-		starrocksInstanceId = d.Get("starrocks_instance_id").(string)
-	)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
 	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	err = restartStarrocksInstance(ctx, client, instanceId, starrocksInstanceId, d.Timeout(schema.TimeoutCreate))
+	starrocksInstanceId := d.Get("starrocks_instance_id").(string)
+	jobId, err := restartStarrocksInstance(ctx, d, client)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	d.SetId(starrocksInstanceId)
 
+	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for restarting StarRocks instance(%s) job to complete: %s",
+			starrocksInstanceId, err)
+	}
+
 	return nil
 }
 
-func restartStarrocksInstance(ctx context.Context, client *golangsdk.ServiceClient,
-	instanceId, starrocksInstanceId string, timeout time.Duration) error {
-	createPath := client.Endpoint + "v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart"
+func restartStarrocksInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart"
+	)
+
+	instanceId := d.Get("taurusdb_instance_id").(string)
+	starrocksInstanceId := d.Get("starrocks_instance_id").(string)
+	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{starrocks_instance_id}", starrocksInstanceId)
 
@@ -106,30 +115,25 @@ func restartStarrocksInstance(ctx context.Context, client *golangsdk.ServiceClie
 		RetryFunc:    retryFunc,
 		WaitFunc:     htapInstanceStateRefreshFunc(client, instanceId, starrocksInstanceId),
 		WaitTarget:   []string{"normal"},
-		Timeout:      timeout,
+		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return fmt.Errorf("error restarting TaurusDB Htap StarRocks instance(%s): %s", starrocksInstanceId, err)
+		return "", fmt.Errorf("error restarting TaurusDB Htap StarRocks instance(%s): %s", starrocksInstanceId, err)
 	}
 	createRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
 	if jobId == "" {
-		return fmt.Errorf("error restarting StarRocks instance(%s), job_id is not found in the response",
+		return "", fmt.Errorf("error restarting StarRocks instance(%s), job_id is not found in the response",
 			starrocksInstanceId)
 	}
 
-	err = checkGaussDBMySQLJobFinish(ctx, client, jobId, timeout)
-	if err != nil {
-		return fmt.Errorf("error waiting for restarting StarRocks instance(%s) job to complete: %s",
-			starrocksInstanceId, err)
-	}
-	return nil
+	return jobId, nil
 }
 
 func htapInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, htapInstanceId string) retry.StateRefreshFunc {
