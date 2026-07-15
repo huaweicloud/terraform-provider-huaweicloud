@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -124,6 +125,12 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 	"enable_users_sync": {
 		Type:         schema.TypeString,
 		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+	},
+	"open_slow_log_switch": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Computed:     true,
 		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 	},
 	"be_parameter_values": {
@@ -369,6 +376,8 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/starrocks/users/password
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/starrocks/security-group
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/starrocks/users/sync
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive
 // @API TaurusDB GET /v3/{project_id}/jobs
 func ResourceTaurusDBHtapStarrocksInstance() *schema.Resource {
 	return &schema.Resource{
@@ -907,6 +916,13 @@ func resourceTaurusDBHtapStarrocksInstanceCreate(ctx context.Context, d *schema.
 		return diag.FromErr(err)
 	}
 
+	// Open slow log switch
+	if v, ok := d.GetOk("open_slow_log_switch"); ok && v.(string) == "true" {
+		if err := updateStarRocksSlowLogSwitch(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceTaurusDBHtapStarrocksInstanceRead(ctx, d, meta)
 }
 
@@ -1057,6 +1073,59 @@ func updateStarRocksInstanceUsersSyncSwitch(ctx context.Context, client *golangs
 			"after updating users sync switch: %s", htapInstanceId, err)
 	}
 	return nil
+}
+
+func updateStarRocksSlowLogSwitch(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var httpUrl = "v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive"
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	openSlowLogSwitch, err := strconv.ParseBool(d.Get("open_slow_log_switch").(string))
+	if err != nil {
+		return err
+	}
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"open_slow_log_switch": openSlowLogSwitch,
+		},
+	}
+
+	_, err = client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating slow log switch of HTAP StarRocks instance(%s): %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func getStarRocksSlowLogSwitch(client *golangsdk.ServiceClient, htapInstanceId string) (string, error) {
+	var httpUrl = "v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive"
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", htapInstanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return "", fmt.Errorf("error querying slow log switch of HTAP StarRocks instance(%s): %s", htapInstanceId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return "", err
+	}
+
+	enabled := utils.PathSearch("open_slow_log_switch", respBody, "").(string)
+	return enabled, nil
 }
 
 func modifyStarrocksParameters(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
@@ -1278,6 +1347,7 @@ func resourceTaurusDBHtapStarrocksInstanceRead(_ context.Context, d *schema.Reso
 			}
 		}
 	}
+
 	// Set configurations and parameters of be nodes
 	beConfiguration, beParameterValues, err := getStarrocksParameters(client, htapInstanceId, "be")
 	if err != nil {
@@ -1297,8 +1367,22 @@ func resourceTaurusDBHtapStarrocksInstanceRead(_ context.Context, d *schema.Reso
 		d.Set("fe_configurations", flattenStarrocksParametersConfigurationsBody(feConfiguration)),
 		d.Set("fe_parameters", flattenStarrocksParametersParameterValuesBody(feParameterValues)),
 	)
+
+	// set slow log switch
+	mErr = multierror.Append(mErr, setOpenSlowLogSwitch(d, client, htapInstanceId))
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
+
+func setOpenSlowLogSwitch(d *schema.ResourceData, client *golangsdk.ServiceClient, htapInstanceId string) error {
+	slowLogSwitch, err := getStarRocksSlowLogSwitch(client, htapInstanceId)
+	if err != nil {
+		log.Printf("[WARN] query HTAP instance %s open slow log switch failed: %s", htapInstanceId, err)
+		return nil
+	}
+	return d.Set("open_slow_log_switch", slowLogSwitch)
+}
+
 func flattenStarrocksInstanceActions(instance interface{}) []interface{} {
 	actions := utils.PathSearch("actions", instance, make([]interface{}, 0)).([]interface{})
 	res := make([]interface{}, 0, len(actions))
@@ -1708,6 +1792,13 @@ func resourceTaurusDBHtapStarrocksInstanceUpdate(ctx context.Context, d *schema.
 		var err error
 		ctx, err = handleUpdateParameters(ctx, d, client)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update slow log switch
+	if d.HasChange("open_slow_log_switch") {
+		if err := updateStarRocksSlowLogSwitch(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}

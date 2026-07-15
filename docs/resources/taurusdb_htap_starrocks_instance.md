@@ -229,6 +229,9 @@ The following arguments are supported:
 * `enable_users_sync` - (Optional, String) Specifies whether users synchronization is enabled.
   Valid values are **true** and **false**.
 
+* `open_slow_log_switch` - (Optional, String) Specifies whether to enable the slow query log original text switch.
+  Valid values are **true** and **false**.
+
 * `be_parameter_values` - (Optional, Map) Specifies a map contains mappings of parameter name and value to modify.
   The parameter name must be based on the default parameter template of the backend nodes.
 
