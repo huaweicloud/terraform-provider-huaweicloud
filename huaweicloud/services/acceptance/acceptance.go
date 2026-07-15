@@ -458,14 +458,16 @@ var (
 	HW_GLOBAL_EIP_BANDWIDTH_ID            = os.Getenv("HW_GLOBAL_EIP_BANDWIDTH_ID")
 	HW_GLOBAL_EIP_SEGMENT_INSTANCE_ID     = os.Getenv("HW_GLOBAL_EIP_SEGMENT_INSTANCE_ID")
 
-	HW_DSC_INSTANCE_ID      = os.Getenv("HW_DSC_INSTANCE_ID")
-	HW_DSC_ALARM_TOPIC_ID   = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
-	HW_DSC_ENABLE_FLAG      = os.Getenv("HW_DSC_ENABLE_FLAG")
-	HW_DSC_TYPE_ID          = os.Getenv("HW_DSC_TYPE_ID")
-	HW_DSC_SCAN_TEMPLATE_ID = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
-	HW_DSC_SCAN_JOB_ID      = os.Getenv("HW_DSC_SCAN_JOB_ID")
-	HW_DSC_OBS_ID           = os.Getenv("HW_DSC_OBS_ID")
-	HW_DSC_DB_ID            = os.Getenv("HW_DSC_DB_ID")
+	HW_DSC_INSTANCE_ID              = os.Getenv("HW_DSC_INSTANCE_ID")
+	HW_DSC_ALARM_TOPIC_ID           = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
+	HW_DSC_ENABLE_FLAG              = os.Getenv("HW_DSC_ENABLE_FLAG")
+	HW_DSC_TYPE_ID                  = os.Getenv("HW_DSC_TYPE_ID")
+	HW_DSC_SCAN_TEMPLATE_ID         = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
+	HW_DSC_SCAN_JOB_ID              = os.Getenv("HW_DSC_SCAN_JOB_ID")
+	HW_DSC_SECURITY_LEVEL_ID        = os.Getenv("HW_DSC_SECURITY_LEVEL_ID")
+	HW_DSC_SECURITY_LEVEL_ID_TARGET = os.Getenv("HW_DSC_SECURITY_LEVEL_ID_TARGET")
+	HW_DSC_OBS_ID                   = os.Getenv("HW_DSC_OBS_ID")
+	HW_DSC_DB_ID                    = os.Getenv("HW_DSC_DB_ID")
 
 	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
 	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
@@ -5334,6 +5336,20 @@ func TestAccPreCheckDSCScanTemplateID(t *testing.T) {
 func TestAccPreCheckDscScanJobId(t *testing.T) {
 	if HW_DSC_SCAN_JOB_ID == "" {
 		t.Skip("HW_DSC_SCAN_JOB_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscSecurityLevelId(t *testing.T) {
+	if HW_DSC_SECURITY_LEVEL_ID == "" {
+		t.Skip("HW_DSC_SECURITY_LEVEL_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscSecurityLevelIdTarget(t *testing.T) {
+	if HW_DSC_SECURITY_LEVEL_ID_TARGET == "" {
+		t.Skip("HW_DSC_SECURITY_LEVEL_ID_TARGET must be set for DSC acceptance tests")
 	}
 }
 
