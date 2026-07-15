@@ -125,14 +125,14 @@ func dataSourceGaussdbOpengaussRestorableInstancesRead(_ context.Context, d *sch
 	return nil
 }
 
-// @API GaussDB GET /v3/{project_id}/restorable-instances
+// @API GaussDB GET /v3.1/{project_id}/restorable-instances
 func (w *OpengaussRestorableInstancesDSWrapper) ListRestorableInstances() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "opengauss")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v3/{project_id}/restorable-instances"
+	uri := "/v3.1/{project_id}/restorable-instances"
 	params := map[string]any{
 		"source_instance_id": w.Get("source_instance_id"),
 		"backup_id":          w.Get("backup_id"),
