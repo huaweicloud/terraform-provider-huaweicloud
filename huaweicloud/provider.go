@@ -1411,6 +1411,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dsc_alarms":                           dsc.DataSourceDscAlarms(),
 			"huaweicloud_dsc_alarm_handling_trend":             dsc.DataSourceDscAlarmHandlingTrend(),
+			"huaweicloud_dsc_authorize_databases":              dsc.DataSourceDscAuthorizeDatabases(),
 			"huaweicloud_dsc_asset_overview":                   dsc.DataSourceDscAssetOverview(),
 			"huaweicloud_dsc_assets_count":                     dsc.DataSourceDscAssetsCount(),
 			"huaweicloud_dsc_asset_quota":                      dsc.DataSourceDscAssetQuota(),
