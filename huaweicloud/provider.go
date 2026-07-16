@@ -1617,6 +1617,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_instance_status_statistics":      gaussdb.DataSourceInstanceStatusStatistics(),
 			"huaweicloud_gaussdb_instance_installed_plugins":      gaussdb.DataSourceInstalledPlugins(),
 			"huaweicloud_gaussdb_instance_lts_log_configs":        gaussdb.DataSourceGaussDBInstanceLtsLogConfigs(),
+			"huaweicloud_gaussdb_instance_storage_usage":          gaussdb.DataSourceInstanceStorageUsage(),
 			"huaweicloud_gaussdb_instance_supported_plugins":      gaussdb.DataSourceSupportedPlugins(),
 			"huaweicloud_gaussdb_instance_plugin_extensions":      gaussdb.DataSourceInstancePluginExtensions(),
 			"huaweicloud_gaussdb_instance_real_time_sessions":     gaussdb.DataSourceGaussDBInstanceRealTimeSessions(),
