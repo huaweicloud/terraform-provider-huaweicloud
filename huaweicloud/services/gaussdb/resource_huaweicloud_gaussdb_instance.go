@@ -64,7 +64,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/sharding
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/coordinators
-// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API GaussDB PUT /v3.1/{project_id}/instances/{instance_id}/backups/policy
 // @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
 // @API GaussDB PUT /v3/{project_id}/configurations/{config_id}/apply
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/mysql-compatibility
@@ -1820,7 +1820,7 @@ func updateInstanceVolumeAndRelatedHaNumbers(ctx context.Context, client, bssCli
 
 func updateInstanceBackupStrategy(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	_, err := updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
-		httpUrl:          "v3/{project_id}/instances/{instance_id}/backups/policy",
+		httpUrl:          "v3.1/{project_id}/instances/{instance_id}/backups/policy",
 		httpMethod:       "PUT",
 		pathParams:       map[string]string{"instance_id": d.Id()},
 		updateBodyParams: utils.RemoveNil(buildUpdateInstanceBackupStrategyBodyParams(d)),
