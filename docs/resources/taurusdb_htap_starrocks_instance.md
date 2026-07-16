@@ -232,6 +232,9 @@ The following arguments are supported:
 * `open_slow_log_switch` - (Optional, String) Specifies whether to enable the slow query log original text switch.
   Valid values are **true** and **false**.
 
+* `query_queue_rule` - (Optional, List) Specifies the query queue rule configuration.
+  The [query_queue_rule](#query_queue_rule_block) structure is documented below.
+
 * `be_parameter_values` - (Optional, Map) Specifies a map contains mappings of parameter name and value to modify.
   The parameter name must be based on the default parameter template of the backend nodes.
 
@@ -287,6 +290,27 @@ The `sys_tags` block supports:
   The key **_sys_enterprise_project_id** must be set to specify the enterprise project ID.
 
 * `value` - (Required, String, NoneUpdatable) Specifies the tag value.
+
+<a name="query_queue_rule_block"></a>
+The `query_queue_rule` block supports:
+
+* `query_queue_max_queued_queries` - (Required, Int) Specifies the maximum number of queued queries.
+  The value ranges from **1** to **10,000**.
+
+* `query_queue_pending_timeout_second` - (Required, Int) Specifies the pending timeout in seconds for queued queries.
+  The value ranges from **1** to **259,200**.
+
+* `query_queue_concurrency_limit` - (Required, Int) Specifies the concurrency limit for the query queue.
+  The value ranges from **0** to **100**. The value **0** indicates no limit.
+
+* `query_queue_mem_used_pct_limit` - (Required, Int) Specifies the memory usage percentage limit for the query queue.
+  The value ranges from **0** to **100**. The value **0** indicates no limit.
+
+* `query_queue_cpu_used_pct_limit` - (Required, Int) Specifies the CPU usage percentage limit for the query queue.
+  The value ranges from **0** to **100**. The value **0** indicates no limit.
+
+* `enable_query_queue_select` - (Required, String) Specifies whether to enable the query queue for SELECT statements.
+  Valid values are **true** and **false**.
 
 ## Attribute Reference
 

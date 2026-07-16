@@ -133,6 +133,41 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 		Computed:     true,
 		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 	},
+	"query_queue_rule": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"query_queue_max_queued_queries": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"query_queue_pending_timeout_second": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"query_queue_concurrency_limit": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"query_queue_mem_used_pct_limit": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"query_queue_cpu_used_pct_limit": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"enable_query_queue_select": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				},
+			},
+		},
+	},
 	"be_parameter_values": {
 		Type:     schema.TypeMap,
 		Optional: true,
@@ -378,6 +413,9 @@ var htapStarrocksInstanceSchema = map[string]*schema.Schema{
 // @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/starrocks/users/sync
 // @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive
 // @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive
+// @API TaurusDB PUT /v3/{project_id}/instances/{instance_id}/query-queue/rules
+// @API TaurusDB GET /v3/{project_id}/instances/{instance_id}/query-queue/rules
+// @API TaurusDB POST /v3/{project_id}/instances/{instance_id}/htap/query-queue/switch
 // @API TaurusDB GET /v3/{project_id}/jobs
 func ResourceTaurusDBHtapStarrocksInstance() *schema.Resource {
 	return &schema.Resource{
@@ -923,6 +961,17 @@ func resourceTaurusDBHtapStarrocksInstanceCreate(ctx context.Context, d *schema.
 		}
 	}
 
+	// Update query queue rule and switch
+	enableQueryQueueRule := d.Get("query_queue_rule.0.enable_query_queue_select").(string)
+	if enableQueryQueueRule == "true" {
+		if err := updateHtapQueryQueueRuleSwitch(client, d, enableQueryQueueRule); err != nil {
+			return diag.FromErr(err)
+		}
+		if err := updateHtapQueryQueueRule(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceTaurusDBHtapStarrocksInstanceRead(ctx, d, meta)
 }
 
@@ -1126,6 +1175,108 @@ func getStarRocksSlowLogSwitch(client *golangsdk.ServiceClient, htapInstanceId s
 
 	enabled := utils.PathSearch("open_slow_log_switch", respBody, "").(string)
 	return enabled, nil
+}
+
+func updateHtapQueryQueueRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var httpUrl = "v3/{project_id}/instances/{instance_id}/query-queue/rules"
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	ruleRaw := d.Get("query_queue_rule").([]interface{})
+	ruleMap := ruleRaw[0].(map[string]interface{})
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"query_queue_rule": map[string]interface{}{
+				"query_queue_max_queued_queries":     ruleMap["query_queue_max_queued_queries"],
+				"query_queue_pending_timeout_second": ruleMap["query_queue_pending_timeout_second"],
+				"query_queue_concurrency_limit":      ruleMap["query_queue_concurrency_limit"],
+				"query_queue_mem_used_pct_limit":     ruleMap["query_queue_mem_used_pct_limit"],
+				"query_queue_cpu_used_pct_limit":     ruleMap["query_queue_cpu_used_pct_limit"],
+			},
+		},
+	}
+
+	resp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating query queue rule of HTAP StarRocks instance(%s): %s", d.Id(), err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	status := utils.PathSearch("status", respBody, "").(string)
+	if status != "success" {
+		msg := utils.PathSearch("msg", respBody, "").(string)
+		return fmt.Errorf("error updating query queue rule of HTAP StarRocks instance(%s): status=%s, msg=%s", d.Id(), status, msg)
+	}
+
+	return nil
+}
+
+func updateHtapQueryQueueRuleSwitch(client *golangsdk.ServiceClient, d *schema.ResourceData, enableSwitch string) error {
+	var httpUrl = "v3/{project_id}/instances/{instance_id}/htap/query-queue/switch"
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"enable_query_queue_select": enableSwitch,
+		},
+	}
+
+	resp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating query queue switch of HTAP StarRocks instance(%s): %s", d.Id(), err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	status := utils.PathSearch("status", respBody, "").(string)
+	if status != "success" {
+		msg := utils.PathSearch("msg", respBody, "").(string)
+		return fmt.Errorf("error updating query queue switch of HTAP StarRocks instance(%s): status=%s, msg=%s", d.Id(), status, msg)
+	}
+
+	return nil
+}
+
+func getHtapQueryQueueRule(client *golangsdk.ServiceClient, htapInstanceId string) (interface{}, error) {
+	var httpUrl = "v3/{project_id}/instances/{instance_id}/query-queue/rules"
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", htapInstanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error querying query queue rule of HTAP StarRocks instance(%s): %s", htapInstanceId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("query_queue_rule", respBody, nil), nil
 }
 
 func modifyStarrocksParameters(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
@@ -1347,7 +1498,6 @@ func resourceTaurusDBHtapStarrocksInstanceRead(_ context.Context, d *schema.Reso
 			}
 		}
 	}
-
 	// Set configurations and parameters of be nodes
 	beConfiguration, beParameterValues, err := getStarrocksParameters(client, htapInstanceId, "be")
 	if err != nil {
@@ -1371,6 +1521,9 @@ func resourceTaurusDBHtapStarrocksInstanceRead(_ context.Context, d *schema.Reso
 	// set slow log switch
 	mErr = multierror.Append(mErr, setOpenSlowLogSwitch(d, client, htapInstanceId))
 
+	// Set query queue rule
+	mErr = multierror.Append(mErr, setQueryQueueRule(d, client, htapInstanceId))
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -1381,6 +1534,32 @@ func setOpenSlowLogSwitch(d *schema.ResourceData, client *golangsdk.ServiceClien
 		return nil
 	}
 	return d.Set("open_slow_log_switch", slowLogSwitch)
+}
+
+func setQueryQueueRule(d *schema.ResourceData, client *golangsdk.ServiceClient, htapInstanceId string) error {
+	// Get query queue rule
+	queryQueueRule, err := getHtapQueryQueueRule(client, htapInstanceId)
+
+	if err != nil {
+		log.Printf("[WARN] query HTAP instance %s open slow log switch failed: %s", htapInstanceId, err)
+		return nil
+	}
+	return d.Set("query_queue_rule", flattenQueryQueueRule(queryQueueRule))
+}
+
+func flattenQueryQueueRule(rule interface{}) []interface{} {
+	if rule == nil {
+		return []interface{}{}
+	}
+	result := map[string]interface{}{
+		"query_queue_max_queued_queries":     int(utils.PathSearch("query_queue_max_queued_queries", rule, float64(0)).(float64)),
+		"query_queue_pending_timeout_second": int(utils.PathSearch("query_queue_pending_timeout_second", rule, float64(0)).(float64)),
+		"query_queue_concurrency_limit":      int(utils.PathSearch("query_queue_concurrency_limit", rule, float64(0)).(float64)),
+		"query_queue_mem_used_pct_limit":     int(utils.PathSearch("query_queue_mem_used_pct_limit", rule, float64(0)).(float64)),
+		"query_queue_cpu_used_pct_limit":     int(utils.PathSearch("query_queue_cpu_used_pct_limit", rule, float64(0)).(float64)),
+		"enable_query_queue_select":          utils.PathSearch("enable_query_queue_select", rule, "false").(string),
+	}
+	return []interface{}{result}
 }
 
 func flattenStarrocksInstanceActions(instance interface{}) []interface{} {
@@ -1799,6 +1978,20 @@ func resourceTaurusDBHtapStarrocksInstanceUpdate(ctx context.Context, d *schema.
 	// Update slow log switch
 	if d.HasChange("open_slow_log_switch") {
 		if err := updateStarRocksSlowLogSwitch(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update query queue rule
+	if d.HasChange("query_queue_rule") {
+		// Update query queue switch if enable_query_queue_select changed
+		if d.HasChange("query_queue_rule.0.enable_query_queue_select") {
+			enableSwitch := d.Get("query_queue_rule.0.enable_query_queue_select").(string)
+			if err := updateHtapQueryQueueRuleSwitch(client, d, enableSwitch); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		if err := updateHtapQueryQueueRule(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}

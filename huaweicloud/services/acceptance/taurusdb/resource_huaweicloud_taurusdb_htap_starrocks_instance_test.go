@@ -168,6 +168,13 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.type"),
 					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.description"),
 					resource.TestCheckResourceAttr(resourceName, "open_slow_log_switch", "true"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_max_queued_queries", "10240"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_pending_timeout_second", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_concurrency_limit", "100"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_mem_used_pct_limit", "100"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_cpu_used_pct_limit", "100"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.enable_query_queue_select", "true"),
 				),
 			},
 			{
@@ -180,6 +187,13 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "groups.0.nodes.0.need_restart", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enable_users_sync", "false"),
 					resource.TestCheckResourceAttr(resourceName, "open_slow_log_switch", "false"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_max_queued_queries", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_pending_timeout_second", "300"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_concurrency_limit", "0"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_mem_used_pct_limit", "0"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.query_queue_cpu_used_pct_limit", "0"),
+					resource.TestCheckResourceAttr(resourceName, "query_queue_rule.0.enable_query_queue_select", "false"),
 				),
 			},
 			{
@@ -555,6 +569,15 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
   }
   
   open_slow_log_switch = "true"
+
+  query_queue_rule {
+    query_queue_max_queued_queries     = 10240
+    query_queue_pending_timeout_second = 3000
+    query_queue_concurrency_limit      = 100
+    query_queue_mem_used_pct_limit     = 100
+    query_queue_cpu_used_pct_limit     = 100
+    enable_query_queue_select          = "true"
+  }
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -613,6 +636,15 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
   }
   
   open_slow_log_switch = "false"
+
+  query_queue_rule {
+    query_queue_max_queued_queries     = 1024
+    query_queue_pending_timeout_second = 300
+    query_queue_concurrency_limit      = 0
+    query_queue_mem_used_pct_limit     = 0
+    query_queue_cpu_used_pct_limit     = 0
+    enable_query_queue_select          = "false"
+  }
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
