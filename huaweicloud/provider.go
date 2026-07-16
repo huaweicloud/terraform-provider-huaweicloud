@@ -4065,6 +4065,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_parameter_template_apply":          gaussdb.ResourceGaussDbParameterTemplateApply(),
 			"huaweicloud_gaussdb_parameter_template_compare":        gaussdb.ResourceGaussDbParameterTemplateCompare(),
 			"huaweicloud_gaussdb_parameter_template_reset":          gaussdb.ResourceGaussDbParameterTemplateReset(),
+			"huaweicloud_gaussdb_parameter_template_save":           gaussdb.ResourceParameterTemplateSave(),
 			"huaweicloud_gaussdb_recycling_policy":                  gaussdb.ResourceGaussDbRecyclingPolicy(),
 			"huaweicloud_gaussdb_task_delete":                       gaussdb.ResourceGaussDbTaskDelete(),
 			"huaweicloud_gaussdb_sync_sql_throttling_task":          gaussdb.ResourceGaussDbSyncSqlThrottlingTask(),
