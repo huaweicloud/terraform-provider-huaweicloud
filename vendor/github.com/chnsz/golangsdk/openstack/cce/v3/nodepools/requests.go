@@ -293,7 +293,7 @@ type UpdateSpec struct {
 	// taint policy on existing nodes
 	TaintPolicyOnExistingNodes string `json:"taintPolicyOnExistingNodes,omitempty"`
 	// The list of extension scale groups
-	ExtensionScaleGroups []ExtensionScaleGroups `json:"extensionScaleGroups,omitempty"`
+	ExtensionScaleGroups []ExtensionScaleGroups `json:"extensionScaleGroups"`
 }
 
 // ToNodePoolUpdateMap builds an update body based on UpdateOpts.

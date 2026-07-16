@@ -166,18 +166,20 @@ func testAccAddon_values_base(name string) string {
 %[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster.test.id
-  name               = "%[2]s"
-  os                 = "EulerOS 2.9"
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count = 4
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_kps_keypair.test.name
-  scall_enable       = true
-  min_node_count     = 2
-  max_node_count     = 10
-  priority           = 1
-  type               = "vm"
+  cluster_id            = huaweicloud_cce_cluster.test.id
+  name                  = "%[2]s"
+  os                    = "EulerOS 2.9"
+  flavor_id             = local.flavor_specifications
+  availability_zone     = try(data.huaweicloud_availability_zones.test.names[0], null)
+  key_pair              = huaweicloud_kps_keypair.test.name
+  scall_enable          = true
+  min_node_count        = 2
+  max_node_count        = 10
+  initial_node_count    = 4
+  priority              = 1
+  type                  = "vm"
+  partition             = "center"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -186,6 +188,14 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 

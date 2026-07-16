@@ -73,39 +73,66 @@ func TestAccNodePool_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"ignore_initial_node_count", "extend_params", "enable_force_new",
+					"ignore_initial_node_count", "extend_params", "enable_force_new", "partition",
 				},
 			},
 		},
 	})
 }
 
-func testAccNodePool_base(rName string) string {
+func testAccNodePool_base(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
+%[1]s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  cluster_version        = "v1.34"
+  enterprise_project_id  = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
+  enable_distribute_management = true
+  container_network_type       = "eni"
+  // eni_subnet_id is required if you want to enable the distribute cloud.
+  eni_subnet_id                = join(",", [
+    huaweicloud_vpc_subnet.test.ipv4_subnet_id, // Center subnet should be used.
+  ])
+
+  dynamic "masters" {
+    for_each = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+
+    content {
+      availability_zone = masters.value
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      // After cluster created, the IEC subnet ID will append to the eni container subnet list.
+      eni_subnet_id,
+    ]
+  }
+}
+
+data "huaweicloud_cce_flavor_specifications" "test" {
+  cluster_type = "VirtualMachine"
+}
+
+locals {
+  flavor_specifications = try(coalesce([
+      for v in data.huaweicloud_cce_flavor_specifications.test.cluster_flavor_specs : try([
+        for vv in v.available_master_flavors: vv.name if contains(vv.azs, data.huaweicloud_availability_zones.test.names[0])
+      ][0], "") if v.name == huaweicloud_cce_cluster.test.flavor_id && !v.is_sold_out
+    ])[0], null)
 }
 
 resource "huaweicloud_kps_keypair" "test" {
   name = "%[2]s"
 }
-
-resource "huaweicloud_cce_cluster" "test" {
-  name                   = "%[2]s"
-  cluster_type           = "VirtualMachine"
-  flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc.test.id
-  subnet_id              = huaweicloud_vpc_subnet.test.id
-  container_network_type = "overlay_l2"
-}
-`, common.TestVpc(rName), rName)
+`, common.TestVpc(name), name)
 }
 
 func testAccNodePool_basic_step1(name, baseConfig string) string {
@@ -116,16 +143,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -146,7 +175,7 @@ EOF
 
   lifecycle {
     ignore_changes = [
-      extend_params
+      labels, extend_params
     ]
   }
 }
@@ -161,17 +190,19 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id                = huaweicloud_cce_cluster.test.id
   name                      = "%[2]s"
   os                        = "EulerOS 2.9"
-  flavor_id                 = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count        = 2
-  ignore_initial_node_count = false
-  availability_zone         = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                 = local.flavor_specifications
+  availability_zone         = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                  = huaweicloud_kps_keypair.test.name
   scall_enable              = true
   min_node_count            = 2
   max_node_count            = 9
+  initial_node_count        = 2
+  ignore_initial_node_count = false
   scale_down_cooldown_time  = 100
   priority                  = 1
   type                      = "vm"
+  partition                 = "center"
+  enterprise_project_id     = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -192,7 +223,7 @@ EOF
 
   lifecycle {
     ignore_changes = [
-      extend_params
+      labels, extend_params
     ]
   }
 }
@@ -243,6 +274,9 @@ func TestAccNodePool_tagsLabelsTaints(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.test2", "val2"),
 					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1"),
 					resource.TestCheckResourceAttr(resourceName, "labels.test2", "val2"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/category", "Default"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/partition", "center"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/publicbordergroup", "center"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
@@ -260,6 +294,9 @@ func TestAccNodePool_tagsLabelsTaints(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.test2_update", "val2_update"),
 					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1_update"),
 					resource.TestCheckResourceAttr(resourceName, "labels.test2_update", "val2_update"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/category", "Default"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/partition", "center"),
+					resource.TestCheckResourceAttr(resourceName, "labels.distribution.io/publicbordergroup", "center"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value_update"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
@@ -283,16 +320,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
-  max_node_count           = 0
+  max_node_count           = 2
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   tag_policy_on_existing_nodes   = "ignore"
   label_policy_on_existing_nodes = "ignore"
@@ -313,8 +352,11 @@ resource "huaweicloud_cce_node_pool" "test" {
   }
 
   labels = {
-    test1 = "val1"
-    test2 = "val2"
+    "distribution.io/category"          = "Default"
+    "distribution.io/partition"         = "center"
+    "distribution.io/publicbordergroup" = "center"
+    "test1"                             = "val1"
+    "test2"                             = "val2"
   }
 
   taints {
@@ -322,7 +364,6 @@ resource "huaweicloud_cce_node_pool" "test" {
     value  = "test_value"
     effect = "NoSchedule"
   }
-
 }
 `, testAccNodePool_base(name), name)
 }
@@ -335,16 +376,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
-  max_node_count           = 0
+  max_node_count           = 2
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   tag_policy_on_existing_nodes   = "refresh"
   label_policy_on_existing_nodes = "refresh"
@@ -365,8 +408,11 @@ resource "huaweicloud_cce_node_pool" "test" {
   }
 
   labels = {
-    test1        = "val1_update"
-    test2_update = "val2_update"
+    "distribution.io/category"          = "Default"
+    "distribution.io/partition"         = "center"
+    "distribution.io/publicbordergroup" = "center"
+    "test1"                             = "val1_update"
+    "test2_update"                      = "val2_update"
   }
 
   taints {
@@ -432,16 +478,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
-  max_node_count           = 0
+  max_node_count           = 2
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -452,6 +500,14 @@ resource "huaweicloud_cce_node_pool" "test" {
     size       = 100
     volumetype = "SSD"
     kms_key_id = huaweicloud_kms_key.test.id
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, testAccNodePool_base(name), name)
@@ -509,16 +565,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 0
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   charging_mode = "prePaid"
   period_unit   = "month"
@@ -532,6 +590,14 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, testAccNodePool_base(rName), rName, autoRenew)
@@ -559,7 +625,7 @@ func TestAccNodePool_SecurityGroups(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNodePool_SecurityGroups(name),
+				Config: testAccNodePool_SecurityGroups_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -570,7 +636,7 @@ func TestAccNodePool_SecurityGroups(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNodePool_SecurityGroups_update(name),
+				Config: testAccNodePool_SecurityGroups_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -596,7 +662,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 `, testAccNodePool_base(name), name)
 }
 
-func testAccNodePool_SecurityGroups(name string) string {
+func testAccNodePool_SecurityGroups_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -604,16 +670,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 0
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   security_groups = [
     huaweicloud_networking_secgroup.test[0].id,
@@ -632,12 +700,20 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, testAccNodePool_SecurityGroups_base(name), name)
 }
 
-func testAccNodePool_SecurityGroups_update(name string) string {
+func testAccNodePool_SecurityGroups_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -645,16 +721,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   password                 = "test_123456"
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 0
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   security_groups = [
     huaweicloud_networking_secgroup.test[2].id,
@@ -673,6 +751,14 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, testAccNodePool_SecurityGroups_base(name), name)
@@ -725,17 +811,19 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
   ecs_group_id             = huaweicloud_compute_servergroup.test.id
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -744,6 +832,14 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, testAccNodePool_base(rName), rName)
@@ -771,7 +867,7 @@ func TestAccNodePool_storage(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNodePool_storage(name),
+				Config: testAccNodePool_storage_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -780,7 +876,7 @@ func TestAccNodePool_storage(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNodePool_storage_update(name),
+				Config: testAccNodePool_storage_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -792,7 +888,7 @@ func TestAccNodePool_storage(t *testing.T) {
 	})
 }
 
-func testAccNodePool_storage(rName string) string {
+func testAccNodePool_storage_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -805,16 +901,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
-  max_node_count           = 0
+  max_node_count           = 2
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -879,11 +977,19 @@ resource "huaweicloud_cce_node_pool" "test" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
+  }
 }
 `, testAccNodePool_base(rName), rName)
 }
 
-func testAccNodePool_storage_update(rName string) string {
+func testAccNodePool_storage_step2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -896,16 +1002,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
-  max_node_count           = 0
+  max_node_count           = 2
+  initial_node_count       = 1
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 50
@@ -970,6 +1078,14 @@ resource "huaweicloud_cce_node_pool" "test" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
+  }
 }
 `, testAccNodePool_base(rName), rName)
 }
@@ -1001,7 +1117,13 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					// the order of extension_scale_groups returned by API could be different, so don't need to check
+					resource.TestCheckResourceAttr(resourceName, "scall_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "min_node_count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "max_node_count", "10"),
+					resource.TestCheckResourceAttr(resourceName, "scale_down_cooldown_time", "100"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
+					resource.TestCheckResourceAttr(resourceName, "partition", "center"),
+					resource.TestCheckResourceAttr(resourceName, "extension_scale_groups.#", "0"),
 				),
 			},
 			{
@@ -1009,7 +1131,23 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					// the order of extension_scale_groups returned by API could be different, so don't need to check
+					resource.TestCheckResourceAttr(resourceName, "extension_scale_groups.#", "2"),
+				),
+			},
+			{
+				Config: testAccNodePool_extensionScaleGroups_step3(updateName, baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "extension_scale_groups.#", "2"),
+				),
+			},
+			{
+				Config: testAccNodePool_extensionScaleGroups_step4(updateName, baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "extension_scale_groups.#", "0"),
 				),
 			},
 			{
@@ -1018,7 +1156,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "ignore_initial_node_count",
+					"initial_node_count", "ignore_initial_node_count", "partition",
 				},
 			},
 		},
@@ -1033,16 +1171,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
-  scall_enable             = false
-  min_node_count           = 0
-  max_node_count           = 0
-  scale_down_cooldown_time = 0
-  priority                 = 0
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
+  initial_node_count       = 2
+  scale_down_cooldown_time = 100
+  priority                 = 1
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -1053,19 +1193,12 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 
-  extension_scale_groups {
-    metadata {
-      name = "%[2]s-group1"
-    }
-
-    spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[0]
-      az     = data.huaweicloud_availability_zones.test.names[1]
-      autoscaling {
-        extension_priority = 1
-        enable             = true
-      }
-    }
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, baseConfig, name)
@@ -1079,16 +1212,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = true
-  min_node_count           = 0
-  max_node_count           = 0
+  min_node_count           = 1
+  max_node_count           = 10
+  initial_node_count       = 2
   scale_down_cooldown_time = 100
   priority                 = 1
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -1101,51 +1236,130 @@ resource "huaweicloud_cce_node_pool" "test" {
 
   extension_scale_groups {
     metadata {
-      name = "%[2]s-group1"
+      name = "group1"
     }
 
     spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[0]
-      az     = data.huaweicloud_availability_zones.test.names[1]
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
+
       autoscaling {
         extension_priority = 1
         enable             = true
+        min_node_count     = 1
+        max_node_count     = 3
       }
     }
   }
 
   extension_scale_groups {
     metadata {
-      name = "%[2]s-group2"
+      name = "group2"
     }
 
     spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[1]
-      az     = data.huaweicloud_availability_zones.test.names[0]
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
+
       autoscaling {
-        extension_priority = 1
+        extension_priority = 2
         enable             = true
+        min_node_count     = 1
+        max_node_count     = 3
       }
     }
   }
 
-  extension_scale_groups {
-    metadata {
-      name = "%[2]s-group3"
-    }
-
-    spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[1]
-      az     = data.huaweicloud_availability_zones.test.names[1]
-
-      autoscaling {
-        extension_priority = 1
-        enable             = true
-      }
-    }
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, baseConfig, name)
+}
+
+func testAccNodePool_extensionScaleGroups_step3(name, baseConfig string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.9"
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
+  initial_node_count       = 2
+  scale_down_cooldown_time = 100
+  priority                 = 1
+  type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "group1"
+    }
+
+    spec {
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+        min_node_count     = 1
+        max_node_count     = 5
+      }
+    }
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "group2"
+    }
+
+    spec {
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
+
+      autoscaling {
+        extension_priority = 3
+        enable             = true
+        min_node_count     = 1
+        max_node_count     = 4
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
+  }
+}
+`, baseConfig, name)
+}
+
+func testAccNodePool_extensionScaleGroups_step4(name, baseConfig string) string {
+	return testAccNodePool_extensionScaleGroups_step1(name, baseConfig)
 }
 
 func TestAccNodePool_without_data_volumes(t *testing.T) {
@@ -1188,16 +1402,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 0
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 
   root_volume {
     size       = 40
@@ -1229,14 +1445,22 @@ resource "huaweicloud_cce_node_pool" "test" {
     }
 
     spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[0]
-      az     = data.huaweicloud_availability_zones.test.names[1]
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
 
       autoscaling {
         extension_priority = 1
         enable             = true
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 `, baseConfig, name)

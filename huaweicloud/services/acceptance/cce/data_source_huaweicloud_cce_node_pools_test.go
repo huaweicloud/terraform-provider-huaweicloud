@@ -111,16 +111,18 @@ resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
   os                       = "Huawei Cloud EulerOS 2.0"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 0
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id                = local.flavor_specifications
+  availability_zone        = try(data.huaweicloud_availability_zones.test.names[0], null)
   key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
+  initial_node_count       = 0
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+  partition                = "center"
+  enterprise_project_id    = var.enterprise_project_id != "" ? var.enterprise_project_id : null
   runtime                  = "containerd"
   subnet_id                = huaweicloud_vpc_subnet.test.id
   security_groups          = [huaweicloud_networking_secgroup.test.id]
@@ -196,14 +198,22 @@ resource "huaweicloud_cce_node_pool" "test" {
     }
 
     spec {
-      flavor = data.huaweicloud_compute_flavors.test.ids[0]
-      az     = data.huaweicloud_availability_zones.test.names[1]
+      flavor = local.flavor_specifications
+      az     = try(data.huaweicloud_availability_zones.test.names[0], null)
 
       autoscaling {
         extension_priority = 1
         enable             = true
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # When creating a node pool, the tags "distribution.io/category", "distribution.io/partition", and
+      # "distribution.io/publicbordergroup" are automatically added.
+      labels
+    ]
   }
 }
 

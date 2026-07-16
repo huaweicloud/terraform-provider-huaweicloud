@@ -307,7 +307,6 @@ func resourceExtensionScaleGroupsSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
-		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"metadata": {
@@ -465,12 +464,14 @@ func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec 
 }
 
 func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScaleGroups {
-	_, ok := d.GetOk("extension_scale_groups")
-	if !ok {
-		return nil
+	// Use Get instead of GetOk so that an explicit empty list can be distinguished and sent
+	// as [] on update (clearing all extension scale groups).
+	newGroups := d.Get("extension_scale_groups").([]interface{})
+	if len(newGroups) == 0 {
+		return make([]nodepools.ExtensionScaleGroups, 0)
 	}
 
-	oldRaw, newRaw := d.GetChange("extension_scale_groups")
+	oldRaw, _ := d.GetChange("extension_scale_groups")
 	oldGroups := oldRaw.([]interface{})
 	oldGroupsMap := make(map[string]string)
 	for _, oldGroup := range oldGroups {
@@ -478,14 +479,14 @@ func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScal
 		uid := utils.PathSearch("metadata[0].uid", oldGroup, "").(string)
 		oldGroupsMap[name] = uid
 	}
-	newGroups := newRaw.([]interface{})
-	res := make([]nodepools.ExtensionScaleGroups, len(newGroups))
-	for i, newGroup := range newGroups {
+
+	res := make([]nodepools.ExtensionScaleGroups, 0, len(newGroups))
+	for _, newGroup := range newGroups {
 		if group, ok := newGroup.(map[string]interface{}); ok {
-			res[i] = nodepools.ExtensionScaleGroups{
+			res = append(res, nodepools.ExtensionScaleGroups{
 				Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, make([]interface{}, 0)), oldGroupsMap),
 				Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, make([]interface{}, 0))),
-			}
+			})
 		}
 	}
 
@@ -705,7 +706,6 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	// The following parameters are not returned:
 	// password, ignore_initial_node_count, pod_security_groups
-	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
