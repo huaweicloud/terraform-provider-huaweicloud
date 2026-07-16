@@ -65,7 +65,7 @@ The following arguments are supported:
   Valid values are **ACTIVE** and **DISABLED**.  
   Changing this will create a new resource.
 
-* `event_data` - (Optional, String, NonUpdatable) Specifies the trigger event data configuration, in JSON format.
+* `event_data` - (Required, String, NonUpdatable) Specifies the trigger event data configuration, in JSON format.
 
 ~> It is not recommended to reference the event_data returned by the function trigger resource.
    <br>Instead, it is recommended to reference the same variable source.

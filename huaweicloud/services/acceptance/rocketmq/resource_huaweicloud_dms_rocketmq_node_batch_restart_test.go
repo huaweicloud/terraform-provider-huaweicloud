@@ -21,6 +21,7 @@ func TestAccNodeBatchRestart_basic(t *testing.T) {
 			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNodeBatchRestart_basic(instanceID),
