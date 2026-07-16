@@ -4055,6 +4055,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_quota":                             gaussdb.ResourceGaussDbQuota(),
 			"huaweicloud_gaussdb_sql_throttling_task":               gaussdb.ResourceGaussDbSqlThrottlingTask(),
 			"huaweicloud_gaussdb_asp_collect":                       gaussdb.ResourceGaussDbAspCollect(),
+			"huaweicloud_gaussdb_download_backups_authorize":        gaussdb.ResourceGaussDBDownloadBackupsAuthorize(),
 			"huaweicloud_gaussdb_wdr_snapshot":                      gaussdb.ResourceGaussDbWdrSnapshot(),
 			"huaweicloud_gaussdb_wdr_snapshot_collect":              gaussdb.ResourceGaussDbWdrSnapshotCollect(),
 			"huaweicloud_gaussdb_dr_configuration_reset":            gaussdb.ResourceGaussDbDrConfigurationReset(),
