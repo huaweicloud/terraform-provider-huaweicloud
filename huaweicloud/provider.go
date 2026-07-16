@@ -1430,6 +1430,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_device_monitor_infos":             dsc.DataSourceDscDeviceMonitorInfos(),
 			"huaweicloud_dsc_event_overview":                   dsc.DataSourceDscEventOverview(),
 			"huaweicloud_dsc_events":                           dsc.DataSourceDscEvents(),
+			"huaweicloud_dsc_export_buckets":                   dsc.DataSourceDscExportBuckets(),
 			"huaweicloud_dsc_features":                         dsc.DataSourceDscFeatures(),
 			"huaweicloud_dsc_show_tasks":                       dsc.DataSourceDscShowTasks(),
 			"huaweicloud_dsc_threat_trend":                     dsc.DataSourceDscThreatTrend(),
