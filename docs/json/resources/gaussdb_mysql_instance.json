@@ -5,8 +5,25 @@
         "huaweicloud_gaussdb_mysql_instance": {
           "block": {
             "attributes": {
+              "all_audit_log_action": {
+                "type": "string",
+                "computed": true
+              },
               "audit_log_enabled": {
                 "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "audit_log_keep_days": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "audit_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
                 "optional": true,
                 "computed": true
               },
@@ -177,6 +194,10 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "reserve_audit_logs": {
+                "type": "string",
+                "optional": true
               },
               "seconds_level_monitoring_enabled": {
                 "type": "bool",
@@ -357,6 +378,34 @@
                 "nesting_mode": "list",
                 "max_items": 1
               },
+              "cross_region_backup_policy": {
+                "block": {
+                  "attributes": {
+                    "destination_project_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "destination_region": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "keep_days": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "open_auto_backup": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "open_incremental_backup": {
+                      "type": "bool",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "datastore": {
                 "block": {
                   "attributes": {
@@ -390,6 +439,34 @@
                   }
                 },
                 "nesting_mode": "set"
+              },
+              "storage_auto_expand_policy": {
+                "block": {
+                  "attributes": {
+                    "limit_size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "step_percent": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "switch_option": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "trigger_available_percent": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

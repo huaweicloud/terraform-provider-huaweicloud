@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_classifier
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/{mapping_id}:
+        DELETE:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/classifiers:
+        POST:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/mappings/classifiers/{classifier_id}:
+        DELETE:
+            tag: SecMaster
+        GET:
+            tag: SecMaster
+        PUT:
+            tag: SecMaster

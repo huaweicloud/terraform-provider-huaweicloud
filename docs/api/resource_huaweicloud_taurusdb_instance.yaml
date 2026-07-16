@@ -53,6 +53,11 @@ paths:
     /v3/{project_id}/instances/{instance_id}/alias:
         PUT:
             tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/audit-log-policy:
+        GET:
+            tag: TaurusDB
+        PUT:
+            tag: TaurusDB
     /v3/{project_id}/instances/{instance_id}/auto-scaling/policy:
         GET:
             tag: TaurusDB
@@ -62,6 +67,9 @@ paths:
         GET:
             tag: TaurusDB
         POST:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/backups/offsite-policy:
+        PUT:
             tag: TaurusDB
     /v3/{project_id}/instances/{instance_id}/backups/policy/update:
         PUT:
@@ -138,6 +146,11 @@ paths:
         POST:
             tag: TaurusDB
     /v3/{project_id}/instances/{instance_id}/ssl-option:
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/storage/auto-expand-policy:
+        GET:
+            tag: TaurusDB
         PUT:
             tag: TaurusDB
     /v3/{project_id}/instances/{instance_id}/tags:

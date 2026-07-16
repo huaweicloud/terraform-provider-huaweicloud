@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_taurusdb_instance_database_batch_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TaurusDB
+paths:
+    /v3/{project_id}/instances/database-version/upgrade:
+        POST:
+            tag: TaurusDB

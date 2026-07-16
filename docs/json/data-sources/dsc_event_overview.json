@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_event_overview": {
+          "block": {
+            "attributes": {
+              "block_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "not_overdue_event": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fatal_num": "number",
+                      "high_risk_num": "number",
+                      "low_risk_num": "number",
+                      "middle_risk_num": "number",
+                      "notice_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "overdue_event": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fatal_num": "number",
+                      "high_risk_num": "number",
+                      "low_risk_num": "number",
+                      "middle_risk_num": "number",
+                      "notice_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "turn_off_num": {
+                "type": "number",
+                "computed": true
+              },
+              "turn_on_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

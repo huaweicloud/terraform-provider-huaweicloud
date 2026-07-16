@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: GaussDB
 paths:
-    /v3/{project_id}/restorable-instances:
+    /v3.1/{project_id}/restorable-instances:
         GET:
             tag: GaussDB

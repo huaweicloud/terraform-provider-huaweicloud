@@ -1,0 +1,110 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_instance_real_time_sessions": {
+          "block": {
+            "attributes": {
+              "component_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sessions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_name": "string",
+                      "back_end_start": "number",
+                      "block_session": "string",
+                      "client_ip": "string",
+                      "client_port": "string",
+                      "component_name": "string",
+                      "current_transaction_id": "string",
+                      "database_name": "string",
+                      "exec_time": "string",
+                      "global_session_id": "string",
+                      "lock_mode": "string",
+                      "lock_tag": "string",
+                      "lwt_id": "string",
+                      "parent_session_id": "string",
+                      "pid": "string",
+                      "query": "string",
+                      "query_id": "string",
+                      "query_runtime": "string",
+                      "query_start": "number",
+                      "rollback_num": "string",
+                      "session_id": "string",
+                      "smp_id": "string",
+                      "sql_num": "string",
+                      "state": "string",
+                      "thread_name": "string",
+                      "top_transaction_id": "string",
+                      "trace_id": "string",
+                      "trans_num": "string",
+                      "transaction_start": "number",
+                      "transaction_time_cost": "string",
+                      "unique_sql_id": "string",
+                      "user_name": "string",
+                      "wait": "string",
+                      "wait_event": "string",
+                      "wait_status": "string",
+                      "xlog_quantity_pretty": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "query_info": {
+                "block": {
+                  "attributes": {
+                    "client_ip": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "database_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

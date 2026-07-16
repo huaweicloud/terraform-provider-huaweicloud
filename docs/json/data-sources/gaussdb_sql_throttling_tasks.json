@@ -5,11 +5,6 @@
         "huaweicloud_gaussdb_sql_throttling_tasks": {
           "block": {
             "attributes": {
-              "end_time": {
-                "type": "string",
-                "description": "Specifies the end time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.",
-                "optional": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -71,6 +66,13 @@
                 "description": "Specifies the throttling type value. Fuzzy match is supported.",
                 "optional": true
               },
+              "node_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
@@ -81,14 +83,8 @@
                 "description": "Specifies the rule name.",
                 "optional": true
               },
-              "sql_model": {
+              "sql_id": {
                 "type": "string",
-                "description": "Specifies the SQL template. Fuzzy match is supported.",
-                "optional": true
-              },
-              "start_time": {
-                "type": "string",
-                "description": "Specifies the start time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.",
                 "optional": true
               },
               "task_name": {

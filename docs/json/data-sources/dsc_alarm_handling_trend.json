@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_alarm_handling_trend": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "time_axis": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              },
+              "total_alarm_variation": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              },
+              "total_event_variation": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              },
+              "untreated_alarm_variation": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              },
+              "untreated_event_variation": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

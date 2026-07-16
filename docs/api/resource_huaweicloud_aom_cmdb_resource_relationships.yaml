@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_cmdb_resource_relationships
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CMDB
+paths:
+    /v1/resource/{rf_resource_type}/type/{type}/ci-relationships:
+        DELETE:
+            tag: CMDB
+        POST:
+            tag: CMDB
+        PUT:
+            tag: CMDB

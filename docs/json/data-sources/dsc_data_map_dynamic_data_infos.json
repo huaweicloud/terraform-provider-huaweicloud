@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_data_map_dynamic_data_infos": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_dbss_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dbss": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dbss_instance_info_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "instance_id": "string",
+                                  "instance_name": "string"
+                                }
+                              ]
+                            ],
+                            "dbss_rds_database_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configured": "bool",
+                                  "db_name": "string",
+                                  "id": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "total": "number",
+                      "vpc_id": "string",
+                      "vpc_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

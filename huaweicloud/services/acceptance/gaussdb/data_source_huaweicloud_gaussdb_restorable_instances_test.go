@@ -19,7 +19,6 @@ func TestAccDataSourceGaussDbRestorableInstances_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
-			acceptance.TestAccPreCheckHighCostAllow(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -35,6 +34,7 @@ func TestAccDataSourceGaussDbRestorableInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.data_volume_size"),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.version"),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.mode"),
+
 					resource.TestCheckOutput("restore_time_filter_is_useful", "true"),
 				),
 			},
@@ -53,28 +53,11 @@ data "huaweicloud_gaussdb_flavors" "test" {
   ha_mode = "centralization_standard"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  ethertype         = "IPv4"
-  direction         = "ingress"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  ethertype         = "IPv4"
-  direction         = "egress"
-  protocol          = "tcp"
-  remote_ip_prefix  = "0.0.0.0/0"
+resource "huaweicloud_networking_secgroup" test {
+  name = "%[2]s"
 }
 
 resource "huaweicloud_gaussdb_instance" "test" {
-  depends_on = [
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
-    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
-  ]
-
   count = 2
 
   vpc_id            = huaweicloud_vpc.test.id
@@ -113,7 +96,7 @@ data "huaweicloud_gaussdb_restore_time_ranges" "test" {
   instance_id = huaweicloud_gaussdb_instance.test[0].id
   date        = split("T", huaweicloud_gaussdb_backup.test.end_time)[0]
 }
-`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestVpc(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testDataSourceGaussdbOpengaussRestorableInstances_basic(name string) string {
@@ -128,10 +111,11 @@ data "huaweicloud_gaussdb_restorable_instances" "test" {
 locals {
   restore_time = data.huaweicloud_gaussdb_restore_time_ranges.test.restore_time[0].end_time
 }
+
 data "huaweicloud_gaussdb_restorable_instances" "restore_time_filter" {
   source_instance_id = huaweicloud_gaussdb_instance.test[0].id
   backup_id          = huaweicloud_gaussdb_backup.test.id
-  restore_time       = data.huaweicloud_gaussdb_restore_time_ranges.test.restore_time[0].end_time
+  restore_time       = local.restore_time
 }
 output "restore_time_filter_is_useful" {
   value = length(data.huaweicloud_gaussdb_restorable_instances.restore_time_filter.instances) > 0

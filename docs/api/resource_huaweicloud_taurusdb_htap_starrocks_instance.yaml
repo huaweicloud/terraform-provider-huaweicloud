@@ -1,0 +1,58 @@
+info:
+    version: ""
+    title: resource_huaweicloud_taurusdb_htap_starrocks_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BSS
+paths:
+    /v2/{project_id}/orders/auto-renew:
+        POST:
+            tag: BSS
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v3/{project_id}/instances/{instance_id}/starrocks:
+        POST:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/{starrocks_instance_id}:
+        DELETE:
+            tag: TaurusDB
+        GET:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/configurations:
+        GET:
+            tag: TaurusDB
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/resize-flavor:
+        POST:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/security-group:
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/slowlog-sensitive:
+        GET:
+            tag: TaurusDB
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/users/password:
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/starrocks/users/sync:
+        POST:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{starrocks_instance_id}/starrocks/restart:
+        PUT:
+            tag: TaurusDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: TaurusDB
+    /v3/orders/customer-orders/pay:
+        POST:
+            tag: BSS

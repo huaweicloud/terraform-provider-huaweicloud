@@ -167,6 +167,7 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.value_range"),
 					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.type"),
 					resource.TestCheckResourceAttrSet(resourceName, "fe_parameters.0.description"),
+					resource.TestCheckResourceAttr(resourceName, "open_slow_log_switch", "true"),
 				),
 			},
 			{
@@ -178,6 +179,7 @@ func TestAccTaurusDBHtapStarrocksInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "groups.0.nodes.0.need_restart", "true"),
 					resource.TestCheckResourceAttr(resourceName, "groups.0.nodes.0.need_restart", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enable_users_sync", "false"),
+					resource.TestCheckResourceAttr(resourceName, "open_slow_log_switch", "false"),
 				),
 			},
 			{
@@ -551,6 +553,8 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
     "alter_table_timeout_second"     = "21600"
     "bdbje_heartbeat_timeout_second" = "10"
   }
+  
+  open_slow_log_switch = "true"
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -607,6 +611,8 @@ resource "huaweicloud_taurusdb_htap_starrocks_instance" "test" {
     "alter_table_timeout_second"     = "259200"
     "bdbje_heartbeat_timeout_second" = "100"
   }
+  
+  open_slow_log_switch = "false"
 }
 `, testAccHtapInstanceConfig_base(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

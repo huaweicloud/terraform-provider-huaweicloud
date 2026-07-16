@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_api_gateway_environment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v1.0/apigw/envs:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v1.0/apigw/envs/{id}:
+        DELETE:
+            tag: APIG
+        PUT:
+            tag: APIG

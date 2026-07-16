@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_subscription_orders": {
+          "block": {
+            "attributes": {
+              "csb_version": {
+                "type": "string",
+                "computed": true
+              },
+              "ecs_count": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "page": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "amount": "string",
+                      "charging_mode": "string",
+                      "cloud_service": "string",
+                      "create_time": "number",
+                      "expire_time": "number",
+                      "measure_name": "string",
+                      "order_id": "string",
+                      "original_amount": "string",
+                      "quota_reset_cycle": "number",
+                      "quota_reset_cycle_type": "number",
+                      "quota_reset_mode": "number",
+                      "resource_id": "string",
+                      "resource_size": "number",
+                      "resource_spec_code": "string",
+                      "resource_status": "number",
+                      "resource_type": "string",
+                      "resource_type_name": "string",
+                      "tag_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "number",
+                            "key": "string",
+                            "update_time": "number",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "to_period": "bool",
+                      "update_time": "number",
+                      "usages": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "free": "number",
+                            "quota": "number",
+                            "resource_spec_code": "string",
+                            "resource_type_name": "string",
+                            "source_resource_spec_code": "string",
+                            "source_type": "string",
+                            "unit": "string",
+                            "used": "number",
+                            "used_percent": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "subscription_count": {
+                "type": "number",
+                "computed": true
+              },
+              "subscriptions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "endpoint": "string",
+                      "owner": "string",
+                      "protocol": "string",
+                      "status": "number",
+                      "subscription_urn": "string",
+                      "topic_urn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

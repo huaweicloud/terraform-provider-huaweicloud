@@ -29,6 +29,7 @@ var (
 	skipResources = map[string]bool{
 		"resource_huaweicloud_antiddos_default_protection_policy": true,
 		"resource_huaweicloud_aom_application":                    true,
+		"resource_huaweicloud_aom_cmdb_resource_relationships":    true,
 		"resource_huaweicloud_aom_component":                      true,
 		"resource_huaweicloud_aom_environment":                    true,
 		"resource_huaweicloud_apm_aksk":                           true,
@@ -42,6 +43,7 @@ var (
 		"resource_huaweicloud_live_bucket_authorization":          true,
 		"resource_huaweicloud_lts_access_rule":                    true,
 		"resource_huaweicloud_lts_dashboard":                      true,
+		"resource_huaweicloud_lts_elb_log":                        true,
 		"resource_huaweicloud_lts_struct_template":                true,
 		"resource_huaweicloud_mapreduce_job":                      true,
 		"resource_huaweicloud_meeting_conference":                 true,

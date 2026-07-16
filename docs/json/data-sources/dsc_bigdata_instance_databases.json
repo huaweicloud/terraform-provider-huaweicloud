@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_bigdata_instance_databases": {
+          "block": {
+            "attributes": {
+              "datasources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_name": "string",
+                      "authorize_fail_reason": "string",
+                      "authorized": "bool",
+                      "create_time": "number",
+                      "default": "bool",
+                      "ds_address": "string",
+                      "ds_authorized": "string",
+                      "ds_name": "string",
+                      "ds_port": "number",
+                      "ds_type": "string",
+                      "ds_user": "string",
+                      "ds_version": "string",
+                      "id": "string",
+                      "ins_id": "string",
+                      "ins_name": "string",
+                      "ins_type": "string",
+                      "region": "string",
+                      "security_group_id": "string",
+                      "source_type": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

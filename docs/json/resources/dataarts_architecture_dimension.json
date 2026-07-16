@@ -1,0 +1,423 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_dimension": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "description": "The alias of the dimension.",
+                "computed": true
+              },
+              "code_table_id": {
+                "type": "string",
+                "description": "The code table ID of the dimension.",
+                "optional": true,
+                "computed": true
+              },
+              "compression": {
+                "type": "string",
+                "description": "The compression type of the dimension.",
+                "computed": true
+              },
+              "configs": {
+                "type": "string",
+                "description": "The configs of the dimension.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the dimension, in RFC3339 format.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The account name of the user who created the dimension.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the dimension.",
+                "required": true
+              },
+              "dev_version": {
+                "type": "string",
+                "description": "The development environment version of the dimension.",
+                "computed": true
+              },
+              "dev_version_name": {
+                "type": "string",
+                "description": "The development environment version name of the dimension.",
+                "computed": true
+              },
+              "dimension_type": {
+                "type": "string",
+                "description": "The type of the dimension.",
+                "required": true
+              },
+              "distribute": {
+                "type": "string",
+                "description": "The distribute type of the dimension.",
+                "computed": true
+              },
+              "distribute_column": {
+                "type": "string",
+                "description": "The distribute column of the dimension.",
+                "computed": true
+              },
+              "env_type": {
+                "type": "string",
+                "description": "The environment type of the dimension.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_delete_physical_table": {
+                "type": "bool",
+                "description": "Whether to delete the physical table corresponding to the dimension.",
+                "optional": true
+              },
+              "l1_id": {
+                "type": "string",
+                "description": "The ID of the L1 subject to which the dimension belongs.",
+                "computed": true
+              },
+              "l1_name": {
+                "type": "string",
+                "description": "The name of the L1 subject to which the dimension belongs.",
+                "computed": true
+              },
+              "l2_id": {
+                "type": "string",
+                "description": "The ID of the L2 subject to which the dimension belongs.",
+                "computed": true
+              },
+              "l2_name": {
+                "type": "string",
+                "description": "The name of the L2 subject to which the dimension belongs.",
+                "computed": true
+              },
+              "l3_id": {
+                "type": "string",
+                "description": "The ID of the business subject to which the dimension belongs.",
+                "required": true
+              },
+              "l3_name": {
+                "type": "string",
+                "description": "The name of the L3 subject to which the dimension belongs.",
+                "computed": true
+              },
+              "model": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_catalog_ids": "string",
+                      "create_by": "string",
+                      "create_time": "string",
+                      "databases": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "string",
+                      "dw_type": "string",
+                      "frequent": "bool",
+                      "id": "string",
+                      "is_physical": "bool",
+                      "level": "string",
+                      "name": "string",
+                      "table_model_prefix": "string",
+                      "top": "bool",
+                      "type": "string",
+                      "update_by": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The model information of the dimension.",
+                "computed": true
+              },
+              "model_id": {
+                "type": "string",
+                "description": "The model ID of the dimension.",
+                "computed": true
+              },
+              "name_ch": {
+                "type": "string",
+                "description": "The Chinese name of the dimension.",
+                "required": true
+              },
+              "name_en": {
+                "type": "string",
+                "description": "The English name of the dimension.",
+                "required": true
+              },
+              "obs_location": {
+                "type": "string",
+                "description": "The OBS location of the dimension.",
+                "computed": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The asset owner of the dimension.",
+                "required": true
+              },
+              "pre_combine_field": {
+                "type": "string",
+                "description": "The pre-combine field of the dimension.",
+                "computed": true
+              },
+              "prod_version": {
+                "type": "string",
+                "description": "The production environment version of the dimension.",
+                "computed": true
+              },
+              "prod_version_name": {
+                "type": "string",
+                "description": "The production environment version name of the dimension.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dimension is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The publishing status of the dimension.",
+                "computed": true
+              },
+              "table_type": {
+                "type": "string",
+                "description": "The table type of the dimension.",
+                "computed": true
+              },
+              "update_by": {
+                "type": "string",
+                "description": "The updater of the dimension.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The latest update time of the dimension, in RFC3339 format.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the dimension belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "attributes": {
+                "block": {
+                  "attributes": {
+                    "alias": {
+                      "type": "string",
+                      "description": "The alias of the attribute.",
+                      "computed": true
+                    },
+                    "code_table_field_id": {
+                      "type": "string",
+                      "description": "The code table field ID of the attribute.",
+                      "computed": true
+                    },
+                    "create_by": {
+                      "type": "string",
+                      "description": "The creator of the attribute.",
+                      "computed": true
+                    },
+                    "create_time": {
+                      "type": "string",
+                      "description": "The creation time of the attribute, in RFC3339 format.",
+                      "computed": true
+                    },
+                    "data_type": {
+                      "type": "string",
+                      "description": "The data type of the attribute.",
+                      "required": true
+                    },
+                    "data_type_extend": {
+                      "type": "string",
+                      "description": "The data type extension of the attribute.",
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the attribute.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "domain_type": {
+                      "type": "string",
+                      "description": "The domain type of the attribute.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the attribute.",
+                      "computed": true
+                    },
+                    "is_biz_primary": {
+                      "type": "bool",
+                      "description": "Whether the attribute is the business primary key.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_partition_key": {
+                      "type": "bool",
+                      "description": "Whether the attribute is the partition key.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_primary_key": {
+                      "type": "bool",
+                      "description": "Whether the attribute is the primary key.",
+                      "required": true
+                    },
+                    "name_ch": {
+                      "type": "string",
+                      "description": "The Chinese name of the attribute.",
+                      "required": true
+                    },
+                    "name_en": {
+                      "type": "string",
+                      "description": "The English name of the attribute.",
+                      "required": true
+                    },
+                    "not_null": {
+                      "type": "bool",
+                      "description": "Whether the attribute is not null.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ordinal": {
+                      "type": "number",
+                      "description": "The sequence number of the attribute.",
+                      "required": true
+                    },
+                    "quality_infos": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The quality information of the attribute.",
+                      "computed": true
+                    },
+                    "secrecy_levels": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The secrecy levels of the attribute.",
+                      "computed": true
+                    },
+                    "self_defined_fields": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The self-defined fields of the attribute.",
+                      "computed": true
+                    },
+                    "stand_row_id": {
+                      "type": "string",
+                      "description": "The associated data standard ID of the attribute.",
+                      "computed": true
+                    },
+                    "stand_row_name": {
+                      "type": "string",
+                      "description": "The associated data standard name of the attribute.",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "The publishing status of the attribute.",
+                      "computed": true
+                    },
+                    "update_time": {
+                      "type": "string",
+                      "description": "The latest update time of the attribute, in RFC3339 format.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The list of attributes of the dimension."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "datasource": {
+                "block": {
+                  "attributes": {
+                    "biz_id": {
+                      "type": "string",
+                      "description": "The business ID of the data source.",
+                      "computed": true
+                    },
+                    "biz_type": {
+                      "type": "string",
+                      "description": "The business type of the data source.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "db_name": {
+                      "type": "string",
+                      "description": "The name of the database corresponding to the data connection.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "dw_id": {
+                      "type": "string",
+                      "description": "The ID of the data connection.",
+                      "required": true
+                    },
+                    "dw_name": {
+                      "type": "string",
+                      "description": "The name of the data connection.",
+                      "computed": true
+                    },
+                    "dw_type": {
+                      "type": "string",
+                      "description": "The type of the data connection.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the data source.",
+                      "computed": true
+                    },
+                    "queue_name": {
+                      "type": "string",
+                      "description": "The queue name corresponding to the DLI data connection.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "schema": {
+                      "type": "string",
+                      "description": "The name of the database schema.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The data source configuration of the dimension."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_proxy_az_flavors": {
+          "block": {
+            "attributes": {
+              "az_codes": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "proxy_engine_name": {
+                "type": "string",
+                "required": true
+              },
+              "proxy_flavor_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "group_type": "string",
+                      "proxy_flavors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_status": [
+                              "map",
+                              "string"
+                            ],
+                            "db_type": "string",
+                            "id": "string",
+                            "ram": "string",
+                            "spec_code": "string",
+                            "supported_ipv6": "bool",
+                            "vcpus": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

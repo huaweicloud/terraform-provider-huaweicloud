@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_scan_jobs": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_new": {
+                "type": "string",
+                "optional": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "asset_id": "string",
+                            "asset_type": "string"
+                          }
+                        ]
+                      ],
+                      "create_time": "number",
+                      "cycle": "string",
+                      "id": "string",
+                      "last_run_time": "number",
+                      "last_scan_risk": "string",
+                      "name": "string",
+                      "open": "bool",
+                      "rule_groups": [
+                        "list",
+                        "string"
+                      ],
+                      "scan_templates": [
+                        "map",
+                        "string"
+                      ],
+                      "security_level_color": "number",
+                      "security_level_name": "string",
+                      "start_time": "number",
+                      "status": "string",
+                      "topic_urn": "string",
+                      "use_nlp": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

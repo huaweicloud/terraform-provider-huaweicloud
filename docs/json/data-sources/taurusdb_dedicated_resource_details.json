@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_dedicated_resource_details": {
+          "block": {
+            "attributes": {
+              "architecture": {
+                "type": "string",
+                "computed": true
+              },
+              "availability_zone_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "dedicated_compute_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_num": "number",
+                      "ram_total": "number",
+                      "ram_used": "number",
+                      "spec_code": "string",
+                      "vcpus_total": "number",
+                      "vcpus_used": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "dedicated_resource_id": {
+                "type": "string",
+                "required": true
+              },
+              "dedicated_storage_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_num": "number",
+                      "spec_code": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "engine_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_name": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

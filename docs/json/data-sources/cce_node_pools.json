@@ -1,0 +1,287 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_node_pools": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The ID of the CCE cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_renew": "string",
+                      "availability_zone": "string",
+                      "billing_mode": "number",
+                      "current_node_count": "number",
+                      "data_volumes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dss_pool_id": "string",
+                            "extend_params": [
+                              "map",
+                              "string"
+                            ],
+                            "hw_passthrough": "bool",
+                            "iops": "number",
+                            "kms_key_id": "string",
+                            "size": "number",
+                            "throughput": "number",
+                            "volumetype": "string"
+                          }
+                        ]
+                      ],
+                      "ecs_group_id": "string",
+                      "enterprise_project_id": "string",
+                      "extend_param": [
+                        "map",
+                        "string"
+                      ],
+                      "extend_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agency_name": "string",
+                            "docker_base_size": "number",
+                            "kube_reserved_mem": "number",
+                            "market_type": "string",
+                            "max_pods": "number",
+                            "nic_threshold": "string",
+                            "node_image_id": "string",
+                            "node_multi_queue": "string",
+                            "postinstall": "string",
+                            "preinstall": "string",
+                            "security_reinforcement_type": "string",
+                            "spot_price": "string",
+                            "system_reserved_mem": "number"
+                          }
+                        ]
+                      ],
+                      "extension_scale_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metadata": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "uid": "string"
+                                }
+                              ]
+                            ],
+                            "spec": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "autoscaling": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "enable": "bool",
+                                        "extension_priority": "number",
+                                        "max_node_count": "number",
+                                        "min_node_count": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "az": "string",
+                                  "capacity_reservation_specification": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "id": "string",
+                                        "preference": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "flavor": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "flavor_id": "string",
+                      "hostname_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "initial_node_count": "number",
+                      "initialized_conditions": [
+                        "list",
+                        "string"
+                      ],
+                      "key_pair": "string",
+                      "label_policy_on_existing_nodes": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "max_node_count": "number",
+                      "max_pods": "number",
+                      "min_node_count": "number",
+                      "name": "string",
+                      "os": "string",
+                      "partition": "string",
+                      "period": "number",
+                      "period_unit": "string",
+                      "pod_security_groups": [
+                        "list",
+                        "string"
+                      ],
+                      "priority": "number",
+                      "root_volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dss_pool_id": "string",
+                            "extend_params": [
+                              "map",
+                              "string"
+                            ],
+                            "hw_passthrough": "bool",
+                            "iops": "number",
+                            "kms_key_id": "string",
+                            "size": "number",
+                            "throughput": "number",
+                            "volumetype": "string"
+                          }
+                        ]
+                      ],
+                      "runtime": "string",
+                      "scale_down_cooldown_time": "number",
+                      "scall_enable": "bool",
+                      "security_groups": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "string",
+                      "storage": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "groups": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cce_managed": "bool",
+                                  "name": "string",
+                                  "selector_names": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "virtual_spaces": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "lvm_lv_type": "string",
+                                        "lvm_path": "string",
+                                        "name": "string",
+                                        "runtime_lv_type": "string",
+                                        "size": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "match_label_count": "string",
+                                  "match_label_metadata_cmkid": "string",
+                                  "match_label_metadata_encrypted": "string",
+                                  "match_label_size": "string",
+                                  "match_label_volume_type": "string",
+                                  "name": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "subnet_id": "string",
+                      "subnet_list": [
+                        "list",
+                        "string"
+                      ],
+                      "tag_policy_on_existing_nodes": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "taint_policy_on_existing_nodes": "string",
+                      "taints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "string",
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of CCE node pools that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the CCE node pools are located.",
+                "computed": true
+              },
+              "show_default_node_pool": {
+                "type": "string",
+                "description": "Whether to show the default node pool.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

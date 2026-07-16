@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_show_metadata": {
+          "block": {
+            "attributes": {
+              "column_num": {
+                "type": "number",
+                "computed": true
+              },
+              "file_num": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sensitive_column_num": {
+                "type": "number",
+                "computed": true
+              },
+              "sensitive_file_num": {
+                "type": "number",
+                "computed": true
+              },
+              "table_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

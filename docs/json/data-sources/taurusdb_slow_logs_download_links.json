@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_slow_logs_download_links": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_at": "number",
+                      "file_link": "string",
+                      "file_name": "string",
+                      "file_size": "string",
+                      "job_id": "string",
+                      "status": "string",
+                      "updated_at": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

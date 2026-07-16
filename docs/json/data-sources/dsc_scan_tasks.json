@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_scan_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "The scan job ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_id": "string",
+                      "asset_name": "string",
+                      "category": "string",
+                      "end_time": "number",
+                      "id": "string",
+                      "last_scan_risk": "string",
+                      "progress": "number",
+                      "scan_speed": "number",
+                      "scanned_object_num": "number",
+                      "security_level_color": "number",
+                      "security_level_name": "string",
+                      "skip_object_num": "number",
+                      "start_time": "number",
+                      "status": "string",
+                      "to_be_scanned_object_num": "number"
+                    }
+                  ]
+                ],
+                "description": "The scan task list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

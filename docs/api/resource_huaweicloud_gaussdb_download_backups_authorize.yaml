@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_download_backups_authorize
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/backups/{backup_id}/download/authorization:
+        POST:
+            tag: GaussDB

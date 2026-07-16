@@ -1,0 +1,273 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_dimensions": {
+          "block": {
+            "attributes": {
+              "approver": {
+                "type": "string",
+                "description": "The approver of the dimension to be queried.",
+                "optional": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "The start time of the dimension to be queried, in RFC3339 format.",
+                "optional": true
+              },
+              "biz_catalog_id": {
+                "type": "string",
+                "description": "The business catalog ID to which the dimension belongs.",
+                "optional": true
+              },
+              "create_by": {
+                "type": "string",
+                "description": "The creator of the dimension to be queried.",
+                "optional": true
+              },
+              "derivative_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The derivative indicator ID list for querying dimensions.",
+                "optional": true
+              },
+              "dimension_type": {
+                "type": "string",
+                "description": "The type of the dimension to be queried.",
+                "optional": true
+              },
+              "dimensions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "attributes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alias": "string",
+                            "code_table_field_id": "string",
+                            "create_by": "string",
+                            "create_time": "string",
+                            "data_type": "string",
+                            "data_type_extend": "string",
+                            "description": "string",
+                            "domain_type": "string",
+                            "id": "string",
+                            "is_biz_primary": "bool",
+                            "is_partition_key": "bool",
+                            "is_primary_key": "bool",
+                            "name_ch": "string",
+                            "name_en": "string",
+                            "not_null": "bool",
+                            "ordinal": "number",
+                            "quality_infos": [
+                              "list",
+                              "string"
+                            ],
+                            "secrecy_levels": [
+                              "list",
+                              "string"
+                            ],
+                            "self_defined_fields": [
+                              "list",
+                              "string"
+                            ],
+                            "stand_row_id": "string",
+                            "stand_row_name": "string",
+                            "status": "string",
+                            "update_time": "string"
+                          }
+                        ]
+                      ],
+                      "code_table": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "directory_id": "string",
+                            "directory_path": "string",
+                            "id": "string",
+                            "name_ch": "string",
+                            "name_en": "string",
+                            "status": "string",
+                            "tb_version": "number"
+                          }
+                        ]
+                      ],
+                      "code_table_id": "string",
+                      "configs": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "datasource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_id": "string",
+                            "biz_type": "string",
+                            "db_name": "string",
+                            "dw_id": "string",
+                            "dw_name": "string",
+                            "dw_type": "string",
+                            "id": "string",
+                            "queue_name": "string",
+                            "schema": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "dev_version": "string",
+                      "dev_version_name": "string",
+                      "dimension_type": "string",
+                      "distribute": "string",
+                      "distribute_column": "string",
+                      "env_type": "string",
+                      "hierarchies": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attrs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attr_id": "string",
+                                  "attr_name_ch": "string",
+                                  "attr_name_en": "string",
+                                  "hierarchies_id": "string",
+                                  "id": "string",
+                                  "level": "number"
+                                }
+                              ]
+                            ],
+                            "created_at": "string",
+                            "created_by": "string",
+                            "id": "string",
+                            "name": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "l1_id": "string",
+                      "l1_name": "string",
+                      "l2_id": "string",
+                      "l2_name": "string",
+                      "l3_id": "string",
+                      "l3_name": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "create_by": "string",
+                            "create_time": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "update_by": "string",
+                            "update_time": "string"
+                          }
+                        ]
+                      ],
+                      "model_id": "string",
+                      "name_ch": "string",
+                      "name_en": "string",
+                      "obs_location": "string",
+                      "owner": "string",
+                      "prod_version": "string",
+                      "prod_version_name": "string",
+                      "status": "string",
+                      "table_type": "string",
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of dimensions that matched filter parameters.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the dimension to be queried, in RFC3339 format.",
+                "optional": true
+              },
+              "fact_logic_id": {
+                "type": "string",
+                "description": "The fact table ID of the dimension to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "l2_id": {
+                "type": "string",
+                "description": "The subject domain L2 ID to which the dimension belongs.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name or code of the dimension to be fuzzy queried.",
+                "optional": true
+              },
+              "name_ch": {
+                "type": "string",
+                "description": "The Chinese name of the dimension to be exactly queried.",
+                "optional": true
+              },
+              "name_en": {
+                "type": "string",
+                "description": "The English name of the dimension to be exactly queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dimensions are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The publishing status of the dimension to be queried.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the dimensions belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

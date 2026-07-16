@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_backup_configurations": {
+          "block": {
+            "attributes": {
+              "backup_parallel_degree": {
+                "type": "number",
+                "computed": true
+              },
+              "close_compression": {
+                "type": "bool",
+                "computed": true
+              },
+              "default_backup_media_type": {
+                "type": "string",
+                "computed": true
+              },
+              "default_backup_method": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_standby_backup": {
+                "type": "bool",
+                "computed": true
+              },
+              "file_split_size": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "prefetch_block": {
+                "type": "number",
+                "computed": true
+              },
+              "rate_limit": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

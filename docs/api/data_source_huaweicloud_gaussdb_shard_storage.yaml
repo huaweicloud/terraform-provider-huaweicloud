@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_gaussdb_shard_storage
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/shard-volume-usage:
+        GET:
+            tag: GaussDB

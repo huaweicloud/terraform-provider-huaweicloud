@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_taurusdb_proxy_eip_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TaurusDB
+paths:
+    /v1/{project_id}/publicips:
+        GET:
+            tag: EIP
+    /v3/{project_id}/instances/{instance_id}/proxies:
+        GET:
+            tag: TaurusDB
+    /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/bind:
+        PUT:
+            tag: TaurusDB

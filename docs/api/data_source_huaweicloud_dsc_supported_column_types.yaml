@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dsc_supported_column_types
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/data-watermark/supported-column-types:
+        GET:
+            tag: DSC

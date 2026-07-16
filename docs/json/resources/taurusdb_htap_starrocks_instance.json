@@ -1,0 +1,565 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_htap_starrocks_instance": {
+          "block": {
+            "attributes": {
+              "actions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "job_id": "string",
+                      "object_id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "az_code": {
+                "type": "string",
+                "required": true
+              },
+              "az_mode": {
+                "type": "string",
+                "required": true
+              },
+              "backup_used_space": {
+                "type": "string",
+                "computed": true
+              },
+              "bak_expected_start_time": {
+                "type": "number",
+                "computed": true
+              },
+              "bak_keep_day": {
+                "type": "number",
+                "computed": true
+              },
+              "bak_period": {
+                "type": "string",
+                "computed": true
+              },
+              "be_configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "configuration_id": "string",
+                      "created": "string",
+                      "datastore_name": "string",
+                      "datastore_version_name": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "be_count": {
+                "type": "number",
+                "required": true
+              },
+              "be_flavor_id": {
+                "type": "string",
+                "required": true
+              },
+              "be_node_volume_code": {
+                "type": "string",
+                "computed": true
+              },
+              "be_node_volume_size": {
+                "type": "string",
+                "computed": true
+              },
+              "be_parameter_values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "be_parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "can_enable_public_access": {
+                "type": "bool",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "create_at": {
+                "type": "number",
+                "computed": true
+              },
+              "create_fail_error_code": {
+                "type": "string",
+                "computed": true
+              },
+              "current_backup_node_id": {
+                "type": "string",
+                "computed": true
+              },
+              "data_store_type": {
+                "type": "string",
+                "computed": true
+              },
+              "data_store_version": {
+                "type": "string",
+                "computed": true
+              },
+              "data_store_version_id": {
+                "type": "string",
+                "computed": true
+              },
+              "data_vip": {
+                "type": "string",
+                "computed": true
+              },
+              "db_port": {
+                "type": "string",
+                "computed": true
+              },
+              "db_root_pwd": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "db_user": {
+                "type": "string",
+                "computed": true
+              },
+              "dedicated_resource_id": {
+                "type": "string",
+                "computed": true
+              },
+              "delete_at": {
+                "type": "number",
+                "computed": true
+              },
+              "enable_users_sync": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "fe_configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "configuration_id": "string",
+                      "created": "string",
+                      "datastore_name": "string",
+                      "datastore_version_name": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "fe_count": {
+                "type": "number",
+                "required": true
+              },
+              "fe_flavor_id": {
+                "type": "string",
+                "required": true
+              },
+              "fe_node_volume_code": {
+                "type": "string",
+                "computed": true
+              },
+              "fe_node_volume_size": {
+                "type": "string",
+                "computed": true
+              },
+              "fe_parameter_values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "fe_parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "frozen_time": {
+                "type": "number",
+                "computed": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "group_node_type": "string",
+                      "group_type_name": "string",
+                      "id": "string",
+                      "name": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "actions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "string",
+                                  "created_at": "string",
+                                  "id": "string",
+                                  "job_id": "string",
+                                  "object_id": "string",
+                                  "status": "string",
+                                  "type": "string",
+                                  "updated_at": "string"
+                                }
+                              ]
+                            ],
+                            "az_code": "string",
+                            "az_description": "string",
+                            "az_type": "string",
+                            "cpu": "string",
+                            "create_at": "number",
+                            "datastore": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "type": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "db_port": "number",
+                            "flavor_id": "string",
+                            "flavor_ref": "string",
+                            "frozen_flag": "number",
+                            "iass_flavor_ref": "string",
+                            "id": "string",
+                            "max_connections": "string",
+                            "mem": "string",
+                            "name": "string",
+                            "need_restart": "bool",
+                            "order_id": "string",
+                            "param_group": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "pay_model": "string",
+                            "period": "string",
+                            "priority": "number",
+                            "region_code": "string",
+                            "sg_id": "string",
+                            "status": "string",
+                            "subnet_id": "string",
+                            "traffic_ip": "string",
+                            "traffic_ipv6": "string",
+                            "type": "string",
+                            "update_at": "number",
+                            "volume": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "vpc_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "is_frozen": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "new_version_available": {
+                "type": "bool",
+                "computed": true
+              },
+              "open_slow_log_switch": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ops_window": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "period": "string",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "param_group": {
+                "type": "string",
+                "computed": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "port_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "mysql_port": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ssl_option": {
+                "type": "bool",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "support_data_replication": {
+                "type": "bool",
+                "computed": true
+              },
+              "time_zone": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "update_at": {
+                "type": "number",
+                "computed": true
+              },
+              "users_sync_switch_on": {
+                "type": "bool",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "be_volume": {
+                "block": {
+                  "attributes": {
+                    "capacity_in_gb": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "io_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "engine": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "fe_volume": {
+                "block": {
+                  "attributes": {
+                    "capacity_in_gb": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "io_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "ha": {
+                "block": {
+                  "attributes": {
+                    "mode": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "tags_info": {
+                "block": {
+                  "attributes": {
+                    "tags": {
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "sys_tags": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_geminidb_cassandra_slow_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "keyspace_keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "max_cost_time": {
+                "type": "number",
+                "optional": true
+              },
+              "min_cost_time": {
+                "type": "number",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true
+              },
+              "operate_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slow_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cost_time": "number",
+                      "keyspace": "string",
+                      "line_num": "string",
+                      "log_time": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "operate_type": "string",
+                      "table": "string",
+                      "whole_message": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              },
+              "table_keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

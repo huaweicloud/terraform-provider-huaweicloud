@@ -1,0 +1,288 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_sql_traces": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql_exec_id": {
+                "type": "string",
+                "optional": true
+              },
+              "sql_id": {
+                "type": "string",
+                "optional": true
+              },
+              "trace_id": {
+                "type": "string",
+                "optional": true
+              },
+              "traces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "all_time": "number",
+                      "application_name": "string",
+                      "client_addr": "string",
+                      "client_port": "number",
+                      "component_id": "string",
+                      "db_name": "string",
+                      "execution_time_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "kernel_execution_time": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "all_time": "number",
+                                  "kernel_execution_time_details": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "execution_time": "number",
+                                        "other_time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "kernel_time": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "all_time": "number",
+                                  "kernel_time_details": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "execution_time": "number",
+                                        "other_time": "number",
+                                        "parse_time": "number",
+                                        "plan_time": "number",
+                                        "rewrite_time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "resource_time": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "all_time": "number",
+                                  "resource_time_details": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "cpu_time": "number",
+                                        "data_io_time": "number",
+                                        "other_time": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "wait_event_time": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "code_wait_event_time": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "all_time": "number",
+                                        "code_wait_event_time_details": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "events": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "event_name": "string",
+                                                    "event_time": "number"
+                                                  }
+                                                ]
+                                              ],
+                                              "left_time": "number",
+                                              "other_time": "number"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "resource_wait_event_time": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "all_time": "number",
+                                        "other_time": "number",
+                                        "resource_wait_event_time_details": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "data_io_time": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "all_time": "number",
+                                                    "data_io_time_details": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "events": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "event_name": "string",
+                                                                "event_time": "number"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "left_time": "number",
+                                                          "other_time": "number"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "lock_time": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "all_time": "number",
+                                                    "lock_time_details": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "events": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "event_name": "string",
+                                                                "event_time": "number"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "left_time": "number",
+                                                          "other_time": "number"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "lwlock_time": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "all_time": "number",
+                                                    "lwlock_time_details": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "events": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "event_name": "string",
+                                                                "event_time": "number"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "left_time": "number",
+                                                          "other_time": "number"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "finish_time": "string",
+                      "is_slow_sql": "bool",
+                      "node_id": "string",
+                      "schema_name": "string",
+                      "session_id": "string",
+                      "sql_exec_id": "string",
+                      "sql_id": "string",
+                      "start_time": "string",
+                      "trace_id": "string",
+                      "transaction_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "transaction_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

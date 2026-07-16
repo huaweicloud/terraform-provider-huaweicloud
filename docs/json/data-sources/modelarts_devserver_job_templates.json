@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_devserver_job_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the DevServer job template to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the DevServer job templates are located.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "The ID of the DevServer job template to be queried.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "flavor_type": "string",
+                      "id": "string",
+                      "name": "string",
+                      "params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "name": "string",
+                            "regex": "string",
+                            "value": "string",
+                            "visible": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of DevServer job templates that match the filter parameters.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the DevServer job template to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

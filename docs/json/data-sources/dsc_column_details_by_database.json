@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_column_details_by_database": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_id": {
+                "type": "string",
+                "description": "Specifies the group label ID for filtering. Either `label_id` or `type_id` must be specified.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_name": "string",
+                      "count": "number",
+                      "db_name": "string",
+                      "db_type": "string",
+                      "tables": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "classification_tags": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "column_name": "string",
+                                  "level_tags": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "count": "number",
+                            "table_name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The column details list by database dimension.",
+                "computed": true
+              },
+              "type_id": {
+                "type": "string",
+                "description": "Specifies the type ID for filtering. Either `label_id` or `type_id` must be specified.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

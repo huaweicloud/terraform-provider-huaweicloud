@@ -413,7 +413,8 @@ The following arguments are supported:
 
 * `handler` - (Required, String) Specifies the entry point of the function.
 
--> If the function is created by an SWR image, keep `code_type` empty and use hyphen character (-) to set the handler.
+-> If the function is created by an SWR image, set `code_type` to **Custom-Image-Swr** and use the hyphen character (-)
+   to set the handler.
 
 * `description` - (Optional, String) Specifies the description of the function.
 

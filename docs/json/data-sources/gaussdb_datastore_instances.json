@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_datastore_instances": {
+          "block": {
+            "attributes": {
+              "engine_instance_details": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "engine_version": "string",
+                      "instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "hotfix_versions": "string",
+                            "instance_id": "string",
+                            "instance_name": "string",
+                            "solution": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

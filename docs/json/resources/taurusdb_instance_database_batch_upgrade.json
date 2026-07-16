@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_taurusdb_instance_database_batch_upgrade": {
+          "block": {
+            "attributes": {
+              "delay": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "databases_instance_infos": {
+                "block": {
+                  "attributes": {
+                    "current_version": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

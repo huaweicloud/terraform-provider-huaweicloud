@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_security_class": {
+          "block": {
+            "attributes": {
+              "classification_trees": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "children": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "children_nums": "number",
+                            "create_time": "number",
+                            "depth": "number",
+                            "id": "string",
+                            "name": "string",
+                            "parent_id": "string",
+                            "project_id": "string",
+                            "root_id": "string",
+                            "rule_nums": "number",
+                            "update_time": "number"
+                          }
+                        ]
+                      ],
+                      "children_nums": "number",
+                      "create_time": "number",
+                      "depth": "number",
+                      "id": "string",
+                      "name": "string",
+                      "parent_id": "string",
+                      "project_id": "string",
+                      "root_id": "string",
+                      "rule_nums": "number",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_category": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "required": true
+              },
+              "template_name": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

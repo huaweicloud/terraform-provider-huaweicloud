@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_classifier": {
+          "block": {
+            "attributes": {
+              "built_in": {
+                "type": "string",
+                "description": "Whether the data is built-in.",
+                "computed": true
+              },
+              "complete_degree": {
+                "type": "string",
+                "description": "The completion degree.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "The creator ID.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "The creator name.",
+                "computed": true
+              },
+              "data_source": {
+                "type": "string",
+                "description": "Specifies the data source.",
+                "required": true
+              },
+              "dataclass_id": {
+                "type": "string",
+                "description": "Specifies the data class ID.",
+                "required": true
+              },
+              "dataclass_name": {
+                "type": "string",
+                "description": "The data class name.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_num": {
+                "type": "string",
+                "description": "The number of associated instances.",
+                "computed": true
+              },
+              "mapping_id": {
+                "type": "string",
+                "description": "The mapping ID.",
+                "computed": true
+              },
+              "modifier_id": {
+                "type": "string",
+                "description": "The modifier ID.",
+                "computed": true
+              },
+              "modifier_name": {
+                "type": "string",
+                "description": "The modifier name.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The project ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "classifier": {
+                "block": {
+                  "attributes": {
+                    "direct_classifier": {
+                      "type": "string",
+                      "description": "Specifies whether to classify directly.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the classifier information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

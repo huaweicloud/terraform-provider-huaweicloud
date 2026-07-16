@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_catalog_instances": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "The address of the database instance.",
+                "optional": true
+              },
+              "col_id": {
+                "type": "string",
+                "description": "The key used to sort the instances.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "The name of the database instance.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "db_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "asset_id": "string",
+                            "classifications": [
+                              "list",
+                              "string"
+                            ],
+                            "color_number": "number",
+                            "db_id": "string",
+                            "db_name": "string",
+                            "db_type": "string",
+                            "latest_scan_time": "string",
+                            "sensitive_level_name": "string",
+                            "sensitive_table_count": "number",
+                            "tags": [
+                              "list",
+                              "string"
+                            ],
+                            "total_table_count": "number"
+                          }
+                        ]
+                      ],
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "sensitive_col_num": "number",
+                      "sensitive_db_num": "number",
+                      "sensitive_table_num": "number",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of database instances.",
+                "computed": true
+              },
+              "label_id": {
+                "type": "string",
+                "description": "The ID of the group label to which the instance belongs.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the catalog instances are located.",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sorting method for query results.",
+                "optional": true
+              },
+              "type_id": {
+                "type": "string",
+                "description": "The ID of the data type of the database instance.",
+                "optional": true
+              },
+              "user": {
+                "type": "string",
+                "description": "The access user of the database instance.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_geminidb_instance_databases
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/redis/instances/{instance_id}/databases:
+        GET:
+            tag: GeminiDB

@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_template_rules": {
+          "block": {
+            "attributes": {
+              "classification_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_used": {
+                "type": "string",
+                "optional": true
+              },
+              "keyword": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_name": {
+                "type": "string",
+                "optional": true
+              },
+              "security_level_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "template_id": {
+                "type": "string",
+                "required": true
+              },
+              "template_rules_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "classification_id": "string",
+                      "is_used": "bool",
+                      "project_id": "string",
+                      "rule_description": "string",
+                      "rule_id": "string",
+                      "rule_name": "string",
+                      "security_level_color": "number",
+                      "security_level_id": "string",
+                      "security_level_name": "string",
+                      "template_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

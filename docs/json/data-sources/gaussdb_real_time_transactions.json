@@ -1,0 +1,111 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_real_time_transactions": {
+          "block": {
+            "attributes": {
+              "component_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rows": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_name": "string",
+                      "backend_start": "string",
+                      "client_addr": "string",
+                      "client_port": "number",
+                      "current_xid": "string",
+                      "datname": "string",
+                      "exec_time": "string",
+                      "pid": "number",
+                      "query": "string",
+                      "query_id": "number",
+                      "query_start": "string",
+                      "sessionid": "number",
+                      "state": "string",
+                      "state_change": "string",
+                      "top_xid": "string",
+                      "unique_sql_id": "number",
+                      "usename": "string",
+                      "waiting": "string",
+                      "xact_start": "string",
+                      "xlog_quantity": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "transaction_query_info": {
+                "block": {
+                  "attributes": {
+                    "client_addrs": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "datnames": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "exec_time": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "usenames": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "xlog_quantity": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

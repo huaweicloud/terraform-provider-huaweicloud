@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_gaussdb_datastore_versions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3.2/{project_id}/datastore/versions:
+        GET:
+            tag: GaussDB

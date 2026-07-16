@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_configuration_functions": {
+          "block": {
+            "attributes": {
+              "billing_type_mgmt": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "support_large_screen_mgmt": {
+                "type": "bool",
+                "computed": true
+              },
+              "support_postpaid_mgmt": {
+                "type": "bool",
+                "computed": true
+              },
+              "support_purchase_label_mgmt": {
+                "type": "bool",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

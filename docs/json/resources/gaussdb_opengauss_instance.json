@@ -5,6 +5,10 @@
         "huaweicloud_gaussdb_opengauss_instance": {
           "block": {
             "attributes": {
+              "alias": {
+                "type": "string",
+                "optional": true
+              },
               "asp_status": {
                 "type": "string",
                 "optional": true,
@@ -50,6 +54,11 @@
               "disk_encryption_id": {
                 "type": "string",
                 "optional": true
+              },
+              "dn_node_deploy_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "enable_force_switch": {
                 "type": "bool",
@@ -227,6 +236,49 @@
                 },
                 "nesting_mode": "set"
               },
+              "auto_scaling": {
+                "block": {
+                  "attributes": {
+                    "limit_volume_size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "max_volume_size": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "min_volume_size": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "percents": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "computed": true
+                    },
+                    "step_percent": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "step_size": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "switch_option": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "trigger_available_percent": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "backup_strategy": {
                 "block": {
                   "attributes": {
@@ -285,6 +337,26 @@
                 },
                 "nesting_mode": "list",
                 "min_items": 1,
+                "max_items": 1
+              },
+              "kms_tde_switch": {
+                "block": {
+                  "attributes": {
+                    "kms_project_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "kms_tde_key_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "kms_tde_status": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
                 "max_items": 1
               },
               "parameters": {

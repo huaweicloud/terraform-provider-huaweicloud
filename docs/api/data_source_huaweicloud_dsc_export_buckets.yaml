@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dsc_export_buckets
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/scan-jobs/buckets-for-export:
+        GET:
+            tag: DSC

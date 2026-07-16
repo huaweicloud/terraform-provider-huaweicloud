@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_batch_delete_database_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/asset-center/database/instances/batch-delete:
+        POST:
+            tag: DSC

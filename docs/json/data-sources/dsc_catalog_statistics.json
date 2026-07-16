@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_catalog_statistics": {
+          "block": {
+            "attributes": {
+              "bucket": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_num": "number",
+                      "total": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "column": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_num": "number",
+                      "total": "number",
+                      "week_on_week": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "database": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_num": "number",
+                      "total": "number",
+                      "week_on_week": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "file": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_num": "number",
+                      "total": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "table": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_num": "number",
+                      "total": "number",
+                      "week_on_week": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "type_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

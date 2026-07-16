@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_asset_domain_label": {
+          "block": {
+            "attributes": {
+              "depth": {
+                "type": "number",
+                "description": "The depth of the label.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_leaf": {
+                "type": "number",
+                "description": "Whether the label is a leaf node.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the label.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The ID of the parent to which the label belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the asset domain label is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_catalog_top_classifications": {
+          "block": {
+            "attributes": {
+              "classifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "classification_name": "string",
+                      "column_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "asset_id": "string",
+                            "asset_name": "string",
+                            "column_fqn": "string",
+                            "db_type": "string",
+                            "match_infos": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "classification_id": "string",
+                                  "classification_name": "string",
+                                  "match_content_cnt": "number",
+                                  "match_rate": "number",
+                                  "matched_detail": "string",
+                                  "matched_examples": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "context": "string",
+                                        "line_number": "number",
+                                        "matched_content": "string",
+                                        "nlp_revised": "bool"
+                                      }
+                                    ]
+                                  ],
+                                  "rule_id": "string",
+                                  "rule_name": "string",
+                                  "security_level_color": "number",
+                                  "security_level_id": "string",
+                                  "security_level_name": "string",
+                                  "template_id": "string",
+                                  "template_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "hit_number": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of classifications.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_id": {
+                "type": "string",
+                "description": "The ID of the group label.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the catalog top classifications are located.",
+                "computed": true
+              },
+              "type_id": {
+                "type": "string",
+                "description": "The ID of the data type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

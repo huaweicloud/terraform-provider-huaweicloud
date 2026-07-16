@@ -1,0 +1,173 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_events": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end time of the query (timestamp).",
+                "optional": true
+              },
+              "event_level": {
+                "type": "string",
+                "description": "Specifies the event risk level.",
+                "optional": true
+              },
+              "event_name": {
+                "type": "string",
+                "description": "Specifies the event name.",
+                "optional": true
+              },
+              "event_status": {
+                "type": "string",
+                "description": "Specifies the event handling status.",
+                "optional": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "affected_asset": [
+                        "list",
+                        "string"
+                      ],
+                      "close_reason": "string",
+                      "create_time": "number",
+                      "description": "string",
+                      "disposal_suggestion": "string",
+                      "domain_id": "string",
+                      "event_level": "string",
+                      "event_name": "string",
+                      "event_status": "string",
+                      "event_type": "string",
+                      "id": "number",
+                      "occur_time": "number",
+                      "project_id": "string",
+                      "related_alarm_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "affected_asset": [
+                              "list",
+                              "string"
+                            ],
+                            "alarm_level": "string",
+                            "alarm_name": "string",
+                            "alarm_status": "string",
+                            "alarm_type": "string",
+                            "close_reason": "string",
+                            "create_time": "number",
+                            "description": "string",
+                            "disposal_suggestion": "string",
+                            "domain_id": "string",
+                            "id": "number",
+                            "occur_time": "number",
+                            "project_id": "string",
+                            "responsible_person": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "user_id": "string",
+                                  "user_name": "string"
+                                }
+                              ]
+                            ],
+                            "source_instance": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "instance_id": "string",
+                                  "instance_name": "string"
+                                }
+                              ]
+                            ],
+                            "source_module": "string",
+                            "source_sub_type": "string",
+                            "source_type": "string",
+                            "verification_status": "string"
+                          }
+                        ]
+                      ],
+                      "responsible_person": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "scheduled_close_time": "number",
+                      "source_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "source_module": "string",
+                      "verification_status": "string"
+                    }
+                  ]
+                ],
+                "description": "The event information list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "responsible_person": {
+                "type": "string",
+                "description": "Specifies the responsible person for the event.",
+                "optional": true
+              },
+              "source_name": {
+                "type": "string",
+                "description": "Specifies the event source name.",
+                "optional": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "Specifies the event source type.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start time of the query (timestamp).",
+                "optional": true
+              },
+              "verification_status": {
+                "type": "string",
+                "description": "Specifies the verification status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

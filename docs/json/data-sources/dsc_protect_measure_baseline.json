@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_protect_measure_baseline": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protect_measure_baseline": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "number",
+                            "data_type_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "category": "string",
+                                  "create_time": "number",
+                                  "data_type": "string",
+                                  "data_type_id": "string",
+                                  "id": "number",
+                                  "is_deleted": "bool",
+                                  "life_cycle": "string",
+                                  "update_time": "number"
+                                }
+                              ]
+                            ],
+                            "id": "number",
+                            "measure_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "create_time": "number",
+                                  "description": "string",
+                                  "id": "number",
+                                  "is_deleted": "bool",
+                                  "life_cycle": "string",
+                                  "measure_type": "string",
+                                  "name": "string",
+                                  "update_time": "number"
+                                }
+                              ]
+                            ],
+                            "protect_level": "string",
+                            "update_time": "number"
+                          }
+                        ]
+                      ],
+                      "key": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_policy_agency_attach": {
+          "block": {
+            "attributes": {
+              "agency_id": {
+                "type": "string",
+                "description": "The ID of the IAM agency.",
+                "required": true
+              },
+              "attached_at": {
+                "type": "string",
+                "description": "The time when the IAM V5 policy was attached to the agency.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "The ID of the IAM V5 policy.",
+                "required": true
+              },
+              "policy_name": {
+                "type": "string",
+                "description": "The name of the IAM V5 policy.",
+                "computed": true
+              },
+              "policy_urn": {
+                "type": "string",
+                "description": "The URN of the IAM V5 policy.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

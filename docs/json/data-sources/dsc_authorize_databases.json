@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_authorize_databases": {
+          "block": {
+            "attributes": {
+              "databases": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_name": "string",
+                      "auth_type": "string",
+                      "authorize_fail_reason": "string",
+                      "authorized": "bool",
+                      "create_time": "number",
+                      "db_address": "string",
+                      "db_authorized": "string",
+                      "db_name": "string",
+                      "db_port": "number",
+                      "db_type": "string",
+                      "db_user": "string",
+                      "db_version": "string",
+                      "default": "bool",
+                      "id": "string",
+                      "ins_id": "string",
+                      "ins_name": "string",
+                      "ins_type": "string",
+                      "region": "string",
+                      "service_name": "string",
+                      "sid": "string",
+                      "subnet_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "vpc_ids": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The authorized database information list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "Specifies the instance type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

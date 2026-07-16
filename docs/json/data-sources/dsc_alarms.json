@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_alarms": {
+          "block": {
+            "attributes": {
+              "alarm_level": {
+                "type": "string",
+                "description": "Specifies the alarm level.",
+                "optional": true
+              },
+              "alarm_name": {
+                "type": "string",
+                "description": "Specifies the alarm name.",
+                "optional": true
+              },
+              "alarm_status": {
+                "type": "string",
+                "description": "Specifies the alarm status.",
+                "optional": true
+              },
+              "alarms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "affected_asset": [
+                        "list",
+                        "string"
+                      ],
+                      "alarm_level": "string",
+                      "alarm_name": "string",
+                      "alarm_status": "string",
+                      "alarm_type": "string",
+                      "close_reason": "string",
+                      "create_time": "number",
+                      "description": "string",
+                      "disposal_suggestion": "string",
+                      "domain_id": "string",
+                      "id": "number",
+                      "occur_time": "number",
+                      "project_id": "string",
+                      "responsible_person": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "source_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "source_module": "string",
+                      "source_sub_type": "string",
+                      "source_type": "string",
+                      "verification_status": "string"
+                    }
+                  ]
+                ],
+                "description": "The alarm information list.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end time of the query (timestamp).",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "responsible_person": {
+                "type": "string",
+                "description": "Specifies the responsible person for the alarm.",
+                "optional": true
+              },
+              "source_name": {
+                "type": "string",
+                "description": "Specifies the alarm source name.",
+                "optional": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "Specifies the alarm source type.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start time of the query (timestamp).",
+                "optional": true
+              },
+              "verification_status": {
+                "type": "string",
+                "description": "Specifies the verification status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

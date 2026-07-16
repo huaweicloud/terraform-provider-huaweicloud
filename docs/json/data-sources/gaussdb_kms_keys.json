@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_kms_keys": {
+          "block": {
+            "attributes": {
+              "authorized_id": {
+                "type": "string",
+                "computed": true
+              },
+              "authorized_name": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_details": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "default_key_flag": "string",
+                      "domain_id": "string",
+                      "key_alias": "string",
+                      "key_id": "string",
+                      "key_spec": "string",
+                      "key_state": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "kms_project_name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

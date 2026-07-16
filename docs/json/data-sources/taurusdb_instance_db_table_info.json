@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_instance_db_table_info": {
+          "block": {
+            "attributes": {
+              "database_name": {
+                "type": "string",
+                "optional": true
+              },
+              "database_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "table_meta_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "column_default": "string",
+                      "column_key": "string",
+                      "column_name": "string",
+                      "column_type": "string",
+                      "extra": "string",
+                      "is_nullable": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "table_name": {
+                "type": "string",
+                "optional": true
+              },
+              "table_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

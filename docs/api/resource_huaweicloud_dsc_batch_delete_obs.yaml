@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_batch_delete_obs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/asset-center/obs/buckets/batch-delete:
+        POST:
+            tag: DSC

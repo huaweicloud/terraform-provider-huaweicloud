@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_devserver_images": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "images": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch": "string",
+                      "id": "string",
+                      "name": "string",
+                      "server_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of DevServer images that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the DevServer images are located.",
+                "computed": true
+              },
+              "resource_flavor_name": {
+                "type": "string",
+                "description": "The name of the resource flavor to be queried.",
+                "optional": true
+              },
+              "server_type": {
+                "type": "string",
+                "description": "The type of the server to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

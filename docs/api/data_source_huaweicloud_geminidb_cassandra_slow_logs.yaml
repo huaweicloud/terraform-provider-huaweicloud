@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_geminidb_cassandra_slow_logs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GeminiDB
+paths:
+    /v3/{project_id}/cassandra/instances/{instance_id}/slow-logs:
+        POST:
+            tag: GeminiDB

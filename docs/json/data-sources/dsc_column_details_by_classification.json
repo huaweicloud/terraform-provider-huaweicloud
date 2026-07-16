@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_column_details_by_classification": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_id": {
+                "type": "string",
+                "description": "Specifies the group label ID for filtering. Either `label_id` or `type_id` must be specified.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "classifications": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "classification_name": "string",
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "asset_id": "string",
+                                  "asset_name": "string",
+                                  "column_fqn": "string",
+                                  "db_type": "string",
+                                  "match_infos": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "classification_id": "string",
+                                        "classification_name": "string",
+                                        "match_content_cnt": "number",
+                                        "match_rate": "number",
+                                        "matched_detail": "string",
+                                        "matched_examples": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "context": "string",
+                                              "line_number": "number",
+                                              "matched_content": "string",
+                                              "nlp_revised": "bool"
+                                            }
+                                          ]
+                                        ],
+                                        "rule_id": "string",
+                                        "rule_name": "string",
+                                        "security_level_color": "number",
+                                        "security_level_id": "string",
+                                        "security_level_name": "string",
+                                        "template_id": "string",
+                                        "template_name": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "count": "number"
+                          }
+                        ]
+                      ],
+                      "count": "number",
+                      "template_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The column details list by classification dimension.",
+                "computed": true
+              },
+              "type_id": {
+                "type": "string",
+                "description": "Specifies the type ID for filtering. Either `label_id` or `type_id` must be specified.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

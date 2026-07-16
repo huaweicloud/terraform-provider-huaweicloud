@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_single_sql_details": {
+          "block": {
+            "attributes": {
+              "components": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advise": "string",
+                      "application_name": "string",
+                      "client_addr": "string",
+                      "client_port": "string",
+                      "component_id": "string",
+                      "cpu_time": "number",
+                      "data_io_time": "number",
+                      "db_name": "string",
+                      "db_time": "number",
+                      "details": "string",
+                      "execution_time": "number",
+                      "finish_status": "string",
+                      "finish_time": "string",
+                      "is_slow_sql": "bool",
+                      "lock_count": "number",
+                      "lock_time": "number",
+                      "lock_wait_count": "number",
+                      "lock_wait_time": "number",
+                      "n_blocks_fetched": "number",
+                      "n_blocks_hit": "number",
+                      "n_hard_parse": "number",
+                      "n_returned_rows": "number",
+                      "n_soft_parse": "number",
+                      "n_tuples_deleted": "number",
+                      "n_tuples_fetched": "number",
+                      "n_tuples_inserted": "number",
+                      "n_tuples_returned": "number",
+                      "n_tuples_updated": "number",
+                      "net_recv_info": "string",
+                      "net_send_info": "string",
+                      "net_stream_recv_info": "string",
+                      "net_stream_send_info": "string",
+                      "origin_node": "string",
+                      "parent_sql_id": "string",
+                      "parse_time": "number",
+                      "pl_compilation_time": "number",
+                      "pl_execution_time": "number",
+                      "plan_time": "number",
+                      "query": "string",
+                      "query_plan": "string",
+                      "rewrite_time": "number",
+                      "schema_name": "string",
+                      "session_id": "string",
+                      "slow_query_threshold": "string",
+                      "sql": "string",
+                      "sql_exec_id": "string",
+                      "sql_id": "string",
+                      "start_time": "string",
+                      "thread_id": "string",
+                      "trace_id": "string",
+                      "transaction_id": "string",
+                      "username": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "key_id": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql_exec_id": {
+                "type": "string",
+                "required": true
+              },
+              "sql_id": {
+                "type": "string",
+                "optional": true
+              },
+              "trace_statistics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cpu_time": "number",
+                      "db_time": "number",
+                      "delete_rows": "number",
+                      "execution_time": "number",
+                      "hit_rate": "number",
+                      "insert_rows": "number",
+                      "io_time": "number",
+                      "scan_rows": "number",
+                      "update_rows": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

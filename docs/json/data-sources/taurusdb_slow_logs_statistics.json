@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_taurusdb_slow_logs_statistics": {
+          "block": {
+            "attributes": {
+              "database": {
+                "type": "string",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "required": true
+              },
+              "order": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slow_log_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "count": "string",
+                      "database": "string",
+                      "lock_time": "string",
+                      "node_id": "string",
+                      "query_sample": "string",
+                      "rows_examined": "number",
+                      "rows_sent": "number",
+                      "time": "string",
+                      "type": "string",
+                      "users": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

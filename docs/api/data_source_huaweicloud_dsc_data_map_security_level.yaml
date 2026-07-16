@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dsc_data_map_security_level
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v2/{project_id}/data-map/region-security-level:
+        GET:
+            tag: DSC

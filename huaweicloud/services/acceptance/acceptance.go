@@ -297,6 +297,7 @@ var (
 	HW_GAUSSDB_HBA_HISTORY_ID        = os.Getenv("HW_GAUSSDB_HBA_HISTORY_ID")
 	HW_GAUSSDB_SQL_ID                = os.Getenv("HW_GAUSSDB_SQL_ID")
 	HW_GAUSSDB_SESSION_ID            = os.Getenv("HW_GAUSSDB_SESSION_ID")
+	HW_GAUSSDB_BACKUP_ID             = os.Getenv("HW_GAUSSDB_BACKUP_ID")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -458,13 +459,16 @@ var (
 	HW_GLOBAL_EIP_BANDWIDTH_ID            = os.Getenv("HW_GLOBAL_EIP_BANDWIDTH_ID")
 	HW_GLOBAL_EIP_SEGMENT_INSTANCE_ID     = os.Getenv("HW_GLOBAL_EIP_SEGMENT_INSTANCE_ID")
 
-	HW_DSC_INSTANCE_ID      = os.Getenv("HW_DSC_INSTANCE_ID")
-	HW_DSC_ALARM_TOPIC_ID   = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
-	HW_DSC_ENABLE_FLAG      = os.Getenv("HW_DSC_ENABLE_FLAG")
-	HW_DSC_TYPE_ID          = os.Getenv("HW_DSC_TYPE_ID")
-	HW_DSC_SCAN_TEMPLATE_ID = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
-	HW_DSC_SCAN_JOB_ID      = os.Getenv("HW_DSC_SCAN_JOB_ID")
-	HW_DSC_OBS_ID           = os.Getenv("HW_DSC_OBS_ID")
+	HW_DSC_INSTANCE_ID              = os.Getenv("HW_DSC_INSTANCE_ID")
+	HW_DSC_ALARM_TOPIC_ID           = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
+	HW_DSC_ENABLE_FLAG              = os.Getenv("HW_DSC_ENABLE_FLAG")
+	HW_DSC_TYPE_ID                  = os.Getenv("HW_DSC_TYPE_ID")
+	HW_DSC_SCAN_TEMPLATE_ID         = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
+	HW_DSC_SCAN_JOB_ID              = os.Getenv("HW_DSC_SCAN_JOB_ID")
+	HW_DSC_SECURITY_LEVEL_ID        = os.Getenv("HW_DSC_SECURITY_LEVEL_ID")
+	HW_DSC_SECURITY_LEVEL_ID_TARGET = os.Getenv("HW_DSC_SECURITY_LEVEL_ID_TARGET")
+	HW_DSC_OBS_ID                   = os.Getenv("HW_DSC_OBS_ID")
+	HW_DSC_DB_ID                    = os.Getenv("HW_DSC_DB_ID")
 
 	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
 	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
@@ -2448,6 +2452,13 @@ func TestAccPreCheckGaussDBSqlId(t *testing.T) {
 func TestAccPreCheckGaussDBSessionId(t *testing.T) {
 	if HW_GAUSSDB_SESSION_ID == "" {
 		t.Skip("HW_GAUSSDB_SESSION_ID must be set for GaussDB acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBBackupId(t *testing.T) {
+	if HW_GAUSSDB_BACKUP_ID == "" {
+		t.Skip("HW_GAUSSDB_BACKUP_ID must be set for GaussDB acceptance tests")
 	}
 }
 
@@ -5337,9 +5348,30 @@ func TestAccPreCheckDscScanJobId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDscSecurityLevelId(t *testing.T) {
+	if HW_DSC_SECURITY_LEVEL_ID == "" {
+		t.Skip("HW_DSC_SECURITY_LEVEL_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscSecurityLevelIdTarget(t *testing.T) {
+	if HW_DSC_SECURITY_LEVEL_ID_TARGET == "" {
+		t.Skip("HW_DSC_SECURITY_LEVEL_ID_TARGET must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckDscObsId(t *testing.T) {
 	if HW_DSC_OBS_ID == "" {
 		t.Skip("HW_DSC_OBS_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscDbId(t *testing.T) {
+	if HW_DSC_DB_ID == "" {
+		t.Skip("HW_DSC_DB_ID must be set for DSC acceptance tests")
 	}
 }
 

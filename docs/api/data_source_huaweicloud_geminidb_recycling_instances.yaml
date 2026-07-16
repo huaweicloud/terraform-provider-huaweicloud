@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: GeminiDB
 paths:
-    /v3/{project_id}/instances/recycle-instances:
+    /v3/{project_id}/recycle-instances:
         GET:
             tag: GeminiDB

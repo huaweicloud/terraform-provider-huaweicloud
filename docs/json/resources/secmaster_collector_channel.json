@@ -1,0 +1,355 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_collector_channel": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "create_by": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "error": {
+                "type": "string",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operation_status": {
+                "type": "string",
+                "computed": true
+              },
+              "parser_id": {
+                "type": "string",
+                "required": true
+              },
+              "parser_name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "title": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "input": {
+                "block": {
+                  "attributes": {
+                    "connection_module_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "template_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "children": {
+                      "block": {
+                        "attributes": {
+                          "connection_module_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "template_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "fields": {
+                            "block": {
+                              "attributes": {
+                                "connection_module_id": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "other": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "template_field_id": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "fields": {
+                      "block": {
+                        "attributes": {
+                          "connection_module_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "other": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "template_field_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "nodes": {
+                "block": {
+                  "attributes": {
+                    "node_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "node_status": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "args": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "output": {
+                "block": {
+                  "attributes": {
+                    "connection_module_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "template_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "children": {
+                      "block": {
+                        "attributes": {
+                          "connection_module_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "template_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "fields": {
+                            "block": {
+                              "attributes": {
+                                "connection_module_id": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "other": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "template_field_id": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "fields": {
+                      "block": {
+                        "attributes": {
+                          "connection_module_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "other": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "template_field_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

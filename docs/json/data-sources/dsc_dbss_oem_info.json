@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_dbss_oem_info": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ins_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ins_id": "string",
+                      "ins_name": "string",
+                      "related_datasource_policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "datasource_address": "string",
+                            "datasource_id": "string",
+                            "datasource_port": "number",
+                            "ddm_policies": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "columns": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "mask": "number",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "namespace": "string",
+                                  "table": "string"
+                                }
+                              ]
+                            ],
+                            "gde_policies": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "number",
+                                  "alg": "string",
+                                  "columns": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "mask": "number",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "table": "string"
+                                }
+                              ]
+                            ],
+                            "proxy_port": "number",
+                            "sdm_policies": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "columns": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "mask": "number",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "do_mask": "bool",
+                                  "do_move": "bool",
+                                  "namespace": "string",
+                                  "table": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

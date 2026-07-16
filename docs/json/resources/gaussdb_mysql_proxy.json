@@ -32,6 +32,14 @@
                 "type": "string",
                 "computed": true
               },
+              "dns_name": {
+                "type": "string",
+                "computed": true
+              },
+              "dns_name_prefix": {
+                "type": "string",
+                "optional": true
+              },
               "flavor": {
                 "type": "string",
                 "required": true
