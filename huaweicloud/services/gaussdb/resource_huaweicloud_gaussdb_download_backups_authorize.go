@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var geminiDBDownloadBackupsAuthorizeParams = []string{
+var gaussDBDownloadBackupsAuthorizeParams = []string{
 	"backup_id",
 }
 
@@ -26,7 +26,7 @@ func ResourceGaussDBDownloadBackupsAuthorize() *schema.Resource {
 		UpdateContext: resourceGaussDBDownloadBackupsAuthorizeUpdate,
 		DeleteContext: resourceGaussDBDownloadBackupsAuthorizeDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(geminiDBDownloadBackupsAuthorizeParams),
+		CustomizeDiff: config.FlexibleForceNew(gaussDBDownloadBackupsAuthorizeParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
