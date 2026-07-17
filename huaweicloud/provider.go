@@ -1702,6 +1702,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_rts_waiting_event_statistics":        gaussdb.DataSourceGaussdbRtsWaitingEventStatistics(),
 			"huaweicloud_gaussdb_rts_top_sql_statistics":              gaussdb.DataSourceGaussdbRtsTopSqlStatistics(),
 			"huaweicloud_gaussdb_auto_transaction_termination_config": gaussdb.DataSourceAutoTransactionTerminationConfig(),
+			"huaweicloud_gaussdb_param_set_template_expansion":        gaussdb.DataSourceGaussdbParamSetTemplateExpansion(),
 
 			"huaweicloud_hss_agent_install_script":                       hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_agent_versions":                             hss.DataSourceAgentVersions(),
