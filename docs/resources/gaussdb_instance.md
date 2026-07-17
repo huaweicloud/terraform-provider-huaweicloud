@@ -212,6 +212,11 @@ The following arguments are supported:
 * `delete_coordinator_node_id_list` - (Optional, List) Specifies the IDs of coordinator nodes to be deleted.
   `coordinator_num` should be modified simultaneously when the value is modified.
 
+* `expansion_parameters` - (Optional, String) Specifies the key-value pair of the parameter name and value.
+  The parameter format is a JSON string.
+
+  -> This parameter is valid and available when the `ha.mode` is set to **enterprise**.
+
 * `charging_mode` - (Optional, String) Specifies the charging mode of GaussDB instance. The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.
   + **postPaid**: the pay-per-use billing mode.
@@ -389,8 +394,9 @@ $ terraform import huaweicloud_gaussdb_opengauss_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
 API response. The missing attributes include: `password`, `ha.0.mode`, `ha.0.instance_mode`, `configuration_id`,
-`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `alias`, `period_unit`, `period` and
-`auto_renew`. It is generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can
+`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `alias`, `expansion_parameters`,
+`period_unit`, `period` and `auto_renew`.
+It is generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can
 then decide if changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated
 to align with the GaussDB OpenGauss instance. Also you can ignore changes as below.
 
@@ -401,7 +407,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   lifecycle {
     ignore_changes = [
       password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, parameters, alias,
-      period_unit,  period, auto_renew,
+      expansion_parameters, period_unit,  period, auto_renew,
     ]
   }
 }

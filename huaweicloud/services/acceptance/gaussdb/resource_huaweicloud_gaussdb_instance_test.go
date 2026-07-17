@@ -168,6 +168,7 @@ func TestAccGaussDbInstance_basic(t *testing.T) {
 					"parameters",
 					"kms_tde_switch",
 					"alias",
+					"expansion_parameters",
 				},
 			},
 		},
@@ -560,6 +561,11 @@ resource "huaweicloud_gaussdb_instance" "test" {
     kms_project_name = "cn-north-4"
     kms_tde_status   = "on"
   }
+
+  expansion_parameters = jsonencode({
+    lockwait_timeout  = 1000000
+    lockwait_interval = 80
+  })
 }
 `, testAccGaussDbInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -658,6 +664,11 @@ resource "huaweicloud_gaussdb_instance" "test" {
     kms_project_name = "cn-north-4"
     kms_tde_status   = "on"
   }
+
+  expansion_parameters = jsonencode({
+    lockwait_timeout  = 1100000
+    catchup_query_dop = 5
+  })
 
   charging_mode = "prePaid"
   period_unit   = "month"

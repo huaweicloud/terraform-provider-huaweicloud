@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -74,6 +75,7 @@ var openGaussInstanceNonUpdatableParams = []string{"availability_zone", "vpc_id"
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/kms-tde/switch
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/switch-replica
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/switch-logger-replica
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/expansion-parameters
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -410,6 +412,15 @@ func ResourceGaussDbInstance() *schema.Resource {
 					"primary_standby", "primary_standby_log",
 				}, false),
 			},
+			"expansion_parameters": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					equal, _ := utils.CompareJsonTemplateAreEquivalent(o, n)
+					return equal
+				},
+			},
 			"tags": common.TagsSchema(),
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -684,6 +695,13 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	if _, ok := d.GetOk("kms_tde_switch"); ok {
 		if err = createEnablingTransparentDataEncryption(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// modify expansion parameters
+	if _, ok := d.GetOk("expansion_parameters"); ok {
+		if err = updateExpansionParameters(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1506,6 +1524,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 			ProjectId:    cfg.GetProjectID(region),
 		}
 		if err = cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("expansion_parameters") {
+		if err = updateExpansionParameters(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -2342,6 +2366,48 @@ func enablingTransparentDataEncryption(ctx context.Context, client *golangsdk.Se
 	}
 
 	return nil
+}
+
+func updateExpansionParameters(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	bodyParams, err := buildUpdateExpansionParametersBodyParams(d)
+	if err != nil {
+		return err
+	}
+
+	_, err = updateGaussDbInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/expansion-parameters",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(bodyParams),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		delay:              10,
+		checkJobExpression: "result",
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB instance expansion parameters: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateExpansionParametersBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	if d.Get("expansion_parameters").(string) == "" {
+		return nil, nil
+	}
+
+	var expansionParameters map[string]interface{}
+	err := json.Unmarshal([]byte(d.Get("expansion_parameters").(string)), &expansionParameters)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing expansion parameters, please check the format of the `expansion_parameters`: %s", err)
+	}
+
+	bodyParams := map[string]interface{}{
+		"params": expansionParameters,
+	}
+
+	return bodyParams, nil
 }
 
 func buildTransparentDataEncryptionBodyParams(d *schema.ResourceData) map[string]interface{} {
