@@ -5024,6 +5024,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_device":                         dsc.ResourceDscDevice(),
 			"huaweicloud_dsc_instance":                       dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_multi_enable_trusted_service":   dsc.ResourceMultiEnableTrustedService(),
+			"huaweicloud_dsc_scan_template":                  dsc.ResourceScanTemplate(),
 			"huaweicloud_dsc_stop_scan_job":                  dsc.ResourceStopScanJob(),
 			"huaweicloud_dsc_switch_job":                     dsc.ResourceDscSwitchJob(),
 			"huaweicloud_dsc_update_security_levels_sort":    dsc.ResourceDscUpdateSecurityLevelsSort(),
