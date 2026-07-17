@@ -103,6 +103,7 @@ func ResourceScanTemplate() *schema.Resource {
 func buildCreateScanTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"new_template_name": d.Get("name"),
+		"description":       d.Get("description"),
 	}
 
 	if v, ok := d.GetOk("action"); ok {
@@ -110,9 +111,6 @@ func buildCreateScanTemplateBodyParams(d *schema.ResourceData) map[string]interf
 	}
 	if v, ok := d.GetOk("add_built_in_rules"); ok {
 		bodyParams["add_built_in_rules"] = v
-	}
-	if v, ok := d.GetOk("description"); ok {
-		bodyParams["description"] = v
 	}
 	if v, ok := d.GetOk("origin_template_id"); ok {
 		bodyParams["origin_template_id"] = v
@@ -243,11 +241,9 @@ func resourceScanTemplateRead(_ context.Context, d *schema.ResourceData, meta in
 func buildUpdateScanTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"template_name": d.Get("name"),
+		"template_desc": d.Get("description"),
 	}
 
-	if v, ok := d.GetOk("description"); ok {
-		bodyParams["template_desc"] = v
-	}
 	if v, ok := d.GetOk("is_default"); ok {
 		bodyParams["is_default"] = v
 	}
