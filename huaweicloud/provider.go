@@ -5014,6 +5014,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_build_log_download": codeartsbuild.ResourceCodeArtsBuildLogDownload(),
 
 			"huaweicloud_dsc_alarm_notification":             dsc.ResourceAlarmNotification(),
+			"huaweicloud_dsc_asset_authorization":            dsc.ResourceDscAssetAuthorization(),
 			"huaweicloud_dsc_asset_domain_label":             dsc.ResourceAssetDomainLabel(),
 			"huaweicloud_dsc_asset_obs":                      dsc.ResourceAssetObs(),
 			"huaweicloud_dsc_batch_delete_obs":               dsc.ResourceBatchDeleteObs(),
