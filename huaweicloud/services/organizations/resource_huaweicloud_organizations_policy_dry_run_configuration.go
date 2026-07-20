@@ -240,10 +240,12 @@ func resourcePolicyDryRunConfigurationUpdate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	err = updatePolicyDryRunConfiguration(ctx, client, buildPolicyDryRunConfigurationBodyParams(d, d.Get("status").(string)),
-		d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.Errorf("error updating policy dry-run configuration: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updatePolicyDryRunConfiguration(ctx, client, buildPolicyDryRunConfigurationBodyParams(d, d.Get("status").(string)),
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error updating policy dry-run configuration: %s", err)
+		}
 	}
 
 	return resourcePolicyDryRunConfigurationRead(ctx, d, meta)
