@@ -466,10 +466,12 @@ func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
-	err = updateTopic(client, instanceId, buildUpdateTopicBodyParams(d))
-	if err != nil {
-		return diag.Errorf("error updating topic (%s) of the kafka instance (%s): %s", d.Id(), instanceId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		instanceId := d.Get("instance_id").(string)
+		err = updateTopic(client, instanceId, buildUpdateTopicBodyParams(d))
+		if err != nil {
+			return diag.Errorf("error updating topic (%s) of the kafka instance (%s): %s", d.Id(), instanceId, err)
+		}
 	}
 
 	return resourceTopicRead(ctx, d, meta)

@@ -245,36 +245,38 @@ func resourceTopicQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
-	httpUrl = strings.ReplaceAll(httpUrl, "{instance_id}", instanceId)
-	updatePath := client.Endpoint + httpUrl
+	if d.HasChanges("consumer_byte_rate", "producer_byte_rate") {
+		httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
+		httpUrl = strings.ReplaceAll(httpUrl, "{instance_id}", instanceId)
+		updatePath := client.Endpoint + httpUrl
 
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=utf-8",
-		},
-		JSONBody: utils.RemoveNil(buildTopicQuotaBodyParams(d)),
-	}
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=utf-8",
+			},
+			JSONBody: utils.RemoveNil(buildTopicQuotaBodyParams(d)),
+		}
 
-	resp, err := client.Request("PUT", updatePath, &opt)
-	if err != nil {
-		return diag.Errorf("error updating topic (%s) quota of the instance (%s): %s", topic, instanceId, err)
-	}
+		resp, err := client.Request("PUT", updatePath, &opt)
+		if err != nil {
+			return diag.Errorf("error updating topic (%s) quota of the instance (%s): %s", topic, instanceId, err)
+		}
 
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	jobId := utils.PathSearch("job_id", respBody, "").(string)
-	if jobId == "" {
-		return diag.Errorf("unable to find the job ID from the API response")
-	}
+		jobId := utils.PathSearch("job_id", respBody, "").(string)
+		if jobId == "" {
+			return diag.Errorf("unable to find the job ID from the API response")
+		}
 
-	err = waitForInstanceTaskStatusComplete(ctx, client, instanceId, jobId, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.Errorf("error waiting for the topic (%s) quota of the instance (%s) to be updated: %s", topic, instanceId, err)
+		err = waitForInstanceTaskStatusComplete(ctx, client, instanceId, jobId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error waiting for the topic (%s) quota of the instance (%s) to be updated: %s", topic, instanceId, err)
+		}
 	}
 
 	return resourceTopicQuotaRead(ctx, d, meta)
