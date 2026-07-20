@@ -1460,6 +1460,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_protect_measure_baseline":         dsc.DataSourceProtectMeasureBaseline(),
 			"huaweicloud_dsc_user_list":                        dsc.DataSourceDscUserList(),
 			"huaweicloud_dsc_vpc_ep_quotas":                    dsc.DataSourceDscVpcEpQuotas(),
+			"huaweicloud_dsc_watermark_extract_logs":           dsc.DataSourceWatermarkExtractLogs(),
 
 			// EventGrid
 			"huaweicloud_eg_connections":           eg.DataSourceConnections(),
