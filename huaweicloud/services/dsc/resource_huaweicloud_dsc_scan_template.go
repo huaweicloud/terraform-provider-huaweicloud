@@ -102,15 +102,13 @@ func ResourceScanTemplate() *schema.Resource {
 
 func buildCreateScanTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"new_template_name": d.Get("name"),
-		"description":       d.Get("description"),
+		"new_template_name":  d.Get("name"),
+		"description":        d.Get("description"),
+		"add_built_in_rules": utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "add_built_in_rules"),
 	}
 
 	if v, ok := d.GetOk("action"); ok {
 		bodyParams["action"] = v
-	}
-	if v, ok := d.GetOk("add_built_in_rules"); ok {
-		bodyParams["add_built_in_rules"] = v
 	}
 	if v, ok := d.GetOk("origin_template_id"); ok {
 		bodyParams["origin_template_id"] = v
