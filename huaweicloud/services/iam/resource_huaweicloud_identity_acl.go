@@ -392,15 +392,17 @@ func resourceV3AclUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	if err := updateV3AclPolicy(client, d, domainId); err != nil {
-		return diag.Errorf("error updating identity ACL: %s", err)
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updateV3AclPolicy(client, d, domainId); err != nil {
+			return diag.Errorf("error updating identity ACL: %s", err)
+		}
 
-	if err = d.Set("ip_ciders_order", buildV3AclIpCidersOrder(d)); err != nil {
-		log.Printf("[ERROR] error setting the ip_ciders_order field after updating ACL: %s", err)
-	}
-	if err = d.Set("ip_ranges_order", buildV3AclIpRangesOrder(d)); err != nil {
-		log.Printf("[ERROR] error setting the ip_ranges_order field after updating ACL: %s", err)
+		if err = d.Set("ip_ciders_order", buildV3AclIpCidersOrder(d)); err != nil {
+			log.Printf("[ERROR] error setting the ip_ciders_order field after updating ACL: %s", err)
+		}
+		if err = d.Set("ip_ranges_order", buildV3AclIpRangesOrder(d)); err != nil {
+			log.Printf("[ERROR] error setting the ip_ranges_order field after updating ACL: %s", err)
+		}
 	}
 
 	return resourceV3AclRead(ctx, d, meta)

@@ -414,22 +414,24 @@ func resourceV5PolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	err = addV5PolicyVersion(client, policyId, d.Get("policy_document").(string))
-	if err != nil {
-		isVersionUpperLimit, err := handleAddVersionError409(err)
-		// if get a "versions per policy limit exceeded" error remove a earliest version and try again
-		if !isVersionUpperLimit {
-			return diag.Errorf("error adding a new version of identity policy(%s): %s", policyId, err)
-		}
-
-		err = deleteV5PolicyVersion(client, policyId, d.Get("version_to_delete").(string))
-		if err != nil {
-			return diag.Errorf("error removing the earliest version of identity policy(%s): %s", policyId, err)
-		}
-
+	if d.HasChangeExcept("enable_force_new") {
 		err = addV5PolicyVersion(client, policyId, d.Get("policy_document").(string))
 		if err != nil {
-			return diag.Errorf("error adding a new version of identity policy(%s): %s", policyId, err)
+			isVersionUpperLimit, err := handleAddVersionError409(err)
+			// if get a "versions per policy limit exceeded" error remove a earliest version and try again
+			if !isVersionUpperLimit {
+				return diag.Errorf("error adding a new version of identity policy(%s): %s", policyId, err)
+			}
+
+			err = deleteV5PolicyVersion(client, policyId, d.Get("version_to_delete").(string))
+			if err != nil {
+				return diag.Errorf("error removing the earliest version of identity policy(%s): %s", policyId, err)
+			}
+
+			err = addV5PolicyVersion(client, policyId, d.Get("policy_document").(string))
+			if err != nil {
+				return diag.Errorf("error adding a new version of identity policy(%s): %s", policyId, err)
+			}
 		}
 	}
 

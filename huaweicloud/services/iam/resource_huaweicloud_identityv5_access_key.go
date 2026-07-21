@@ -277,9 +277,11 @@ func resourceV5AccessKeyUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	err = updateV5AccessKeyStatus(client, userId, accessKeyId, d.Get("status").(string))
-	if err != nil {
-		return diag.Errorf("error updating status of access key for user (%s): %s", userId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateV5AccessKeyStatus(client, userId, accessKeyId, d.Get("status").(string))
+		if err != nil {
+			return diag.Errorf("error updating status of access key for user (%s): %s", userId, err)
+		}
 	}
 
 	return resourceV5AccessKeyRead(ctx, d, meta)

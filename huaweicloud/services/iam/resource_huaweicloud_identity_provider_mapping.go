@@ -223,16 +223,18 @@ func resourceV3ProviderMappingUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating IAM client without version: %s", err)
 	}
 
-	mappingRules := d.Get("mapping_rules").(string)
-	mappingRuleOpts, err := buildV3ProviderMappingOpts(mappingRules)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		mappingRules := d.Get("mapping_rules").(string)
+		mappingRuleOpts, err := buildV3ProviderMappingOpts(mappingRules)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	mappingID := d.Id()
-	err = updateV3ProviderMapping(client, mappingID, mappingRuleOpts)
-	if err != nil {
-		return diag.Errorf("failed to update the provider mapping rules: %s", err)
+		mappingID := d.Id()
+		err = updateV3ProviderMapping(client, mappingID, mappingRuleOpts)
+		if err != nil {
+			return diag.Errorf("failed to update the provider mapping rules: %s", err)
+		}
 	}
 
 	return resourceV3ProviderMappingRead(ctx, d, meta)
