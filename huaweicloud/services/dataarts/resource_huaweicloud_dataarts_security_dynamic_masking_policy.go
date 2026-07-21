@@ -421,9 +421,11 @@ func resourceSecurityDynamicMaskingPolicyUpdate(ctx context.Context, d *schema.R
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
-	err = updateSecurityDynamicMaskingPolicy(client, d, d.Get("workspace_id").(string))
-	if err != nil {
-		return diag.Errorf("error updating dynamic masking policy (%s): %s", d.Id(), err)
+	if d.HasChangesExcept("enable_force_new") {
+		err = updateSecurityDynamicMaskingPolicy(client, d, d.Get("workspace_id").(string))
+		if err != nil {
+			return diag.Errorf("error updating dynamic masking policy (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceSecurityDynamicMaskingPolicyRead(ctx, d, meta)

@@ -359,8 +359,11 @@ func resourceSecurityResourcePermissionPolicyUpdate(ctx context.Context, d *sche
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
-	if err = updateSecurityResourcePermissionPolicy(client, d, workspaceId); err != nil {
-		return diag.Errorf("error updating resource permission policy (%s): %s", d.Id(), err)
+	if d.HasChangesExcept("enable_force_new") {
+		err = updateSecurityResourcePermissionPolicy(client, d, workspaceId)
+		if err != nil {
+			return diag.Errorf("error updating resource permission policy (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceSecurityResourcePermissionPolicyRead(ctx, d, meta)
