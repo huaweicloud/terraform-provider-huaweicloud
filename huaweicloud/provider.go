@@ -1448,6 +1448,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_scan_rules":                       dsc.DataSourceScanRules(),
 			"huaweicloud_dsc_scan_security_levels":             dsc.DataSourceDscScanSecurityLevels(),
 			"huaweicloud_dsc_security_class":                   dsc.DataSourceSecurityClass(),
+			"huaweicloud_dsc_security_levels":                  dsc.DataSourceDscSecurityLevels(),
 			"huaweicloud_dsc_show_metadata":                    dsc.DataSourceDscShowMetadata(),
 			"huaweicloud_dsc_supported_column_types":           dsc.DataSourceSupportedColumnTypes(),
 			"huaweicloud_dsc_template_rules":                   dsc.DataSourceDscTemplateRules(),
