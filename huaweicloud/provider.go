@@ -1465,6 +1465,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_top_risky_assets":                 dsc.DataSourceDscTopRiskyAssets(),
 			"huaweicloud_dsc_user_list":                        dsc.DataSourceDscUserList(),
 			"huaweicloud_dsc_vpc_ep_quotas":                    dsc.DataSourceDscVpcEpQuotas(),
+			"huaweicloud_dsc_watermark_embed_logs":             dsc.DataSourceDscWatermarkEmbedLogs(),
 			"huaweicloud_dsc_watermark_extract_logs":           dsc.DataSourceWatermarkExtractLogs(),
 
 			// EventGrid
