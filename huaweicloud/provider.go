@@ -1460,6 +1460,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_multi_organization_tree":          dsc.DataSourceMultiOrganizationTree(),
 			"huaweicloud_dsc_protect_data_types":               dsc.DataSourceDscProtectDataTypes(),
 			"huaweicloud_dsc_protect_measure_baseline":         dsc.DataSourceProtectMeasureBaseline(),
+			"huaweicloud_dsc_top_risky_assets":                 dsc.DataSourceDscTopRiskyAssets(),
 			"huaweicloud_dsc_user_list":                        dsc.DataSourceDscUserList(),
 			"huaweicloud_dsc_vpc_ep_quotas":                    dsc.DataSourceDscVpcEpQuotas(),
 			"huaweicloud_dsc_watermark_extract_logs":           dsc.DataSourceWatermarkExtractLogs(),
