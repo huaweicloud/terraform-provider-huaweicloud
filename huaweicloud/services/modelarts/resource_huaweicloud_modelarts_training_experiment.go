@@ -268,9 +268,11 @@ func resourceTrainingExperimentUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = updateTrainingExperiment(client, trainingExperimentId, buildTrainingExperimentUpdateBodyParams(d.Get("metadata").([]interface{})))
-	if err != nil {
-		return diag.Errorf("error updating training experiment (%s): %s", trainingExperimentId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateTrainingExperiment(client, trainingExperimentId, buildTrainingExperimentUpdateBodyParams(d.Get("metadata").([]interface{})))
+		if err != nil {
+			return diag.Errorf("error updating training experiment (%s): %s", trainingExperimentId, err)
+		}
 	}
 
 	return resourceTrainingExperimentRead(ctx, d, meta)

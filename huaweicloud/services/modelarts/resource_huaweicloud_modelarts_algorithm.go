@@ -1193,8 +1193,10 @@ func resourceAlgorithmUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	if err := updateAlgorithm(client, d.Id(), buildUpdateAlgorithm(d)); err != nil {
-		return diag.Errorf("error updating ModelArts algorithm (%s): %s", d.Id(), err)
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updateAlgorithm(client, d.Id(), buildUpdateAlgorithm(d)); err != nil {
+			return diag.Errorf("error updating ModelArts algorithm (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceAlgorithmRead(ctx, d, meta)

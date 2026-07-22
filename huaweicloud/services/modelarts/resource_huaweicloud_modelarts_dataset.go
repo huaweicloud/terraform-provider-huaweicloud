@@ -691,9 +691,11 @@ func resourceDatasetUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = updateDataset(client, d)
-	if err != nil {
-		return diag.Errorf("error updating ModelArts dataset: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateDataset(client, d)
+		if err != nil {
+			return diag.Errorf("error updating ModelArts dataset: %s", err)
+		}
 	}
 
 	return resourceDatasetRead(ctx, d, meta)

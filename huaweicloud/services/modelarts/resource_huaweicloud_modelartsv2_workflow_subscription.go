@@ -244,9 +244,11 @@ func resourceV2WorkflowSubscriptionUpdate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = updateV2WorkflowSubscription(client, d)
-	if err != nil {
-		return diag.Errorf("error updating ModelArts workflow subscription: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateV2WorkflowSubscription(client, d)
+		if err != nil {
+			return diag.Errorf("error updating ModelArts workflow subscription: %s", err)
+		}
 	}
 
 	return resourceV2WorkflowSubscriptionRead(ctx, d, meta)

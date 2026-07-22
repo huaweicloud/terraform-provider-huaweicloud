@@ -1724,9 +1724,11 @@ func resourceV2WorkflowUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	err = updateV2Workflow(client, d)
-	if err != nil {
-		return diag.Errorf("error updating workflow (%s): %s", d.Id(), err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateV2Workflow(client, d)
+		if err != nil {
+			return diag.Errorf("error updating workflow (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceV2WorkflowRead(ctx, d, meta)
