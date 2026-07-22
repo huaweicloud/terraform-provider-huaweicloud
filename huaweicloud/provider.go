@@ -5032,6 +5032,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_asset_obs":                      dsc.ResourceAssetObs(),
 			"huaweicloud_dsc_batch_delete_obs":               dsc.ResourceBatchDeleteObs(),
 			"huaweicloud_dsc_batch_delete_database_instance": dsc.ResourceBatchDeleteDatabaseInstance(),
+			"huaweicloud_dsc_batch_delete_template_rule":     dsc.ResourceBatchDeleteTemplateRule(),
 			"huaweicloud_dsc_bigdata_instance":               dsc.ResourceBigdataInstance(),
 			"huaweicloud_dsc_data_map_score_update":          dsc.ResourceDscDataMapScoreUpdate(),
 			"huaweicloud_dsc_device":                         dsc.ResourceDscDevice(),
