@@ -6,15 +6,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -190,95 +189,230 @@ func DataSourceNodes() *schema.Resource {
 
 func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.CceV3Client(region)
 	if err != nil {
-		return diag.Errorf("unable to create CCE client : %s", err)
+		return diag.Errorf("error creating CCE client: %s", err)
 	}
-
-	listOpts := nodes.ListOpts{
-		Uid:   d.Get("node_id").(string),
-		Name:  d.Get("name").(string),
-		Phase: d.Get("status").(string),
-	}
-
-	refinedNodes, err := nodes.List(cceClient, d.Get("cluster_id").(string), listOpts)
-
+	clusterId := d.Get("cluster_id").(string)
+	items, err := getNodesOfCCECluster(client, clusterId)
 	if err != nil {
-		return diag.Errorf("unable to retrieve Nodes: %s", err)
+		return diag.Errorf("error retrieving nodes of CCE Cluster (%s): %s", clusterId, err)
 	}
 
-	ids := make([]string, 0, len(refinedNodes))
-	nodesToSet := make([]map[string]interface{}, 0, len(refinedNodes))
+	filteredItems := filterNodesWithParameters(items, d)
 
-	for _, v := range refinedNodes {
-		log.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", v.Metadata.Id, v)
-		ids = append(ids, v.Metadata.Id)
-		node := map[string]interface{}{
-			"id":                    v.Metadata.Id,
-			"name":                  v.Metadata.Name,
-			"flavor_id":             v.Spec.Flavor,
-			"availability_zone":     v.Spec.Az,
-			"os":                    v.Spec.Os,
-			"billing_mode":          v.Spec.BillingMode,
-			"key_pair":              v.Spec.Login.SshKey,
-			"subnet_id":             v.Spec.NodeNicSpec.PrimaryNic.SubnetId,
-			"ecs_group_id":          v.Spec.EcsGroupID,
-			"server_id":             v.Status.ServerID,
-			"public_ip":             v.Status.PublicIP,
-			"private_ip":            v.Status.PrivateIP,
-			"status":                v.Status.Phase,
-			"hostname_config":       flattenResourceNodeHostnameConfig(v.Spec.HostnameConfig),
-			"enterprise_project_id": v.Spec.ServerEnterpriseProjectID,
-		}
-
-		var volumes []map[string]interface{}
-		for _, pairObject := range v.Spec.DataVolumes {
-			volume := make(map[string]interface{})
-			volume["size"] = pairObject.Size
-			volume["volumetype"] = pairObject.VolumeType
-			volume["extend_params"] = pairObject.ExtendParam
-			volumes = append(volumes, volume)
-		}
-		node["data_volumes"] = volumes
-
-		rootVolume := []map[string]interface{}{
-			{
-				"size":          v.Spec.RootVolume.Size,
-				"volumetype":    v.Spec.RootVolume.VolumeType,
-				"extend_params": v.Spec.RootVolume.ExtendParam,
-			},
-		}
-		node["root_volume"] = rootVolume
-
-		// fetch tags from ECS instance
-		if !strings.Contains(d.Get("ignore_details").(string), "tags") {
-			computeClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
-			if err != nil {
-				return diag.Errorf("error creating compute client: %s", err)
-			}
-
-			serverId := v.Status.ServerID
-
-			if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
-				tagmap := utils.TagsToMap(resourceTags.Tags)
-				node["tags"] = tagmap
-			} else {
-				log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
-			}
-		}
-
-		nodesToSet = append(nodesToSet, node)
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
+	d.SetId(id.String())
 
-	d.SetId(hashcode.Strings(ids))
+	ids := make([]string, 0)
+	for _, item := range filteredItems {
+		uid := utils.PathSearch("metadata.uid", item, "").(string)
+		if uid != "" {
+			ids = append(ids, uid)
+		}
+	}
+	nodesToSet := flattenListNodesResponseBody(filteredItems, d, cfg, region)
+
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("nodes", nodesToSet),
 		d.Set("ids", ids),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting cce nodes fields: %s", err)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getNodesOfCCECluster(client *golangsdk.ServiceClient, clusterID string) ([]interface{}, error) {
+	var (
+		httpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/nodes"
+		limit   = 2000
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{cluster_id}", clusterID)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	return nil
+	for {
+		listPathWithMarker := listPath + buildListNodesQueryParams(limit, marker)
+
+		requestResp, err := client.Request("GET", listPathWithMarker, &opt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+
+		items := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, items...)
+		if len(items) < limit {
+			break
+		}
+		marker = utils.PathSearch("pageInfo.nextMarker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func buildListNodesQueryParams(limit int, marker string) string {
+	res := fmt.Sprintf("?limit=%d", limit)
+	if marker != "" {
+		res = fmt.Sprintf("%s&marker=%v", res, marker)
+	}
+	return res
+}
+
+func filterNodesWithParameters(items []interface{}, d *schema.ResourceData) []interface{} {
+	if len(items) == 0 {
+		return items
+	}
+
+	var targetID, targetName, targetStatus string
+	if val, ok := d.GetOk("node_id"); ok {
+		targetID, _ = val.(string)
+	}
+	if val, ok := d.GetOk("name"); ok {
+		targetName, _ = val.(string)
+	}
+	if val, ok := d.GetOk("status"); ok {
+		targetStatus, _ = val.(string)
+	}
+
+	if targetID == "" && targetName == "" && targetStatus == "" {
+		return items
+	}
+
+	var filteredItems []interface{}
+	for _, item := range items {
+		itemId := utils.PathSearch("metadata.uid", item, "").(string)
+		itemName := utils.PathSearch("metadata.name", item, "").(string)
+		itemStatus := utils.PathSearch("status.phase", item, "").(string)
+
+		if targetID != "" && itemId != targetID {
+			continue
+		}
+		if targetName != "" && itemName != targetName {
+			continue
+		}
+		if targetStatus != "" && itemStatus != targetStatus {
+			continue
+		}
+		filteredItems = append(filteredItems, item)
+	}
+
+	return filteredItems
+}
+
+func flattenListNodesResponseBody(items []interface{}, d *schema.ResourceData, cfg *config.Config, region string) []map[string]interface{} {
+	res := make([]map[string]interface{}, 0, len(items))
+
+	for _, item := range items {
+		node := map[string]interface{}{
+			"id":                    utils.PathSearch("metadata.uid", item, nil),
+			"name":                  utils.PathSearch("metadata.name", item, nil),
+			"flavor_id":             utils.PathSearch("spec.flavor", item, nil),
+			"availability_zone":     utils.PathSearch("spec.az", item, nil),
+			"os":                    utils.PathSearch("spec.os", item, nil),
+			"billing_mode":          utils.PathSearch("spec.billingMode", item, nil),
+			"key_pair":              utils.PathSearch("spec.login.sshKey", item, nil),
+			"subnet_id":             utils.PathSearch("spec.nodeNicSpec.primaryNic.subnetId", item, nil),
+			"ecs_group_id":          utils.PathSearch("spec.ecsGroupId", item, nil),
+			"server_id":             utils.PathSearch("status.serverId", item, nil),
+			"public_ip":             utils.PathSearch("status.publicIP", item, nil),
+			"private_ip":            utils.PathSearch("status.privateIP", item, nil),
+			"status":                utils.PathSearch("status.phase", item, nil),
+			"enterprise_project_id": utils.PathSearch("spec.serverEnterpriseProjectID", item, nil),
+		}
+
+		// Flatten hostname_config
+		hostnameConfig := flattenNodeHostnameConfigFromSearch(utils.PathSearch("spec.hostnameConfig", item, nil))
+		node["hostname_config"] = hostnameConfig
+
+		// Flatten root_volume
+		rootVolume := flattenNodeRootVolumeFromSearch(utils.PathSearch("spec.rootVolume", item, nil))
+		node["root_volume"] = rootVolume
+
+		// Flatten data_volumes
+		dataVolumes := flattenNodeDataVolumesFromSearch(utils.PathSearch("spec.dataVolumes", item, make([]interface{}, 0)))
+		node["data_volumes"] = dataVolumes
+
+		// Fetch tags from ECS instance
+		if !strings.Contains(d.Get("ignore_details").(string), "tags") {
+			computeClient, err := cfg.ComputeV1Client(region)
+			if err == nil {
+				serverId := utils.PathSearch("status.serverId", item, "").(string)
+				if serverId != "" {
+					if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
+						tagsMap := utils.TagsToMap(resourceTags.Tags)
+						node["tags"] = tagsMap
+					} else {
+						log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+					}
+				}
+			}
+		}
+
+		res = append(res, node)
+	}
+
+	return res
+}
+
+func flattenNodeHostnameConfigFromSearch(raw interface{}) []interface{} {
+	if raw == nil {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"type": utils.PathSearch("type", raw, nil),
+		},
+	}
+}
+
+func flattenNodeRootVolumeFromSearch(raw interface{}) []interface{} {
+	if raw == nil {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"size":          utils.PathSearch("size", raw, nil),
+			"volumetype":    utils.PathSearch("volumetype", raw, nil),
+			"extend_params": utils.PathSearch("extendParam", raw, nil),
+		},
+	}
+}
+
+func flattenNodeDataVolumesFromSearch(raw interface{}) []interface{} {
+	if raw == nil {
+		return nil
+	}
+	curArray, ok := raw.([]interface{})
+	if !ok {
+		return nil
+	}
+	res := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		res = append(res, map[string]interface{}{
+			"size":          utils.PathSearch("size", v, nil),
+			"volumetype":    utils.PathSearch("volumetype", v, nil),
+			"extend_params": utils.PathSearch("extendParam", v, nil),
+		})
+	}
+	return res
 }

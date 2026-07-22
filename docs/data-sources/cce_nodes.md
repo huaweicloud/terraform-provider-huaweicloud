@@ -2,7 +2,8 @@
 subcategory: "Cloud Container Engine (CCE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_nodes"
-description: ""
+description: |-
+  Use this data source to get a list of CCE nodes within HuaweiCloud.
 ---
 
 # huaweicloud_cce_nodes
@@ -11,13 +12,37 @@ Use this data source to get a list of CCE nodes.
 
 ## Example Usage
 
+### Query all nodes
+
+```hcl
+variable "cluster_id" {}
+
+data "huaweicloud_cce_nodes" "test" {
+  cluster_id = var.cluster_id
+}
+```
+
+### Query nodes with specified name
+
 ```hcl
 variable "cluster_id" {}
 variable "node_name" {}
 
-data "huaweicloud_cce_nodes" "node" {
+data "huaweicloud_cce_nodes" "test" {
   cluster_id = var.cluster_id
   name       = var.node_name
+}
+```
+
+### Query nodes with specified status
+
+```hcl
+variable "cluster_id" {}
+variable "node_status" {}
+
+data "huaweicloud_cce_nodes" "test" {
+  cluster_id = var.cluster_id
+  status     = var.node_status
 }
 ```
 
@@ -30,7 +55,7 @@ The following arguments are supported:
 
 * `cluster_id` - (Required, String) Specifies the ID of CCE cluster.
 
-* `name` - (Optional, String) Specifies the of the node.
+* `name` - (Optional, String) Specifies the name of the node.
 
 * `node_id` - (Optional, String) Specifies the ID of the node.
 
