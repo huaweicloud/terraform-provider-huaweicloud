@@ -1430,6 +1430,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_data_map_dynamic_data_infos":      dsc.DataSourceDataMapDynamicDataInfos(),
 			"huaweicloud_dsc_data_map_score":                   dsc.DataSourceDscDataMapScore(),
 			"huaweicloud_dsc_data_map_security_level":          dsc.DataSourceDscDataMapSecurityLevel(),
+			"huaweicloud_dsc_data_map_risk_level_info":         dsc.DataSourceDataMapRiskLevelInfo(),
 			"huaweicloud_dsc_dbss_ins_info":                    dsc.DataSourceDscDbssInsInfo(),
 			"huaweicloud_dsc_devices":                          dsc.DataSourceDscDevices(),
 			"huaweicloud_dsc_device_monitor_infos":             dsc.DataSourceDscDeviceMonitorInfos(),
