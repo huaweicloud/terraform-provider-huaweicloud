@@ -185,18 +185,20 @@ func resourceAiOpsSettingUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
+		}
 
-	_, err = client.Request("POST", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating the auto ai-ops setting: %s", err)
+		_, err = client.Request("POST", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating the auto ai-ops setting: %s", err)
+		}
 	}
 
 	return resourceAiOpsSettingRead(ctx, d, meta)
