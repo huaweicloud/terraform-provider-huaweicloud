@@ -406,22 +406,24 @@ func resourceAssociationUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating ER client: %s", err)
 	}
 
-	_, err = changeAssociationRoutePolicy(client, instanceId, routeTableId, associationId, routePolicies)
-	if err != nil {
-		return diag.Errorf("error updating the route policy of association (%s): %s", associationId, err)
-	}
+	if d.HasChanges("route_policy") {
+		_, err = changeAssociationRoutePolicy(client, instanceId, routeTableId, associationId, routePolicies)
+		if err != nil {
+			return diag.Errorf("error updating the route policy of association (%s): %s", associationId, err)
+		}
 
-	stateConf := &retry.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      associationStatusRefreshFunc(client, instanceId, routeTableId, associationId, []string{"available"}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for the association (%s) route policy update to complete: %s", associationId, err)
+		stateConf := &retry.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      associationStatusRefreshFunc(client, instanceId, routeTableId, associationId, []string{"available"}),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error waiting for the association (%s) route policy update to complete: %s", associationId, err)
+		}
 	}
 
 	return resourceAssociationRead(ctx, d, meta)
