@@ -54,7 +54,7 @@ The following arguments are supported:
   It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
 
 * `flavor` - (Required, String) Specifies the instance specifications. Please use
-  `gaussdb_mysql_flavors` data source to fetch the available flavors.
+  `huaweicloud_taurusdb_flavors` data source to fetch the available flavors.
 
 * `password` - (Required, String) Specifies the database password. The value must be `8` to `32` characters in length,
   including uppercase and lowercase letters, digits, and special characters, such as ~!@#%^*-_=+? You are advised to
