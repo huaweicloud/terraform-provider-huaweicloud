@@ -5050,6 +5050,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_scan_template_classification":   dsc.ResourceScanTemplateClassification(),
 			"huaweicloud_dsc_stop_scan_job":                  dsc.ResourceStopScanJob(),
 			"huaweicloud_dsc_switch_job":                     dsc.ResourceDscSwitchJob(),
+			"huaweicloud_dsc_test_scan_rule":                 dsc.ResourceTestScanRule(),
 			"huaweicloud_dsc_update_security_levels_sort":    dsc.ResourceDscUpdateSecurityLevelsSort(),
 
 			// internal only

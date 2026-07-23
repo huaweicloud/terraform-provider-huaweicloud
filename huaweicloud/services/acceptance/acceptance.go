@@ -467,6 +467,7 @@ var (
 	HW_DSC_TYPE_ID                  = os.Getenv("HW_DSC_TYPE_ID")
 	HW_DSC_SCAN_TEMPLATE_ID         = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
 	HW_DSC_SCAN_JOB_ID              = os.Getenv("HW_DSC_SCAN_JOB_ID")
+	HW_DSC_SCAN_RULE_ID             = os.Getenv("HW_DSC_SCAN_RULE_ID")
 	HW_DSC_SECURITY_LEVEL_ID        = os.Getenv("HW_DSC_SECURITY_LEVEL_ID")
 	HW_DSC_SECURITY_LEVEL_ID_TARGET = os.Getenv("HW_DSC_SECURITY_LEVEL_ID_TARGET")
 	HW_DSC_OBS_ID                   = os.Getenv("HW_DSC_OBS_ID")
@@ -5363,6 +5364,13 @@ func TestAccPreCheckDSCScanTemplateID(t *testing.T) {
 func TestAccPreCheckDscScanJobId(t *testing.T) {
 	if HW_DSC_SCAN_JOB_ID == "" {
 		t.Skip("HW_DSC_SCAN_JOB_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscScanRuleId(t *testing.T) {
+	if HW_DSC_SCAN_RULE_ID == "" {
+		t.Skip("HW_DSC_SCAN_RULE_ID must be set for DSC acceptance tests")
 	}
 }
 
