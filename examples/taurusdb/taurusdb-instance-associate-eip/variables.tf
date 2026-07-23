@@ -145,6 +145,96 @@ variable "enterprise_project_id" {
   default     = "0"
 }
 
+variable "volume_type" {
+  description = "The storage type of the instance. Valid values are DL6, DL5"
+  type        = string
+  default     = "DL6"
+}
+
+variable "time_zone" {
+  description = "The time zone of the instance"
+  type        = string
+  default     = "UTC+08:00"
+}
+
+variable "ssl_option" {
+  description = "Whether to enable SSL. Valid values are true, false"
+  type        = string
+  default     = "true"
+}
+
+variable "sql_filter_enabled" {
+  description = "Whether to enable SQL filter"
+  type        = bool
+  default     = true
+}
+
+variable "slow_log_show_original_switch" {
+  description = "Whether to enable slow log show original switch"
+  type        = bool
+  default     = true
+}
+
+variable "table_name_case_sensitivity" {
+  description = "Whether the kernel table name is case sensitive"
+  type        = bool
+  default     = true
+}
+
+variable "multi_tenant_switch" {
+  description = "Whether to enable multi-tenancy switch. Valid values are true, false"
+  type        = string
+  default     = "true"
+}
+
+variable "maintain_begin" {
+  description = "The start time of the maintenance window in HH:MM format"
+  type        = string
+  default     = "02:00"
+}
+
+variable "maintain_end" {
+  description = "The end time of the maintenance window in HH:MM format"
+  type        = string
+  default     = "06:00"
+}
+
+variable "description" {
+  description = "The description of the TaurusDB instance"
+  type        = string
+  default     = ""
+}
+
+variable "seconds_level_monitoring_enabled" {
+  description = "Whether to enable seconds level monitoring"
+  type        = bool
+  default     = true
+}
+
+variable "seconds_level_monitoring_period" {
+  description = "The seconds level collection period. Valid values are 1, 5"
+  type        = number
+  default     = 5
+}
+
+variable "audit_log_enabled" {
+  description = "Whether to enable audit log"
+  type        = bool
+  default     = true
+}
+
+variable "audit_log_keep_days" {
+  description = "The number of days for storing audit logs"
+  type        = number
+  default     = 7
+}
+
+variable "reserve_audit_logs" {
+  description = "Whether to reserve historical audit logs when SQL audit is disabled. Valid values are true, false"
+  type        = string
+  default     = "true"
+}
+
 variable "instance_backup_time_window" {
   description = "The backup time window in HH:MM-HH:MM format"
   type        = string
@@ -153,4 +243,10 @@ variable "instance_backup_time_window" {
 variable "instance_backup_keep_days" {
   description = "The number of days to retain backups"
   type        = number
+}
+
+variable "tags" {
+  description = "The tags of the TaurusDB instance"
+  type        = map(string)
+  default     = {}
 }
