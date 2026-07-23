@@ -142,3 +142,11 @@ The following variables need to be configured:
 * Node weights are assigned automatically based on the instance nodes list
 * The instance flavor and availability zones are automatically queried from `huaweicloud_taurusdb_flavors` data source
 * The proxy flavor is automatically queried from `huaweicloud_taurusdb_proxy_flavors` data source
+
+## Requirements
+
+| Name | Version  |
+| ---- |----------|
+| terraform | >= 1.9.0 |
+| huaweicloud | >= 1.95.0|
+| random | >= 3.0.0 |

@@ -59,29 +59,40 @@ resource "huaweicloud_taurusdb_parameter_template" "test" {
 }
 
 resource "huaweicloud_taurusdb_instance" "test" {
-  name                     = var.instance_name
-  flavor                   = var.instance_flavor_ref != "" ? var.instance_flavor_ref : try(data.huaweicloud_taurusdb_flavors.test.flavors[0].name, "")
-  vpc_id                   = huaweicloud_vpc.test.id
-  subnet_id                = huaweicloud_vpc_subnet.test.id
-  security_group_id        = huaweicloud_networking_secgroup.test.id
-  password                 = var.instance_password != "" ? var.instance_password : try(random_password.test[0].result, null)
-  mode                     = var.instance_mode
-  availability_zone_mode   = var.availability_zone_mode
-  master_availability_zone = local.master_az
-  read_replicas            = var.read_replicas
-  enterprise_project_id    = var.enterprise_project_id
-  sql_filter_enabled       = var.sql_filter_enabled
-  configuration_id         = var.configuration_id != "" ? var.configuration_id : try(huaweicloud_taurusdb_parameter_template.test[0].id, null)
-  port                     = var.instance_db_port
-  maintain_begin           = var.maintain_begin
-  maintain_end             = var.maintain_end
-  ssl_option               = var.ssl_option
-  description              = var.description
+  name                             = var.instance_name
+  flavor                           = var.instance_flavor_ref != "" ? var.instance_flavor_ref : try(data.huaweicloud_taurusdb_flavors.test.flavors[0].name, "")
+  vpc_id                           = huaweicloud_vpc.test.id
+  subnet_id                        = huaweicloud_vpc_subnet.test.id
+  security_group_id                = huaweicloud_networking_secgroup.test.id
+  password                         = var.instance_password != "" ? var.instance_password : try(random_password.test[0].result, null)
+  mode                             = var.instance_mode
+  availability_zone_mode           = var.availability_zone_mode
+  master_availability_zone         = local.master_az
+  read_replicas                    = var.read_replicas
+  enterprise_project_id            = var.enterprise_project_id
+  volume_type                      = var.volume_type
+  time_zone                        = var.time_zone
+  port                             = var.instance_db_port
+  ssl_option                       = var.ssl_option
+  sql_filter_enabled               = var.sql_filter_enabled
+  slow_log_show_original_switch    = var.slow_log_show_original_switch
+  table_name_case_sensitivity      = var.table_name_case_sensitivity
+  multi_tenant_switch              = var.multi_tenant_switch
+  configuration_id                 = var.configuration_id != "" ? var.configuration_id : try(huaweicloud_taurusdb_parameter_template.test[0].id, null)
+  maintain_begin                   = var.maintain_begin
+  maintain_end                     = var.maintain_end
+  description                      = var.description
+  seconds_level_monitoring_enabled = var.seconds_level_monitoring_enabled
+  seconds_level_monitoring_period  = var.seconds_level_monitoring_enabled ? var.seconds_level_monitoring_period : null
 
   datastore {
     engine  = "gaussdb-mysql"
     version = "8.0"
   }
+
+  audit_log_enabled   = var.audit_log_enabled
+  audit_log_keep_days = var.audit_log_keep_days
+  reserve_audit_logs  = var.reserve_audit_logs
 
   backup_strategy {
     start_time = var.instance_backup_time_window
@@ -92,7 +103,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      auto_scaling.0.scaling_strategy, password,
+      password, reserve_audit_logs, ssl_option,
     ]
   }
 }
