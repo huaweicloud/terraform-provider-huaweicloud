@@ -482,19 +482,12 @@ func resourceClusterUserRead(_ context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceClusterUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func updateClusterUser(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
+		httpUrl   = "v1/{project_id}/clusters/{cluster_id}/db-manager/users/{name}"
 		clusterId = d.Get("cluster_id").(string)
 		name      = d.Get("name").(string)
-		httpUrl   = "v1/{project_id}/clusters/{cluster_id}/db-manager/users/{name}"
 	)
-
-	client, err := cfg.NewServiceClient("dws", region)
-	if err != nil {
-		return diag.Errorf("error creating DWS client: %s", err)
-	}
 
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -503,7 +496,7 @@ func resourceClusterUserUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	updateBody := utils.RemoveNil(buildClusterUserUpdateBodyParams(d))
 	if len(updateBody) < 1 {
-		return resourceClusterUserRead(ctx, d, meta)
+		return nil
 	}
 
 	updateOpt := golangsdk.RequestOpts{
@@ -512,9 +505,27 @@ func resourceClusterUserUpdate(ctx context.Context, d *schema.ResourceData, meta
 		JSONBody:         updateBody,
 	}
 
-	_, err = client.Request("POST", updatePath, &updateOpt)
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	return err
+}
+
+func resourceClusterUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("dws", region)
 	if err != nil {
-		return diag.Errorf("error updating cluster user: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
+	}
+
+	if d.HasChanges("login", "create_role", "create_db", "system_admin", "audit_admin", "inherit",
+		"use_ft", "conn_limit", "replication", "valid_begin", "valid_until", "lock") {
+		err = updateClusterUser(client, d)
+		if err != nil {
+			return diag.Errorf("error updating cluster user: %s", err)
+		}
 	}
 
 	return resourceClusterUserRead(ctx, d, meta)
