@@ -1431,6 +1431,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_column_details_by_database":       dsc.DataSourceDscColumnDetailsByDatabase(),
 			"huaweicloud_dsc_column_details_by_classification": dsc.DataSourceDscColumnDetailsByClassification(),
 			"huaweicloud_dsc_dashboard_score":                  dsc.DataSourceDscDashboardScore(),
+			"huaweicloud_dsc_data_detail":                      dsc.DataSourceDscDataDetail(),
 			"huaweicloud_dsc_data_map_dynamic_data_infos":      dsc.DataSourceDataMapDynamicDataInfos(),
 			"huaweicloud_dsc_data_map_score":                   dsc.DataSourceDscDataMapScore(),
 			"huaweicloud_dsc_data_map_security_level":          dsc.DataSourceDscDataMapSecurityLevel(),
