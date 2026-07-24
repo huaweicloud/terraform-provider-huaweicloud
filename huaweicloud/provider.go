@@ -5048,6 +5048,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_device":                         dsc.ResourceDscDevice(),
 			"huaweicloud_dsc_instance":                       dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_mask_algorithm":                 dsc.ResourceMaskAlgorithm(),
+			"huaweicloud_dsc_measure_info":                   dsc.ResourceMeasureInfo(),
 			"huaweicloud_dsc_multi_enable_trusted_service":   dsc.ResourceMultiEnableTrustedService(),
 			"huaweicloud_dsc_operate_obs_audit":              dsc.ResourceOperateObsAudit(),
 			"huaweicloud_dsc_scan_rule":                      dsc.ResourceScanRule(),
