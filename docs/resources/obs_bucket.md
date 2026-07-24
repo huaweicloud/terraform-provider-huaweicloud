@@ -303,6 +303,13 @@ The following arguments are supported:
 
   -> When creating or updating the OBS bucket user domain names, the original user domain names will be overwritten.
 
+* `ies_location` - (Optional, String, ForceNew) Specifies the OBS ies location of the bucket.
+  This field is required when creating bucket in CloudPond site, its value should be the AZ ID of the CloudPond site.
+
+* `edge_location` - (Optional, String, ForceNew) Specifies the OBS edge location of the bucket.
+  This field is required when creating bucket in Intelligent Edge Cloud site, its value should be the AZ ID of the
+  Intelligent Edge Cloud site.
+
 The `logging` object supports the following:
 
 * `target_bucket` - (Required, String) The name of the bucket that will receive the log objects. The acl policy of the
@@ -443,8 +450,8 @@ $ terraform import huaweicloud_obs_bucket.bucket_with_s3_policy <bucket-name>/s3
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include `acl` and `force_destroy`. It is generally recommended
-running `terraform plan` after importing an OBS bucket. Also you can ignore changes as below.
+API response. The missing attributes include `acl`, `force_destroy`, `ies_location`, `edge_location`. It is generally
+recommended running `terraform plan` after importing an OBS bucket. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_obs_bucket" "bucket" {
@@ -452,7 +459,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 
   lifecycle {
     ignore_changes = [
-      acl, force_destroy,
+      acl, force_destroy, ies_location, edge_location,
     ]
   }
 }

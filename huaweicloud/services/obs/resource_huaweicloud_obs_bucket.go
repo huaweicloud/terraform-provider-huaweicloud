@@ -384,7 +384,17 @@ func ResourceObsBucket() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			// Fields `ies_location` and `edge_location` only support in specified site.
+			"ies_location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"edge_location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"bucket_domain_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -488,6 +498,8 @@ func resourceObsBucketCreate(ctx context.Context, d *schema.ResourceData, meta i
 		obs.WithCustomHeader("x-obs-server-side-encryption-kms-key-id", buildSideEncryptionKmsKeyIdParam(d)),
 		obs.WithCustomHeader("x-obs-server-side-encryption-bucket-key-enabled", buildSideEncryptionBucketKeyEnabledParam(d)),
 		obs.WithCustomHeader("x-obs-sse-kms-key-project-id", buildKmsKeyProjectIdParam(d)),
+		obs.WithCustomHeader("x-obs-ies-location", d.Get("ies_location").(string)),
+		obs.WithCustomHeader("x-obs-edge-location", d.Get("edge_location").(string)),
 	)
 	if err != nil {
 		return diag.FromErr(getObsError("Error creating bucket", bucket, err))
