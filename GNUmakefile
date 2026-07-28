@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 TEST_PARALLELISM?=4
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+#GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=huaweicloud
 
 default: build
@@ -30,7 +30,8 @@ vet:
 	fi
 
 fmt:
-	gofmt -w $(GOFMT_FILES)
+	find . -name '*.go' -not -path './vendor/*' -print0 | xargs -0 gofmt -w
+#	gofmt -w $(GOFMT_FILES)
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"

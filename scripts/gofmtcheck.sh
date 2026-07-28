@@ -2,7 +2,8 @@
 
 # Check gofmt
 echo "==> Checking that code complies with gofmt requirements..."
-gofmt_files=$(gofmt -l `find . -name '*.go' | grep -v vendor`)
+#gofmt_files=$(gofmt -l `find . -name '*.go' | grep -v vendor`)
+gofmt_files=$(find . -name '*.go' -not -path './vendor/*' -print0 | xargs -0 gofmt -l)
 if [[ -n "${gofmt_files}" ]]; then
     echo 'gofmt needs running on the following files:'
     echo "${gofmt_files}"
