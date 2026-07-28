@@ -98,7 +98,10 @@ func resourceAiOpsSettingCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -152,6 +155,9 @@ func GetAiOpsSettingInfo(client *golangsdk.ServiceClient, clusterId string) (int
 	getPath = strings.ReplaceAll(getPath, "{cluster_id}", clusterId)
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", getPath, &getOpts)
@@ -185,18 +191,23 @@ func resourceAiOpsSettingUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildAiOpsSettingBodyParams(d)),
+		}
 
-	_, err = client.Request("POST", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating the auto ai-ops setting: %s", err)
+		_, err = client.Request("POST", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating the auto ai-ops setting: %s", err)
+		}
 	}
 
 	return resourceAiOpsSettingRead(ctx, d, meta)
@@ -219,6 +230,9 @@ func resourceAiOpsSettingDelete(_ context.Context, d *schema.ResourceData, meta 
 	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("PUT", deletePath, &deleteOpt)
