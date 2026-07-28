@@ -360,22 +360,24 @@ func resourceDomainResolutionUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	if !domainResolutionEnabled(publicEnabled, privateEnabled) {
-		return diag.Errorf("at least one of `public_domain_name_enable` and `private_domain_name_enable` value needs to be true")
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		if !domainResolutionEnabled(publicEnabled, privateEnabled) {
+			return diag.Errorf("at least one of `public_domain_name_enable` and `private_domain_name_enable` value needs to be true")
+		}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{loadbalancer_id}", d.Id())
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
-		JSONBody:         utils.RemoveNil(buildDomainResolutionParams(d)),
-	}
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{loadbalancer_id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
+			JSONBody:         utils.RemoveNil(buildDomainResolutionParams(d)),
+		}
 
-	_, err = client.Request("POST", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating domain name resolution: %s", err)
+		_, err = client.Request("POST", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating domain name resolution: %s", err)
+		}
 	}
 
 	return resourceDomainResolutionRead(ctx, d, meta)

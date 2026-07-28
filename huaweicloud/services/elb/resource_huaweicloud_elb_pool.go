@@ -268,6 +268,9 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 	createOpt.JSONBody = utils.RemoveNil(buildCreatePoolBodyParams(d))
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -430,6 +433,9 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
@@ -526,22 +532,27 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{pool_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateOpt.JSONBody = buildUpdatePoolBodyParams(d)
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating ELB pool: %s", err)
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		}
+		updateOpt.JSONBody = buildUpdatePoolBodyParams(d)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating ELB pool: %s", err)
+		}
 
-	err = waitForPool(ctx, client, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.FromErr(err)
+		err = waitForPool(ctx, client, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourcePoolV3Read(ctx, d, meta)
@@ -601,6 +612,9 @@ func resourcePoolV3Delete(ctx context.Context, d *schema.ResourceData, meta inte
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
@@ -664,6 +678,9 @@ func getPool(client *golangsdk.ServiceClient, id string) (interface{}, error) {
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
