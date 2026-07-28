@@ -100,8 +100,6 @@ func TestAccGaussDBClientAuthConfig_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-			acceptance.TestAccPreCheckHighCostAllow(t)
 			acceptance.TestAccPreCheckGaussDBInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
