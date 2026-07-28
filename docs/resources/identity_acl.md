@@ -51,6 +51,12 @@ The following arguments are supported:
 
 -> Up to `200` **ip_cidrs** and **ip_ranges** can be created in total for each access method.
 
+* `ipv6_cidrs` - (Optional, List) Specifies the IPv6 CIDR blocks from which console access or API access is allowed.
+  The [ipv6_cidrs](#iam_acl_ipv6_cidrs) structure is documented below.
+
+* `ipv6_ranges` - (Optional, List) Specifies the IPv6 address ranges from which console access or API access is allowed.
+  The [ipv6_ranges](#iam_acl_ipv6_ranges) structure is documented below.
+
 <a name="iam_acl_ip_cidrs"></a>
 The `ip_cidrs` block supports:
 
@@ -70,6 +76,20 @@ The `ip_ranges` block supports:
 
 * `description` - (Optional, String) Specifies a description about an IP address range. This parameter can contain a
   maximum of `255` characters and the following characters are not allowed:**@#%^&*<>\\**.
+
+<a name="iam_acl_ipv6_cidrs"></a>
+The `ipv6_cidrs` block supports:
+
+* `cidr` - (Required, String) Specifies the IPv6 CIDR block which allow access through console or API.
+
+* `description` - (Optional, String) Specifies a description about an IPv6 CIDR block.
+
+<a name="iam_acl_ipv6_ranges"></a>
+The `ipv6_ranges` block supports:
+
+* `range` - (Required, String) Specifies the IPv6 address range which allow access through console or API.
+
+* `description` - (Optional, String) Specifies a description about an IP address range.
 
 ## Attribute Reference
 
