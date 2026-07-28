@@ -185,7 +185,6 @@ func resourceGaussDBClientAuthConfigRead(_ context.Context, d *schema.ResourceDa
 	databaseRaw := d.Get("database").(string)
 	userRaw := d.Get("user").(string)
 	addressRaw := d.Get("address").(string)
-	methodRaw := d.Get("method").(string)
 
 	var hbaConf interface{}
 
@@ -231,7 +230,7 @@ func resourceGaussDBClientAuthConfigRead(_ context.Context, d *schema.ResourceDa
 		d.Set("database", databaseRaw),
 		d.Set("user", userRaw),
 		d.Set("address", addressRaw),
-		d.Set("method", methodRaw),
+		d.Set("method", utils.PathSearch("method", hbaConf, "").(string)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
