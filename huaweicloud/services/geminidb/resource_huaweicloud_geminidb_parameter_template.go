@@ -293,8 +293,11 @@ func resourceGeminiDBParameterTemplateUpdate(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
-	if err := updateGeminiDBParameterTemplate(client, d); err != nil {
-		return diag.FromErr(err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateGeminiDBParameterTemplate(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceGeminiDBParameterTemplateRead(ctx, d, meta)

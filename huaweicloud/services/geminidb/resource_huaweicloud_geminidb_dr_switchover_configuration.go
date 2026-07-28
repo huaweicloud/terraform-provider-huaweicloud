@@ -25,9 +25,9 @@ var geminiDbDRSwitchoverConfigurationParams = []string{
 // @API GeminiDB GET /v3/{project_id}/instances/disaster-recovery/settings
 func ResourceGeminiDBDRSwitchoverConfiguration() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceGeminiDBDRSwitchoverConfigurationCreateOrUpdate,
+		CreateContext: resourceGeminiDBDRSwitchoverConfigurationCreate,
 		ReadContext:   resourceGeminiDBDRSwitchoverConfigurationRead,
-		UpdateContext: resourceGeminiDBDRSwitchoverConfigurationCreateOrUpdate,
+		UpdateContext: resourceGeminiDBDRSwitchoverConfigurationUpdate,
 		DeleteContext: resourceGeminiDBDRSwitchoverConfigurationDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -64,41 +64,45 @@ func ResourceGeminiDBDRSwitchoverConfiguration() *schema.Resource {
 	}
 }
 
-func resourceGeminiDBDRSwitchoverConfigurationCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func configurationDRSwitchover(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v3/{project_id}/instances/disaster-recovery/settings"
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildDisasterRecoverySettingsBody(d),
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func resourceGeminiDBDRSwitchoverConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
+	)
 
 	client, err := cfg.NewServiceClient("geminidb", region)
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
-	httpUrl := "v3/{project_id}/instances/disaster-recovery/settings"
-	createOrUpdatePath := client.Endpoint + httpUrl
-	createOrUpdatePath = strings.ReplaceAll(createOrUpdatePath, "{project_id}", client.ProjectID)
-
-	createOrUpdateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         buildDisasterRecoverySettingsBody(d),
-	}
-
-	_, err = client.Request("PUT", createOrUpdatePath, &createOrUpdateOpt)
+	err = configurationDRSwitchover(client, d)
 	if err != nil {
 		return diag.Errorf("error setting disaster recovery settings: %s", err)
 	}
 
-	instanceID := d.Get("instance_id").(string)
-	d.SetId(instanceID)
+	d.SetId(instanceId)
 
 	return resourceGeminiDBDRSwitchoverConfigurationRead(ctx, d, meta)
 }
 
 func buildDisasterRecoverySettingsBody(d *schema.ResourceData) map[string]interface{} {
-	instanceID := d.Get("instance_id").(string)
-
 	settings := map[string]interface{}{
-		"instance_id":      instanceID,
+		"instance_id":      d.Get("instance_id"),
 		"switchover_ratio": utils.ValueIgnoreEmpty(d.Get("switchover_ratio")),
 		"sync_delay":       utils.ValueIgnoreEmpty(d.Get("sync_delay")),
 	}
@@ -156,6 +160,27 @@ func resourceGeminiDBDRSwitchoverConfigurationRead(_ context.Context, d *schema.
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceGeminiDBDRSwitchoverConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("geminidb", region)
+	if err != nil {
+		return diag.Errorf("error creating GeminiDB client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		err = configurationDRSwitchover(client, d)
+		if err != nil {
+			return diag.Errorf("error setting disaster recovery settings: %s", err)
+		}
+	}
+
+	return resourceGeminiDBDRSwitchoverConfigurationRead(ctx, d, meta)
 }
 
 func resourceGeminiDBDRSwitchoverConfigurationDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

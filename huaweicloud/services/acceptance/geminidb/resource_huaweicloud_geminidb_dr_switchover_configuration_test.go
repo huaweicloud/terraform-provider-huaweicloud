@@ -23,10 +23,11 @@ func TestAccGeminiDBDRSwitchoverConfiguration_basic(t *testing.T) {
 				Config: testAccGeminiDBDRSwitchoverConfiguration_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "switchover_ratio", "50"),
+					resource.TestCheckResourceAttr(rName, "sync_delay", "10"),
 				),
 			},
 			{
-				Config: testAccGeminiDBDisasterRecoverySettings_withSyncDelay(),
+				Config: testAccGeminiDBDRSwitchoverConfiguration_update(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "switchover_ratio", "60"),
 					resource.TestCheckResourceAttr(rName, "sync_delay", "300"),
@@ -46,11 +47,12 @@ func testAccGeminiDBDRSwitchoverConfiguration_basic() string {
 resource "huaweicloud_geminidb_dr_switchover_configuration" "test" {
   instance_id      = "%s"
   switchover_ratio = 50
+  sync_delay       = 10
 }
 `, acceptance.HW_GEMINIDB_INSATNCE_ID)
 }
 
-func testAccGeminiDBDisasterRecoverySettings_withSyncDelay() string {
+func testAccGeminiDBDRSwitchoverConfiguration_update() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_geminidb_dr_switchover_configuration" "test" {
   instance_id      = "%s"

@@ -189,55 +189,61 @@ func resourceGeminiDBInstanceLtsLogAssociateRead(_ context.Context, d *schema.Re
 }
 
 func resourceGeminiDBInstanceLtsLogAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Get("instance_id").(string)
+	)
 
 	client, err := cfg.NewServiceClient("geminidb", region)
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
-	instanceID := d.Get("instance_id").(string)
-	logType := d.Get("log_type").(string)
-	ltsGroupID := d.Get("lts_group_id").(string)
-	ltsStreamID := d.Get("lts_stream_id").(string)
+	if d.HasChangeExcept("enable_force_new") {
+		httpUrl := "v3/{project_id}/instances/logs/lts-configs"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 
-	httpUrl := "v3/{project_id}/instances/logs/lts-configs"
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         buildUpdateLtsLogAssociateBodyParams(d, instanceId),
+		}
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"instance_ids":  []string{instanceID},
-			"log_type":      logType,
-			"lts_group_id":  ltsGroupID,
-			"lts_stream_id": ltsStreamID,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := client.Request("POST", updatePath, &updateOpt)
+			retry, err := handleMultiOperationsError(err)
+			return res, retry, err
+		}
 
-	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
-	}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     geminiDbInstanceStatusRefreshFunc(client, instanceId),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     geminiDbInstanceStatusRefreshFunc(client, instanceID),
-		WaitTarget:   []string{"ACTIVE"},
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 10 * time.Second,
-		PollInterval: 10 * time.Second,
-	})
-
-	if err != nil {
-		return diag.Errorf("error updating LTS log configuration: %s", err)
+		if err != nil {
+			return diag.Errorf("error updating LTS log configuration: %s", err)
+		}
 	}
 
 	return resourceGeminiDBInstanceLtsLogAssociateRead(ctx, d, meta)
+}
+
+func buildUpdateLtsLogAssociateBodyParams(d *schema.ResourceData, instanceId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"instance_ids":  []string{instanceId},
+		"log_type":      d.Get("log_type"),
+		"lts_group_id":  d.Get("lts_group_id"),
+		"lts_stream_id": d.Get("lts_stream_id"),
+	}
+
+	return bodyParams
 }
 
 func resourceGeminiDBInstanceLtsLogAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

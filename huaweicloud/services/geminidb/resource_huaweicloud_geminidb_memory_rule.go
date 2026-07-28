@@ -268,9 +268,11 @@ func resourceMemoryRuleUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
-	err = updateMemoryRule(client, d)
-	if err != nil {
-		return diag.Errorf("error updating memory acceleration rule: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateMemoryRule(client, d)
+		if err != nil {
+			return diag.Errorf("error updating memory acceleration rule: %s", err)
+		}
 	}
 
 	return resourceMemoryRuleRead(ctx, d, meta)

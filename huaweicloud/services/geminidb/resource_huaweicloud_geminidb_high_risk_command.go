@@ -190,10 +190,12 @@ func resourceHighRiskCommandUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 
-	resourceId := strings.Split(d.Id(), "/")
-	err = modifyHighRiskCommand(client, d, resourceId[0])
-	if err != nil {
-		return diag.Errorf("error updating GeminiDB high risk command: %s", err)
+	if d.HasChange("name") {
+		resourceId := strings.Split(d.Id(), "/")
+		err = modifyHighRiskCommand(client, d, resourceId[0])
+		if err != nil {
+			return diag.Errorf("error updating GeminiDB high risk command: %s", err)
+		}
 	}
 
 	return resourceHighRiskCommandRead(ctx, d, meta)
