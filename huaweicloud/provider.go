@@ -1447,6 +1447,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_export_buckets":                   dsc.DataSourceDscExportBuckets(),
 			"huaweicloud_dsc_features":                         dsc.DataSourceDscFeatures(),
 			"huaweicloud_dsc_links":                            dsc.DataSourceLinks(),
+			"huaweicloud_dsc_hit_rules":                        dsc.DataSourceDscHitRules(),
 			"huaweicloud_dsc_show_tasks":                       dsc.DataSourceDscShowTasks(),
 			"huaweicloud_dsc_threat_trend":                     dsc.DataSourceDscThreatTrend(),
 			"huaweicloud_dsc_database_instances":               dsc.DataSourceDatabaseInstances(),
