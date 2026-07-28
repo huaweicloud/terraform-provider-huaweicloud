@@ -1465,6 +1465,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_template_rules":                   dsc.DataSourceDscTemplateRules(),
 			"huaweicloud_dsc_dbss_oem_info":                    dsc.DataSourceDbssOemInfo(),
 			"huaweicloud_dsc_catalog_statical_chart":           dsc.DataSourceCatalogStaticalChart(),
+			"huaweicloud_dsc_column_details_by_level_dim":      dsc.DataSourceDscColumnDetailsByLevelDim(),
 			"huaweicloud_dsc_multi_accounts":                   dsc.DataSourceMultiAccounts(),
 			"huaweicloud_dsc_multi_account_assets":             dsc.DataSourceMultiAccountAssets(),
 			"huaweicloud_dsc_multi_account_info":               dsc.DataSourceMultiAccountInfo(),
