@@ -1,0 +1,5 @@
+vpc_name            = "terraform-gaussdb-vpc"
+subnet_name         = "terraform-gaussdb-subnet"
+security_group_name = "terraform-gaussdb-secgroup"
+instance_name       = "terraform-gaussdb-instance"
+template_name       = "terraform-parameter-template"
