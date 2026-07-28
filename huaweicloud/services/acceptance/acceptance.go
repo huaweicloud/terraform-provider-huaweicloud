@@ -475,6 +475,7 @@ var (
 	HW_DSC_DB_INSTANCE_ID           = os.Getenv("HW_DSC_DB_INSTANCE_ID")
 	HW_DSC_DB_ID                    = os.Getenv("HW_DSC_DB_ID")
 	HW_DSC_BUCKET_ID                = os.Getenv("HW_DSC_BUCKET_ID")
+	HW_DSC_CLASSIFICATION_ID        = os.Getenv("HW_DSC_CLASSIFICATION_ID")
 
 	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
 	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
@@ -5420,6 +5421,13 @@ func TestAccPreCheckDscRuleIds(t *testing.T) {
 func TestAccPreCheckDscDbInstanceId(t *testing.T) {
 	if HW_DSC_DB_INSTANCE_ID == "" {
 		t.Skip("HW_DSC_DB_INSTANCE_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscClassificationId(t *testing.T) {
+	if HW_DSC_CLASSIFICATION_ID == "" {
+		t.Skip("HW_DSC_CLASSIFICATION_ID must be set for DSC acceptance tests")
 	}
 }
 
