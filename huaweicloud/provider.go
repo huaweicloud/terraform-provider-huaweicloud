@@ -1440,6 +1440,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_db_mask_tasks":                    dsc.DataSourceDscDbMaskTasks(),
 			"huaweicloud_dsc_dbss_ins_info":                    dsc.DataSourceDscDbssInsInfo(),
 			"huaweicloud_dsc_devices":                          dsc.DataSourceDscDevices(),
+			"huaweicloud_dsc_device_mask_algorithms":           dsc.DataSourceDscDeviceMaskAlgorithms(),
 			"huaweicloud_dsc_device_monitor_infos":             dsc.DataSourceDscDeviceMonitorInfos(),
 			"huaweicloud_dsc_device_security_policies":         dsc.DataSourceDscDeviceSecurityPolicies(),
 			"huaweicloud_dsc_event_overview":                   dsc.DataSourceDscEventOverview(),
