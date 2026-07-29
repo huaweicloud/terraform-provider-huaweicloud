@@ -41,6 +41,7 @@ func TestAccV3Acl_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPreCheckRunnerPublicIPs(t, 2)
+			acceptance.TestAccPreCheckRunnerPublicV6IPs(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -156,6 +157,11 @@ variable "runner_public_ips" {
   default = "%[1]s"
 }
 
+variable "runner_public_v6ips" {
+  type    = string
+  default = "%[2]s"
+}
+
 resource "huaweicloud_identity_acl" "test" {
   count = 2
 
@@ -182,8 +188,25 @@ resource "huaweicloud_identity_acl" "test" {
       description = "This is a basic IPv4 CIDR block ${format("%%s/32", ip_cidrs.value)} for ${var.acl_types[count.index]} access"
     }
   }
+
+  ipv6_ranges {
+    range = "0000:0000:0000:0000:0000:0000:0000:0000-0000:0000:0000:0000:0000:FFFF:FFFF:FFFF"
+  }
+  ipv6_ranges {
+    range       = "0000:0000:0000:0000:0000:FFFF:FFFF:FFFF-0000:0000:0000:0000:FFFF:FFFF:FFFF:FFFF"
+	description = "This is a V6 IP range"
+  }
+
+  dynamic "ipv6_cidrs" {
+    for_each = var.runner_public_v6ips != "" ? slice(split(",", var.runner_public_v6ips), 0, 1) : []
+
+    content {
+      cidr        = format("%%s/100", ipv6_cidrs.value)
+      description = "This is a basic IPv6 CIDR block ${format("%%s/100", ipv6_cidrs.value)} for ${var.acl_types[count.index]} access"
+    }
+  }
 }
-`, acceptance.HW_RUNNER_PUBLIC_IPS)
+`, acceptance.HW_RUNNER_PUBLIC_IPS, acceptance.HW_RUNNER_PUBLIC_V6IPS)
 }
 
 func testAccV3Acl_basic_step2() string {
@@ -196,6 +219,11 @@ variable "acl_types" {
 variable "runner_public_ips" {
   type    = string
   default = "%[1]s"
+}
+
+variable "runner_public_v6ips" {
+  type    = string
+  default = "%[2]s"
 }
 
 resource "huaweicloud_identity_acl" "test" {                                                                                              
@@ -224,6 +252,23 @@ resource "huaweicloud_identity_acl" "test" {
       description = "This is a basic IPv4 CIDR block ${format("%%s/32", ip_cidrs.value)} for ${var.acl_types[count.index]} access"
     }
   }
+
+  ipv6_ranges {
+    range = "0000:0000:0000:0000:0000:0000:0000:FFFF-0000:0000:0000:0000:0000:FFFF:FFFF:FFFF"
+  }
+  ipv6_ranges {
+    range       = "0000:0000:0000:0000:0000:0000:0000:FFFF-0000:0000:0000:0000:FFFF:FFFF:FFFF:FFFF"
+	description = "This is a V6 IP range"
+  }
+
+  dynamic "ipv6_cidrs" {
+    for_each = var.runner_public_v6ips != "" ? slice(split(",", var.runner_public_v6ips), 0, 2) : []
+
+    content {
+      cidr        = format("%%s/100", ipv6_cidrs.value)
+      description = "This is a basic IPv6 CIDR block ${format("%%s/100", ipv6_cidrs.value)} for ${var.acl_types[count.index]} access"
+    }
+  }
 }
-`, acceptance.HW_RUNNER_PUBLIC_IPS)
+`, acceptance.HW_RUNNER_PUBLIC_IPS, acceptance.HW_RUNNER_PUBLIC_V6IPS)
 }
