@@ -1453,6 +1453,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_database_instances":               dsc.DataSourceDatabaseInstances(),
 			"huaweicloud_dsc_database_instance_databases":      dsc.DataSourceDscDatabaseInstanceDatabases(),
 			"huaweicloud_dsc_bigdata_instance_databases":       dsc.DataSourceBigdataInstanceDatabases(),
+			"huaweicloud_dsc_encrypt_configurations":           dsc.DataSourceEncryptConfigurations(),
 			"huaweicloud_dsc_mask_algorithms":                  dsc.DataSourceMaskAlgorithms(),
 			"huaweicloud_dsc_scan_jobs":                        dsc.DataSourceScanJobs(),
 			"huaweicloud_dsc_scan_tasks":                       dsc.DataSourceDscScanTasks(),
