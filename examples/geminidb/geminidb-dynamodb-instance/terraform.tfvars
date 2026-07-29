@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_vpc"
+vpc_cidr            = "192.168.0.0/16"
+subnet_name         = "tf_test_subnet"
+security_group_name = "tf_test_security_group"
+instance_name       = "tf_test_geminidb_dynamodb_instance"
