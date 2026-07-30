@@ -56,6 +56,8 @@ resource "huaweicloud_kps_keypair" "test" {
 
 ### Import an existing KPS keypair without private key
 
+-> parameter `encryption_type` cannot be filled in this scenario.
+
 ```hcl
 variable "public_key" {}
 
