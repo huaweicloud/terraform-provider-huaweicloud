@@ -2,6 +2,9 @@ package golangsdk
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -132,18 +135,28 @@ func (e ErrDefault401) Error() string {
 	return "Authentication failed"
 }
 func (e ErrDefault403) Error() string {
-	var maxLength int = 200
-	var unAuthorized string = "Request not authorized"
+	messageMaxLengthRaw := os.Getenv("HW_MESSAGE_MAX_LENGTH")
+	var maxLength = 0
+	if messageMaxLengthRaw != "" {
+		v, err := strconv.Atoi(messageMaxLengthRaw)
+		if err != nil || v <= 0 {
+			log.Printf("[ERROR] the environment param HW_MESSAGE_MAX_LENGTH(%s) should be an integer and the "+
+				"value should greater then 0", messageMaxLengthRaw)
+		} else {
+			maxLength = v
+		}
+	}
+
+	var unAuthorized = "Request not authorized"
 
 	messageBody := string(e.Body)
-	if len(messageBody) > maxLength {
+	if maxLength > 0 {
 		if strings.Contains(messageBody, unAuthorized) {
 			messageBody = unAuthorized
 		} else {
 			messageBody = messageBody[:maxLength] + "\n..."
 		}
 	}
-
 	e.DefaultErrString = fmt.Sprintf(
 		"Action forbidden: [%s %s], request_id: %s, error message: %s",
 		e.Method, e.URL, e.RequestId, messageBody,
