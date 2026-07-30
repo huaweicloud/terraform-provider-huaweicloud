@@ -689,7 +689,7 @@ func buildUpdateCceAccessConfigBodyParams(d *schema.ResourceData) map[string]int
 }
 
 func buildUpdateCceAccessDemoFields(demoFields *schema.Set) []map[string]interface{} {
-	fields := buildHostAccessDemoFields(demoFields)
+	fields := buildCceAccessDemoFields(demoFields)
 	if fields == nil {
 		return []map[string]interface{}{}
 	}

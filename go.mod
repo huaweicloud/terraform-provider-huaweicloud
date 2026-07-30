@@ -7,7 +7,7 @@ toolchain go1.24.13
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
 	github.com/ProtonMail/go-crypto v1.3.0
-	github.com/chnsz/golangsdk v0.0.0-20260716092605-2db777a6564f
+	github.com/chnsz/golangsdk v0.0.0-20260730075059-cd900f65ccb8
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-cty v1.5.0
@@ -66,7 +66,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/zclconf/go-cty v1.17.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/mod v0.33.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
@@ -81,5 +81,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.48.0
 
 replace github.com/go-git/go-git/v5 => github.com/go-git/go-git/v5 v5.18.0
