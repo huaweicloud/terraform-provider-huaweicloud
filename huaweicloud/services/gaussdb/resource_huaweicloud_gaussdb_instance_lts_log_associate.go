@@ -211,12 +211,12 @@ func resourceGaussdbInstanceLtsLogAssociateRead(_ context.Context, d *schema.Res
 }
 
 func resourceGaussdbInstanceLtsLogAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		httpUrl = "v3/{project_id}/instances/logs/lts-config"
-		product = "opengauss"
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		httpUrl    = "v3/{project_id}/instances/logs/lts-config"
+		product    = "opengauss"
+		instanceId = d.Get("instance_id").(string)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -224,49 +224,50 @@ func resourceGaussdbInstanceLtsLogAssociateUpdate(ctx context.Context, d *schema
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	instanceID := d.Get("instance_id").(string)
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	updateOpt.JSONBody = utils.RemoveNil(buildCreateGaussdbInstanceLtsLogAssociateBodyParams(d))
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildCreateGaussdbInstanceLtsLogAssociateBodyParams(d)),
+		}
 
-	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
-	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     instanceStateRefreshFunc(client, instanceID),
-		WaitTarget:   []string{"ACTIVE"},
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		DelayTimeout: 10 * time.Second,
-		PollInterval: 10 * time.Second,
-	})
-	if err != nil {
-		return diag.Errorf("error updating GaussDB instance LTS log associate: %s", err)
-	}
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := client.Request("POST", updatePath, &updateOpt)
+			retry, err := handleMultiOperationsError(err)
+			return res, retry, err
+		}
+		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     instanceStateRefreshFunc(client, instanceId),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error updating GaussDB instance LTS log associate: %s", err)
+		}
 
-	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
-	if err != nil {
-		return diag.FromErr(err)
-	}
+		updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
-	if jobId == "" {
-		return diag.Errorf("error updating GaussDB instance LTS log associate, job_id is not found in the response")
-	}
+		jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+		if jobId == "" {
+			return diag.Errorf("error updating GaussDB instance LTS log associate, job_id is not found in the response")
+		}
 
-	err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId, 2, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.FromErr(err)
+		err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId, 2, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceGaussdbInstanceLtsLogAssociateRead(ctx, d, meta)

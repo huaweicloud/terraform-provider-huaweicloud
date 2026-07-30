@@ -156,10 +156,9 @@ func resourceGaussDBInstanceRolePermissionRead(_ context.Context, _ *schema.Reso
 }
 
 func resourceGaussDBInstanceRolePermissionUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
 		httpUrl = "v3.1/{project_id}/instances/{instance_id}/db-privilege"
 		product = "opengauss"
 	)
@@ -169,21 +168,23 @@ func resourceGaussDBInstanceRolePermissionUpdate(_ context.Context, d *schema.Re
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	updateOpt.JSONBody = utils.RemoveNil(buildCreateGaussDBInstanceRolePermissionBodyParams(d))
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildCreateGaussDBInstanceRolePermissionBodyParams(d)),
+		}
 
-	_, err = client.Request("POST", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating GaussDB instance role permission: %s", err)
+		_, err = client.Request("POST", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating GaussDB instance role permission: %s", err)
+		}
 	}
 
 	return nil

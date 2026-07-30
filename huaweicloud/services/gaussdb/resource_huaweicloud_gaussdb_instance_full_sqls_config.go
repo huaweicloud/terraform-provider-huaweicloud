@@ -207,10 +207,9 @@ func resourceFullSqlConfigRead(_ context.Context, _ *schema.ResourceData, _ inte
 }
 
 func resourceFullSqlConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
 		httpUrl = "v3/{project_id}/instances/{instance_id}/full-sqls/start"
 		product = "opengauss"
 	)
@@ -220,33 +219,35 @@ func resourceFullSqlConfigUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         utils.RemoveNil(buildFullSqlConfigBodyParams(d)),
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         utils.RemoveNil(buildFullSqlConfigBodyParams(d)),
+		}
 
-	resp, err := client.Request("POST", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating GaussDB full SQL configuration: %s", err)
-	}
+		resp, err := client.Request("POST", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating GaussDB full SQL configuration: %s", err)
+		}
 
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	jobId := utils.PathSearch("job_id", respBody, nil)
-	if jobId == nil {
-		return diag.Errorf("error updating GaussDB full SQL collection: unable to find job ID")
-	}
-	err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 5, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
+		jobId := utils.PathSearch("job_id", respBody, nil)
+		if jobId == nil {
+			return diag.Errorf("error updating GaussDB full SQL collection: unable to find job ID")
+		}
+		err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 5, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return nil

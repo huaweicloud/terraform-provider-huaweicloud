@@ -131,12 +131,11 @@ func resourceGaussdbInstanceAccountPermissionRead(_ context.Context, _ *schema.R
 }
 
 func resourceGaussdbInstanceAccountPermissionUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
 		httpUrl = "v3/{project_id}/instances/{instance_id}/db-privilege"
 		product = "opengauss"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -144,31 +143,33 @@ func resourceGaussdbInstanceAccountPermissionUpdate(_ context.Context, d *schema
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
 
-	usersSet := d.Get("users").(*schema.Set)
-	usersList := usersSet.List()
+		usersSet := d.Get("users").(*schema.Set)
+		usersList := usersSet.List()
 
-	start := 0
-	end := int(math.Min(50, float64(len(usersList))))
+		start := 0
+		end := int(math.Min(50, float64(len(usersList))))
 
-	for start < end {
-		updateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json",
-			},
+		for start < end {
+			updateOpt := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
+			}
+			updateOpt.JSONBody = utils.RemoveNil(buildCreateGaussdbInstanceAccountPermissionBodyParams(d, usersList[start:end]))
+
+			_, err = client.Request("POST", updatePath, &updateOpt)
+			if err != nil {
+				return diag.Errorf("error updating GaussDB instance account permission: %s", err)
+			}
+			start += 50
+			end = int(math.Min(float64(end+50), float64(len(usersList))))
 		}
-		updateOpt.JSONBody = utils.RemoveNil(buildCreateGaussdbInstanceAccountPermissionBodyParams(d, usersList[start:end]))
-
-		_, err = client.Request("POST", updatePath, &updateOpt)
-		if err != nil {
-			return diag.Errorf("error updating GaussDB instance account permission: %s", err)
-		}
-		start += 50
-		end = int(math.Min(float64(end+50), float64(len(usersList))))
 	}
 
 	return nil
