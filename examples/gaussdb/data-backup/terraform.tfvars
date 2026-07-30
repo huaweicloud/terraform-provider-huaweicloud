@@ -1,0 +1,5 @@
+vpc_name            = "your_vpc_name"
+subnet_name         = "your_subnet_name"
+security_group_name = "your_security_group_name"
+instance_name       = "your_gaussdb_instance_name"
+backup_name         = "your_manual_backup_name"
