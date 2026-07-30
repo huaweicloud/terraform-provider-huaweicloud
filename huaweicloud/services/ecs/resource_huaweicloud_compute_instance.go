@@ -63,6 +63,7 @@ var (
 // @API IMS GET /v2/cloudimages
 // @API EVS POST /v2.1/{project_id}/cloudvolumes/{volume_id}/action
 // @API EVS GET /v2/{project_id}/cloudvolumes/{volume_id}
+// @API VPC GET /v1/{project_id}/ports
 // @API VPC PUT /v1/{project_id}/ports/{port_id}
 // @API VPC GET /v1/{project_id}/security-groups
 // @API VPC GET /v1/{project_id}/subnets/{subnet_id}
@@ -157,11 +158,10 @@ func ResourceComputeInstance() *schema.Resource {
 				Set:           schema.HashString,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 			"network": {
 				Type:     schema.TypeList,
@@ -878,6 +878,81 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
+func listInstancePorts(vpcClient *golangsdk.ServiceClient, instanceId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/ports?device_id={instance_id}&limit={limit}"
+		limit   = 100
+		marker  = ""
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := vpcClient.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", vpcClient.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	for {
+		listPathWithMarker := listPath
+		if marker != "" {
+			listPathWithMarker += fmt.Sprintf("&marker=%s", marker)
+		}
+		listResp, err := vpcClient.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+		listRespBody, err := utils.FlattenResponse(listResp)
+		if err != nil {
+			return nil, err
+		}
+		associatedPorts := utils.PathSearch("ports", listRespBody, []interface{}{}).([]interface{})
+		result = append(result, associatedPorts...)
+		if len(associatedPorts) < limit {
+			break
+		}
+		marker = utils.PathSearch("[-1].id", associatedPorts, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+func getInstancePrimaryNicAssociatedSecurityGroups(cfg *config.Config, region, serverId, primaryPortId string) ([]interface{}, error) {
+	vpcClient, err := cfg.NewServiceClient("vpc", region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating VPC client: %s", err)
+	}
+	associatedPorts, err := listInstancePorts(vpcClient, serverId)
+	if err != nil {
+		return nil, fmt.Errorf("error listing instance ports: %s", err)
+	}
+
+	result := utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0].security_groups", primaryPortId), associatedPorts,
+		make([]interface{}, 0)).([]interface{})
+	if len(result) < 1 {
+		return nil, fmt.Errorf("no security groups found for instance (%s), the ports are: %+v", serverId, associatedPorts)
+	}
+	return result, nil
+}
+
+func getInstancePrimaryPortId(vpcId string, allAddresses map[string][]cloudservers.Address) string {
+	addresses, ok := allAddresses[vpcId]
+	if ok {
+		for _, address := range addresses {
+			if address.Primary {
+				return address.PortID
+			}
+		}
+	}
+	return ""
+}
+
 // nolint:gocyclo
 func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
@@ -973,17 +1048,24 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		})
 	}
 
-	secGrpNames := []string{}
+	primaryPortId := getInstancePrimaryPortId(server.Metadata.VpcID, server.Addresses)
+	primaryNicSecGroupIds, err := getInstancePrimaryNicAssociatedSecurityGroups(cfg, region, serverID, primaryPortId)
+	secGrpIDs := make([]interface{}, 0)
+	if err != nil {
+		log.Printf("[WARN] failed to get primary nic associated security groups using '/v1/{project_id}/ports': %s", err)
+		for _, sg := range server.SecurityGroups {
+			secGrpIDs = append(secGrpIDs, sg.ID)
+		}
+	} else {
+		secGrpIDs = primaryNicSecGroupIds
+	}
+	d.Set("security_group_ids", secGrpIDs)
+
+	secGrpNames := make([]interface{}, 0)
 	for _, sg := range server.SecurityGroups {
 		secGrpNames = append(secGrpNames, sg.Name)
 	}
 	d.Set("security_groups", secGrpNames)
-
-	secGrpIDs := make([]string, len(server.SecurityGroups))
-	for i, sg := range server.SecurityGroups {
-		secGrpIDs[i] = sg.ID
-	}
-	d.Set("security_group_ids", secGrpIDs)
 
 	// Set volume attached
 	if len(server.VolumeAttached) > 0 {
@@ -1117,6 +1199,41 @@ func flattenEnclaveOptions(enclaveOptions *cloudservers.EnclaveOptions) []map[st
 	return res
 }
 
+func updatePortSecurityGroups(client *golangsdk.ServiceClient, portId string, newSecGroupIds []interface{}) error {
+	httpUrl := "v1/{project_id}/ports/{port_id}"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{port_id}", portId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"port": map[string]interface{}{
+				"security_groups": newSecGroupIds,
+			},
+		},
+	}
+
+	_, err := client.Request("PUT", path, &updateOpt)
+	return err
+}
+
+func updateInstancePrimaryNicSecurityGroups(vpcClient, ecsClient *golangsdk.ServiceClient, serverID string,
+	newSecGroupIds []interface{}) error {
+	instance, err := cloudservers.Get(ecsClient, serverID).Extract()
+	if err != nil {
+		return err
+	}
+	primaryPortId := getInstancePrimaryPortId(instance.Metadata.VpcID, instance.Addresses)
+	if primaryPortId == "" {
+		return fmt.Errorf("unable to find primary port ID for instance (%s), the addresses are: %+v",
+			serverID, instance.Addresses)
+	}
+
+	return updatePortSecurityGroups(vpcClient, primaryPortId, newSecGroupIds)
+}
+
 // nolint:gocyclo
 func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
@@ -1140,6 +1257,10 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
+	vpcClient, err := cfg.NewServiceClient("vpc", region)
+	if err != nil {
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	serverID := d.Id()
@@ -1225,14 +1346,16 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	if d.HasChanges("security_group_ids", "security_groups") {
-		var oldSGRaw interface{}
-		var newSGRaw interface{}
-		if d.HasChange("security_group_ids") {
-			oldSGRaw, newSGRaw = d.GetChange("security_group_ids")
-		} else {
-			oldSGRaw, newSGRaw = d.GetChange("security_groups")
+	if d.HasChanges("security_group_ids") {
+		if err := updateInstancePrimaryNicSecurityGroups(vpcClient, ecsClient, serverID,
+			d.Get("security_group_ids").([]interface{})); err != nil {
+			return diag.FromErr(err)
 		}
+	}
+
+	// Deprecated
+	if d.HasChanges("security_groups") {
+		oldSGRaw, newSGRaw := d.GetChange("security_groups")
 		oldSGSet := oldSGRaw.(*schema.Set)
 		newSGSet := newSGRaw.(*schema.Set)
 		secgroupsToAdd := newSGSet.Difference(oldSGSet)
@@ -1618,7 +1741,7 @@ func buildUpdateInstanceNetworkOpts(d *schema.ResourceData, vpcID string) map[st
 }
 
 func buildUpdateInstanceNetworkSecgroupOpts(d *schema.ResourceData) []map[string]interface{} {
-	secgroupIDs := d.Get("security_group_ids").(*schema.Set).List()
+	secgroupIDs := d.Get("security_group_ids").([]interface{})
 	bodyParams := make([]map[string]interface{}, len(secgroupIDs))
 
 	for i, v := range secgroupIDs {
@@ -1862,7 +1985,7 @@ func ServerV1StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 
 func buildInstanceSecGroupIds(d *schema.ResourceData, client *golangsdk.ServiceClient) ([]cloudservers.SecurityGroup, error) {
 	if v, ok := d.GetOk("security_group_ids"); ok {
-		rawSecGroups := v.(*schema.Set).List()
+		rawSecGroups := v.([]interface{})
 		secGroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
 		for i, raw := range rawSecGroups {
 			secGroups[i] = cloudservers.SecurityGroup{

@@ -72,6 +72,7 @@ type Address struct {
 	MacAddr string `json:"OS-EXT-IPS-MAC:mac_addr"`
 	PortID  string `json:"OS-EXT-IPS:port_id"`
 	Type    string `json:"OS-EXT-IPS:type"`
+	Primary bool   `json:"primary"`
 }
 
 type VolumeAttached struct {
