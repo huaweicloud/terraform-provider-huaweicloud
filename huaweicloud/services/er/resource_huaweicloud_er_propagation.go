@@ -407,22 +407,24 @@ func resourcePropagationUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating ER client: %s", err)
 	}
 
-	_, err = changePropagationRoutePolicy(client, instanceId, routeTableId, propagationId, routePolicies)
-	if err != nil {
-		return diag.Errorf("error updating the route policy of propagation (%s): %s", propagationId, err)
-	}
+	if d.HasChanges("route_policy") {
+		_, err = changePropagationRoutePolicy(client, instanceId, routeTableId, propagationId, routePolicies)
+		if err != nil {
+			return diag.Errorf("error updating the route policy of propagation (%s): %s", propagationId, err)
+		}
 
-	stateConf := &retry.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      propagationStatusRefreshFunc(client, instanceId, routeTableId, propagationId, []string{"available"}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for the propagation (%s) route policy update to complete: %s", propagationId, err)
+		stateConf := &retry.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      propagationStatusRefreshFunc(client, instanceId, routeTableId, propagationId, []string{"available"}),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error waiting for the propagation (%s) route policy update to complete: %s", propagationId, err)
+		}
 	}
 
 	return resourcePropagationRead(ctx, d, meta)
