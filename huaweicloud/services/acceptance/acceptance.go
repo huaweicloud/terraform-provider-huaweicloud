@@ -467,6 +467,8 @@ var (
 	HW_DSC_ENABLE_FLAG              = os.Getenv("HW_DSC_ENABLE_FLAG")
 	HW_DSC_DEVICE_ID                = os.Getenv("HW_DSC_DEVICE_ID")
 	HW_DSC_LABEL_ID                 = os.Getenv("HW_DSC_LABEL_ID")
+	HW_DSC_METADATA_TAG_NAME        = os.Getenv("HW_DSC_METADATA_TAG_NAME")
+	HW_DSC_METADATA_TAG_NAME_UPDATE = os.Getenv("HW_DSC_METADATA_TAG_NAME_UPDATE")
 	HW_DSC_TYPE_ID                  = os.Getenv("HW_DSC_TYPE_ID")
 	HW_DSC_SCAN_TEMPLATE_ID         = os.Getenv("HW_DSC_SCAN_TEMPLATE_ID")
 	HW_DSC_SCAN_JOB_ID              = os.Getenv("HW_DSC_SCAN_JOB_ID")
@@ -5368,6 +5370,13 @@ func TestAccPreCheckDscDeviceId(t *testing.T) {
 func TestAccPreCheckDscLabelId(t *testing.T) {
 	if HW_DSC_LABEL_ID == "" {
 		t.Skip("HW_DSC_LABEL_ID must be set for DSC acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDscMetadataTagName(t *testing.T) {
+	if HW_DSC_METADATA_TAG_NAME == "" || HW_DSC_METADATA_TAG_NAME_UPDATE == "" {
+		t.Skip("HW_DSC_METADATA_TAG_NAME and HW_DSC_METADATA_TAG_NAME_UPDATE must be set for DSC acceptance tests")
 	}
 }
 
