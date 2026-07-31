@@ -254,10 +254,10 @@ func (w *ClusterCertificateDSWrapper) createAutopilotKubernetesClusterCertToSche
 				return map[string]any{
 					"name": contexts.Get("name").Value(),
 					"context": schemas.SliceToList(contexts.Get("context"),
-						func(context gjson.Result) any {
+						func(ctx gjson.Result) any {
 							return map[string]any{
-								"cluster": context.Get("cluster").Value(),
-								"user":    context.Get("user").Value(),
+								"cluster": ctx.Get("cluster").Value(),
+								"user":    ctx.Get("user").Value(),
 							}
 						},
 					),

@@ -51,8 +51,8 @@ func dataSourceVpcIdsV1Read(_ context.Context, d *schema.ResourceData, meta inte
 
 	listVpcs := make([]string, 0)
 
-	for _, vpc := range refinedVpcs {
-		listVpcs = append(listVpcs, vpc.ID)
+	for _, refinedVpc := range refinedVpcs {
+		listVpcs = append(listVpcs, refinedVpc.ID)
 	}
 	d.SetId(listVpcs[0])
 	d.Set("ids", listVpcs)

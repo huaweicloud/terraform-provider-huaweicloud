@@ -110,10 +110,10 @@ func (w *AdvancedQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) 
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("schemas", schemas.SliceToList(body.Get("value"),
-			func(schema gjson.Result) any {
+			func(schemaItem gjson.Result) any {
 				return map[string]any{
-					"type":   schema.Get("type").Value(),
-					"schema": w.setValueSchema(schema),
+					"type":   schemaItem.Get("type").Value(),
+					"schema": w.setValueSchema(schemaItem),
 				}
 			},
 		)),

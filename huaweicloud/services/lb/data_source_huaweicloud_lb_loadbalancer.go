@@ -108,22 +108,22 @@ func dataSourceELBV2LoadbalancerRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("your query returned more than one result, please try a more specific search criteria")
 	}
 
-	lb := lbList[0]
-	d.SetId(lb.ID)
+	loadbalancer := lbList[0]
+	d.SetId(loadbalancer.ID)
 
 	var publicIp string
-	if len(lb.PublicIps) > 0 {
-		publicIp = lb.PublicIps[0].PublicIpAddress
+	if len(loadbalancer.PublicIps) > 0 {
+		publicIp = loadbalancer.PublicIps[0].PublicIpAddress
 	}
 	mErr := multierror.Append(
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", lb.Name),
-		d.Set("status", lb.OperatingStatus),
-		d.Set("description", lb.Description),
-		d.Set("vip_address", lb.VipAddress),
-		d.Set("vip_subnet_id", lb.VipSubnetID),
-		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
-		d.Set("vip_port_id", lb.VipPortID),
+		d.Set("name", loadbalancer.Name),
+		d.Set("status", loadbalancer.OperatingStatus),
+		d.Set("description", loadbalancer.Description),
+		d.Set("vip_address", loadbalancer.VipAddress),
+		d.Set("vip_subnet_id", loadbalancer.VipSubnetID),
+		d.Set("enterprise_project_id", loadbalancer.EnterpriseProjectID),
+		d.Set("vip_port_id", loadbalancer.VipPortID),
 		d.Set("public_ip", publicIp),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
