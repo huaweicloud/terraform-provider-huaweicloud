@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_scan_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/scan-rules:
+        GET:
+            tag: DSC
+        POST:
+            tag: DSC
+    /v1/{project_id}/scan-rules/{rule_id}:
+        DELETE:
+            tag: DSC
+        GET:
+            tag: DSC
+        PUT:
+            tag: DSC

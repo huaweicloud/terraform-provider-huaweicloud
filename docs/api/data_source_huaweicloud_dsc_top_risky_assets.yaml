@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dsc_top_risky_assets
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v2/{project_id}/sec-ops/situation-dashboard/top-risky-assets:
+        GET:
+            tag: DSC

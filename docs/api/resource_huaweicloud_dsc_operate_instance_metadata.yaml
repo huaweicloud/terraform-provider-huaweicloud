@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_operate_instance_metadata
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/asset-center/instances/{instance_id}/metadata:
+        PUT:
+            tag: DSC

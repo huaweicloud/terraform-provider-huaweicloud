@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cciv2_feature_gates
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /v1/{project_id}/feature-gates:
+        GET:
+            tag: CCI

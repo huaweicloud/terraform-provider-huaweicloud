@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_measure_info
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/protect-measures:
+        GET:
+            tag: DSC
+    /v1/{project_id}/protect-measures/batch-create:
+        POST:
+            tag: DSC
+    /v1/{project_id}/protect-measures/batch-delete:
+        POST:
+            tag: DSC
+    /v1/{project_id}/protect-measures/batch-update:
+        POST:
+            tag: DSC

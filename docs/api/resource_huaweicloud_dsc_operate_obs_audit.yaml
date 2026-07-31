@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_operate_obs_audit
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/sdg/asset/obs/buckets/{bucket_id}/audit:
+        PUT:
+            tag: DSC

@@ -25,13 +25,13 @@ paths:
     /v2/orders/suscriptions/resources/query:
         POST:
             tag: BSS
+    /v3.1/{project_id}/instances/{instance_id}/backups/policy:
+        PUT:
+            tag: GaussDB
     /v3.1/{project_id}/instances/{instance_id}/configurations:
         GET:
             tag: GaussDB
     /v3/{project_id}/configurations/{config_id}/apply:
-        PUT:
-            tag: GaussDB
-    /v3/{project_id}/instance/{instance_id}/flavor:
         PUT:
             tag: GaussDB
     /v3/{project_id}/instances:
@@ -63,9 +63,6 @@ paths:
             tag: GaussDB
         PUT:
             tag: GaussDB
-    /v3/{project_id}/instances/{instance_id}/backups/policy:
-        PUT:
-            tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/balance:
         GET:
             tag: GaussDB
@@ -80,6 +77,12 @@ paths:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/error-log/switch/status:
         GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/expansion-parameters:
+        PUT:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/flavor:
+        PUT:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/kms-tde/switch:
         PUT:
@@ -106,6 +109,12 @@ paths:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/sharding:
         DELETE:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/switch-logger-replica:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/switch-replica:
+        POST:
             tag: GaussDB
     /v3/{project_id}/instances/{instance_id}/tag:
         DELETE:

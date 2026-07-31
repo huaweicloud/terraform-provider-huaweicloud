@@ -58,6 +58,9 @@ paths:
     /v1/{project_id}/jobs/{job_id}:
         GET:
             tag: ECS
+    /v1/{project_id}/ports:
+        GET:
+            tag: VPC
     /v1/{project_id}/ports/{port_id}:
         PUT:
             tag: VPC
