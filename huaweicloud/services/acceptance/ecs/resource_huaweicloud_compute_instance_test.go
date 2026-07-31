@@ -1084,3 +1084,160 @@ resource "huaweicloud_compute_instance" "test" {
 }
 `, testAccCompute_data, rName)
 }
+
+func TestAccComputeInstance_reorderSecurityGroups(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	name := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_reorderSecurityGroups_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "3"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
+						"huaweicloud_networking_secgroup.test.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.1",
+						"huaweicloud_networking_secgroup.test.1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.2",
+						"huaweicloud_networking_secgroup.test.2", "id"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_reorderSecurityGroups_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "3"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
+						"huaweicloud_networking_secgroup.test.2", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.1",
+						"huaweicloud_networking_secgroup.test.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.2",
+						"huaweicloud_networking_secgroup.test.1", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"delete_eip_on_termination",
+					"stop_before_destroy",
+				},
+			},
+		},
+	})
+}
+
+func testAccComputeInstance_reorderSecurityGroups_base(name string) string {
+	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {}
+
+locals {
+  flavors_matched_vcpus_and_types = [for o in data.huaweicloud_compute_flavors.test.flavors: o if 
+    contains(["4", "8"], tostring(o.cpu_core_count)) && length(regexall("^(c5|c6|c7)\\.", o.id)) > 0
+  ]
+}
+
+data "huaweicloud_images_images" "test" {
+  flavor_id  = local.flavors_matched_vcpus_and_types[0].id
+  name_regex = "Ubuntu"
+}
+
+resource "huaweicloud_vpc" "test" {
+  name                  = "%[2]s"
+  cidr                  = "192.168.0.0/24"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  count = 3
+
+  vpc_id = huaweicloud_vpc.test.id
+
+  name       = format("%[2]s_%%d", count.index)
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, count.index), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  count = 3
+
+  name                 = format("%[2]s_%%d", count.index)
+  delete_default_rules = true
+}
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name)
+}
+
+func testAccComputeInstance_reorderSecurityGroups_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                  = "%[2]s"
+  image_id              = try(data.huaweicloud_images_images.test.images[0].id, null)
+  flavor_id             = try(local.flavors_matched_vcpus_and_types[0].id, null)
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+  security_group_ids    = [
+    huaweicloud_networking_secgroup.test[0].id,
+    huaweicloud_networking_secgroup.test[1].id,
+    huaweicloud_networking_secgroup.test[2].id,
+  ]
+
+  system_disk_type = "SSD"
+  system_disk_size = 40
+
+  dynamic "network" {
+    for_each = huaweicloud_vpc_subnet.test
+
+    content {
+      uuid = network.value.id
+    }
+  }
+}
+`, testAccComputeInstance_reorderSecurityGroups_base(name), name)
+}
+
+func testAccComputeInstance_reorderSecurityGroups_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                  = "%[2]s"
+  image_id              = try(data.huaweicloud_images_images.test.images[0].id, null)
+  flavor_id             = try(local.flavors_matched_vcpus_and_types[0].id, null)
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
+  security_group_ids    = [
+    huaweicloud_networking_secgroup.test[2].id,
+    huaweicloud_networking_secgroup.test[0].id,
+    huaweicloud_networking_secgroup.test[1].id,
+  ]
+
+  system_disk_type = "SSD"
+  system_disk_size = 40
+
+  dynamic "network" {
+    for_each = huaweicloud_vpc_subnet.test
+
+    content {
+      uuid = network.value.id
+    }
+  }
+}
+`, testAccComputeInstance_reorderSecurityGroups_base(name), name)
+}
