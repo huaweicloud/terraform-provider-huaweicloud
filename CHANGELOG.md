@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 1.96.0 (July 31, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_dsc_asset_authorization` [GH-10238]
+  + `huaweicloud_dsc_batch_add_data_mask` [GH-10308]
+  + `huaweicloud_dsc_batch_delete_template_rule` [GH-10257]
+  + `huaweicloud_dsc_batch_update_template_rules_classification` [GH-10300]
+  + `huaweicloud_dsc_mask_algorithm` [GH-10256]
+  + `huaweicloud_dsc_mask_algorithm_debug` [GH-10280]
+  + `huaweicloud_dsc_measure_info` [GH-10284]
+  + `huaweicloud_dsc_operate_instance_metadata` [GH-10304]
+  + `huaweicloud_dsc_operate_obs_audit` [GH-10237]
+  + `huaweicloud_dsc_scan_rule` [GH-10240]
+  + `huaweicloud_dsc_scan_template` [GH-10226]
+  + `huaweicloud_dsc_scan_template_classification` [GH-10229]
+  + `huaweicloud_dsc_test_scan_rule` [GH-10274]
+  + `huaweicloud_gaussdb_agency_permission_policy` [GH-10253]
+  + `huaweicloud_gaussdb_parameter_template_save` [GH-10216]
+
+* **New Data Source:**
+  + `huaweicloud_cciv2_feature_gates` [GH-10227]
+  + `huaweicloud_dcs_running_instance_statistics` [GH-10263]
+  + `huaweicloud_dsc_alarm_infos` [GH-10290]
+  + `huaweicloud_dsc_alarm_overview` [GH-10270]
+  + `huaweicloud_dsc_asset_last_job` [GH-10264]
+  + `huaweicloud_dsc_attacked_top` [GH-10273]
+  + `huaweicloud_dsc_bigdata_assets` [GH-10224]
+  + `huaweicloud_dsc_classification_results` [GH-10241]
+  + `huaweicloud_dsc_column_details_by_level_dim` [GH-10299]
+  + `huaweicloud_dsc_data_detail` [GH-10283]
+  + `huaweicloud_dsc_data_map_risk_level_info` [GH-10262]
+  + `huaweicloud_dsc_database_instance_databases` [GH-10266]
+  + `huaweicloud_dsc_db_mask_tasks` [GH-10282]
+  + `huaweicloud_dsc_device_mask_algorithms` [GH-10307]
+  + `huaweicloud_dsc_device_security_policies` [GH-10232]
+  + `huaweicloud_dsc_encrypt_configurations` [GH-10268]
+  + `huaweicloud_dsc_hit_rules` [GH-10297]
+  + `huaweicloud_dsc_links` [GH-10261]
+  + `huaweicloud_dsc_security_levels` [GH-10250]
+  + `huaweicloud_dsc_security_policies` [GH-10302]
+  + `huaweicloud_dsc_tags` [GH-10249]
+  + `huaweicloud_dsc_top_risky_assets` [GH-10248]
+  + `huaweicloud_dsc_watermark_embed_logs` [GH-10252]
+  + `huaweicloud_dsc_watermark_extract_logs` [GH-10239]
+  + `huaweicloud_gaussdb_auto_transaction_termination_config` [GH-10213]
+  + `huaweicloud_gaussdb_instance_storage_usage` [GH-10218]
+  + `huaweicloud_gaussdb_instance_upgrade_versions` [GH-10231]
+  + `huaweicloud_gaussdb_kms_detail` [GH-10221]
+  + `huaweicloud_gaussdb_param_set_template_expansion` [GH-10228]
+  + `huaweicloud_gaussdb_top_sql_statements` [GH-10234]
+
 ## 1.95.0 (July 16, 2026)
 
 * **New Resource Source:**
