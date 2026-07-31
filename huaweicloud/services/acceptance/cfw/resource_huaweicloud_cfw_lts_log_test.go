@@ -44,8 +44,8 @@ func getLtsLogFunc(cfg *config.Config, state *terraform.ResourceState) (interfac
 		return nil, err
 	}
 
-	lts_enable := utils.PathSearch("data.lts_enable", respBody, float64(0)).(float64)
-	if lts_enable == 0 {
+	ltsLogEnable := utils.PathSearch("data.lts_enable", respBody, float64(0)).(float64)
+	if ltsLogEnable == 0 {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
