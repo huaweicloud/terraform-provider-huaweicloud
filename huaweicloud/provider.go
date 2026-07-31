@@ -5061,6 +5061,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_operate_instance_metadata":                  dsc.ResourceOperateInstanceMetadata(),
 			"huaweicloud_dsc_operate_obs_audit":                          dsc.ResourceOperateObsAudit(),
 			"huaweicloud_dsc_scan_rule":                                  dsc.ResourceScanRule(),
+			"huaweicloud_dsc_scan_security_level":                        dsc.ResourceScanSecurityLevel(),
 			"huaweicloud_dsc_scan_template":                              dsc.ResourceScanTemplate(),
 			"huaweicloud_dsc_scan_template_classification":               dsc.ResourceScanTemplateClassification(),
 			"huaweicloud_dsc_stop_scan_job":                              dsc.ResourceStopScanJob(),
