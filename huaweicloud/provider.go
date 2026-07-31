@@ -5052,6 +5052,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_batch_update_template_rules_classification": dsc.ResourceDscBatchUpdateTemplateRulesClassification(),
 			"huaweicloud_dsc_bigdata_instance":                           dsc.ResourceBigdataInstance(),
 			"huaweicloud_dsc_data_map_score_update":                      dsc.ResourceDscDataMapScoreUpdate(),
+			"huaweicloud_dsc_database_watermark_embed_task":              dsc.ResourceDatabaseWatermarkEmbedTask(),
 			"huaweicloud_dsc_device":                                     dsc.ResourceDscDevice(),
 			"huaweicloud_dsc_instance":                                   dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_mask_algorithm":                             dsc.ResourceMaskAlgorithm(),
