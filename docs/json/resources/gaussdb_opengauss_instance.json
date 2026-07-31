@@ -85,6 +85,10 @@
                 "optional": true,
                 "computed": true
               },
+              "expansion_parameters": {
+                "type": "string",
+                "optional": true
+              },
               "flavor": {
                 "type": "string",
                 "required": true

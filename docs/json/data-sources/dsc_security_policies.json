@@ -1,0 +1,173 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_security_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dbss_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_mask": "bool",
+                            "show_result": "bool"
+                          }
+                        ]
+                      ],
+                      "ddm_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "proxy_port": "number",
+                            "zk_election_port": "number",
+                            "zk_port": "number"
+                          }
+                        ]
+                      ],
+                      "ddm_policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mask": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "namespace": "string",
+                            "table": "string"
+                          }
+                        ]
+                      ],
+                      "dom_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "deploy_mode": "string"
+                          }
+                        ]
+                      ],
+                      "dom_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_policy": "bool",
+                            "data_audit": "bool",
+                            "default_action": "string",
+                            "intelligent_protection_baseline": "bool",
+                            "virtual_patch": "bool"
+                          }
+                        ]
+                      ],
+                      "enabled": "bool",
+                      "gde_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enc_mode": "number",
+                            "proxy_port": "number"
+                          }
+                        ]
+                      ],
+                      "gde_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "number",
+                            "alg": "string",
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mask": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "table": "string"
+                          }
+                        ]
+                      ],
+                      "id": "number",
+                      "name": "string",
+                      "related_datasource_id": "string",
+                      "related_datasource_name": "string",
+                      "related_datasource_type": "string",
+                      "related_instance_id": "string",
+                      "related_instance_name": "string",
+                      "related_instance_type": "string",
+                      "resource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account": "string",
+                            "address": "string",
+                            "address_type": "string",
+                            "case_sensitive": "bool",
+                            "database_name": "string",
+                            "extra_params": "string",
+                            "password": "string",
+                            "port": "number",
+                            "res_id": "string",
+                            "res_type": "string",
+                            "res_version": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "type": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

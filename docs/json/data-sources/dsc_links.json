@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_links": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "optional": true
+              },
+              "dbss_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ecs_name": {
+                "type": "string",
+                "optional": true
+              },
+              "egress_type": {
+                "type": "string",
+                "optional": true
+              },
+              "end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "labels": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_times": "number",
+                      "encrypt_status": "string",
+                      "source_node_id": "string",
+                      "ssl_access_times": "number",
+                      "target_node_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "encrypt_status": "string",
+                      "fixed_ip": "string",
+                      "floating_ip": "string",
+                      "id": "string",
+                      "name": "string",
+                      "node_type": "string",
+                      "sensitive_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "label_name": "string",
+                            "sensitive_level": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "oem_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sensitive_level": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_measure_info": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the measure description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_deleted": {
+                "type": "bool",
+                "description": "Whether the measure is deleted.",
+                "computed": true
+              },
+              "life_cycle": {
+                "type": "string",
+                "description": "Specifies the data lifecycle stage.",
+                "required": true
+              },
+              "measure_type": {
+                "type": "string",
+                "description": "Specifies the measure type.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the measure name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "The update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

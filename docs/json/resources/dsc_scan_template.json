@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_scan_template": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The operation type, such as creating or copying a template.",
+                "optional": true
+              },
+              "add_built_in_rules": {
+                "type": "bool",
+                "description": "Whether to add built-in rules when creating the template.",
+                "optional": true
+              },
+              "category": {
+                "type": "string",
+                "description": "The template category.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The template description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default": {
+                "type": "bool",
+                "description": "Whether the template is the default template.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The template name.",
+                "required": true
+              },
+              "origin_template_id": {
+                "type": "string",
+                "description": "The origin template ID, used when copying a template.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "The update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_batch_add_data_mask": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "map",
+                    "string"
+                  ]
+                ],
+                "description": "Specifies the data list to be masked.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "masked_data": {
+                "type": "string",
+                "description": "The list of masked data in JSON format.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "mask_strategies": {
+                "block": {
+                  "attributes": {
+                    "algorithm": {
+                      "type": "string",
+                      "description": "Specifies the masking algorithm name.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the field name to be masked.",
+                      "required": true
+                    },
+                    "parameters": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Specifies the masking algorithm parameters.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the list of mask strategies, each corresponding to a field."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 100
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

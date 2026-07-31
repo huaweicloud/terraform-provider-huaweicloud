@@ -28,6 +28,11 @@
                 "type": "string",
                 "computed": true
               },
+              "edge_location": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "encryption": {
                 "type": "bool",
                 "optional": true,
@@ -46,6 +51,11 @@
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "ies_location": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "kms_data_encryption": {
                 "type": "string",

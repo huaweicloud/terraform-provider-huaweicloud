@@ -77,6 +77,60 @@
                   "description": "schema:{\"Internal\":true};The origin list of IPv4 ranges that used to reorder the 'ip_ranges' parameter."
                 },
                 "nesting_mode": "list"
+              },
+              "ipv6_ciders_order": {
+                "block": {
+                  "attributes": {
+                    "cidr": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of IPv4 CIDR blocks that used to reorder the 'ip_cidrs' parameter."
+                },
+                "nesting_mode": "list"
+              },
+              "ipv6_cidrs": {
+                "block": {
+                  "attributes": {
+                    "cidr": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "ipv6_ranges": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "range": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "ipv6_ranges_order": {
+                "block": {
+                  "attributes": {
+                    "range": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The origin list of IPv4 ranges that used to reorder the 'ip_ranges' parameter."
+                },
+                "nesting_mode": "list"
               }
             }
           },

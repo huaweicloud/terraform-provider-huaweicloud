@@ -1,0 +1,153 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_data_map_risk_level_info": {
+          "block": {
+            "attributes": {
+              "data_level": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "level_color_number": "number",
+                      "level_id": "string",
+                      "level_name": "string",
+                      "risk_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "asset_name": "string",
+                                  "asset_type": "string",
+                                  "create_time": "number",
+                                  "id": "string",
+                                  "ins_type": "string",
+                                  "is_authorized": "bool",
+                                  "is_scaned": "bool",
+                                  "scan_detail": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "job_id": "string",
+                                        "last_scan_time": "number",
+                                        "object_num": "number",
+                                        "scan_risk": "string",
+                                        "scan_template_id": "string",
+                                        "scan_template_name": "string",
+                                        "security_level_color": "number",
+                                        "security_level_id": "string",
+                                        "security_level_name": "string",
+                                        "sensitive_object_num": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "security_strategy": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "access_strategy": "string",
+                                        "access_strategy_level": "string",
+                                        "authority_enable": "bool",
+                                        "authority_level": "string",
+                                        "backup_and_restore": "string",
+                                        "backup_enable": "bool",
+                                        "backup_level": "string",
+                                        "data_volume_encrypt_enable": "bool",
+                                        "data_volume_encrypt_level": "string",
+                                        "dbss_audit_security_level": "string",
+                                        "dbss_audit_status": "bool",
+                                        "disk_encrypted": "string",
+                                        "disk_encrypted_enable": "bool",
+                                        "encrypt_level": "string",
+                                        "https_enable": "bool",
+                                        "https_level": "string",
+                                        "ik_enable": "string",
+                                        "is_encrypt": "bool",
+                                        "obs_audit_level": "string",
+                                        "obs_audit_status": "bool",
+                                        "public_network_access": "string",
+                                        "public_network_enable": "bool",
+                                        "security_group_level": "string",
+                                        "ssl_enabled": "string",
+                                        "ssl_status": "bool",
+                                        "total_risk": "string",
+                                        "working_mode": "string",
+                                        "working_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "threat_analysis": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "abnormal_login_level": "string",
+                                        "risky_operation_level": "string",
+                                        "sql_inject_level": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "vpc_id": "string"
+                                }
+                              ]
+                            ],
+                            "total": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "total": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "security_level_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

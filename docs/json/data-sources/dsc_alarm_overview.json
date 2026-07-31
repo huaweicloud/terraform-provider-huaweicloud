@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_alarm_overview": {
+          "block": {
+            "attributes": {
+              "alarm_source_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_num": "number",
+                      "cbh_num": "number",
+                      "database_encrypt_num": "number",
+                      "database_op_num": "number",
+                      "dbss_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_alarm": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fatal_num": "number",
+                      "high_risk_num": "number",
+                      "low_risk_num": "number",
+                      "middle_risk_num": "number",
+                      "notice_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "turn_off_num": {
+                "type": "number",
+                "computed": true
+              },
+              "turn_on_num": {
+                "type": "number",
+                "computed": true
+              },
+              "untreated_alarm": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fatal_num": "number",
+                      "high_risk_num": "number",
+                      "low_risk_num": "number",
+                      "middle_risk_num": "number",
+                      "notice_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

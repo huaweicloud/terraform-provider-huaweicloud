@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_top_risky_assets": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "risk_asset_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_id": "string",
+                      "asset_name": "string",
+                      "asset_type": "string",
+                      "data_source": "string",
+                      "deducted_point": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

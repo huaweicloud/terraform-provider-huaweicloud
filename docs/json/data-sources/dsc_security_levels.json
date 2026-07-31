@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_security_levels": {
+          "block": {
+            "attributes": {
+              "asset_id": {
+                "type": "string",
+                "description": "Specifies the asset ID for filtering.",
+                "optional": true
+              },
+              "asset_type": {
+                "type": "string",
+                "description": "Specifies the asset type for filtering.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the scan job ID.",
+                "required": true
+              },
+              "keyword": {
+                "type": "string",
+                "description": "Specifies the keyword for fuzzy search on object names.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_level_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the security level IDs for filtering.",
+                "optional": true
+              },
+              "security_level_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "count": "number",
+                      "percent": "string",
+                      "security_level_color": "number",
+                      "security_level_id": "string",
+                      "security_level_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The security level distribution list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

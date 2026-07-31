@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_feature_gates": {
+          "block": {
+            "attributes": {
+              "feature_gates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "deprecated": "bool",
+                      "description": "string",
+                      "feature": "string",
+                      "type": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -161,7 +161,7 @@
               },
               "security_group_ids": {
                 "type": [
-                  "set",
+                  "list",
                   "string"
                 ],
                 "optional": true,

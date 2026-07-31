@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_running_instance_statistics": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "statistics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cmd_get_count": "number",
+                      "cmd_set_count": "number",
+                      "input_kbps": "string",
+                      "instance_id": "string",
+                      "keys": "number",
+                      "max_memory": "number",
+                      "output_kbps": "string",
+                      "used_cpu": "string",
+                      "used_memory": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

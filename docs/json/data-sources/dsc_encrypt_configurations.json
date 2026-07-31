@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_encrypt_configurations": {
+          "block": {
+            "attributes": {
+              "access_permission": {
+                "type": "bool",
+                "description": "Whether the user has the access permission.",
+                "computed": true
+              },
+              "algorithm_type": {
+                "type": "string",
+                "description": "The type of the encryption algorithm.",
+                "required": true
+              },
+              "configuration_name": {
+                "type": "string",
+                "description": "The name of the encryption configuration.",
+                "optional": true
+              },
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm_name": "string",
+                      "algorithm_type": "string",
+                      "configuration_name": "string",
+                      "enable_rotate": "bool",
+                      "encrypt_mode": "string",
+                      "filling_method": "string",
+                      "id": "string",
+                      "kms_context": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "kms_key_alias": "string",
+                            "kms_key_id": "string",
+                            "kms_region": "string"
+                          }
+                        ]
+                      ],
+                      "mask_task_num": "number",
+                      "rotate_period": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the encryption configurations.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the encryption configurations are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

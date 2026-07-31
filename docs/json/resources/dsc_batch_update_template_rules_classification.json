@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_batch_update_template_rules_classification": {
+          "block": {
+            "attributes": {
+              "classification_id": {
+                "type": "string",
+                "description": "Specifies the classification ID for batch updating the rule classification.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "msg": {
+                "type": "string",
+                "description": "The returned message.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of rule IDs to be batch updated.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The returned status.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the scan template ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

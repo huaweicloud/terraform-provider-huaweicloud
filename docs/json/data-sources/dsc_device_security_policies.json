@@ -1,0 +1,201 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_device_security_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the policy name for filtering.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ddm_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "proxy_port": "number",
+                            "zk_election_port": "number",
+                            "zk_port": "number"
+                          }
+                        ]
+                      ],
+                      "ddm_policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mask": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "namespace": "string",
+                            "table": "string"
+                          }
+                        ]
+                      ],
+                      "enabled": "bool",
+                      "gde_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enc_mode": "number",
+                            "proxy_port": "number"
+                          }
+                        ]
+                      ],
+                      "gde_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "number",
+                            "alg": "string",
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mask": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "table": "string"
+                          }
+                        ]
+                      ],
+                      "id": "number",
+                      "name": "string",
+                      "related_datasource_id": "string",
+                      "related_datasource_name": "string",
+                      "related_datasource_type": "string",
+                      "related_device_id": "string",
+                      "related_device_name": "string",
+                      "related_device_type": "number",
+                      "resource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account": "string",
+                            "address": "string",
+                            "address_type": "string",
+                            "case_sensitive": "bool",
+                            "database_name": "string",
+                            "extra_params": "string",
+                            "password": "string",
+                            "port": "number",
+                            "res_id": "string",
+                            "res_type": "string",
+                            "res_version": "string"
+                          }
+                        ]
+                      ],
+                      "sdm_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_rebuild_target": "bool",
+                            "clear_target": "bool",
+                            "select_param": "string",
+                            "select_type": "string",
+                            "skip_dirty_data": "bool"
+                          }
+                        ]
+                      ],
+                      "sdm_policy_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mask": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "do_mask": "bool",
+                            "do_move": "bool",
+                            "namespace": "string",
+                            "table": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "target_datasource_id": "string",
+                      "target_datasource_name": "string",
+                      "target_datasource_type": "string",
+                      "target_resource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account": "string",
+                            "address": "string",
+                            "address_type": "string",
+                            "case_sensitive": "bool",
+                            "database_name": "string",
+                            "extra_params": "string",
+                            "password": "string",
+                            "port": "number",
+                            "res_id": "string",
+                            "res_type": "string",
+                            "res_version": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The security policy list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the policy type for filtering.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

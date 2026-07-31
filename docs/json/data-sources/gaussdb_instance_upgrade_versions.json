@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_instance_upgrade_versions": {
+          "block": {
+            "attributes": {
+              "hotfix_rollback_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_sensitive": "bool",
+                      "common_patch": "string",
+                      "default_upgrade": "bool",
+                      "descripition": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "hotfix_upgrade_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_sensitive": "bool",
+                      "common_patch": "string",
+                      "default_upgrade": "bool",
+                      "descripition": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "target_version": {
+                "type": "string",
+                "computed": true
+              },
+              "upgrade_candidate_versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "upgrade_type_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enable": "bool",
+                      "is_parallel_upgrade": "bool",
+                      "upgrade_action_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable": "bool",
+                            "upgrade_action": "string"
+                          }
+                        ]
+                      ],
+                      "upgrade_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

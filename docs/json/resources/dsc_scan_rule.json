@@ -1,0 +1,158 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_scan_rule": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "The category of the scan rule.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logic_operator": {
+                "type": "string",
+                "description": "The logic operator of the scan rule.",
+                "required": true
+              },
+              "match_rate": {
+                "type": "number",
+                "description": "The match rate of the scan rule.",
+                "required": true
+              },
+              "min_match": {
+                "type": "number",
+                "description": "The minimum match count of the scan rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the scan rule is located.",
+                "computed": true
+              },
+              "rule_desc": {
+                "type": "string",
+                "description": "The description of the scan rule.",
+                "optional": true
+              },
+              "rule_name": {
+                "type": "string",
+                "description": "The name of the scan rule.",
+                "required": true
+              },
+              "rule_type": {
+                "type": "string",
+                "description": "The type of the scan rule.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "content": {
+                "block": {
+                  "attributes": {
+                    "effective_mode": {
+                      "type": "string",
+                      "description": "The effective mode of the rule content.",
+                      "required": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "description": "The application location of the rule content.",
+                      "required": true
+                    },
+                    "rule_content": {
+                      "type": "string",
+                      "description": "The content of the rule.",
+                      "required": true
+                    }
+                  },
+                  "description": "The content list of the scan rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "templates": {
+                "block": {
+                  "attributes": {
+                    "classification_id": {
+                      "type": "string",
+                      "description": "The classification ID associated with the rule.",
+                      "required": true
+                    },
+                    "classification_name": {
+                      "type": "string",
+                      "description": "The classification name associated with the rule.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the rule template.",
+                      "computed": true
+                    },
+                    "is_used": {
+                      "type": "string",
+                      "description": "Whether the rule is enabled in the template.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "security_level_color": {
+                      "type": "number",
+                      "description": "The color number corresponding to the security level.",
+                      "computed": true
+                    },
+                    "security_level_id": {
+                      "type": "string",
+                      "description": "The security level ID associated with the rule.",
+                      "required": true
+                    },
+                    "security_level_name": {
+                      "type": "string",
+                      "description": "The name of the security level.",
+                      "computed": true
+                    },
+                    "template_id": {
+                      "type": "string",
+                      "description": "The template ID associated with the rule.",
+                      "required": true
+                    },
+                    "template_name": {
+                      "type": "string",
+                      "description": "The name of the template.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The template list associated with the scan rule."
+                },
+                "nesting_mode": "list"
+              },
+              "templates_origin": {
+                "block": {
+                  "attributes": {
+                    "template_id": {
+                      "type": "string",
+                      "description": "The template ID associated with the rule.",
+                      "computed": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The script configuration value of this change is also the original value used for comparison with\n the new value next time the change is made. The corresponding parameter name is 'templates'."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

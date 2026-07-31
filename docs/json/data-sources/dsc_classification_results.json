@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_classification_results": {
+          "block": {
+            "attributes": {
+              "asset_id": {
+                "type": "string",
+                "description": "Specifies the asset ID for filtering.",
+                "optional": true
+              },
+              "asset_type": {
+                "type": "string",
+                "description": "Specifies the asset type for filtering.",
+                "optional": true
+              },
+              "classification_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_id": "string",
+                      "asset_name": "string",
+                      "asset_type": "string",
+                      "create_time": "number",
+                      "id": "string",
+                      "ins_id": "string",
+                      "job_id": "string",
+                      "match_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "classification_id": "string",
+                            "classification_name": "string",
+                            "matched_detail": "string",
+                            "matched_examples": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "line_number": "number",
+                                  "matched_content": "string"
+                                }
+                              ]
+                            ],
+                            "rule_id": "string",
+                            "rule_name": "string",
+                            "security_level_color": "number",
+                            "security_level_id": "string",
+                            "security_level_name": "string",
+                            "template_id": "string",
+                            "template_name": "string"
+                          }
+                        ]
+                      ],
+                      "object_full_path": "string",
+                      "object_name": "string",
+                      "project_id": "string",
+                      "scan_time": "number",
+                      "security_level_color": "number",
+                      "security_level_id": "string",
+                      "security_level_name": "string",
+                      "task_id": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The classification results list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the scan job ID.",
+                "required": true
+              },
+              "keyword": {
+                "type": "string",
+                "description": "Specifies the keyword for fuzzy search on object names.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_level_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the security level IDs for filtering.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
