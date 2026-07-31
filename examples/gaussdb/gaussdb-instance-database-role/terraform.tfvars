@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_vpc"
+subnet_name         = "tf_test_subnet"
+security_group_name = "tf_test_security_group"
+instance_name       = "tf_test_gaussdb_instance"
+database_role_name  = "tf_test_role_name"
