@@ -198,7 +198,7 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 			}
 		}
 
-		eip := map[string]interface{}{
+		queriedEip := map[string]interface{}{
 			"id":                    item.ID,
 			"name":                  item.Alias,
 			"status":                NormalizeEipStatus(item.Status),
@@ -217,7 +217,7 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 			"created_at":            item.CreateTime,
 		}
 
-		eipList = append(eipList, eip)
+		eipList = append(eipList, queriedEip)
 		ids = append(ids, item.ID)
 	}
 	log.Printf("[DEBUG]Eips List after filter, count=%d :%+v", len(eipList), eipList)

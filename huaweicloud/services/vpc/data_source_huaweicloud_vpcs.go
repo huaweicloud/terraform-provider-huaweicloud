@@ -137,7 +137,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 	tagFilter := d.Get("tags").(map[string]interface{})
 	var ids []string
 	for _, vpcResource := range vpcList {
-		vpc := map[string]interface{}{
+		queriedVpc := map[string]interface{}{
 			"id":                    vpcResource.ID,
 			"name":                  vpcResource.Name,
 			"cidr":                  vpcResource.CIDR,
@@ -152,7 +152,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 			if !utils.HasMapContains(tagmap, tagFilter) {
 				continue
 			}
-			vpc["tags"] = tagmap
+			queriedVpc["tags"] = tagmap
 		} else {
 			// The tags api does not support eps authorization, so don't return 403 to avoid error
 			if _, ok := err.(golangsdk.ErrDefault403); ok {
@@ -167,9 +167,9 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		if err != nil {
 			diag.Errorf("error retrieving VPC (%s) v3 detail: %s", vpcResource.ID, err)
 		}
-		vpc["secondary_cidrs"] = utils.PathSearch("vpc.extend_cidrs", res, nil)
+		queriedVpc["secondary_cidrs"] = utils.PathSearch("vpc.extend_cidrs", res, nil)
 
-		vpcInfos = append(vpcInfos, vpc)
+		vpcInfos = append(vpcInfos, queriedVpc)
 		ids = append(ids, vpcResource.ID)
 	}
 	log.Printf("[DEBUG] VPC List after filter, count: %d vpcs: %+v", len(vpcInfos), vpcInfos)

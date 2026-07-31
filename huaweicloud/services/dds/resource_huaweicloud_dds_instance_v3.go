@@ -1627,9 +1627,9 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func flattenDdsInstanceV3Groups(dds instances.InstanceResponse) interface{} {
-	nodesList := make([]map[string]interface{}, len(dds.Groups))
-	for i, group := range dds.Groups {
+func flattenDdsInstanceV3Groups(instance instances.InstanceResponse) interface{} {
+	nodesList := make([]map[string]interface{}, len(instance.Groups))
+	for i, group := range instance.Groups {
 		node := map[string]interface{}{
 			"id":     group.Id,
 			"name":   group.Name,
@@ -1662,9 +1662,9 @@ func flattenDdsInstanceGroupNodes(nodes []instances.Nodes) interface{} {
 	return nodesList
 }
 
-func flattenDdsInstanceV3Nodes(dds instances.InstanceResponse) interface{} {
+func flattenDdsInstanceV3Nodes(instance instances.InstanceResponse) interface{} {
 	nodesList := make([]map[string]interface{}, 0)
-	for _, group := range dds.Groups {
+	for _, group := range instance.Groups {
 		groupType := group.Type
 		for _, Node := range group.Nodes {
 			node := map[string]interface{}{

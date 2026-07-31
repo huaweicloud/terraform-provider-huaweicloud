@@ -245,20 +245,20 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	lb, err := loadbalancers.Create(elbClient, createOpts).Extract()
+	loadbalancer, err := loadbalancers.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating LoadBalancer: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForLBV2LoadBalancer(ctx, elbClient, lb.ID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer(ctx, elbClient, loadbalancer.ID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	// set the ID on the resource
-	d.SetId(lb.ID)
+	d.SetId(loadbalancer.ID)
 
 	// change to pre-paid mode
 	if d.Get("charging_mode").(string) == "prePaid" {
@@ -288,13 +288,13 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 
 	// Once the LoadBalancer has been created, apply any requested security groups
 	// to the port that was created behind the scenes.
-	if lb.VipPortID != "" {
+	if loadbalancer.VipPortID != "" {
 		networkingClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 Client: %s", err)
 		}
 
-		if err := resourceLoadBalancerV2SecurityGroups(networkingClient, lb.VipPortID, d); err != nil {
+		if err := resourceLoadBalancerV2SecurityGroups(networkingClient, loadbalancer.VipPortID, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -303,8 +303,8 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(elbV2Client, "loadbalancers", lb.ID, tagList).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of LoadBalancer %s: %s", lb.ID, tagErr)
+		if tagErr := tags.Create(elbV2Client, "loadbalancers", loadbalancer.ID, tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of LoadBalancer %s: %s", loadbalancer.ID, tagErr)
 		}
 	}
 
@@ -325,53 +325,53 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ELB v2.0 Client: %s", err)
 	}
 
-	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
+	loadbalancer, err := loadbalancers.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving LoadBalancer")
 	}
 
-	log.Printf("[DEBUG] Retrieved LoadBalancer %s: %#v", d.Id(), lb)
+	log.Printf("[DEBUG] Retrieved LoadBalancer %s: %#v", d.Id(), loadbalancer)
 
 	var publicIp string
-	if len(lb.PublicIps) > 0 {
-		publicIp = lb.PublicIps[0].PublicIpAddress
+	if len(loadbalancer.PublicIps) > 0 {
+		publicIp = loadbalancer.PublicIps[0].PublicIpAddress
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", lb.Name),
-		d.Set("description", lb.Description),
-		d.Set("vip_subnet_id", lb.VipSubnetID),
-		d.Set("tenant_id", lb.TenantID),
-		d.Set("vip_address", lb.VipAddress),
-		d.Set("vip_port_id", lb.VipPortID),
-		d.Set("admin_state_up", lb.AdminStateUp),
-		d.Set("flavor", lb.Flavor),
-		d.Set("loadbalancer_provider", lb.Provider),
-		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
-		d.Set("protection_status", lb.ProtectionStatus),
-		d.Set("protection_reason", lb.ProtectionReason),
+		d.Set("name", loadbalancer.Name),
+		d.Set("description", loadbalancer.Description),
+		d.Set("vip_subnet_id", loadbalancer.VipSubnetID),
+		d.Set("tenant_id", loadbalancer.TenantID),
+		d.Set("vip_address", loadbalancer.VipAddress),
+		d.Set("vip_port_id", loadbalancer.VipPortID),
+		d.Set("admin_state_up", loadbalancer.AdminStateUp),
+		d.Set("flavor", loadbalancer.Flavor),
+		d.Set("loadbalancer_provider", loadbalancer.Provider),
+		d.Set("enterprise_project_id", loadbalancer.EnterpriseProjectID),
+		d.Set("protection_status", loadbalancer.ProtectionStatus),
+		d.Set("protection_reason", loadbalancer.ProtectionReason),
 		d.Set("public_ip", publicIp),
-		d.Set("charge_mode", lb.ChargeMode),
-		d.Set("frozen_scene", lb.FrozenScene),
-		d.Set("created_at", lb.CreatedAt),
-		d.Set("updated_at", lb.UpdatedAt),
+		d.Set("charge_mode", loadbalancer.ChargeMode),
+		d.Set("frozen_scene", loadbalancer.FrozenScene),
+		d.Set("created_at", loadbalancer.CreatedAt),
+		d.Set("updated_at", loadbalancer.UpdatedAt),
 	)
 
-	if lb.BillingInfo != "" {
+	if loadbalancer.BillingInfo != "" {
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
 	} else {
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "postPaid"))
 	}
 
 	// Get any security groups on the VIP Port
-	if lb.VipPortID != "" {
+	if loadbalancer.VipPortID != "" {
 		networkingClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 Client: %s", err)
 		}
 
-		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
+		port, err := ports.Get(networkingClient, loadbalancer.VipPortID).Extract()
 		if err != nil {
 			return diag.FromErr(err)
 		}
