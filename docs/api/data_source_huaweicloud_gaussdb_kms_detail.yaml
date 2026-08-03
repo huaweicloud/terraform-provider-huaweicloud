@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: GaussDB
 paths:
-    /v3/{project_id}/kms/describe-key/{kms_project_name}/{key_id}:
+    /v3/{project_id}/kms/{key_id}/describe-key/{kms_project_name}:
         GET:
             tag: GaussDB
