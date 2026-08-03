@@ -34,6 +34,10 @@ resource "random_password" "test" {
   length           = 12
   special          = true
   override_special = "!@%^*-_=+"
+  min_upper        = 1
+  min_lower        = 1
+  min_numeric      = 1
+  min_special      = 1
 }
 
 # Create GeminiDB Cassandra instance
@@ -43,7 +47,7 @@ resource "huaweicloud_geminidb_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Qi@123456"
+  password          = var.instance_password != "" ? var.instance_password : try(random_password.test[0].result)
   mode              = var.instance_mode
   port              = var.instance_db_port
   ssl_option        = var.instance_ssl_option
