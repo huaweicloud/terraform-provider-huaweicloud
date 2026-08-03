@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 )
 
 // BaseError is an error type that all other error types embed.
@@ -147,15 +146,9 @@ func (e ErrDefault403) Error() string {
 		}
 	}
 
-	var unAuthorized = "Request not authorized"
-
 	messageBody := string(e.Body)
-	if maxLength > 0 {
-		if strings.Contains(messageBody, unAuthorized) {
-			messageBody = unAuthorized
-		} else {
-			messageBody = messageBody[:maxLength] + "\n..."
-		}
+	if maxLength > 0 && maxLength < len(messageBody) {
+		messageBody = messageBody[:maxLength] + "\n..."
 	}
 	e.DefaultErrString = fmt.Sprintf(
 		"Action forbidden: [%s %s], request_id: %s, error message: %s",

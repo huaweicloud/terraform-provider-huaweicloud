@@ -669,7 +669,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 	region := cfg.GetRegion(d)
 	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating Vpc: %s", err)
+		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
 	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
