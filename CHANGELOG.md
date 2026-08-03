@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.96.1 (Aug 3, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_dsc_scan_security_level` [GH-10320]
+
 ## 1.96.0 (July 31, 2026)
 
 * **New Resource Source:**
