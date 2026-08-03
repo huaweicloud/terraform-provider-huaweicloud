@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB GET /v3/{project_id}/kms/describe-key/{kms_project_name}/{key_id}
+// @API GaussDB GET /v3/{project_id}/kms/{key_id}/describe-key/{kms_project_name}
 func DataSourceGaussDBKmsDetail() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGaussDBKmsDetailRead,
