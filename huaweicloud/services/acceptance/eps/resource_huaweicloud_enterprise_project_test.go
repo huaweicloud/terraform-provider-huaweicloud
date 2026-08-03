@@ -74,7 +74,7 @@ func TestAccEnterpriseProject_delete(t *testing.T) {
 	deleteName := acceptance.RandomAccResourceName() + "delete"
 	resourceDeleteName := "huaweicloud_enterprise_project.test_delete"
 
-	rc_delete := acceptance.InitResourceCheck(
+	rc := acceptance.InitResourceCheck(
 		resourceDeleteName,
 		&project,
 		getResourceEnterpriseProject,
@@ -90,7 +90,7 @@ func TestAccEnterpriseProject_delete(t *testing.T) {
 			{
 				Config: testAccEnterpriseProject_delete(deleteName),
 				Check: resource.ComposeTestCheckFunc(
-					rc_delete.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceDeleteName, "name", deleteName),
 					resource.TestCheckResourceAttr(resourceDeleteName, "type", "prod"),
 					resource.TestCheckResourceAttr(resourceDeleteName, "description", "terraform test delete"),
@@ -101,7 +101,7 @@ func TestAccEnterpriseProject_delete(t *testing.T) {
 			{
 				Config: testAccEnterpriseProject_delete_update(deleteName),
 				Check: resource.ComposeTestCheckFunc(
-					rc_delete.CheckResourceExists(),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceDeleteName, "name", fmt.Sprintf("%s_update", deleteName)),
 					resource.TestCheckResourceAttr(resourceDeleteName, "type", "prod"),
 					resource.TestCheckResourceAttr(resourceDeleteName, "description", "terraform test delete update"),

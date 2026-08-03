@@ -106,7 +106,7 @@ func testKafkaSmartConnectResourceImportState(name string) resource.ImportStateI
 		if !ok {
 			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
-		instance_id := rs.Primary.Attributes["instance_id"]
-		return fmt.Sprintf("%s/%s", instance_id, rs.Primary.ID), nil
+		instanceId := rs.Primary.Attributes["instance_id"]
+		return fmt.Sprintf("%s/%s", instanceId, rs.Primary.ID), nil
 	}
 }

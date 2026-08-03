@@ -26,8 +26,8 @@ func getMemberResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 }
 
 func TestAccLBV2Member_basic(t *testing.T) {
-	var member_1 pools.Member
-	var member_2 pools.Member
+	var member1 pools.Member
+	var member2 pools.Member
 	resourceName1 := "huaweicloud_lb_member.member_1"
 	resourceName2 := "huaweicloud_lb_member.member_2"
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -35,12 +35,12 @@ func TestAccLBV2Member_basic(t *testing.T) {
 
 	rc1 := acceptance.InitResourceCheck(
 		resourceName1,
-		&member_1,
+		&member1,
 		getMemberResourceFunc,
 	)
 	rc2 := acceptance.InitResourceCheck(
 		resourceName2,
-		&member_2,
+		&member2,
 		getMemberResourceFunc,
 	)
 

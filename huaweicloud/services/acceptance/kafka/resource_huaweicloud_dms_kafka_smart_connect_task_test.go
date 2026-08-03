@@ -151,7 +151,7 @@ func testKafkaSmartConnectTaskResourceImportState(name string) resource.ImportSt
 		if !ok {
 			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
-		connector_id := rs.Primary.Attributes["connector_id"]
-		return fmt.Sprintf("%s/%s", connector_id, rs.Primary.ID), nil
+		connectorId := rs.Primary.Attributes["connector_id"]
+		return fmt.Sprintf("%s/%s", connectorId, rs.Primary.ID), nil
 	}
 }

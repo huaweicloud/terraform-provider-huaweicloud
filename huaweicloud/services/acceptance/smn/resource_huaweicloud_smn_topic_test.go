@@ -27,7 +27,7 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 	resourceName := "huaweicloud_smn_topic.topic_1"
 	rName := acceptance.RandomAccResourceNameWithDash()
 	displayName := fmt.Sprintf("The display name of %s", rName)
-	update_displayName := fmt.Sprintf("The update display name of %s", rName)
+	updateDisplayName := fmt.Sprintf("The update display name of %s", rName)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -54,7 +54,7 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 				Config: testAccSMNV2TopicConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "display_name", update_displayName),
+					resource.TestCheckResourceAttr(resourceName, "display_name", updateDisplayName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value"),
 				),
