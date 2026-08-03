@@ -18,26 +18,7 @@ import (
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
 	hcregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
-	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
-	ccev3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3"
-	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
-	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
-	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
-	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
-	cssv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2"
-	ctsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
-	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
 	iamv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
-	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
-	dmsv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2"
-	kpsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
-	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
-	mpcv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1"
-	omsv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
-	rdsv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
-	tmsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1"
-	vodv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1"
-	vpcv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
 )
 
 /*
@@ -134,34 +115,6 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 	return httpConfig
 }
 
-// HcVpcV3Client is the VPC service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcVpcV3Client(region string) (*vpcv3.VpcClient, error) {
-	hcClient, err := NewHcClient(c, region, "vpc", false)
-	if err != nil {
-		return nil, err
-	}
-
-	return vpcv3.NewVpcClient(hcClient), nil
-}
-
-// HcTmsV1Client is the TMS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcTmsV1Client(region string) (*tmsv1.TmsClient, error) {
-	hcClient, err := NewHcClient(c, region, "tms", true)
-	if err != nil {
-		return nil, err
-	}
-	return tmsv1.NewTmsClient(hcClient), nil
-}
-
-// HcKmsV3Client is the KMS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcKmsV3Client(region string) (*kpsv3.KpsClient, error) {
-	hcClient, err := NewHcClient(c, region, "kms", false)
-	if err != nil {
-		return nil, err
-	}
-	return kpsv3.NewKpsClient(hcClient), nil
-}
-
 // HcIamV3Client is the IAM service client using huaweicloud-sdk-go-v3 package
 func (c *Config) HcIamV3Client(region string) (*iamv3.IamClient, error) {
 	hcClient, err := NewHcClient(c, region, "iam", true)
@@ -169,150 +122,6 @@ func (c *Config) HcIamV3Client(region string) (*iamv3.IamClient, error) {
 		return nil, err
 	}
 	return iamv3.NewIamClient(hcClient), nil
-}
-
-// HcCtsV3Client is the CTS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCtsV3Client(region string) (*ctsv3.CtsClient, error) {
-	hcClient, err := NewHcClient(c, region, "cts", false)
-	if err != nil {
-		return nil, err
-	}
-	return ctsv3.NewCtsClient(hcClient), nil
-}
-
-// HcRdsV3Client is the RDS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcRdsV3Client(region string) (*rdsv3.RdsClient, error) {
-	hcClient, err := NewHcClient(c, region, "rds", false)
-	if err != nil {
-		return nil, err
-	}
-	return rdsv3.NewRdsClient(hcClient), nil
-}
-
-// HcCptsV1Client is the CPTS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCptsV1Client(region string) (*cptsv1.CptsClient, error) {
-	hcClient, err := NewHcClient(c, region, "cpts", false)
-	if err != nil {
-		return nil, err
-	}
-	return cptsv1.NewCptsClient(hcClient), nil
-}
-
-// HcVodV1Client is the AOM service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcVodV1Client(region string) (*vodv1.VodClient, error) {
-	hcClient, err := NewHcClient(c, region, "vod", false)
-	if err != nil {
-		return nil, err
-	}
-	return vodv1.NewVodClient(hcClient), nil
-}
-
-// HcAomV2Client is the AOM service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcAomV2Client(region string) (*aomv2.AomClient, error) {
-	hcClient, err := NewHcClient(c, region, "aom", false)
-	if err != nil {
-		return nil, err
-	}
-	return aomv2.NewAomClient(hcClient), nil
-}
-
-// HcLiveV1Client is the live service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcLiveV1Client(region string) (*livev1.LiveClient, error) {
-	hcClient, err := NewHcClient(c, region, "live", false)
-	if err != nil {
-		return nil, err
-	}
-	return livev1.NewLiveClient(hcClient), nil
-}
-
-// HcMpcV1Client is the MPC service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcMpcV1Client(region string) (*mpcv1.MpcClient, error) {
-	hcClient, err := NewHcClient(c, region, "mpc", false)
-	if err != nil {
-		return nil, err
-	}
-	return mpcv1.NewMpcClient(hcClient), nil
-}
-
-// HcIoTdaV5Client is the IoTDA service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcIoTdaV5Client(region string, isDerived bool) (*iotdav5.IoTDAClient, error) {
-	hcClient, err := implNewHcClient(c, region, "iotda", false, isDerived)
-	if err != nil {
-		return nil, err
-	}
-	return iotdav5.NewIoTDAClient(hcClient), nil
-}
-
-// HcMpcV1Client is the MPC service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcOmsV2Client(region string) (*omsv2.OmsClient, error) {
-	hcClient, err := NewHcClient(c, region, "oms", false)
-	if err != nil {
-		return nil, err
-	}
-	return omsv2.NewOmsClient(hcClient), nil
-}
-
-// HcCssV1Client is the css service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCssV1Client(region string) (*cssv1.CssClient, error) {
-	hcClient, err := NewHcClient(c, region, "css", false)
-	if err != nil {
-		return nil, err
-	}
-	return cssv1.NewCssClient(hcClient), nil
-}
-
-// HcCssV2Client is the css service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCssV2Client(region string) (*cssv2.CssClient, error) {
-	hcClient, err := NewHcClient(c, region, "css", false)
-	if err != nil {
-		return nil, err
-	}
-	return cssv2.NewCssClient(hcClient), nil
-}
-
-// HcCdnV1Client is the CDN service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
-	hcClient, err := NewHcClient(c, region, "cdn", false)
-	if err != nil {
-		return nil, err
-	}
-	return cdnv1.NewCdnClient(hcClient), nil
-}
-
-// HcCdnV2Client is the CDN service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCdnV2Client(region string) (*cdnv2.CdnClient, error) {
-	hcClient, err := NewHcClient(c, region, "cdn", false)
-	if err != nil {
-		return nil, err
-	}
-	return cdnv2.NewCdnClient(hcClient), nil
-}
-
-// HcDmsV2Client is the DMS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcDmsV2Client(region string) (*dmsv2.KafkaClient, error) {
-	hcClient, err := NewHcClient(c, region, "dmsv2", false)
-	if err != nil {
-		return nil, err
-	}
-	return dmsv2.NewKafkaClient(hcClient), nil
-}
-
-// HcHssV5Client is the HSS service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcHssV5Client(region string) (*hssv5.HssClient, error) {
-	hcClient, err := NewHcClient(c, region, "hss", false)
-	if err != nil {
-		return nil, err
-	}
-	return hssv5.NewHssClient(hcClient), nil
-}
-
-// HcCceV3Client is the CCE service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcCceV3Client(region string) (*ccev3.CceClient, error) {
-	hcClient, err := NewHcClient(c, region, "cce", false)
-	if err != nil {
-		return nil, err
-	}
-	return ccev3.NewCceClient(hcClient), nil
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
