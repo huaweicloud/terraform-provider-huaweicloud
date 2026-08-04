@@ -228,14 +228,16 @@ func resourceSearchPathSwitchUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating DAS client: %s", err)
 	}
 
-	updatePath, updateOpt := buildSearchPathSwitchRequest(client, d)
-	_, err = client.Request("POST", updatePath, updateOpt)
-	if err != nil {
-		return diag.Errorf("error switching DAS search path switch: %s", err)
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath, updateOpt := buildSearchPathSwitchRequest(client, d)
+		_, err = client.Request("POST", updatePath, updateOpt)
+		if err != nil {
+			return diag.Errorf("error switching DAS search path switch: %s", err)
+		}
 
-	if err = waitForSearchPathSwitchComplete(ctx, client, d); err != nil {
-		return diag.Errorf("error waiting for the DAS search path switch to complete: %s", err)
+		if err = waitForSearchPathSwitchComplete(ctx, client, d); err != nil {
+			return diag.Errorf("error waiting for the DAS search path switch to complete: %s", err)
+		}
 	}
 
 	return resourceSearchPathSwitchRead(ctx, d, meta)

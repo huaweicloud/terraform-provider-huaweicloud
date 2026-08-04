@@ -204,21 +204,23 @@ func resourceInstanceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating DAS client: %s", err)
 	}
 
-	httpUrl := "v3/{project_id}/batch-inspection/instance-group"
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	if d.HasChangeExcept("enable_force_new") {
+		httpUrl := "v3/{project_id}/batch-inspection/instance-group"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-		JSONBody: utils.RemoveNil(buildInstanceGroupUpdateBodyParams(d)),
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildInstanceGroupUpdateBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating DAS instance group: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating DAS instance group: %s", err)
+		}
 	}
 
 	return resourceInstanceGroupRead(ctx, d, meta)
