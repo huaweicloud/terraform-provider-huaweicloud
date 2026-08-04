@@ -5045,6 +5045,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dsc_asset_authorization":                        dsc.ResourceDscAssetAuthorization(),
 			"huaweicloud_dsc_asset_domain_label":                         dsc.ResourceAssetDomainLabel(),
 			"huaweicloud_dsc_asset_obs":                                  dsc.ResourceAssetObs(),
+			"huaweicloud_dsc_adg_instance":                               dsc.ResourceDscAdgInstance(),
 			"huaweicloud_dsc_batch_add_data_mask":                        dsc.ResourceDscBatchAddDataMask(),
 			"huaweicloud_dsc_batch_delete_obs":                           dsc.ResourceBatchDeleteObs(),
 			"huaweicloud_dsc_batch_delete_database_instance":             dsc.ResourceBatchDeleteDatabaseInstance(),
