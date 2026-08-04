@@ -342,24 +342,26 @@ func resourceEmailTemplateUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating DAS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updateBodyParams, err := buildEmailTemplateUpdateBodyParams(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updateBodyParams, err := buildEmailTemplateUpdateBodyParams(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-		JSONBody: utils.RemoveNil(updateBodyParams),
-	}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(updateBodyParams),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating DAS email template (%s): %s", d.Id(), err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating DAS email template (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceEmailTemplateRead(ctx, d, meta)

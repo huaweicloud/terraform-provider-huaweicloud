@@ -230,9 +230,11 @@ func resourceDatabaseUserUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DAS Client: %s", err)
 	}
 
-	err = updateDatabaseUser(client, d)
-	if err != nil {
-		return diag.FromErr(err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateDatabaseUser(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceDatabaseUserRead(ctx, d, meta)

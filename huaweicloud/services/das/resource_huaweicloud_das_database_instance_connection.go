@@ -353,9 +353,11 @@ func resourceDatabaseInstanceConnectionUpdate(ctx context.Context, d *schema.Res
 		return diag.Errorf("error creating DAS Client: %s", err)
 	}
 
-	err = updateDatabaseInstanceConnection(client, d)
-	if err != nil {
-		return diag.FromErr(err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateDatabaseInstanceConnection(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceDatabaseInstanceConnectionRead(ctx, d, meta)
