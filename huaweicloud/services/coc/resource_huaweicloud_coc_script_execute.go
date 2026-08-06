@@ -253,7 +253,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 
 func refreshGetExecutionTicketDetail(client *golangsdk.ServiceClient, ticketID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		ticketDetail, err := getExecutionTicketDetail(client, ticketID)
+		ticketDetail, err := GetExecutionTicketDetail(client, ticketID)
 		if err != nil {
 			return nil, "error", err
 		}
@@ -270,7 +270,7 @@ func refreshGetExecutionTicketDetail(client *golangsdk.ServiceClient, ticketID s
 	}
 }
 
-func getExecutionTicketDetail(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+func GetExecutionTicketDetail(client *golangsdk.ServiceClient, id string) (interface{}, error) {
 	getExecutionTicketHttpUrl := "v1/job/script/orders/{id}"
 	getExecutionTicketPath := client.Endpoint + getExecutionTicketHttpUrl
 	getExecutionTicketPath = strings.ReplaceAll(getExecutionTicketPath, "{id}", id)
@@ -298,7 +298,7 @@ func resourceScriptExecuteRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	ticketID := d.Id()
-	ticketDetail, err := getExecutionTicketDetail(client, ticketID)
+	ticketDetail, err := GetExecutionTicketDetail(client, ticketID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
 			scriptOrderNotFoundErrCodes...), "COC script execute")
