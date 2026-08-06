@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_backup"
+subnet_name         = "tf_test_backup"
+security_group_name = "tf_test_backup"
+instance_name       = "tf_test_backup"
+backup_name         = "tf_test_backup"
+backup_description  = "This is a backup created by terraform"
