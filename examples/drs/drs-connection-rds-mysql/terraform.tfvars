@@ -1,0 +1,7 @@
+vpc_name            = "your_vpc"
+subnet_name         = "your_subnet"
+security_group_name = "your_security_group"
+rds_name            = "your_rds"
+db_password         = "TestDrs@123"
+connection_name     = "your_drs_connection"
+description         = "DRS connection for MySQL"
