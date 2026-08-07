@@ -1,0 +1,7 @@
+fw_instance_id         = "your_firewall_instance_id"
+address_group_name     = "tf_test_address_group"
+service_group_name     = "tf_test_service_group"
+domain_name_group_name = "tf_test_domain_name_group"
+acl_rule_ip_name       = "tf_test_acl_rule_ip"
+acl_rule_domain_name   = "tf_test_acl_rule_domain"
+acl_rule_group_name    = "tf_test_acl_rule_group"
