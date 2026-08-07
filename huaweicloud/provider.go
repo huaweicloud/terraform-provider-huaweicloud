@@ -3567,6 +3567,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_scheduled_event_update":     ecs.ResourceComputeScheduledEventUpdate(),
 
 			"huaweicloud_coc_script":                           coc.ResourceScript(),
+			"huaweicloud_coc_script_batch_execute":             coc.ResourceScriptBatchExecute(),
 			"huaweicloud_coc_script_execute":                   coc.ResourceScriptExecute(),
 			"huaweicloud_coc_script_order_operation":           coc.ResourceScriptOrderOperation(),
 			"huaweicloud_coc_script_approval":                  coc.ResourceScriptApproval(),

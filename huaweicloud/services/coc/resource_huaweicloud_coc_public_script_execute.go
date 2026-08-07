@@ -387,7 +387,7 @@ func resourcePublicScriptExecuteRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	ticketID := d.Id()
-	ticketDetail, err := getExecutionTicketDetail(client, ticketID)
+	ticketDetail, err := GetExecutionTicketDetail(client, ticketID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
 			scriptOrderNotFoundErrCodes...), "COC public script execute")
