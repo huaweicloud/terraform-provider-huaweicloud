@@ -1,0 +1,13 @@
+fw_instance_id         = "your_firewall_instance_id"
+blacklist_list_type    = 4
+blacklist_direction    = 0
+blacklist_protocol     = 6
+blacklist_port         = "22"
+blacklist_address_type = 0
+blacklist_address      = "1.1.1.1"
+whitelist_list_type    = 5
+whitelist_direction    = 0
+whitelist_protocol     = 6
+whitelist_port         = "443"
+whitelist_address_type = 0
+whitelist_address      = "2.2.2.2"
