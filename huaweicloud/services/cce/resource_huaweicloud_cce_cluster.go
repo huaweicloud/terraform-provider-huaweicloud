@@ -136,7 +136,6 @@ func ResourceCluster() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"labels": {
 				Type:        schema.TypeMap,
@@ -207,6 +206,10 @@ func ResourceCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "rbac",
+			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"authenticating_proxy_ca": {
 				Type:         schema.TypeString,
@@ -759,6 +762,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			IPv6Enable:       d.Get("ipv6_enable").(bool),
 			KubeProxyMode:    d.Get("kube_proxy_mode").(string),
 			EncryptionConfig: buildResourceClusterEncryptionConfig(d),
+			AgencyName:       d.Get("agency_name").(string),
 		},
 	}
 
@@ -905,6 +909,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("support_istio", n.Spec.SupportIstio),
 		d.Set("custom_san", n.Spec.CustomSan),
 		d.Set("category", n.Spec.Category),
+		d.Set("agency_name", n.Spec.AgencyName),
 		d.Set("encryption_config", flattenEncrytionConfig(n.Spec.EncryptionConfig)),
 	)
 
@@ -1028,7 +1033,8 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChanges("description") {
-		updateOpts.Spec.Description = d.Get("description").(string)
+		description := d.Get("description").(string)
+		updateOpts.Spec.Description = &description
 	}
 
 	if d.HasChange("container_network_cidr") {
@@ -1060,6 +1066,11 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	if d.HasChange("custom_san") {
 		updateOpts.Spec.CustomSan = utils.ExpandToStringList(d.Get("custom_san").([]interface{}))
+	}
+
+	if d.HasChange("agency_name") {
+		agencyName := d.Get("agency_name").(string)
+		updateOpts.Spec.AgencyName = &agencyName
 	}
 
 	if !reflect.DeepEqual(updateOpts, clusters.UpdateOpts{}) {

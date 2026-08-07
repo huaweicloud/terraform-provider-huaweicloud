@@ -38,6 +38,8 @@ func TestAccCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Asia/Shanghai"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "CCEServiceAgency"),
+					resource.TestCheckResourceAttr(resourceName, "description", "the description of cluster"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -55,7 +57,8 @@ func TestAccCluster_basic(t *testing.T) {
 			{
 				Config: testAccCluster_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "description", "new description"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "CCEAutoClusterAgency"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 				),
@@ -496,6 +499,8 @@ resource "huaweicloud_cce_cluster" "test" {
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
   timezone               = "Asia/Shanghai"
+  description            = "the description of cluster"
+  agency_name            = "CCEServiceAgency"
 
   tags = {
     foo = "bar"
@@ -516,8 +521,9 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
-  description            = "new description"
   timezone               = "Asia/Shanghai"
+  description            = ""
+  agency_name            = "CCEAutoClusterAgency"
 
   tags = {
     foo        = "bar_update"

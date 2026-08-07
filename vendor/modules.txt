@@ -34,7 +34,7 @@ github.com/agext/levenshtein
 # github.com/apparentlymart/go-textseg/v15 v15.0.0
 ## explicit; go 1.16
 github.com/apparentlymart/go-textseg/v15/textseg
-# github.com/chnsz/golangsdk v0.0.0-20260803072916-ba046bc9c163
+# github.com/chnsz/golangsdk v0.0.0-20260806124942-eb803422874d
 ## explicit; go 1.14
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/auth
@@ -538,48 +538,9 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr
-github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdktime
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3
 github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3
-github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model
 # github.com/jen20/awspolicyequivalence v1.1.0
 ## explicit
 github.com/jen20/awspolicyequivalence
