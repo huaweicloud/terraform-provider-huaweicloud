@@ -44,3 +44,6 @@ jobs:
             *.tf
           exclude: |
             ./vendor/*
+          reporter: github-pr-review
+          filter_mode: added
+          reviewdog_flags: "-diff-mode=filelist"

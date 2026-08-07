@@ -275,6 +275,12 @@ The following arguments are supported:
 
 * `eip` - (Optional, String) Specifies the EIP address of the cluster.
 
+* `agency_name` - (Optional, String) Agency used by a cluster. This agency is used to generate temporary access
+  credentials for components in the cluster. It will be used when resources of other related cloud services are
+  automatically created in the cluster. If this parameter is not transferred or is an empty string, the cluster
+  automatically uses the CCE system agency cce_admin_trust or cce_cluster_agency. Only clusters of v1.27 and later
+  support this parameter.
+
 * `kube_proxy_mode` - (Optional, String, ForceNew) Specifies the service forwarding mode.
   Changing this parameter will create a new cluster resource. Two modes are available:
 

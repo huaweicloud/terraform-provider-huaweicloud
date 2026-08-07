@@ -197,7 +197,7 @@ type UpdateMetadata struct {
 
 type UpdateSpec struct {
 	// Cluster description
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Custom san list for certificates
 	CustomSan []string `json:"customSan,omitempty"`
 	//Container network parameters
@@ -206,6 +206,8 @@ type UpdateSpec struct {
 	EniNetwork *EniNetworkSpec `json:"eniNetwork,omitempty"`
 	// Node network parameters
 	HostNetwork *UpdateHostNetworkSpec `json:"hostNetwork,omitempty"`
+	// The AgencyName
+	AgencyName *string `json:"agencyName,omitempty"`
 }
 
 type UpdateContainerNetworkSpec struct {

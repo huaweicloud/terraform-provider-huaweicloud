@@ -91,6 +91,8 @@ type Spec struct {
 	SupportIstio bool `json:"supportIstio,omitempty"`
 	// The category, the value can be CCE and CCE
 	Category string `json:"category,omitempty"`
+	// The AgencyName
+	AgencyName string `json:"agencyName,omitempty"`
 	// The Encrytion Config
 	EncryptionConfig *EncryptionConfig `json:"encryptionConfig,omitempty"`
 }

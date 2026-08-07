@@ -18,8 +18,8 @@ github.com/bufbuild/protocompile v0.14.1/go.mod h1:ppVdAIhbr2H8asPk6k4pY7t9zB1OU
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
-github.com/chnsz/golangsdk v0.0.0-20260803072916-ba046bc9c163 h1:JFw0fps67dDjP5ZRdcK03T6CEUWe8Rh/ZrN9Hs/kQDE=
-github.com/chnsz/golangsdk v0.0.0-20260803072916-ba046bc9c163/go.mod h1:PIan4aDeDoNOI4FImVS8osVpShcVnAUKR2XM8Ulgsgw=
+github.com/chnsz/golangsdk v0.0.0-20260806124942-eb803422874d h1:i4qul3EmjX+m6Sb3Tw7KjvT7LSQMMmbTEJARXKli1xI=
+github.com/chnsz/golangsdk v0.0.0-20260806124942-eb803422874d/go.mod h1:PIan4aDeDoNOI4FImVS8osVpShcVnAUKR2XM8Ulgsgw=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cloudflare/circl v1.6.3 h1:9GPOhQGF9MCYUeXyMYlqTR6a5gTrgR/fBLXvUgtVcg8=
 github.com/cloudflare/circl v1.6.3/go.mod h1:2eXP6Qfat4O/Yhh8BznvKnJ+uzEoTQ6jVKJRn81BiS4=

@@ -7,7 +7,7 @@ toolchain go1.24.13
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
 	github.com/ProtonMail/go-crypto v1.3.0
-	github.com/chnsz/golangsdk v0.0.0-20260803072916-ba046bc9c163
+	github.com/chnsz/golangsdk v0.0.0-20260806124942-eb803422874d
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-cty v1.5.0
