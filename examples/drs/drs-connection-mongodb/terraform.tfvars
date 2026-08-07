@@ -1,0 +1,5 @@
+connection_name = "your_drs_mongodb_connection"
+db_password     = "Test@123456"
+endpoint_ip     = "192.168.0.1:8080"
+shard1_ip       = "192.168.0.1:8000"
+shard2_ip       = "192.168.0.2:8000"
