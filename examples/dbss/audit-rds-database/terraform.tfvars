@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_audit"
+subnet_name         = "tf_test_audit"
+security_group_name = "tf_test_audit"
+rds_instance_name   = "tf_test_audit"
+dbss_instance_name  = "tf_test_audit"
