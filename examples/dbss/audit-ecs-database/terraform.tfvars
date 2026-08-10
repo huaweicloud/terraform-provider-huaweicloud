@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_audit"
+subnet_name         = "tf_test_audit"
+security_group_name = "tf_test_audit"
+instance_name       = "tf_test_audit"
+database_name       = "tf_test_audit"
+database_ip_address = "YourDatabaseIPAddress"
