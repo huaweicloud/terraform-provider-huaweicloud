@@ -61,7 +61,7 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "20"),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_version", "ipv4"),
 					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "true"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "multi_az_scaling_policy", "EQUILIBRIUM_DISTRIBUTE"),
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "300"),
@@ -87,7 +87,7 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "30"),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_version", "ipv4"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", ""),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "ims_admin"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
@@ -300,7 +300,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
     protocol_version = "ipv4"
   }
   tags = {
-    foo = "bar"
+    foo = ""
     key = "value"
   }
 }
@@ -337,7 +337,7 @@ resource "huaweicloud_as_group" "acc_as_group"{
   }
   tags = {
     foo   = "bar"
-    owner = "terraform"
+    owner = ""
   }
 }
 `, testASGroup_Base(rName), newName)
