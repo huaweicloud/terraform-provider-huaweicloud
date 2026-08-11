@@ -16,7 +16,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances"
-	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -377,17 +376,83 @@ func buildAvailabilityZonesOpts(d *schema.ResourceData) []string {
 	return utils.ExpandToStringList(rawZones)
 }
 
-func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
-	tagList := make([]tags.ResourceTag, 0, len(tagMap))
+func expandGroupsTags(tagMap map[string]interface{}) []map[string]string {
+	tagList := make([]map[string]string, 0, len(tagMap))
 	for k, v := range tagMap {
-		tag := tags.ResourceTag{
-			Key:   k,
-			Value: v.(string),
+		tag := map[string]string{
+			"key":   k,
+			"value": v.(string),
 		}
 		tagList = append(tagList, tag)
 	}
 
 	return tagList
+}
+
+func createASGroupTags(client *golangsdk.ServiceClient, groupID string, tagList []map[string]string) error {
+	url := client.Endpoint + "autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags/action"
+	url = strings.ReplaceAll(url, "{project_id}", client.ProjectID)
+	url = strings.ReplaceAll(url, "{id}", groupID)
+
+	_, err := client.Request("POST", url, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: map[string]interface{}{
+			"tags":   tagList,
+			"action": "create",
+		},
+	})
+	return err
+}
+
+func deleteASGroupTags(client *golangsdk.ServiceClient, groupID string, tagList []map[string]string) error {
+	url := client.Endpoint + "autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags/action"
+	url = strings.ReplaceAll(url, "{project_id}", client.ProjectID)
+	url = strings.ReplaceAll(url, "{id}", groupID)
+
+	_, err := client.Request("POST", url, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: map[string]interface{}{
+			"tags":   tagList,
+			"action": "delete",
+		},
+	})
+	return err
+}
+
+func getASGroupTags(client *golangsdk.ServiceClient, groupID string) (map[string]string, error) {
+	url := client.Endpoint + "autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags"
+	url = strings.ReplaceAll(url, "{project_id}", client.ProjectID)
+	url = strings.ReplaceAll(url, "{id}", groupID)
+
+	resp, err := client.Request("GET", url, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	tagsRaw := utils.PathSearch("tags", body, make([]interface{}, 0)).([]interface{})
+	tagMap := make(map[string]string)
+	for _, tag := range tagsRaw {
+		key := utils.PathSearch("key", tag, "").(string)
+		value := utils.PathSearch("value", tag, "").(string)
+		if key != "" {
+			tagMap[key] = value
+		}
+	}
+
+	return tagMap, nil
 }
 
 func getInstancesIDs(allInstances []interface{}) []string {
@@ -585,7 +650,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := expandGroupsTags(tagRaw)
-		if tagErr := tags.Create(asClient, asgId, tagList).ExtractErr(); tagErr != nil {
+		if tagErr := createASGroupTags(asClient, asgId, tagList); tagErr != nil {
 			return diag.Errorf("error setting tags of AS group %s: %s", asgId, tagErr)
 		}
 	}
@@ -666,11 +731,8 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	)
 
 	// save group tags
-	if resourceTags, err := tags.Get(asClient, groupID).Extract(); err == nil {
-		tagMap := make(map[string]string)
-		for _, val := range resourceTags.Tags {
-			tagMap[val.Key] = val.Value
-		}
+	tagMap, err := getASGroupTags(asClient, groupID)
+	if err == nil {
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	} else {
 		log.Printf("[WARN] Error fetching tags of AS group (%s): %s", groupID, err)
@@ -785,7 +847,7 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		oldRaw := oldTag.(map[string]interface{})
 		if len(oldRaw) > 0 {
 			tagList := expandGroupsTags(oldRaw)
-			if tagErr := tags.Delete(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
+			if tagErr := deleteASGroupTags(asClient, asgID, tagList); tagErr != nil {
 				return diag.Errorf("error deleting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
@@ -793,7 +855,7 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		newRaw := newTag.(map[string]interface{})
 		if len(newRaw) > 0 {
 			tagList := expandGroupsTags(newRaw)
-			if tagErr := tags.Create(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
+			if tagErr := createASGroupTags(asClient, asgID, tagList); tagErr != nil {
 				return diag.Errorf("error setting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
