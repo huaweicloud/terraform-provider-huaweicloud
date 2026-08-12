@@ -1,0 +1,5 @@
+vpc_name         = "tf_test_dcs_instance_vpc2"
+subnet_name      = "tf_test_dcs_instance_subnet"
+instance_name    = "tf_test_dcs_instance"
+account_name     = "tf_test_account"
+account_password = "Terraform@123"
