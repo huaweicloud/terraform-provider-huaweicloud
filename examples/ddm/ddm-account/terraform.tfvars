@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_account"
+subnet_name         = "tf_test_account"
+security_group_name = "tf_test_account"
+instance_name       = "tf_test_account"
+account_name        = "tf_test_account"
