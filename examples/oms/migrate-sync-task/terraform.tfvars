@@ -1,0 +1,7 @@
+source_bucket_name = "tf-test-source"
+dest_bucket_name   = "tf-test-dest"
+source_region      = "cn-north-4"
+source_access_key  = "YourSourceBucketAccessKey"
+source_secret_key  = "YourSourceBucketSecretKey"
+dest_access_key    = "YourDestBucketAccessKey"
+dest_secret_key    = "YourDestBucketSecretKey"
