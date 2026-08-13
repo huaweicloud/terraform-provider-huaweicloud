@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_schema"
+subnet_name         = "tf_test_schema"
+security_group_name = "tf_test_schema"
+rds_instance_name   = "tf_test_schema"
+ddm_instance_name   = "tf_test_schema"
+schema_name         = "tf_test_schema"
