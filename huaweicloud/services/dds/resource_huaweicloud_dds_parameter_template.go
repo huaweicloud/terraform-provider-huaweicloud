@@ -49,13 +49,14 @@ func ResourceDdsParameterTemplate() *schema.Resource {
 			},
 			"node_type": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the node type of parameter template.`,
 			},
 			"node_version": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				Description: `Specifies the database version.`,
 			},
@@ -70,19 +71,32 @@ func ResourceDdsParameterTemplate() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the parameter template description.`,
 			},
+			"entity_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the instance ID or group ID or node ID.`,
+			},
 			"parameters": {
 				Type:        schema.TypeList,
 				Elem:        ParameterTemplateParameterSchema(),
 				Computed:    true,
 				Description: `Indicates the parameters defined by users based on the default parameter templates.`,
 			},
+			"datastore_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the database type.`,
+			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the creation time of the parameter template.`,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the update time of the parameter template.`,
 			},
 		},
 	}
@@ -177,18 +191,25 @@ func resourceDdsParameterTemplateCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
-	datastoreParams := map[string]interface{}{
-		"node_type": utils.ValueIgnoreEmpty(d.Get("node_type")),
-		"version":   utils.ValueIgnoreEmpty(d.Get("node_version")),
-	}
 	bodyParams := map[string]interface{}{
 		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 		// this param can be empty
 		"parameter_values": d.Get("parameter_values"),
+		"entity_id":        utils.ValueIgnoreEmpty(d.Get("entity_id")),
 		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
-		"datastore":        datastoreParams,
+		"datastore":        buildParameterTemplateDatastoreBodyParams(d),
 	}
+
 	return bodyParams
+}
+
+func buildParameterTemplateDatastoreBodyParams(d *schema.ResourceData) map[string]interface{} {
+	datastoreParams := map[string]interface{}{
+		"node_type": utils.ValueIgnoreEmpty(d.Get("node_type")),
+		"version":   utils.ValueIgnoreEmpty(d.Get("node_version")),
+	}
+
+	return utils.RemoveNil(datastoreParams)
 }
 
 func resourceDdsParameterTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -280,10 +301,9 @@ func resourceDdsParameterTemplateRead(_ context.Context, d *schema.ResourceData,
 		mErr,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", getParameterTemplateRespBody, nil)),
-		d.Set("node_version", utils.PathSearch("datastore_version",
-			getParameterTemplateRespBody, nil)),
-		d.Set("description", utils.PathSearch("description",
-			getParameterTemplateRespBody, nil)),
+		d.Set("node_version", utils.PathSearch("datastore_version", getParameterTemplateRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getParameterTemplateRespBody, nil)),
+		d.Set("datastore_name", utils.PathSearch("datastore_name", getParameterTemplateRespBody, nil)),
 		d.Set("parameters", flattenGetParameterTemplateResponseBodyParameter(getParameterTemplateRespBody)),
 		d.Set("created_at", utils.PathSearch("created", getParameterTemplateRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("updated", getParameterTemplateRespBody, nil)),
