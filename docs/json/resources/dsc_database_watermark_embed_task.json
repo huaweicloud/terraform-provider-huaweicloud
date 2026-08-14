@@ -1,0 +1,304 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_database_watermark_embed_task": {
+          "block": {
+            "attributes": {
+              "error_code": {
+                "type": "number",
+                "description": "The watermark error correction level.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the database watermark embed task is located.",
+                "computed": true
+              },
+              "schedule_switch": {
+                "type": "bool",
+                "description": "Whether to enable task scheduling.",
+                "optional": true,
+                "computed": true
+              },
+              "schedule_type": {
+                "type": "string",
+                "description": "The schedule type of the task.",
+                "optional": true
+              },
+              "start_now": {
+                "type": "bool",
+                "description": "Whether to start the watermark embed task immediately after creation.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The scheduled start time of the task, in RFC3339 format.",
+                "optional": true,
+                "computed": true
+              },
+              "task_create_time": {
+                "type": "string",
+                "description": "The creation time of the task, in RFC3339 format.",
+                "computed": true
+              },
+              "task_end_time": {
+                "type": "string",
+                "description": "The end time of the task, in RFC3339 format.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The name of the database watermark embed task.",
+                "required": true
+              },
+              "task_state": {
+                "type": "string",
+                "description": "The running state of the watermark embed task.",
+                "computed": true
+              },
+              "water_mark": {
+                "type": "string",
+                "description": "The watermark content to be embedded into the database.",
+                "required": true
+              },
+              "watermark_describe": {
+                "type": "string",
+                "description": "The description of the watermark.",
+                "optional": true
+              },
+              "watermark_version": {
+                "type": "string",
+                "description": "The watermark algorithm version.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "db_water_param": {
+                "block": {
+                  "attributes": {
+                    "embed_mode": {
+                      "type": "string",
+                      "description": "The watermark embed mode.",
+                      "required": true
+                    },
+                    "row_spacing": {
+                      "type": "string",
+                      "description": "The row spacing used by fake-row watermark.",
+                      "optional": true
+                    },
+                    "watermark_key": {
+                      "type": "string",
+                      "description": "The watermark key used to embed and extract the watermark.",
+                      "optional": true,
+                      "sensitive": true
+                    }
+                  },
+                  "block_types": {
+                    "params": {
+                      "block": {
+                        "attributes": {
+                          "fake_strategy": {
+                            "type": "string",
+                            "description": "The strategy used to generate fake data.",
+                            "optional": true
+                          },
+                          "new_column_name": {
+                            "type": "string",
+                            "description": "The name of the new fake column to be created.",
+                            "required": true
+                          },
+                          "new_column_type": {
+                            "type": "string",
+                            "description": "The data type of the new fake column.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "fake_param": {
+                            "block": {
+                              "attributes": {
+                                "address_accuracy": {
+                                  "type": "string",
+                                  "description": "The accuracy of generated address data.",
+                                  "optional": true
+                                },
+                                "date_begin": {
+                                  "type": "string",
+                                  "description": "The start date of the generated date range, in RFC3339 format.",
+                                  "optional": true
+                                },
+                                "date_end": {
+                                  "type": "string",
+                                  "description": "The end date of the generated date range, in RFC3339 format.",
+                                  "optional": true
+                                },
+                                "random_accuracy": {
+                                  "type": "number",
+                                  "description": "The precision of generated random numbers.",
+                                  "optional": true
+                                },
+                                "random_begin": {
+                                  "type": "string",
+                                  "description": "The lower bound of the generated random value range.",
+                                  "optional": true
+                                },
+                                "random_distribute": {
+                                  "type": "string",
+                                  "description": "The distribution mode of generated random values.",
+                                  "optional": true
+                                },
+                                "random_end": {
+                                  "type": "string",
+                                  "description": "The upper bound of the generated random value range.",
+                                  "optional": true
+                                },
+                                "string_distribute": {
+                                  "type": "string",
+                                  "description": "The distribution mode of generated string values.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The configuration of fake data generation."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The fake-column embed parameter list."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The database watermark embedding configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "selected_fields": {
+                "block": {
+                  "attributes": {
+                    "column_name": {
+                      "type": "string",
+                      "description": "The name of the selected column.",
+                      "optional": true
+                    },
+                    "column_type": {
+                      "type": "string",
+                      "description": "The data type of the selected column.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The selected field list used for watermark embedding."
+                },
+                "nesting_mode": "list"
+              },
+              "source_db_info": {
+                "block": {
+                  "attributes": {
+                    "db_id": {
+                      "type": "string",
+                      "description": "The ID of the authorized database.",
+                      "required": true
+                    },
+                    "db_name": {
+                      "type": "string",
+                      "description": "The name of the database.",
+                      "required": true
+                    },
+                    "db_type": {
+                      "type": "string",
+                      "description": "The database type.",
+                      "required": true
+                    },
+                    "ins_id": {
+                      "type": "string",
+                      "description": "The ID of the database instance.",
+                      "required": true
+                    },
+                    "ins_name": {
+                      "type": "string",
+                      "description": "The name of the database instance.",
+                      "required": true
+                    },
+                    "schema_name": {
+                      "type": "string",
+                      "description": "The schema name of the database.",
+                      "optional": true
+                    },
+                    "table_name": {
+                      "type": "string",
+                      "description": "The name of the database table.",
+                      "required": true
+                    }
+                  },
+                  "description": "The source database information from which data is read."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "target_db_info": {
+                "block": {
+                  "attributes": {
+                    "db_id": {
+                      "type": "string",
+                      "description": "The ID of the authorized database.",
+                      "required": true
+                    },
+                    "db_name": {
+                      "type": "string",
+                      "description": "The name of the database.",
+                      "required": true
+                    },
+                    "db_type": {
+                      "type": "string",
+                      "description": "The database type.",
+                      "required": true
+                    },
+                    "ins_id": {
+                      "type": "string",
+                      "description": "The ID of the database instance.",
+                      "required": true
+                    },
+                    "ins_name": {
+                      "type": "string",
+                      "description": "The name of the database instance.",
+                      "required": true
+                    },
+                    "schema_name": {
+                      "type": "string",
+                      "description": "The schema name of the database.",
+                      "optional": true
+                    },
+                    "table_name": {
+                      "type": "string",
+                      "description": "The name of the database table.",
+                      "required": true
+                    }
+                  },
+                  "description": "The target database information to which watermarked data is written."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_script_batch_execute": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The start time of the script execution, in RFC3339 format.",
+                "computed": true
+              },
+              "execute_user": {
+                "type": "string",
+                "description": "The user to execute the script.",
+                "required": true
+              },
+              "finished_at": {
+                "type": "string",
+                "description": "The end time of the script execution, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_sync": {
+                "type": "bool",
+                "description": "Whether to sync data before executing the script.",
+                "optional": true,
+                "default": true
+              },
+              "script_id": {
+                "type": "string",
+                "description": "The ID of the COC script.",
+                "required": true
+              },
+              "script_name": {
+                "type": "string",
+                "description": "The name of the script.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the script execution.",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "description": "The maximum time to execute the script, in seconds.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "execute_batches": {
+                "block": {
+                  "attributes": {
+                    "batch_index": {
+                      "type": "number",
+                      "description": "The batch index.",
+                      "required": true
+                    },
+                    "instance_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The ID list of the ECS instances in this batch.",
+                      "required": true
+                    }
+                  },
+                  "description": "The batch information of the target instances."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the parameter.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the parameter.",
+                      "required": true
+                    }
+                  },
+                  "description": "The input parameters of the script."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

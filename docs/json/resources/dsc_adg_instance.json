@@ -1,0 +1,192 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dsc_adg_instance": {
+          "block": {
+            "attributes": {
+              "admin_name": {
+                "type": "string",
+                "description": "Specifies the administrator name. Valid values are sysadmin, secadmin, audadmin.",
+                "optional": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone of the ADG instance.",
+                "required": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "Specifies the charging mode of the ADG instance. Currently, only **prePaid** is supported.",
+                "required": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time of the ADG instance.",
+                "computed": true
+              },
+              "deploy_mode": {
+                "type": "string",
+                "description": "Specifies the deploy mode of the ADG instance.",
+                "optional": true,
+                "computed": true
+              },
+              "fail_reason": {
+                "type": "string",
+                "description": "The failure reason of the ADG instance.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "description": "Specifies the mode of the ADG instance.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the ADG instance.",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "error_reason": "string",
+                      "id": "string",
+                      "name": "string",
+                      "private_ip": "string",
+                      "role": "string",
+                      "status": "string",
+                      "vm_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The node information of the ADG instance.",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the password of the ADG instance.",
+                "optional": true,
+                "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "description": "Specifies the charging period of the ADG instance.",
+                "required": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "Specifies the charging period unit of the ADG instance.",
+                "required": true
+              },
+              "public_ip": {
+                "type": "string",
+                "description": "The public IP address of the ADG instance.",
+                "computed": true
+              },
+              "publicip_id": {
+                "type": "string",
+                "description": "Specifies the public IP ID to bind to the ADG instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "Specifies the security group ID of the ADG instance.",
+                "required": true
+              },
+              "specification": {
+                "type": "string",
+                "description": "Specifies the specification of the ADG instance.",
+                "required": true
+              },
+              "started_time": {
+                "type": "number",
+                "description": "The start time of the ADG instance.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of the ADG instance.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the subnet ID to which the ADG instance belongs.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the ADG instance.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the ADG instance.",
+                "computed": true
+              },
+              "virtual_ip": {
+                "type": "string",
+                "description": "The virtual IP address of the ADG instance.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the VPC ID to which the ADG instance belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "outside_ins_config": {
+                "block": {
+                  "attributes": {
+                    "master_node_ip": {
+                      "type": "string",
+                      "description": "Specifies the master node IP address.",
+                      "optional": true
+                    },
+                    "slave_node_ip": {
+                      "type": "string",
+                      "description": "Specifies the slave node IP address.",
+                      "optional": true
+                    },
+                    "virtual_ip": {
+                      "type": "string",
+                      "description": "Specifies the virtual IP address.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the cloud outside instance configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

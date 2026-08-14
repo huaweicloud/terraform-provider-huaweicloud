@@ -5,6 +5,10 @@
         "huaweicloud_cce_cluster": {
           "block": {
             "attributes": {
+              "agency_name": {
+                "type": "string",
+                "optional": true
+              },
               "alias": {
                 "type": "string",
                 "optional": true,
@@ -127,8 +131,7 @@
               },
               "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "eip": {
                 "type": "string",

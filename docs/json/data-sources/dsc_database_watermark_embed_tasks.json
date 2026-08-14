@@ -1,0 +1,153 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dsc_database_watermark_embed_tasks": {
+          "block": {
+            "attributes": {
+              "end": {
+                "type": "string",
+                "description": "The end time of the task running time interval, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the database watermark embed tasks are located.",
+                "computed": true
+              },
+              "start": {
+                "type": "string",
+                "description": "The start time of the task running time interval, in RFC3339 format.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the database watermark embed task.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The ID of the database watermark embed task.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "db_water_param": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "embed_mode": "string",
+                            "params": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "fake_param": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "address_accuracy": "string",
+                                        "date_begin": "string",
+                                        "date_end": "string",
+                                        "random_accuracy": "number",
+                                        "random_begin": "string",
+                                        "random_distribute": "string",
+                                        "random_end": "string",
+                                        "string_distribute": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "fake_strategy": "string",
+                                  "new_column_name": "string",
+                                  "new_column_type": "string"
+                                }
+                              ]
+                            ],
+                            "row_spacing": "string",
+                            "watermark_key": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "schedule_switch": "bool",
+                      "schedule_type": "string",
+                      "selected_fields": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "column_name": "string",
+                            "column_type": "string"
+                          }
+                        ]
+                      ],
+                      "source_db_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "db_id": "string",
+                            "db_name": "string",
+                            "db_type": "string",
+                            "ins_id": "string",
+                            "ins_name": "string",
+                            "schema_name": "string",
+                            "table_name": "string"
+                          }
+                        ]
+                      ],
+                      "start_now": "bool",
+                      "start_time": "string",
+                      "target_db_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "db_id": "string",
+                            "db_name": "string",
+                            "db_type": "string",
+                            "ins_id": "string",
+                            "ins_name": "string",
+                            "schema_name": "string",
+                            "table_name": "string"
+                          }
+                        ]
+                      ],
+                      "task_create_time": "string",
+                      "task_end_time": "string",
+                      "task_name": "string",
+                      "task_state": "string",
+                      "water_extract_result": "string",
+                      "water_mark": "string",
+                      "watermark_describe": "string",
+                      "watermark_version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the database watermark embed tasks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DSC",
+            "name": "Data Security Center",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据安全中心",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
