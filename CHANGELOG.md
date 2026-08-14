@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.97.0 (Aug 14, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_coc_script_batch_execute` [GH-10355]
+  + `huaweicloud_dsc_adg_instance` [GH-10336]
+  + `huaweicloud_dsc_database_watermark_embed_task` [GH-10332]
+  + `huaweicloud_dsc_database_watermark_embed_task_action` [GH-10342]
+  + `huaweicloud_dsc_metadata_tags` [GH-10313]
+
+* **New Data Source:**
+  + `huaweicloud_dsc_database_watermark_embed_tasks` [GH-10341]
+
 ## 1.96.1 (Aug 3, 2026)
 
 * **New Resource Source:**
