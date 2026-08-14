@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_adg_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/instances:
+        POST:
+            tag: DSC
+    /v1/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DSC
+    /v1/{project_id}/instances/{instance_id}/bind-eip:
+        POST:
+            tag: DSC
+    /v1/{project_id}/instances/{instance_id}/reset-password:
+        POST:
+            tag: DSC
+    /v1/{project_id}/instances/{instance_id}/unbind-eip:
+        POST:
+            tag: DSC
