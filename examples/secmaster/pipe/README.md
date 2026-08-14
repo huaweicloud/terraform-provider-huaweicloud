@@ -51,9 +51,9 @@ The following variables need to be configured:
 * Create a `terraform.tfvars` file and fill in the required variables:
 
   ```hcl
-  workspace_name = "secmaster-workspace-test"
-  dataspace_name = "secmaster-dataspace-test"
-  pipe_name      = "testpipe01"
+  workspace_name = "tf-workspace-test"
+  dataspace_name = "tf-dataspace-test"
+  pipe_name      = "tfpipe01"
   ```
 
 * Initialize Terraform:
