@@ -1,0 +1,11 @@
+log_analysis_instance_id          = "your_rds_instance_id"
+slow_log_bucket_name              = "your_obs_bucket"
+slow_log_start_time               = "2026-08-12T00:00:00Z"
+slow_log_end_time                 = "2026-08-13T23:59:59Z"
+binlog_binlog_type                = "mysql"
+binlog_file_name                  = "mysql binlog file name"
+binlog_export_bucket_name         = "your_obs_bucket"
+binlog_filter_start_time          = "2000-06-01T00:00:00+08:00"
+binlog_filter_end_time            = "2099-06-02T00:00:00+08:00"
+binlog_filter_types               = ["insert", "update", "delete", "ddl"]
+binlog_filter_parse_double_insert = true
