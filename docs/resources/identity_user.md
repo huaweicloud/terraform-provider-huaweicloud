@@ -83,6 +83,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `last_login` - The time when the IAM user last login.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 20 seconds.
+
 ## Import
 
 The users can be imported using the `id`, e.g.

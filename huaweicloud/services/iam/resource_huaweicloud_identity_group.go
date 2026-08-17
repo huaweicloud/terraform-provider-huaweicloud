@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -113,6 +114,19 @@ func GetV3GroupById(client *golangsdk.ServiceClient, groupId string) (interface{
 	return utils.FlattenResponse(requestResp)
 }
 
+func refreshV3Group(client *golangsdk.ServiceClient, groupId string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := GetV3GroupById(client, groupId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "NOT_FOUND", "PENDING", nil
+			}
+			return nil, "ERROR", err
+		}
+		return resp, "COMPLETED", nil
+	}
+}
+
 func resourceV3GroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -127,22 +141,14 @@ func resourceV3GroupRead(ctx context.Context, d *schema.ResourceData, meta inter
 	var group interface{}
 	// After creation, the group may not be immediately queryable (usually 2-3s, up to 10s).
 	if d.IsNewResource() {
-		retryFunc := func() (interface{}, bool, error) {
-			resp, err := GetV3GroupById(client, groupId)
-			if err == nil {
-				return resp, false, nil
-			}
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil, true, err
-			}
-			return nil, false, err
+		stateConf := &retry.StateChangeConf{
+			Pending:    []string{"PENDING"},
+			Target:     []string{"COMPLETED"},
+			Refresh:    refreshV3Group(client, groupId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 1 * time.Second,
 		}
-		group, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			PollInterval: 3 * time.Second,
-		})
+		group, err = stateConf.WaitForStateContext(ctx)
 	} else {
 		group, err = GetV3GroupById(client, groupId)
 	}
