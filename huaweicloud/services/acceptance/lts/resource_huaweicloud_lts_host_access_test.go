@@ -93,7 +93,7 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "demo_log"),
-					resource.TestCheckResourceAttr(rName, "demo_fields.#", "2"),
+					resource.TestCheckResourceAttr(rName, "demo_fields_list.#", "2"),
 					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
 					resource.TestCheckResourceAttr(rName, "binary_collect", "true"),
 					resource.TestCheckResourceAttr(rName, "encoding_format", "GBK"),
@@ -122,9 +122,9 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "1"),
 					resource.TestCheckResourceAttrPair(rName, "host_group_ids.0", "huaweicloud_lts_host_group.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "demo_log"),
-					resource.TestCheckResourceAttr(rName, "demo_fields.#", "1"),
-					resource.TestCheckResourceAttr(rName, "demo_fields.0.name", "field1"),
-					resource.TestCheckResourceAttr(rName, "demo_fields.0.value", "level:warn1"),
+					resource.TestCheckResourceAttr(rName, "demo_fields_list.#", "1"),
+					resource.TestCheckResourceAttr(rName, "demo_fields_list.0.name", "field1"),
+					resource.TestCheckResourceAttr(rName, "demo_fields_list.0.value", "level:warn1"),
 					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
 					resource.TestCheckResourceAttr(rName, "encoding_format", "UTF-8"),
 					resource.TestCheckResourceAttr(rName, "incremental_collect", "true"),
@@ -136,7 +136,7 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdFunc:       testAccHostAccessConfigImportStateFunc(rName),
-				ImportStateVerifyIgnore: []string{"processors"},
+				ImportStateVerifyIgnore: []string{"processors", "demo_fields"},
 			},
 		},
 	})
@@ -260,11 +260,11 @@ resource "huaweicloud_lts_host_access" "test" {
 
   demo_log = "2024-10-11 10:59:07.000 a.log:1 level:warn|error"
 
-  demo_fields {
+  demo_fields_list {
    name  = "field2"
    value = "error"
   } 
-  demo_fields {
+  demo_fields_list {
    name  = "field1"
    value = "2024-10-11-10:59:07.000 a.log:1 level:warn"
   }
@@ -337,7 +337,7 @@ resource "huaweicloud_lts_host_access" "test" {
 
   demo_log = "2024-10-11-10:59:07.000 level:warn1"
 
-  demo_fields {
+  demo_fields_list {
    name  = "field1"
    value = "level:warn1"
   }

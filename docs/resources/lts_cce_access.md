@@ -160,8 +160,8 @@ The following arguments are supported:
 * `demo_log` - (Optional, String) Specifies the example log of the ICAgent structuring parsing.  
   This parameter is available when the `processor_type` parameter is specified.
 
-* `demo_fields` - (Optional, List) Specifies the list of the parsed fields of the example log.  
-  The [demo_fields](#cce_access_demoFields) structure is documented below.  
+* `demo_fields_list` - (Optional, List) Specifies the list of the parsed fields of the example log.  
+  The [demo_fields_list](#cce_access_demoFieldsList) structure is documented below.  
   This parameter must be set together with the `demo_log` parameter.  
   This parameter is available when the `processor_type` parameter is specified.
 
@@ -418,8 +418,8 @@ The `processors` block supports:
 * `detail` - (Optional, String) Specifies the configuration of the parser, in JSON format.  
   For the keys, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-lts/CreateAccessConfig.html#CreateAccessConfig__request_Detail).
 
-<a name="cce_access_demoFields"></a>
-The `demo_fields` block supports:
+<a name="cce_access_demoFieldsList"></a>
+The `demo_fields_list` block supports:
 
 * `field_name` - (Required, String) Specifies the name of the parsed field.
 

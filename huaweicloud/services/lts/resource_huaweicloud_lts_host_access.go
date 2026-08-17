@@ -124,6 +124,31 @@ func ResourceHostAccessConfig() *schema.Resource {
 						},
 					},
 				},
+				Description: utils.SchemaDesc(
+					`The list of the parsed fields of the example log`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
+			},
+			"demo_fields_list": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"demo_fields"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the parsed field.`,
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The value of the parsed field.`,
+						},
+					},
+				},
 				Description: `The list of the parsed fields of the example log`,
 			},
 			"binary_collect": {
@@ -351,7 +376,7 @@ func buildCreateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]in
 		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
 		"processors":           buildHostAccessProcessors(d.Get("processors").([]interface{})),
 		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
-		"demo_fields":          buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set)),
+		"demo_fields":          buildHostAccessDemoFieldsRequestBody(d),
 		"binary_collect":       d.Get("binary_collect"),
 		"encoding_format":      utils.ValueIgnoreEmpty(d.Get("encoding_format")),
 		"incremental_collect":  d.Get("incremental_collect"),
@@ -481,7 +506,33 @@ func buildHostAccessProcessors(processors []interface{}) []map[string]interface{
 	return result
 }
 
-func buildHostAccessDemoFields(demoFields *schema.Set) []map[string]interface{} {
+func buildHostAccessDemoFieldsRequestBody(d *schema.ResourceData) []map[string]interface{} {
+	// Priority: demo_fields_list > demo_fields
+	if v, ok := d.GetOk("demo_fields_list"); ok {
+		return buildHostAccessDemoFieldsFromList(v.([]interface{}))
+	}
+	if v, ok := d.GetOk("demo_fields"); ok {
+		return buildHostAccessDemoFieldsFromSet(v.(*schema.Set))
+	}
+	return nil
+}
+
+func buildHostAccessDemoFieldsFromList(demoFields []interface{}) []map[string]interface{} {
+	if len(demoFields) < 1 {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, len(demoFields))
+	for _, demoField := range demoFields {
+		result = append(result, map[string]interface{}{
+			"field_name":  utils.ValueIgnoreEmpty(utils.PathSearch("name", demoField, nil)),
+			"field_value": utils.ValueIgnoreEmpty(utils.PathSearch("value", demoField, nil)),
+		})
+	}
+
+	return result
+}
+
+func buildHostAccessDemoFieldsFromSet(demoFields *schema.Set) []map[string]interface{} {
 	if demoFields.Len() < 1 {
 		return nil
 	}
@@ -555,8 +606,7 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("access_config", flattenHostAccessConfigDetail(listHostAccessConfigRespBody)),
 		d.Set("processor_type", utils.PathSearch("processor_type", listHostAccessConfigRespBody, nil)),
 		d.Set("demo_log", utils.PathSearch("demo_log", listHostAccessConfigRespBody, nil)),
-		d.Set("demo_fields",
-			flattenHostAccessDemoFields(utils.PathSearch("demo_fields", listHostAccessConfigRespBody, make([]interface{}, 0)).([]interface{}))),
+		setHostAccessDemoFields(d, utils.PathSearch("demo_fields", listHostAccessConfigRespBody, make([]interface{}, 0)).([]interface{})),
 		d.Set("binary_collect", utils.PathSearch("binary_collect", listHostAccessConfigRespBody, nil)),
 		d.Set("encoding_format", utils.PathSearch("encoding_format", listHostAccessConfigRespBody, nil)),
 		d.Set("incremental_collect", utils.PathSearch("incremental_collect", listHostAccessConfigRespBody, nil)),
@@ -629,6 +679,41 @@ func flattenHostAccessDemoFields(demoFields []interface{}) []map[string]interfac
 	return result
 }
 
+func flattenHostAccessDemoFieldsList(demoFields []interface{}) []map[string]interface{} {
+	if len(demoFields) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(demoFields))
+	for i, demoField := range demoFields {
+		result[i] = map[string]interface{}{
+			"name":  utils.PathSearch("field_name", demoField, nil),
+			"value": utils.PathSearch("field_value", demoField, nil),
+		}
+	}
+	return result
+}
+
+func setHostAccessDemoFields(d *schema.ResourceData, demoFields []interface{}) error {
+	if len(demoFields) == 0 {
+		return nil
+	}
+
+	_, hasDemoFields := d.GetOk("demo_fields")
+
+	var mErr *multierror.Error
+	if hasDemoFields {
+		mErr = multierror.Append(mErr,
+			d.Set("demo_fields", flattenHostAccessDemoFields(demoFields)),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("demo_fields_list", flattenHostAccessDemoFieldsList(demoFields)),
+		)
+	}
+	return mErr.ErrorOrNil()
+}
+
 func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -642,6 +727,7 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 		"processors",
 		"demo_log",
 		"demo_fields",
+		"demo_fields_list",
 		"encoding_format",
 		"incremental_collect",
 		"log_split",
@@ -696,7 +782,7 @@ func buildUpdateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]in
 		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
 		"processors":           utils.ValueIgnoreEmpty(buildHostAccessProcessors(d.Get("processors").([]interface{}))),
 		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
-		"demo_fields":          utils.ValueIgnoreEmpty(buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set))),
+		"demo_fields":          utils.ValueIgnoreEmpty(buildHostAccessDemoFieldsRequestBody(d)),
 		"encoding_format":      utils.ValueIgnoreEmpty(d.Get("encoding_format")),
 		"incremental_collect":  d.Get("incremental_collect"),
 		"log_split":            d.Get("log_split"),

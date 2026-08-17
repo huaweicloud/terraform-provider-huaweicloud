@@ -141,6 +141,31 @@ func ResourceCceAccessConfig() *schema.Resource {
 						},
 					},
 				},
+				Description: utils.SchemaDesc(
+					`The list of the parsed fields of the example log`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
+			},
+			"demo_fields_list": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"demo_fields"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"field_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the parsed field.`,
+						},
+						"field_value": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The value of the parsed field.`,
+						},
+					},
+				},
 				Description: `The list of the parsed fields of the example log`,
 			},
 			"encoding_format": {
@@ -426,14 +451,40 @@ func buildCreateCceAccessConfigBodyParams(d *schema.ResourceData) map[string]int
 		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
 		"processors":           buildHostAccessProcessors(d.Get("processors").([]interface{})),
 		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
-		"demo_fields":          buildCceAccessDemoFields(d.Get("demo_fields").(*schema.Set)),
+		"demo_fields":          buildCceAccessDemoFieldsRequestBody(d),
 		"encoding_format":      utils.ValueIgnoreEmpty(d.Get("encoding_format")),
 		"incremental_collect":  d.Get("incremental_collect"),
 	}
 	return bodyParams
 }
 
-func buildCceAccessDemoFields(demoFields *schema.Set) []map[string]interface{} {
+func buildCceAccessDemoFieldsRequestBody(d *schema.ResourceData) []map[string]interface{} {
+	// Priority: demo_fields_list > demo_fields
+	if v, ok := d.GetOk("demo_fields_list"); ok {
+		return buildCceAccessDemoFieldsFromList(v.([]interface{}))
+	}
+	if v, ok := d.GetOk("demo_fields"); ok {
+		return buildCceAccessDemoFieldsFromSet(v.(*schema.Set))
+	}
+	return nil
+}
+
+func buildCceAccessDemoFieldsFromList(demoFields []interface{}) []map[string]interface{} {
+	if len(demoFields) < 1 {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, len(demoFields))
+	for _, demoField := range demoFields {
+		result = append(result, map[string]interface{}{
+			"field_name":  utils.ValueIgnoreEmpty(utils.PathSearch("field_name", demoField, nil)),
+			"field_value": utils.ValueIgnoreEmpty(utils.PathSearch("field_value", demoField, nil)),
+		})
+	}
+
+	return result
+}
+
+func buildCceAccessDemoFieldsFromSet(demoFields *schema.Set) []map[string]interface{} {
 	if demoFields.Len() < 1 {
 		return nil
 	}
@@ -551,8 +602,7 @@ func resourceCceAccessConfigRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("log_split", utils.PathSearch("log_split", listCceAccessConfigRespBody, nil)),
 		d.Set("processor_type", utils.PathSearch("processor_type", listCceAccessConfigRespBody, nil)),
 		d.Set("demo_log", utils.PathSearch("demo_log", listCceAccessConfigRespBody, nil)),
-		d.Set("demo_fields",
-			flattenCceAccessDemoFields(utils.PathSearch("demo_fields", listCceAccessConfigRespBody, make([]interface{}, 0)).([]interface{}))),
+		setCceAccessDemoFields(d, utils.PathSearch("demo_fields", listCceAccessConfigRespBody, make([]interface{}, 0)).([]interface{})),
 		d.Set("encoding_format", utils.PathSearch("encoding_format", listCceAccessConfigRespBody, nil)),
 		d.Set("incremental_collect", utils.PathSearch("incremental_collect", listCceAccessConfigRespBody, nil)),
 		// Attributes.
@@ -616,6 +666,41 @@ func flattenCceAccessDemoFields(demoFields []interface{}) []map[string]interface
 	return result
 }
 
+func flattenCceAccessDemoFieldsList(demoFields []interface{}) []map[string]interface{} {
+	if len(demoFields) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(demoFields))
+	for i, demoField := range demoFields {
+		result[i] = map[string]interface{}{
+			"field_name":  utils.PathSearch("field_name", demoField, nil),
+			"field_value": utils.PathSearch("field_value", demoField, nil),
+		}
+	}
+	return result
+}
+
+func setCceAccessDemoFields(d *schema.ResourceData, demoFields []interface{}) error {
+	if len(demoFields) == 0 {
+		return nil
+	}
+	_, hasDemoFields := d.GetOk("demo_fields")
+
+	var mErr *multierror.Error
+
+	if hasDemoFields {
+		mErr = multierror.Append(mErr,
+			d.Set("demo_fields", flattenCceAccessDemoFields(demoFields)),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("demo_fields_list", flattenCceAccessDemoFieldsList(demoFields)),
+		)
+	}
+	return mErr.ErrorOrNil()
+}
+
 func resourceCceAccessConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	updateCceAccessConfigChanges := []string{
 		"name",
@@ -628,6 +713,7 @@ func resourceCceAccessConfigUpdate(ctx context.Context, d *schema.ResourceData, 
 		"processors",
 		"demo_log",
 		"demo_fields",
+		"demo_fields_list",
 		"encoding_format",
 		"incremental_collect",
 	}
@@ -683,13 +769,13 @@ func buildUpdateCceAccessConfigBodyParams(d *schema.ResourceData) map[string]int
 	bodyParams = utils.RemoveNil(bodyParams)
 	// `processors` and `demo_fields` not be ignored, therwise it cannot be modified to empty.
 	bodyParams["processors"] = buildUpdateCceAccessProcessors(d.Get("processors").([]interface{}))
-	bodyParams["demo_fields"] = buildUpdateCceAccessDemoFields(d.Get("demo_fields").(*schema.Set))
+	bodyParams["demo_fields"] = buildUpdateCceAccessDemoFieldsRequestBody(d)
 
 	return bodyParams
 }
 
-func buildUpdateCceAccessDemoFields(demoFields *schema.Set) []map[string]interface{} {
-	fields := buildCceAccessDemoFields(demoFields)
+func buildUpdateCceAccessDemoFieldsRequestBody(d *schema.ResourceData) []map[string]interface{} {
+	fields := buildCceAccessDemoFieldsRequestBody(d)
 	if fields == nil {
 		return []map[string]interface{}{}
 	}

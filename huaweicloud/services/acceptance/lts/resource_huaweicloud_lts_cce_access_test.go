@@ -129,9 +129,9 @@ func TestAccCceAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withContainerFile, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(withContainerFile, "log_split", "true"),
 					resource.TestCheckResourceAttrSet(withContainerFile, "demo_log"),
-					resource.TestCheckResourceAttr(withContainerFile, "demo_fields.#", "2"),
-					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields.0.field_name"),
-					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields.0.field_value"),
+					resource.TestCheckResourceAttr(withContainerFile, "demo_fields_list.#", "2"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields_list.0.field_name"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields_list.0.field_value"),
 					resource.TestCheckResourceAttr(withContainerFile, "processor_type", "SPLIT"),
 					resource.TestCheckResourceAttr(withContainerFile, "processors.#", "2"),
 					resource.TestCheckResourceAttr(withContainerFile, "encoding_format", "UTF-8"),
@@ -191,7 +191,7 @@ func TestAccCceAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval_update"),
 					resource.TestCheckResourceAttr(withContainerFile, "log_split", "false"),
 					resource.TestCheckResourceAttr(withContainerFile, "demo_log", ""),
-					resource.TestCheckResourceAttr(withContainerFile, "demo_fields.#", "0"),
+					resource.TestCheckResourceAttr(withContainerFile, "demo_fields_list.#", "0"),
 					resource.TestCheckResourceAttr(withContainerFile, "processor_type", "SPLIT"),
 					rcWithContainerStdout.CheckResourceExists(),
 					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.repeat_collect", "true"),
@@ -206,7 +206,7 @@ func TestAccCceAccessConfig_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdFunc:       testAccCceAccessConfigImportStateFunc(withContainerFile),
-				ImportStateVerifyIgnore: []string{"processors"},
+				ImportStateVerifyIgnore: []string{"processors", "demo_fields"},
 			},
 			{
 				ResourceName:      withContainerStdout,
@@ -343,11 +343,11 @@ resource "huaweicloud_lts_cce_access" "with_container_file" {
   demo_log       = "2025-04-28 10:59:07.000 a.log:1 level:warn|error"
   processor_type = "SPLIT"
 
-  demo_fields {
+  demo_fields_list {
     field_name  = "field2"
     field_value = "error"
   }
-  demo_fields {
+  demo_fields_list {
     field_name  = "field1"
     field_value = "2025-04-28 10:59:07.000 a.log:1 level:warn"
   }
