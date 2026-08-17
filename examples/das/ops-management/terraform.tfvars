@@ -1,0 +1,12 @@
+ops_datastore_type        = "MySQL"
+ops_group_name            = "tf_test_das_group"
+ops_group_description     = "tf_test_das_group_description"
+ops_group_instance_ids    = ["your_instance_id_1", "your_instance_id_2"]
+ops_email_template_name   = "tf_test_email_template"
+ops_email_health_rank     = ["dangerous", "sub_healthy"]
+ops_email_inspection_time = "00:00-00:00"
+ops_email_send_time       = "08:00-10:00"
+ops_email_time_zone       = "Asia/Shanghai"
+ops_email_address         = "tf_test@example.com"
+ops_email_obs_bucket_name = "your bucket name"
+ops_email_subscribe       = true
