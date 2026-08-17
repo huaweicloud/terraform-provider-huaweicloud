@@ -1,0 +1,6 @@
+lts_group_name            = "tf-test-drs-lts-group"
+lts_stream_name           = "tf-test-drs-lts-stream"
+drs_job_id                = "767ea880-997b-4ea9-9ebf-0a4c2c4jb20i"
+compare_policy_period     = "* * 1,3,5"
+compare_policy_begin_time = "00:00:00"
+compare_policy_end_time   = "04:00:00"
