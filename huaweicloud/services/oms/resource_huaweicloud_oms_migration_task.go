@@ -561,7 +561,7 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 
 	createOpts, err := buildcreateTaskBodyParams(d, cfg)
 	if err != nil {
-		return nil
+		return diag.Errorf("error building migration task body params: %s", err)
 	}
 
 	log.Printf("[DEBUG] Create Task options: %#v", createOpts)

@@ -460,7 +460,7 @@ func resourceMigrationTaskGroupCreate(ctx context.Context, d *schema.ResourceDat
 
 	createOpts, err := buildTaskGroupCreateOpts(cfg, d)
 	if err != nil {
-		return nil
+		return diag.Errorf("error building migration task group body params: %s", err)
 	}
 
 	log.Printf("[DEBUG] Create Task Group options: %#v", createOpts)
@@ -475,12 +475,10 @@ func resourceMigrationTaskGroupCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("group_id", createTaskGroupRespBody, nil)
-	if id == nil {
+	groupID := utils.PathSearch("group_id", createTaskGroupRespBody, "").(string)
+	if groupID == "" {
 		return diag.Errorf("error creating OMS migration task group: ID is not found in API response")
 	}
-
-	groupID := id.(string)
 
 	d.SetId(groupID)
 

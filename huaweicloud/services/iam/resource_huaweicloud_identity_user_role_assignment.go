@@ -66,7 +66,7 @@ func resourceIdentityUserRoleAssignmentCreate(ctx context.Context, d *schema.Res
 			roleID, enterpriseProjectID, userID, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s/%s", enterpriseProjectID, roleID, userID))
+	d.SetId(fmt.Sprintf("%s/%s/%s", userID, roleID, enterpriseProjectID))
 
 	return resourceIdentityUserRoleAssignmentRead(ctx, d, meta)
 }
@@ -85,8 +85,6 @@ func resourceIdentityUserRoleAssignmentRead(_ context.Context, d *schema.Resourc
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error getting role assignment")
 	}
-
-	d.SetId(fmt.Sprintf("%s/%s/%s", userID, roleID, enterpriseProjectID))
 
 	mErr := multierror.Append(nil,
 		d.Set("role_id", role.ID),
@@ -110,11 +108,18 @@ func GetUserRoleAssignmentWithEpsID(client *golangsdk.ServiceClient, userID, rol
 	for _, role := range roles {
 		if role.ID == roleID {
 			assignment = role
-			break
+			return assignment, nil
 		}
 	}
 
-	return assignment, nil
+	return assignment, golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Method:    "GET",
+			URL:       "/v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/users/{user_id}/roles",
+			RequestId: "NONE",
+			Body:      fmt.Appendf(nil, "the role assignment (%s/%s/%s) does not exist", userID, roleID, enterpriseProjectID),
+		},
+	}
 }
 
 func resourceIdentityUserRoleAssignmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -142,13 +147,15 @@ func resourceIdentityUserRoleAssignmentDelete(_ context.Context, d *schema.Resou
 func resourceIdentityUserRoleAssignmentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid format specified for import id," +
-			" must be <user_id>/<role_id>/<enterprise_project_id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, want "+
+			"'<user_id>/<role_id>/<enterprise_project_id>', but got '%s'", d.Id())
 	}
 
-	d.Set("user_id", parts[0])
-	d.Set("role_id", parts[1])
-	d.Set("enterprise_project_id", parts[2])
+	mErr := multierror.Append(nil,
+		d.Set("user_id", parts[0]),
+		d.Set("role_id", parts[1]),
+		d.Set("enterprise_project_id", parts[2]),
+	)
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
