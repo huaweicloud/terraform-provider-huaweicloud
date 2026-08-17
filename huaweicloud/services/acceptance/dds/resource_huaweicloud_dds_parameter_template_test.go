@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -137,4 +138,114 @@ resource "huaweicloud_dds_parameter_template" "test" {
   }
 }
 `, name)
+}
+
+func TestAccDdsParameterTemplate_withEntityId(t *testing.T) {
+	var (
+		obj        interface{}
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+		rName      = "huaweicloud_dds_parameter_template.test"
+
+		rc = acceptance.InitResourceCheck(
+			rName,
+			&obj,
+			getDdsParameterTemplateResourceFunc,
+		)
+	)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDdsParameterTemplate_withEntityId_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "entity_id", "huaweicloud_dds_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
+				),
+			},
+			{
+				Config: testAccDdsParameterTemplate_withEntityId_update(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "connPoolMaxConnsPerHost"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "800"),
+					resource.TestCheckResourceAttr(rName, "parameters.1.name", "cursorTimeoutMillis"),
+					resource.TestCheckResourceAttr(rName, "parameters.1.value", "800000"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"entity_id", "parameter_values"},
+			},
+		},
+	})
+}
+
+func testAccDdsParameterTemplate_withEntityId_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "test" {
+  name                  = "%[2]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "ReplicaSet"
+  enterprise_project_id = "%[3]s"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "4.0"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "replica"
+    storage   = "ULTRAHIGH"
+    num       = 3
+    size      = 10
+    spec_code = "dds.mongodb.s6.large.2.repset"
+  }
+}`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccDdsParameterTemplate_withEntityId_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dds_parameter_template" "test" {
+  name        = "%[2]s"
+  entity_id   = huaweicloud_dds_instance.test.id
+  description = "terraform test"
+}
+`, testAccDdsParameterTemplate_withEntityId_base(name), name)
+}
+
+func testAccDdsParameterTemplate_withEntityId_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dds_parameter_template" "test" {
+  name        = "%s"
+  entity_id   = huaweicloud_dds_instance.test.id
+  description = ""
+
+  parameter_values = {
+    connPoolMaxConnsPerHost = 800
+    cursorTimeoutMillis     = 800000
+  }
+}
+`, testAccDdsParameterTemplate_withEntityId_base(name), name)
 }
