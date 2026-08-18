@@ -121,7 +121,7 @@ func resourceDdmAvailableRdsInstancesRead(_ context.Context, d *schema.ResourceD
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		diag.Errorf("error retrieving DDM instance available rds instances: %s", err)
+		return diag.Errorf("error retrieving DDM instance available rds instances: %s", err)
 	}
 
 	getDdmAvailableRdsInstancesRespJson, err := json.Marshal(getDdmAvailableRdsInstancesResp)

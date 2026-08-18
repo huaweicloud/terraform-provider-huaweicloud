@@ -115,6 +115,7 @@ func resourceV3ProviderProtocolCreate(ctx context.Context, d *schema.ResourceDat
 		if strings.Contains(err.Error(), "got 409") && strings.Contains(err.Error(), conflictMsg) {
 			log.Printf("protocol `%s` of identity provider `%s` has already existed. Now Update it with mapping `%s`",
 				idpId, protocolId, mappingId)
+			d.SetId(fmt.Sprintf("%s:%s", idpId, protocolId))
 			return resourceV3ProviderProtocolUpdate(ctx, d, meta)
 		}
 		return diag.Errorf("CreateProtocol error : %s", err)

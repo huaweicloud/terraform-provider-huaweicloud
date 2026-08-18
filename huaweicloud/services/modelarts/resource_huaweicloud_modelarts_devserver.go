@@ -618,7 +618,7 @@ func resourceDevServerDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	err = waitForDevServerDeleted(ctx, client, devServerId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		diag.Errorf("error waiting for the DevServer (%s) deletion to complete: %s", devServerId, err)
+		return diag.Errorf("error waiting for the DevServer (%s) deletion to complete: %s", devServerId, err)
 	}
 
 	return nil

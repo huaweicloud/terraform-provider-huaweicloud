@@ -183,7 +183,7 @@ func ResourceKmsKeyMaterialDelete(_ context.Context, d *schema.ResourceData, met
 		}
 	}
 	if err != nil {
-		diag.Errorf("error deleting key material (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting key material (%s): %s", d.Id(), err)
 	}
 
 	return nil

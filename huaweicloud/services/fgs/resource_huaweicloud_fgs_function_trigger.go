@@ -336,7 +336,7 @@ func resourceFunctionTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	err = waitForFunctionTriggerStatusCompleted(ctx, client, d)
 	if err != nil {
-		diag.Errorf("error waiting for the function trigger (%s) status to become available: %s", triggerId, err)
+		return diag.Errorf("error waiting for the function trigger (%s) status to become available: %s", triggerId, err)
 	}
 	return nil
 }
@@ -415,7 +415,7 @@ func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 
 	err = waitForFunctionTriggerDeleted(ctx, fgsClient, d)
 	if err != nil {
-		diag.Errorf("error waiting for the function trigger (%s) status to become deleted: %s", triggerId, err)
+		return diag.Errorf("error waiting for the function trigger (%s) status to become deleted: %s", triggerId, err)
 	}
 	return nil
 }

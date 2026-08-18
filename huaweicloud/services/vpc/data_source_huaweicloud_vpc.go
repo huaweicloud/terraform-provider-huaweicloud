@@ -159,7 +159,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 
 	res, err := obtainV3VpcResp(v3Client, d.Id())
 	if err != nil {
-		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
+		return diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
 	}
 	d.Set("secondary_cidrs", utils.PathSearch("vpc.extend_cidrs", res, nil))
 

@@ -131,7 +131,7 @@ func resourceFunctionTriggerStatusActionCreate(ctx context.Context, d *schema.Re
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		diag.Errorf("error waiting for the function trigger (%s) status to become expected value (%s): %s",
+		return diag.Errorf("error waiting for the function trigger (%s) status to become expected value (%s): %s",
 			triggerId, triggerStatus, err)
 	}
 

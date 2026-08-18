@@ -202,7 +202,7 @@ func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta 
 
 	val, ok := lists.([]interface{})
 	if !ok {
-		diag.Errorf("data.records is not a list, data.records= %#v", lists)
+		return diag.Errorf("data.records is not a list, data.records= %#v", lists)
 	}
 
 	if len(val) != 1 {

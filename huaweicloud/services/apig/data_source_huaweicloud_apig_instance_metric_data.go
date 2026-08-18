@@ -185,7 +185,7 @@ func dataSourceInstanceMetricDataRead(_ context.Context, d *schema.ResourceData,
 
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	randomUUID, err := uuid.GenerateUUID()

@@ -97,7 +97,7 @@ func resourceDdmConfigurationsRead(_ context.Context, d *schema.ResourceData, me
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		diag.Errorf("error retrieving DDM configurations: %s", err)
+		return diag.Errorf("error retrieving DDM configurations: %s", err)
 	}
 
 	getDdmConfigurationsRespJson, err := json.Marshal(getDdmConfigurationsResp)

@@ -449,7 +449,7 @@ func buildNodeAttachCreateOpts(d *schema.ResourceData) (*nodes.AddOpts, error) {
 	// Add loginSpec here so it wouldn't go in the above log entry
 	loginSpec, err := buildResourceNodeLoginSpec(d)
 	if err != nil {
-		diag.FromErr(err)
+		return &result, err
 	}
 	result.NodeList[0].Spec.Login = loginSpec
 	return &result, nil
@@ -535,7 +535,7 @@ func buildNodeAttachUpdateOpts(d *schema.ResourceData) (*nodes.ResetOpts, error)
 	// Add loginSpec here so it wouldn't go in the above log entry
 	loginSpec, err := buildResourceNodeLoginSpec(d)
 	if err != nil {
-		diag.FromErr(err)
+		return &result, err
 	}
 	result.NodeList[0].Spec.Login = loginSpec
 	return &result, nil
@@ -675,7 +675,7 @@ func resourceNodeAttachDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	loginSpec, err = buildResourceNodeLoginSpec(d)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 	removeOpts.Spec.Login = loginSpec
 

@@ -165,7 +165,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		// save VirtualPrivateCloudV3 extend_cidr
 		res, err := obtainV3VpcResp(v3Client, vpcResource.ID)
 		if err != nil {
-			diag.Errorf("error retrieving VPC (%s) v3 detail: %s", vpcResource.ID, err)
+			return diag.Errorf("error retrieving VPC (%s) v3 detail: %s", vpcResource.ID, err)
 		}
 		queriedVpc["secondary_cidrs"] = utils.PathSearch("vpc.extend_cidrs", res, nil)
 
