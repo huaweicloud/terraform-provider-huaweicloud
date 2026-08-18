@@ -574,7 +574,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	// Add loginSpec here so it wouldn't go in the above log entry
 	loginSpec, err := buildResourceNodeLoginSpec(d)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 	createOpts.Spec.Login = loginSpec
 

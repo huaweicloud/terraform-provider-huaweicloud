@@ -151,7 +151,7 @@ func dataSourceServersRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if err := d.Set("servers", stateServers); err != nil {
-		diag.Errorf("error setting SMS source servers: %s", err)
+		return diag.Errorf("error setting SMS source servers: %s", err)
 	}
 
 	return nil

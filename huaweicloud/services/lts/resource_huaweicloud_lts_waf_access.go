@@ -234,7 +234,7 @@ func resourceWAFAccessDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	_, err = client.Request("PUT", deletePath, &deleteOpt)
 	if err != nil {
-		diag.Errorf("error deleting LTS access WAF logs configuration: %s", err)
+		return diag.Errorf("error deleting LTS access WAF logs configuration: %s", err)
 	}
 
 	return nil

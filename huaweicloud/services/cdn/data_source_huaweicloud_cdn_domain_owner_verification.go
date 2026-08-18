@@ -97,7 +97,7 @@ func dataSourceDomainOwnerVerificationRead(_ context.Context, d *schema.Resource
 
 	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	randomUUID, err := uuid.GenerateUUID()

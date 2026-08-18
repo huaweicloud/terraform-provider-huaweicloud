@@ -169,7 +169,7 @@ func resourceTerminalBindingRead(_ context.Context, d *schema.ResourceData, meta
 
 	configStatus, err := terminals.GetConfig(client)
 	if err != nil {
-		diag.Errorf("error getting terminal binding configuration: %s", err)
+		return diag.Errorf("error getting terminal binding configuration: %s", err)
 	}
 
 	opts := terminals.ListOpts{

@@ -297,7 +297,7 @@ func resourceAddRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	if d.HasChanges("status", "lts_audit_switch") {
 		if databaseId == "" {
-			diag.Errorf("edit audit status is not currently supported: 'db_id' is not found in API response")
+			return diag.Errorf("edit audit status is not currently supported: 'db_id' is not found in API response")
 		}
 		err := updateAuditStatus(client, d, instanceId, databaseId)
 		if err != nil {

@@ -397,7 +397,7 @@ func resourceApplicationDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	err = waitForApplicationDeleteCompleted(ctx, client, appId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		diag.Errorf("error waiting for the application (%s) status to become deleted: %s", appId, err)
+		return diag.Errorf("error waiting for the application (%s) status to become deleted: %s", appId, err)
 	}
 	return nil
 }

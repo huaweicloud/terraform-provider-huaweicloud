@@ -103,7 +103,7 @@ func resourceControlCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	body, err := buildControlBodyParams(d)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 	enableControlOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -220,7 +220,7 @@ func resourceControlDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 	body, err := buildControlBodyParams(d)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 	disableControlOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

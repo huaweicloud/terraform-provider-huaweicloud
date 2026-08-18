@@ -189,7 +189,7 @@ func resourceElasticResourcePoolCreate(ctx context.Context, d *schema.ResourceDa
 
 	err = waitForElasticResourcePoolStatusCompleted(ctx, client, d)
 	if err != nil {
-		diag.Errorf("error waiting for the elastic resource pool (%s) status to become success: %s", resourceId, err)
+		return diag.Errorf("error waiting for the elastic resource pool (%s) status to become success: %s", resourceId, err)
 	}
 
 	return resourceElasticResourcePoolRead(ctx, d, meta)
@@ -551,7 +551,7 @@ func resourceElasticResourcePoolDelete(ctx context.Context, d *schema.ResourceDa
 
 	err = waitForElasticResourcePoolDeleted(ctx, client, d)
 	if err != nil {
-		diag.Errorf("error waiting for the elastic resource pool (%s) status to become deleted: %s", resourceName, err)
+		return diag.Errorf("error waiting for the elastic resource pool (%s) status to become deleted: %s", resourceName, err)
 	}
 	return nil
 }

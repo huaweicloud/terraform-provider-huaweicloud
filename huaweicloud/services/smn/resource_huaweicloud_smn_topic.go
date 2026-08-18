@@ -131,7 +131,7 @@ func resourceTopicCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	// set policies
 	err = updatePolicies(client, d, d.Id())
 	if err != nil {
-		diag.Errorf("error updating the policies of topic: %s", err)
+		return diag.Errorf("error updating the policies of topic: %s", err)
 	}
 
 	// set tags
@@ -267,7 +267,7 @@ func resourceTopicUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	if d.HasChanges("access_policy", "users_publish_allowed", "services_publish_allowed", "introduction") {
 		err := updatePolicies(client, d, id)
 		if err != nil {
-			diag.Errorf("error updating the policies of topic: %s", err)
+			return diag.Errorf("error updating the policies of topic: %s", err)
 		}
 	}
 

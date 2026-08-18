@@ -241,7 +241,7 @@ func resourceLogstashConfigurationUpdate(ctx context.Context, d *schema.Resource
 	updateLogstashConfigOpt.JSONBody = utils.RemoveNil(buildCreateLogstashCnfParameters(d))
 	_, err = client.Request("POST", updateLogstashConfigPath, &updateLogstashConfigOpt)
 	if err != nil {
-		diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
+		return diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
 	}
 
 	checkErr := configFileStatusCheck(ctx, d, client)
@@ -274,7 +274,7 @@ func resourceLogstashConfigurationDelete(_ context.Context, d *schema.ResourceDa
 	}
 	_, err = client.Request("DELETE", deleteLogstashConfigPath, &deleteLogstashConfigOpt)
 	if err != nil {
-		diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
+		return diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
 	}
 	if err != nil {
 		// 1. "CSS.0001" : Incorrect parameters. Status code is 400.

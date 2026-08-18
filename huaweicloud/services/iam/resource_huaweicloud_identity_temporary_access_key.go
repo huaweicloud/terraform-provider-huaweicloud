@@ -161,7 +161,7 @@ func buildCreateSecurityTokensBodyParams(d *schema.ResourceData) map[string]inte
 func resourceIdentityTemporaryRead(c context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	expiresAt, err := time.ParseInLocation(`2006-01-02T15:04:05Z`, d.Get("expires_at").(string), time.UTC)
 	if err != nil {
-		diag.Errorf("error parsing expires at: %s", err)
+		return diag.Errorf("error parsing expires at: %s", err)
 	}
 	if time.Now().After(expiresAt) {
 		return resourceIdentityTemporaryCreate(c, d, meta)
