@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -26,6 +28,10 @@ func ResourceV3Group() *schema.Resource {
 		ReadContext:   resourceV3GroupRead,
 		UpdateContext: resourceV3GroupUpdate,
 		DeleteContext: resourceV3GroupDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Second),
+		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -108,7 +114,20 @@ func GetV3GroupById(client *golangsdk.ServiceClient, groupId string) (interface{
 	return utils.FlattenResponse(requestResp)
 }
 
-func resourceV3GroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func refreshV3Group(client *golangsdk.ServiceClient, groupId string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := GetV3GroupById(client, groupId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "NOT_FOUND", "PENDING", nil
+			}
+			return nil, "ERROR", err
+		}
+		return resp, "COMPLETED", nil
+	}
+}
+
+func resourceV3GroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -119,7 +138,20 @@ func resourceV3GroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	group, err := GetV3GroupById(client, groupId)
+	var group interface{}
+	// After creation, the group may not be immediately queryable (usually 2-3s, up to 10s).
+	if d.IsNewResource() {
+		stateConf := &retry.StateChangeConf{
+			Pending:    []string{"PENDING"},
+			Target:     []string{"COMPLETED"},
+			Refresh:    refreshV3Group(client, groupId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 1 * time.Second,
+		}
+		group, err = stateConf.WaitForStateContext(ctx)
+	} else {
+		group, err = GetV3GroupById(client, groupId)
+	}
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving group (%s)", groupId))
 	}

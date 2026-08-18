@@ -41,6 +41,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 20 seconds.
+
 ## Import
 
 Groups can be imported using their `id`, e.g.

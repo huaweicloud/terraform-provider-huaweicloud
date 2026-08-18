@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -32,6 +34,10 @@ func ResourceIdentityUser() *schema.Resource {
 		ReadContext:   resourceUserRead,
 		UpdateContext: resourceUserUpdate,
 		DeleteContext: resourceUserDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Second),
+		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -214,22 +220,52 @@ func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) 
 	return nil
 }
 
-func resourceUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func refreshIdentityUser(client *golangsdk.ServiceClient, userId string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := users.Get(client, userId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "NOT_FOUND", "PENDING", nil
+			}
+			return nil, "ERROR", err
+		}
+		return resp, "COMPLETED", nil
+	}
+}
+
+func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	user, err := users.Get(iamClient, d.Id()).Extract()
+	var (
+		resp   interface{}
+		method string
+		userId = d.Id()
+	)
+	// After creation, the user may not be immediately queryable (usually 2-3s, up to 10s).
+	if d.IsNewResource() {
+		stateConf := &retry.StateChangeConf{
+			Pending:    []string{"PENDING"},
+			Target:     []string{"COMPLETED"},
+			Refresh:    refreshIdentityUser(iamClient, userId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 1 * time.Second,
+		}
+		resp, err = stateConf.WaitForStateContext(ctx)
+	} else {
+		resp, err = users.Get(iamClient, userId).Extract()
+	}
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "user")
 	}
+	user := resp.(*users.User)
 
-	method := ""
-	loginProtect, err := users.GetLoginProtect(iamClient, d.Id()).ExtractLoginProtect()
+	loginProtect, err := users.GetLoginProtect(iamClient, userId).ExtractLoginProtect()
 	if err != nil {
-		log.Printf("[WARN] failed to get the login verification method of user (%s): %s", d.Id(), err)
+		log.Printf("[WARN] failed to get the login verification method of user (%s): %s", userId, err)
 	} else if loginProtect.VerificationMethod != "none" {
 		method = loginProtect.VerificationMethod
 	}
