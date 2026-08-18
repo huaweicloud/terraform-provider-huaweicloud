@@ -585,6 +585,7 @@ func dbInfoSchemaResource() *schema.Resource {
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 		},
@@ -1668,15 +1669,20 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 	}
 
 	var subnetId string
-	if jobDirection == "up" {
+	switch jobDirection {
+	case "up":
 		if targetDb.InstanceId == "" {
-			return nil, fmt.Errorf("destination_db.0.instance_id is required When diretion is down")
+			return nil, fmt.Errorf("destination_db.0.instance_id is required when direction is up")
 		}
 		subnetId = targetDb.SubnetId
-	} else {
+
+	case "down":
 		if sourceDb.InstanceId == "" {
-			return nil, fmt.Errorf("source_db.0.instance_id is required When diretion is down")
+			return nil, fmt.Errorf("source_db.0.instance_id is required when direction is down")
 		}
+		subnetId = sourceDb.SubnetId
+
+	default:
 		subnetId = sourceDb.SubnetId
 	}
 
@@ -1768,6 +1774,7 @@ func buildDbConfigParamter(d *schema.ResourceData, dbType, projectId string) (*j
 		Region:              configRaw["region"].(string),
 		VpcId:               configRaw["vpc_id"].(string),
 		SubnetId:            configRaw["subnet_id"].(string),
+		SecurityGroupId:     configRaw["security_group_id"].(string),
 		ProjectId:           projectId,
 		SslCertPassword:     configRaw["ssl_cert_password"].(string),
 		SslCertCheckSum:     configRaw["ssl_cert_check_sum"].(string),

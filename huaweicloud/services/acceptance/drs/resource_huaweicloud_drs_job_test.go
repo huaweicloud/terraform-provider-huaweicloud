@@ -189,7 +189,7 @@ locals {
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
   ipList = split(",", huaweicloud_dms_kafka_instance.test.connect_address)
   port   = "9092"
-  ips    = format("%%s:%%s,%%s:%%s", local.ipList[0], local.port, local.ipList[1], local.port)
+  ips    = "${local.ipList[0]}:${local.port},${local.ipList[1]}:${local.port}"
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -197,19 +197,29 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
+  flavor_id         = local.flavor.id
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
 
-  flavor_id          = local.flavor.id
-  storage_spec_code  = local.flavor.ios[0].storage_spec_code
   availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[1],
-    data.huaweicloud_availability_zones.test.names[2]
+    data.huaweicloud_availability_zones.test.names[0]
   ]
+
   engine_version = "2.7"
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
-  arch_type      = "X86"
-  ssl_enable     = false
+
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
 }
 
 resource "huaweicloud_dms_kafka_topic" "test" {
@@ -1309,4 +1319,247 @@ resource "huaweicloud_drs_job" "test" {
 }
 `, name, acceptance.HW_VPC_ID, acceptance.HW_SUBNET_ID, acceptance.HW_SECURITY_GROUP_ID, pwd,
 		acceptance.HW_RDS_FIXED_IP, acceptance.HW_SMN_SUBSCRIBED_TOPIC_URN)
+}
+
+func TestAccResourceDrsJob_NonDbs_mysql_to_kafka(t *testing.T) {
+	var (
+		obj          jobs.BatchCreateJobReq
+		resourceName = "huaweicloud_drs_job.test"
+		name         = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDrsJobResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceDrsJob_NonDbs_mysql_to_kafka(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "sync"),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "mysql-to-kafka"),
+					resource.TestCheckResourceAttr(resourceName, "direction", "non-dbs"),
+					resource.TestCheckResourceAttr(resourceName, "net_type", "vpc"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db_readnoly", "false"),
+					resource.TestCheckResourceAttr(resourceName, "migration_type", "INCR_TRANS"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.engine_type", "mysql"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.ip", "192.168.0.50"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.user", "root"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db.0.engine_type", "kafka"),
+					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "progress"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
+					"expired_days", "migrate_definer", "force_destroy", "status", "updated_at", "policy_config",
+					"source_db.0.ip", "destination_db.0.ip", "engine_type"},
+			},
+		},
+	})
+}
+
+func testResourceDrsJob_NonDbs_mysql_to_kafka(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_drs_job" "test" {
+  name                    = "%[2]s"
+  type                    = "sync"
+  engine_type             = "mysql-to-kafka"
+  direction               = "non-dbs"
+  net_type                = "vpc"
+  migration_type          = "INCR_TRANS"
+  force_destroy           = true
+  destination_db_readnoly = false
+
+  master_az = data.huaweicloud_availability_zones.test.names[0]
+  slave_az  = data.huaweicloud_availability_zones.test.names[0]
+
+  source_db {
+    engine_type = "mysql"
+    ip          = huaweicloud_rds_instance.test.fixed_ip
+    port        = 3306
+    user        = "root"
+    password    = "TestDrs@123"
+    vpc_id      = huaweicloud_vpc.test.id
+    subnet_id   = huaweicloud_vpc_subnet.test.id
+  }
+
+  destination_db {
+    ip                = local.ips
+    engine_type       = "kafka"
+    vpc_id            = huaweicloud_vpc.test.id
+    subnet_id         = huaweicloud_vpc_subnet.test.id
+    security_group_id = huaweicloud_networking_secgroup.test.id
+
+    kafka_security_config {
+      type = "PLAINTEXT"
+    }
+  }
+
+  policy_config {
+    topic_policy     = "0"
+    topic            = huaweicloud_dms_kafka_topic.test.name
+    partition_policy = "1"
+  }
+
+  databases = [huaweicloud_rds_mysql_database.test.name]
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password, force_destroy,
+    ]
+  }
+}
+`, testResourceDrsJob_NonDbs_mysql_to_kafka_base(name), name)
+}
+
+func testResourceDrsJob_NonDbs_mysql_to_kafka_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "%[1]s"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "3306,9092"
+  protocol          = "tcp"
+  remote_ip_prefix  = "192.168.0.0/16"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "192.168.0.0/16"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.ingress,
+    huaweicloud_networking_secgroup_rule.egress,
+  ]
+
+  name                = "%[1]s"
+  flavor              = "rds.mysql.x1.large.2.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.50"
+  ha_replication_mode = "semisync"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3],
+  ]
+
+  db {
+    password = "TestDrs@123"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3306
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+}
+
+resource "huaweicloud_rds_mysql_database" "test" {
+  instance_id   = huaweicloud_rds_instance.test.id
+  name          = "%[1]s"
+  character_set = "utf8"
+}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+  ipList = split(",", huaweicloud_dms_kafka_instance.test.connect_address)
+  port   = "9092"
+  ips    = "${local.ipList[0]}:${local.port},${local.ipList[1]}:${local.port}"
+}
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%[1]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  flavor_id         = local.flavor.id
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  engine_version = "2.7"
+  storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  broker_num     = 3
+
+  manager_user     = "kafka-user"
+  manager_password = "Kafkatest@123"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = huaweicloud_dms_kafka_instance.test.id
+  name        = "%[1]s"
+  partitions  = 20
+  aging_time  = 72
+}
+`, name)
 }
