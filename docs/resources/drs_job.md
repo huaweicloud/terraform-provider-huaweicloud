@@ -321,16 +321,16 @@ The following arguments are supported:
   provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the job name. The name consists of 4 to 50 characters, starting with
- a letter. Only letters, digits, underscores (\_) and hyphens (-) are allowed.
+  a letter. Only letters, digits, underscores (\_) and hyphens (-) are allowed.
 
 * `type` - (Required, String, ForceNew) Specifies the job type. Changing this parameter will create a new
- resource. The options are as follows:
+  resource. The options are as follows:
   + **migration**: Online Migration.
   + **sync**: Data Synchronization.
   + **cloudDataGuard**: Disaster Recovery.
 
 * `engine_type` - (Required, String, ForceNew) Specifies the migration engine type.
- Changing this parameter will create a new resource. The options are as follows:
+  Changing this parameter will create a new resource. The options are as follows:
   + **mysql**:  MySQL migration, MySQL synchronization use.
   + **mongodb**: Mongodb migration use.
   + **cloudDataGuard-mysql**: Disaster recovery use.
@@ -347,7 +347,7 @@ The following arguments are supported:
   + **up**: To the cloud. The destination database must be a database in the current cloud.
   + **down**: Out of the cloud. The source database must be a database in the current cloud.
   + **non-dbs**: self-built database.
-  
+
 * `source_db` - (Required, List, ForceNew) Specifies the source database configuration.
   The [db_info](#block--db_info) structure of the `source_db` is documented below.
   Changing this parameter will create a new resource.
@@ -362,20 +362,21 @@ The following arguments are supported:
 * `net_type` - (Optional, String, ForceNew) Specifies the network type.
   Changing this parameter will create a new resource. The default value is **eip**. The options are as follows:
   + **eip**: suitable for migration from an on-premises or other cloud database to a destination cloud database.
-   An EIP will be automatically bound to the replication instance and released after the replication task is complete.
+    An EIP will be automatically bound to the replication instance and released after the replication task is complete.
   + **vpc**: suitable for migration from one cloud database to another.
   + **vpn**: suitable for migration from an on-premises self-built database to a destination cloud database,
-   or from one cloud database to another in a different region.
+    or from one cloud database to another in a different region.
 
 * `migration_type` - (Optional, String, ForceNew) Specifies migration type.
-  Changing this parameter will create a new resource. The default value is **FULL_INCR_TRANS**. The options are as follows:
+  Changing this parameter will create a new resource. The default value is **FULL_INCR_TRANS**.
+  The options are as follows:
   + **FULL_TRANS**: Full migration. Suitable for scenarios where services can be interrupted. It migrates all database
-   objects and data, in a non-system database, to a destination database at a time.
+    objects and data, in a non-system database, to a destination database at a time.
   + **INCR_TRANS**: Incremental migration. Suitable for migration from an on-premises self-built database to a
-   destination cloud database, or from one cloud database to another in a different region.
+    destination cloud database, or from one cloud database to another in a different region.
   + **FULL_INCR_TRANS**:  Full+Incremental migration. This allows to migrate data with minimal downtime. After a full
-   migration initializes the destination database, an incremental migration parses logs to ensure data consistency
-   between the source and destination databases.
+    migration initializes the destination database, an incremental migration parses logs to ensure data consistency
+    between the source and destination databases.
 
 * `migrate_definer` - (Optional, Bool, ForceNew) Specifies whether to migrate the definers of all source database
   objects to the `user` of `destination_db`. The default value is **true**.
@@ -390,8 +391,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `multi_write` - (Optional, Bool, ForceNew) Specifies whether to enable multi write. It is mandatory when `type`
-  is **cloudDataGuard**. When the disaster recovery type is dual-active disaster recovery, set `multi_write` to **true**,
-  otherwise to **false**. The default value is **false**. Changing this parameter will create a new resource.
+  is **cloudDataGuard**. When the disaster recovery type is dual-active disaster recovery, set `multi_write`
+  to **true**, otherwise to **false**. The default value is **false**. Changing this parameter will create a new
+  resource.
 
 * `expired_days` - (Optional, Int, ForceNew) Specifies how many days after the task is abnormal, it will automatically
   end. The value ranges from 14 to 100. the default value is `14`. Changing this parameter will create a new resource.
@@ -407,8 +409,9 @@ The following arguments are supported:
   ensure the migration is successful. Once the migration is complete, the DB instance automatically changes to
   Read/Write. Changing this parameter will create a new resource.
 
-  -> This parameter is valid only when MySQL migration and DR and `direction` is set to **up**. The default value is **true**,
-  you need to manually set this parameter to **false** in other application scenarios except MySQL migration and DR scenarios.
+  -> This parameter is valid only when MySQL migration and DR and `direction` is set to **up**. The default value is
+  **true**, you need to manually set this parameter to **false** in other application scenarios except MySQL migration
+  and DR scenarios.
 
 * `description` - (Optional, String) Specifies the description of the job, which contain a
   maximum of 256 characters, and certain special characters (including !<>&'"\\) are not allowed.
@@ -435,25 +438,28 @@ The following arguments are supported:
   + **target**: Stop playback.
   + **all**: Stop log capture and playback.
 
-* `is_sync_re_edit` - (Optional, Bool) Specifies whether to start the sync re-edit job. It's valid when `action` is **restart**.
+* `is_sync_re_edit` - (Optional, Bool) Specifies whether to start the sync re-edit job. It's valid when `action` is
+  **restart**.
 
 * `databases` - (Optional, List)  Specifies the list of the databases which the job migrates or synchronizes. Means to
   transfer database level data. This parameter conflicts with `tables`.
 
-* `tables` - (Optional, List)  Specifies the list of the tables which the job migrates or synchronizes. Means to transfer
-  table level data. This parameter conflicts with `databases`.
+* `tables` - (Optional, List)  Specifies the list of the tables which the job migrates or synchronizes. Means to
+  transfer table level data. This parameter conflicts with `databases`.
   The [tables](#block--tables) structure is documented below.
 
-  ->   1. `databases` and `tables` will only take effect when `type` is **migration** or **sync**.
-  <br/>2. When `type` is **migration**, they are not allowed to **update**, if they are empty, means to migrate all objects.
-  <br/>3. When `type` is **sync**, exactly one data level of `databases` and `tables` must be specified. It's **not allowed**
-       to transfer the data level to another. Only when `status` is **INCRE_TRANSFER_STARTED** or **INCRE_TRANSFER_FAILED**,
-       **update** will take effect.
+  -> 1. `databases` and `tables` will only take effect when `type` is **migration** or **sync**.
+  <br/>2. When `type` is **migration**, they are not allowed to **update**, if they are empty, means to migrate all
+  objects.
+  <br/>3. When `type` is **sync**, exactly one data level of `databases` and `tables` must be specified.
+  It's **not allowed** to transfer the data level to another. Only when `status` is **INCRE_TRANSFER_STARTED** or
+  **INCRE_TRANSFER_FAILED**, **update** will take effect.
   <br/>4. It's only for synchronization from **MySQL** to **MySQL**, migration from **Redis** to **GeminiDB Redis**,
-       migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to **GaussDB Distributed**.
+  migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to
+  **GaussDB Distributed**.
 
-* `public_ip_list` - (Optional, List, ForceNew)  Specifies the public IP list.
-  It can be specified when `net_type` is **eip**, and if it's not specified, DRS job will automatically bind a public IP.
+* `public_ip_list` - (Optional, List, ForceNew)  Specifies the public IP list. It can be specified when `net_type` is
+  **eip**, and if it's not specified, DRS job will automatically bind a public IP.
   Changing this parameter will create a new resource.
   The [public_ip_list](#block--public_ip_list) structure is documented below.
 
@@ -462,7 +468,7 @@ The following arguments are supported:
 
 * `slave_az` - (Optional, String, ForceNew) Specifies the AZ where the standby task is located.
   Changing this parameter will create a new resource.
-  
+
   -> It takes effect when both `master_az` and `slave_az` are specified. Only MySQL and gaussdbv5ha-to-kafka scenarios
   are supported.
 
@@ -481,8 +487,8 @@ The following arguments are supported:
   + `period_unit`, `period` and `auto_renew` must be specified.
   + Only support changing from **postPaid** to **prePaid**.
 
-* `period_unit` - (Optional, String) Specifies the subscription period unit. Required when `charging_mode` is **prePaid**.
-  Valid values are **month** and **year**.
+* `period_unit` - (Optional, String) Specifies the subscription period unit. Required when `charging_mode` is
+  **prePaid**. Valid values are **month** and **year**.
 
   -> This parameter can be specified when changing from **postPaid** to **prePaid**. It can only be edited once during
   the conversion.
@@ -513,8 +519,11 @@ The `db_info` block supports:
 * `password` - (Optional, String, ForceNew) Specifies the password of database.
   Changing this parameter will create a new resource.
 
-* `instance_id` - (Optional, String, ForceNew) Specifies the instance id of database when it is a RDS database.
+* `instance_id` - (Optional, String, ForceNew) Specifies the instance id of database when it is an RDS database.
   Changing this parameter will create a new resource.
+
+  + When `direction` is **up**, the `destination_db.instance_id` is required.
+  + When `direction` is **down**, the `source_db.instance_id` is required.
 
 * `vpc_id` - (Optional, String, ForceNew) Specifies vpc ID of database.
   Changing this parameter will create a new resource.
@@ -522,8 +531,8 @@ The `db_info` block supports:
 * `subnet_id` - (Optional, String, ForceNew) Specifies subnet ID of database when it is a RDS database.
   It is mandatory when `direction` is **down**. Changing this parameter will create a new resource.
 
-  -> When `net_type` is **vpc**, if `direction` is **up**, `source_db.vpc_id` and `source_db.subnet_id` is mandatory, if
-  `direction` is **down**, `destination_db.vpc_id` and `destination_db.subnet_id` is mandatory.
+  -> When `net_type` is **vpc**, if `direction` is **up**, `source_db.vpc_id` and `source_db.subnet_id` is mandatory,
+  if `direction` is **down**, `destination_db.vpc_id` and `destination_db.subnet_id` is mandatory.
 
 * `region` - (Optional, String, ForceNew) Specifies the region which the database belongs when it is a RDS database.
   Changing this parameter will create a new resource.
@@ -544,11 +553,17 @@ The `db_info` block supports:
   It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
 
 * `ssl_cert_password` - (Optional, String, ForceNew) Specifies SSL certificate password. It is mandatory when
-  `ssl_enabled` is **true** and the certificate file suffix is **.p12**. Changing this parameter will create a new resource.
+  `ssl_enabled` is **true** and the certificate file suffix is **.p12**.
+  Changing this parameter will create a new resource.
 
 * `kafka_security_config` - (Optional, List, ForceNew) Specifies the kafka security authentication info.
   Changing this parameter will create a new resource.
   The [kafka_security_config](#block--kafka_security_config) structure is documented below.
+
+* `security_group_id` - (Optional, String, ForceNew) Specifies the security group ID to which the database instance
+  belongs. Changing this parameter will create a new resource.
+
+  + When `direction` is **non-dbs**, the `destination_db.security_group_id` is required.
 
 <a name="block--limit_speed"></a>
 The `limit_speed` block supports:
@@ -566,8 +581,8 @@ The `limit_speed` block supports:
 <a name="block--policy_config"></a>
 The `policy_config` block supports:
 
-* `filter_ddl_policy` - (Optional, String, ForceNew) Specifies the DDL filtering policy. Valid value is **drop_database**.
-  For MySQL synchronization, this parameter can only be set to **drop_database**.
+* `filter_ddl_policy` - (Optional, String, ForceNew) Specifies the DDL filtering policy. Valid value is
+  **drop_database**. For MySQL synchronization, this parameter can only be set to **drop_database**.
   Changing this parameter will create a new resource.
 
 * `conflict_policy` - (Optional, String, ForceNew) Specifies the incremental conflict policy.
@@ -588,54 +603,56 @@ The `policy_config` block supports:
 * `topic_policy` - (Optional, String, ForceNew) Specifies the topic synchronization policy. It is mandatory when
   destination database is Kafka.
   + Values for synchronization from MySQL to Kafka and from GaussDB(for MySQL) to Kafka:
-      - **0**: A specified topic.
-      - **1**: Auto-generated topics.
+    - **0**: A specified topic.
+    - **1**: Auto-generated topics.
 
   + Values for synchronization from GaussDB Primary/Standby to Kafka:
-      - **0**: A specified topic.
-      - **1**: Automatically generated using the database_name-schema_name-table_name format.
-      - **2**: Automatically generated based on the database name.
-      - **3**: Automatically generated using the database_name-schema_name format.
+    - **0**: A specified topic.
+    - **1**: Automatically generated using the database_name-schema_name-table_name format.
+    - **2**: Automatically generated based on the database name.
+    - **3**: Automatically generated using the database_name-schema_name format.
 
   Changing this parameter will create a new resource.
 
 * `topic` - (Optional, String, ForceNew) Specifies the topic name. It is mandatory when `policy_config.0.topic_policy`
   is set to **0**. Ensure that the topic exists. Changing this parameter will create a new resource.
 
-* `partition_policy` - (Optional, String, ForceNew) Specifies the policy for synchronizing topics to the Kafka partitions.
-  It is mandatory when the destination database is Kafka.
+* `partition_policy` - (Optional, String, ForceNew) Specifies the policy for synchronizing topics to the Kafka
+  partitions. It is mandatory when the destination database is Kafka.
   + Valid values are as follows:
-      - **0**: Partitions are differentiated by the hash values of *database_name.schema_name.table_name*.
-      - **1**: Topics are synchronized to partition 0.
-      - **2**: Partitions are identified by the hash values of the primary key.
-      - **3**: Partitions are differentiated by the hash values of *database_name.schema_name*.
-      - **5**: Partitions are differentiated by the hash values of non-primary-key columns
+    - **0**: Partitions are differentiated by the hash values of *database_name.schema_name.table_name*.
+    - **1**: Topics are synchronized to partition 0.
+    - **2**: Partitions are identified by the hash values of the primary key.
+    - **3**: Partitions are differentiated by the hash values of *database_name.schema_name*.
+    - **5**: Partitions are differentiated by the hash values of non-primary-key columns
 
   + Options and Conditions are as follows:
-      - When `policy_config.0.topic_policy` is set to **0**, the value can be **0**, **1**, **2**, **3** or **5**.
-      - When `policy_config.0.topic_policy` is set to **1**, the value can be **1**, **2**, or **5**.
-      - When `policy_config.0.topic_policy` is set to **2**, the value can be **0**, **1** or **3**.
-      - When `policy_config.0.topic_policy` is set to **3**, the value can be **0** or **1**.
+    - When `policy_config.0.topic_policy` is set to **0**, the value can be **0**, **1**, **2**, **3** or **5**.
+    - When `policy_config.0.topic_policy` is set to **1**, the value can be **1**, **2**, or **5**.
+    - When `policy_config.0.topic_policy` is set to **2**, the value can be **0**, **1** or **3**.
+    - When `policy_config.0.topic_policy` is set to **3**, the value can be **0** or **1**.
 
   Changing this parameter will create a new resource.
 
 * `kafka_data_format` - (Optional, String, ForceNew) Specifies the data format delivered to Kafka.
   Valid values are **json**, **avro** and **json_c**. Defaults to **json**.
-  + The value can be **json** and **json_c** for synchronization from MySQL to Kafka and from GaussDB(for MySQL) to Kafka.
+  + The value can be **json** and **json_c** for synchronization from MySQL to Kafka and from GaussDB(for MySQL) to
+    Kafka.
   + The value can be **json** and **avro** for synchronization from GaussDB Primary/Standby to Kafka.
-  
+
   Changing this parameter will create a new resource.
 
 * `topic_name_format` - (Optional, String, ForceNew) Specifies the topic name format.
   Valid value are as follows:
-  + If `policy_config.0.topic_policy` is set to **1**, the topic name supports the database and table names as variables.
-  Other characters are considered as constants. Replace **$database$** with the database name and **$tablename$** with the
-  table name. Defaults to **$database$-$tablename$**.
+  + If `policy_config.0.topic_policy` is set to **1**, the topic name supports the database and table names as
+    variables. Other characters are considered as constants. Replace **$database$** with the database name and
+    **$tablename$** with the table name. Defaults to **$database$-$tablename$**.
   + If `policy_config.0.topic_policy` is set to **2**, the topic name supports the database name as a variable. Other
-  characters are regarded as constants. Defaults to **$database$**.
+    characters are regarded as constants. Defaults to **$database$**.
   + If `policy_config.0.topic_policy` is set to **3**, the topic name supports the names of database, schema, and table
-  as variables. Other characters are considered as constants. **$database$** indicates the database name, **$schema$**
-  indicates the schema name, and **$tablename$** indicates the table name. The default value is **$database$-$schema$-$tablename$**.
+    as variables. Other characters are considered as constants. **$database$** indicates the database name, **$schema$**
+    indicates the schema name, and **$tablename$** indicates the table name. The default value is
+    **$database$-$schema$-$tablename$**.
 
   Changing this parameter will create a new resource.
 
@@ -655,8 +672,8 @@ The `policy_config` block supports:
   full migration or synchronization phase. Defaults to **false**.
   Changing this parameter will create a new resource.
 
-* `slot_name` - (Optional, String, ForceNew) Specifies the replication slot name. It is mandatory for primary and standby
-  tasks from GaussDB Primary/Standby to Kafka. Changing this parameter will create a new resource.
+* `slot_name` - (Optional, String, ForceNew) Specifies the replication slot name. It is mandatory for primary and
+  standby tasks from GaussDB Primary/Standby to Kafka. Changing this parameter will create a new resource.
 
 * `file_and_position` - (Optional, String, ForceNew) Specifies the file and position, The value is in the format of
   **File_name.file_number:Event_position**. Changing this parameter will create a new resource.
@@ -700,7 +717,8 @@ The `kafka_security_config` block supports:
   + **PLAINTEXT**: No security authentication mode is available. You only need to enter an IP address and a port number.
   + **SASL_PLAINTEXT**: The SASL mechanism is used to connect to Kafka, and you need to configure SASL parameters.
   + **SSL**: The SSL encryption is used to connect to Kafka, and you need to configure SSL parameters.
-  + **SASL_SSL**: The SASL and SSL encryption authentication modes are used. You need to configure SSL and SASL parameters.
+  + **SASL_SSL**: The SASL and SSL encryption authentication modes are used. You need to configure SSL and SASL
+    parameters.
 
   Changing this parameter will create a new resource.
 
@@ -712,8 +730,8 @@ The `kafka_security_config` block supports:
   It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
   Changing this parameter will create a new resource.
 
-* `trust_store_key` - (Optional, String, ForceNew) Specifies the value of the security certificate after Base64 transcoding.
-  It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
+* `trust_store_key` - (Optional, String, ForceNew) Specifies the value of the security certificate after Base64
+  transcoding. It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
   Changing this parameter will create a new resource.
 
 * `trust_store_password` - (Optional, String, ForceNew) Specifies the certificate password.
@@ -788,12 +806,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `original_job_direction` - The original job direction.
 
-* `source_db` - The source database configuration.
-  The [db_info](#attrblock--db_info) structure of the `source_db` is documented below.
-
-* `destination_db` - The destination database configuration.
-  The [db_info](#attrblock--db_info) structure of the `destination_db` is documented below.
-
 * `status` - Status.
 
 * `progress` - Progress.
@@ -801,11 +813,6 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - Public IP.
 
 * `private_ip` - Private IP.
-
-<a name="attrblock--db_info"></a>
-The `db_info` block supports:
-
-* `security_group_id` - The security group ID to which the databese instance belongs.
 
 ## Timeouts
 
@@ -828,14 +835,15 @@ $ terraform import huaweicloud_drs_job.test <id>
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
 `source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`,
-`source_db.0.kafka_security_config.0.trust_store_password`, `destination_db.0.kafka_security_config.0.trust_store_password`,
+`source_db.0.kafka_security_config.0.trust_store_password`,
+`destination_db.0.kafka_security_config.0.trust_store_password`,
 `source_db.0.kafka_security_config.0.key_store_password`,`destination_db.0.kafka_security_config.0.key_store_password`,
 `source_db.0.kafka_security_config.0.key_password`, `destination_db.0.kafka_security_config.0.key_password`,
 `action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`,
 `public_ip_list`, `start_time`.
 It is generally recommended running **terraform plan** after importing a job. You can then
-decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
-you can ignore changes as below.
+decide if changes should be applied to the job, or the resource definition should be updated to align with the job.
+Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_drs_job" "test" {
