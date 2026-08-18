@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.97.1 (Aug 18, 2026)
+
+BUG FIXES:
+
+* resource/huaweicloud_drs_jon: fix a bug in `drs_job` when creating a `non-dbs` migration direction [GH-10415]
+
 ## 1.97.0 (Aug 14, 2026)
 
 * **New Resource Source:**
