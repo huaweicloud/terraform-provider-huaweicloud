@@ -7,12 +7,24 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "Indicates the creation time of the parameter template.",
+                "computed": true
+              },
+              "datastore_name": {
+                "type": "string",
+                "description": "Indicates the database type.",
                 "computed": true
               },
               "description": {
                 "type": "string",
                 "description": "Specifies the parameter template description.",
                 "optional": true
+              },
+              "entity_id": {
+                "type": "string",
+                "description": "Specifies the instance ID or group ID or node ID.",
+                "optional": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -26,13 +38,14 @@
               "node_type": {
                 "type": "string",
                 "description": "Specifies the node type of parameter template.",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "node_version": {
                 "type": "string",
                 "description": "Specifies the database version.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "parameter_values": {
@@ -68,6 +81,7 @@
               },
               "updated_at": {
                 "type": "string",
+                "description": "Indicates the update time of the parameter template.",
                 "computed": true
               }
             }

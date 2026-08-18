@@ -281,6 +281,7 @@
                     },
                     "security_group_id": {
                       "type": "string",
+                      "optional": true,
                       "computed": true
                     },
                     "ssl_cert_check_sum": {
@@ -587,6 +588,7 @@
                     },
                     "security_group_id": {
                       "type": "string",
+                      "optional": true,
                       "computed": true
                     },
                     "ssl_cert_check_sum": {

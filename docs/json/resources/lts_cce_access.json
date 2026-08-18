@@ -382,9 +382,27 @@
                       "optional": true
                     }
                   },
-                  "description": "The list of the parsed fields of the example log"
+                  "description": "schema:{\"Deprecated\":true};The list of the parsed fields of the example log"
                 },
                 "nesting_mode": "set"
+              },
+              "demo_fields_list": {
+                "block": {
+                  "attributes": {
+                    "field_name": {
+                      "type": "string",
+                      "description": "The name of the parsed field.",
+                      "required": true
+                    },
+                    "field_value": {
+                      "type": "string",
+                      "description": "The value of the parsed field.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the parsed fields of the example log"
+                },
+                "nesting_mode": "list"
               },
               "processors": {
                 "block": {
