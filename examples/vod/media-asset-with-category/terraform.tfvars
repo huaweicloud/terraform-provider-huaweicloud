@@ -1,0 +1,5 @@
+media_category_name     = "tf_test_vod_asset_category"
+media_asset_name        = "tf_test_vod_media_asset"
+media_asset_url         = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"
+media_asset_description = "Created by Terraform for VOD best practice example"
+media_asset_labels      = "tf_label_1,tf_label_2"
