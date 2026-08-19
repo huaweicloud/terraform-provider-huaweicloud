@@ -152,7 +152,7 @@ func GetV5LoginProfile(client *golangsdk.ServiceClient, userId string) (interfac
 				Method:    "GET",
 				URL:       "/v5/users/{user_id}/login-profile",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the login profile of the user (%s) does not exist", userId)),
+				Body:      fmt.Appendf(nil, "the login profile of the user (%s) does not exist", userId),
 			},
 		}
 	}

@@ -231,7 +231,7 @@ func GetAssociationById(client *golangsdk.ServiceClient, instanceId, routeTableI
 	if association == nil {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the association (%s) does not exist", associationId)),
+				Body: fmt.Appendf(nil, "the association (%s) does not exist", associationId),
 			},
 		}
 	}

@@ -324,7 +324,7 @@ func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID s
 			Method:    "GET",
 			URL:       "/autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the instance (%s) does not exist in AS group (%s)", instanceID, groupID)),
+			Body:      fmt.Appendf(nil, "the instance (%s) does not exist in AS group (%s)", instanceID, groupID),
 		},
 	}
 }

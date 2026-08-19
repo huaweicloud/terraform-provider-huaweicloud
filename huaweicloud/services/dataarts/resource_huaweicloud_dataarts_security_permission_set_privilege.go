@@ -294,7 +294,7 @@ func GetPrivilegeById(client *golangsdk.ServiceClient, workspaceId, permissionSe
 				Method:    "GET",
 				URL:       "/v1/{project_id}/security/permission-sets/{permission_set_id}/permissions",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the privilege (%s) does not exist", privilegeId)),
+				Body:      fmt.Appendf(nil, "the privilege (%s) does not exist", privilegeId),
 			},
 		}
 	}

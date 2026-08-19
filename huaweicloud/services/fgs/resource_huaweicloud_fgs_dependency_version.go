@@ -331,7 +331,7 @@ func refreshSpecifiedDependencyVersion(client *golangsdk.ServiceClient, resource
 		if dependId == "" {
 			return dependId, dependVersion, golangsdk.ErrDefault404{
 				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte(fmt.Sprintf("unable to find the dependency package using its name: %s", dependId)),
+					Body: fmt.Appendf(nil, "unable to find the dependency package using its name: %s", dependId),
 				},
 			}
 		}
@@ -349,7 +349,7 @@ func refreshSpecifiedDependencyVersion(client *golangsdk.ServiceClient, resource
 		if dependVersion == "" {
 			return dependId, dependVersion, golangsdk.ErrDefault404{
 				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte(fmt.Sprintf("unable to find the dependency package version using its ID: %s", dependVersion)),
+					Body: fmt.Appendf(nil, "unable to find the dependency package version using its ID: %s", dependVersion),
 				},
 			}
 		}

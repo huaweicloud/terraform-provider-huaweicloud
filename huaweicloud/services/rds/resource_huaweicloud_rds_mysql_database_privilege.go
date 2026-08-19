@@ -427,7 +427,7 @@ func ListMysqlDatabasePrivileges(client *golangsdk.ServiceClient, instanceId, db
 				Method:    "GET",
 				URL:       "/v3/{project_id}/instances/{instance_id}/database/db_user",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the database privileges (%#v) for database (%s) do not exist", usersOrigin, dbName)),
+				Body:      fmt.Appendf(nil, "the database privileges (%#v) for database (%s) do not exist", usersOrigin, dbName),
 			},
 		}
 	}

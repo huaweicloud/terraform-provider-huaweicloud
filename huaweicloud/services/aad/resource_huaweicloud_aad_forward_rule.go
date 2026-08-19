@@ -131,7 +131,7 @@ func GetForwardRuleFromServer(client *golangsdk.ServiceClient, instanceId, advan
 				Method:    "GET",
 				URL:       "/v1/aad/instances/{instance_id}/{ip}/rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the Advanced Anti-DDoS forward rule (%s/%s) does not exist", instanceId, advancedIp)),
+				Body:      fmt.Appendf(nil, "the Advanced Anti-DDoS forward rule (%s/%s) does not exist", instanceId, advancedIp),
 			},
 		}
 	}
@@ -143,7 +143,7 @@ func GetForwardRuleFromServer(client *golangsdk.ServiceClient, instanceId, advan
 			Method:    "GET",
 			URL:       "/v1/aad/instances/{instance_id}/{ip}/rules",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("no Advanced Anti-DDoS forward rule matched the given protocol (%s) and (or) port (%d)", protocol, port)),
+			Body:      fmt.Appendf(nil, "no Advanced Anti-DDoS forward rule matched the given protocol (%s) and (or) port (%d)", protocol, port),
 		},
 	}
 }

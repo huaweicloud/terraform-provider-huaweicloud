@@ -194,7 +194,7 @@ func GetAccountInviteById(client *golangsdk.ServiceClient, handshakeId string) (
 				Method:    "GET",
 				URL:       "/v1/organizations/handshakes/{handshake_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the invitation (%s) does not exist", handshakeId)),
+				Body:      fmt.Appendf(nil, "the invitation (%s) does not exist", handshakeId),
 			},
 		}
 	}
@@ -215,7 +215,7 @@ func GetAccountInvite(client *golangsdk.ServiceClient, handshakeId string) (inte
 				Method:    "GET",
 				URL:       "/v1/organizations/handshakes/{handshake_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the invitation (%s) has been cancelled or expired", handshakeId)),
+				Body:      fmt.Appendf(nil, "the invitation (%s) has been cancelled or expired", handshakeId),
 			},
 		}
 	}

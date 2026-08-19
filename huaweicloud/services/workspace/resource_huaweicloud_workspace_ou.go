@@ -191,7 +191,7 @@ func GetOuByName(client *golangsdk.ServiceClient, ouId string) (interface{}, err
 				Method:    "GET",
 				URL:       "/v2/{project_id}/ous",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the OU '%s' not found", ouId)),
+				Body:      fmt.Appendf(nil, "the OU '%s' not found", ouId),
 			},
 		}
 	}

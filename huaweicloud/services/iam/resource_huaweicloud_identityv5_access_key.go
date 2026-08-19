@@ -204,7 +204,7 @@ func GetV5AccessKeyById(client *golangsdk.ServiceClient, userId string, accessKe
 				Method:    "GET",
 				URL:       "/v5/users/{user_id}/access-keys",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the IAM access key (%s) for user (%s) does not exist", accessKeyId, userId)),
+				Body:      fmt.Appendf(nil, "the IAM access key (%s) for user (%s) does not exist", accessKeyId, userId),
 			},
 		}
 	}

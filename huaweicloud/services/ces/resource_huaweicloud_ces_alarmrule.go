@@ -678,7 +678,7 @@ func getAlarmV1(client *golangsdk.ServiceClient, alarmId string) (interface{}, e
 				Method:    "GET",
 				URL:       "/V1.0/{project_id}/alarms/{alarm_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the (v1) alarm rule (%s) does not exist", alarmId)),
+				Body:      fmt.Appendf(nil, "the (v1) alarm rule (%s) does not exist", alarmId),
 			},
 		}
 	}
@@ -714,7 +714,7 @@ func getAlarmV2(client *golangsdk.ServiceClient, alarmId string) (interface{}, e
 				Method:    "GET",
 				URL:       "/v2/{project_id}/alarms",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the (v2) alarm rule (%s) does not exist", alarmId)),
+				Body:      fmt.Appendf(nil, "the (v2) alarm rule (%s) does not exist", alarmId),
 			},
 		}
 	}

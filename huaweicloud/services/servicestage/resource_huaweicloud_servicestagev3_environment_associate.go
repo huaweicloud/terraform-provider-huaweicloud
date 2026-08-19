@@ -260,7 +260,7 @@ func resourceV3EnvironmentAssociateRead(_ context.Context, d *schema.ResourceDat
 				Method:    "GET",
 				URL:       "/v3/{project_id}/cas/environments/{environment_id}/resources",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("All assiciated resources have been dissociated from the environment (%s)", envId)),
+				Body:      fmt.Appendf(nil, "All assiciated resources have been dissociated from the environment (%s)", envId),
 			},
 		}, "error retrieving associated resources")
 	}

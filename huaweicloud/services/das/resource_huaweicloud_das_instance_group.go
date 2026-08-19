@@ -150,7 +150,7 @@ func GetInstanceGroupById(client *golangsdk.ServiceClient, datastoreType, groupI
 			Method:    "GET",
 			URL:       "/v3/{project_id}/batch-inspection/instance-group",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the instance group (%s) has been removed", groupId)),
+			Body:      fmt.Appendf(nil, "the instance group (%s) has been removed", groupId),
 		},
 	}
 }

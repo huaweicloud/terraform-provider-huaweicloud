@@ -158,7 +158,7 @@ func getStatisticSubscriptionTaskByName(client *golangsdk.ServiceClient, taskNam
 				Method:    "GET",
 				URL:       "/v1/cdn/statistics/subscription-tasks",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the subscription task with name '%s' has been removed", taskName)),
+				Body:      fmt.Appendf(nil, "the subscription task with name '%s' has been removed", taskName),
 			},
 		}
 	}
@@ -178,7 +178,7 @@ func GetStatisticSubscriptionTaskById(client *golangsdk.ServiceClient, taskId st
 				Method:    "GET",
 				URL:       "/v1/cdn/statistics/subscription-tasks",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the subscription task with ID '%s' has been removed", taskId)),
+				Body:      fmt.Appendf(nil, "the subscription task with ID '%s' has been removed", taskId),
 			},
 		}
 	}

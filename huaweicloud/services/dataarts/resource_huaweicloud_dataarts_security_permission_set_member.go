@@ -150,7 +150,7 @@ func GetMemberByObjectId(cfg *config.Config, region, workspaceId, permissionSetI
 			Method:    "GET",
 			URL:       "/v1/{project_id}/security/permission-sets/{permission_set_id}/members",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("unable to find the member using object ID (%s) in the permission set", objectId)),
+			Body:      fmt.Appendf(nil, "unable to find the member using object ID (%s) in the permission set", objectId),
 		},
 	}
 }

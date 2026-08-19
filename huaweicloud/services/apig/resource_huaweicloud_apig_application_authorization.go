@@ -226,7 +226,7 @@ func GetLocalAuthorizedApiIds(client *golangsdk.ServiceClient, instanceId, envId
 				Method:    "GET",
 				URL:       "/v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("all locally managed APIs have been deauthorized: %v", originApiIds)),
+				Body:      fmt.Appendf(nil, "all locally managed APIs have been deauthorized: %v", originApiIds),
 			},
 		}
 	}

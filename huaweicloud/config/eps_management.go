@@ -180,7 +180,7 @@ func getAssociatedResourceById(client *golangsdk.ServiceClient, projectId, epsId
 	}
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte(fmt.Sprintf("unable to find the resource under a specified enterprise_project_id (%s)", epsId)),
+			Body: fmt.Appendf(nil, "unable to find the resource under a specified enterprise_project_id (%s)", epsId),
 		},
 	}
 }

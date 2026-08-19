@@ -126,7 +126,7 @@ func GetAccessPolicyByPolicyName(client *golangsdk.ServiceClient, policyName str
 			Method:    "GET",
 			URL:       "/v2/{project_id}/access-policy",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("no access policy matched the name '%s'", policyName)),
+			Body:      fmt.Appendf(nil, "no access policy matched the name '%s'", policyName),
 		},
 	}
 }

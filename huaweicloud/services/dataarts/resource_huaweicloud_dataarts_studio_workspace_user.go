@@ -288,7 +288,7 @@ func GetStudioWorkspaceUserById(client *golangsdk.ServiceClient, workspaceId, us
 				Method:    "GET",
 				URL:       "/v2/{project_id}/{workspace_id}/users",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the workspace user (%s) does not exist", userId)),
+				Body:      fmt.Appendf(nil, "the workspace user (%s) does not exist", userId),
 			},
 		}
 	}

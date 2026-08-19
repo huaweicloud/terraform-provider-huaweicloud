@@ -143,7 +143,7 @@ func GetTrustedService(client *golangsdk.ServiceClient, service string) (interfa
 				Method:    "GET",
 				URL:       "/v1/organizations/trusted-services",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the trusted service (%s) does not exist", service)),
+				Body:      fmt.Appendf(nil, "the trusted service (%s) does not exist", service),
 			},
 		}
 	}

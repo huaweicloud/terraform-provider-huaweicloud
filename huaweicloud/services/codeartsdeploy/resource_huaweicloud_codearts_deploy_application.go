@@ -592,7 +592,7 @@ func getDeployApplication(client *golangsdk.ServiceClient, d *schema.ResourceDat
 				Method:    "GET",
 				URL:       "/v1/applications/{app_id}/info",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationId)),
+				Body:      fmt.Appendf(nil, "the application (%s) does not exist", applicationId),
 			},
 		}
 	}

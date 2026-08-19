@@ -126,7 +126,7 @@ func ReadAmqpById(client *golangsdk.ServiceClient, queueId string) (interface{},
 				Method:    "GET",
 				URL:       "/v5/iot/{project_id}/amqp-queues/{queue_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the IoTDA AMQP queue (%s) does not exist", queueId)),
+				Body:      fmt.Appendf(nil, "the IoTDA AMQP queue (%s) does not exist", queueId),
 			},
 		}
 	}

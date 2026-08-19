@@ -142,7 +142,7 @@ func GetV5UserAttachedPolicy(client *golangsdk.ServiceClient, userId, policyId s
 			Method:    "GET",
 			URL:       "/v5/users/{user_id}/attached-policies",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the policy (%s) associated with the user (%s) does not exist", policyId, userId)),
+			Body:      fmt.Appendf(nil, "the policy (%s) associated with the user (%s) does not exist", policyId, userId),
 		},
 	}
 }

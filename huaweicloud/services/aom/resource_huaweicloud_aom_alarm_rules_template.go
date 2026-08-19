@@ -729,7 +729,7 @@ func getAlarmRulesTemplate(client *golangsdk.ServiceClient, d *schema.ResourceDa
 				Method:    "GET",
 				URL:       "/v4/{project_id}/alarm-rules-template",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the alarm rules template (%s) does not exist", templateId)),
+				Body:      fmt.Appendf(nil, "the alarm rules template (%s) does not exist", templateId),
 			},
 		}
 	}

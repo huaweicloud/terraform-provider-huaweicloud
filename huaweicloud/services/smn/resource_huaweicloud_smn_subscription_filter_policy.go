@@ -217,7 +217,7 @@ func GetSubscriptionFilterPolicies(client *golangsdk.ServiceClient, subscription
 	if index == -1 {
 		return nil, golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the format of the subscription URN (%s) is incorrect", subscriptionUrn)),
+				Body: fmt.Appendf(nil, "the format of the subscription URN (%s) is incorrect", subscriptionUrn),
 			},
 		}
 	}
@@ -266,7 +266,7 @@ func GetSubscriptionFilterPolicies(client *golangsdk.ServiceClient, subscription
 				Method:    "GET",
 				URL:       "/v2/{project_id}/notifications/topics/{topicUrn}/subscriptions",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the subscription filter policy (%s) does not exist", subscriptionUrn)),
+				Body:      fmt.Appendf(nil, "the subscription filter policy (%s) does not exist", subscriptionUrn),
 			},
 		}
 	}

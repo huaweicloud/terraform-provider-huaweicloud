@@ -283,7 +283,7 @@ func GetOneClickAlarm(client *golangsdk.ServiceClient, id string) (interface{}, 
 				Method:    "GET",
 				URL:       "/v2/{project_id}/one-click-alarms",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the one-click alarm (%s) does not exist", id)),
+				Body:      fmt.Appendf(nil, "the one-click alarm (%s) does not exist", id),
 			},
 		}
 	}

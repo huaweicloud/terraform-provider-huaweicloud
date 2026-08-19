@@ -188,7 +188,7 @@ func getRabbitmqExchangeAssociate(client *golangsdk.ServiceClient, d *schema.Res
 			Method:    "GET",
 			URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the exchange (%s) has no association", d.Get("exchange").(string))),
+			Body:      fmt.Appendf(nil, "the exchange (%s) has no association", d.Get("exchange").(string)),
 		},
 	}
 }

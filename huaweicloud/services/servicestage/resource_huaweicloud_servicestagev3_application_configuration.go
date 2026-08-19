@@ -202,8 +202,8 @@ func GetV3ApplicationConfiguration(client *golangsdk.ServiceClient, environmentI
 				Method:    "GET",
 				URL:       "/v3/{project_id}/cas/applications/{application_id}/configuration",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("the configurations is empty in the application (%s) for the environment (%s)",
-					applicationId, environmentId)),
+				Body: fmt.Appendf(nil, "the configurations is empty in the application (%s) for the environment (%s)",
+					applicationId, environmentId),
 			},
 		}
 	}

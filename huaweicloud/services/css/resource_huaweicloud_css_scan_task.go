@@ -346,7 +346,7 @@ func getScanTaskByName(client *golangsdk.ServiceClient, clusterId, taskName stri
 			Method:    "GET",
 			URL:       "/v1.0/{project_id}/clusters/{cluster_id}/ai-ops",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the scan task (%s) does not exist", taskName)),
+			Body:      fmt.Appendf(nil, "the scan task (%s) does not exist", taskName),
 		},
 	}
 }

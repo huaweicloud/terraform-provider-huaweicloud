@@ -199,7 +199,7 @@ func GetSecurityWorkspaceAssociatedQueueByName(client *golangsdk.ServiceClient, 
 				Method:    "GET",
 				URL:       "/v1/{project_id}/security/permission/queue/assigned-source",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the workspace queue associate with queue name '%s' has been removed", queueName)),
+				Body:      fmt.Appendf(nil, "the workspace queue associate with queue name '%s' has been removed", queueName),
 			},
 		}
 	}

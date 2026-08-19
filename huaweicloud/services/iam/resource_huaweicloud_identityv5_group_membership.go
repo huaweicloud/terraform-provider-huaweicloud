@@ -133,7 +133,7 @@ func GetV5GroupassociateUsers(client *golangsdk.ServiceClient, groupId string) (
 				Method:    "GET",
 				URL:       "v5/users",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the users in group (%s) does not exist", groupId)),
+				Body:      fmt.Appendf(nil, "the users in group (%s) does not exist", groupId),
 			},
 		}
 	}

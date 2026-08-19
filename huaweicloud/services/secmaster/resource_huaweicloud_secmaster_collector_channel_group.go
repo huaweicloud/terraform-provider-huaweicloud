@@ -145,7 +145,7 @@ func GetCollectorChannelGroupByName(client *golangsdk.ServiceClient, workspaceId
 			Method:    "GET",
 			URL:       "/v1/{project_id}/workspaces/{workspace_id}/collector/channels/groups",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the collector channel group (%s) does not exist", groupName)),
+			Body:      fmt.Appendf(nil, "the collector channel group (%s) does not exist", groupName),
 		},
 	}
 }

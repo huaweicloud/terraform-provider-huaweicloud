@@ -230,7 +230,7 @@ func GetLocalBoundApiIdsForPlugin(client *golangsdk.ServiceClient, instanceId, p
 				Method:    "GET",
 				URL:       "/v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attached-apis",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("all locally managed APIs have been unbound: %v", originApiIds)),
+				Body:      fmt.Appendf(nil, "all locally managed APIs have been unbound: %v", originApiIds),
 			},
 		}
 	}

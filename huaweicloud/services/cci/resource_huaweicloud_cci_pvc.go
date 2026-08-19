@@ -297,7 +297,7 @@ func GetPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 	if !ok {
 		return nil, golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the volume type (%s) is not available", volumeType)),
+				Body: fmt.Appendf(nil, "the volume type (%s) is not available", volumeType),
 			},
 		}
 	}
@@ -323,7 +323,7 @@ func GetPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 			Method:    "GET",
 			URL:       "/api/v1/namespaces/{ns}/extended-persistentvolumeclaims",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the PVC (%s) does not exist", id)),
+			Body:      fmt.Appendf(nil, "the PVC (%s) does not exist", id),
 		},
 	}
 }

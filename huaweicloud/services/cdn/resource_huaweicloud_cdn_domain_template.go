@@ -156,7 +156,7 @@ func GetDomainTemplateById(client *golangsdk.ServiceClient, tmlId string) (inter
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/templates",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the template with ID '%s' has been removed", tmlId)),
+				Body:      fmt.Appendf(nil, "the template with ID '%s' has been removed", tmlId),
 			},
 		}
 	}
@@ -176,7 +176,7 @@ func GetDomainTemplateByName(client *golangsdk.ServiceClient, tmlName string) (i
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/templates",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the template with name '%s' has been removed", tmlName)),
+				Body:      fmt.Appendf(nil, "the template with name '%s' has been removed", tmlName),
 			},
 		}
 	}

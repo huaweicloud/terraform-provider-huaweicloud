@@ -310,7 +310,7 @@ func GetGroup(client *golangsdk.ServiceClient, componentID string, groupID strin
 				Method:    "GET",
 				URL:       "/v1/groups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the group (%s) does not exist", groupID)),
+				Body:      fmt.Appendf(nil, "the group (%s) does not exist", groupID),
 			},
 		}
 	}

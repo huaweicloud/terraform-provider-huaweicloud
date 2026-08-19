@@ -82,7 +82,7 @@ func GetV5ResourceTagsById(client *golangsdk.ServiceClient, resourceType string,
 				Method:    "GET",
 				URL:       "/v5/{resource_type}/{resource_id}/tags",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the resource (%s/%s) does not have any tags", resourceType, resourceId)),
+				Body:      fmt.Appendf(nil, "the resource (%s/%s) does not have any tags", resourceType, resourceId),
 			},
 		}
 	}

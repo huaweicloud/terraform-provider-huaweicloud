@@ -232,7 +232,7 @@ func GetPropagationById(client *golangsdk.ServiceClient, instanceId, routeTableI
 	if propagation == nil {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the propagation (%s) does not exist", propagationId)),
+				Body: fmt.Appendf(nil, "the propagation (%s) does not exist", propagationId),
 			},
 		}
 	}

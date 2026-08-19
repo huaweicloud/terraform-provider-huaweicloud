@@ -263,7 +263,7 @@ func GetPipelineUesrPermissions(client *golangsdk.ServiceClient, projectId, pipe
 					Method:    "GET",
 					URL:       "/v5/{project_id}/api/pipeline-permissions/{pipeline_id}/user-permission",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("the user permission (user_id: %s) does not exist", userId)),
+					Body:      fmt.Appendf(nil, "the user permission (user_id: %s) does not exist", userId),
 				},
 			}
 		}
@@ -301,7 +301,7 @@ func GetPipelineRolePermissions(client *golangsdk.ServiceClient, projectId, pipe
 				Method:    "GET",
 				URL:       "/v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the role permission (role_id: %s) does not exist", roleId)),
+				Body:      fmt.Appendf(nil, "the role permission (role_id: %s) does not exist", roleId),
 			},
 		}
 	}

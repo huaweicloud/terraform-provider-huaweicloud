@@ -203,7 +203,7 @@ func GetClusterAssociatedElbById(client *golangsdk.ServiceClient, clusterId stri
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/clusters/{cluster_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the ELB is not associated with the DWS cluster (%s)", clusterId)),
+				Body:      fmt.Appendf(nil, "the ELB is not associated with the DWS cluster (%s)", clusterId),
 			},
 		}
 	}
@@ -215,7 +215,7 @@ func GetClusterAssociatedElbById(client *golangsdk.ServiceClient, clusterId stri
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/clusters/{cluster_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the ELB (%s) is not associated with the DWS cluster (%s)", elbId, clusterId)),
+				Body:      fmt.Appendf(nil, "the ELB (%s) is not associated with the DWS cluster (%s)", elbId, clusterId),
 			},
 		}
 	}

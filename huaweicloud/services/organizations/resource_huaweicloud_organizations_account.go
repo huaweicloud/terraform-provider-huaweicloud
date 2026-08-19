@@ -265,7 +265,7 @@ func GetAccountInfoById(client *golangsdk.ServiceClient, accountId string) (inte
 				Method:    "GET",
 				URL:       "/v1/organizations/accounts/{account_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the account (%s) does not exist", accountId)),
+				Body:      fmt.Appendf(nil, "the account (%s) does not exist", accountId),
 			},
 		}
 	}

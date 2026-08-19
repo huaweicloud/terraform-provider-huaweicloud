@@ -173,7 +173,7 @@ func QueryApiPublishInfoByInstanceId(client *golangsdk.ServiceClient, workspaceI
 				Method:    "GET",
 				URL:       "/v1/{project_id}/service/apis/{api_id}/publish-info",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the API has been unpublished (%s)", apiId)),
+				Body:      fmt.Appendf(nil, "the API has been unpublished (%s)", apiId),
 			},
 		}
 	}
@@ -183,8 +183,8 @@ func QueryApiPublishInfoByInstanceId(client *golangsdk.ServiceClient, workspaceI
 				Method:    "GET",
 				URL:       "/v1/{project_id}/service/apis/{api_id}/publish-info",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("the API status is not in expect, want 'API_STATUS_PUBLISHED', "+
-					"but got '%s'", apiStatus)),
+				Body: fmt.Appendf(nil, "the API status is not in expect, want 'API_STATUS_PUBLISHED', "+
+					"but got '%s'", apiStatus),
 			},
 		}
 	}

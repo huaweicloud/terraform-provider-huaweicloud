@@ -722,7 +722,7 @@ func GetArchitectureAggregationLogicTableById(client *golangsdk.ServiceClient, w
 				Method:    "GET",
 				URL:       "/v2/{project_id}/design/aggregation-logic-tables/{id}?latest=true",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the aggregation logic table (%s) does not exist", aggregationLogicTableId)),
+				Body:      fmt.Appendf(nil, "the aggregation logic table (%s) does not exist", aggregationLogicTableId),
 			},
 		}
 	}

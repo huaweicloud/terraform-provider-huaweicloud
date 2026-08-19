@@ -421,7 +421,7 @@ func GetWarRoom(client *golangsdk.ServiceClient, warRoomNum string) (interface{}
 				Method:    "POST",
 				URL:       "/v1/external/warrooms/list",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the war room (%s) does not exist", warRoomNum)),
+				Body:      fmt.Appendf(nil, "the war room (%s) does not exist", warRoomNum),
 			},
 		}
 	}

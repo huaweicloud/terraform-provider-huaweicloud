@@ -236,7 +236,7 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 				Method:    "GET",
 				URL:       "/v1.0/cdn/historytasks/{history_tasks_id}/detail",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the cache detail (%s) does not exist", id)),
+				Body:      fmt.Appendf(nil, "the cache detail (%s) does not exist", id),
 			},
 		}
 	}

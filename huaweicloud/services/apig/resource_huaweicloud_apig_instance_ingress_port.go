@@ -206,7 +206,7 @@ func GetInstanceIngressPortById(client *golangsdk.ServiceClient, instanceId, ing
 			Method:    "GET",
 			URL:       "/v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("ingress port (%s) is not found", ingressPortId)),
+			Body:      fmt.Appendf(nil, "ingress port (%s) is not found", ingressPortId),
 		},
 	}
 }

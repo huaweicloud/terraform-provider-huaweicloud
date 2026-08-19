@@ -215,7 +215,7 @@ func GetSecurityDataRecognitionRuleGroupById(client *golangsdk.ServiceClient, wo
 				Method:    "GET",
 				URL:       "/v1/{project_id}/security/data-classification/rule/group",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the data recognition rule group (%s) does not exist", groupId)),
+				Body:      fmt.Appendf(nil, "the data recognition rule group (%s) does not exist", groupId),
 			},
 		}
 	}

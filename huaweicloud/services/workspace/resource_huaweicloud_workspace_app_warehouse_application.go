@@ -193,7 +193,7 @@ func GetWarehouseApplicationById(client *golangsdk.ServiceClient, applicationId 
 				Method:    "GET",
 				URL:       "/v1/{project_id}/app-warehouse/apps",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationId)),
+				Body:      fmt.Appendf(nil, "the application (%s) does not exist", applicationId),
 			},
 		}
 	}

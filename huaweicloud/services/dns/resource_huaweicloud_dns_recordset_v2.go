@@ -366,7 +366,7 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 	if err != nil {
 		return nil, "", golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("error creating DNS client: %s", err)),
+				Body: fmt.Appendf(nil, "error creating DNS client: %s", err),
 			},
 		}
 	}

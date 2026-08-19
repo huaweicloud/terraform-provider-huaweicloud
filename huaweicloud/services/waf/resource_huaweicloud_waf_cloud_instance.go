@@ -313,7 +313,7 @@ func QueryCloudInstance(client *golangsdk.ServiceClient, instanceId, epsId strin
 	ChargingMode, error) {
 	default404Err := golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte(fmt.Sprintf("the cloud WAF (%s) does not exist", instanceId)),
+			Body: fmt.Appendf(nil, "the cloud WAF (%s) does not exist", instanceId),
 		},
 	}
 	resp, err := clouds.GetWithEpsID(client, epsId)

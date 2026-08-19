@@ -349,7 +349,7 @@ func GetLogicalClusterPlanById(client *golangsdk.ServiceClient, clusterId, planI
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Method: "GET",
 				URL:    "/v1/{project_id}/clusters/{cluster_id}/logical-cluster-plans",
-				Body:   []byte(fmt.Sprintf("the logical cluster plan (%s) is not found", planId)),
+				Body:   fmt.Appendf(nil, "the logical cluster plan (%s) is not found", planId),
 			},
 		}
 	}

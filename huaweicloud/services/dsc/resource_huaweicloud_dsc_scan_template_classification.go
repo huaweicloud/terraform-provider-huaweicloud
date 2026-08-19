@@ -230,7 +230,7 @@ func GetScanTemplateClassificationById(client *golangsdk.ServiceClient, template
 				Method:    "GET",
 				URL:       "/v1/{project_id}/scan-templates/{template_id}/classifications",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the classification (%s) does not exist", classificationId)),
+				Body:      fmt.Appendf(nil, "the classification (%s) does not exist", classificationId),
 			},
 		}
 	}

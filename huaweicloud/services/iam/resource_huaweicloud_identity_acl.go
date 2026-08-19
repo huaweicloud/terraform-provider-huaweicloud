@@ -466,7 +466,7 @@ func GetV3AclByDomainId(client *golangsdk.ServiceClient, aclType, domainId strin
 					Method:    "GET",
 					URL:       "/v3.0/OS-SECURITYPOLICY/domains/{domain_id}/console-acl-policy",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("identity ACL for console access <%s> has been reverted", domainId)),
+					Body:      fmt.Appendf(nil, "identity ACL for console access <%s> has been reverted", domainId),
 				},
 			}
 		}
@@ -481,7 +481,7 @@ func GetV3AclByDomainId(client *golangsdk.ServiceClient, aclType, domainId strin
 					Method:    "GET",
 					URL:       "/v3.0/OS-SECURITYPOLICY/domains/{domain_id}/api-acl-policy",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("identity ACL for API access (domain: %s) has been reverted", domainId)),
+					Body:      fmt.Appendf(nil, "identity ACL for API access (domain: %s) has been reverted", domainId),
 				},
 			}
 		}

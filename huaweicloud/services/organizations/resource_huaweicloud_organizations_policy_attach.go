@@ -146,7 +146,7 @@ func GetPolicyAttachedEntity(client *golangsdk.ServiceClient, policyId string, e
 				Method:    "GET",
 				URL:       "/v1/organizations/policies/{policy_id}/attached-entities",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("unable to find the entity (%s) attached to the policy (%s)", entityId, policyId)),
+				Body:      fmt.Appendf(nil, "unable to find the entity (%s) attached to the policy (%s)", entityId, policyId),
 			},
 		}
 	}

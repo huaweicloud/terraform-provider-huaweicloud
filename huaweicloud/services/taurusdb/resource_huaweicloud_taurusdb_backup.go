@@ -273,7 +273,7 @@ func getGaussDBBackup(client *golangsdk.ServiceClient, backupID string) (interfa
 				Method:    "GET",
 				URL:       "/v3/{project_id}/backups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the TaurusDB backup (%s) does not exist", backupID)),
+				Body:      fmt.Appendf(nil, "the TaurusDB backup (%s) does not exist", backupID),
 			},
 		}
 	}

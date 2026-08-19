@@ -208,7 +208,7 @@ func GetDataServiceInstanceLogDump(client *golangsdk.ServiceClient, workspaceId,
 				Method:    "GET",
 				URL:       "/v1/{project_id}/service/instances/{instance_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the exclusive cluster (%s) log dump has been disabled", instanceId)),
+				Body:      fmt.Appendf(nil, "the exclusive cluster (%s) log dump has been disabled", instanceId),
 			},
 		}
 	}

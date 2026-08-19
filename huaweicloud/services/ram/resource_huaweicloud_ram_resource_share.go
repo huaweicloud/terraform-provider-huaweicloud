@@ -250,7 +250,7 @@ func setRAMShareInstance(client *golangsdk.ServiceClient, d *schema.ResourceData
 	if len(curArray) > 1 {
 		return golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("except retrieving one RAM share, but got %d", len(curArray))),
+				Body: fmt.Appendf(nil, "except retrieving one RAM share, but got %d", len(curArray)),
 			},
 		}
 	}

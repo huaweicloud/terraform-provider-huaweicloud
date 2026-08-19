@@ -173,7 +173,7 @@ func GetAppNasStorageById(client *golangsdk.ServiceClient, storageId string) (in
 				Method:    "GET",
 				URL:       "/v1/{project_id}/persistent-storages",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the NAS storage (%s) has been removed from the Workspace APP service", storageId)),
+				Body:      fmt.Appendf(nil, "the NAS storage (%s) has been removed from the Workspace APP service", storageId),
 			},
 		}
 	}

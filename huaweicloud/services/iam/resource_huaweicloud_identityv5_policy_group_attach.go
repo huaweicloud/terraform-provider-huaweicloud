@@ -142,7 +142,7 @@ func GetV5GroupAttachedPolicy(client *golangsdk.ServiceClient, groupId, policyId
 			Method:    "GET",
 			URL:       "/v5/groups/{group_id}/attached-policies",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the policy (%s) associated with the group (%s) does not exist", policyId, groupId)),
+			Body:      fmt.Appendf(nil, "the policy (%s) associated with the group (%s) does not exist", policyId, groupId),
 		},
 	}
 }

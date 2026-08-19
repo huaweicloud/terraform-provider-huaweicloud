@@ -364,7 +364,7 @@ func GetServiceDiscoveryRule(client *golangsdk.ServiceClient, name string) (inte
 				Method:    "GET",
 				URL:       "/v1/{project_id}/inv/servicediscoveryrules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the service discovery rule (%s) does not exist", name)),
+				Body:      fmt.Appendf(nil, "the service discovery rule (%s) does not exist", name),
 			},
 		}
 	}

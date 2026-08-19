@@ -173,7 +173,7 @@ func getDashboardsFolder(client *golangsdk.ServiceClient, d *schema.ResourceData
 				Method:    "GET",
 				URL:       "/v2/{project_id}/aom/dashboards-folder",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the dashboards folder (%s) does not exist", folderId)),
+				Body:      fmt.Appendf(nil, "the dashboards folder (%s) does not exist", folderId),
 			},
 		}
 	}
