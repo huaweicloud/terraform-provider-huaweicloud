@@ -96,7 +96,7 @@ resource "huaweicloud_taurusdb_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, ssl_option, reserve_audit_logs,
+      password, ssl_option, reserve_audit_logs, datastore[0].version,
     ]
   }
 }

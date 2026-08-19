@@ -78,6 +78,12 @@ resource "huaweicloud_taurusdb_instance" "test" {
     engine  = "gaussdb-mysql"
     version = "8.0"
   }
+
+  lifecycle {
+    ignore_changes = [
+      password, datastore[0].version,
+    ]
+  }
 }
 
 # The HTAP StarRocks instance.
