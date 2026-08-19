@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_database"
+subnet_name         = "tf_test_database"
+security_group_name = "tf_test_database"
+instance_name       = "tf_test_database"
+database_role_name  = "tf_test_database"
+database_user_name  = "tf_test_database"
