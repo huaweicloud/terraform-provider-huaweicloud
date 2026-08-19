@@ -290,7 +290,7 @@ func convertStringToBool(str string) interface{} {
 
 	boolValue, err := strconv.ParseBool(str)
 	if err != nil {
-		log.Printf("[ERROR] unable to convert string (%s) to boolean: %s", str, err)
+		log.Printf("[WARN] unable to convert string (%s) to boolean: %s", str, err)
 		return nil
 	}
 

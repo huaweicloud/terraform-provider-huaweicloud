@@ -220,7 +220,7 @@ func buildGetTmsResourceInstancesBodyParams(d *schema.ResourceData, limit, offse
 	if v, ok := d.GetOk("without_any_tag"); ok {
 		withoutAnyTag, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'without_any_tag' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'without_any_tag' field to Boolean: %s", err)
 		}
 		bodyParams["without_any_tag"] = withoutAnyTag
 	}

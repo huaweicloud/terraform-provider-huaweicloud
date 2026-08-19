@@ -1018,11 +1018,11 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	bandwidth := product.Bandwidth
 	defaultPartitionNum, err := strconv.ParseInt(product.PartitionNum, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'PartitionNum' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'PartitionNum' field to Integer: %s", err)
 	}
 	defaultStorageSpace, err := strconv.ParseInt(product.Storage, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'Storage' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'Storage' field to Integer: %s", err)
 	}
 
 	// check storage
@@ -1344,7 +1344,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 
 	partitionNum, err := strconv.ParseInt(v.PartitionNum, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'PartitionNum' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'PartitionNum' field to Integer: %s", err)
 	}
 	// Convert the AZ ids to AZ codes.
 	availableZoneIDs := v.AvailableZones
@@ -1373,7 +1373,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	createdAt, err := strconv.Atoi(v.CreatedAt)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse created at: %s", err)
+		log.Printf("[WARN] failed to parse created at: %s", err)
 	}
 
 	mErr = multierror.Append(mErr,

@@ -24,7 +24,7 @@ func getDliFlinkJarJobResourceFunc(cfg *config.Config, state *terraform.Resource
 	}
 	jobId, err := strconv.Atoi(state.Primary.ID)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse DLI Flink Jar job ID: %s", err)
+		log.Printf("[WARN] failed to parse DLI Flink Jar job ID: %s", err)
 	}
 	return flinkjob.Get(client, jobId)
 }

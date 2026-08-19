@@ -152,7 +152,7 @@ func convertStringToInt(rawValue string) interface{} {
 
 	r, err := strconv.Atoi(rawValue)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %s to int failed.", rawValue)
+		log.Printf("[WARN] convert the string %s to int failed.", rawValue)
 		return nil
 	}
 

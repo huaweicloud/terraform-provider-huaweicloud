@@ -237,14 +237,14 @@ func buildRecyclePolicyBodyParams(d *schema.ResourceData) map[string]interface{}
 	if retentionHourOk {
 		r, err := strconv.Atoi(retentionHour.(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse retention hour: %s", err)
+			log.Printf("[WARN] failed to parse retention hour: %s", err)
 		}
 		bodyParams["retention_hour"] = r
 	}
 	if recycleThresholdHourOk {
 		r, err := strconv.Atoi(recycleThresholdHour.(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse recycle threshold hour: %s", err)
+			log.Printf("[WARN] failed to parse recycle threshold hour: %s", err)
 		}
 		bodyParams["recycle_threshold_hour"] = r
 	}

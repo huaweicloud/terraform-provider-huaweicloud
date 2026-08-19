@@ -631,14 +631,14 @@ func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("any_port_enable"); ok {
 		anyPortEnable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'any_port_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'any_port_enable' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&any_port_enable=%v", res, anyPortEnable)
 	}
 	if v, ok := d.GetOk("connection_drain"); ok {
 		connectionDrain, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'connection_drain' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'connection_drain' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&connection_drain=%v", res, connectionDrain)
 	}
@@ -660,7 +660,7 @@ func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("member_deletion_protection_enable"); ok {
 		memberDeletionProtectionEnable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'member_deletion_protection_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'member_deletion_protection_enable' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&member_deletion_protection_enable=%v", res, memberDeletionProtectionEnable)
 	}

@@ -242,7 +242,7 @@ func buildCreatePeriodTypeParam(periodUnit string) interface{} {
 func parseAutoRenewValue(autoRenew string) bool {
 	result, err := strconv.ParseBool(autoRenew)
 	if err != nil {
-		log.Printf("[ERROR] unable to convert auto_renew to bool value")
+		log.Printf("[WARN] unable to convert auto_renew to bool value")
 		return false
 	}
 	return result

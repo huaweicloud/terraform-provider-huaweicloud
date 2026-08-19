@@ -264,11 +264,11 @@ func flattenFlavorGroupFlavors(resp interface{}, flavorGroupType string, parma *
 		}
 		vcpusNum, err := strconv.Atoi(vcpus)
 		if err != nil {
-			log.Printf("[ERROR] failed to parse VCPUs: %s", err)
+			log.Printf("[WARN] failed to parse VCPUs: %s", err)
 		}
 		memoryNum, err := strconv.Atoi(memory)
 		if err != nil {
-			log.Printf("[ERROR] failed to parse memory num: %s", err)
+			log.Printf("[WARN] failed to parse memory num: %s", err)
 		}
 		rst = append(rst, map[string]interface{}{
 			"id":       utils.PathSearch("id", v, nil),

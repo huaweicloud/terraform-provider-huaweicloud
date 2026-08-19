@@ -460,7 +460,7 @@ func buildListLoadBalancersQueryParams(d *schema.ResourceData, enterpriseProject
 	if v, ok := d.GetOk("deletion_protection_enable"); ok {
 		deletionProtectionEnable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&deletion_protection_enable=%v", res, deletionProtectionEnable)
 	}

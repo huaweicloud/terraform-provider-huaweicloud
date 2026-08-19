@@ -526,7 +526,7 @@ func buildUpdatePublicGatewayChargingModeBodyParams(d *schema.ResourceData) map[
 	if v, ok := d.GetOk("auto_renew"); ok {
 		autoRenew, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'auto_renew' field to Boolean: %s", err)
 		}
 		bodyParams["is_auto_renew"] = autoRenew
 	}

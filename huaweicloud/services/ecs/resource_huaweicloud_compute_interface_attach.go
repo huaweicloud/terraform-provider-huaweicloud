@@ -447,7 +447,7 @@ func updateAttachInfo(client *golangsdk.ServiceClient, d *schema.ResourceData) e
 func buildUpdateAttachInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
 	deleteOnTermination, err := strconv.ParseBool(d.Get("delete_on_termination").(string))
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'delete_on_termination' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'delete_on_termination' field to Boolean: %s", err)
 	}
 	bodyParams := map[string]interface{}{
 		"interface_attachment": map[string]interface{}{

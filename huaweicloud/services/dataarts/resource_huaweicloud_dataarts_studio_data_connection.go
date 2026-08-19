@@ -121,7 +121,7 @@ func unmarshalConfigContent(configVal string) map[string]interface{} {
 	parseResult := make(map[string]interface{})
 	err := json.Unmarshal([]byte(configVal), &parseResult)
 	if err != nil {
-		log.Printf("[ERROR] Invalid type of the dynamic configuration content, it is not JSON format")
+		log.Printf("[WARN] Invalid type of the dynamic configuration content, it is not JSON format")
 		return nil
 	}
 	return parseResult

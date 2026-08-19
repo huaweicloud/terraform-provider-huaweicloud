@@ -33,11 +33,11 @@ func getResourceTagsFunc(cfg *config.Config, state *terraform.ResourceState) (in
 
 	resourcesLen, err = strconv.Atoi(state.Primary.Attributes["resources.#"])
 	if err != nil {
-		log.Printf("[ERROR] failed to parse resources length: %s", err)
+		log.Printf("[WARN] failed to parse resources length: %s", err)
 	}
 	tagsLen, err = strconv.Atoi(state.Primary.Attributes["tags.%"])
 	if err != nil {
-		log.Printf("[ERROR] failed to parse tags length: %s", err)
+		log.Printf("[WARN] failed to parse tags length: %s", err)
 	}
 
 	for i := 0; i < resourcesLen; i++ {

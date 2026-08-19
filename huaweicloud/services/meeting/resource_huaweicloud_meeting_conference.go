@@ -992,7 +992,7 @@ func resourceConferenceRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("join_password", flattenJoinPasswords(resp.Conference.PasswordEntry)),
 	)
 	if timezoneId, err := strconv.Atoi(resp.Conference.TimeZoneId); err != nil {
-		log.Printf("[ERROR] The format of timezone ID (%#v) is wrong: %v", resp.Conference.TimeZoneId, err)
+		log.Printf("[WARN] The format of timezone ID (%#v) is wrong: %v", resp.Conference.TimeZoneId, err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("timezone_id", timezoneId))
 	}

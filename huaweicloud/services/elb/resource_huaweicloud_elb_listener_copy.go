@@ -406,7 +406,7 @@ func buildCreateListenerCopyBodyParams(d *schema.ResourceData) map[string]interf
 	if v, ok := d.GetOk("reuse_pool"); ok {
 		reusePool, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'reuse_pool' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'reuse_pool' field to Boolean: %s", err)
 		}
 		bodyParams["reuse_pool"] = reusePool
 	}

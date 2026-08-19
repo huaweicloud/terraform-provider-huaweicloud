@@ -247,11 +247,11 @@ func filterUserClientQuota(parts []string, resp interface{}) interface{} {
 	}
 	rawUserDefault, err := strconv.ParseBool(parts[2])
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'user_default' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'user_default' field to Boolean: %s", err)
 	}
 	rawClientDefault, err := strconv.ParseBool(parts[4])
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'client_default' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'client_default' field to Boolean: %s", err)
 	}
 
 	for _, quota := range quotaArray {

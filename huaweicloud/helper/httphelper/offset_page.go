@@ -42,7 +42,7 @@ func (p OffsetPager) NextOffset() int {
 	q := p.URL.Query()
 	offset, err := strconv.Atoi(q.Get(p.OffsetKey))
 	if err != nil {
-		log.Printf("[ERROR] [NextOffset] [%v] failed to parse offset key %q, value: %q, err: %s",
+		log.Printf("[WARN] [NextOffset] [%v] failed to parse offset key %q, value: %q, err: %s",
 			p.uuid, p.OffsetKey, q.Get(p.OffsetKey), err)
 	}
 	if offset == 0 {
@@ -52,7 +52,7 @@ func (p OffsetPager) NextOffset() int {
 	// get `limit` according to the following priority:
 	limit, err := strconv.Atoi(q.Get(p.LimitKey))
 	if err != nil {
-		log.Printf("[ERROR] [NextOffset] [%v] failed to parse limit key %q, value: %q, err: %s",
+		log.Printf("[WARN] [NextOffset] [%v] failed to parse limit key %q, value: %q, err: %s",
 			p.uuid, p.LimitKey, q.Get(p.LimitKey), err)
 	}
 	if limit == 0 {

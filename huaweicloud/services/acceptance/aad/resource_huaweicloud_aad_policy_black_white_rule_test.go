@@ -34,7 +34,7 @@ func getPolicyBlackWhiteRuleFunc(cfg *config.Config, state *terraform.ResourceSt
 func convertStringtoInt(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %s to int failed.", s)
+		log.Printf("[WARN] convert the string %s to int failed.", s)
 	}
 	return i
 }

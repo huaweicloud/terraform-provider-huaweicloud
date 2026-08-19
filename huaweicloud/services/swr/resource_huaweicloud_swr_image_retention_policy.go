@@ -254,12 +254,12 @@ func resourceSwrImageRetentionPolicyRead(_ context.Context, d *schema.ResourceDa
 	if template.(string) == "date_rule" {
 		number, err = strconv.Atoi(utils.PathSearch("params.days", policies[0], "0").(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse retention days: %s", err)
+			log.Printf("[WARN] failed to parse retention days: %s", err)
 		}
 	} else {
 		number, err = strconv.Atoi(utils.PathSearch("params.num", policies[0], "0").(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse retention number: %s", err)
+			log.Printf("[WARN] failed to parse retention number: %s", err)
 		}
 	}
 	mErr = multierror.Append(

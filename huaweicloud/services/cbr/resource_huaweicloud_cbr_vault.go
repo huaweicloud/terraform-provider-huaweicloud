@@ -334,13 +334,13 @@ func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 
 		autoRenew, err := strconv.ParseBool(d.Get("auto_renew").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'auto_renew' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'auto_renew' field to Boolean: %s", err)
 		}
 		billing["is_auto_renew"] = autoRenew
 
 		autoPay, err := strconv.ParseBool(cbc.GetAutoPay(d))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'auto_pay' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'auto_pay' field to Boolean: %s", err)
 		}
 		billing["is_auto_pay"] = autoPay
 	}
@@ -1015,7 +1015,7 @@ func getNumberInGB(megaBytes float64) float64 {
 	denominator := float64(1024)
 	result, err := strconv.ParseFloat(fmt.Sprintf("%.2f", megaBytes/denominator), 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing field to Float: %s", err)
+		log.Printf("[WARN] error parsing field to Float: %s", err)
 	}
 
 	return result

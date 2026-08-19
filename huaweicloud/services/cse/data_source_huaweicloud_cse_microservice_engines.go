@@ -230,7 +230,7 @@ func convertStrNumberToIntIgnoreErr(strNum string) int {
 	if err != nil {
 		// If the type conversion fails, only the error information is recorded in the log, and the program execution
 		// is not interrupted.
-		log.Printf("[ERROR] unable to convert object from type string to type int: %s", err)
+		log.Printf("[WARN] unable to convert object from type string to type int: %s", err)
 		return 0
 	}
 	return result

@@ -570,7 +570,7 @@ func flattenInstances(conf *config.Config, region string, instances []interface{
 
 		createdAt, err := strconv.Atoi(utils.PathSearch("created_at", val, "").(string))
 		if err != nil {
-			log.Printf("[ERROR] error converting created_at to int: %v", err)
+			log.Printf("[WARN] error converting created_at to int: %v", err)
 		}
 
 		instance := map[string]interface{}{

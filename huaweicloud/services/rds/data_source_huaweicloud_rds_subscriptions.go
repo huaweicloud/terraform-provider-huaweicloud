@@ -328,7 +328,7 @@ func buildListSubscriptionsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("is_cloud"); ok {
 		isCloud, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'is_cloud' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'is_cloud' field to Boolean: %s", err)
 		}
 		queryParams += fmt.Sprintf("&is_cloud=%v", isCloud)
 	}

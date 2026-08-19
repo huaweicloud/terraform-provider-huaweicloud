@@ -138,7 +138,7 @@ func buildDrInstanceToPrimaryBodyParams(d *schema.ResourceData) map[string]inter
 	if v, ok := d.GetOk("is_support_restore"); ok {
 		isSupportRestore, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'is_support_restore' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'is_support_restore' field to Boolean: %s", err)
 		}
 		bodyParams["is_support_restore"] = isSupportRestore
 	}

@@ -2509,7 +2509,7 @@ func updateDeleteBackupSelection(ctx context.Context, d *schema.ResourceData, cl
 func buildDeleteBackupSelectionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	deleteBackupSelection, err := strconv.ParseBool(d.Get("delete_backup_selection").(string))
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'delete_backup_selection' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'delete_backup_selection' field to Boolean: %s", err)
 	}
 	bodyParams := map[string]interface{}{
 		"selection": deleteBackupSelection,

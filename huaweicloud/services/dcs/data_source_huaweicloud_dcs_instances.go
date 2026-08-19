@@ -284,7 +284,7 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 		if capacity == 0 {
 			capacity, err = strconv.ParseFloat(capacityMinor.(string), floatBitSize)
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'capacity' field to Float: %s", err)
+				log.Printf("[WARN] error parsing 'capacity' field to Float: %s", err)
 			}
 		}
 

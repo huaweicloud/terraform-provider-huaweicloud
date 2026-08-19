@@ -39,7 +39,7 @@ func TestAccTaurusDBNodeSessionsKill_basic(t *testing.T) {
 func testAccTaurusDBNodeSessionsKill_basic() string {
 	processId, err := strconv.Atoi(acceptance.HW_TAURUSDB_NODE_SESSION_ID)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse TaurusDB node session ID: %s", err)
+		log.Printf("[WARN] failed to parse TaurusDB node session ID: %s", err)
 	}
 	return fmt.Sprintf(`
 resource "huaweicloud_taurusdb_node_sessions_kill" "test" {

@@ -1034,11 +1034,11 @@ func flattenCertificationAttribute(respBody interface{}) map[string]interface{} 
 
 	pciDss, err := strconv.ParseBool(pciDssRaw)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'pci_dss' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'pci_dss' field to Boolean: %s", err)
 	}
 	pci3ds, err := strconv.ParseBool(pci3dsRaw)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'pci_3ds' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'pci_3ds' field to Boolean: %s", err)
 	}
 	return map[string]interface{}{
 		"pci_dss": pciDss,

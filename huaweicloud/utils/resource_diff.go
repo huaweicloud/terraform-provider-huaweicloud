@@ -825,11 +825,11 @@ func diffStrSliceLength(paramKey, oldVal, newVal string, d *schema.ResourceData,
 	// Get current values
 	oldCount, err := strconv.Atoi(oldVal)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse old count: %s", err)
+		log.Printf("[WARN] failed to parse old count: %s", err)
 	}
 	newCount, err := strconv.Atoi(newVal)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse new count: %s", err)
+		log.Printf("[WARN] failed to parse new count: %s", err)
 	}
 
 	// If origin is empty or nil, this is the first time setting the value
@@ -1923,11 +1923,11 @@ func diffObjectSliceLength(paramKey, oldVal, newVal string, d *schema.ResourceDa
 	// Get current values
 	oldCount, err := strconv.Atoi(oldVal)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse old count: %s", err)
+		log.Printf("[WARN] failed to parse old count: %s", err)
 	}
 	newCount, err := strconv.Atoi(newVal)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse new count: %s", err)
+		log.Printf("[WARN] failed to parse new count: %s", err)
 	}
 
 	// If counts are the same, suppress diff

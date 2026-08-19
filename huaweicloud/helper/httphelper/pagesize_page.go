@@ -34,7 +34,7 @@ func (p PageSizePager) CurrentPageNum() int {
 	q := p.URL.Query()
 	page, err := strconv.Atoi(q.Get(p.PageNumKey))
 	if err != nil {
-		log.Printf("[ERROR] [CurrentPageNum] [%v] failed to parse page num key %q, value: %q, err: %s",
+		log.Printf("[WARN] [CurrentPageNum] [%v] failed to parse page num key %q, value: %q, err: %s",
 			p.uuid, p.PageNumKey, q.Get(p.PageNumKey), err)
 	}
 	if page == 0 {

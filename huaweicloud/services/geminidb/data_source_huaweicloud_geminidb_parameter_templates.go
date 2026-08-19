@@ -160,7 +160,7 @@ func buildParameterTemplatesQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("user_defined"); ok {
 		userDefined, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'user_defined' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'user_defined' field to Boolean: %s", err)
 		}
 		queryParams = fmt.Sprintf("%s&user_defined=%v", queryParams, userDefined)
 	}

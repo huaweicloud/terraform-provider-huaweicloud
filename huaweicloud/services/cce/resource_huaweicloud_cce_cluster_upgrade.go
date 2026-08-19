@@ -248,7 +248,7 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string)
 	if v, ok := d.GetOk("is_only_upgrade"); ok {
 		isOnlyUpgradeRaw, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'is_only_upgrade' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'is_only_upgrade' field to Boolean: %s", err)
 		}
 		result["spec"].(map[string]interface{})["clusterUpgradeAction"].(map[string]interface{})["isOnlyUpgrade"] = isOnlyUpgradeRaw
 	}

@@ -278,11 +278,11 @@ func buildListenerInsertHeaders(d *schema.ResourceData) map[string]interface{} {
 		if v, ok := rawInsertHeaders.([]interface{})[0].(map[string]interface{}); ok {
 			xForwardedElbIp, err := strconv.ParseBool(v["x_forwarded_elb_ip"].(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'x_forwarded_elb_ip' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'x_forwarded_elb_ip' field to Boolean: %s", err)
 			}
 			xForwardedHost, err := strconv.ParseBool(v["x_forwarded_host"].(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'x_forwarded_host' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'x_forwarded_host' field to Boolean: %s", err)
 			}
 			params := map[string]interface{}{
 				"X-Forwarded-ELB-IP": xForwardedElbIp,
@@ -302,7 +302,7 @@ func updateListenerTransparentClientIP(client *golangsdk.ServiceClient, listener
 
 	enabled, err := strconv.ParseBool(transparentClientIpEnable)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
 	}
 
 	updateOpt := golangsdk.RequestOpts{

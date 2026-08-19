@@ -631,7 +631,7 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 
 	createdAt, err := strconv.ParseInt(v.CreatedAt, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'createdAt' field to Int: %s", err)
+		log.Printf("[WARN] error parsing 'createdAt' field to Int: %s", err)
 	}
 	mErr = multierror.Append(mErr,
 		d.Set("region", region),

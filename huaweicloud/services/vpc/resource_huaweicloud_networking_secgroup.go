@@ -384,7 +384,7 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 				}
 				minVal, err := strconv.Atoi(rangeSet[1])
 				if err != nil {
-					log.Printf("[ERROR] failed to parse port range min: %s", err)
+					log.Printf("[WARN] failed to parse port range min: %s", err)
 				}
 				ruleInfo["port_range_min"] = minVal
 				if rangeSet[2] == "" {
@@ -392,7 +392,7 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 				} else {
 					maxVal, err := strconv.Atoi(rangeSet[2])
 					if err != nil {
-						log.Printf("[ERROR] failed to parse port range max: %s", err)
+						log.Printf("[WARN] failed to parse port range max: %s", err)
 					}
 					ruleInfo["port_range_max"] = maxVal
 				}

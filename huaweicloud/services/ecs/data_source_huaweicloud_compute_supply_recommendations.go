@@ -395,7 +395,7 @@ func buildGetSupplyRecommendationsOption(rawParams interface{}) map[string]inter
 	if v, enableSpotOk := raw["enable_spot"]; enableSpotOk {
 		enableSpot, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'enable_spot' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'enable_spot' field to Boolean: %s", err)
 		}
 		params["enable_spot"] = enableSpot
 	}

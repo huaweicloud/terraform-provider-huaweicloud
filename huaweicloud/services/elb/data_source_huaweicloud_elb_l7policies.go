@@ -473,7 +473,7 @@ func buildListL7policiesQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("display_all_rules"); ok {
 		displayAllRules, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'display_all_rules' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'display_all_rules' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&display_all_rules=%v", res, displayAllRules)
 	}

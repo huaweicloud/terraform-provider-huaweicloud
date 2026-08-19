@@ -994,12 +994,12 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 
 	createdAt, err := strconv.ParseInt(detail.CreateTime, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'created_at' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'created_at' field to Integer: %s", err)
 	}
 
 	updatedAt, err := strconv.ParseInt(detail.UpdateTime, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'updated_at' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'updated_at' field to Integer: %s", err)
 	}
 
 	// engine_type input mongodb will return mongodb-to-dds
