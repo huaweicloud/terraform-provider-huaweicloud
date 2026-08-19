@@ -290,7 +290,7 @@ func filterKafkaMessageDiagnosisTaskFromList(client *golangsdk.ServiceClient, in
 		if int(total.(float64)) <= offset {
 			return nil, golangsdk.ErrDefault404{
 				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte(fmt.Sprintf("unable to find task(%s) from API response", reportID)),
+					Body: fmt.Appendf(nil, "unable to find task(%s) from API response", reportID),
 				}}
 		}
 	}

@@ -171,7 +171,7 @@ func GetCacheSharingGroupByName(client *golangsdk.ServiceClient, groupName strin
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/share-cache-groups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the cache sharing group with name '%s' has been removed", groupName)),
+				Body:      fmt.Appendf(nil, "the cache sharing group with name '%s' has been removed", groupName),
 			},
 		}
 	}
@@ -214,7 +214,7 @@ func GetCacheSharingGroupById(client *golangsdk.ServiceClient, groupId string) (
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/share-cache-groups",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the cache sharing group with ID '%s' has been removed", groupId)),
+				Body:      fmt.Appendf(nil, "the cache sharing group with ID '%s' has been removed", groupId),
 			},
 		}
 	}

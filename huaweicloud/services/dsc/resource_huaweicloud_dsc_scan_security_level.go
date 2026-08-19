@@ -195,7 +195,7 @@ func GetScanSecurityLevelById(client *golangsdk.ServiceClient, levelId string) (
 				Method:    "GET",
 				URL:       "/v1/{project_id}/scan-security-levels",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the security level (%s) does not exist", levelId)),
+				Body:      fmt.Appendf(nil, "the security level (%s) does not exist", levelId),
 			},
 		}
 	}

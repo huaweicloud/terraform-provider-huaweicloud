@@ -202,7 +202,7 @@ func GetAssetDomainLabelByName(client *golangsdk.ServiceClient, name, parentId s
 				Method:    "GET",
 				URL:       "/v1/{project_id}/metadata/asset-domain-labels",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the asset domain label with name (%s) and parent ID (%s) does not exist", name, parentId)),
+				Body:      fmt.Appendf(nil, "the asset domain label with name (%s) and parent ID (%s) does not exist", name, parentId),
 			},
 		}
 	}

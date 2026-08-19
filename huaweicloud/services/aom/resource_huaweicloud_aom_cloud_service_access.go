@@ -180,7 +180,7 @@ func getCloudServiceAccesss(client *golangsdk.ServiceClient, d *schema.ResourceD
 				Method:    "GET",
 				URL:       "/v1/{project_id}/prometheus/{prom_instance_id}/cloud-service/{provider}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the cloud service access (%s/%s) does not exist", instanceId, service)),
+				Body:      fmt.Appendf(nil, "the cloud service access (%s/%s) does not exist", instanceId, service),
 			},
 		}
 	}

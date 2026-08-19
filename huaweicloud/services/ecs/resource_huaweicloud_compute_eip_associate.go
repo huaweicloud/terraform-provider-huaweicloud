@@ -386,7 +386,7 @@ func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP, epsID s
 	if len(allEips) != 1 {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("can not find the EIP by %s", floatingIP)),
+				Body: fmt.Appendf(nil, "can not find the EIP by %s", floatingIP),
 			},
 		}
 	}

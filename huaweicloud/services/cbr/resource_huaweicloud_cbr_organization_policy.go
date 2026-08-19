@@ -546,7 +546,7 @@ func getOrganizationPolicyByName(client *golangsdk.ServiceClient, name string) (
 				Method:    "GET",
 				URL:       "/v3/{project_id}/organization-policies",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the organization policy (%s) does not exist", name)),
+				Body:      fmt.Appendf(nil, "the organization policy (%s) does not exist", name),
 			},
 		}
 	}

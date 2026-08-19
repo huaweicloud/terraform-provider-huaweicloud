@@ -278,7 +278,7 @@ func GetInstanceById(client *golangsdk.ServiceClient, instanceId string) (interf
 				Method:    "GET",
 				URL:       "/v1/{project_id}/instances/{instance_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the instance (%s) has been moved to the recycle bin", instanceId)),
+				Body:      fmt.Appendf(nil, "the instance (%s) has been moved to the recycle bin", instanceId),
 			},
 		}
 	}

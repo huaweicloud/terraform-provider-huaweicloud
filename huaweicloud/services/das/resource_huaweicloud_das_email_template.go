@@ -220,7 +220,7 @@ func GetEmailTemplateById(client *golangsdk.ServiceClient, datastoreType, templa
 			Method:    "GET",
 			URL:       "/v3/{project_id}/batch-inspection/email-template",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the email template (%s) has been removed", templateId)),
+			Body:      fmt.Appendf(nil, "the email template (%s) has been removed", templateId),
 		},
 	}
 }

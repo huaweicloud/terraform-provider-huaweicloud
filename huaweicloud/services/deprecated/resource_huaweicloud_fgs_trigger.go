@@ -818,8 +818,8 @@ func resourceFunctionGraphTriggerRead(_ context.Context, d *schema.ResourceData,
 	}
 	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte(fmt.Sprintf("unable to find the FunctionGraph trigger (%s) from function (%s), the trigger "+
-				"has been deleted", d.Id(), urn)),
+			Body: fmt.Appendf(nil, "unable to find the FunctionGraph trigger (%s) from function (%s), the trigger "+
+				"has been deleted", d.Id(), urn),
 		},
 	}, "error retrieving FunctionGraph trigger")
 }

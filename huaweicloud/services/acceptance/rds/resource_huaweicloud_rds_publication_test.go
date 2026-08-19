@@ -59,7 +59,7 @@ func getPublication(cfg *config.Config, state *terraform.ResourceState) (interfa
 				Method:    "GET",
 				URL:       "/v3/{project_id}/instances/{instance_id}/replication/publications",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the RDS publication (%s) does not exist", state.Primary.ID)),
+				Body:      fmt.Appendf(nil, "the RDS publication (%s) does not exist", state.Primary.ID),
 			},
 		}
 	}

@@ -186,7 +186,7 @@ func GetApplication(client *golangsdk.ServiceClient, applicationID string) (inte
 				Method:    "GET",
 				URL:       "/v1/applications",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", applicationID)),
+				Body:      fmt.Appendf(nil, "the application (%s) does not exist", applicationID),
 			},
 		}
 	}

@@ -183,7 +183,7 @@ func GetInstanceRebalanceLog(client *golangsdk.ServiceClient, instanceId string)
 				Method:    "GET",
 				URL:       "/v2/kafka/{project_id}/instances/{instance_id}/log/rebalance-log",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The rebalance log of the instance (%s) has been closed.", instanceId)),
+				Body:      fmt.Appendf(nil, "The rebalance log of the instance (%s) has been closed.", instanceId),
 			},
 		}
 	}

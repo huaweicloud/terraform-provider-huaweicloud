@@ -135,7 +135,7 @@ func GetDelegatedAdministrator(client *golangsdk.ServiceClient, accountId, servi
 				Method:    "GET",
 				URL:       "/v1/organizations/delegated-administrators",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the delegated administrator (%s) does not exist for account (%s)", servicePrincipal, accountId)),
+				Body:      fmt.Appendf(nil, "the delegated administrator (%s) does not exist for account (%s)", servicePrincipal, accountId),
 			},
 		}
 	}

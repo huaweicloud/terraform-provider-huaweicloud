@@ -172,7 +172,7 @@ func GetAppPolicyTemplateById(client *golangsdk.ServiceClient, templateId string
 				Method:    "GET",
 				URL:       "/v1/{project_id}/policy-templates",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the policy template (%s) has been deleted", templateId)),
+				Body:      fmt.Appendf(nil, "the policy template (%s) has been deleted", templateId),
 			},
 		}
 	}

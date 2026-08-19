@@ -190,7 +190,7 @@ func GetNotificationRuleById(client *golangsdk.ServiceClient, ruleId string) (in
 				Method:    "GET",
 				URL:       "/v2/{project_id}/statistics/notify-rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the notification rule with ID '%s' has been removed", ruleId)),
+				Body:      fmt.Appendf(nil, "the notification rule with ID '%s' has been removed", ruleId),
 			},
 		}
 	}

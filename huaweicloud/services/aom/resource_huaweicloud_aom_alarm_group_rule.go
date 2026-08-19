@@ -252,7 +252,7 @@ func GetAlarmGroupRule(client *golangsdk.ServiceClient, name string) (interface{
 				Method:    "GET",
 				URL:       "/v2/{project_id}/alert/group-rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the alarm group rule (%s) does not exist", name)),
+				Body:      fmt.Appendf(nil, "the alarm group rule (%s) does not exist", name),
 			},
 		}
 	}

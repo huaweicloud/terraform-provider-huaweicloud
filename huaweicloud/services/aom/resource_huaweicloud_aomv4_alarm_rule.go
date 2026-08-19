@@ -751,7 +751,7 @@ func getAlarmRule(cfg *config.Config, client *golangsdk.ServiceClient, d *schema
 				Method:    "GET",
 				URL:       "/v4/{project_id}/alarm-rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the alarm rule (%s) does not exist", ruleName)),
+				Body:      fmt.Appendf(nil, "the alarm rule (%s) does not exist", ruleName),
 			},
 		}
 	}

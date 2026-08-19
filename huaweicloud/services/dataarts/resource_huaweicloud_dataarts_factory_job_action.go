@@ -327,7 +327,7 @@ func getJobByName(client *golangsdk.ServiceClient, workspaceId, jobName, jobType
 			Method:    "GET",
 			URL:       "/v1/{project_id}/jobs",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the job (%s) is not found", jobName)),
+			Body:      fmt.Appendf(nil, "the job (%s) is not found", jobName),
 		},
 	}
 }

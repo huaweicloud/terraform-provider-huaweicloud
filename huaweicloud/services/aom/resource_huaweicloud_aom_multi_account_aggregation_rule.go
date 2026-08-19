@@ -229,7 +229,7 @@ func getMultiAccountAggregationRule(client *golangsdk.ServiceClient, d *schema.R
 				Method:    "GET",
 				URL:       "/v1/{project_id}/aom/aggr-config",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the multi account aggregation rule (%s) does not exist", ruleId)),
+				Body:      fmt.Appendf(nil, "the multi account aggregation rule (%s) does not exist", ruleId),
 			},
 		}
 	}

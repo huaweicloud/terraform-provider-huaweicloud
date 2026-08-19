@@ -136,7 +136,7 @@ func GetV5VirtualMfaDevice(client *golangsdk.ServiceClient, userId string) (inte
 				Method:    "GET",
 				URL:       "/v5/mfa-devices",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("there are no MFA devices under the user (%s)", userId)),
+				Body:      fmt.Appendf(nil, "there are no MFA devices under the user (%s)", userId),
 			},
 		}
 	}

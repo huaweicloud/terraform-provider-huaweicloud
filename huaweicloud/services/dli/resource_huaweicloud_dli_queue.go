@@ -454,7 +454,7 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 					Method:    "GET",
 					URL:       "/v1.0/{project_id}/queues",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("unable to query the queue list: %s", queueList.Message)),
+					Body:      fmt.Appendf(nil, "unable to query the queue list: %s", queueList.Message),
 				},
 			}
 		}
@@ -469,7 +469,7 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/queues",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the queue (%s) does not exist", queueName)),
+				Body:      fmt.Appendf(nil, "the queue (%s) does not exist", queueName),
 			},
 		}
 	}
@@ -479,7 +479,7 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 			Method:    "GET",
 			URL:       "/v1.0/{project_id}/queues",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the response type of sdk-client is wrong, want '*queues.ListResult', but got '%T'", body)),
+			Body:      fmt.Appendf(nil, "the response type of sdk-client is wrong, want '*queues.ListResult', but got '%T'", body),
 		},
 	}
 }

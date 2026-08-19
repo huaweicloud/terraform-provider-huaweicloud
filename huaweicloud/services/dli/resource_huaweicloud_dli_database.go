@@ -146,7 +146,7 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/databases",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("unable to query the database: %s", resp.Message)),
+				Body:      fmt.Appendf(nil, "unable to query the database: %s", resp.Message),
 			},
 		}
 	}
@@ -157,7 +157,7 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/databases",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("no database matched the keyword: %s", dbName)),
+				Body:      fmt.Appendf(nil, "no database matched the keyword: %s", dbName),
 			},
 		}
 	}
@@ -172,7 +172,7 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 			Method:    "GET",
 			URL:       "/v1.0/{project_id}/databases",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the database (%s) does not exist", dbName)),
+			Body:      fmt.Appendf(nil, "the database (%s) does not exist", dbName),
 		},
 	}
 }

@@ -235,8 +235,8 @@ func GetSharedConnectionById(client *golangsdk.ServiceClient, connectionId, user
 				Method:    "GET",
 				URL:       "/v3/{project_id}/connections/{connection_id}/get-shared-list",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("DAS shared connection (connection_id: %s, user_id: %s) not found in list response",
-					connectionId, userId)),
+				Body: fmt.Appendf(nil, "DAS shared connection (connection_id: %s, user_id: %s) not found in list response",
+					connectionId, userId),
 			},
 		}
 	}

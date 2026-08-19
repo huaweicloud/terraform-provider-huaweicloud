@@ -140,7 +140,7 @@ func GetClusterAssociatedEipById(client *golangsdk.ServiceClient, clusterId stri
 			Method:    "GET",
 			URL:       "/v1/{project_id}/clusters/{cluster_id}/endpoints",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the EIP is not associated with the DWS cluster (%s)", clusterId)),
+			Body:      fmt.Appendf(nil, "the EIP is not associated with the DWS cluster (%s)", clusterId),
 		},
 	}
 }

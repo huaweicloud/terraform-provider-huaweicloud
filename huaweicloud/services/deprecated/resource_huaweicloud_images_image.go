@@ -381,7 +381,7 @@ func GetCloudImage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 				Method:    "GET",
 				URL:       "/v2/cloudimages",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("unexpected image result (image ID is not matched, expected: %s, actual: %s)", id, img.ID)),
+				Body:      fmt.Appendf(nil, "unexpected image result (image ID is not matched, expected: %s, actual: %s)", id, img.ID),
 			},
 		}
 	}

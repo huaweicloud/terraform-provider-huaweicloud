@@ -147,7 +147,7 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 					Method:    "GET",
 					URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("the vhost (%s) does not exist", name)),
+					Body:      fmt.Appendf(nil, "the vhost (%s) does not exist", name),
 				},
 			}
 		}

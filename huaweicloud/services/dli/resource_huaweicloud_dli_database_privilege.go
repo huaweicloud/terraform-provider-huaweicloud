@@ -170,7 +170,7 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/authorization/privileges",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("unable to query the privileges: %s", utils.PathSearch("message", respBody, "Message Not Found"))),
+				Body:      fmt.Appendf(nil, "unable to query the privileges: %s", utils.PathSearch("message", respBody, "Message Not Found")),
 			},
 		}
 		return
@@ -191,7 +191,7 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 				Method:    "GET",
 				URL:       "/v1.0/{project_id}/authorization/privileges",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the privileges not found for the object (%s) and user (%s)", object, userName)),
+				Body:      fmt.Appendf(nil, "the privileges not found for the object (%s) and user (%s)", object, userName),
 			},
 		}
 	}

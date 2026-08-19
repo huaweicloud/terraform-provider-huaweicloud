@@ -297,8 +297,8 @@ func CheckV3GroupRoleAssignmentWithDomainId(client *golangsdk.ServiceClient, gro
 				Method:    "GET",
 				URL:       "/v3/domains/{domain_id}/groups/{group_id}/roles",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("the role (%s), which assigned to the domain (%s), is not assigned to the group (%s)",
-					roleId, domainId, groupId)),
+				Body: fmt.Appendf(nil, "the role (%s), which assigned to the domain (%s), is not assigned to the group (%s)",
+					roleId, domainId, groupId),
 			},
 		}
 	}
@@ -341,8 +341,8 @@ func CheckV3GroupRoleAssignmentWithProjectId(client *golangsdk.ServiceClient, gr
 				Method:    "GET",
 				URL:       "/v3/projects/{project_id}/groups/{group_id}/roles",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("the role (%s), which assigned to the project (%s), is not assigned to the group (%s)",
-					roleId, projectId, groupId)),
+				Body: fmt.Appendf(nil, "the role (%s), which assigned to the project (%s), is not assigned to the group (%s)",
+					roleId, projectId, groupId),
 			},
 		}
 	}
@@ -365,8 +365,8 @@ func CheckV3GroupRoleAssignmentWithEpsId(client *golangsdk.ServiceClient, groupI
 			Method:    "GET",
 			URL:       "/v3.0/OS-PERMISSION/enterprise-projects/{enterprise_project_id}/groups/{group_id}/roles",
 			RequestId: "NONE",
-			Body: []byte(fmt.Sprintf("the role (%s), which assigned to the enterprise project (%s), is not assigned to the group (%s)",
-				roleId, epsId, groupId)),
+			Body: fmt.Appendf(nil, "the role (%s), which assigned to the enterprise project (%s), is not assigned to the group (%s)",
+				roleId, epsId, groupId),
 		},
 	}
 }

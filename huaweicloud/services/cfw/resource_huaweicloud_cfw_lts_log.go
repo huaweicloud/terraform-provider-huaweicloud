@@ -221,7 +221,7 @@ func getLtsLog(client *golangsdk.ServiceClient, id string) (interface{}, error) 
 				Method:    "GET",
 				URL:       "/v1/{project_id}/cfw/logs/configuration",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the LTS log configuration (%s) does not exist, the data field is empty", id)),
+				Body:      fmt.Appendf(nil, "the LTS log configuration (%s) does not exist, the data field is empty", id),
 			},
 		}
 	}

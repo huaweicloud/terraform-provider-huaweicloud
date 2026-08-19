@@ -465,7 +465,7 @@ func GetCollectorChannelByTitle(client *golangsdk.ServiceClient, workspaceId, ti
 				Method:    "GET",
 				URL:       "/v1/{project_id}/workspaces/{workspace_id}/collector/channels",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the collector channel (%s) does not exist", title)),
+				Body:      fmt.Appendf(nil, "the collector channel (%s) does not exist", title),
 			},
 		}
 	}

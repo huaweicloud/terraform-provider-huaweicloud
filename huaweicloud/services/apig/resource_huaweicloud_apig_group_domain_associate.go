@@ -191,7 +191,7 @@ func GetGroupAssociatedDomainByUrl(client *golangsdk.ServiceClient, instanceId, 
 				Method:    "GET",
 				URL:       "/v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the domain (%s) does not bound to the API group (%s)", urlDomain, groupId)),
+				Body:      fmt.Appendf(nil, "the domain (%s) does not bound to the API group (%s)", urlDomain, groupId),
 			},
 		}
 	}

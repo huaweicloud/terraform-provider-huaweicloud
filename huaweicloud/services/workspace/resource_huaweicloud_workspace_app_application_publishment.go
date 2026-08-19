@@ -259,7 +259,7 @@ func GetAppPublishedApplicationByName(client *golangsdk.ServiceClient, appGroupI
 				Method:    "GET",
 				URL:       "/v1/{project_id}/app-groups/{app_group_id}/apps",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the application (%s) does not exist", appName)),
+				Body:      fmt.Appendf(nil, "the application (%s) does not exist", appName),
 			},
 		}
 	}

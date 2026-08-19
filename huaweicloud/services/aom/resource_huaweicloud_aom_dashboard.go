@@ -247,7 +247,7 @@ func filterDashboard(client *golangsdk.ServiceClient, d *schema.ResourceData) er
 				Method:    "GET",
 				URL:       "/v2/{project_id}/aom/dashboards",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the dashboard (%s) does not exist", dashboardId)),
+				Body:      fmt.Appendf(nil, "the dashboard (%s) does not exist", dashboardId),
 			},
 		}
 	}

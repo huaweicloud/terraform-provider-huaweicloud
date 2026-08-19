@@ -112,7 +112,7 @@ func queryPluginDetail(client *golangsdk.ServiceClient, instanceId, databaseName
 					Method:    "GET",
 					URL:       "/v3/{project_id}/instances/{instance_id}/extensions",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("the PostgreSQL plugin (%s) does not exist", name)),
+					Body:      fmt.Appendf(nil, "the PostgreSQL plugin (%s) does not exist", name),
 				},
 			}
 		}
@@ -138,7 +138,7 @@ func queryPluginDetail(client *golangsdk.ServiceClient, instanceId, databaseName
 				Method:    "GET",
 				URL:       "/v3/{project_id}/instances/{instance_id}/extensions",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the PostgreSQL plugin (%s) does not exist or its creation status is not created", name)),
+				Body:      fmt.Appendf(nil, "the PostgreSQL plugin (%s) does not exist or its creation status is not created", name),
 			},
 		}
 	}

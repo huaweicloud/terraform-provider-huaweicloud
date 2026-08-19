@@ -149,7 +149,7 @@ func ListV3AssociatedUsersForGroup(client *golangsdk.ServiceClient, groupId stri
 				Method:    "GET",
 				URL:       "/v3/groups/{group_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the group (%s) does not exist", groupId)),
+				Body:      fmt.Appendf(nil, "the group (%s) does not exist", groupId),
 			},
 		}
 	}
@@ -178,7 +178,7 @@ func ListV3AssociatedUsersForGroup(client *golangsdk.ServiceClient, groupId stri
 				Method:    "GET",
 				URL:       "/v3/groups/{group_id}/users",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the managed membership for group (%s) does not exist", groupId)),
+				Body:      fmt.Appendf(nil, "the managed membership for group (%s) does not exist", groupId),
 			},
 		}
 	}

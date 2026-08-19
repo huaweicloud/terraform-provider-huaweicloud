@@ -755,7 +755,7 @@ func GetRuleEngineRuleByName(client *golangsdk.ServiceClient, domainName string,
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/domains/{domain_name}/rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the rule with name '%s' has been removed", ruleName)),
+				Body:      fmt.Appendf(nil, "the rule with name '%s' has been removed", ruleName),
 			},
 		}
 	}
@@ -998,7 +998,7 @@ func GetRuleEngineRuleById(client *golangsdk.ServiceClient, domainName string, r
 				Method:    "GET",
 				URL:       "/v1.0/cdn/configuration/domains/{domain_name}/rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the rule with ID '%s' has been removed", ruleId)),
+				Body:      fmt.Appendf(nil, "the rule with ID '%s' has been removed", ruleId),
 			},
 		}
 	}

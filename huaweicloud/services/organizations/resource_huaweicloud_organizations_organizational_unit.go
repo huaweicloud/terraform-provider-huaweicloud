@@ -136,7 +136,7 @@ func GetOrganizationalUnit(client *golangsdk.ServiceClient, ouId string) (interf
 				Method:    "GET",
 				URL:       "/v1/organizations/organizational-units/{organizational_unit_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the organizational unit (%s) does not exist", ouId)),
+				Body:      fmt.Appendf(nil, "the organizational unit (%s) does not exist", ouId),
 			},
 		}
 	}

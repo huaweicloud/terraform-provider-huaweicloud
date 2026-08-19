@@ -663,7 +663,7 @@ func GetArchitectureDimensionById(client *golangsdk.ServiceClient, workspaceId, 
 				Method:    "GET",
 				URL:       "/v2/{project_id}/design/dimensions/{id}",
 				RequestId: requestId.(string),
-				Body:      []byte(fmt.Sprintf("error message: %s. dimension ID: %s", errMsg, dimensionId)),
+				Body:      fmt.Appendf(nil, "error message: %s. dimension ID: %s", errMsg, dimensionId),
 			},
 		}
 	}

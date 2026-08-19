@@ -291,7 +291,7 @@ func getExpectedErrCode(err error, errStatusNum int, errCodeKey string) (string,
 	if jsonErr != nil {
 		return "", golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("error parsing the request error: %s", jsonErr)),
+				Body: fmt.Appendf(nil, "error parsing the request error: %s", jsonErr),
 			},
 		}
 	}
@@ -300,8 +300,8 @@ func getExpectedErrCode(err error, errStatusNum int, errCodeKey string) (string,
 		// 4xx means the client parsing was failed.
 		return errCode, golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given status "+
-					"number (%d) and the error code key (%s), the error is: '%v'", errStatusNum, errCodeKey, err)),
+				Body: fmt.Appendf(nil, "Unable to find the error code from the error body using given status "+
+					"number (%d) and the error code key (%s), the error is: '%v'", errStatusNum, errCodeKey, err),
 			},
 		}
 	}

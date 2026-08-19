@@ -278,7 +278,7 @@ func getClusterExceptionRuleByName(client *golangsdk.ServiceClient, clusterId, r
 				Method:    "GET",
 				URL:       "/v1/{project_id}/clusters/{cluster_id}/workload/rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the exception rule (%s) is not found", ruleName)),
+				Body:      fmt.Appendf(nil, "the exception rule (%s) is not found", ruleName),
 			},
 		}
 	}

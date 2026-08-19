@@ -194,7 +194,7 @@ func GetPrometheusInstanceById(client *golangsdk.ServiceClient, isntanceId strin
 				Method:    "GET",
 				URL:       "/v1/{project_id}/aom/prometheus",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("prometheus instance (%s) not found", isntanceId)),
+				Body:      fmt.Appendf(nil, "prometheus instance (%s) not found", isntanceId),
 			},
 		}
 	}

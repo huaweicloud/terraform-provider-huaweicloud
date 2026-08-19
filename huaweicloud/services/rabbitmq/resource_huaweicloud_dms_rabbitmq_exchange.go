@@ -235,7 +235,7 @@ func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, nam
 					Method:    "GET",
 					URL:       "/v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges",
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("the exchange (%s) does not exist", name)),
+					Body:      fmt.Appendf(nil, "the exchange (%s) does not exist", name),
 				},
 			}
 		}

@@ -234,7 +234,7 @@ func GetInstanceLog(client *golangsdk.ServiceClient, instanceId, logType string)
 				Method:    "GET",
 				URL:       "/v2/{project_id}/kafka/instances/{instance_id}/logs/{log_type}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The log (%s) of the instance (%s) has been closed.", logType, instanceId)),
+				Body:      fmt.Appendf(nil, "The log (%s) of the instance (%s) has been closed.", logType, instanceId),
 			},
 		}
 	}

@@ -174,7 +174,7 @@ func listNacosNamespaces(client *golangsdk.ServiceClient, engineId, enterprisePr
 					Method:    "GET",
 					URL:       httpUrl,
 					RequestId: "NONE",
-					Body:      []byte(fmt.Sprintf("the Nacos engine (%s) does not exist", engineId)),
+					Body:      fmt.Appendf(nil, "the Nacos engine (%s) does not exist", engineId),
 				},
 			}
 		default:
@@ -203,8 +203,8 @@ func GetNacosNamespaceById(client *golangsdk.ServiceClient, engineId, enterprise
 				Method:    "GET",
 				URL:       "v1/{project_id}/nacos/v1/console/namespaces",
 				RequestId: "NONE",
-				Body: []byte(fmt.Sprintf("the namespace (%s) has been removed from the Nacos microservice engine (%s)",
-					namespaceId, engineId)),
+				Body: fmt.Appendf(nil, "the namespace (%s) has been removed from the Nacos microservice engine (%s)",
+					namespaceId, engineId),
 			},
 		}
 	}
@@ -328,8 +328,8 @@ func resourceNacosNamespaceDelete(_ context.Context, d *schema.ResourceData, met
 					Method:    "DELETE",
 					URL:       "v1/{project_id}/nacos/v1/console/namespaces?namespaceId={namespace_id}",
 					RequestId: "NONE",
-					Body: []byte(fmt.Sprintf("unable to delete the namespace because the Nacos microservice engine (%s) does not exist",
-						engineId)),
+					Body: fmt.Appendf(nil, "unable to delete the namespace because the Nacos microservice engine (%s) does not exist",
+						engineId),
 				},
 			}
 		}

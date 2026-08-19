@@ -166,7 +166,7 @@ func GetClusterPublicEndpointById(client *golangsdk.ServiceClient, clusterId str
 			Method:    "GET",
 			URL:       "/v1/{project_id}/clusters/{cluster_id}/endpoints",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the public domain is not associated with the cluster (%s)", clusterId)),
+			Body:      fmt.Appendf(nil, "the public domain is not associated with the cluster (%s)", clusterId),
 		},
 	}
 }

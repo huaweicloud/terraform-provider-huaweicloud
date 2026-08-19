@@ -226,7 +226,7 @@ func GetLogStreamById(client *golangsdk.ServiceClient, logGroupId, streamId stri
 				Method:    "GET",
 				URL:       "v2/{project_id}/groups/{log_group_id}/streams",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the log stream (%s) has been deleted", streamId)),
+				Body:      fmt.Appendf(nil, "the log stream (%s) has been deleted", streamId),
 			},
 		}
 	}

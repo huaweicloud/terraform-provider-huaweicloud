@@ -161,7 +161,7 @@ func GetAttachedEntityForDryRunPolicy(client *golangsdk.ServiceClient, policyId 
 			Method:    "GET",
 			URL:       "/v1/organizations/dry-run-policies/{policy_id}/attached-entities",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the attached entity (%s) for dry-run policy (%s) does not exist", entityId, policyId)),
+			Body:      fmt.Appendf(nil, "the attached entity (%s) for dry-run policy (%s) does not exist", entityId, policyId),
 		},
 	}
 }

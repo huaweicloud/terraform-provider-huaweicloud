@@ -211,7 +211,7 @@ func queryPrivateHookByName(client *golangsdk.ServiceClient, name string) (inter
 	if err != nil {
 		return nil, golangsdk.ErrDefault400{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("unable to generate RFS request ID: %s", err)),
+				Body: fmt.Appendf(nil, "unable to generate RFS request ID: %s", err),
 			},
 		}
 	}

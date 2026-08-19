@@ -210,7 +210,7 @@ func GetConsumerGroupByName(client *golangsdk.ServiceClient, instanceId, groupNa
 				Method:    "GET",
 				URL:       getPath,
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the consumer group with name '%s' has been removed", groupName)),
+				Body:      fmt.Appendf(nil, "the consumer group with name '%s' has been removed", groupName),
 			},
 		}
 	}

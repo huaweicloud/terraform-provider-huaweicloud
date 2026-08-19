@@ -135,7 +135,7 @@ func GetV5AgencyAttachedPolicy(client *golangsdk.ServiceClient, agencyId, policy
 				Method:    "GET",
 				URL:       "/v5/agencies/{agency_id}/attached-policies",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The attached policy (%s) of agency (%s) not found", policyId, agencyId)),
+				Body:      fmt.Appendf(nil, "The attached policy (%s) of agency (%s) not found", policyId, agencyId),
 			},
 		}
 	}

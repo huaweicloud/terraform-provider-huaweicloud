@@ -274,7 +274,7 @@ func getEnvironmentByName(client *golangsdk.ServiceClient, epsId, envName string
 				Method:    "GET",
 				URL:       "/v1/{project_id}/cae/environments",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the environment (%s) does not exist", envName)),
+				Body:      fmt.Appendf(nil, "the environment (%s) does not exist", envName),
 			},
 		}
 	}
@@ -346,7 +346,7 @@ func GetEnvironmentById(client *golangsdk.ServiceClient, epsId, resourceId strin
 				Method:    "GET",
 				URL:       "/v1/{project_id}/cae/environments",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the environment (%s) does not exist", resourceId)),
+				Body:      fmt.Appendf(nil, "the environment (%s) does not exist", resourceId),
 			},
 		}
 	}

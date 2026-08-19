@@ -314,7 +314,7 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 			Method:    "GET",
 			URL:       "/api/v1/namespaces",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the namespace (%s) does not exist", id)),
+			Body:      fmt.Appendf(nil, "the namespace (%s) does not exist", id),
 		},
 	}
 }

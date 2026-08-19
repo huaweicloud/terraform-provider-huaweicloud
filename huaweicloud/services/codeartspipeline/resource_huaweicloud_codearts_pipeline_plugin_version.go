@@ -377,7 +377,7 @@ func getPipelinePluginBasicInfos(client *golangsdk.ServiceClient, d *schema.Reso
 				Method:    "POST",
 				URL:       "/v1/{domain_id}/agent-plugin/query-all",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the pipeline plugin (%s) does not exist", pluginName)),
+				Body:      fmt.Appendf(nil, "the pipeline plugin (%s) does not exist", pluginName),
 			},
 		}
 	}

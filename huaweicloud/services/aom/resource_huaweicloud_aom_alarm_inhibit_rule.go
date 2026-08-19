@@ -229,7 +229,7 @@ func GetAlarmInhibitRuleByName(client *golangsdk.ServiceClient, epsId, name stri
 				Method:    "GET",
 				URL:       "/v2/{project_id}/alert/inhibit-rules",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The alarm inhibit rule (%s) not found", name)),
+				Body:      fmt.Appendf(nil, "The alarm inhibit rule (%s) not found", name),
 			},
 		}
 	}

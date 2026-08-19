@@ -99,7 +99,7 @@ func getAuthorizationByName(c *golangsdk.ServiceClient, name string) (*repositor
 			Method:    "GET",
 			URL:       "/v1/{project_id}/git/auths",
 			RequestId: "NONE",
-			Body:      []byte(fmt.Sprintf("the authorization (%s) does not exist", name)),
+			Body:      fmt.Appendf(nil, "the authorization (%s) does not exist", name),
 		},
 	}
 }

@@ -272,7 +272,7 @@ func GetEventRouterClusterById(client *golangsdk.ServiceClient, clusterId string
 				Method:    "GET",
 				URL:       "/v1/{project_id}/eventrouter/clusters/{cluster_id}",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The event router cluster (%s) not found", clusterId)),
+				Body:      fmt.Appendf(nil, "The event router cluster (%s) not found", clusterId),
 			},
 		}
 	}

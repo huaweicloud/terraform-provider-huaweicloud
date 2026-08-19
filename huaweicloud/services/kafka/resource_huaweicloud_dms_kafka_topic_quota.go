@@ -199,7 +199,7 @@ func GetTopicQuotaByTopicName(client *golangsdk.ServiceClient, instanceId, topic
 				Method:    "GET",
 				URL:       "/v2/kafka/{project_id}/instances/{instance_id}/kafka-topic-quota",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("The topic (%s) quota of the instance (%s) was not found.", topicName, instanceId)),
+				Body:      fmt.Appendf(nil, "The topic (%s) quota of the instance (%s) was not found.", topicName, instanceId),
 			},
 		}
 	}

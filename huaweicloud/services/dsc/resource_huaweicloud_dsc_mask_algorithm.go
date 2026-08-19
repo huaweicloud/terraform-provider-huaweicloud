@@ -231,7 +231,7 @@ func GetMaskAlgorithmById(client *golangsdk.ServiceClient, algorithmId string) (
 				Method:    "GET",
 				URL:       "/v2/{project_id}/mask/algorithms",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the mask algorithm (%s) does not exist", algorithmId)),
+				Body:      fmt.Appendf(nil, "the mask algorithm (%s) does not exist", algorithmId),
 			},
 		}
 	}

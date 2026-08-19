@@ -236,7 +236,7 @@ func GetWebTamperProtectionHost(client *golangsdk.ServiceClient, region, epsId, 
 				Method:    "GET",
 				URL:       "/v5/{project_id}/webtamper/hosts",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the HSS web tamper protection host (%s) does not exist", hostId)),
+				Body:      fmt.Appendf(nil, "the HSS web tamper protection host (%s) does not exist", hostId),
 			},
 		}
 	}

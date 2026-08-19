@@ -767,7 +767,7 @@ func resourcePublicationRead(_ context.Context, d *schema.ResourceData, meta int
 				Method:    "GET",
 				URL:       "/v3/{project_id}/instances/{instance_id}/replication/publications",
 				RequestId: "NONE",
-				Body:      []byte(fmt.Sprintf("the RDS publication (%s) does not exist", d.Id())),
+				Body:      fmt.Appendf(nil, "the RDS publication (%s) does not exist", d.Id()),
 			},
 		}, "error retrieving RDS publication")
 	}
