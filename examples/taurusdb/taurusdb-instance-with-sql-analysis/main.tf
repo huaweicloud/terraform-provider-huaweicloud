@@ -15,7 +15,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 data "huaweicloud_taurusdb_flavors" "test" {
   engine                 = "gaussdb-mysql"
   version                = "8.0"
-  availability_zone_mode = "multi"
+  availability_zone_mode = var.availability_zone_mode
 }
 
 locals {
@@ -28,6 +28,15 @@ locals {
 resource "huaweicloud_networking_secgroup" "test" {
   name                 = var.security_group_name
   delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = var.vpc_cidr
+  ports             = var.instance_db_port
+  protocol          = "tcp"
 }
 
 # Generate random password if not provided
@@ -43,7 +52,7 @@ resource "random_password" "test" {
   min_special      = 1
 }
 
-# Create TaurusDB instance
+# Create TaurusDB instance with SQL filter enabled for SQL control rules and auto throttling
 resource "huaweicloud_taurusdb_instance" "test" {
   name                             = var.instance_name
   password                         = var.instance_password != "" ? var.instance_password : try(random_password.test[0].result, null)
@@ -51,8 +60,8 @@ resource "huaweicloud_taurusdb_instance" "test" {
   vpc_id                           = huaweicloud_vpc.test.id
   subnet_id                        = huaweicloud_vpc_subnet.test.id
   security_group_id                = huaweicloud_networking_secgroup.test.id
-  mode                             = "Cluster"
-  availability_zone_mode           = "multi"
+  mode                             = var.instance_mode
+  availability_zone_mode           = var.availability_zone_mode
   master_availability_zone         = local.master_az
   read_replicas                    = var.read_replicas
   enterprise_project_id            = var.enterprise_project_id
@@ -92,71 +101,44 @@ resource "huaweicloud_taurusdb_instance" "test" {
   }
 }
 
-# Query proxy flavors after the instance is created
-data "huaweicloud_taurusdb_proxy_flavors" "test" {
-  instance_id = huaweicloud_taurusdb_instance.test.id
-}
-
 locals {
-  # Sort nodes by name for consistent weight assignment
-  sort_nodes = tolist(values({ for node in huaweicloud_taurusdb_instance.test.nodes : node.name => node }))
+  # Get the master node ID for SQL control rule and auto throttling
+  # The auto throttling feature is only available for primary nodes
+  master_node_id = try([for node in huaweicloud_taurusdb_instance.test.nodes : node.id if node.type == "master"][0], "")
 }
 
-# Create TaurusDB database proxy
-resource "huaweicloud_taurusdb_proxy" "test" {
-  instance_id              = huaweicloud_taurusdb_instance.test.id
-  flavor                   = try(data.huaweicloud_taurusdb_proxy_flavors.test.flavor_groups[0].flavors[0].spec_code, "")
-  node_num                 = var.proxy_node_num
-  proxy_name               = var.proxy_name
-  proxy_mode               = var.proxy_mode
-  route_mode               = var.route_mode
-  subnet_id                = huaweicloud_vpc_subnet.test.id
-  new_node_auto_add_status = var.proxy_new_node_auto_add_status
-  new_node_weight          = var.proxy_new_node_weight
-  port                     = var.proxy_port
-  transaction_split        = var.proxy_transaction_split
-  consistence_mode         = var.proxy_consistence_mode
-  connection_pool_type     = var.proxy_connection_pool_type
-  open_access_control      = var.proxy_open_access_control
-  access_control_type      = var.proxy_open_access_control ? var.access_control_type : null
-  dns_name_prefix          = var.proxy_dns_name_prefix
+# Create TaurusDB SQL concurrency control rule
+# Requires sql_filter_enabled = true on the instance
+resource "huaweicloud_taurusdb_sql_control_rule" "test" {
+  instance_id     = huaweicloud_taurusdb_instance.test.id
+  node_id         = local.master_node_id
+  sql_type        = var.sql_control_rule_sql_type
+  pattern         = var.sql_control_rule_pattern
+  max_concurrency = var.sql_control_rule_max_concurrency
+}
 
-  dynamic "access_control_ip_list" {
-    for_each = var.proxy_access_control_ip_list
-
-    content {
-      ip          = access_control_ip_list.value.ip
-      description = access_control_ip_list.value.description
-    }
-  }
-
-  master_node_weight {
-    id     = try(local.sort_nodes[0].id, "")
-    weight = var.proxy_master_node_weight
-  }
-
-  dynamic "readonly_nodes_weight" {
-    for_each = length(local.sort_nodes) > 1 ? slice(local.sort_nodes, 1, length(local.sort_nodes)) : []
-
-    content {
-      id     = readonly_nodes_weight.value.id
-      weight = var.proxy_readonly_node_weight
-    }
-  }
-
-  dynamic "parameters" {
-    for_each = var.proxy_parameters
-
-    content {
-      name      = parameters.value.name
-      value     = parameters.value.value
-      elem_type = parameters.value.elem_type
-    }
-  }
+# Create TaurusDB SQL auto throttling
+# This feature is only available for primary (master) nodes
+resource "huaweicloud_taurusdb_sql_auto_throttling" "test" {
+  instance_id     = huaweicloud_taurusdb_instance.test.id
+  node_id         = local.master_node_id
+  start_time      = var.sql_auto_throttling_start_time
+  end_time        = var.sql_auto_throttling_end_time
+  condition       = var.sql_auto_throttling_condition
+  cpu_usage       = var.sql_auto_throttling_cpu_usage
+  active_sessions = var.sql_auto_throttling_active_sessions
+  clear_time      = var.sql_auto_throttling_clear_time
+  duration        = var.sql_auto_throttling_duration
+  max_concurrency = var.sql_auto_throttling_max_concurrency
+  retain_sql_rule = var.sql_auto_throttling_retain_sql_rule
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight, parameters,
+      # instance_id and node_id are NoneUpdatable; ignore to prevent destroy failure
+      # when the referenced instance resource is being destroyed
+      instance_id, node_id, retain_sql_rule,
     ]
   }
+
+  depends_on = [huaweicloud_taurusdb_sql_control_rule.test]
 }
