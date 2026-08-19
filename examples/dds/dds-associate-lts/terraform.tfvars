@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_log"
+subnet_name         = "tf_test_log"
+security_group_name = "tf_test_log"
+group_name          = "tf_test_log"
+stream_name         = "tf_test_log"
+instance_name       = "tf_test_log"
