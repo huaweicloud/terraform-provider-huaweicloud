@@ -1,0 +1,13 @@
+vpc_name                = "tf_test_dws_vpc"
+vpc_cidr                = "192.168.0.0/16"
+enterprise_project_id   = "571f1c69-6d32-43d9-8ba5-eff73fc3eebe"
+subnet_name             = "tf_test_dws_subnet"
+security_group_name     = "tf_test_dws_sg"
+cluster_name            = "tf_test_dws_cluster"
+cluster_admin_user_name = "dbadmin"
+cluster_admin_user_pwd  = "YourPassword@123"
+snapshot_name           = "tf_test_dws_snapshot"
+
+region_name = "cn-north-4"
+access_key  = "HPUAJRKWMP3RNL3GOCVB"
+secret_key  = "1NoNZPaKOcKjohbEITi44LAMSk8oR3xPjGIbNidk"
