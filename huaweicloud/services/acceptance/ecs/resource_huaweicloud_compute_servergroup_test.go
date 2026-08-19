@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -156,12 +157,8 @@ func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup
 
 func testAccCheckComputeInstanceInServerGroup(instance *cloudservers.CloudServer, sg *servergroups.ServerGroup) resource.TestCheckFunc {
 	return func(_ *terraform.State) error {
-		if len(sg.Members) > 0 {
-			for _, m := range sg.Members {
-				if m == instance.ID {
-					return nil
-				}
-			}
+		if len(sg.Members) > 0 && slices.Contains(sg.Members, instance.ID) {
+			return nil
 		}
 
 		return fmt.Errorf("instance %s does not belong to server group %s", instance.ID, sg.ID)
