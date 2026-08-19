@@ -1,0 +1,8 @@
+vpc_name                = "tf_test_dws_vpc"
+vpc_cidr                = "192.168.0.0/16"
+subnet_name             = "tf_test_dws_subnet"
+security_group_name     = "tf_test_dws_sg"
+cluster_name            = "tf_test_dws_cluster"
+cluster_admin_user_name = "dbadmin"
+cluster_admin_user_pwd  = "YourPassword@123"
+snapshot_name           = "tf_test_dws_snapshot"
