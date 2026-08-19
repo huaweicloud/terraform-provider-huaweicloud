@@ -4179,7 +4179,7 @@ func flattenLevelAttribute(respValue interface{}) int {
 
 	r, err := strconv.Atoi(stringValue)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %q to int failed.", stringValue)
+		log.Printf("[WARN] convert the string %q to int failed.", stringValue)
 	}
 
 	return r

@@ -131,7 +131,7 @@ func buildGetLbWhitelistsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("enable_whitelist"); ok {
 		enableWhitelist, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'enable_whitelist' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'enable_whitelist' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&enable_whitelist=%v", res, enableWhitelist)
 	}

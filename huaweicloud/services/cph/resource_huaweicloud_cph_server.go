@@ -488,7 +488,7 @@ func buildCreateCphServerRequestBodyBandWidth(rawParams interface{}) map[string]
 
 		shareType, err := strconv.Atoi(utils.ValueIgnoreEmpty(raw["share_type"]).(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse share type: %s", err)
+			log.Printf("[WARN] failed to parse share type: %s", err)
 		}
 		params["band_width_share_type"] = shareType
 
@@ -496,7 +496,7 @@ func buildCreateCphServerRequestBodyBandWidth(rawParams interface{}) map[string]
 		if len(chargeMode) > 0 {
 			chargeModeInteger, err := strconv.Atoi(chargeMode)
 			if err != nil {
-				log.Printf("[ERROR] failed to parse charge mode: %s", err)
+				log.Printf("[WARN] failed to parse charge mode: %s", err)
 			}
 			params["band_width_charge_mode"] = chargeModeInteger
 		}

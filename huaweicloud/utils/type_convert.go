@@ -46,7 +46,7 @@ func StringToInt(i *string) *int {
 
 	r, err := strconv.Atoi(*i)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %q to int failed.", *i)
+		log.Printf("[WARN] convert the string %q to int failed.", *i)
 	}
 	return &r
 }
@@ -56,7 +56,7 @@ func StringToBool(v interface{}) *bool {
 	if v, ok := v.(string); ok {
 		b, err := strconv.ParseBool(v)
 		if err != nil {
-			log.Printf("[ERROR] convert the string %q to boolean failed.", v)
+			log.Printf("[WARN] convert the string %q to boolean failed.", v)
 		}
 
 		return &b
@@ -101,7 +101,7 @@ func StringToJson(jsonStrObj string, defaultVal ...interface{}) interface{} {
 	var jsonResult interface{}
 	err := json.Unmarshal([]byte(jsonStrObj), &jsonResult)
 	if err != nil {
-		log.Printf("[ERROR] Unable to convert the JSON string to the map object: %s", err)
+		log.Printf("[WARN] Unable to convert the JSON string to the map object: %s", err)
 	}
 	return jsonResult
 }
@@ -115,7 +115,7 @@ func StringToJsonArray(jsonStrArray string) interface{} {
 	jsonArray := make([]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(jsonStrArray), &jsonArray)
 	if err != nil {
-		log.Printf("[ERROR] Unable to convert the JSON string to the JSON array: %s", err)
+		log.Printf("[WARN] Unable to convert the JSON string to the JSON array: %s", err)
 	}
 	return jsonArray
 }
@@ -127,7 +127,7 @@ func JsonToString(jsonObj interface{}) string {
 	}
 	jsonStr, err := json.Marshal(jsonObj)
 	if err != nil {
-		log.Printf("[ERROR] Unable to convert the JSON object to string: %s", err)
+		log.Printf("[WARN] Unable to convert the JSON object to string: %s", err)
 	}
 	return string(jsonStr)
 }

@@ -311,7 +311,7 @@ func resourceDmsRabbitMQInstancesRead(_ context.Context, d *schema.ResourceData,
 			}
 			createdAt, err := strconv.ParseInt(utils.PathSearch("created_at", v, "").(string), 10, 64)
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'created_at' field to Int: %s", err)
+				log.Printf("[WARN] error parsing 'created_at' field to Int: %s", err)
 			}
 			totalResults = append(totalResults, map[string]interface{}{
 				"id":                         utils.PathSearch("instance_id", v, nil),

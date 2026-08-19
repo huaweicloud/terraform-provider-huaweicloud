@@ -301,7 +301,7 @@ func buildFullSqlStatisticsMultiQueriesInfo(multiQueries []interface{}) []map[st
 		if v, ok := raw["is_fuzzy"]; ok && v.(string) != "" {
 			isFuzzy, err := strconv.ParseBool(v.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'is_fuzzy' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'is_fuzzy' field to Boolean: %s", err)
 			}
 			params["is_fuzzy"] = isFuzzy
 		}
@@ -331,7 +331,7 @@ func buildFullSqlStatisticsCompareConditionsInfo(compareConditions []interface{}
 		if v, ok := raw["enable_equal"]; ok && v.(string) != "" {
 			enableEqual, err := strconv.ParseBool(v.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'enable_equal' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'enable_equal' field to Boolean: %s", err)
 			}
 			params["enable_equal"] = enableEqual
 		}

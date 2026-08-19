@@ -203,7 +203,7 @@ func flattenDcsFlavors(d *schema.ResourceData, resp interface{}) []map[string]in
 			}
 			capacityFloat, err := strconv.ParseFloat(capacity, floatBitSize)
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'capacity' field to Float: %s", err)
+				log.Printf("[WARN] error parsing 'capacity' field to Float: %s", err)
 			}
 
 			rst = append(rst, map[string]interface{}{

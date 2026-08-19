@@ -203,11 +203,11 @@ func flattenV3Roles(roles []interface{}) []map[string]interface{} {
 	for _, role := range roles {
 		createdAt, err := strconv.ParseInt(utils.PathSearch("created_time", role, "").(string), 10, 64)
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'created_time' field to Integer: %s", err)
+			log.Printf("[WARN] error parsing 'created_time' field to Integer: %s", err)
 		}
 		updatedAt, err := strconv.ParseInt(utils.PathSearch("updated_time", role, "").(string), 10, 64)
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'updated_time' field to Integer: %s", err)
+			log.Printf("[WARN] error parsing 'updated_time' field to Integer: %s", err)
 		}
 
 		result = append(result, map[string]interface{}{

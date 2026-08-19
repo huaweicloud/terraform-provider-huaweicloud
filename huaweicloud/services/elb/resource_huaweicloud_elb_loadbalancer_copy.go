@@ -668,14 +668,14 @@ func buildUpdateLoadBalancerCopyParamsBodyParams(d *schema.ResourceData) map[str
 	if d.HasChange("cross_vpc_backend") {
 		crossVpcBackend, err := strconv.ParseBool(d.Get("cross_vpc_backend").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'cross_vpc_backend' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'cross_vpc_backend' field to Boolean: %s", err)
 		}
 		params["ip_target_enable"] = crossVpcBackend
 	}
 	if d.HasChange("deletion_protection_enable") {
 		deletionProtectionEnable, err := strconv.ParseBool(d.Get("deletion_protection_enable").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
 		}
 		params["deletion_protection_enable"] = deletionProtectionEnable
 	}

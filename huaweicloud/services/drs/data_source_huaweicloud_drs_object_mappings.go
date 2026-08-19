@@ -109,7 +109,7 @@ func buildObjectMappingsRequestBody(d *schema.ResourceData, offset int) map[stri
 	if v, ok := d.GetOk("has_column_info"); ok {
 		hasColumnInfo, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'has_column_info' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'has_column_info' field to Boolean: %s", err)
 		}
 		bodyParams["has_column_info"] = hasColumnInfo
 	}

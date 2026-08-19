@@ -152,7 +152,7 @@ func DataSourceDmsKafkaBackgroundTasksRead(_ context.Context, d *schema.Resource
 		taskCount := utils.PathSearch("task_count", listRespBody, "0").(string)
 		totalCount, err := strconv.Atoi(taskCount)
 		if err != nil {
-			log.Printf("[ERROR] failed to parse task count: %s", err)
+			log.Printf("[WARN] failed to parse task count: %s", err)
 		}
 		if totalCount <= start-1 {
 			break

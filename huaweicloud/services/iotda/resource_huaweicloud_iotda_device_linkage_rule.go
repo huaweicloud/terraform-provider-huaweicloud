@@ -769,7 +769,7 @@ func flattenTriggerAttributes(respBody interface{}) []interface{} {
 func flattenDeviceCommandAttribute(cmd interface{}, actionType string, actionResp interface{}) map[string]interface{} {
 	jsonStr, err := json.Marshal(utils.PathSearch("command_body", cmd, nil))
 	if err != nil {
-		log.Printf("[ERROR] Convert the command_body to string failed: %s", err)
+		log.Printf("[WARN] Convert the command_body to string failed: %s", err)
 	}
 
 	return map[string]interface{}{

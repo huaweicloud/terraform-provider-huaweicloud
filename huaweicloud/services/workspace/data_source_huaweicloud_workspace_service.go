@@ -301,7 +301,7 @@ func parseDataServiceInternetAccessPort(portStr string) int {
 
 	portNum, err = strconv.Atoi(portStr)
 	if err != nil {
-		log.Printf("[ERROR] error converting internet access port (value: %s) from string to integer: %s", portStr, err)
+		log.Printf("[WARN] error converting internet access port (value: %s) from string to integer: %s", portStr, err)
 	}
 	return portNum
 }

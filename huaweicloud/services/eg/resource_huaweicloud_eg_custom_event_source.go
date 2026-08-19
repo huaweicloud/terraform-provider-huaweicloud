@@ -119,7 +119,7 @@ func resourceCustomEventSourceCreate(ctx context.Context, d *schema.ResourceData
 func parseCustomEventSourceDetail(detail interface{}) interface{} {
 	jsonDetail, err := json.Marshal(detail)
 	if err != nil {
-		log.Printf("[ERROR] unable to convert the detail of the custom event source, not json format")
+		log.Printf("[WARN] unable to convert the detail of the custom event source, not json format")
 		return nil
 	}
 	return string(jsonDetail)

@@ -220,14 +220,14 @@ func buildQueryRoleAssignmentsPath(d *schema.ResourceData, getPath string, domai
 	if v, ok := d.GetOk("is_inherited"); ok {
 		isInherited, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'is_inherited' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'is_inherited' field to Boolean: %s", err)
 		}
 		getPath += fmt.Sprintf("&is_inherited=%v", isInherited)
 	}
 	if v, ok := d.GetOk("include_group"); ok {
 		includeGroup, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'include_group' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'include_group' field to Boolean: %s", err)
 		}
 		getPath += fmt.Sprintf("&include_group=%v", includeGroup)
 	}

@@ -319,7 +319,7 @@ func convertAbsoluteStringToInt(respValue interface{}) int {
 
 	r, err := strconv.Atoi(stringValue)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %s to int failed.", stringValue)
+		log.Printf("[WARN] convert the string %s to int failed.", stringValue)
 	}
 
 	return r

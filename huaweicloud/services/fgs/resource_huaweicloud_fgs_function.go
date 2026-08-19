@@ -1377,7 +1377,7 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 		// is disabled.
 		maxInstanceNum, err := strconv.Atoi(strNum.(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse max instance num: %s", err)
+			log.Printf("[WARN] failed to parse max instance num: %s", err)
 		}
 		err = updateFunctionMaxInstanceNum(client, funcUrnWithoutVersion, maxInstanceNum)
 		if err != nil {
@@ -1845,7 +1845,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 	versionConfig, err := flattenFunctionVersions(client, funcUrnWithoutVersion)
 	if err != nil {
 		// Not all regions support the version related API calls.
-		log.Printf("[ERROR] Unable to parsing the function versions: %s", err)
+		log.Printf("[WARN] Unable to parsing the function versions: %s", err)
 	}
 	mErr = multierror.Append(mErr, d.Set("versions", versionConfig))
 
@@ -1942,7 +1942,7 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		// is disabled.
 		maxInstanceNum, err := strconv.Atoi(d.Get("max_instance_num").(string))
 		if err != nil {
-			log.Printf("[ERROR] failed to parse 'max_instance_num': %s", err)
+			log.Printf("[WARN] failed to parse 'max_instance_num': %s", err)
 		}
 		err = updateFunctionMaxInstanceNum(client, funcUrnWithoutVersion, maxInstanceNum)
 		if err != nil {

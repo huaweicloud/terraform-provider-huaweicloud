@@ -596,7 +596,7 @@ func flattenLinkageRuleActions(ruleActions []interface{}) []interface{} {
 				commandBody := utils.PathSearch("command_body", commandCmd, nil)
 				jsonStr, err := json.Marshal(commandBody)
 				if err != nil {
-					log.Printf("[ERROR] Convert the command_body to string failed: %s", err)
+					log.Printf("[WARN] Convert the command_body to string failed: %s", err)
 				}
 
 				rst = append(rst, flattenActionDeviceCommand(actionType, string(jsonStr), deviceCommand))

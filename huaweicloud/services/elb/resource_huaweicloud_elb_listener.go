@@ -377,7 +377,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		if rawIpGroupEnable, ok := d.GetOk("ip_group_enable"); ok {
 			ipGroupEnable, err := strconv.ParseBool(rawIpGroupEnable.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'ip_group_enable' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'ip_group_enable' field to Boolean: %s", err)
 			}
 			ipGroup.Enable = &ipGroupEnable
 		}
@@ -441,7 +441,7 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	if v, ok := d.GetOk("quic_listener_id"); ok {
 		enableQuicUpgrade, err := strconv.ParseBool(d.Get("enable_quic_upgrade").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'enable_quic_upgrade' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'enable_quic_upgrade' field to Boolean: %s", err)
 		}
 		createOpts.QuicConfig = &listeners.QuicConfig{
 			QuicListenerId:    v.(string),
@@ -451,14 +451,14 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	if v, ok := d.GetOk("transparent_client_ip_enable"); ok {
 		transparentClientIpEnable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
 		}
 		createOpts.TransparentClientIP = &transparentClientIpEnable
 	}
 	if v, ok := d.GetOk("nat64_enable"); ok {
 		nat64Enable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'nat64_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'nat64_enable' field to Boolean: %s", err)
 		}
 		createOpts.Nat64Enable = &nat64Enable
 	}
@@ -683,7 +683,7 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChanges("access_policy", "ip_group") {
 		ipGroupEnable, err := strconv.ParseBool(d.Get("ip_group_enable").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'ip_group_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'ip_group_enable' field to Boolean: %s", err)
 		}
 		updateOpts.IpGroup = &listeners.IpGroupUpdate{
 			Type:      d.Get("access_policy").(string),
@@ -783,14 +783,14 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("nat64_enable") {
 		nat64Enable, err := strconv.ParseBool(d.Get("nat64_enable").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'nat64_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'nat64_enable' field to Boolean: %s", err)
 		}
 		updateOpts.Nat64Enable = &nat64Enable
 	}
 	if d.HasChange("transparent_client_ip_enable") {
 		transparentClientIpEnable, err := strconv.ParseBool(d.Get("transparent_client_ip_enable").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'transparent_client_ip_enable' field to Boolean: %s", err)
 		}
 		updateOpts.TransparentClientIP = &transparentClientIpEnable
 	}
@@ -806,7 +806,7 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if v, ok := d.GetOk("quic_listener_id"); ok {
 		enableQuicUpgrade, err := strconv.ParseBool(d.Get("enable_quic_upgrade").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'enable_quic_upgrade' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'enable_quic_upgrade' field to Boolean: %s", err)
 		}
 		quicConfig.QuicListenerId = v.(string)
 		quicConfig.EnableQuicUpgrade = &enableQuicUpgrade

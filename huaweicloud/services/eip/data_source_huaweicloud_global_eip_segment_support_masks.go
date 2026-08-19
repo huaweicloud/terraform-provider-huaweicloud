@@ -107,7 +107,7 @@ func buildGlobalEipSegmentSupportMasksQueryParams(d *schema.ResourceData, marker
 	if raw, ok := d.GetOk("page_reverse"); ok {
 		pageReverse, err := strconv.ParseBool(raw.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'page_reverse' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'page_reverse' field to Boolean: %s", err)
 		}
 		queryParams += fmt.Sprintf("&page_reverse=%v", pageReverse)
 	}

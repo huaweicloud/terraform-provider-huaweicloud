@@ -207,7 +207,7 @@ func unmarshalEventSubscriptionParamsters(paramName, paramVal string) map[string
 	parseResult := make(map[string]interface{})
 	err := json.Unmarshal([]byte(paramVal), &parseResult)
 	if err != nil {
-		log.Printf("[ERROR] Invalid type of the %s, not json format", paramName)
+		log.Printf("[WARN] Invalid type of the %s, not json format", paramName)
 	}
 	return parseResult
 }
@@ -302,7 +302,7 @@ func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
 			if strings.Contains(key, "detail") {
 				jsonDetail, err := json.Marshal(value)
 				if err != nil {
-					log.Printf("[ERROR] unable to convert the detail of the event source, not json format")
+					log.Printf("[WARN] unable to convert the detail of the event source, not json format")
 				} else {
 					element["detail_name"] = key
 					element["detail"] = string(jsonDetail)
@@ -313,7 +313,7 @@ func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
 
 		jsonFilter, err := json.Marshal(source["filter"])
 		if err != nil {
-			log.Printf("[ERROR] unable to convert the event source filter rule, not json format")
+			log.Printf("[WARN] unable to convert the event source filter rule, not json format")
 		} else {
 			element["filter_rule"] = string(jsonFilter)
 		}
@@ -339,7 +339,7 @@ func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
 			if strings.Contains(key, "detail") {
 				jsonDetail, err := json.Marshal(value)
 				if err != nil {
-					log.Printf("[ERROR] unable to convert the detail of the event target, not json format")
+					log.Printf("[WARN] unable to convert the detail of the event target, not json format")
 				} else {
 					element["detail_name"] = key
 					element["detail"] = string(jsonDetail)
@@ -351,7 +351,7 @@ func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
 		if deadLetterQueue, ok := target["dead_letter_queue"]; ok {
 			jsonQueue, err := json.Marshal(deadLetterQueue)
 			if err != nil {
-				log.Printf("[ERROR] unable to convert the dead letter queue of the event target, not json format")
+				log.Printf("[WARN] unable to convert the dead letter queue of the event target, not json format")
 			} else {
 				element["dead_letter_queue"] = string(jsonQueue)
 			}
@@ -360,7 +360,7 @@ func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
 		if transform, ok := target["transform"]; ok {
 			jsonTransform, err := json.Marshal(transform)
 			if err != nil {
-				log.Printf("[ERROR] unable to convert the transform configuration of the event target, not json format")
+				log.Printf("[WARN] unable to convert the transform configuration of the event target, not json format")
 			} else {
 				element["transform"] = string(jsonTransform)
 			}

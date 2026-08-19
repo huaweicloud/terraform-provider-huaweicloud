@@ -268,7 +268,7 @@ func buildSlowSqlDetailMultiQueries(rawParams []interface{}) []map[string]interf
 		if v, ok := param["is_fuzzy"]; ok && v.(string) != "" {
 			isFuzzy, err := strconv.ParseBool(v.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'is_fuzzy' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'is_fuzzy' field to Boolean: %s", err)
 			}
 			query["is_fuzzy"] = isFuzzy
 		}

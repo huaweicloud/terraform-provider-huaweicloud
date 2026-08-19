@@ -192,7 +192,7 @@ func buildCreateDeviceMessagePropertiesParams(properties []interface{}) map[stri
 func buildDeviceMessageTTLRequestValue(value string) interface{} {
 	v, err := strconv.Atoi(value)
 	if err != nil {
-		log.Printf("[ERROR] error converting string value to int value: %s", err)
+		log.Printf("[WARN] error converting string value to int value: %s", err)
 		return nil
 	}
 

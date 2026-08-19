@@ -225,7 +225,7 @@ func buildListFlavorsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("shared"); ok {
 		shared, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'shared' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'shared' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&shared=%v", res, shared)
 	}
@@ -238,14 +238,14 @@ func buildListFlavorsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("flavor_sold_out"); ok {
 		flavorSoldOut, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'flavor_sold_out' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'flavor_sold_out' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&flavor_sold_out=%v", res, flavorSoldOut)
 	}
 	if v, ok := d.GetOk("list_all"); ok {
 		listAll, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'list_all' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'list_all' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&list_all=%v", res, listAll)
 	}

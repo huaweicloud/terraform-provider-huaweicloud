@@ -525,14 +525,14 @@ func buildListRecycleBinLoadBalancersQueryParams(d *schema.ResourceData) string 
 	if v, ok := d.GetOk("guaranteed"); ok {
 		guaranteed, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'guaranteed' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'guaranteed' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&guaranteed=%v", res, guaranteed)
 	}
 	if v, ok := d.GetOk("deletion_protection_enable"); ok {
 		deletionProtectionEnable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'deletion_protection_enable' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&deletion_protection_enable=%v", res, deletionProtectionEnable)
 	}

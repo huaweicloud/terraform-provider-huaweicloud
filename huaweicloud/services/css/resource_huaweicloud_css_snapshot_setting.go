@@ -135,7 +135,7 @@ func buildSnapshotSettingRequestBody(d *schema.ResourceData) map[string]interfac
 	// Set the snapshot policy when enable is true
 	enable, err := strconv.ParseBool(d.Get("enable").(string))
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'enable' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'enable' field to Boolean: %s", err)
 	}
 	if enable {
 		requestBody["indices"] = utils.ValueIgnoreEmpty(d.Get("indices").(string))

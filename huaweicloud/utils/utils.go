@@ -558,11 +558,11 @@ func ConvertMemoryUnit(memory interface{}, diffLevel int) int {
 		var err error
 		memoryInt, err = strconv.Atoi(memory)
 		if err != nil {
-			log.Printf("convert string value (%v) to int fail: %s", memory, err)
+			log.Printf("[WARN] convert string value (%v) to int fail: %s", memory, err)
 			return -1
 		}
 	default:
-		log.Printf("unsupported memory unit type, want 'int' or 'string', but got '%T'", memory)
+		log.Printf("[WARN] unsupported memory unit type, want 'int' or 'string', but got '%T'", memory)
 		return -1
 	}
 

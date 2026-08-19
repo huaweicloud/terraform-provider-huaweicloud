@@ -2752,7 +2752,7 @@ func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Servic
 func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
 	sslOption, err := strconv.ParseBool(d.Get("ssl_option").(string))
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'ssl_option' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'ssl_option' field to Boolean: %s", err)
 	}
 	updateSslOptionOpts := instances.UpdateSslOptionOpts{
 		SslOption: sslOption,
@@ -2875,7 +2875,7 @@ func updateMultiTenantSwitch(ctx context.Context, client *golangsdk.ServiceClien
 
 	multiTenantSwitch, err := strconv.ParseBool(d.Get("multi_tenant_switch").(string))
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'multi_tenant_switch' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'multi_tenant_switch' field to Boolean: %s", err)
 	}
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

@@ -705,12 +705,12 @@ func flattenDatabaseWatermarkEmbedTaskFakeParam(fakeParam interface{}) []map[str
 
 	beginTime, err := strconv.ParseInt(utils.PathSearch("date_begin", fakeParam, "").(string), 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'date_begin' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'date_begin' field to Integer: %s", err)
 	}
 
 	endTime, err := strconv.ParseInt(utils.PathSearch("date_end", fakeParam, "").(string), 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'date_end' field to Integer: %s", err)
+		log.Printf("[WARN] error parsing 'date_end' field to Integer: %s", err)
 	}
 
 	return []map[string]interface{}{

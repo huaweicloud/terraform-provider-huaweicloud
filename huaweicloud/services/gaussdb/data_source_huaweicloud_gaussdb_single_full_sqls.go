@@ -330,7 +330,7 @@ func buildMultiMergeConditionInfo(multiQueries []interface{}) []map[string]inter
 		if v, ok := raw["is_fuzzy"]; ok && v.(string) != "" {
 			isFuzzy, err := strconv.ParseBool(v.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'is_fuzzy' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'is_fuzzy' field to Boolean: %s", err)
 			}
 			params["is_fuzzy"] = isFuzzy
 		}
@@ -360,7 +360,7 @@ func buildCompareConditionInfo(compareConditions []interface{}) []map[string]int
 		if v, ok := raw["enable_equal"]; ok && v.(string) != "" {
 			enableEqual, err := strconv.ParseBool(v.(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'is_fuzzy' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'is_fuzzy' field to Boolean: %s", err)
 			}
 			params["enable_equal"] = enableEqual
 		}
@@ -387,7 +387,7 @@ func buildCompareConditionInfo(compareConditions []interface{}) []map[string]int
 func convertStringtoInt(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %s to int failed.", s)
+		log.Printf("[WARN] convert the string %s to int failed.", s)
 	}
 
 	return i

@@ -210,17 +210,17 @@ func flattenServiceDiscoveryRules(rules []interface{}) []interface{} {
 	for _, rule := range rules {
 		isDefaultRule, err := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "false").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'isDefaultRule' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'isDefaultRule' field to Boolean: %s", err)
 		}
 
 		detectLogEnabled, err := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "false").(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'detectLog' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'detectLog' field to Boolean: %s", err)
 		}
 
 		createdAt, err := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'createTime' field to Int: %s", err)
+			log.Printf("[WARN] error parsing 'createTime' field to Int: %s", err)
 		}
 
 		result = append(result, map[string]interface{}{

@@ -261,7 +261,7 @@ func resourcePolicyBlackWhiteRuleImportState(_ context.Context, d *schema.Resour
 func convertStringtoInt(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		log.Printf("[ERROR] convert the string %s to int failed.", s)
+		log.Printf("[WARN] convert the string %s to int failed.", s)
 	}
 	return i
 }

@@ -150,7 +150,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	if v, ok := d.GetOk("enhanced_local_route"); ok {
 		enhancedLocalRoute, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'enhanced_local_route' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'enhanced_local_route' field to Boolean: %s", err)
 		}
 		createOpts.EnhancedLocalRoute = &enhancedLocalRoute
 	}
@@ -320,7 +320,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 		if d.HasChange("enhanced_local_route") {
 			enhancedLocalRoute, err := strconv.ParseBool(d.Get("enhanced_local_route").(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'enhanced_local_route' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'enhanced_local_route' field to Boolean: %s", err)
 			}
 			updateOpts.EnhancedLocalRoute = &enhancedLocalRoute
 		}

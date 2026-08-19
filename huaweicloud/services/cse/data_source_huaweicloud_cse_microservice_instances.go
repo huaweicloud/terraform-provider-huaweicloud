@@ -236,7 +236,7 @@ func parseMicroserviceInstanceTimestamp(val interface{}) string {
 		if err != nil {
 			// If the type conversion fails, only the error information is recorded in the log, and the program
 			// execution is not interrupted.
-			log.Printf("[ERROR] unable to convert the string (%s) to int: %v", v, err)
+			log.Printf("[WARN] unable to convert the string (%s) to int: %v", v, err)
 			return ""
 		}
 		return utils.FormatTimeStampRFC3339(int64(r), false)

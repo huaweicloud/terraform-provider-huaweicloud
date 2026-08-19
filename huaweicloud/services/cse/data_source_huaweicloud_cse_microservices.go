@@ -257,7 +257,7 @@ func parseMicroservicesTime(timeStampStr string) string {
 	if err != nil {
 		// If the type conversion fails, only the error information is recorded in the log, and the program execution
 		// is not interrupted.
-		log.Printf("[ERROR] unable to convert the string (%s) to int", timeStampStr)
+		log.Printf("[WARN] unable to convert the string (%s) to int", timeStampStr)
 		return ""
 	}
 

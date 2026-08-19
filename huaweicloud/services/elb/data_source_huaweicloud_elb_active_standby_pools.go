@@ -584,7 +584,7 @@ func buildListActiveStandbyPoolsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("connection_drain"); ok {
 		connectionDrain, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'connection_drain' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'connection_drain' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&connection_drain=%v", res, connectionDrain)
 	}

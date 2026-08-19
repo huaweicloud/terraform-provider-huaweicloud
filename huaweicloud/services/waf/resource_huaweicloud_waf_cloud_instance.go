@@ -180,7 +180,7 @@ func getAutoRenewValue(autoRenew string) bool {
 	}
 	result, err := strconv.ParseBool(autoRenew)
 	if err != nil {
-		log.Printf("[ERROR] error parsing auto_renew to Boolean: %s", err)
+		log.Printf("[WARN] error parsing auto_renew to Boolean: %s", err)
 	}
 	return result
 }

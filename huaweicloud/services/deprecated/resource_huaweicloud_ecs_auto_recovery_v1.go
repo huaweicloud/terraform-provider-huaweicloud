@@ -30,7 +30,7 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 	log.Printf("[DEBUG] Retrieved ECS-AutoRecovery:%#v of instance:%s", rId, r)
 	result, err := strconv.ParseBool(r.SupportAutoRecovery)
 	if err != nil {
-		log.Printf("[ERROR] error parsing 'SupportAutoRecovery' field to Boolean: %s", err)
+		log.Printf("[WARN] error parsing 'SupportAutoRecovery' field to Boolean: %s", err)
 	}
 	return result, err
 }

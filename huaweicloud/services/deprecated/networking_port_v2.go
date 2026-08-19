@@ -78,7 +78,7 @@ func flattenNetworkingPortDHCPOptsV2(dhcpOpts extradhcpopts.ExtraDHCPOptsExt) []
 	for i, dhcpOpt := range dhcpOpts.ExtraDHCPOpts {
 		ipVersion, err := strconv.Atoi(dhcpOpt.IPVersion)
 		if err != nil {
-			log.Printf("[ERROR] failed to parse IP version: %s", err)
+			log.Printf("[WARN] failed to parse IP version: %s", err)
 		}
 		dhcpOptsSet[i] = map[string]interface{}{
 			"ip_version": ipVersion,

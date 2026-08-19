@@ -128,7 +128,7 @@ func (w *CentralNetworkPoliciesChangeSetDSWrapper) listCentralNetworkPolicyChang
 func (*CentralNetworkPoliciesChangeSetDSWrapper) setCenNetChaCon(_, data *gjson.Result) map[string]string {
 	changeContent, err := utils.ConvertStructToMap(data, map[string]string{})
 	if err != nil {
-		log.Printf("[ERROR] error converting CC central network policy change set: %s", err)
+		log.Printf("[WARN] error converting CC central network policy change set: %s", err)
 	}
 	return utils.ExpandToStringMap(changeContent)
 }

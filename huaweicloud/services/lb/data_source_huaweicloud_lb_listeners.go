@@ -348,7 +348,7 @@ func buildListListenersQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("http2_enable"); ok {
 		http2Enable, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'http2_enable' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'http2_enable' field to Boolean: %s", err)
 		}
 		res = fmt.Sprintf("%s&http2_enable=%v", res, http2Enable)
 	}

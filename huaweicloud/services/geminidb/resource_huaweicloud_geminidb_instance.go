@@ -1161,7 +1161,7 @@ func resourceGeminiDbInstanceRead(ctx context.Context, d *schema.ResourceData, m
 
 	port, err := strconv.Atoi(utils.PathSearch("port", instance, "0").(string))
 	if err != nil {
-		log.Printf("[ERROR] failed to parse port: %s", err)
+		log.Printf("[WARN] failed to parse port: %s", err)
 	}
 	mErr = multierror.Append(mErr, d.Set("port", port))
 
@@ -1411,7 +1411,7 @@ func flattenGeminiDbInstanceResponseBodyFlavor(d *schema.ResourceData, instance 
 	sizeRaw := utils.PathSearch("groups[0].volume.size", instance, "0").(string)
 	size, err := strconv.Atoi(sizeRaw)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse volume size: %s", err)
+		log.Printf("[WARN] failed to parse volume size: %s", err)
 	}
 
 	flavorRaw := d.Get("flavor").([]interface{})

@@ -154,7 +154,7 @@ func buildMessageTemplateDetail(d *schema.ResourceData) interface{} {
 
 	jsonTemplates, err := json.Marshal(rst)
 	if err != nil {
-		log.Printf("[ERROR] unable to convert the templates into JSON encoding")
+		log.Printf("[WARN] unable to convert the templates into JSON encoding")
 		return ""
 	}
 

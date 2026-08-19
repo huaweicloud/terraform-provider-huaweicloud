@@ -2429,7 +2429,7 @@ func buildInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
 	if v, ok := d.GetOk("system_pass_through"); ok {
 		systemPassThrough, err := strconv.ParseBool(v.(string))
 		if err != nil {
-			log.Printf("[ERROR] error parsing 'system_pass_through' field to Boolean: %s", err)
+			log.Printf("[WARN] error parsing 'system_pass_through' field to Boolean: %s", err)
 		}
 		volRequest.PassThrough = &systemPassThrough
 	}
@@ -2472,7 +2472,7 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 		if vol["delete_on_termination"] != "" {
 			deleteOnTermination, err := strconv.ParseBool(vol["delete_on_termination"].(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'delete_on_termination' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'delete_on_termination' field to Boolean: %s", err)
 			}
 			volRequest.DeleteOnTermination = &deleteOnTermination
 		}
@@ -2485,7 +2485,7 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 		if vol["pass_through"] != "" {
 			passThrough, err := strconv.ParseBool(vol["pass_through"].(string))
 			if err != nil {
-				log.Printf("[ERROR] error parsing 'pass_through' field to Boolean: %s", err)
+				log.Printf("[WARN] error parsing 'pass_through' field to Boolean: %s", err)
 			}
 			volRequest.PassThrough = &passThrough
 		}

@@ -29,7 +29,7 @@ func getApplicationRuleRestrictionFunc(cfg *config.Config, state *terraform.Reso
 
 	count, err := strconv.Atoi(countStr)
 	if err != nil {
-		log.Printf("[ERROR] failed to parse number of rule IDs: %s", err)
+		log.Printf("[WARN] failed to parse number of rule IDs: %s", err)
 	}
 	ruleIds := make([]string, 0)
 	for i := 0; i < count; i++ {

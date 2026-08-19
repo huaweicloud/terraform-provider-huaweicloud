@@ -277,7 +277,7 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	alarmLevel, err := strconv.Atoi(utils.PathSearch("alarm_level", rule, "0").(string))
 	if err != nil {
-		log.Printf("[ERROR] failed to parse alarm level: %s", err)
+		log.Printf("[WARN] failed to parse alarm level: %s", err)
 	}
 
 	mErr := multierror.Append(nil,

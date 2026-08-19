@@ -522,7 +522,7 @@ func flattenBootable(respBody interface{}) bool {
 	bootableString := utils.PathSearch("bootable", respBody, "").(string)
 	bootable, err := strconv.ParseBool(bootableString)
 	if err != nil {
-		log.Printf("[ERROR] the bootable of volume (%s) connot be converted from boolen to string: %s",
+		log.Printf("[WARN] the bootable of volume (%s) connot be converted from boolen to string: %s",
 			utils.PathSearch("id", respBody, "").(string),
 			err)
 	}

@@ -124,7 +124,7 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	for _, flavor := range allFlavors {
 		vCpu, err := strconv.Atoi(flavor.Vcpus)
 		if err != nil {
-			log.Printf("[ERROR] failed to parse VCPUs: %s", err)
+			log.Printf("[WARN] failed to parse VCPUs: %s", err)
 		}
 		if cpu > 0 && vCpu != cpu {
 			continue
