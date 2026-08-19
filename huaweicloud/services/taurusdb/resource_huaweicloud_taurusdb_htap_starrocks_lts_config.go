@@ -28,9 +28,9 @@ var htapLTSConfigNoneUpdatableParams = []string{
 // @API TaurusDB DELETE /v3/{project_id}/starrocks/instances/logs/lts-configs
 func ResourceTaurusDBHtapStarrocksLtsConfig() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTaurusDBHtapStarrocksLtsConfigCreateOrUpdate,
+		CreateContext: resourceTaurusDBHtapStarrocksLtsConfigCreate,
 		ReadContext:   resourceTaurusDBHtapStarrocksLtsConfigRead,
-		UpdateContext: resourceTaurusDBHtapStarrocksLtsConfigCreateOrUpdate,
+		UpdateContext: resourceTaurusDBHtapStarrocksLtsConfigUpdate,
 		DeleteContext: resourceTaurusDBHtapStarrocksLtsConfigDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceTaurusDBHtapStarrocksLtsConfigImportState,
@@ -71,11 +71,10 @@ func ResourceTaurusDBHtapStarrocksLtsConfig() *schema.Resource {
 	}
 }
 
-func resourceTaurusDBHtapStarrocksLtsConfigCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTaurusDBHtapStarrocksLtsConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		region     = cfg.GetRegion(d)
-		httpUrl    = "v3/{project_id}/starrocks/instances/logs/lts-configs"
 		instanceID = d.Get("instance_id").(string)
 		logType    = d.Get("log_type").(string)
 	)
@@ -84,14 +83,7 @@ func resourceTaurusDBHtapStarrocksLtsConfigCreateOrUpdate(ctx context.Context, d
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         buildTaurusDBHtapStarrocksLtsConfigBodyParams(d),
-	}
-	_, err = client.Request("POST", createPath, &createOpt)
+	err = createOrUpdateHtapStarrocksLtsConfig(client, d)
 	if err != nil {
 		return diag.Errorf("error creating TaurusDB HTAP StarRocks LTS config: %s", err)
 	}
@@ -99,6 +91,41 @@ func resourceTaurusDBHtapStarrocksLtsConfigCreateOrUpdate(ctx context.Context, d
 	d.SetId(fmt.Sprintf("%s/%s", instanceID, logType))
 
 	return resourceTaurusDBHtapStarrocksLtsConfigRead(ctx, d, meta)
+}
+
+func resourceTaurusDBHtapStarrocksLtsConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("gaussdb", region)
+	if err != nil {
+		return diag.Errorf("error creating GaussDB client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		err = createOrUpdateHtapStarrocksLtsConfig(client, d)
+		if err != nil {
+			return diag.Errorf("error updating TaurusDB HTAP StarRocks LTS config: %s", err)
+		}
+	}
+
+	return resourceTaurusDBHtapStarrocksLtsConfigRead(ctx, d, meta)
+}
+
+func createOrUpdateHtapStarrocksLtsConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updatePath := client.Endpoint + "v3/{project_id}/starrocks/instances/logs/lts-configs"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildTaurusDBHtapStarrocksLtsConfigBodyParams(d),
+	}
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func buildTaurusDBHtapStarrocksLtsConfigBodyParams(d *schema.ResourceData) map[string]interface{} {

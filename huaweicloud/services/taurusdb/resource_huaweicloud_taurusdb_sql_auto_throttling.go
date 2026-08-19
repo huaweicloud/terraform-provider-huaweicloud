@@ -109,52 +109,52 @@ func ResourceTaurusDBSqlAutoThrottling() *schema.Resource {
 func resourceTaurusDBSqlAutoThrottlingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/auto-sql-limiting"
-		product = "gaussdb"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	instanceId := d.Get("instance_id").(string)
+	nodeId := d.Get("node_id").(string)
+	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating TaurusDB client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
-
-	createOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-	createOpt.JSONBody = utils.RemoveNil(buildCreateSqlAutoThrottlingBodyParams(d))
-
-	createResp, err := client.Request("PUT", createPath, &createOpt)
+	err = createOrUpdateSqlAutoThrottling(ctx, client, d)
 	if err != nil {
-		return diag.Errorf("error creating TaurusDB SQL auto throttling: %s", err)
+		return diag.Errorf("error creating sql auto throttling for TaurusDB instance (%s): %s", instanceId, err)
 	}
-
-	createRespBody, err := utils.FlattenResponse(createResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	instanceId := d.Get("instance_id").(string)
-	nodeId := d.Get("node_id").(string)
 	d.SetId(fmt.Sprintf("%s/%s", instanceId, nodeId))
 
-	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	return resourceTaurusDBSqlAutoThrottlingRead(ctx, d, meta)
+}
+
+func createOrUpdateSqlAutoThrottling(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v3/{project_id}/instances/{instance_id}/auto-sql-limiting"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{instance_id}", d.Get("instance_id").(string))
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildCreateSqlAutoThrottlingBodyParams(d),
+	}
+
+	resp, err := client.Request("PUT", requestPath, &requestOpt)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
 	if jobId == "" {
-		return diag.Errorf("unable to find the job ID from the API response")
+		return fmt.Errorf("error requesting TaurusDB SQL auto throttling: job_id is not found in API response")
 	}
 
 	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for TaurusDB SQL auto throttling job (%s) to complete: %s", jobId, err)
+		return fmt.Errorf("error waiting for TaurusDB SQL auto throttling job (%s) to complete: %s", jobId, err)
 	}
-
-	return resourceTaurusDBSqlAutoThrottlingRead(ctx, d, meta)
+	return nil
 }
 
 func buildCreateSqlAutoThrottlingBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -250,45 +250,17 @@ func resourceTaurusDBSqlAutoThrottlingRead(_ context.Context, d *schema.Resource
 func resourceTaurusDBSqlAutoThrottlingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/auto-sql-limiting"
-		product = "gaussdb"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	instanceId := d.Get("instance_id").(string)
+	client, err := cfg.NewServiceClient("gaussdb", region)
 	if err != nil {
 		return diag.Errorf("error creating TaurusDB client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-	updateOpt.JSONBody = utils.RemoveNil(buildCreateSqlAutoThrottlingBodyParams(d))
-
-	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating TaurusDB SQL auto throttling: %s", err)
-	}
-
-	updateRespBody, err := utils.FlattenResponse(updateResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
-	if jobId == "" {
-		return diag.Errorf("unable to find the job ID from the API response")
-	}
-
-	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("error waiting for TaurusDB SQL auto throttling job (%s) to complete: %s", jobId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = createOrUpdateSqlAutoThrottling(ctx, client, d)
+		if err != nil {
+			return diag.Errorf("error updating sql auto throttling for TaurusDB instance (%s): %s", instanceId, err)
+		}
 	}
 
 	return resourceTaurusDBSqlAutoThrottlingRead(ctx, d, meta)

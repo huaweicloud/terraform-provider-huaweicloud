@@ -46,7 +46,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		CustomizeDiff: config.MergeDefaultTags(),

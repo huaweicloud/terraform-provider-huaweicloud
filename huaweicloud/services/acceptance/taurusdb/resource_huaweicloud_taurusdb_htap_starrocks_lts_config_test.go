@@ -47,7 +47,6 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckTaurusDBHtapInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -56,7 +55,8 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_basic(t *testing.T) {
 				Config: testAccTaurusDBHtapStarrocksLtsConfig_basic(rName, logType),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id",
+						"huaweicloud_taurusdb_htap_starrocks_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_group_id",
 						"huaweicloud_lts_group.test.0", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_stream_id",
@@ -68,7 +68,8 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_basic(t *testing.T) {
 				Config: testAccTaurusDBHtapStarrocksLtsConfig_update(rName, logType),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id",
+						"huaweicloud_taurusdb_htap_starrocks_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_group_id",
 						"huaweicloud_lts_group.test.1", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_stream_id",
@@ -101,7 +102,6 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_slowLog(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckTaurusDBHtapInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -110,7 +110,8 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_slowLog(t *testing.T) {
 				Config: testAccTaurusDBHtapStarrocksLtsConfig_basic(rName, logType),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id",
+						"huaweicloud_taurusdb_htap_starrocks_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_group_id",
 						"huaweicloud_lts_group.test.0", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_stream_id",
@@ -122,7 +123,8 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_slowLog(t *testing.T) {
 				Config: testAccTaurusDBHtapStarrocksLtsConfig_update(rName, logType),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "instance_id", acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id",
+						"huaweicloud_taurusdb_htap_starrocks_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_group_id",
 						"huaweicloud_lts_group.test.1", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "lts_stream_id",
@@ -142,10 +144,12 @@ func TestAccTaurusDBHtapStarrocksLtsConfig_slowLog(t *testing.T) {
 
 func testAccTaurusDBHtapStarrocksLtsConfig_base(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_lts_group" "test" {
   count = 2
 
-  group_name  = "%[1]s_${count.index}"
+  group_name  = "%[2]s_${count.index}"
   ttl_in_days = 1
 }
 
@@ -153,9 +157,9 @@ resource "huaweicloud_lts_stream" "test" {
   count = 2
 
   group_id    = huaweicloud_lts_group.test[count.index].id
-  stream_name = "%[1]s_${count.index}"
+  stream_name = "%[2]s_${count.index}"
 }
-`, rName)
+`, testAccTaurusDBHtapStarrocksInstance_basic(rName), rName)
 }
 
 func testAccTaurusDBHtapStarrocksLtsConfig_basic(rName string, logType string) string {
@@ -163,11 +167,11 @@ func testAccTaurusDBHtapStarrocksLtsConfig_basic(rName string, logType string) s
 %[1]s
 
 resource "huaweicloud_taurusdb_htap_starrocks_lts_config" "test" {
-  instance_id   = "%[2]s"
-  log_type      = "%[3]s"
+  instance_id   = huaweicloud_taurusdb_htap_starrocks_instance.test.id
+  log_type      = "%[2]s"
   lts_group_id  = huaweicloud_lts_group.test[0].id
   lts_stream_id = huaweicloud_lts_stream.test[0].id
-}`, testAccTaurusDBHtapStarrocksLtsConfig_base(rName), acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID, logType)
+}`, testAccTaurusDBHtapStarrocksLtsConfig_base(rName), logType)
 }
 
 func testAccTaurusDBHtapStarrocksLtsConfig_update(rName string, logType string) string {
@@ -175,11 +179,11 @@ func testAccTaurusDBHtapStarrocksLtsConfig_update(rName string, logType string) 
 %[1]s
 
 resource "huaweicloud_taurusdb_htap_starrocks_lts_config" "test" {
-  instance_id   = "%[2]s"
-  log_type      = "%[3]s"
+  instance_id   = huaweicloud_taurusdb_htap_starrocks_instance.test.id
+  log_type      = "%[2]s"
   lts_group_id  = huaweicloud_lts_group.test[1].id
   lts_stream_id = huaweicloud_lts_stream.test[1].id
-}`, testAccTaurusDBHtapStarrocksLtsConfig_base(rName), acceptance.HW_TAURUSDB_HTAP_INSTANCE_ID, logType)
+}`, testAccTaurusDBHtapStarrocksLtsConfig_base(rName), logType)
 }
 
 func testAccTaurusDBHtapStarrocksLtsConfigImportStateIdFunc(name string) resource.ImportStateIdFunc {
