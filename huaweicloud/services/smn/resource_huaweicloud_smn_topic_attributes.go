@@ -175,12 +175,14 @@ func resourceTopicAttributesUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
-	topicUrn := d.Get("topic_urn").(string)
-	name := d.Get("name").(string)
-	value := d.Get("value").(string)
+	if d.HasChangeExcept("enable_force_new") {
+		topicUrn := d.Get("topic_urn").(string)
+		name := d.Get("name").(string)
+		value := d.Get("value").(string)
 
-	if err := updateTopicAttribute(client, topicUrn, name, value); err != nil {
-		return diag.Errorf("error updating attributes (names %s) for topic %s: %s", name, topicUrn, err)
+		if err := updateTopicAttribute(client, topicUrn, name, value); err != nil {
+			return diag.Errorf("error updating attributes (names %s) for topic %s: %s", name, topicUrn, err)
+		}
 	}
 
 	return resourceTopicAttributesRead(ctx, d, meta)

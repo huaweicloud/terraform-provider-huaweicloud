@@ -284,19 +284,21 @@ func resourceNotifyPolicyUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating SMN Client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{topic_urn}", d.Get("topic_urn").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{notify_policy_id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{topic_urn}", d.Get("topic_urn").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{notify_policy_id}", d.Id())
 
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateOpt.JSONBody = buildUpdateNotifyPolicyBodyParams(d)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateOpt.JSONBody = buildUpdateNotifyPolicyBodyParams(d)
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SMN notify policy: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SMN notify policy: %s", err)
+		}
 	}
 
 	return resourceNotifyPolicyRead(ctx, d, meta)
