@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_eip"
+subnet_name         = "tf_test_eip"
+security_group_name = "tf_test_eip"
+eip_bandwidth_name  = "tf_test_eip"
+instance_name       = "tf_test_eip"
