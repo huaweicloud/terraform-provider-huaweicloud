@@ -113,7 +113,7 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: config.MergeDefaultTags(),

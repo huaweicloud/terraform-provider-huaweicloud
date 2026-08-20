@@ -113,7 +113,7 @@ func ResourceVpcSubnetV1() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: config.MergeDefaultTags(),

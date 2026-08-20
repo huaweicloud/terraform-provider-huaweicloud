@@ -18,19 +18,18 @@ import (
 func TestAccTaurusDBSqlAutoThrottling_basic(t *testing.T) {
 	var obj interface{}
 	rName := "huaweicloud_taurusdb_sql_auto_throttling.test"
+	name := acceptance.RandomAccResourceName()
 	rc := acceptance.InitResourceCheck(rName, &obj, getResourceSqlAutoThrottlingFunc)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckTaurusDBInstanceId(t)
-			acceptance.TestAccPreCheckTaurusDBNodeId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTaurusDBSqlAutoThrottling_basic(),
+				Config: testAccTaurusDBSqlAutoThrottling_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "start_time", "00:00"),
@@ -45,7 +44,7 @@ func TestAccTaurusDBSqlAutoThrottling_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccTaurusDBSqlAutoThrottling_update(),
+				Config: testAccTaurusDBSqlAutoThrottling_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "start_time", "02:00"),
@@ -122,11 +121,17 @@ func getResourceSqlAutoThrottlingByQuery(client *golangsdk.ServiceClient, instan
 	return filteredRules[0], nil
 }
 
-func testAccTaurusDBSqlAutoThrottling_basic() string {
+func testAccTaurusDBSqlAutoThrottling_basic(name string) string {
 	return fmt.Sprintf(`
+%s
+
+locals {
+  master_node_id = try([for node in huaweicloud_taurusdb_instance.test.nodes : node.id if node.type == "master"][0], "")
+}
+
 resource "huaweicloud_taurusdb_sql_auto_throttling" "test" {
-  instance_id     = "%[1]s"
-  node_id         = "%[2]s"
+  instance_id     = huaweicloud_taurusdb_instance.test.id
+  node_id         = local.master_node_id
   start_time      = "00:00"
   end_time        = "01:00"
   condition       = "and"
@@ -137,14 +142,20 @@ resource "huaweicloud_taurusdb_sql_auto_throttling" "test" {
   max_concurrency = 1000
   retain_sql_rule = "true"
 }
-`, acceptance.HW_TAURUSDB_INSTANCE_ID, acceptance.HW_TAURUSDB_NODE_ID)
+`, testAccTaurusDBInstanceConfig_basic(name))
 }
 
-func testAccTaurusDBSqlAutoThrottling_update() string {
+func testAccTaurusDBSqlAutoThrottling_update(name string) string {
 	return fmt.Sprintf(`
+%s
+
+locals {
+  master_node_id = try([for node in huaweicloud_taurusdb_instance.test.nodes : node.id if node.type == "master"][0], "")
+}
+
 resource "huaweicloud_taurusdb_sql_auto_throttling" "test" {
-  instance_id     = "%[1]s"
-  node_id         = "%[2]s"
+  instance_id     = huaweicloud_taurusdb_instance.test.id
+  node_id         = local.master_node_id
   start_time      = "02:00"
   end_time        = "03:00"
   condition       = "or"
@@ -155,5 +166,5 @@ resource "huaweicloud_taurusdb_sql_auto_throttling" "test" {
   max_concurrency = 2000
   retain_sql_rule = "false"
 }
-`, acceptance.HW_TAURUSDB_INSTANCE_ID, acceptance.HW_TAURUSDB_NODE_ID)
+`, testAccTaurusDBInstanceConfig_basic(name))
 }
