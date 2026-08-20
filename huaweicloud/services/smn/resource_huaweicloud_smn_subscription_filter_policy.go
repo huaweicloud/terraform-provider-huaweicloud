@@ -147,26 +147,28 @@ func resourceSubscriptionFilterPolicyUpdate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
-	// updateFilterPolicy: create SMN subscription filter policy
-	updateFilterPolicyHttpUrl := "v2/{project_id}/notifications/subscriptions/filter_polices"
-	updateFilterPolicyPath := client.Endpoint + updateFilterPolicyHttpUrl
-	updateFilterPolicyPath = strings.ReplaceAll(updateFilterPolicyPath, "{project_id}", client.ProjectID)
+	if d.HasChangeExcept("enable_force_new") {
+		// updateFilterPolicy: create SMN subscription filter policy
+		updateFilterPolicyHttpUrl := "v2/{project_id}/notifications/subscriptions/filter_polices"
+		updateFilterPolicyPath := client.Endpoint + updateFilterPolicyHttpUrl
+		updateFilterPolicyPath = strings.ReplaceAll(updateFilterPolicyPath, "{project_id}", client.ProjectID)
 
-	updateFilterPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateFilterPolicyOpt.JSONBody = map[string]interface{}{
-		"polices": []map[string]interface{}{
-			{
-				"subscription_urn": d.Id(),
-				"filter_polices":   buildFilterPolicies(d.Get("filter_policies").(*schema.Set).List()),
+		updateFilterPolicyOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateFilterPolicyOpt.JSONBody = map[string]interface{}{
+			"polices": []map[string]interface{}{
+				{
+					"subscription_urn": d.Id(),
+					"filter_polices":   buildFilterPolicies(d.Get("filter_policies").(*schema.Set).List()),
+				},
 			},
-		},
-	}
+		}
 
-	_, err = client.Request("PUT", updateFilterPolicyPath, &updateFilterPolicyOpt)
-	if err != nil {
-		return diag.Errorf("error updating SMN subscription filter policy: %s", err)
+		_, err = client.Request("PUT", updateFilterPolicyPath, &updateFilterPolicyOpt)
+		if err != nil {
+			return diag.Errorf("error updating SMN subscription filter policy: %s", err)
+		}
 	}
 
 	return resourceSubscriptionFilterPolicyRead(ctx, d, meta)
