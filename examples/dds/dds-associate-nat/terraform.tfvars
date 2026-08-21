@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_gateway"
+subnet_name         = "tf_test_gateway"
+security_group_name = "tf_test_gateway"
+gateway_name        = "tf_test_gateway"
+eip_bandwidth_name  = "tf_test_gateway"
+instance_name       = "tf_test_gateway"
