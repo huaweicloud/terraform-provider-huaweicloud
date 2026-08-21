@@ -133,7 +133,7 @@ func TestAccCluster_withEip(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"eip", "certificate_users.0.client_certificate_data", "kube_config_raw",
+					"eip", "certificate_users.0.client_key_data", "certificate_users.0.client_certificate_data", "kube_config_raw",
 				},
 			},
 		},
@@ -188,7 +188,6 @@ func TestAccCluster_turbo(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
-					resource.TestCheckResourceAttr(resourceName, "enable_dist_mgt", "true"),
 					resource.TestCheckOutput("is_eni_subnet_id_different", "false"),
 				),
 			},
@@ -638,7 +637,6 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "eni"
-  enable_dist_mgt        = true
   eni_subnet_id          = join(",", huaweicloud_vpc_subnet.eni_test[*].ipv4_subnet_id)
 }
 

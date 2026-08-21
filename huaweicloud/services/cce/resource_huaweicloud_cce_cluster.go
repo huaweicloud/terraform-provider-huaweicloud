@@ -210,6 +210,7 @@ func ResourceCluster() *schema.Resource {
 			"agency_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"authenticating_proxy_ca": {
 				Type:         schema.TypeString,
