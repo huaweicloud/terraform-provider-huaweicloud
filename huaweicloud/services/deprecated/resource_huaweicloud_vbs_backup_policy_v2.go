@@ -3,6 +3,7 @@ package deprecated
 import (
 	"fmt"
 	"log"
+	"slices"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -417,19 +418,12 @@ func buildWeekFrequencyResource(d *schema.ResourceData) ([]string, error) {
 
 	weekRaws := d.Get("week_frequency").([]interface{})
 	for _, wf := range weekRaws {
-		found := false
-		for _, value := range validateList {
-			if wf.(string) == value {
-				found = true
-				break
-			}
-		}
-
-		if found {
-			weeks = append(weeks, wf.(string))
+		week := wf.(string)
+		if slices.Contains(validateList, week) {
+			weeks = append(weeks, week)
 		} else {
 			return nil, fmt.Errorf("expected item of week_frequency to be one of %v, got %s",
-				validateList, wf.(string))
+				validateList, week)
 		}
 	}
 	return weeks, nil

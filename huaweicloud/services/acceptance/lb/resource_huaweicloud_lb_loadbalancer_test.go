@@ -3,6 +3,7 @@ package lb
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -278,10 +279,8 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 			return err
 		}
 
-		for _, p := range port.SecurityGroups {
-			if p == sg.ID {
-				return nil
-			}
+		if slices.Contains(port.SecurityGroups, sg.ID) {
+			return nil
 		}
 
 		return fmt.Errorf("LoadBalancer does not have the security group")

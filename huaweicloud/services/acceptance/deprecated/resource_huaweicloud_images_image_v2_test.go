@@ -3,6 +3,7 @@ package deprecated
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -236,10 +237,8 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 			return fmt.Errorf("the image is not found, which ID is %s", rs.Primary.ID)
 		}
 
-		for _, v := range found.Tags {
-			if tag == v {
-				return nil
-			}
+		if slices.Contains(found.Tags, tag) {
+			return nil
 		}
 
 		return fmt.Errorf("the tag is not found: %s", tag)
