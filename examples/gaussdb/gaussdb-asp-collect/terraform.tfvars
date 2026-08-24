@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_vpc"
+subnet_name         = "tf_test_subnet"
+security_group_name = "tf_test_security_group"
+instance_name       = "tf_test_gaussdb_instance"
+start_time          = "2026-08-24T09:00:00+0000"
+end_time            = "2026-08-24T12:00:00+0000"
