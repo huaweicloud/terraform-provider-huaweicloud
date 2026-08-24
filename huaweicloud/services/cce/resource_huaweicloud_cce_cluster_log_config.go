@@ -22,8 +22,8 @@ var logConfigNonUpdatableParams = []string{"cluster_id"}
 // @API CCE GET /api/v3/projects/{project_id}/cluster/{cluster_id}/log-configs
 func ResourceClusterLogConfig() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceClusterLogConfigCreateOrUpdate,
-		UpdateContext: resourceClusterLogConfigCreateOrUpdate,
+		CreateContext: resourceClusterLogConfigCreate,
+		UpdateContext: resourceClusterLogConfigUpdate,
 		ReadContext:   resourceClusterLogConfigRead,
 		DeleteContext: resourceClusterLogConfigDelete,
 		Importer: &schema.ResourceImporter{
@@ -108,37 +108,58 @@ func buildLogConfigsCreateBodyParams(d *schema.ResourceData) []map[string]interf
 	return bodyParams
 }
 
-func resourceClusterLogConfigCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		createClusterLogConfigHttpUrl = "api/v3/projects/{project_id}/cluster/{cluster_id}/log-configs"
-		createClusterLogConfigProduct = "cce"
-	)
-
-	clusterID := d.Get("cluster_id").(string)
+func resourceClusterLogConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient(createClusterLogConfigProduct, cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("cce", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	createClusterLogConfigPath := client.Endpoint + createClusterLogConfigHttpUrl
-	createClusterLogConfigPath = strings.ReplaceAll(createClusterLogConfigPath, "{project_id}", client.ProjectID)
-	createClusterLogConfigPath = strings.ReplaceAll(createClusterLogConfigPath, "{cluster_id}", clusterID)
-
-	createClusterLogConfigOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	createClusterLogConfigOpt.JSONBody = utils.RemoveNil(buildClusterLogConfigCreateBodyParams(d))
-	_, err = client.Request("PUT", createClusterLogConfigPath, &createClusterLogConfigOpt)
+	err = updateClusterLogConfig(client, d)
 	if err != nil {
-		return diag.Errorf("error updating CCE cluster log config: %s", err)
+		return diag.Errorf("error creating CCE cluster log config: %s", err)
 	}
 
-	if d.IsNewResource() {
-		d.SetId(clusterID)
-	}
+	d.SetId(d.Get("cluster_id").(string))
 	return resourceClusterLogConfigRead(ctx, d, meta)
+}
+
+func resourceClusterLogConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("cce", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating CCE Client: %s", err)
+	}
+
+	// Only call the update API when a real field changes. Skip it when only
+	// "enable_force_new" is updated to avoid an unnecessary API call.
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateClusterLogConfig(client, d)
+		if err != nil {
+			return diag.Errorf("error updating CCE cluster log config: %s", err)
+		}
+	}
+
+	return resourceClusterLogConfigRead(ctx, d, meta)
+}
+
+// updateClusterLogConfig is the core function that sends a PUT request to create or update the
+// CCE cluster log config.
+func updateClusterLogConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	clusterID := d.Get("cluster_id").(string)
+	updatePath := client.Endpoint + "api/v3/projects/{project_id}/cluster/{cluster_id}/log-configs"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", clusterID)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildClusterLogConfigCreateBodyParams(d))
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
 }
 
 func resourceClusterLogConfigRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

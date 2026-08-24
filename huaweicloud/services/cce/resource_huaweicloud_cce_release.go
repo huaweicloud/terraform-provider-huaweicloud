@@ -247,6 +247,9 @@ func resourceReleaseCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	createReleaseOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	bodyParams, err := buildCreateReleaseBodyParams(d)
@@ -284,6 +287,9 @@ func resourceReleaseRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	getReleaseOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	getReleaseResp, err := getReleaseClient.Request("GET", getReleaseHttpPath, &getReleaseOpt)
@@ -346,23 +352,25 @@ func resourceReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	updateReleasePath := updateReleaseClient.Endpoint + updateReleaseHttpUrl
-	updateReleasePath = strings.ReplaceAll(updateReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
-	updateReleasePath = strings.ReplaceAll(updateReleasePath, "{namespace}", d.Get("namespace").(string))
-	updateReleasePath = strings.ReplaceAll(updateReleasePath, "{name}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updateReleasePath := updateReleaseClient.Endpoint + updateReleaseHttpUrl
+		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
+		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{namespace}", d.Get("namespace").(string))
+		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{name}", d.Id())
 
-	updateReleaseOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
+		updateReleaseOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
 
-	bodyParams, err := buildUpdateReleaseBodyParams(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	updateReleaseOpt.JSONBody = utils.RemoveNil(bodyParams)
-	_, err = updateReleaseClient.Request("PUT", updateReleasePath, &updateReleaseOpt)
-	if err != nil {
-		return diag.Errorf("error updating CCE release: %s", err)
+		bodyParams, err := buildUpdateReleaseBodyParams(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		updateReleaseOpt.JSONBody = utils.RemoveNil(bodyParams)
+		_, err = updateReleaseClient.Request("PUT", updateReleasePath, &updateReleaseOpt)
+		if err != nil {
+			return diag.Errorf("error updating CCE release: %s", err)
+		}
 	}
 
 	return resourceReleaseRead(ctx, d, meta)

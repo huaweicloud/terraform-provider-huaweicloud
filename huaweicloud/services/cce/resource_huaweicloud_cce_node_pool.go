@@ -966,29 +966,31 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	updateOpts, err := buildNodePoolUpdateOpts(d, cfg)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	clusterId := d.Get("cluster_id").(string)
-	nodePoolId := d.Id()
-	_, err = nodepools.Update(cceClient, clusterId, nodePoolId, updateOpts).Extract()
-	if err != nil {
-		return diag.Errorf("error updating CCE node pool (%s): %s", nodePoolId, err)
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updateOpts, err := buildNodePoolUpdateOpts(d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		clusterId := d.Get("cluster_id").(string)
+		nodePoolId := d.Id()
+		_, err = nodepools.Update(cceClient, clusterId, nodePoolId, updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating CCE node pool (%s): %s", nodePoolId, err)
+		}
 
-	stateConf := &retry.StateChangeConf{
-		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, []string{""}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        30 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for CCE node pool (%s) to become available: %s", nodePoolId, err)
+		stateConf := &retry.StateChangeConf{
+			// The statuses of pending phase includes "Synchronizing" and "Synchronized".
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, []string{""}),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        30 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error waiting for CCE node pool (%s) to become available: %s", nodePoolId, err)
+		}
 	}
 
 	return resourceNodePoolRead(ctx, d, meta)
