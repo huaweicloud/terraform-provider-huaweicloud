@@ -1,0 +1,5 @@
+configuration_group_name        = "tf_test_ss_config_group"
+configuration_group_description = "Created by Terraform for ServiceStage best practice example"
+configuration_name              = "tf_test_ss_configuration"
+configuration_content           = "spring.application.name = tf-example-service"
+configuration_description       = "Created by Terraform for ServiceStage best practice example"
