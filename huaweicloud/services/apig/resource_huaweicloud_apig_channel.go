@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
 
@@ -17,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var channelNonUpdatableParams = []string{
+	"instance_id",
+}
 
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}
@@ -33,6 +38,8 @@ func ResourceChannel() *schema.Resource {
 			StateContext: resourceChannelResourceImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(channelNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -44,7 +51,6 @@ func ResourceChannel() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the channel belongs.",
 			},
 			"name": {
@@ -357,6 +363,18 @@ func ResourceChannel() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: `The current status of the channel.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -697,14 +715,17 @@ func resourceChannelUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		channelId = d.Id()
-		opts      = buildChannelUpdateOpts(d)
-	)
-	_, err = channels.Update(client, channelId, opts)
-	if err != nil {
-		return diag.Errorf("error updating APIG channel (%s): %s", channelId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			channelId = d.Id()
+			opts      = buildChannelUpdateOpts(d)
+		)
+		_, err = channels.Update(client, channelId, opts)
+		if err != nil {
+			return diag.Errorf("error updating APIG channel (%s): %s", channelId, err)
+		}
 	}
+
 	return resourceChannelRead(ctx, d, meta)
 }
 

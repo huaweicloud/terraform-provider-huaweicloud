@@ -7,12 +7,19 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/certificates"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var certificateNonUpdatableParams = []string{
+	"type",
+	"instance_id",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/certificates
 // @API APIG DELETE /v2/{project_id}/apigw/certificates/{certificate_id}
@@ -28,6 +35,8 @@ func ResourceCertificate() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(certificateNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -58,14 +67,12 @@ func ResourceCertificate() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: "The certificate type.",
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: "The dedicated instance ID to which the certificate belongs.",
 			},
 			"trusted_root_ca": {
@@ -94,6 +101,18 @@ func ResourceCertificate() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The SAN (Subject Alternative Names) of the certificate.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -163,9 +182,11 @@ func resourceCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	_, err = certificates.Update(client, d.Id(), buildCertificateModifyOpts(d))
-	if err != nil {
-		return diag.Errorf("error updating APIG SSL certificate: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		_, err = certificates.Update(client, d.Id(), buildCertificateModifyOpts(d))
+		if err != nil {
+			return diag.Errorf("error updating APIG SSL certificate: %s", err)
+		}
 	}
 
 	return resourceCertificateRead(ctx, d, meta)

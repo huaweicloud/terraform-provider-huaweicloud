@@ -17,6 +17,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var orchestrationRuleNonUpdatableParams = []string{
+	"instance_id",
+	"is_preprocessing",
+	"mapped_param",
+}
+
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/orchestrations
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/orchestrations/{orchestration_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/orchestrations/{orchestration_id}
@@ -32,6 +38,8 @@ func ResourceOrchestrationRule() *schema.Resource {
 			StateContext: resourceOrchestrationRuleImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(orchestrationRuleNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -43,7 +51,6 @@ func ResourceOrchestrationRule() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the orchestration rule belongs.",
 			},
 			"name": {
@@ -59,13 +66,11 @@ func ResourceOrchestrationRule() *schema.Resource {
 			"is_preprocessing": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Whether rule is a preprocessing rule.",
 			},
 			"mapped_param": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Description:  "The parameter configuration after orchestration, in JSON format.",
 				ValidateFunc: validation.StringIsJSON,
 			},
@@ -87,6 +92,18 @@ func ResourceOrchestrationRule() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the orchestration rule, in RFC3339 format.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -219,18 +236,12 @@ func resourceOrchestrationRuleRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceOrchestrationRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func updateOrchestrationRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
-		cfg             = meta.(*config.Config)
-		region          = cfg.GetRegion(d)
 		httpUrl         = "v2/{project_id}/apigw/instances/{instance_id}/orchestrations/{orchestration_id}"
 		instanceId      = d.Get("instance_id").(string)
 		orchestrationId = d.Id()
 	)
-	client, err := cfg.NewServiceClient("apig", region)
-	if err != nil {
-		return diag.Errorf("error creating APIG client: %s", err)
-	}
 
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -242,9 +253,27 @@ func resourceOrchestrationRuleUpdate(ctx context.Context, d *schema.ResourceData
 		JSONBody:         utils.RemoveNil(buildOrchestrationRuleModifyBodyParams(d)),
 	}
 
-	_, err = client.Request("PUT", updatePath, &opt)
+	_, err := client.Request("PUT", updatePath, &opt)
 	if err != nil {
-		return diag.Errorf("error updating orchestration rule under dedicated instance (%s): %s", instanceId, err)
+		return fmt.Errorf("error updating orchestration rule under dedicated instance (%s): %s", instanceId, err)
+	}
+	return nil
+}
+
+func resourceOrchestrationRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updateOrchestrationRule(client, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceOrchestrationRuleRead(ctx, d, meta)

@@ -164,6 +164,12 @@ func DataSourceApi() *schema.Resource {
 							Computed:    true,
 							Description: "Whether to enable the parameter validation.",
 						},
+						"orchestrations": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The list of orchestration rules that parameter used.",
+						},
 					},
 				},
 				Description: "The configuration list of the front-end parameters.",

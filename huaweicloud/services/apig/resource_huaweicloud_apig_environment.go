@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
@@ -16,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var apigEnvironmentV2NonUpdatableParams = []string{
+	"instance_id",
+}
 
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/envs/{env_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/envs/{env_id}
@@ -32,6 +37,8 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 			StateContext: resourceEnvironmentResourceImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apigEnvironmentV2NonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -43,7 +50,6 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the environment belongs.",
 			},
 			"name": {
@@ -66,6 +72,18 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 				Computed:    true,
 				Deprecated:  "Use 'created_at' instead",
 				Description: `schema: Deprecated; The time when the environment was created.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -145,18 +163,20 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		instanceId    = d.Get("instance_id").(string)
-		environmentId = d.Id()
-	)
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			instanceId    = d.Get("instance_id").(string)
+			environmentId = d.Id()
+		)
 
-	opt := environments.EnvironmentOpts{
-		Name:        d.Get("name").(string), // Due to API restrictions, the name must be provided.
-		Description: utils.String(d.Get("description").(string)),
-	}
-	_, err = environments.Update(client, instanceId, environmentId, opt).Extract()
-	if err != nil {
-		return diag.Errorf("error updating dedicated environment (%s): %s", environmentId, err)
+		opt := environments.EnvironmentOpts{
+			Name:        d.Get("name").(string), // Due to API restrictions, the name must be provided.
+			Description: utils.String(d.Get("description").(string)),
+		}
+		_, err = environments.Update(client, instanceId, environmentId, opt).Extract()
+		if err != nil {
+			return diag.Errorf("error updating dedicated environment (%s): %s", environmentId, err)
+		}
 	}
 
 	return resourceEnvironmentRead(ctx, d, meta)

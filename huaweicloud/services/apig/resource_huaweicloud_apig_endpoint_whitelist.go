@@ -2,10 +2,12 @@ package apig
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/endpoints"
@@ -14,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var endpointWhiteListNonUpdatableParams = []string{
+	"instance_id",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-add
 // @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-delete
@@ -29,6 +35,8 @@ func ResourceEndpointWhiteList() *schema.Resource {
 			StateContext: resourceEndpointWhiteListImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(endpointWhiteListNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -40,7 +48,6 @@ func ResourceEndpointWhiteList() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the endpoint service belongs.",
 			},
 			"whitelists": {
@@ -48,6 +55,18 @@ func ResourceEndpointWhiteList() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The whitelist records of the endpoint service.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -139,6 +158,34 @@ func resourceEndpointWhiteListRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
+func updateEndpointWhiteList(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		instanceId     = d.Get("instance_id").(string)
+		oldRaw, newRaw = d.GetChange("whitelists")
+
+		addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+		rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+
+		err error
+	)
+
+	if rmSet.Len() > 0 {
+		whitelists := utils.ExpandToStringListBySet(rmSet)
+		err = deleteEndpointWhiteListFromApis(client, instanceId, whitelists)
+		if err != nil {
+			return fmt.Errorf("error deleting whitelist records: %s", err)
+		}
+	}
+	if addSet.Len() > 0 {
+		whitelists := utils.ExpandToStringListBySet(addSet)
+		err = createEndpointWhiteListForApis(client, instanceId, whitelists)
+		if err != nil {
+			return fmt.Errorf("error creating whitelist records: %s", err)
+		}
+	}
+	return nil
+}
+
 func resourceEndpointWhiteListUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
@@ -149,27 +196,9 @@ func resourceEndpointWhiteListUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		instanceId = d.Get("instance_id").(string)
-
-		oldRaw, newRaw = d.GetChange("whitelists")
-
-		addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
-		rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
-	)
-
-	if rmSet.Len() > 0 {
-		whitelists := utils.ExpandToStringListBySet(rmSet)
-		err := deleteEndpointWhiteListFromApis(client, instanceId, whitelists)
-		if err != nil {
-			return diag.Errorf("error deleting whitelist records: %s", err)
-		}
-	}
-	if addSet.Len() > 0 {
-		whitelists := utils.ExpandToStringListBySet(addSet)
-		err = createEndpointWhiteListForApis(client, instanceId, whitelists)
-		if err != nil {
-			return diag.Errorf("error creating whitelist records: %s", err)
+	if d.HasChange("whitelists") {
+		if err := updateEndpointWhiteList(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

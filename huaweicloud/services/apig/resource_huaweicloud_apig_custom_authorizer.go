@@ -25,6 +25,11 @@ const (
 	AuthTypeBackend  AuthType = "BACKEND"
 )
 
+var apigCustomAuthorizerV2NonUpdatableParams = []string{
+	"instance_id",
+	"type",
+}
+
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/authorizers/{authorizer_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/authorizers/{authorizer_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/authorizers/{authorizer_id}
@@ -41,6 +46,8 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 			StateContext: resourceCustomAuthorizerImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apigCustomAuthorizerV2NonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -52,7 +59,6 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the custom authorizer belongs.",
 			},
 			"name": {
@@ -95,7 +101,6 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  string(AuthTypeFrontend),
 				ValidateFunc: validation.StringInSlice([]string{
 					string(AuthTypeFrontend), string(AuthTypeBackend),
@@ -149,6 +154,18 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The creation time of the custom authorizer.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -286,13 +303,16 @@ func resourceCustomAuthorizerUpdate(ctx context.Context, d *schema.ResourceData,
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	opt, err := buildCustomAuthorizerOpts(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	_, err = authorizers.Update(client, instanceId, authorizerId, opt).Extract()
-	if err != nil {
-		return diag.Errorf("error updating APIG custom authorizer (%s): %s", authorizerId, err)
+
+	if d.HasChangeExcept("enable_force_new") {
+		opt, err := buildCustomAuthorizerOpts(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		_, err = authorizers.Update(client, instanceId, authorizerId, opt).Extract()
+		if err != nil {
+			return diag.Errorf("error updating APIG custom authorizer (%s): %s", authorizerId, err)
+		}
 	}
 
 	return resourceCustomAuthorizerRead(ctx, d, meta)

@@ -8,12 +8,21 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var environmentVariableNonUpdatableParams = []string{
+	"instance_id",
+	"group_id",
+	"env_id",
+	"name",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/env-variables
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/env-variables/{env_variable_id}
@@ -31,6 +40,8 @@ func ResourceEnvironmentVariable() *schema.Resource {
 			StateContext: resourceEnvironmentVariableResourceImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(environmentVariableNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -42,31 +53,39 @@ func ResourceEnvironmentVariable() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the dedicated instance to which the environment variable belongs.",
 			},
 			"group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the group to which the environment variable belongs.",
 			},
 			"env_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the environment to which the environment variable belongs.",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the name of the environment variable.",
 			},
 			"value": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Specifies the value of the environment variable.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -129,15 +148,17 @@ func resourceEnvironmentVariableUpdate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	variableId := d.Id()
-	opt := environments.UpdateVariableOpts{
-		InstanceId: d.Get("instance_id").(string),
-		VariableId: variableId,
-		Value:      d.Get("value").(string),
-	}
-	_, err = environments.UpdateVariable(client, opt).Extract()
-	if err != nil {
-		return diag.Errorf("error updating dedicated environment variable (%s): %s", variableId, err)
+	if d.HasChange("value") {
+		variableId := d.Id()
+		opt := environments.UpdateVariableOpts{
+			InstanceId: d.Get("instance_id").(string),
+			VariableId: variableId,
+			Value:      d.Get("value").(string),
+		}
+		_, err = environments.UpdateVariable(client, opt).Extract()
+		if err != nil {
+			return diag.Errorf("error updating dedicated environment variable (%s): %s", variableId, err)
+		}
 	}
 
 	return resourceEnvironmentVariableRead(ctx, d, meta)

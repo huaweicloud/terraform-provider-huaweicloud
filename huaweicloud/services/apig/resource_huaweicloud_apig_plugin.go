@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/plugins"
 
@@ -17,6 +18,12 @@ import (
 )
 
 // ResourcePlugin defines the provider resource of the APIG plugin.
+
+var pluginNonUpdatableParams = []string{
+	"instance_id",
+	"type",
+}
+
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
@@ -32,6 +39,8 @@ func ResourcePlugin() *schema.Resource {
 			StateContext: resourcePluginImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(pluginNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -43,7 +52,6 @@ func ResourcePlugin() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the plugin belongs.",
 			},
 			"name": {
@@ -54,7 +62,6 @@ func ResourcePlugin() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The plugin type.",
 			},
 			"content": {
@@ -80,6 +87,18 @@ func ResourcePlugin() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the plugin.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -146,22 +165,24 @@ func resourcePluginUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		pluginId = d.Id()
-		opts     = plugins.UpdateOpts{
-			InstanceId:  d.Get("instance_id").(string),
-			ID:          pluginId,
-			Name:        d.Get("name").(string),
-			Type:        d.Get("type").(string),
-			Scope:       "global",
-			Content:     d.Get("content").(string),
-			Description: utils.String(d.Get("description").(string)),
-		}
-	)
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			pluginId = d.Id()
+			opts     = plugins.UpdateOpts{
+				InstanceId:  d.Get("instance_id").(string),
+				ID:          pluginId,
+				Name:        d.Get("name").(string),
+				Type:        d.Get("type").(string),
+				Scope:       "global",
+				Content:     d.Get("content").(string),
+				Description: utils.String(d.Get("description").(string)),
+			}
+		)
 
-	_, err = plugins.Update(client, opts)
-	if err != nil {
-		return diag.Errorf("error updating the plugin (%s): %s", pluginId, err)
+		_, err = plugins.Update(client, opts)
+		if err != nil {
+			return diag.Errorf("error updating the plugin (%s): %s", pluginId, err)
+		}
 	}
 
 	return resourcePluginRead(ctx, d, meta)

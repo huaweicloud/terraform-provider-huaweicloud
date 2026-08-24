@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,6 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var applicationAclNonUpdatableParams = []string{
+	"instance_id",
+	"application_id",
+}
 
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-acl
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-acl
@@ -31,6 +37,8 @@ func ResourceApplicationAcl() *schema.Resource {
 			StateContext: resourceApplicationAclImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(applicationAclNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -42,13 +50,11 @@ func ResourceApplicationAcl() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the application belongs.",
 			},
 			"application_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the application to which the ACL rules belong.",
 			},
 			"type": {
@@ -61,6 +67,18 @@ func ResourceApplicationAcl() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The ACL values.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -177,9 +195,11 @@ func resourceApplicationAclUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	err = settingACLsToApplication(client, d)
-	if err != nil {
-		return diag.FromErr(err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = settingACLsToApplication(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceApplicationAclRead(ctx, d, meta)

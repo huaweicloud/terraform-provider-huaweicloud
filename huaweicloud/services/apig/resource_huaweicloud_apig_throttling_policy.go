@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/throttles"
@@ -36,6 +37,11 @@ var (
 )
 
 // ResourceApigThrottlingPolicyV2 is a provider resource of the APIG throttling policy.
+
+var apigThrottlingPolicyV2NonUpdatableParams = []string{
+	"instance_id",
+}
+
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}
@@ -56,6 +62,8 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 			StateContext: resourceThrottlingPolicyImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apigThrottlingPolicyV2NonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -67,7 +75,6 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the throttling policy belongs.",
 			},
 			"name": {
@@ -136,6 +143,18 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The creation time of the throttling policy.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -418,7 +437,7 @@ func resourceThrottlingPolicyUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	if d.HasChangesExcept("user_throttles", "app_throttles") {
+	if d.HasChangesExcept("user_throttles", "app_throttles", "enable_force_new") {
 		opt, err := buildThrottlingPolicyOpts(d)
 		if err != nil {
 			return diag.Errorf("unable to get the update option of the throttling policy: %s", err)

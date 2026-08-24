@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -21,6 +22,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var apigInstanceV2NonUpdatableParams = []string{
+	"vpc_id",
+	"subnet_id",
+	"availability_zones",
+	"ipv6_enable",
+	"available_zones",
+	"loadbalancer_provider",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}
@@ -58,7 +68,10 @@ func ResourceApigInstanceV2() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		CustomizeDiff: config.MergeDefaultTags(),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(apigInstanceV2NonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -81,13 +94,11 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The ID of the VPC used to create the dedicated instance.`,
 			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The ID of the VPC subnet used to create the dedicated instance.`,
 			},
 			"security_group_id": {
@@ -99,7 +110,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `schema: Required; The name list of availability zones for the dedicated instance.`,
 			},
@@ -123,7 +133,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Whether public access with an IPv6 address is supported.`,
 			},
 			"elb_ids": {
@@ -236,7 +245,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"available_zones": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `schema: Deprecated; The name list of availability zones for the dedicated instance.`,
 			},
@@ -263,11 +271,22 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Description: utils.SchemaDesc(
 					`The type of loadbalancer provider used by the instance.`,
 					utils.SchemaDescInput{
 						Computed: true,
+					}),
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
 					}),
 			},
 		},

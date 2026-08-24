@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
 
@@ -15,6 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var apigResponseV2NonUpdatableParams = []string{
+	"instance_id",
+	"group_id",
+}
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
@@ -32,6 +38,8 @@ func ResourceApigResponseV2() *schema.Resource {
 			StateContext: resourceCustomResponseImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apigResponseV2NonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -43,14 +51,12 @@ func ResourceApigResponseV2() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: "The ID of the dedicated instance to which the API group and the API custom response " +
 					"belongs.",
 			},
 			"group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the API group to which the API custom response belongs.",
 			},
 			"name": {
@@ -113,6 +119,18 @@ func ResourceApigResponseV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the API custom response.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -247,18 +265,22 @@ func resourceResponseUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	// Only updating the name will cause all the response rules that have been set to be reset, so no matter whether
-	// the response rules are updated or not, the response rules must be carried in the update opt.
-	opt := responses.ResponseOpts{
-		InstanceId: d.Get("instance_id").(string),
-		GroupId:    d.Get("group_id").(string),
-		Name:       d.Get("name").(string),
-		Responses:  buildCustomResponses(d.Get("rule").(*schema.Set)),
+
+	if d.HasChangeExcept("enable_force_new") {
+		// Only updating the name will cause all the response rules that have been set to be reset, so no matter whether
+		// the response rules are updated or not, the response rules must be carried in the update opt.
+		opt := responses.ResponseOpts{
+			InstanceId: d.Get("instance_id").(string),
+			GroupId:    d.Get("group_id").(string),
+			Name:       d.Get("name").(string),
+			Responses:  buildCustomResponses(d.Get("rule").(*schema.Set)),
+		}
+		_, err = responses.Update(client, d.Id(), opt).Extract()
+		if err != nil {
+			return diag.Errorf("error updating APIG custom response: %s", err)
+		}
 	}
-	_, err = responses.Update(client, d.Id(), opt).Extract()
-	if err != nil {
-		return diag.Errorf("error updating APIG custom response: %s", err)
-	}
+
 	return resourceResponseRead(ctx, d, meta)
 }
 

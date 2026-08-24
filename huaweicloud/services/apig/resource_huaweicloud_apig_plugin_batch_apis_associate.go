@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -21,6 +22,13 @@ import (
 var strSliceParamKeysForPluginBatchApisAssociate = []string{"api_ids"}
 
 // ResourcePluginBatchApisAssociate defines the provider resource of the APIG plugin binding.
+
+var pluginBatchApisAssociateNonUpdatableParams = []string{
+	"instance_id",
+	"plugin_id",
+	"env_id",
+}
+
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/detach
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attached-apis
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attach
@@ -35,6 +43,8 @@ func ResourcePluginBatchApisAssociate() *schema.Resource {
 			StateContext: resourcePluginBatchApisAssociateImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(pluginBatchApisAssociateNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -46,19 +56,16 @@ func ResourcePluginBatchApisAssociate() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the plugin belongs.",
 			},
 			"plugin_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The plugin ID.",
 			},
 			"env_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The environment ID where the API was published.",
 			},
 			"api_ids": {
@@ -81,6 +88,18 @@ the new value next time the change is made. The corresponding parameter name is 
 						Internal: true,
 					},
 				),
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -336,6 +355,7 @@ func unbindPluginFromApis(client *golangsdk.ServiceClient, instanceId, pluginId,
 	return mErr.ErrorOrNil()
 }
 
+// nolint:gocyclo
 func resourcePluginBatchApisAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
@@ -343,50 +363,52 @@ func resourcePluginBatchApisAssociateUpdate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		resourceId = d.Id()
-		instanceId = d.Get("instance_id").(string)
-		pluginId   = d.Get("plugin_id").(string)
-		envId      = d.Get("env_id").(string)
+	if d.HasChange("api_ids") {
+		var (
+			resourceId = d.Id()
+			instanceId = d.Get("instance_id").(string)
+			pluginId   = d.Get("plugin_id").(string)
+			envId      = d.Get("env_id").(string)
 
-		consoleApiIds, scriptApiIds = d.GetChange("api_ids")
+			consoleApiIds, scriptApiIds = d.GetChange("api_ids")
 
-		consoleApiIdsList = consoleApiIds.(*schema.Set).List()
-		scriptApiIdsList  = scriptApiIds.(*schema.Set).List()
-		originApiIdsList  = d.Get("api_ids_origin").([]interface{})
-	)
+			consoleApiIdsList = consoleApiIds.(*schema.Set).List()
+			scriptApiIdsList  = scriptApiIds.(*schema.Set).List()
+			originApiIdsList  = d.Get("api_ids_origin").([]interface{})
+		)
 
-	// Lock the resource to prevent concurrent updates (error APIG.3500 will be returned if the etcd data synchronize
-	// failed)
-	config.MutexKV.Lock(resourceId)
-	defer config.MutexKV.Unlock(resourceId)
+		// Lock the resource to prevent concurrent updates (error APIG.3500 will be returned if the etcd data synchronize
+		// failed)
+		config.MutexKV.Lock(resourceId)
+		defer config.MutexKV.Unlock(resourceId)
 
-	newApiIds := utils.FindSliceElementsNotInAnother(scriptApiIdsList, consoleApiIdsList)
-	rmApiIds := utils.FindSliceElementsNotInAnother(originApiIdsList, scriptApiIdsList)
+		newApiIds := utils.FindSliceElementsNotInAnother(scriptApiIdsList, consoleApiIdsList)
+		rmApiIds := utils.FindSliceElementsNotInAnother(originApiIdsList, scriptApiIdsList)
 
-	if len(rmApiIds) > 0 {
-		log.Printf("[DEBUG] Prepare to unbind the specified API IDs: %v", rmApiIds)
-		err := unbindPluginFromApis(client, instanceId, pluginId, envId, rmApiIds)
-		if err != nil {
-			return diag.FromErr(err)
+		if len(rmApiIds) > 0 {
+			log.Printf("[DEBUG] Prepare to unbind the specified API IDs: %v", rmApiIds)
+			err := unbindPluginFromApis(client, instanceId, pluginId, envId, rmApiIds)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
-	}
 
-	if len(newApiIds) > 0 {
-		log.Printf("[DEBUG] Prepare to bind the specified API IDs: %v", newApiIds)
-		err = bindPluginToApis(client, instanceId, pluginId, envId, newApiIds)
-		if err != nil {
-			return diag.FromErr(err)
+		if len(newApiIds) > 0 {
+			log.Printf("[DEBUG] Prepare to bind the specified API IDs: %v", newApiIds)
+			err = bindPluginToApis(client, instanceId, pluginId, envId, newApiIds)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
-	}
 
-	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
-	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
-	// And whether corresponding parameters are changed, the origin values must be refreshed.
-	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginBatchApisAssociate)
-	if err != nil {
-		// Don't fail the update if origin refresh fails
-		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
+		// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
+		// '_origin' attributes for subsequent determination and construction of the request body during next updates.
+		// And whether corresponding parameters are changed, the origin values must be refreshed.
+		err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginBatchApisAssociate)
+		if err != nil {
+			// Don't fail the update if origin refresh fails
+			log.Printf("[WARN] Unable to refresh the origin values: %s", err)
+		}
 	}
 
 	return resourcePluginBatchApisAssociateRead(ctx, d, meta)
