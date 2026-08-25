@@ -1,0 +1,7 @@
+vpc_name                            = "tf_test_ss_vpc"
+environment_name                    = "tf_test_ss_environment"
+environment_description             = "Created by Terraform for ServiceStage best practice example"
+application_name                    = "tf_test_ss_application"
+application_description             = "Created by Terraform for ServiceStage best practice example"
+application_configuration_env_name  = "TF_EXAMPLE_APP_ENV"
+application_configuration_env_value = "tf_example_value"
