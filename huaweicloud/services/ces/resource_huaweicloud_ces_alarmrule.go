@@ -476,10 +476,10 @@ func buildPoliciesOpts(d *schema.ResourceData, globalMetricName string) []map[st
 			"period":              condition["period"],
 			"filter":              condition["filter"],
 			"comparison_operator": condition["comparison_operator"],
-			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"value":               condition["value"],
 			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
 			"count":               condition["count"],
-			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
+			"suppress_duration":   condition["suppress_duration"],
 		}
 
 		if condition["metric_name"].(string) != "" {
@@ -835,10 +835,10 @@ func buildUpdatePoliciesOptsWithAlarmLevel(d *schema.ResourceData, level int, me
 			"period":              condition["period"],
 			"filter":              condition["filter"],
 			"comparison_operator": condition["comparison_operator"],
-			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"value":               condition["value"],
 			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
 			"count":               condition["count"],
-			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
+			"suppress_duration":   condition["suppress_duration"],
 			"level":               level,
 		}
 
@@ -868,10 +868,10 @@ func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, me
 			"period":              condition["period"],
 			"filter":              condition["filter"],
 			"comparison_operator": condition["comparison_operator"],
-			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"value":               condition["value"],
 			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
 			"count":               condition["count"],
-			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
+			"suppress_duration":   condition["suppress_duration"],
 			"metric_name":         metricName,
 		}
 
