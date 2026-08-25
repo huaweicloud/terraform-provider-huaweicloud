@@ -341,11 +341,25 @@ func testCESAlarmRule_instanceBase(rName string) string {
 	return fmt.Sprintf(`
 %s
 
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_images" "test" {
+  name                  = "Ubuntu 18.04 server 64bit"
+  enterprise_project_id = "0"
+}
+
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
   name               = "ecs-%[2]s"
-  image_id           = data.huaweicloud_images_image.test.id
+  image_id           = data.huaweicloud_images_images.test.images[0].id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
@@ -354,7 +368,7 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
-`, common.TestBaseComputeResources(rName), rName)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testCESAlarmRule_topicBase(rName string) string {
