@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.97.2 (Aug 25, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_drs_start_job` [GH-10450]
+
+* **New Data Source:**
+  + `huaweicloud_identity_groups` [GH-10421]
+
 ## 1.97.1 (Aug 18, 2026)
 
 BUG FIXES:
