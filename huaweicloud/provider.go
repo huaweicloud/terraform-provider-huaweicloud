@@ -3902,6 +3902,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_object_compare":                 drs.ResourceObjectCompare(),
 			"huaweicloud_drs_pwd_batch_modify":               drs.ResourcePwdBatchModify(),
 			"huaweicloud_drs_smn_batch_set":                  drs.ResourceDrsSmnBatchSet(),
+			"huaweicloud_drs_start_job":                      drs.ResourceStartJob(),
 			"huaweicloud_drs_stop_job":                       drs.ResourceStopJob(),
 
 			"huaweicloud_dws_alarm_subscription":              dws.ResourceDwsAlarmSubs(),

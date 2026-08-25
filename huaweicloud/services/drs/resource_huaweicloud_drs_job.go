@@ -154,6 +154,12 @@ func ResourceDrsJob() *schema.Resource {
 				ForceNew: true,
 				Default:  14,
 			},
+			"is_start_job": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
+			},
 			"start_time": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -772,29 +778,32 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	startTime := d.Get("start_time").(string)
-	startMode := "start"
-	if startTime != "" && startTime != "0" {
-		startMode = "start_later"
-	}
+	if getIsStartJob(d) {
+		startTime := d.Get("start_time").(string)
+		startMode := "start"
+		if startTime != "" && startTime != "0" {
+			startMode = "start_later"
+		}
 
-	startReq := jobs.StartJobReq{
-		Jobs: []jobs.StartInfo{
-			{
-				JobId:     jobId,
-				StartTime: startTime,
+		startReq := jobs.StartJobReq{
+			Jobs: []jobs.StartInfo{
+				{
+					JobId:     jobId,
+					StartTime: startTime,
+				},
 			},
-		},
-	}
-	_, err = jobs.Start(client, startReq)
-	if err != nil {
-		return diag.Errorf("start DRS job failed,error: %s", err)
+		}
+		_, err = jobs.Start(client, startReq)
+		if err != nil {
+			return diag.Errorf("start DRS job failed,error: %s", err)
+		}
+
+		err = waitingforJobStatus(ctx, client, jobId, startMode, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	err = waitingforJobStatus(ctx, client, jobId, startMode, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
 	return resourceJobRead(ctx, d, meta)
 }
 
@@ -1038,7 +1047,18 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 	)
 
 	// set objects
-	if detail.ObjectSwitch {
+	databases := d.Get("databases")
+	tables := d.Get("tables")
+	if !getIsStartJob(d) {
+		// The job is not started by this resource, the API may not return the selected objects.
+		// Backfill databases/tables from the configuration.
+		if dbSet, ok := databases.(*schema.Set); ok && dbSet.Len() > 0 {
+			mErr = multierror.Append(mErr, d.Set("databases", databases))
+		}
+		if tableSet, ok := tables.(*schema.Set); ok && tableSet.Len() > 0 {
+			mErr = multierror.Append(mErr, d.Set("tables", tables))
+		}
+	} else if detail.ObjectSwitch {
 		objectName := flattenObjectName(detail.ObjectInfos, detail.SyncDatabase)
 		if detail.SyncDatabase {
 			mErr = multierror.Append(mErr,
@@ -1076,6 +1096,18 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
+}
+
+func getIsStartJob(d *schema.ResourceData) bool {
+	if v := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "is_start_job"); v != nil {
+		return v.(bool)
+	}
+	// Import/refresh may not provide RawConfig. Keep the value already stored in state.
+	if v := utils.GetNestedObjectFromRawConfig(d.GetRawState(), "is_start_job"); v != nil {
+		return v.(bool)
+	}
+	// Omitted in configuration: keep the historical behavior of starting the job.
+	return true
 }
 
 func flattenObjectName(objectInfos []jobs.ObjectInfo, isDateBase bool) []interface{} {
