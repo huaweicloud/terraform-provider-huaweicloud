@@ -3,6 +3,7 @@ package deprecated
 import (
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -265,11 +266,9 @@ func assignedPolicyID(fwClient *golangsdk.ServiceClient, ruleID string) (string,
 			return false, err
 		}
 		for _, policy := range policyList {
-			for _, rule := range policy.Rules {
-				if rule == ruleID {
-					policyID = policy.ID
-					return false, nil
-				}
+			if slices.Contains(policy.Rules, ruleID) {
+				policyID = policy.ID
+				return false, nil
 			}
 		}
 		return true, nil

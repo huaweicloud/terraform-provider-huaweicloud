@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
@@ -349,10 +350,8 @@ func resourceImagesImageV2ValidateVisibility(v interface{}, k string) (ws []stri
 		"private",
 	}
 
-	for _, v := range validVisibilities {
-		if value == v {
-			return
-		}
+	if slices.Contains(validVisibilities, value) {
+		return
 	}
 
 	err := fmt.Errorf("%s must be one of %s", k, validVisibilities)
