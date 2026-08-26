@@ -31,7 +31,7 @@ The following arguments are supported:
   + **Manual**: Indicates manual full backup.
   + **Incremental**: Indicates automated incremental backup.
 
-* `instance_id` - (Optional, String) Specifies the ID of the DB instance from which the backup was created.
+* `instance_id` - (Optional, String) Specifies the ID of the DDS instance from which the backup was created.
 
 * `begin_time` - (Optional, String) Specifies the start time of the query. The format is **yyyy-mm-dd hh:mm:ss**.
   The value is in UTC format. It's required with `end_time`.
@@ -39,20 +39,38 @@ The following arguments are supported:
 * `end_time` - (Optional, String) Specifies the end time of the query. The format is **yyyy-mm-dd hh:mm:ss**.
   The value is in UTC format. It's required with `begin_time`.
 
-* `mode` - (Optional, String) Specifies the DB instance mode.
+* `mode` - (Optional, String) Specifies the DDS instance mode.
   The valid values are **Sharding**, **ReplicaSet** and **Single**.
 
-* `instance_name` - (Optional, String) Specifies the name of the DB instance for which the backup is created.
-  Supports fuzzy matching.
+* `instance_name` - (Optional, String) Specifies the name of the DDS instance for which the backup is created.
+  Fuzzy match is supported.
 
-* `backup_name` - (Optional, String) Specifies the backup name. Supports fuzzy matching.
+* `backup_name` - (Optional, String) Specifies the backup name. Fuzzy match is supported.
 
 * `status` - (Optional, String) Specifies the backup status. Valid values are:
   + **BUILDING**: Backup in progress.
   + **COMPLETED**: Backup completed.
   + **FAILED**: Backup failed.
 
-* `description` - (Optional, String) Specifies the backup description. Supports fuzzy matching.
+* `description` - (Optional, String) Specifies the backup description. Fuzzy match is supported.
+
+* `order_field` - (Optional, String) Specifies the sort field. It's required with `order_rule`.
+  The valid values are as follows:
+  + **name**: Indicates backup name.
+  + **instanceName**: Indicates instance name.
+  + **type**: Indicates backup type.
+  + **datastoreType**: Indicates engine type.
+  + **beginTime**: Indicates start time.
+  + **status**: Indicates backup status.
+
+  If this parameter is not specified, backups are sorted in descending order based on the backup start time.
+
+* `order_rule` - (Optional, String) Specifies the sort rule. It's required with `order_field`.
+  The valid values are as follows:
+  + **asc**: Indicates ascending order.
+  + **desc**: Indicates descending order.
+
+  If this parameter is not specified, backups are sorted in descending order based on the backup start time.
 
 ## Attribute Reference
 
@@ -88,6 +106,28 @@ The `backups` block supports:
 * `status` - Indicates the backup status.
 
 * `description` - Indicates the backup description.
+
+* `instance_status` - Indicates the instance status.
+  + **normal**: An instance is running normally.
+  + **abnormal**: An instance is abnormal.
+  + **creating**: An instance is being created.
+  + **frozen**: An instance is frozen.
+  + **data_disk_full**: The storage space is full.
+  + **enlargefail**: Nodes failed to be added to the instance.
+
+* `instance_mode` - Indicates the instance mode..
+
+* `is_instance_restoring` - Whether the current instance is being restored or checked.
+
+* `backup_method` - Indicates the backup method.
+  + **Snapshot**: Indicates snapshot backup.
+  + **Physical**: Indicates physical backup.
+  + **Logical**: Indicates logical backup.
+  + **Incremental**: Indicates incremental backup.
+
+* `kms_enable` - Whether KMS encryption is enabled.
+
+* `deletable` - Whether the backup can be deleted.
 
 <a name="backups_datastore_struct"></a>
 The `datastore` block supports:

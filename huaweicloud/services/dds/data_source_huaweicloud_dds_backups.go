@@ -72,6 +72,16 @@ func DataSourceDDSBackups() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"order_field": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"order_rule"},
+			},
+			"order_rule": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"order_field"},
+			},
 			"backups": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -131,6 +141,30 @@ func DataSourceDDSBackups() *schema.Resource {
 						},
 						"description": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_instance_restoring": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"backup_method": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"kms_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"deletable": {
+							Type:     schema.TypeBool,
 							Computed: true,
 						},
 					},
@@ -210,17 +244,23 @@ func flattenBackups(resp []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(resp))
 	for _, v := range resp {
 		result = append(result, map[string]interface{}{
-			"id":            utils.PathSearch("id", v, nil),
-			"name":          utils.PathSearch("name", v, nil),
-			"instance_id":   utils.PathSearch("instance_id", v, nil),
-			"instance_name": utils.PathSearch("instance_name", v, nil),
-			"datastore":     flattenGetBackupResponseDatastore(v),
-			"type":          utils.PathSearch("type", v, nil),
-			"begin_time":    utils.PathSearch("begin_time", v, nil),
-			"end_time":      utils.PathSearch("end_time", v, nil),
-			"status":        utils.PathSearch("status", v, nil),
-			"size":          utils.PathSearch("size", v, nil),
-			"description":   utils.PathSearch("description", v, nil),
+			"id":                    utils.PathSearch("id", v, nil),
+			"name":                  utils.PathSearch("name", v, nil),
+			"instance_id":           utils.PathSearch("instance_id", v, nil),
+			"instance_name":         utils.PathSearch("instance_name", v, nil),
+			"datastore":             flattenGetBackupResponseDatastore(v),
+			"type":                  utils.PathSearch("type", v, nil),
+			"begin_time":            utils.PathSearch("begin_time", v, nil),
+			"end_time":              utils.PathSearch("end_time", v, nil),
+			"status":                utils.PathSearch("status", v, nil),
+			"size":                  utils.PathSearch("size", v, nil),
+			"description":           utils.PathSearch("description", v, nil),
+			"instance_status":       utils.PathSearch("instance_status", v, nil),
+			"instance_mode":         utils.PathSearch("instance_mode", v, nil),
+			"is_instance_restoring": utils.PathSearch("is_instance_restoring", v, nil),
+			"backup_method":         utils.PathSearch("backup_method", v, nil),
+			"kms_enable":            utils.PathSearch("kms_enable", v, nil),
+			"deletable":             utils.PathSearch("deletable", v, nil),
 		})
 	}
 
@@ -259,6 +299,12 @@ func buildBackupsQueryParams(d *schema.ResourceData) string {
 	}
 	if description, ok := d.GetOk("description"); ok {
 		queryParams += fmt.Sprintf("&backup_description=%s", description)
+	}
+	if orderField, ok := d.GetOk("order_field"); ok {
+		queryParams += fmt.Sprintf("&order_field=%s", orderField)
+	}
+	if orderRule, ok := d.GetOk("order_rule"); ok {
+		queryParams += fmt.Sprintf("&order_rule=%s", orderRule)
 	}
 
 	return queryParams

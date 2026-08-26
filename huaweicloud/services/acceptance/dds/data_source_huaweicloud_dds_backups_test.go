@@ -38,6 +38,12 @@ func TestAccDatasourceDdsBackups_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "backups.0.datastore.#"),
 					resource.TestCheckResourceAttrSet(dataSource, "backups.0.datastore.0.version"),
 					resource.TestCheckResourceAttrSet(dataSource, "backups.0.datastore.0.type"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.instance_status"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.instance_mode"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.is_instance_restoring"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.backup_method"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.kms_enable"),
+					resource.TestCheckResourceAttrSet(dataSource, "backups.0.deletable"),
 
 					resource.TestCheckOutput("is_backup_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_backup_name_filter_useful", "true"),
@@ -47,6 +53,8 @@ func TestAccDatasourceDdsBackups_basic(t *testing.T) {
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 					resource.TestCheckOutput("is_description_filter_useful", "true"),
 					resource.TestCheckOutput("is_time_filter_useful", "true"),
+					resource.TestCheckOutput("is_mode_filter_useful", "true"),
+					resource.TestCheckOutput("is_sort_filter_useful", "true"),
 				),
 			},
 		},
@@ -175,6 +183,39 @@ data "huaweicloud_dds_backups" "filter_by_time" {
 
 output "is_time_filter_useful" {
   value = length(data.huaweicloud_dds_backups.filter_by_description.backups) > 0
+}
+
+// filter by mode
+locals {
+  mode = data.huaweicloud_dds_backups.test.backups[0].instance_mode
+}
+
+data "huaweicloud_dds_backups" "filter_by_mode" {
+  mode = local.mode
+}
+
+output "is_mode_filter_useful" {
+  value = length(data.huaweicloud_dds_backups.filter_by_mode.backups) > 0 && alltrue(
+    [for v in data.huaweicloud_dds_backups.filter_by_mode.backups[*].instance_mode : v == local.mode]
+  )
+}
+
+// filter by order_field and order_rule
+data "huaweicloud_dds_backups" "filter_by_sort" {
+  order_field = "beginTime"
+  order_rule  = "asc"
+}
+
+locals {
+  len     = length(data.huaweicloud_dds_backups.filter_by_mode.backups)
+  result1 = data.huaweicloud_dds_backups.test.backups[local.len - 1].id
+  result2 = data.huaweicloud_dds_backups.filter_by_sort.backups[0].id
+}
+
+output "is_sort_filter_useful" {
+  value = length(data.huaweicloud_dds_backups.filter_by_sort.backups) > 0 && (
+    local.result1 == local.result2
+  )
 }
 `
 }
