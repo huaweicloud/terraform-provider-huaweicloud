@@ -361,12 +361,14 @@ func ResourceDrsJob() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				RequiredWith: []string{"slave_az"},
 			},
 			"slave_az": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				RequiredWith: []string{"master_az"},
 			},
 
@@ -509,6 +511,12 @@ func dbInfoSchemaResource() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"az_code": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"port": {
 				Type:     schema.TypeInt,
@@ -1797,6 +1805,7 @@ func buildDbConfigParamter(d *schema.ResourceData, dbType, projectId string) (*j
 	configRaw := d.Get(dbType).([]interface{})[0].(map[string]interface{})
 	configs := jobs.Endpoint{
 		DbType:              configRaw["engine_type"].(string),
+		AzCode:              configRaw["az_code"].(string),
 		Ip:                  configRaw["ip"].(string),
 		DbName:              configRaw["name"].(string),
 		DbUser:              configRaw["user"].(string),
@@ -1845,10 +1854,12 @@ func buildKafkaSecurityConfigParamter(kafkaSecurityConfig []interface{}) *jobs.K
 
 func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName string) error {
 	result := make([]interface{}, 1)
-	// IP sometimes will not same as input, if input 1, will return 2
+	// IP sometimes will not same as input, if input 1, will return 2.
+	// Query API does not return endpoint `az_code`, keep the configured value to avoid ForceNew drift.
 	item := map[string]interface{}{
 		"engine_type":           endpoint.DbType,
 		"ip":                    d.Get(fieldName + ".0.ip"),
+		"az_code":               d.Get(fieldName + ".0.az_code"),
 		"port":                  endpoint.DbPort,
 		"password":              endpoint.DbPassword,
 		"user":                  endpoint.DbUser,
