@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls"
@@ -19,6 +20,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var aclPolicyAssociateNonUpdatableParams = []string{
+	"instance_id",
+	"policy_id",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings/unbinded-apis
@@ -41,6 +47,8 @@ func ResourceAclPolicyAssociate() *schema.Resource {
 			StateContext: resourceAclPolicyAssociateImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(aclPolicyAssociateNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -52,13 +60,11 @@ func ResourceAclPolicyAssociate() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the APIs and the ACL policy belong.",
 			},
 			"policy_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ACL Policy ID for APIs binding.",
 			},
 			"publish_ids": {
@@ -66,6 +72,18 @@ func ResourceAclPolicyAssociate() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The publish IDs corresponding to the APIs bound by the ACL policy.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -336,31 +354,33 @@ func resourceAclPolicyAssociateUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		instanceId     = d.Get("instance_id").(string)
-		policyId       = d.Get("policy_id").(string)
-		oldRaw, newRaw = d.GetChange("publish_ids")
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			instanceId     = d.Get("instance_id").(string)
+			policyId       = d.Get("policy_id").(string)
+			oldRaw, newRaw = d.GetChange("publish_ids")
 
-		addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
-		rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
-	)
+			addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+			rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+		)
 
-	if rmSet.Len() > 0 {
-		opt := buildAclPolicyListOpts(instanceId, policyId)
-		err = unbindAclPolicy(ctx, client, opt, rmSet, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.FromErr(err)
+		if rmSet.Len() > 0 {
+			opt := buildAclPolicyListOpts(instanceId, policyId)
+			err = unbindAclPolicy(ctx, client, opt, rmSet, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
-	}
-	if addSet.Len() > 0 {
-		opt := acls.BindOpts{
-			InstanceId: instanceId,
-			PolicyId:   policyId,
-			PublishIds: utils.ExpandToStringListBySet(addSet),
-		}
-		err = bindAclPolicyToApis(ctx, client, opt, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.FromErr(err)
+		if addSet.Len() > 0 {
+			opt := acls.BindOpts{
+				InstanceId: instanceId,
+				PolicyId:   policyId,
+				PublishIds: utils.ExpandToStringListBySet(addSet),
+			}
+			err = bindAclPolicyToApis(ctx, client, opt, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 

@@ -144,7 +144,7 @@ resource "huaweicloud_apig_api" "web" {
     request_protocol = "HTTP"
     timeout          = 30000
     retry_count      = 1
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   web_policy {
@@ -156,7 +156,7 @@ resource "huaweicloud_apig_api" "web" {
     timeout          = 30000
     retry_count      = 1
     vpc_channel_id   = huaweicloud_apig_channel.test.id
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
 
     backend_params {
       type              = "SYSTEM"
@@ -189,25 +189,25 @@ resource "huaweicloud_apig_api" "func_graph" {
   description             = "Created by script"
 
   func_graph {
-    function_urn     = huaweicloud_fgs_function.test[1].urn
+    function_urn     = trimsuffix(huaweicloud_fgs_function.test[1].urn, ":latest")
     version          = tolist(huaweicloud_fgs_function.test[1].versions)[0].name
     network_type     = "V2"
     request_protocol = "GRPCS"
     timeout          = 5000
     invocation_type  = "sync"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   func_graph_policy {
     name             = "%[2]s_fgs_policy"
-    function_urn     = huaweicloud_fgs_function.test[1].urn
+    function_urn     = trimsuffix(huaweicloud_fgs_function.test[1].urn, ":latest")
     version          = tolist(huaweicloud_fgs_function.test[1].versions)[0].name
     network_type     = "V2"
     request_protocol = "GRPCS"
     timeout          = 5000
     invocation_type  = "sync"
     effective_mode   = "ANY"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
 
     conditions {
       source      = "cookie"
@@ -236,14 +236,14 @@ resource "huaweicloud_apig_api" "mock" {
   mock {
     status_code   = 201
     response      = "{'message':'hello world'}"
-    authorizer_id = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   mock_policy {
     name           = "%[2]s_mock_policy"
     status_code    = 201
     response       = "{'message':'hello world'}"
-    authorizer_id  = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id  = huaweicloud_apig_custom_authorizer.backend.id
     effective_mode = "ANY"
 
     conditions {

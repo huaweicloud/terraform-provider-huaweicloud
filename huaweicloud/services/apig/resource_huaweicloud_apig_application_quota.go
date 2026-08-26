@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -15,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var applicationQuotaNonUpdatableParams = []string{
+	"instance_id",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/app-quotas
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}
@@ -31,6 +36,8 @@ func ResourceApplicationQuota() *schema.Resource {
 			StateContext: resourceApplicationQuotaImport,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(applicationQuotaNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -41,7 +48,6 @@ func ResourceApplicationQuota() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the dedicated instance to which the application quota belongs.",
 			},
 			"name": {
@@ -78,6 +84,18 @@ func ResourceApplicationQuota() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The creation time of the application quota, in RFC3339 format.`,
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -182,19 +200,11 @@ func resourceApplicationQuotaRead(_ context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func resourceApplicationQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func updateApplicationQuota(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}"
 
-	updateQuotaHttpUrl := "v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}"
-	updateQuotaProduct := "apig"
-
-	updateQuotaClient, err := cfg.NewServiceClient(updateQuotaProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating APIG Client: %s", err)
-	}
-	updateQuotaPath := updateQuotaClient.Endpoint + updateQuotaHttpUrl
-	updateQuotaPath = strings.ReplaceAll(updateQuotaPath, "{project_id}", updateQuotaClient.ProjectID)
+	updateQuotaPath := client.Endpoint + httpUrl
+	updateQuotaPath = strings.ReplaceAll(updateQuotaPath, "{project_id}", client.ProjectID)
 	updateQuotaPath = strings.ReplaceAll(updateQuotaPath, "{instance_id}", d.Get("instance_id").(string))
 	updateQuotaPath = strings.ReplaceAll(updateQuotaPath, "{app_quota_id}", d.Id())
 
@@ -203,10 +213,28 @@ func resourceApplicationQuotaUpdate(ctx context.Context, d *schema.ResourceData,
 		JSONBody:         buildQuotaParams(d),
 	}
 
-	_, err = updateQuotaClient.Request("PUT", updateQuotaPath, &updateQuotaOpt)
+	_, err := client.Request("PUT", updateQuotaPath, &updateQuotaOpt)
 	if err != nil {
-		return diag.Errorf("error updating APIG application quota: %s", err)
+		return fmt.Errorf("error updating APIG application quota: %s", err)
 	}
+	return nil
+}
+
+func resourceApplicationQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG Client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updateApplicationQuota(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceApplicationQuotaRead(ctx, d, meta)
 }
 

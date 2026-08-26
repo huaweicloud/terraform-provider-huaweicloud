@@ -9,15 +9,22 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/signs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // ResourceSignature is a provider resource of the APIG signature.
+
+var signatureNonUpdatableParams = []string{
+	"instance_id",
+}
+
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/signs/{sign_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/signs/{sign_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/signs
@@ -33,6 +40,8 @@ func ResourceSignature() *schema.Resource {
 			StateContext: resourceSignatureImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(signatureNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -44,7 +53,6 @@ func ResourceSignature() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the signature belongs.",
 			},
 			"name": {
@@ -85,6 +93,18 @@ func ResourceSignature() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the signature.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -163,22 +183,25 @@ func resourceSignatureUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		signatureId = d.Id()
-		opts        = signs.UpdateOpts{
-			InstanceId:    d.Get("instance_id").(string),
-			SignatureId:   signatureId,
-			Name:          d.Get("name").(string),
-			SignType:      d.Get("type").(string),
-			SignKey:       d.Get("key").(string),
-			SignSecret:    d.Get("secret").(string),
-			SignAlgorithm: d.Get("algorithm").(string),
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			signatureId = d.Id()
+			opts        = signs.UpdateOpts{
+				InstanceId:    d.Get("instance_id").(string),
+				SignatureId:   signatureId,
+				Name:          d.Get("name").(string),
+				SignType:      d.Get("type").(string),
+				SignKey:       d.Get("key").(string),
+				SignSecret:    d.Get("secret").(string),
+				SignAlgorithm: d.Get("algorithm").(string),
+			}
+		)
+		_, err = signs.Update(client, opts)
+		if err != nil {
+			return diag.Errorf("error updating the signature (%s): %s", signatureId, err)
 		}
-	)
-	_, err = signs.Update(client, opts)
-	if err != nil {
-		return diag.Errorf("error updating the signature (%s): %s", signatureId, err)
 	}
+
 	return resourceSignatureRead(ctx, d, meta)
 }
 

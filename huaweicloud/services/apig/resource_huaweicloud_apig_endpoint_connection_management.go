@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -17,6 +18,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var endpointConnectionManagementNonUpdatableParams = []string{
+	"instance_id",
+	"endpoint_id",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/connections/action
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/connections
@@ -36,6 +42,8 @@ func ResourceEndpointConnectionManagement() *schema.Resource {
 			Update: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(endpointConnectionManagementNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -46,13 +54,11 @@ func ResourceEndpointConnectionManagement() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the dedicated instance to which the endpoint connection belongs.",
 			},
 			"endpoint_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the endpoint connection.",
 			},
 			"action": {
@@ -64,6 +70,18 @@ func ResourceEndpointConnectionManagement() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The current ststus of the endpoint connection.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}

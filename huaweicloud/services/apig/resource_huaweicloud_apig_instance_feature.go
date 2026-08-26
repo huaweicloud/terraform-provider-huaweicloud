@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -20,6 +21,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var instanceFeatureNonUpdatableParams = []string{
+	"instance_id",
+	"name",
+}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/features
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/features
@@ -38,6 +44,8 @@ func ResourceInstanceFeature() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(instanceFeatureNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -48,13 +56,11 @@ func ResourceInstanceFeature() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specified the ID of the dedicated instance to which the feature belongs.",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specified the name of the feature.",
 			},
 			"enabled": {
@@ -67,6 +73,18 @@ func ResourceInstanceFeature() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Specified the detailed configuration of the feature.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -234,9 +252,11 @@ func resourceInstanceFeatureUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	_, err = updateFeatureConfiguration(ctx, client, d, instanceId, featureName)
-	if err != nil {
-		return diag.Errorf("error updating feature (%s) under specified instance (%s): %s", featureName, instanceId, err)
+	if d.HasChangeExcept("enable_force_new") {
+		_, err = updateFeatureConfiguration(ctx, client, d, instanceId, featureName)
+		if err != nil {
+			return diag.Errorf("error updating feature (%s) under specified instance (%s): %s", featureName, instanceId, err)
+		}
 	}
 
 	return resourceInstanceFeatureRead(ctx, d, meta)

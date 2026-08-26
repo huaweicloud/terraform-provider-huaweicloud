@@ -148,6 +148,8 @@ The `request_params` block supports:
   + **1**: enable
   + **2**: disable
 
+* `orchestrations` - The list of orchestration rules that parameter used.
+
 <a name="api_backend_params"></a>
 The `backend_params` block supports:
 

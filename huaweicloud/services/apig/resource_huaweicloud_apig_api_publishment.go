@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis"
@@ -17,6 +18,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var apigApiPublishmentNonUpdatableParams = []string{
+	"instance_id",
+	"env_id",
+	"api_id",
+}
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apis/action
@@ -33,6 +40,8 @@ func ResourceApigApiPublishment() *schema.Resource {
 			StateContext: resourceApiPublishmentImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(apigApiPublishmentNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -44,20 +53,17 @@ func ResourceApigApiPublishment() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the API and the environment belongs.",
 			},
 			"env_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: "The ID of the environment to which the current version of the API will be published or " +
 					"has been published.",
 			},
 			"api_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the API to be published or already published.",
 			},
 			"description": {
@@ -104,6 +110,18 @@ func ResourceApigApiPublishment() *schema.Resource {
 					},
 				},
 				Description: "All publish informations of the API.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -331,6 +349,7 @@ func ResourceApiPublishmentRead(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
+// nolint:gocyclo
 func ResourceApiPublishmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
@@ -338,37 +357,39 @@ func ResourceApiPublishmentUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	versionId := d.Get("version_id").(string)
-	instanceId, envId, apiId, err := flattenResourceId(d.Id())
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if versionId == "" {
-		// If the version of the configuration is empty, whether description is changed or not, publish a new version.
-		if err = publishApiToSpecifiedEnv(client, instanceId, envId, apiId, d.Get("description").(string)); err != nil {
-			return diag.Errorf("error publishing API: %s", err)
-		}
-	} else {
-		if !d.HasChange("version_id") && d.HasChange("description") {
-			return diag.Errorf("only for new API publishment, the description can be updated")
-		}
-		description := d.Get("description").(string)
-
-		// Obtain the version history of the API from the specified environment and check whether the current version
-		// has been published.
-		histories, err := GetVersionHistories(client, instanceId, envId, apiId)
+	if d.HasChangeExcept("enable_force_new") {
+		versionId := d.Get("version_id").(string)
+		instanceId, envId, apiId, err := flattenResourceId(d.Id())
 		if err != nil {
-			return diag.Errorf("error getting version histories of the API (%s): %s", apiId, err)
+			return diag.FromErr(err)
 		}
-		if ver, ok := isPublished(histories, versionId); !ok {
-			return diag.Errorf("this version (%s) has not published", versionId)
-		} else if description != "" && ver.Description != description {
-			// If user want to switch an exist version, but the description is not right, throw an error.
-			return diag.Errorf("this description is not belongs to version (%s)", versionId)
-		}
+		if versionId == "" {
+			// If the version of the configuration is empty, whether description is changed or not, publish a new version.
+			if err = publishApiToSpecifiedEnv(client, instanceId, envId, apiId, d.Get("description").(string)); err != nil {
+				return diag.Errorf("error publishing API: %s", err)
+			}
+		} else {
+			if !d.HasChange("version_id") && d.HasChange("description") {
+				return diag.Errorf("only for new API publishment, the description can be updated")
+			}
+			description := d.Get("description").(string)
 
-		if _, err := apis.SwitchSpecVersion(client, instanceId, apiId, versionId).Extract(); err != nil {
-			return diag.Errorf("%s", err)
+			// Obtain the version history of the API from the specified environment and check whether the current version
+			// has been published.
+			histories, err := GetVersionHistories(client, instanceId, envId, apiId)
+			if err != nil {
+				return diag.Errorf("error getting version histories of the API (%s): %s", apiId, err)
+			}
+			if ver, ok := isPublished(histories, versionId); !ok {
+				return diag.Errorf("this version (%s) has not published", versionId)
+			} else if description != "" && ver.Description != description {
+				// If user want to switch an exist version, but the description is not right, throw an error.
+				return diag.Errorf("this description is not belongs to version (%s)", versionId)
+			}
+
+			if _, err := apis.SwitchSpecVersion(client, instanceId, apiId, versionId).Extract(); err != nil {
+				return diag.Errorf("%s", err)
+			}
 		}
 	}
 

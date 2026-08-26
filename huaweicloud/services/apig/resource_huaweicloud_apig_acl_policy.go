@@ -8,14 +8,22 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // ResourceAclPolicy is a provider resource of the APIG ACL policy.
+
+var aclPolicyNonUpdatableParams = []string{
+	"instance_id",
+	"entity_type",
+}
+
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
@@ -31,6 +39,8 @@ func ResourceAclPolicy() *schema.Resource {
 			StateContext: resourceAclPolicyImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(aclPolicyNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -42,7 +52,6 @@ func ResourceAclPolicy() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The ID of the dedicated instance to which the ACL policy belongs.",
 			},
 			"name": {
@@ -58,7 +67,6 @@ func ResourceAclPolicy() *schema.Resource {
 			"entity_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The entity type of the ACL policy.",
 			},
 			"value": {
@@ -70,6 +78,18 @@ func ResourceAclPolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The latest update time of the ACL policy.",
+			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description: utils.SchemaDesc(
+					`Whether to allow parameters that do not support changes to have their change-triggered behavior set to 'ForceNew'.`,
+					utils.SchemaDescInput{Internal: true,
+						Required: true,
+					}),
 			},
 		},
 	}
@@ -136,20 +156,22 @@ func resourceAclPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	var (
-		instanceId = d.Get("instance_id").(string)
-		policyId   = d.Id()
-		// Build ACL policy update options according to schema configuration.
-		opts = acls.UpdateOpts{
-			Name:       d.Get("name").(string),
-			Type:       d.Get("type").(string),
-			EntityType: d.Get("entity_type").(string),
-			Value:      d.Get("value").(string),
+	if d.HasChangeExcept("enable_force_new") {
+		var (
+			instanceId = d.Get("instance_id").(string)
+			policyId   = d.Id()
+			// Build ACL policy update options according to schema configuration.
+			opts = acls.UpdateOpts{
+				Name:       d.Get("name").(string),
+				Type:       d.Get("type").(string),
+				EntityType: d.Get("entity_type").(string),
+				Value:      d.Get("value").(string),
+			}
+		)
+		_, err = acls.Update(client, instanceId, policyId, opts)
+		if err != nil {
+			return diag.Errorf("error updating ACL policy: %s", err)
 		}
-	)
-	_, err = acls.Update(client, instanceId, policyId, opts)
-	if err != nil {
-		return diag.Errorf("error updating ACL policy: %s", err)
 	}
 
 	return resourceAclPolicyRead(ctx, d, meta)
