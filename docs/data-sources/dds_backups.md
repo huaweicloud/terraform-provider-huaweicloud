@@ -13,7 +13,7 @@ Use this data source to get the list of DDS instance backups.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_dds_backups" "all" {}
+data "huaweicloud_dds_backups" "test" {}
 ```
 
 ## Argument Reference
@@ -39,19 +39,20 @@ The following arguments are supported:
 * `end_time` - (Optional, String) Specifies the end time of the query. The format is **yyyy-mm-dd hh:mm:ss**.
   The value is in UTC format. It's required with `begin_time`.
 
-* `mode` - (Optional, String) Specifies the DB instance mode. Valid values are **Sharding** and **ReplicaSet**.
+* `mode` - (Optional, String) Specifies the DB instance mode.
+  The valid values are **Sharding**, **ReplicaSet** and **Single**.
 
 * `instance_name` - (Optional, String) Specifies the name of the DB instance for which the backup is created.
+  Supports fuzzy matching.
 
-* `backup_name` - (Optional, String) Specifies the backup name.
+* `backup_name` - (Optional, String) Specifies the backup name. Supports fuzzy matching.
 
 * `status` - (Optional, String) Specifies the backup status. Valid values are:
   + **BUILDING**: Backup in progress.
   + **COMPLETED**: Backup completed.
   + **FAILED**: Backup failed.
-  + **DISABLED**: Backup being deleted.
 
-* `description` - (Optional, String) Specifies the backup description.
+* `description` - (Optional, String) Specifies the backup description. Supports fuzzy matching.
 
 ## Attribute Reference
 
