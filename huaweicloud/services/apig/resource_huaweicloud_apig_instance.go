@@ -1073,7 +1073,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	if d.HasChanges("instance_name", "description", "security_group_id", "vpcep_service_name", "maintain_begin", "maintain_end") {
+	if d.HasChanges("name", "description", "security_group_id", "vpcep_service_name", "maintain_begin", "maintain_end") {
 		if err = updateInstanceBasicConfiguration(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
